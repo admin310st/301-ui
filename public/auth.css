@@ -243,6 +243,64 @@ form[data-state='loading'] button[type='submit'] {
   margin-top: 8px;
 }
 
+.dashboard {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 32px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.dashboard__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.dashboard__header h1 {
+  margin: 4px 0 8px;
+}
+
+.button-elevated {
+  width: auto;
+  padding: 12px 16px;
+  white-space: nowrap;
+  box-shadow: 0 10px 20px rgba(37, 99, 235, 0.2);
+}
+
+.dashboard__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.dashboard__card {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px;
+  background: linear-gradient(145deg, #ffffff, #f8fbff);
+  min-height: 140px;
+  display: grid;
+  align-content: flex-start;
+  gap: 10px;
+  transition: transform 0.1s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.dashboard__card:hover {
+  transform: translateY(-2px);
+  border-color: #cbd5e1;
+  box-shadow: var(--shadow);
+}
+
+.card__label {
+  font-weight: 700;
+  font-size: 16px;
+}
+
 @media (max-width: 640px) {
   body {
     padding: 12px;

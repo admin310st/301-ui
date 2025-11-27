@@ -8,6 +8,61 @@ const OAUTH_PROVIDERS = [
 const qs = (sel, root = document) => root.querySelector(sel);
 const qsa = (sel, root = document) => Array.from(root.querySelectorAll(sel));
 
+function showAuthView() {
+  const authView = qs('[data-view="auth"]');
+  const dashboard = qs('[data-view="dashboard"]');
+  if (authView) authView.hidden = false;
+  if (dashboard) dashboard.hidden = true;
+}
+
+function renderUserDetails(user) {
+  const displayName = user?.name?.trim() || user?.email?.trim() || 'friend';
+  qsa('[data-user-name]').forEach((node) => {
+    node.textContent = displayName;
+  });
+
+  const subtitle = qs('[data-dashboard-subtitle]');
+  if (subtitle) {
+    const name = user?.name?.trim();
+    const email = user?.email?.trim();
+    const summary = name && email ? `${name} · ${email}` : name || email || 'Your 301.st workspace';
+    subtitle.textContent = summary;
+  }
+}
+
+function showDashboard(user) {
+  renderUserDetails(user);
+  const authView = qs('[data-view="auth"]');
+  const dashboard = qs('[data-view="dashboard"]');
+  if (authView) authView.hidden = true;
+  if (dashboard) dashboard.hidden = false;
+}
+
+async function fetchSession() {
+  try {
+    const res = await fetch(`${API_BASE}/session`, {
+      method: 'GET',
+      credentials: 'include',
+      headers: { accept: 'application/json' },
+    });
+    if (!res.ok) return null;
+    const data = await res.json().catch(() => null);
+    if (!data) return null;
+    return data.user || data;
+  } catch {
+    return null;
+  }
+}
+
+async function refreshSession() {
+  const user = await fetchSession();
+  if (user) {
+    showDashboard(user);
+  } else {
+    showAuthView();
+  }
+}
+
 function setMessage(form, type, message) {
   const box = qs('[data-status]', form);
   if (!box) return;
@@ -118,8 +173,8 @@ async function submitAuth(form, endpoint) {
       return;
     }
 
-    setMessage(form, 'success', data?.message || 'Success. Redirecting...');
-    // Placeholder for future redirect
+    setMessage(form, 'success', data?.message || 'Signed in successfully.');
+    refreshSession();
   } catch {
     setMessage(form, 'error', 'Network error.');
   }
@@ -147,11 +202,27 @@ function initToggle() {
   });
 }
 
+function initAddAccountButton() {
+  const button = qs('[data-action="add-account"]');
+  if (!button) return;
+
+  button.addEventListener('click', () => {
+    button.textContent = 'Opening Cloudflare...';
+    button.disabled = true;
+    setTimeout(() => {
+      button.textContent = 'Add Cloudflare account';
+      button.disabled = false;
+    }, 900);
+  });
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
   toggleForms('login');
   initToggle();
   initForms();
   initOAuthButtons();
+  refreshSession();
+  initAddAccountButton();
 
   const sitekey = await loadEnv();
   renderTurnstileWidgets(sitekey);
