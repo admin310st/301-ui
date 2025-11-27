@@ -15,6 +15,8 @@ let currentUser = null;
 let currentAccount = null;
 let authStatus = 'anonymous';
 let oauthProviders = [];
+const turnstileWidgets = new Map();
+const turnstileResolvers = new Map();
 
 const qs = (sel, root = document) => root.querySelector(sel);
 const qsa = (sel, root = document) => Array.from(root.querySelectorAll(sel));
@@ -125,18 +127,41 @@ function toggleTab(name) {
   qsa('[data-auth-form]').forEach((form) => {
     const active = form.dataset.authForm === name;
     form.hidden = !active;
+    form.setAttribute('aria-hidden', String(!active));
+    if (active) resetTurnstile(form);
   });
   qsa('[data-tab-target]').forEach((btn) => {
-    btn.classList.toggle('active', btn.dataset.tabTarget === name);
+    const isActive = btn.dataset.tabTarget === name;
+    btn.classList.toggle('active', isActive);
+    btn.setAttribute('aria-selected', String(isActive));
   });
 }
 
-function resetTurnstile() {
-  try {
-    if (window.turnstile) window.turnstile.reset();
-  } catch (err) {
-    console.error(err);
+function attachTurnstileInput(form, token) {
+  if (!form) return;
+  let input = qs('input[name="cf-turnstile-response"]', form);
+  if (!input) {
+    input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = 'cf-turnstile-response';
+    form.appendChild(input);
   }
+  input.value = token || '';
+}
+
+function resetTurnstile(targetForm) {
+  const forms = targetForm ? [targetForm] : Array.from(turnstileWidgets.keys());
+  forms.forEach((form) => {
+    attachTurnstileInput(form, '');
+    const widgetId = turnstileWidgets.get(form);
+    if (widgetId && window.turnstile) {
+      try {
+        window.turnstile.reset(widgetId);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  });
 }
 
 function getTurnstileToken(form) {
@@ -144,9 +169,45 @@ function getTurnstileToken(form) {
   const value = input?.value?.trim();
   if (value) return value;
   try {
-    if (window.turnstile) return window.turnstile.getResponse();
+    if (window.turnstile) {
+      const widgetId = form ? turnstileWidgets.get(form) : undefined;
+      const response = widgetId
+        ? window.turnstile.getResponse(widgetId)
+        : window.turnstile.getResponse();
+      return response || '';
+    }
   } catch {}
   return '';
+}
+
+async function ensureTurnstileToken(form) {
+  const existing = getTurnstileToken(form);
+  if (existing) return existing;
+
+  const widgetId = turnstileWidgets.get(form);
+  if (!widgetId || !window.turnstile) return '';
+
+  return new Promise((resolve) => {
+    turnstileResolvers.set(widgetId, (token) => {
+      turnstileResolvers.delete(widgetId);
+      resolve(token || '');
+    });
+
+    try {
+      window.turnstile.execute(widgetId);
+    } catch (err) {
+      console.error(err);
+      turnstileResolvers.delete(widgetId);
+      resolve('');
+    }
+
+    setTimeout(() => {
+      if (turnstileResolvers.has(widgetId)) {
+        turnstileResolvers.delete(widgetId);
+        resolve('');
+      }
+    }, 8000);
+  });
 }
 
 async function loadTurnstileSitekey() {
@@ -161,11 +222,42 @@ async function loadTurnstileSitekey() {
 }
 
 function renderTurnstile(sitekey) {
+  if (!window.turnstile) {
+    window.onloadTurnstileCallback = () => renderTurnstile(sitekey);
+    return;
+  }
+
   qsa('.cf-turnstile').forEach((node) => {
     node.dataset.sitekey = sitekey;
+    const form = node.closest('form');
+    if (!form) return;
+
     try {
-      if (window.turnstile) window.turnstile.render(node, { sitekey });
-    } catch {}
+      const widgetId = window.turnstile.render(node, {
+        sitekey,
+        theme: 'dark',
+        size: 'invisible',
+        callback(token) {
+          attachTurnstileInput(form, token);
+          const resolver = turnstileResolvers.get(widgetId);
+          if (resolver) {
+            turnstileResolvers.delete(widgetId);
+            resolver(token);
+          }
+        },
+        'error-callback': () => {
+          attachTurnstileInput(form, '');
+          const resolver = turnstileResolvers.get(widgetId);
+          if (resolver) {
+            turnstileResolvers.delete(widgetId);
+            resolver('');
+          }
+        },
+      });
+      turnstileWidgets.set(form, widgetId);
+    } catch (err) {
+      console.error(err);
+    }
   });
 }
 
@@ -307,11 +399,11 @@ async function handleSubmit(form, action, handler) {
 
 function bindForms() {
   qsa('[data-auth-form]').forEach((form) => {
-    form.addEventListener('submit', (event) => {
+    form.addEventListener('submit', async (event) => {
       event.preventDefault();
       const email = qs('input[name="email"]', form)?.value?.trim();
       const password = qs('input[name="password"]', form)?.value;
-      const turnstileToken = getTurnstileToken(form);
+      const turnstileToken = await ensureTurnstileToken(form);
 
       const type = form.dataset.authForm;
       if (type === 'login') {
