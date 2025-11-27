@@ -1,22 +1,39 @@
 <!doctype html>
-<html lang="en">
+<html lang="ru">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sign in to 301.st</title>
+    <title>Вход в 301.st</title>
     <link rel="stylesheet" href="/auth.css" />
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
   </head>
   <body>
+    <header class="status-bar">
+      <div class="status-bar__left">
+        <div class="status-indicator" aria-hidden="true"></div>
+        <div>
+          <p class="eyebrow">Статус</p>
+          <p class="status-text" data-auth-status>Вы не авторизованы</p>
+        </div>
+      </div>
+      <div class="status-bar__right" data-session-summary></div>
+    </header>
+
     <main class="auth-layout">
       <section class="auth-panel" data-view="auth">
         <header class="auth-header">
           <div class="logo-circle" aria-hidden="true">301</div>
           <div>
-            <p class="eyebrow">Welcome back</p>
-            <h1>Sign in to 301.st</h1>
+            <p class="eyebrow">Добро пожаловать</p>
+            <h1>Вход или регистрация 301.st</h1>
           </div>
         </header>
+
+        <nav class="tab-list" role="tablist">
+          <button class="tab active" data-tab-target="login" role="tab">Вход</button>
+          <button class="tab" data-tab-target="register" role="tab">Регистрация</button>
+          <button class="tab" data-tab-target="forgot" role="tab">Забыли пароль?</button>
+        </nav>
 
         <form class="auth-form" data-auth-form="login">
           <div class="field">
@@ -24,13 +41,13 @@
             <input id="login-email" name="email" type="email" autocomplete="email" required />
           </div>
           <div class="field">
-            <label for="login-password">Password</label>
+            <label for="login-password">Пароль</label>
             <input id="login-password" name="password" type="password" autocomplete="current-password" required />
           </div>
-
           <div class="cf-turnstile" data-theme="dark"></div>
-
-          <button type="submit">Sign in</button>
+          <button type="submit">Войти</button>
+          <p class="muted inline-link" data-switch-to="register">Создать аккаунт</p>
+          <p class="muted inline-link" data-switch-to="forgot">Забыли пароль?</p>
           <div class="form-message" data-status></div>
         </form>
 
@@ -40,107 +57,59 @@
             <input id="register-email" name="email" type="email" autocomplete="email" required />
           </div>
           <div class="field">
-            <label for="register-password">Password</label>
+            <label for="register-password">Пароль</label>
             <input id="register-password" name="password" type="password" autocomplete="new-password" required />
           </div>
-
           <div class="cf-turnstile" data-theme="dark"></div>
-
-          <button type="submit">Create account</button>
+          <button type="submit">Создать аккаунт</button>
+          <p class="muted inline-link" data-switch-to="login">Уже есть аккаунт?</p>
           <div class="form-message" data-status></div>
         </form>
 
-        <div class="divider">Or continue with</div>
+        <form class="auth-form" data-auth-form="forgot" hidden>
+          <div class="field">
+            <label for="forgot-email">Email</label>
+            <input id="forgot-email" name="email" type="email" autocomplete="email" required />
+          </div>
+          <div class="cf-turnstile" data-theme="dark"></div>
+          <button type="submit">Отправить ссылку</button>
+          <p class="muted inline-link" data-switch-to="login">Вернуться ко входу</p>
+          <div class="form-message" data-status></div>
+        </form>
 
+        <div class="divider">или войдите через</div>
         <div class="social-grid" data-oauth-buttons>
-          <div class="social-button social-button--placeholder">Loading providers...</div>
+          <div class="social-button social-button--placeholder">Загрузка провайдеров...</div>
         </div>
 
-        <p class="muted switcher">
-          <span id="auth-toggle-label">Don’t have an account?</span>
-          <a href="#" id="auth-toggle">Create one</a>
-        </p>
-
-        <section class="session-tools">
-          <div class="session-tools__header">
-            <div>
-              <p class="eyebrow">API actions</p>
-              <h2>Manage your session</h2>
-              <p class="muted">Refresh tokens, fetch your profile or sign out directly.</p>
-            </div>
-          </div>
-
-          <div class="action-grid">
-            <form class="action-card" data-session-action="refresh">
-              <div>
-                <p class="card__label">Refresh</p>
-                <p class="muted">Request a new session using refresh token cookie.</p>
-              </div>
-              <button type="submit">Refresh session</button>
-              <div class="form-message" data-status></div>
-            </form>
-
-            <form class="action-card" data-session-action="me">
-              <div>
-                <p class="card__label">Who am I?</p>
-                <p class="muted">Call /me to load profile details.</p>
-              </div>
-              <button type="submit" class="secondary">Check session</button>
-              <div class="form-message" data-status></div>
-            </form>
-
-            <form class="action-card" data-session-action="logout">
-              <div>
-                <p class="card__label">Sign out</p>
-                <p class="muted">Invalidate the current auth cookies.</p>
-              </div>
-              <button type="submit" class="secondary">Logout</button>
-              <div class="form-message" data-status></div>
-            </form>
-
-            <form class="action-card" data-session-action="password-reminder">
-              <div class="field">
-                <label for="password-reminder-email">Password reminder</label>
-                <input id="password-reminder-email" name="email" type="email" placeholder="name@email.com" />
-                <p class="muted">We will notify you when password reset is available.</p>
-              </div>
-              <button type="submit" class="secondary">Remind me</button>
-              <div class="form-message" data-status></div>
-            </form>
-          </div>
-        </section>
+        <div class="global-message" data-global-message hidden></div>
       </section>
 
       <section class="dashboard" data-view="dashboard" hidden>
         <header class="dashboard__header">
           <div>
-            <p class="eyebrow">Добро пожаловать</p>
-            <h1>
-              Привет, <span data-user-name>друг</span>!
-            </h1>
-            <p class="muted" data-dashboard-subtitle>Готовы подключить Cloudflare и настроить маршруты.</p>
+            <p class="eyebrow">Сессия активна</p>
+            <h1>Привет, <span data-user-email>друг</span>!</h1>
+            <p class="muted" data-dashboard-subtitle>Ваш аккаунт пока не загружен</p>
           </div>
-          <button type="button" class="button-elevated" data-action="add-account">Add Cloudflare account</button>
+          <div class="dashboard__actions">
+            <button type="button" class="secondary" data-action="refresh-session">Обновить сессию</button>
+            <button type="button" class="secondary" data-action="reload-profile">Проверить профиль</button>
+            <button type="button" data-action="logout">Выйти</button>
+          </div>
         </header>
 
-        <div class="dashboard__grid">
-          <article class="dashboard__card">
-            <div class="card__label">Redirects</div>
-            <p class="muted">Создавайте короткие ссылки и управляйте правилами перенаправлений.</p>
-          </article>
-          <article class="dashboard__card">
-            <div class="card__label">Sites</div>
-            <p class="muted">Публикуйте свои проекты через Workers Sites или Pages.</p>
-          </article>
-          <article class="dashboard__card">
-            <div class="card__label">Domains</div>
-            <p class="muted">Привязывайте домены, настраивайте SSL и точки входа.</p>
-          </article>
-          <article class="dashboard__card">
-            <div class="card__label">Flows</div>
-            <p class="muted">Автоматизируйте онбординг и интеграции с вашим стеком.</p>
-          </article>
-        </div>
+        <article class="dashboard__card">
+          <div class="card__label">Аккаунты</div>
+          <ul class="account-list" data-accounts-list>
+            <li class="muted">Ваш аккаунт пока не создан полностью</li>
+          </ul>
+        </article>
+
+        <article class="dashboard__card">
+          <div class="card__label">Профиль</div>
+          <pre class="profile-dump" data-profile-dump>Данные профиля появятся после загрузки.</pre>
+        </article>
       </section>
     </main>
 
