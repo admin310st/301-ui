@@ -127,6 +127,13 @@ button.secondary {
   box-shadow: none;
 }
 
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
 .form-message {
   min-height: 20px;
   font-size: 14px;
@@ -134,12 +141,17 @@ button.secondary {
   margin: 10px 0 0;
 }
 
-.form-message.error {
+.form-message[data-type='error'] {
   color: #b91c1c;
 }
 
-.form-message.success {
+.form-message[data-type='success'] {
   color: #166534;
+}
+
+form[data-state='loading'] button[type='submit'] {
+  opacity: 0.7;
+  cursor: wait;
 }
 
 .divider {

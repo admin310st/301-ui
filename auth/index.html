@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sign in to 301.st</title>
     <link rel="stylesheet" href="./auth.css" />
+    <script
+      src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
+      defer
+    ></script>
   </head>
   <body>
     <main class="auth-layout">
@@ -17,15 +21,18 @@
           </div>
         </header>
 
-        <div class="session-state" id="auth-session-state" hidden>
-          <p class="muted">You are logged in as <span data-role="user-email"></span>.</p>
+        <div class="session-state" id="auth-session-state" data-onlogin="show">
+          <p class="muted">You are logged in as <span id="SessionDisplay"></span>.</p>
           <div class="session-actions">
-            <button type="button" id="auth-refresh">Refresh session</button>
-            <button type="button" class="secondary" id="auth-logout">Log out</button>
+            <button type="button" class="secondary" data-auth="logout">Log out</button>
           </div>
         </div>
 
-        <form id="auth-login-form" data-auth="login">
+        <div class="stack" data-onlogin="hide">
+          <button type="button" class="secondary" data-auth="google">Continue with Google</button>
+        </div>
+
+        <form id="auth-login-form" data-auth="login" data-onlogin="hide">
           <div class="field">
             <label for="login-email">Email</label>
             <input id="login-email" name="email" type="email" autocomplete="email" required />
@@ -38,14 +45,14 @@
           <div id="cf-turnstile-login" class="turnstile-placeholder"></div>
 
           <button type="submit">Sign in</button>
-          <p class="form-message" data-role="form-message"></p>
+          <div class="form-message" data-status></div>
         </form>
 
-        <div class="divider" role="presentation">
+        <div class="divider" role="presentation" data-onlogin="hide">
           <span>or</span>
         </div>
 
-        <form id="auth-register-form" data-auth="register" hidden>
+        <form id="auth-register-form" data-auth="register" data-onlogin="hide" hidden>
           <div class="field">
             <label for="register-email">Email</label>
             <input id="register-email" name="email" type="email" autocomplete="email" required />
@@ -58,16 +65,33 @@
           <div id="cf-turnstile-register" class="turnstile-placeholder"></div>
 
           <button type="submit">Create account</button>
-          <p class="form-message" data-role="form-message"></p>
+          <div class="form-message" data-status></div>
         </form>
 
-        <p class="muted switcher">
+        <p class="muted switcher" data-onlogin="hide">
           <span id="auth-toggle-label">Don’t have an account?</span>
           <a href="#" id="auth-toggle">Create one</a>
         </p>
       </section>
     </main>
 
+    <script>
+      const turnstileSitekey =
+        document.documentElement.dataset.turnstileSitekey ||
+        '1x00000000000000000000AA';
+
+      function renderTurnstile(id) {
+        if (!window.turnstile) return;
+        const target = document.getElementById(id);
+        if (!target) return;
+        window.turnstile.render(target, { sitekey: turnstileSitekey });
+      }
+
+      window.addEventListener('load', () => {
+        renderTurnstile('cf-turnstile-login');
+        renderTurnstile('cf-turnstile-register');
+      });
+    </script>
     <script type="module" src="./auth.js"></script>
   </body>
 </html>
