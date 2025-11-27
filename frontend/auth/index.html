@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign in to 301.st</title>
+    <link rel="stylesheet" href="./auth.css" />
+  </head>
+  <body>
+    <main class="auth-layout">
+      <section class="auth-panel">
+        <header class="auth-header">
+          <div class="logo-circle" aria-hidden="true">301</div>
+          <div>
+            <p class="eyebrow">Welcome back</p>
+            <h1>Sign in to 301.st</h1>
+          </div>
+        </header>
+
+        <div class="session-state" id="auth-session-state" hidden>
+          <p class="muted">You are logged in as <span data-role="user-email"></span>.</p>
+          <div class="session-actions">
+            <button type="button" id="auth-refresh">Refresh session</button>
+            <button type="button" class="secondary" id="auth-logout">Log out</button>
+          </div>
+        </div>
+
+        <form id="auth-login-form" data-auth="login">
+          <div class="field">
+            <label for="login-email">Email</label>
+            <input id="login-email" name="email" type="email" autocomplete="email" required />
+          </div>
+          <div class="field">
+            <label for="login-password">Password</label>
+            <input id="login-password" name="password" type="password" autocomplete="current-password" required />
+          </div>
+
+          <div id="cf-turnstile-login" class="turnstile-placeholder"></div>
+
+          <button type="submit">Sign in</button>
+          <p class="form-message" data-role="form-message"></p>
+        </form>
+
+        <div class="divider" role="presentation">
+          <span>or</span>
+        </div>
+
+        <form id="auth-register-form" data-auth="register" hidden>
+          <div class="field">
+            <label for="register-email">Email</label>
+            <input id="register-email" name="email" type="email" autocomplete="email" required />
+          </div>
+          <div class="field">
+            <label for="register-password">Password</label>
+            <input id="register-password" name="password" type="password" autocomplete="new-password" required />
+          </div>
+
+          <div id="cf-turnstile-register" class="turnstile-placeholder"></div>
+
+          <button type="submit">Create account</button>
+          <p class="form-message" data-role="form-message"></p>
+        </form>
+
+        <p class="muted switcher">
+          <span id="auth-toggle-label">Don’t have an account?</span>
+          <a href="#" id="auth-toggle">Create one</a>
+        </p>
+      </section>
+    </main>
+
+    <script type="module" src="./auth.js"></script>
+  </body>
+</html>
