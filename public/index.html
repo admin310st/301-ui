@@ -60,6 +60,55 @@
           <span id="auth-toggle-label">Don’t have an account?</span>
           <a href="#" id="auth-toggle">Create one</a>
         </p>
+
+        <section class="session-tools">
+          <div class="session-tools__header">
+            <div>
+              <p class="eyebrow">API actions</p>
+              <h2>Manage your session</h2>
+              <p class="muted">Refresh tokens, fetch your profile or sign out directly.</p>
+            </div>
+          </div>
+
+          <div class="action-grid">
+            <form class="action-card" data-session-action="refresh">
+              <div>
+                <p class="card__label">Refresh</p>
+                <p class="muted">Request a new session using refresh token cookie.</p>
+              </div>
+              <button type="submit">Refresh session</button>
+              <div class="form-message" data-status></div>
+            </form>
+
+            <form class="action-card" data-session-action="me">
+              <div>
+                <p class="card__label">Who am I?</p>
+                <p class="muted">Call /me to load profile details.</p>
+              </div>
+              <button type="submit" class="secondary">Check session</button>
+              <div class="form-message" data-status></div>
+            </form>
+
+            <form class="action-card" data-session-action="logout">
+              <div>
+                <p class="card__label">Sign out</p>
+                <p class="muted">Invalidate the current auth cookies.</p>
+              </div>
+              <button type="submit" class="secondary">Logout</button>
+              <div class="form-message" data-status></div>
+            </form>
+
+            <form class="action-card" data-session-action="password-reminder">
+              <div class="field">
+                <label for="password-reminder-email">Password reminder</label>
+                <input id="password-reminder-email" name="email" type="email" placeholder="name@email.com" />
+                <p class="muted">We will notify you when password reset is available.</p>
+              </div>
+              <button type="submit" class="secondary">Remind me</button>
+              <div class="form-message" data-status></div>
+            </form>
+          </div>
+        </section>
       </section>
 
       <section class="dashboard" data-view="dashboard" hidden>
