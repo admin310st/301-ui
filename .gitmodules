@@ -1,0 +1,3 @@
+[submodule "docs/301-wiki"]
+	path = docs/301-wiki
+	url = https://github.com/admin310st/301.wiki.git
