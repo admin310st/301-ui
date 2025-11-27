@@ -17,11 +17,53 @@ const ERROR_MESSAGES = {
 const qs = (sel, root = document) => root.querySelector(sel);
 const qsa = (sel, root = document) => Array.from(root.querySelectorAll(sel));
 
+let currentToken = '';
+let hasSession = false;
+
+const setWSVar = (name, value) => {
+  try {
+    if (typeof window.webstudioSetVariable === 'function') {
+      window.webstudioSetVariable(name, value);
+    }
+  } catch {}
+};
+
+const setToken = (token = '') => {
+  currentToken = token || '';
+  setWSVar('authBearer', token ? `Bearer ${token}` : '');
+  window.dispatchEvent(new CustomEvent('auth:token', { detail: { token } }));
+};
+
+function authHeaders(headers = {}) {
+  const merged = { ...headers };
+  if (currentToken) merged.Authorization = `Bearer ${currentToken}`;
+  return merged;
+}
+
 function showAuthView() {
   const authView = qs('[data-view="auth"]');
   const dashboard = qs('[data-view="dashboard"]');
   if (authView) authView.hidden = false;
   if (dashboard) dashboard.hidden = true;
+  document.documentElement.dataset.authState = 'out';
+}
+
+function normalizeUser(data) {
+  if (!data) return null;
+  if (data.user && typeof data.user === 'object') {
+    return {
+      ...data.user,
+      accounts: Array.isArray(data.accounts) ? data.accounts : [],
+      active_account_id: data.active_account_id ?? null,
+    };
+  }
+  if (data.profile && typeof data.profile === 'object') return data.profile;
+  if (data.email || data.id || data.name) return data;
+  return null;
+}
+
+function extractUser(payload) {
+  return normalizeUser(payload) || normalizeUser(payload?.user) || normalizeUser(payload?.profile);
 }
 
 function renderUserDetails(user) {
@@ -45,6 +87,7 @@ function showDashboard(user) {
   const dashboard = qs('[data-view="dashboard"]');
   if (authView) authView.hidden = true;
   if (dashboard) dashboard.hidden = false;
+  document.documentElement.dataset.authState = 'in';
 }
 
 function setMessage(form, type, message) {
@@ -52,6 +95,7 @@ function setMessage(form, type, message) {
   if (!box) return;
   box.textContent = message;
   box.dataset.type = type;
+  box.hidden = !message;
 }
 
 function toggleForms(active) {
@@ -63,24 +107,30 @@ function toggleForms(active) {
   const label = qs('#auth-toggle-label');
   const toggle = qs('#auth-toggle');
   if (active === 'login') {
-    label.textContent = "Don't have an account?";
-    toggle.textContent = 'Create one';
+    if (label) label.textContent = "Don't have an account?";
+    if (toggle) toggle.textContent = 'Create one';
   } else {
-    label.textContent = 'Already have an account?';
-    toggle.textContent = 'Back to sign in';
+    if (label) label.textContent = 'Already have an account?';
+    if (toggle) toggle.textContent = 'Back to sign in';
   }
 }
 
 function getTurnstileToken(form) {
   const inputInForm = qs('input[name="cf-turnstile-response"]', form);
-  if (inputInForm?.value) return inputInForm.value;
+  if (inputInForm?.value) return inputInForm.value.trim();
   const globalInput = qs('input[name="cf-turnstile-response"]');
-  if (globalInput?.value) return globalInput.value;
+  if (globalInput?.value) return globalInput.value.trim();
   try {
     const token = window.turnstile?.getResponse?.();
-    if (token) return token;
+    if (token) return token.trim();
   } catch {}
   return '';
+}
+
+function resetTurnstile() {
+  try {
+    window.turnstile?.reset?.();
+  } catch {}
 }
 
 function renderTurnstileWidgets(sitekey) {
@@ -125,6 +175,83 @@ async function loadEnv() {
   }
 }
 
+async function apiRequest(path, { method = 'GET', body, headers = {}, withCredentials = true, auth = false } = {}) {
+  const options = {
+    method,
+    credentials: withCredentials ? 'include' : 'same-origin',
+    headers: auth ? authHeaders(headers) : { ...headers },
+  };
+
+  if (body) {
+    options.headers['content-type'] = 'application/json';
+    options.body = JSON.stringify(body);
+  }
+
+  const response = await fetch(`${API_ROOT}${path}`, options);
+  const data = await response.json().catch(() => ({}));
+  return { ok: response.ok, status: response.status, ...data };
+}
+
+async function register({ email, password, turnstileToken }) {
+  return apiRequest('/register', {
+    method: 'POST',
+    body: { email, password, turnstile_token: turnstileToken },
+  });
+}
+
+async function login({ email, password, turnstileToken }) {
+  return apiRequest('/login', {
+    method: 'POST',
+    body: { email, password, turnstile_token: turnstileToken },
+  });
+}
+
+async function refresh() {
+  return apiRequest('/refresh', { method: 'POST', body: {} });
+}
+
+async function logout() {
+  return apiRequest('/logout', { method: 'POST', body: {} });
+}
+
+async function me() {
+  return apiRequest('/me', { auth: true });
+}
+
+async function fetchSession() {
+  const requestMe = async () => {
+    const res = await me();
+    if (!res.ok) return null;
+    return extractUser(res);
+  };
+
+  const user = await requestMe();
+  if (user) return user;
+
+  const refreshed = await refresh();
+  if (refreshed.ok && refreshed.access_token) {
+    hasSession = true;
+    setToken(refreshed.access_token);
+    return requestMe();
+  }
+
+  return null;
+}
+
+async function refreshSession() {
+  const user = await fetchSession();
+  if (user) {
+    hasSession = true;
+    showDashboard(user);
+    return user;
+  }
+
+  hasSession = false;
+  setToken('');
+  showAuthView();
+  return null;
+}
+
 async function submitAuth(form, endpoint) {
   const email = qs('input[name="email"]', form)?.value?.trim();
   const password = qs('input[name="password"]', form)?.value;
@@ -147,14 +274,28 @@ async function submitAuth(form, endpoint) {
       ? register({ email, password, turnstileToken })
       : login({ email, password, turnstileToken }));
 
+    resetTurnstile();
+
     if (!res.ok) {
       const message = ERROR_MESSAGES[res.error_code] || res.message || 'Request failed.';
       setMessage(form, 'error', message);
       return;
     }
 
+    if (res.access_token) {
+      hasSession = true;
+      setToken(res.access_token);
+    }
+
+    const user = extractUser(res);
+    if (user?.email) {
+      renderUserDetails(user);
+      setWSVar('authUserEmail', user.email);
+      setWSVar('authUserName', user.name || user.email);
+    }
+
     setMessage(form, 'success', res.message || 'Signed in successfully.');
-    refreshSession();
+    await refreshSession();
   } catch {
     setMessage(form, 'error', 'Network error.');
   }
@@ -170,72 +311,6 @@ function initForms() {
   });
 }
 
-async function apiRequest(path, { method = 'GET', body, headers = {}, withCredentials = true } = {}) {
-  const options = {
-    method,
-    credentials: withCredentials ? 'include' : 'same-origin',
-    headers: {
-      accept: 'application/json',
-      ...headers,
-    },
-  };
-
-  if (body) {
-    options.headers['content-type'] = 'application/json';
-    options.body = JSON.stringify(body);
-  }
-
-  const response = await fetch(`${API_ROOT}${path}`, options);
-  const data = await response.json().catch(() => ({}));
-  return { ok: response.ok, status: response.status, ...data };
-}
-
-async function register({ email, password, turnstileToken }) {
-  return apiRequest('/register', {
-    method: 'POST',
-    body: { email, password, turnstileToken },
-  });
-}
-
-async function login({ email, password, turnstileToken }) {
-  return apiRequest('/login', {
-    method: 'POST',
-    body: { email, password, turnstileToken },
-  });
-}
-
-async function refresh() {
-  return apiRequest('/refresh', { method: 'POST', body: {} });
-}
-
-async function logout() {
-  return apiRequest('/logout', { method: 'POST', body: {} });
-}
-
-async function me() {
-  return apiRequest('/me');
-}
-
-async function fetchSession() {
-  try {
-    const res = await me();
-    if (!res.ok) return null;
-    const user = res.user || res.profile || res;
-    return user || null;
-  } catch {
-    return null;
-  }
-}
-
-async function refreshSession() {
-  const user = await fetchSession();
-  if (user) {
-    showDashboard(user);
-  } else {
-    showAuthView();
-  }
-}
-
 function initSessionActions() {
   const refreshForm = qs('[data-session-action="refresh"]');
   const logoutForm = qs('[data-session-action="logout"]');
@@ -247,9 +322,11 @@ function initSessionActions() {
       event.preventDefault();
       setMessage(refreshForm, 'loading', 'Refreshing session...');
       const res = await refresh();
-      if (res.ok) {
+      if (res.ok && res.access_token) {
+        hasSession = true;
+        setToken(res.access_token);
+        await refreshSession();
         setMessage(refreshForm, 'success', 'Session refreshed.');
-        refreshSession();
       } else {
         setMessage(refreshForm, 'error', ERROR_MESSAGES[res.error_code] || res.message || 'Refresh failed.');
       }
@@ -262,8 +339,10 @@ function initSessionActions() {
       setMessage(logoutForm, 'loading', 'Signing out...');
       const res = await logout();
       if (res.ok) {
-        setMessage(logoutForm, 'success', 'Signed out.');
+        hasSession = false;
+        setToken('');
         showAuthView();
+        setMessage(logoutForm, 'success', 'Signed out.');
       } else {
         setMessage(logoutForm, 'error', ERROR_MESSAGES[res.error_code] || res.message || 'Logout failed.');
       }
@@ -274,14 +353,12 @@ function initSessionActions() {
     meForm.addEventListener('submit', async (event) => {
       event.preventDefault();
       setMessage(meForm, 'loading', 'Checking session...');
-      const res = await me();
-      if (res.ok) {
-        renderUserDetails(res.user || res.profile || res);
+      const user = await refreshSession();
+      if (user) {
+        renderUserDetails(user);
         setMessage(meForm, 'success', 'User is authenticated.');
-        showDashboard(res.user || res.profile || res);
       } else {
-        setMessage(meForm, 'error', ERROR_MESSAGES[res.error_code] || res.message || 'Session invalid.');
-        showAuthView();
+        setMessage(meForm, 'error', 'Session invalid.');
       }
     });
   }
@@ -326,8 +403,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   initForms();
   initOAuthButtons();
   initSessionActions();
-  refreshSession();
   initAddAccountButton();
+
+  await refreshSession();
 
   const sitekey = await loadEnv();
   renderTurnstileWidgets(sitekey);
