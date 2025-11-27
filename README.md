@@ -1,15 +1,23 @@
-# 301 UI
+# 301 UI Worker
 
-## Purpose
-Frontend entrypoint for 301.st user-facing UI, starting with authentication and prepared for the future user cabinet described in [the wiki](https://github.com/admin310st/301/wiki).
+Cloudflare Worker that serves the 301.st authentication page as static assets and exposes public environment values for the frontend.
 
-## Current scope (MVP)
-- Static auth page located in `/auth`.
-- Interacts with `https://api.301.st/auth` endpoints (`login`, `register`, `me`, `refresh`, `logout`).
+## Structure
+- `wrangler.toml` – Worker configuration (name `301-app`, assets in `public/`).
+- `src/worker.ts` – Minimal Worker that serves static assets and exposes `/env` with public variables.
+- `public/` – Static authentication page (`index.html`, `auth.js`, `auth.css`).
+- `package.json` – Scripts and Wrangler dependency.
 
-## Out of scope
-- No SPA or routing.
-- No Vue, Vite, Pinia, or Tailwind setup yet.
+## Local development
+1. Install dependencies: `npm install`
+2. Start the Worker locally: `npm run dev`
+3. Open `http://localhost:8787/` to view the auth page. The `/env` endpoint returns `{ "turnstileSitekey": "..." }` using the `TURNSTILE_SITEKEY` environment variable.
 
-## Future plans
-See `docs/ui-roadmap.ru.md` for the detailed roadmap (in Russian).
+## Deployment
+Deploy to the existing Cloudflare Worker (`301-app`) with:
+
+```bash
+npm run deploy
+```
+
+Secrets like `TURNSTILE_SITEKEY` should be configured via Cloudflare Dashboard (Worker secrets) and are not stored in the repository.
