@@ -81,11 +81,14 @@ function populateAccounts(accounts = []) {
 }
 
 function renderProfile(user) {
-  qs('[data-user-email]').textContent = user?.email || 'друг';
+  qs('[data-user-email]').textContent = user?.name || user?.email || 'друг';
   const subtitle = qs('[data-dashboard-subtitle]');
   if (subtitle) {
     const role = user?.role || user?.user_type || user?.type;
-    subtitle.textContent = role ? `${user.email} · ${role}` : user?.email || 'Ваш аккаунт пока не загружен';
+    const identifier = user?.email || user?.phone || user?.tg_id || user?.id;
+    subtitle.textContent = role && identifier
+      ? `${identifier} · ${role}`
+      : identifier || 'Ваш аккаунт пока не загружен';
   }
 
   const pre = qs('[data-profile-dump]');
@@ -199,9 +202,9 @@ async function register({ email, password, turnstileToken }) {
 }
 
 async function forgotPassword({ email, turnstileToken }) {
-  return apiRequest('/forgot', {
+  return apiRequest('/reset_password', {
     method: 'POST',
-    body: { email, turnstile_token: turnstileToken },
+    body: { type: 'email', value: email, turnstile_token: turnstileToken },
   });
 }
 
@@ -323,6 +326,7 @@ function bindForms() {
       }
       if (type === 'forgot') {
         if (!email) return setMessage(form, 'error', 'Введите email.');
+        if (!turnstileToken) return setMessage(form, 'error', 'Подтвердите Turnstile.');
         return handleSubmit(form, 'forgot', () => forgotPassword({ email, turnstileToken }));
       }
     });
