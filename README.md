@@ -1,23 +1,30 @@
 # 301 UI Worker
 
-Cloudflare Worker that serves the 301.st authentication page as static assets and exposes public environment values for the frontend.
+Cloudflare Worker, который публикует статичные страницы авторизации 301.st и отдает публичные переменные окружения для фронтенда. Проект закрывает **Этап 1 (HTML + JS)** из [дорожной карты](docs/ui-roadmap.ru.md).
 
-## Structure
-- `wrangler.toml` – Worker configuration (name `301-app`, assets in `public/`).
-- `src/worker.ts` – Minimal Worker that serves static assets and exposes `/env` with public variables.
-- `public/` – Static authentication page (`index.html`, `auth.js`, `auth.css`).
-- `package.json` – Scripts and Wrangler dependency.
+## Что уже работает (Этап 1)
+- Статичная страница авторизации с формами **login** и **register** из `public/index.html` + `auth.js`.
+- Формы вызывают API в проде (`https://api.301.st/auth/{register|login}`) и отправляют `turnstile_token` в теле запроса.
+- Turnstile рендерится через публичный ключ, который воркер берет из секрета `TURNSTILE_SITEKEY` и отдает на `/env` как `{ "turnstileSitekey": "..." }`.
+- Есть базовый вывод статусов формы и заглушка для будущего редиректа после логина.
 
-## Local development
-1. Install dependencies: `npm install`
-2. Start the Worker locally: `npm run dev`
-3. Open `http://localhost:8787/` to view the auth page. The `/env` endpoint returns `{ "turnstileSitekey": "..." }` using the `TURNSTILE_SITEKEY` environment variable.
+## Структура
+- `wrangler.toml` – конфигурация воркера (`301-app`, ассеты из `public/`).
+- `src/worker.ts` – минимальный воркер: раздает статические файлы и отвечает на `/env` содержимым `TURNSTILE_SITEKEY`.
+- `public/` – статичная страница авторизации (`index.html`, `auth.js`, `auth.css`).
+- `docs/ui-roadmap.ru.md` – план развития интерфейса.
+- `package.json` – скрипты и зависимость `wrangler`.
 
-## Deployment
-Deploy to the existing Cloudflare Worker (`301-app`) with:
+## Локальная разработка
+1. Установите зависимости: `npm install`.
+2. Запустите воркер локально: `npm run dev`.
+3. Откройте `http://localhost:8787/`, проверьте формы логина/регистрации и ответ `/env` с ключом Turnstile. В дев-режиме можно использовать тестовый ключ по умолчанию.
+
+## Развертывание
+Деплой в существующий Cloudflare Worker (`301-app`):
 
 ```bash
 npm run deploy
 ```
 
-Secrets like `TURNSTILE_SITEKEY` should be configured via Cloudflare Dashboard (Worker secrets) and are not stored in the repository.
+Секреты (например, `TURNSTILE_SITEKEY`) настраиваются через Cloudflare Dashboard как Worker secrets и в репозиторий не коммитятся.
