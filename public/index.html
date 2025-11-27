@@ -9,7 +9,7 @@
   </head>
   <body>
     <main class="auth-layout">
-      <section class="auth-panel">
+      <section class="auth-panel" data-view="auth">
         <header class="auth-header">
           <div class="logo-circle" aria-hidden="true">301</div>
           <div>
@@ -17,13 +17,6 @@
             <h1>Sign in to 301.st</h1>
           </div>
         </header>
-
-        <div class="session-state" data-onlogin="show" hidden>
-          <p class="muted">You are logged in.</p>
-          <div class="session-actions">
-            <button type="button" class="secondary" data-auth="logout">Log out</button>
-          </div>
-        </div>
 
         <form class="auth-form" data-auth-form="login">
           <div class="field">
@@ -67,6 +60,38 @@
           <span id="auth-toggle-label">Don’t have an account?</span>
           <a href="#" id="auth-toggle">Create one</a>
         </p>
+      </section>
+
+      <section class="dashboard" data-view="dashboard" hidden>
+        <header class="dashboard__header">
+          <div>
+            <p class="eyebrow">Добро пожаловать</p>
+            <h1>
+              Привет, <span data-user-name>друг</span>!
+            </h1>
+            <p class="muted" data-dashboard-subtitle>Готовы подключить Cloudflare и настроить маршруты.</p>
+          </div>
+          <button type="button" class="button-elevated" data-action="add-account">Add Cloudflare account</button>
+        </header>
+
+        <div class="dashboard__grid">
+          <article class="dashboard__card">
+            <div class="card__label">Redirects</div>
+            <p class="muted">Создавайте короткие ссылки и управляйте правилами перенаправлений.</p>
+          </article>
+          <article class="dashboard__card">
+            <div class="card__label">Sites</div>
+            <p class="muted">Публикуйте свои проекты через Workers Sites или Pages.</p>
+          </article>
+          <article class="dashboard__card">
+            <div class="card__label">Domains</div>
+            <p class="muted">Привязывайте домены, настраивайте SSL и точки входа.</p>
+          </article>
+          <article class="dashboard__card">
+            <div class="card__label">Flows</div>
+            <p class="muted">Автоматизируйте онбординг и интеграции с вашим стеком.</p>
+          </article>
+        </div>
       </section>
     </main>
 
