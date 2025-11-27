@@ -1,5 +1,9 @@
 const API_BASE = 'https://api.301.st/auth';
 const DEFAULT_SITEKEY = '1x00000000000000000000AA';
+const OAUTH_PROVIDERS = [
+  { id: 'google', label: 'Continue with Google' },
+  { id: 'github', label: 'Continue with GitHub' },
+];
 
 const qs = (sel, root = document) => root.querySelector(sel);
 const qsa = (sel, root = document) => Array.from(root.querySelectorAll(sel));
@@ -48,6 +52,27 @@ function renderTurnstileWidgets(sitekey) {
         window.turnstile.render(node, { sitekey });
       }
     } catch {}
+  });
+}
+
+function buildOAuthUrl(provider) {
+  const redirectUri = new URL('/auth/success/', window.location.origin).toString();
+  return `${API_BASE}/oauth/${provider}?redirect_uri=${encodeURIComponent(redirectUri)}`;
+}
+
+function initOAuthButtons() {
+  const container = qs('[data-oauth-buttons]');
+  if (!container) return;
+
+  container.innerHTML = '';
+
+  OAUTH_PROVIDERS.forEach(({ id, label }) => {
+    const link = document.createElement('a');
+    link.className = 'social-button';
+    link.dataset.oauthProvider = id;
+    link.href = buildOAuthUrl(id);
+    link.textContent = label;
+    container.appendChild(link);
   });
 }
 
@@ -127,6 +152,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   toggleForms('login');
   initToggle();
   initForms();
+  initOAuthButtons();
 
   const sitekey = await loadEnv();
   renderTurnstileWidgets(sitekey);
