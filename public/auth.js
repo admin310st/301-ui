@@ -56,8 +56,7 @@ function renderTurnstileWidgets(sitekey) {
 }
 
 function buildOAuthUrl(provider) {
-  const redirectUri = new URL('/auth/success/', window.location.origin).toString();
-  return `${API_BASE}/oauth/${provider}?redirect_uri=${encodeURIComponent(redirectUri)}`;
+  return `${API_BASE}/oauth/${provider}/start`;
 }
 
 function initOAuthButtons() {
