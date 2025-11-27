@@ -243,6 +243,33 @@ form[data-state='loading'] button[type='submit'] {
   margin-top: 8px;
 }
 
+.session-tools {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.session-tools h2 {
+  margin: 4px 0;
+  font-size: 20px;
+}
+
+.action-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.action-card {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  background: #f8fafc;
+  display: grid;
+  gap: 8px;
+}
+
 .dashboard {
   background: var(--panel);
   border: 1px solid var(--border);
