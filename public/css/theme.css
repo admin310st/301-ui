@@ -1,0 +1,159 @@
+/* =========================
+   301.st – THEME TOKENS
+   - Цвета
+   - Типографика
+   - Базовые переменные
+   ========================= */
+
+:root {
+  color-scheme: dark;
+
+  /* Blues (primary brand) */
+  --blue-900: #003682;
+  --blue-700: #0055dc;
+  --blue-500: #3475c0;
+  --blue-300: #408bc9;
+  --blue-neon: #4da3ff;
+
+  /* Oranges (Cloudflare-ish family) */
+  --orange-500: #f48120;
+  --orange-700: #f38020;
+  --orange-900: #c65000;
+
+  /* Cloudflare CTA accent (контрастно с белым текстом) */
+  --accent-cf: #c24f00;
+  --accent-cf-hover: #e05a00;
+  --accent-cf-soft: rgba(244, 129, 32, 0.16);
+
+  /* Neutrals */
+  --gray-950: #000000;
+  --gray-900: #111111;
+  --gray-800: #222222;
+  --gray-700: #333333;
+  --gray-600: #404242;
+  --gray-500: #424242;
+  --gray-400: #808080;
+  --gray-50: #f8fbfb;
+  --gray-100: #f7f7f8;
+  --gray-200: #f4f8fc;
+  --gray-250: #eaebeb;
+  --gray-300: #e5e5e4;
+  --gray-350: #cac8c8;
+
+  /* Semantic */
+  --danger: #ff4f6e;
+  --success: #18c27a;
+  --warning: #ffb347;
+
+  /* Typography */
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+
+  --fs-xs: 0.75rem;
+  --fs-sm: 0.875rem;
+  --fs-md: 1rem;
+  --fs-lg: 1.125rem;
+  --fs-xl: 1.375rem;
+  --fs-2xl: 1.75rem;
+
+  --fw-normal: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+
+  /* Spacing & radii */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+
+  --radius-xs: 0.25rem;
+  --radius: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+
+  --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.35);
+  --shadow-subtle: 0 12px 30px rgba(15, 23, 42, 0.16);
+
+  --transition-fast: 120ms ease-out;
+  --transition-md: 160ms ease-out;
+}
+
+/* DARK THEME – default */
+:root[data-theme="dark"] {
+  --bg: #111111;
+  --bg-elevated: #181a1f;
+  --bg-soft: #1f2229;
+
+  --text-main: #e7e9ee;
+  --text-muted: #a0a4af;
+  --text-subtle: #7a7e87;
+  --text-invert: #ffffff;
+
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-strong: rgba(255, 255, 255, 0.14);
+
+  --primary: #3475c0;
+  --primary-soft: rgba(77, 163, 255, 0.1);
+  --primary-hover: #4da3ff;
+
+  --accent-cf-bg: var(--accent-cf);
+  --accent-cf-bg-hover: var(--accent-cf-hover);
+
+  --danger-bg: #3d0915;
+  --success-bg: #042c1c;
+  --warning-bg: #38240a;
+
+  --input-bg: rgba(15, 16, 22, 0.9);
+  --input-border: var(--border-subtle);
+  --input-border-focus: rgba(77, 163, 255, 0.8);
+
+  --nav-bg: rgba(11, 13, 18, 0.96);
+  --sidebar-bg: #101219;
+}
+
+/* LIGHT THEME */
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --bg: #ffffff;
+  --bg-elevated: #f7f7f8;
+  --bg-soft: #f4f8fc;
+
+  --text-main: #111111;
+  --text-muted: #666a73;
+  --text-subtle: #8a8f99;
+  --text-invert: #ffffff;
+
+  --border-subtle: rgba(15, 23, 42, 0.06);
+  --border-strong: rgba(15, 23, 42, 0.16);
+
+  --primary: #0055dc;
+  --primary-soft: rgba(0, 85, 220, 0.08);
+  --primary-hover: #003682;
+
+  --accent-cf-bg: var(--accent-cf);
+  --accent-cf-bg-hover: var(--accent-cf-hover);
+
+  --danger-bg: #fde6ea;
+  --success-bg: #e0f7ee;
+  --warning-bg: #fff1d8;
+
+  --input-bg: #ffffff;
+  --input-border: var(--border-subtle);
+  --input-border-focus: rgba(0, 85, 220, 0.8);
+
+  --nav-bg: rgba(255, 255, 255, 0.92);
+  --sidebar-bg: #ffffff;
+}
+
+/* Глобальные мелочи */
+
+* {
+  box-sizing: border-box;
+}
+
+a {
+  color: inherit;
+}
