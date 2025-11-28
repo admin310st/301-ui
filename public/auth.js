@@ -1,5 +1,6 @@
 const API_ROOT = 'https://api.301.st/auth';
 const DEFAULT_SITEKEY = '1x00000000000000000000AA';
+const THEME_STORAGE_KEY = '301-ui-theme';
 
 const ERROR_MESSAGES = {
   invalid_credentials: 'Неверный email или пароль.',
@@ -15,11 +16,66 @@ let currentUser = null;
 let currentAccount = null;
 let authStatus = 'anonymous';
 let oauthProviders = [];
+let currentTheme = 'dark';
+let turnstileSitekey = DEFAULT_SITEKEY;
 const turnstileWidgets = new Map();
 const turnstileResolvers = new Map();
 
 const qs = (sel, root = document) => root.querySelector(sel);
 const qsa = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+
+function getPreferredTheme() {
+  const stored = localStorage.getItem(THEME_STORAGE_KEY);
+  if (stored === 'dark' || stored === 'light') return stored;
+  return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+}
+
+function updateThemeToggleLabel(theme) {
+  const btn = qs('[data-action="toggle-theme"]');
+  if (!btn) return;
+  btn.textContent = theme === 'dark' ? 'Светлая тема' : 'Тёмная тема';
+  btn.setAttribute('aria-pressed', theme === 'light');
+}
+
+function applyTheme(theme) {
+  currentTheme = theme === 'light' ? 'light' : 'dark';
+  document.documentElement.dataset.theme = currentTheme;
+  document.documentElement.style.colorScheme = currentTheme;
+  localStorage.setItem(THEME_STORAGE_KEY, currentTheme);
+  qsa('.cf-turnstile').forEach((node) => {
+    node.dataset.theme = currentTheme;
+  });
+  updateThemeToggleLabel(currentTheme);
+
+  if (window.turnstile && turnstileWidgets.size) {
+    try {
+      turnstileWidgets.forEach((widgetId) => {
+        window.turnstile.remove?.(widgetId);
+      });
+      turnstileWidgets.clear();
+      renderTurnstile(turnstileSitekey);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+}
+
+function toggleTheme() {
+  const next = currentTheme === 'dark' ? 'light' : 'dark';
+  applyTheme(next);
+}
+
+function bindThemeToggle() {
+  const btn = qs('[data-action="toggle-theme"]');
+  if (btn) {
+    btn.addEventListener('click', toggleTheme);
+  }
+}
+
+function initTheme() {
+  applyTheme(getPreferredTheme());
+  bindThemeToggle();
+}
 
 function setAuthState(state) {
   authStatus = state;
@@ -215,27 +271,32 @@ async function loadTurnstileSitekey() {
     const res = await fetch('/env', { cache: 'no-store' });
     if (!res.ok) throw new Error('env failed');
     const data = await res.json();
-    return data.turnstileSitekey || DEFAULT_SITEKEY;
+    turnstileSitekey = data.turnstileSitekey || DEFAULT_SITEKEY;
+    return turnstileSitekey;
   } catch {
-    return DEFAULT_SITEKEY;
+    turnstileSitekey = DEFAULT_SITEKEY;
+    return turnstileSitekey;
   }
 }
 
 function renderTurnstile(sitekey) {
+  turnstileSitekey = sitekey || turnstileSitekey;
   if (!window.turnstile) {
-    window.onloadTurnstileCallback = () => renderTurnstile(sitekey);
+    window.onloadTurnstileCallback = () => renderTurnstile(turnstileSitekey);
     return;
   }
 
+  const theme = currentTheme === 'light' ? 'light' : 'dark';
+
   qsa('.cf-turnstile').forEach((node) => {
-    node.dataset.sitekey = sitekey;
+    node.dataset.sitekey = turnstileSitekey;
     const form = node.closest('form');
     if (!form) return;
 
     try {
       const widgetId = window.turnstile.render(node, {
-        sitekey,
-        theme: 'dark',
+        sitekey: turnstileSitekey,
+        theme,
         size: 'invisible',
         callback(token) {
           attachTurnstileInput(form, token);
@@ -531,5 +592,6 @@ async function bootstrap() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  initTheme();
   bootstrap();
 });
