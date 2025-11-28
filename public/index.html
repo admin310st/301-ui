@@ -1,115 +1,133 @@
 <!doctype html>
-<html lang="ru">
+<html lang="ru" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Вход в 301.st</title>
-    <link rel="stylesheet" href="/auth.css" />
+
+    <!-- Новый порядок: тема → лейаут → auth -->
+    <link rel="stylesheet" href="/css/theme.css" />
+    <link rel="stylesheet" href="/css/layout.css" />
+    <link rel="stylesheet" href="/css/auth.css" />
+
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
   </head>
   <body>
     <header class="status-bar">
-      <div class="status-bar__left">
-        <div class="status-indicator" aria-hidden="true"></div>
-        <div>
-          <p class="eyebrow">Статус</p>
-          <p class="status-text" data-auth-status>Вы не авторизованы</p>
+      <div class="container status-bar__content">
+        <div class="status-bar__left">
+          <div class="status-indicator" aria-hidden="true"></div>
+          <div class="status-identity">
+            <p class="eyebrow">Статус</p>
+            <p class="status-text" data-auth-status>Вы не авторизованы</p>
+          </div>
+        </div>
+        <div class="status-bar__right">
+          <div data-session-summary>Авторизуйтесь, чтобы управлять 301.st</div>
+          <button class="btn btn-secondary btn-sm theme-toggle" data-action="toggle-theme" type="button">
+            Светлая тема
+          </button>
         </div>
       </div>
-      <div class="status-bar__right" data-session-summary></div>
     </header>
 
-    <main class="auth-layout">
-      <section class="auth-panel" data-view="auth">
-        <header class="auth-header">
-          <div class="logo-circle" aria-hidden="true">301</div>
-          <div>
-            <p class="eyebrow">Добро пожаловать</p>
-            <h1>Вход или регистрация 301.st</h1>
-          </div>
-        </header>
+    <main class="container page-grid">
+      <section class="auth-layout">
+        <div class="panels">
+          <section class="auth-panel" data-view="auth">
+            <header class="auth-header">
+              <div class="logo-circle" aria-hidden="true">301</div>
+              <div>
+                <p class="eyebrow">Добро пожаловать</p>
+                <p class="h1">Вход или регистрация 301.st</p>
+              </div>
+            </header>
 
-        <nav class="tab-list" role="tablist">
-          <button class="tab active" data-tab-target="login" role="tab">Вход</button>
-          <button class="tab" data-tab-target="register" role="tab">Регистрация</button>
-          <button class="tab" data-tab-target="forgot" role="tab">Забыли пароль?</button>
-        </nav>
+            <nav class="tab-list" role="tablist">
+              <button class="tab active" data-tab-target="login" role="tab" type="button">Вход</button>
+              <button class="tab" data-tab-target="register" role="tab" type="button">Регистрация</button>
+              <button class="tab" data-tab-target="forgot" role="tab" type="button">Забыли пароль?</button>
+            </nav>
 
-        <form class="auth-form" data-auth-form="login">
-          <div class="field">
-            <label for="login-email">Email</label>
-            <input id="login-email" name="email" type="email" autocomplete="email" required />
-          </div>
-          <div class="field">
-            <label for="login-password">Пароль</label>
-            <input id="login-password" name="password" type="password" autocomplete="current-password" required />
-          </div>
-          <div class="cf-turnstile" data-theme="dark"></div>
-          <button type="submit">Войти</button>
-          <p class="muted inline-link" data-switch-to="register">Создать аккаунт</p>
-          <p class="muted inline-link" data-switch-to="forgot">Забыли пароль?</p>
-          <div class="form-message" data-status></div>
-        </form>
+            <form class="auth-form" data-auth-form="login">
+              <div class="field">
+                <label for="login-email">Email</label>
+                <input id="login-email" name="email" type="email" autocomplete="email" required />
+              </div>
+              <div class="field">
+                <label for="login-password">Пароль</label>
+                <input id="login-password" name="password" type="password" autocomplete="current-password" required />
+              </div>
+              <div class="cf-turnstile" data-theme="dark"></div>
+              <button type="submit" class="btn btn-primary">Войти</button>
+              <div class="inline-actions">
+                <p class="text-muted inline-link" data-switch-to="register">Создать аккаунт</p>
+                <p class="text-muted inline-link" data-switch-to="forgot">Забыли пароль?</p>
+              </div>
+              <div class="form-message" data-status></div>
+            </form>
 
-        <form class="auth-form" data-auth-form="register" hidden>
-          <div class="field">
-            <label for="register-email">Email</label>
-            <input id="register-email" name="email" type="email" autocomplete="email" required />
-          </div>
-          <div class="field">
-            <label for="register-password">Пароль</label>
-            <input id="register-password" name="password" type="password" autocomplete="new-password" required />
-          </div>
-          <div class="cf-turnstile" data-theme="dark"></div>
-          <button type="submit">Создать аккаунт</button>
-          <p class="muted inline-link" data-switch-to="login">Уже есть аккаунт?</p>
-          <div class="form-message" data-status></div>
-        </form>
+            <form class="auth-form" data-auth-form="register" hidden>
+              <div class="field">
+                <label for="register-email">Email</label>
+                <input id="register-email" name="email" type="email" autocomplete="email" required />
+              </div>
+              <div class="field">
+                <label for="register-password">Пароль</label>
+                <input id="register-password" name="password" type="password" autocomplete="new-password" required />
+              </div>
+              <div class="cf-turnstile" data-theme="dark"></div>
+              <button type="submit" class="btn btn-primary">Создать аккаунт</button>
+              <p class="text-muted inline-link" data-switch-to="login">Уже есть аккаунт?</p>
+              <div class="form-message" data-status></div>
+            </form>
 
-        <form class="auth-form" data-auth-form="forgot" hidden>
-          <div class="field">
-            <label for="forgot-email">Email</label>
-            <input id="forgot-email" name="email" type="email" autocomplete="email" required />
-          </div>
-          <div class="cf-turnstile" data-theme="dark"></div>
-          <button type="submit">Отправить ссылку</button>
-          <p class="muted inline-link" data-switch-to="login">Вернуться ко входу</p>
-          <div class="form-message" data-status></div>
-        </form>
+            <form class="auth-form" data-auth-form="forgot" hidden>
+              <div class="field">
+                <label for="forgot-email">Email</label>
+                <input id="forgot-email" name="email" type="email" autocomplete="email" required />
+              </div>
+              <div class="cf-turnstile" data-theme="dark"></div>
+              <button type="submit" class="btn btn-primary">Отправить ссылку</button>
+              <p class="text-muted inline-link" data-switch-to="login">Вернуться ко входу</p>
+              <div class="form-message" data-status></div>
+            </form>
 
-        <div class="divider">или войдите через</div>
-        <div class="social-grid" data-oauth-buttons>
-          <div class="social-button social-button--placeholder">Загрузка провайдеров...</div>
+            <div class="divider">или войдите через</div>
+            <div class="social-grid" data-oauth-buttons>
+              <div class="social-button social-button--placeholder">Загрузка провайдеров...</div>
+            </div>
+
+            <div class="global-message" data-global-message hidden></div>
+          </section>
+
+          <section class="dashboard" data-view="dashboard" hidden>
+            <header class="dashboard__header">
+              <div>
+                <p class="eyebrow">Сессия активна</p>
+                <p class="h1">Привет, <span data-user-email>друг</span>!</p>
+                <p class="text-muted" data-dashboard-subtitle>Ваш аккаунт пока не загружен</p>
+              </div>
+              <div class="dashboard__actions">
+                <button type="button" class="btn btn-secondary" data-action="refresh-session">Обновить сессию</button>
+                <button type="button" class="btn btn-secondary" data-action="reload-profile">Проверить профиль</button>
+                <button type="button" class="btn btn-danger" data-action="logout">Выйти</button>
+              </div>
+            </header>
+
+            <article class="dashboard__card">
+              <div class="card__label">Аккаунты</div>
+              <ul class="account-list" data-accounts-list>
+                <li class="text-muted">Ваш аккаунт пока не создан полностью</li>
+              </ul>
+            </article>
+
+            <article class="dashboard__card">
+              <div class="card__label">Профиль</div>
+              <pre class="profile-dump" data-profile-dump>Данные профиля появятся после загрузки.</pre>
+            </article>
+          </section>
         </div>
-
-        <div class="global-message" data-global-message hidden></div>
-      </section>
-
-      <section class="dashboard" data-view="dashboard" hidden>
-        <header class="dashboard__header">
-          <div>
-            <p class="eyebrow">Сессия активна</p>
-            <h1>Привет, <span data-user-email>друг</span>!</h1>
-            <p class="muted" data-dashboard-subtitle>Ваш аккаунт пока не загружен</p>
-          </div>
-          <div class="dashboard__actions">
-            <button type="button" class="secondary" data-action="refresh-session">Обновить сессию</button>
-            <button type="button" class="secondary" data-action="reload-profile">Проверить профиль</button>
-            <button type="button" data-action="logout">Выйти</button>
-          </div>
-        </header>
-
-        <article class="dashboard__card">
-          <div class="card__label">Аккаунты</div>
-          <ul class="account-list" data-accounts-list>
-            <li class="muted">Ваш аккаунт пока не создан полностью</li>
-          </ul>
-        </article>
-
-        <article class="dashboard__card">
-          <div class="card__label">Профиль</div>
-          <pre class="profile-dump" data-profile-dump>Данные профиля появятся после загрузки.</pre>
-        </article>
       </section>
     </main>
 
