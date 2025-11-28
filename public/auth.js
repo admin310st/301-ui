@@ -1,597 +1,379 @@
 const API_ROOT = 'https://api.301.st/auth';
-const DEFAULT_SITEKEY = '1x00000000000000000000AA';
 const THEME_STORAGE_KEY = '301-ui-theme';
 
-const ERROR_MESSAGES = {
-  invalid_credentials: 'Неверный email или пароль.',
-  email_taken: 'Этот email уже зарегистрирован.',
-  turnstile_failed: 'Подтвердите, что вы не робот.',
-  validation_failed: 'Проверьте заполнение полей.',
-  rate_limited: 'Слишком много попыток, попробуйте позже.',
-  session_not_found: 'Сессия не найдена, войдите заново.',
-};
+const qs = (selector, root = document) => root.querySelector(selector);
+const qsa = (selector, root = document) => Array.from(root.querySelectorAll(selector));
 
-let accessToken = null;
-let currentUser = null;
-let currentAccount = null;
-let authStatus = 'anonymous';
-let oauthProviders = [];
-let currentTheme = 'dark';
-let turnstileSitekey = DEFAULT_SITEKEY;
-const turnstileWidgets = new Map();
-const turnstileResolvers = new Map();
+function setGlobalMessage(type = null, text = '') {
+  const el = qs('[data-global-message]');
+  if (!el) return;
 
-const qs = (sel, root = document) => root.querySelector(sel);
-const qsa = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+  if (!type || !text) {
+    el.hidden = true;
+    el.textContent = '';
+    delete el.dataset.type;
+    return;
+  }
 
-function getPreferredTheme() {
+  el.hidden = false;
+  el.dataset.type = type;
+  el.textContent = text;
+}
+
+function setStatusText(state) {
+  const statusEl = qs('[data-auth-status]');
+  const summaryEl = qs('[data-session-summary]');
+
+  if (statusEl) {
+    statusEl.textContent = state === 'authenticated' ? 'Вы авторизованы' : 'Вы не авторизованы';
+  }
+
+  if (summaryEl) {
+    summaryEl.textContent =
+      state === 'authenticated'
+        ? 'Вы вошли в аккаунт. Управляйте доменами и Cloudflare-настройками.'
+        : 'Авторизуйтесь, чтобы управлять 301.st';
+  }
+}
+
+function setAuthState(state) {
+  const root = document.documentElement;
+  root.dataset.authState = state;
+
+  const authPanel = qs('[data-view="auth"]');
+  const dashboard = qs('[data-view="dashboard"]');
+
+  if (authPanel) authPanel.hidden = state === 'authenticated';
+  if (dashboard) dashboard.hidden = state !== 'authenticated';
+
+  setStatusText(state);
+}
+
+function activateTab(name) {
+  qsa('[data-tab-target]').forEach((btn) => {
+    const isActive = btn.dataset.tabTarget === name;
+    btn.classList.toggle('active', isActive);
+    btn.setAttribute('aria-selected', String(isActive));
+  });
+
+  qsa('[data-auth-form]').forEach((form) => {
+    const isActive = form.dataset.authForm === name;
+    form.hidden = !isActive;
+  });
+}
+
+function initTabs() {
+  const panel = qs('.auth-panel');
+  if (!panel) return;
+
+  qsa('[data-tab-target]', panel).forEach((btn) => {
+    btn.addEventListener('click', (event) => {
+      event.preventDefault();
+      activateTab(btn.dataset.tabTarget);
+    });
+  });
+
+  qsa('[data-switch-to]', panel).forEach((link) => {
+    link.addEventListener('click', (event) => {
+      event.preventDefault();
+      activateTab(link.dataset.switchTo);
+    });
+  });
+
+  activateTab('login');
+}
+
+function getStoredTheme() {
   const stored = localStorage.getItem(THEME_STORAGE_KEY);
   if (stored === 'dark' || stored === 'light') return stored;
   return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
 }
 
-function updateThemeToggleLabel(theme) {
-  const btn = qs('[data-action="toggle-theme"]');
-  if (!btn) return;
-  btn.textContent = theme === 'dark' ? 'Светлая тема' : 'Тёмная тема';
-  btn.setAttribute('aria-pressed', theme === 'light');
+function applyTheme(theme) {
+  const normalized = theme === 'light' ? 'light' : 'dark';
+  document.documentElement.dataset.theme = normalized;
+  localStorage.setItem(THEME_STORAGE_KEY, normalized);
+
+  const toggle = qs('[data-action="toggle-theme"]');
+  if (toggle) {
+    toggle.textContent = normalized === 'dark' ? 'Светлая тема' : 'Тёмная тема';
+  }
 }
 
-function applyTheme(theme) {
-  currentTheme = theme === 'light' ? 'light' : 'dark';
-  document.documentElement.dataset.theme = currentTheme;
-  document.documentElement.style.colorScheme = currentTheme;
-  localStorage.setItem(THEME_STORAGE_KEY, currentTheme);
-  qsa('.cf-turnstile').forEach((node) => {
-    node.dataset.theme = currentTheme;
+function initThemeToggle() {
+  applyTheme(getStoredTheme());
+  const btn = qs('[data-action="toggle-theme"]');
+  if (!btn) return;
+  btn.addEventListener('click', () => {
+    const current = document.documentElement.dataset.theme === 'light' ? 'light' : 'dark';
+    applyTheme(current === 'light' ? 'dark' : 'light');
   });
-  updateThemeToggleLabel(currentTheme);
+}
 
-  if (window.turnstile && turnstileWidgets.size) {
+function setFormStatus(form, type, text) {
+  const status = qs('[data-status]', form);
+  if (!status) return;
+
+  if (!text) {
+    status.hidden = true;
+    status.textContent = '';
+    delete status.dataset.type;
+    return;
+  }
+
+  status.hidden = false;
+  status.dataset.type = type;
+  status.textContent = text;
+}
+
+async function apiRequest(path, options = {}) {
+  const { method = 'GET', body, headers, ...rest } = options;
+  const config = {
+    method,
+    headers: { 'content-type': 'application/json', ...(headers || {}) },
+    credentials: 'include',
+    ...rest,
+  };
+
+  if (body) {
+    config.body = JSON.stringify(body);
+  }
+
+  const response = await fetch(`${API_ROOT}${path}`, config);
+  const data = await response.json().catch(() => ({}));
+  return { response, data };
+}
+
+function collectTurnstileToken(form) {
+  const container = form.querySelector('.cf-turnstile');
+  if (window.turnstile) {
     try {
-      turnstileWidgets.forEach((widgetId) => {
-        window.turnstile.remove?.(widgetId);
-      });
-      turnstileWidgets.clear();
-      renderTurnstile(turnstileSitekey);
+      const resp = window.turnstile.getResponse(container) || window.turnstile.getResponse();
+      if (resp) return resp;
     } catch (err) {
       console.error(err);
     }
   }
+  const hiddenInput = form.querySelector('input[name="cf-turnstile-response"]');
+  return hiddenInput?.value?.trim() || '';
 }
 
-function toggleTheme() {
-  const next = currentTheme === 'dark' ? 'light' : 'dark';
-  applyTheme(next);
-}
+async function handleFormSubmit(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const formType = form.dataset.authForm;
 
-function bindThemeToggle() {
-  const btn = qs('[data-action="toggle-theme"]');
-  if (btn) {
-    btn.addEventListener('click', toggleTheme);
+  const formData = new FormData(form);
+  const email = (formData.get('email') || '').toString().trim();
+  const password = (formData.get('password') || '').toString();
+  const turnstileToken = collectTurnstileToken(form);
+
+  setFormStatus(form, null, '');
+  setGlobalMessage(null);
+
+  if (!email) {
+    setFormStatus(form, 'error', 'Введите email.');
+    return;
+  }
+  if ((formType === 'login' || formType === 'register') && !password) {
+    setFormStatus(form, 'error', 'Введите пароль.');
+    return;
+  }
+  if (!turnstileToken) {
+    setFormStatus(form, 'error', 'Подтвердите, что вы не робот.');
+    return;
+  }
+
+  const submitBtn = qs('button[type="submit"]', form);
+  const originalText = submitBtn?.textContent;
+  if (submitBtn) submitBtn.disabled = true;
+  if (submitBtn) submitBtn.textContent =
+    formType === 'login' ? 'Входим...' : formType === 'register' ? 'Создаём аккаунт...' : 'Отправляем ссылку...';
+
+  try {
+    let endpoint = '/login';
+    let payload = { email, cf_turnstile_token: turnstileToken };
+
+    if (formType === 'register') {
+      endpoint = '/register';
+      payload = { ...payload, password };
+    } else if (formType === 'forgot') {
+      endpoint = '/forgot';
+    } else {
+      payload = { ...payload, password };
+    }
+
+    const { response, data } = await apiRequest(endpoint, { method: 'POST', body: payload });
+
+    if (!response.ok) {
+      const message = data?.message || 'Что-то пошло не так. Попробуйте ещё раз или напишите в поддержку.';
+      setFormStatus(form, 'error', message);
+      return;
+    }
+
+    if (formType === 'forgot') {
+      setFormStatus(form, 'success', 'Ссылка отправлена на ваш email.');
+      form.reset();
+      return;
+    }
+
+    setFormStatus(form, 'success', 'Готово! Загружаем профиль...');
+    await loadProfile();
+  } catch (err) {
+    console.error(err);
+    setFormStatus(form, 'error', 'Что-то пошло не так. Попробуйте ещё раз или напишите в поддержку.');
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalText;
+    }
   }
 }
 
-function initTheme() {
-  applyTheme(getPreferredTheme());
-  bindThemeToggle();
-}
-
-function setAuthState(state) {
-  authStatus = state;
-  document.documentElement.dataset.authState = state;
-}
-
-function setAccessToken(token) {
-  accessToken = token || null;
-}
-
-function setMessage(target, type, message) {
-  const box = target ? qs('[data-status]', target) : qs('[data-global-message]');
-  if (!box) return;
-  box.textContent = message || '';
-  box.dataset.type = type;
-  box.hidden = !message;
-}
-
-function clearFormMessages() {
-  qsa('[data-status]').forEach((node) => {
-    node.textContent = '';
-    node.hidden = true;
+function initForms() {
+  qsa('[data-auth-form]').forEach((form) => {
+    form.addEventListener('submit', handleFormSubmit);
   });
-}
-
-function setStatusText(text) {
-  const node = qs('[data-auth-status]');
-  if (node) node.textContent = text;
-}
-
-function setSessionSummary(text) {
-  const node = qs('[data-session-summary]');
-  if (node) node.textContent = text || '';
 }
 
 function populateAccounts(accounts = []) {
   const list = qs('[data-accounts-list]');
   if (!list) return;
   list.innerHTML = '';
+
   if (!accounts.length) {
-    const li = document.createElement('li');
-    li.className = 'muted';
-    li.textContent = 'Ваш аккаунт пока не создан полностью';
-    list.appendChild(li);
+    const placeholder = document.createElement('li');
+    placeholder.className = 'text-muted';
+    placeholder.textContent = 'Ваш аккаунт пока не создан полностью';
+    list.appendChild(placeholder);
     return;
   }
 
   accounts.forEach((account) => {
     const li = document.createElement('li');
-    const name = account.name || account.slug || account.id || 'Аккаунт';
-    const type = account.type || account.plan || '';
-    li.textContent = name;
-    if (type) {
-      const badge = document.createElement('span');
-      badge.className = 'muted';
-      badge.textContent = type;
-      li.appendChild(badge);
-    }
+    li.textContent = account?.name || account?.id || 'Аккаунт';
     list.appendChild(li);
   });
 }
 
-function renderProfile(user) {
-  qs('[data-user-email]').textContent = user?.name || user?.email || 'друг';
+function renderProfile(profile = {}) {
+  const emailNode = qs('[data-user-email]');
   const subtitle = qs('[data-dashboard-subtitle]');
-  if (subtitle) {
-    const role = user?.role || user?.user_type || user?.type;
-    const identifier = user?.email || user?.phone || user?.tg_id || user?.id;
-    subtitle.textContent = role && identifier
-      ? `${identifier} · ${role}`
-      : identifier || 'Ваш аккаунт пока не загружен';
-  }
+  const dump = qs('[data-profile-dump]');
 
-  const pre = qs('[data-profile-dump]');
-  if (pre) {
-    pre.textContent = user ? JSON.stringify(user, null, 2) : 'Профиль не загружен';
-  }
+  if (emailNode) emailNode.textContent = profile.email || 'друг';
+  if (subtitle) subtitle.textContent = profile.email ? `Ваш email: ${profile.email}` : 'Ваш аккаунт пока не загружен';
+  if (dump) dump.textContent = Object.keys(profile).length ? JSON.stringify(profile, null, 2) : 'Данные профиля появятся после загрузки.';
 
-  populateAccounts(user?.accounts || []);
+  populateAccounts(profile.accounts || []);
 }
 
-function showAuthenticatedUI() {
-  const dashboard = qs('[data-view="dashboard"]');
-  const authView = qs('[data-view="auth"]');
-  if (dashboard) dashboard.hidden = false;
-  if (authView) authView.hidden = false; // остаётся видимой, но заблокирована CSS
-  setAuthState('authenticated');
-  setStatusText('Вы авторизованы');
-  setSessionSummary(currentUser?.email || 'Профиль загружен');
-  setMessage(null, '', '');
-}
-
-function showAnonymousUI(message) {
-  const dashboard = qs('[data-view="dashboard"]');
-  const authView = qs('[data-view="auth"]');
-  if (dashboard) dashboard.hidden = true;
-  if (authView) authView.hidden = false;
-  setAuthState('anonymous');
-  setStatusText(message || 'Вы не авторизованы');
-  setSessionSummary('Авторизуйтесь, чтобы управлять 301.st');
-  setMessage(null, '', '');
-}
-
-function toggleTab(name) {
-  qsa('[data-auth-form]').forEach((form) => {
-    const active = form.dataset.authForm === name;
-    form.hidden = !active;
-    form.setAttribute('aria-hidden', String(!active));
-    if (active) resetTurnstile(form);
-  });
-  qsa('[data-tab-target]').forEach((btn) => {
-    const isActive = btn.dataset.tabTarget === name;
-    btn.classList.toggle('active', isActive);
-    btn.setAttribute('aria-selected', String(isActive));
-  });
-}
-
-function attachTurnstileInput(form, token) {
-  if (!form) return;
-  let input = qs('input[name="cf-turnstile-response"]', form);
-  if (!input) {
-    input = document.createElement('input');
-    input.type = 'hidden';
-    input.name = 'cf-turnstile-response';
-    form.appendChild(input);
-  }
-  input.value = token || '';
-}
-
-function resetTurnstile(targetForm) {
-  const forms = targetForm ? [targetForm] : Array.from(turnstileWidgets.keys());
-  forms.forEach((form) => {
-    attachTurnstileInput(form, '');
-    const widgetId = turnstileWidgets.get(form);
-    if (widgetId && window.turnstile) {
-      try {
-        window.turnstile.reset(widgetId);
-      } catch (err) {
-        console.error(err);
-      }
-    }
-  });
-}
-
-function getTurnstileToken(form) {
-  const input = qs('input[name="cf-turnstile-response"]', form) || qs('input[name="cf-turnstile-response"]');
-  const value = input?.value?.trim();
-  if (value) return value;
+async function loadProfile() {
   try {
-    if (window.turnstile) {
-      const widgetId = form ? turnstileWidgets.get(form) : undefined;
-      const response = widgetId
-        ? window.turnstile.getResponse(widgetId)
-        : window.turnstile.getResponse();
-      return response || '';
-    }
-  } catch {}
-  return '';
-}
-
-async function ensureTurnstileToken(form) {
-  const existing = getTurnstileToken(form);
-  if (existing) return existing;
-
-  const widgetId = turnstileWidgets.get(form);
-  if (!widgetId || !window.turnstile) return '';
-
-  return new Promise((resolve) => {
-    turnstileResolvers.set(widgetId, (token) => {
-      turnstileResolvers.delete(widgetId);
-      resolve(token || '');
-    });
-
-    try {
-      window.turnstile.execute(widgetId);
-    } catch (err) {
-      console.error(err);
-      turnstileResolvers.delete(widgetId);
-      resolve('');
+    const { response, data } = await apiRequest('/me', { method: 'GET' });
+    if (!response.ok) {
+      setAuthState('guest');
+      setGlobalMessage('error', 'Не удалось загрузить профиль. Войдите заново.');
+      return null;
     }
 
-    setTimeout(() => {
-      if (turnstileResolvers.has(widgetId)) {
-        turnstileResolvers.delete(widgetId);
-        resolve('');
-      }
-    }, 8000);
-  });
-}
-
-async function loadTurnstileSitekey() {
-  try {
-    const res = await fetch('/env', { cache: 'no-store' });
-    if (!res.ok) throw new Error('env failed');
-    const data = await res.json();
-    turnstileSitekey = data.turnstileSitekey || DEFAULT_SITEKEY;
-    return turnstileSitekey;
-  } catch {
-    turnstileSitekey = DEFAULT_SITEKEY;
-    return turnstileSitekey;
-  }
-}
-
-function renderTurnstile(sitekey) {
-  turnstileSitekey = sitekey || turnstileSitekey;
-  if (!window.turnstile) {
-    window.onloadTurnstileCallback = () => renderTurnstile(turnstileSitekey);
-    return;
-  }
-
-  const theme = currentTheme === 'light' ? 'light' : 'dark';
-
-  qsa('.cf-turnstile').forEach((node) => {
-    node.dataset.sitekey = turnstileSitekey;
-    const form = node.closest('form');
-    if (!form) return;
-
-    try {
-      const widgetId = window.turnstile.render(node, {
-        sitekey: turnstileSitekey,
-        theme,
-        size: 'invisible',
-        callback(token) {
-          attachTurnstileInput(form, token);
-          const resolver = turnstileResolvers.get(widgetId);
-          if (resolver) {
-            turnstileResolvers.delete(widgetId);
-            resolver(token);
-          }
-        },
-        'error-callback': () => {
-          attachTurnstileInput(form, '');
-          const resolver = turnstileResolvers.get(widgetId);
-          if (resolver) {
-            turnstileResolvers.delete(widgetId);
-            resolver('');
-          }
-        },
-      });
-      turnstileWidgets.set(form, widgetId);
-    } catch (err) {
-      console.error(err);
-    }
-  });
-}
-
-async function apiRequest(path, { method = 'GET', body, headers = {}, auth = false } = {}) {
-  const options = {
-    method,
-    credentials: 'include',
-    headers: { ...headers },
-  };
-  if (auth && accessToken) {
-    options.headers.Authorization = `Bearer ${accessToken}`;
-  }
-  if (body) {
-    options.headers['content-type'] = 'application/json';
-    options.body = JSON.stringify(body);
-  }
-  const response = await fetch(`${API_ROOT}${path}`, options);
-  const data = await response.json().catch(() => ({}));
-  return { ok: response.ok, status: response.status, ...data };
-}
-
-async function login({ email, password, turnstileToken }) {
-  return apiRequest('/login', {
-    method: 'POST',
-    body: { email, password, turnstile_token: turnstileToken },
-  });
-}
-
-async function register({ email, password, turnstileToken }) {
-  return apiRequest('/register', {
-    method: 'POST',
-    body: { email, password, turnstile_token: turnstileToken },
-  });
-}
-
-async function forgotPassword({ email, turnstileToken }) {
-  return apiRequest('/reset_password', {
-    method: 'POST',
-    body: { type: 'email', value: email, turnstile_token: turnstileToken },
-  });
-}
-
-async function refreshSession(silent = false) {
-  const res = await apiRequest('/refresh', { method: 'POST' });
-  if (res.ok && res.access_token) {
-    setAccessToken(res.access_token);
-    setSessionSummary('Сессия обновлена');
-    return loadMe({ attemptRefresh: false });
-  }
-  setAccessToken(null);
-  currentUser = null;
-  currentAccount = null;
-  if (!silent) {
-    showAnonymousUI('Сессия устарела, войдите снова');
-  } else {
-    showAnonymousUI();
-  }
-  return null;
-}
-
-async function loadMe({ attemptRefresh = true } = {}) {
-  if (!accessToken) {
-    return attemptRefresh ? refreshSession() : null;
-  }
-
-  const res = await apiRequest('/me', { auth: true });
-  if (res.status === 401 && attemptRefresh) {
-    return refreshSession();
-  }
-  if (!res.ok) {
-    showAnonymousUI('Не удалось загрузить профиль');
-    return null;
-  }
-
-  currentUser = res.user || res.profile || res;
-  currentAccount = res.accounts?.[0] || null;
-  setAuthState('authenticated');
-  renderProfile(currentUser);
-  showAuthenticatedUI();
-  return currentUser;
-}
-
-async function handleSubmit(form, action, handler) {
-  const submitButton = qs('button[type="submit"]', form);
-  const defaultText = submitButton?.textContent;
-  if (submitButton) {
-    submitButton.disabled = true;
-    const labels = {
-      login: 'Входим...',
-      register: 'Создаём аккаунт...',
-      forgot: 'Отправляем письмо...'
-    };
-    submitButton.textContent = labels[action] || defaultText;
-  }
-  clearFormMessages();
-  setMessage(form, 'loading', 'Обработка...');
-
-  try {
-    const result = await handler();
-    if (!result?.ok) {
-      const message = ERROR_MESSAGES[result?.error_code] || result?.message || 'Ошибка запроса.';
-      setMessage(form, 'error', message);
-      return;
-    }
-
-    if (result.access_token) {
-      setAccessToken(result.access_token);
-    }
-
-    if (action === 'login') {
-      setMessage(form, 'success', 'Вы успешно вошли.');
-      resetTurnstile();
-      await loadMe();
-      return;
-    }
-
-    if (action === 'register') {
-      setMessage(form, 'success', 'Проверьте почту для подтверждения регистрации.');
-      form.reset();
-      resetTurnstile();
-      return;
-    }
-
-    if (action === 'forgot') {
-      setMessage(form, 'success', 'Если такой email есть в системе, мы отправили письмо со ссылкой.');
-      form.reset();
-      resetTurnstile();
-    }
+    setAuthState('authenticated');
+    renderProfile(data || {});
+    setGlobalMessage(null);
+    return data;
   } catch (err) {
     console.error(err);
-    setMessage(form, 'error', 'Сеть недоступна.');
-  } finally {
-    if (submitButton) {
-      submitButton.disabled = false;
-      submitButton.textContent = defaultText;
-    }
+    setAuthState('guest');
+    setGlobalMessage('error', 'Что-то пошло не так. Попробуйте ещё раз или напишите в поддержку.');
+    return null;
   }
 }
 
-function bindForms() {
-  qsa('[data-auth-form]').forEach((form) => {
-    form.addEventListener('submit', async (event) => {
-      event.preventDefault();
-      const email = qs('input[name="email"]', form)?.value?.trim();
-      const password = qs('input[name="password"]', form)?.value;
-      const turnstileToken = await ensureTurnstileToken(form);
-
-      const type = form.dataset.authForm;
-      if (type === 'login') {
-        if (!email || !password) return setMessage(form, 'error', 'Введите email и пароль.');
-        if (!turnstileToken) return setMessage(form, 'error', 'Подтвердите Turnstile.');
-        return handleSubmit(form, 'login', () => login({ email, password, turnstileToken }));
-      }
-      if (type === 'register') {
-        if (!email || !password) return setMessage(form, 'error', 'Введите email и пароль.');
-        if (!turnstileToken) return setMessage(form, 'error', 'Подтвердите Turnstile.');
-        return handleSubmit(form, 'register', () => register({ email, password, turnstileToken }));
-      }
-      if (type === 'forgot') {
-        if (!email) return setMessage(form, 'error', 'Введите email.');
-        if (!turnstileToken) return setMessage(form, 'error', 'Подтвердите Turnstile.');
-        return handleSubmit(form, 'forgot', () => forgotPassword({ email, turnstileToken }));
-      }
-    });
-  });
-
-  qsa('[data-switch-to]').forEach((link) => {
-    link.addEventListener('click', () => {
-      toggleTab(link.dataset.switchTo);
-    });
-  });
-}
-
-function bindTabs() {
-  qsa('[data-tab-target]').forEach((btn) => {
-    btn.addEventListener('click', () => toggleTab(btn.dataset.tabTarget));
-  });
-}
-
-function bindDashboardActions() {
+function initDashboardActions() {
   const refreshBtn = qs('[data-action="refresh-session"]');
   const reloadBtn = qs('[data-action="reload-profile"]');
   const logoutBtn = qs('[data-action="logout"]');
 
   refreshBtn?.addEventListener('click', async () => {
+    setGlobalMessage(null);
     refreshBtn.disabled = true;
-    const user = await refreshSession();
-    refreshBtn.disabled = false;
-    if (user) setMessage(null, 'success', 'Сессия обновлена');
+    try {
+      const { response } = await apiRequest('/refresh', { method: 'POST' });
+      if (response.ok) {
+        await loadProfile();
+        setGlobalMessage('success', 'Сессия обновлена');
+      } else {
+        setAuthState('guest');
+        setGlobalMessage('error', 'Сессия устарела, войдите снова.');
+      }
+    } catch (err) {
+      console.error(err);
+      setGlobalMessage('error', 'Не удалось обновить сессию.');
+    } finally {
+      refreshBtn.disabled = false;
+    }
   });
 
   reloadBtn?.addEventListener('click', async () => {
+    setGlobalMessage(null);
     reloadBtn.disabled = true;
-    const user = await loadMe({ attemptRefresh: false });
+    await loadProfile();
     reloadBtn.disabled = false;
-    if (user) setMessage(null, 'success', 'Профиль обновлён');
   });
 
   logoutBtn?.addEventListener('click', async () => {
+    setGlobalMessage(null);
     logoutBtn.disabled = true;
-    await apiRequest('/logout', { method: 'POST' });
-    setAccessToken(null);
-    currentUser = null;
-    showAnonymousUI();
+    try {
+      await apiRequest('/logout', { method: 'POST' });
+    } catch (err) {
+      console.error(err);
+    }
+    setAuthState('guest');
+    renderProfile({});
     logoutBtn.disabled = false;
   });
 }
 
-async function fetchProviders() {
-  try {
-    const res = await apiRequest('/providers');
-    if (res.ok && res.providers) return res.providers;
-    if (Array.isArray(res)) return res;
-  } catch (err) {
-    console.error(err);
-  }
-  return [
-    { id: 'google', label: 'Sign in with Google' },
-    { id: 'github', label: 'Sign in with GitHub' },
-  ];
-}
-
-function renderOAuthButtons(providers) {
+async function loadOAuthButtons() {
   const container = qs('[data-oauth-buttons]');
   if (!container) return;
-  container.innerHTML = '';
 
-  providers.forEach((provider) => {
-    const id = provider.id || provider.name || provider;
-    const label = provider.label || provider.title || `Sign in with ${id}`;
-    const link = document.createElement('a');
-    link.className = 'social-button';
-    link.dataset.oauthProvider = id;
-    link.href = `${API_ROOT}/oauth/${id}/start`;
-    link.textContent = label;
-    container.appendChild(link);
-  });
-}
-
-function handleOAuthReturn() {
-  const { pathname, searchParams } = new URL(window.location.href);
-  if (pathname === '/auth/success') {
-    const token = searchParams.get('token');
-    if (token) {
-      setAccessToken(token);
-      history.replaceState(null, '', '/');
+  container.innerHTML = '<div class="social-button social-button--placeholder">Загрузка провайдеров...</div>';
+  try {
+    const { response, data } = await apiRequest('/oauth/providers', { method: 'GET' });
+    if (!response.ok || !Array.isArray(data) || !data.length) {
+      container.innerHTML = '<div class="social-button social-button--placeholder">Провайдеры недоступны, попробуйте позже</div>';
+      return;
     }
+
+    container.innerHTML = '';
+    data.forEach((provider) => {
+      const btn = document.createElement('a');
+      btn.href = `${API_ROOT}/oauth/${provider.id}/start`;
+      btn.className = 'social-button';
+      btn.textContent = `Войти через ${provider.title || provider.name || provider.id}`;
+      container.appendChild(btn);
+    });
+  } catch (err) {
+    console.error(err);
+    container.innerHTML = '<div class="social-button social-button--placeholder">Провайдеры недоступны, попробуйте позже</div>';
   }
 }
 
-async function bootstrap() {
-  showAnonymousUI();
-  toggleTab('login');
-  bindForms();
-  bindTabs();
-  bindDashboardActions();
-
-  handleOAuthReturn();
-
-  oauthProviders = await fetchProviders();
-  renderOAuthButtons(oauthProviders);
-
-  const sitekey = await loadTurnstileSitekey();
-  renderTurnstile(sitekey);
-
-  if (accessToken) {
-    await loadMe();
-  } else {
-    await refreshSession(true);
-  }
+async function loadProfileOnStart() {
+  setAuthState('guest');
+  await loadOAuthButtons();
+  await loadProfile();
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  initTheme();
-  bootstrap();
+  if (window.__auth301Ready) return;
+  window.__auth301Ready = true;
+
+  initThemeToggle();
+  initTabs();
+  initForms();
+  initDashboardActions();
+  loadProfileOnStart();
 });
