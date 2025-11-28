@@ -1,0 +1,341 @@
+/* =========================
+   301.st – LAYOUT & GENERIC UI
+   - body / container
+   - статус-бар
+   - гриды
+   - dashboard
+   - кнопки
+   ========================= */
+
+/*  BODY / TYPOGRAPHY  */
+
+body {
+  margin: 0;
+  padding: var(--space-4) var(--space-5) var(--space-6);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  background:
+    radial-gradient(circle at 25% 12%, rgba(77, 163, 255, 0.08), transparent 28%),
+    radial-gradient(circle at 78% 8%, rgba(244, 129, 32, 0.08), transparent 26%),
+    var(--bg);
+  color: var(--text-main);
+  font-family: var(--font-sans);
+  font-size: 16px;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--space-5);
+  width: 100%;
+}
+
+.h1 {
+  font-size: var(--fs-2xl);
+  font-weight: var(--fw-semibold);
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.h2 {
+  font-size: var(--fs-xl);
+  font-weight: var(--fw-semibold);
+  margin: 0;
+}
+
+.text-muted,
+.muted {
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+}
+
+.eyebrow {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-subtle);
+  font-size: var(--fs-xs);
+}
+
+/*  STATUS BAR  */
+
+.status-bar {
+  background: var(--nav-bg);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-subtle);
+}
+
+.status-bar__content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-3) 0;
+}
+
+.status-bar__left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.status-identity {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.status-bar__right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+}
+
+.status-indicator {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #e11d48;
+  box-shadow: 0 0 0 6px rgba(225, 29, 72, 0.15);
+  transition: all var(--transition-fast);
+}
+
+[data-auth-state='authenticated'] .status-indicator {
+  background: var(--success);
+  box-shadow: 0 0 0 6px rgba(24, 194, 122, 0.18);
+}
+
+.status-text {
+  margin: 0;
+  font-weight: var(--fw-semibold);
+}
+
+/*  PAGE GRID  */
+
+.page-grid {
+  display: grid;
+  gap: var(--space-4);
+}
+
+/*  AUTH LAYOUT WRAPPER  */
+
+.auth-layout {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-soft);
+  padding: var(--space-5);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+}
+
+/* panels: auth + dashboard side-by-side */
+
+.panels {
+  display: grid;
+  grid-template-columns: 400px 1fr;
+  gap: var(--space-4);
+}
+
+@media (max-width: 1024px) {
+  .panels {
+    grid-template-columns: 1fr;
+  }
+}
+
+/*  GENERIC PANELS (AUTH + DASHBOARD)  */
+
+.auth-panel,
+.dashboard {
+  background: var(--bg-soft);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  display: grid;
+  gap: var(--space-4);
+}
+
+/*  DASHBOARD  */
+
+.dashboard__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.dashboard__actions {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.dashboard__card {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius);
+  padding: var(--space-4);
+  background: var(--bg-elevated);
+  display: grid;
+  gap: var(--space-3);
+}
+
+.card__label {
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-md);
+}
+
+.account-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.account-list li {
+  padding: var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius);
+  background: var(--bg-soft);
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.profile-dump {
+  margin: 0;
+  padding: var(--space-3);
+  background: #0f172a;
+  color: #e2e8f0;
+  border-radius: var(--radius);
+  max-height: 260px;
+  overflow: auto;
+  border: 1px solid var(--border-subtle);
+}
+
+/* При авторизованном пользователе auth-панель блекнет */
+[data-auth-state='authenticated'] .auth-panel {
+  opacity: 0.6;
+  pointer-events: none;
+  filter: grayscale(0.12);
+}
+
+/*  BUTTONS – общие для всего приложения  */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.75rem 1.1rem;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  line-height: 1.2;
+  cursor: pointer;
+  white-space: nowrap;
+  background: transparent;
+  color: var(--text-main);
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: default;
+  pointer-events: none;
+}
+
+/* Primary (blue) */
+.btn-primary {
+  background: var(--primary);
+  color: var(--text-invert);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.3);
+}
+
+.btn-primary:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+}
+
+/* Secondary */
+.btn-secondary {
+  border-color: var(--border-strong);
+  background: transparent;
+  color: var(--text-main);
+}
+
+.btn-secondary:hover {
+  background: var(--primary-soft);
+}
+
+/* Danger */
+.btn-danger {
+  background: var(--danger);
+  color: var(--text-invert);
+}
+
+.btn-danger:hover {
+  filter: brightness(1.05);
+}
+
+/* Cloudflare actions (reserved) */
+.btn-cf {
+  background: var(--accent-cf-bg);
+  color: var(--text-invert);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.3);
+}
+
+.btn-cf:hover {
+  background: var(--accent-cf-bg-hover);
+  transform: translateY(-1px);
+}
+
+/* Sizes */
+.btn-sm {
+  padding: 0.45rem 0.8rem;
+  font-size: var(--fs-xs);
+}
+
+/*  THEME TOGGLE  */
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.theme-toggle::before {
+  content: '☾';
+}
+
+:root[data-theme='light'] .theme-toggle::before {
+  content: '☼';
+}
+
+/*  RESPONSIVE TWEAKS  */
+
+@media (max-width: 720px) {
+  body {
+    padding: var(--space-3);
+  }
+
+  .status-bar__content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .auth-layout {
+    padding: var(--space-4);
+  }
+}
