@@ -22,6 +22,19 @@ let turnstileSitekey = DEFAULT_SITEKEY;
 const qs = (sel, root = document) => root.querySelector(sel);
 const qsa = (sel, root = document) => Array.from(root.querySelectorAll(sel));
 
+let turnstileReadyResolve;
+const turnstileReady = new Promise((resolve) => {
+  turnstileReadyResolve = resolve;
+});
+
+setTimeout(() => {
+  if (turnstileReadyResolve) turnstileReadyResolve(window.turnstile || null);
+}, 1500);
+
+window.onTurnstileLoad = () => {
+  if (turnstileReadyResolve) turnstileReadyResolve(window.turnstile);
+};
+
 function setAuthState(state) {
   authStatus = state;
   document.documentElement.dataset.authState = state;
@@ -162,6 +175,10 @@ function showAnonymousUI(message) {
 function toggleTab(name) {
   const target = AUTH_TABS.includes(name) ? name : AUTH_TABS[0];
 
+  if (window.location.hash !== `#${target}`) {
+    history.replaceState(null, '', `#${target}`);
+  }
+
   document.documentElement.dataset.activeAuthTab = target;
 
   qsa('[data-auth-form]').forEach((form) => {
@@ -186,20 +203,31 @@ function toggleTab(name) {
   resetTurnstile();
 }
 
+function getTabFromHash() {
+  const hash = window.location.hash.replace('#', '').trim();
+  return AUTH_TABS.includes(hash) ? hash : null;
+}
+
 function resetTurnstile() {
-  try {
-    if (window.turnstile) window.turnstile.reset();
-  } catch (err) {
-    console.error(err);
-  }
+  qsa('.cf-turnstile').forEach((node) => {
+    const widgetId = node.dataset.widgetId;
+    if (!widgetId) return;
+    try {
+      if (window.turnstile) window.turnstile.reset(widgetId);
+    } catch (err) {
+      console.error(err);
+    }
+  });
 }
 
 function getTurnstileToken(form) {
+  const widget = form ? qs('.cf-turnstile', form) : qs('.cf-turnstile');
+  const widgetId = widget?.dataset.widgetId;
   const input = qs('input[name="cf-turnstile-response"]', form) || qs('input[name="cf-turnstile-response"]');
   const value = input?.value?.trim();
   if (value) return value;
   try {
-    if (window.turnstile) return window.turnstile.getResponse();
+    if (window.turnstile && widgetId) return window.turnstile.getResponse(widgetId) || '';
   } catch {}
   return '';
 }
@@ -215,23 +243,34 @@ async function loadTurnstileSitekey() {
   }
 }
 
-function renderTurnstile(sitekey) {
+async function renderTurnstile(sitekey) {
   turnstileSitekey = sitekey;
+  await turnstileReady;
   qsa('.cf-turnstile').forEach((node) => {
+    const existingId = node.dataset.widgetId;
+    if (existingId) {
+      try {
+        window.turnstile?.remove?.(existingId);
+      } catch {}
+    }
     node.dataset.sitekey = sitekey;
     try {
-      if (window.turnstile) window.turnstile.render(node, { sitekey });
+      const id = window.turnstile?.render?.(node, {
+        sitekey,
+        theme: document.documentElement.dataset.theme === 'light' ? 'light' : 'dark',
+        retry: 'auto',
+      });
+      if (id) node.dataset.widgetId = id;
     } catch {}
   });
 }
 
-function applyTurnstileTheme(theme) {
+async function applyTurnstileTheme(theme) {
   const normalized = theme === 'light' ? 'light' : 'dark';
   qsa('.cf-turnstile').forEach((node) => {
     node.dataset.theme = normalized;
   });
-  resetTurnstile();
-  renderTurnstile(turnstileSitekey);
+  await renderTurnstile(turnstileSitekey);
 }
 
 async function apiRequest(path, { method = 'GET', body, headers = {}, auth = false } = {}) {
@@ -484,10 +523,15 @@ function handleOAuthReturn() {
 async function bootstrap() {
   initTheme();
   showAnonymousUI();
-  toggleTab('login');
+  toggleTab(getTabFromHash() || 'login');
   bindForms();
   bindTabs();
   bindDashboardActions();
+
+  window.addEventListener('hashchange', () => {
+    const next = getTabFromHash();
+    if (next) toggleTab(next);
+  });
 
   handleOAuthReturn();
 
@@ -495,7 +539,7 @@ async function bootstrap() {
   renderOAuthButtons(oauthProviders);
 
   const sitekey = await loadTurnstileSitekey();
-  renderTurnstile(sitekey);
+  await renderTurnstile(sitekey);
 
   if (accessToken) {
     await loadMe();
