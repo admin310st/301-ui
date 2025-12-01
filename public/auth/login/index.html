@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign in · 301.st</title>
+    <link rel="stylesheet" href="/css/theme.css" />
+    <link rel="stylesheet" href="/css/auth-pages.css" />
+  </head>
+  <body>
+    <section class="section auth-section">
+      <div class="container auth-container">
+        <div class="auth-panel">
+          <h1 class="auth-title">Sign in to 301.st</h1>
+          <p class="auth-subtitle">Use your email and password to access your account.</p>
+
+          <form id="auth-login-form" data-auth="login">
+            <div class="field">
+              <label class="field-label" for="signin-email">Email</label>
+              <input
+                class="input"
+                id="signin-email"
+                name="email"
+                type="email"
+                autocomplete="email"
+                placeholder="you@domain.com"
+                required
+              />
+            </div>
+
+            <div class="field">
+              <label class="field-label" for="signin-password">Password</label>
+              <input
+                class="input"
+                id="signin-password"
+                name="password"
+                type="password"
+                autocomplete="current-password"
+                required
+              />
+            </div>
+
+            <div data-status="" class="auth-status" hidden></div>
+
+            <div class="auth-actions">
+              <button type="submit" class="btn btn-primary" data-auth-submit="login">
+                Sign in
+              </button>
+              <a href="/auth/forgot" class="auth-link">Forgot password?</a>
+            </div>
+          </form>
+
+          <div class="auth-footer">
+            <span>Don’t have an account?</span>
+            <a href="/auth/register" class="auth-link">Create account</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <script type="module" src="/auth301.js"></script>
+  </body>
+</html>

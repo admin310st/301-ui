@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Account · 301.st</title>
+    <link rel="stylesheet" href="/css/theme.css" />
+    <link rel="stylesheet" href="/css/auth-pages.css" />
+  </head>
+  <body>
+    <section class="section account-section">
+      <div class="container account-container">
+        <div class="account-guard" data-onlogin="hide">
+          <div class="card">
+            <h1 class="account-title">You are not signed in</h1>
+            <p class="account-text">
+              Please sign in to manage your redirects and Cloudflare integrations.
+            </p>
+            <a href="/auth/login" class="btn btn-primary">Go to sign-in</a>
+          </div>
+        </div>
+
+        <div class="account-main" data-onlogin="show">
+          <div class="card">
+            <h1 class="account-title">Account</h1>
+
+            <div class="account-row">
+              <div class="account-label">Name</div>
+              <div class="account-value" id="AccountName"></div>
+            </div>
+
+            <div class="account-row">
+              <div class="account-label">Email</div>
+              <div class="account-value" id="AccountEmail"></div>
+            </div>
+
+            <div class="account-subtitle">Connected accounts</div>
+            <div class="account-row">
+              <div class="account-label">Cloudflare</div>
+              <div class="account-value">
+                <span class="badge badge-muted">Not configured yet</span>
+              </div>
+            </div>
+
+            <div class="account-actions">
+              <button id="AccountLogout" class="btn btn-secondary">Log out</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <script type="module" src="/auth301.js"></script>
+  </body>
+</html>
