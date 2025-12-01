@@ -10,7 +10,11 @@
     <link rel="stylesheet" href="/css/layout.css" />
     <link rel="stylesheet" href="/css/auth.css" />
 
-    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <script
+      src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=onTurnstileLoad"
+      async
+      defer
+    ></script>
   </head>
   <body>
     <header class="status-bar">
@@ -32,6 +36,39 @@
     </header>
 
     <main class="container page-grid">
+      <section class="hero-banner">
+        <div class="hero-copy">
+          <div class="pill-row">
+            <span class="pill pill--outline">Cloudflare protected</span>
+            <span class="pill pill--success">OAuth ready</span>
+            <span class="pill pill--muted">Turnstile enforced</span>
+          </div>
+          <p class="eyebrow">Control plane 301.st</p>
+          <p class="h1">Управляйте редиректами и зонами в одном месте</p>
+          <p class="lead">
+            Единый вход в Cloudflare-инфраструктуру, редиректы, TDS и аналитика. Включили обновленные
+            OAuth-провайдеры и строгую валидацию Turnstile по гайду 301.st.
+          </p>
+        </div>
+        <div class="hero-metrics">
+          <article class="metric-card">
+            <p class="metric-label">SLA Edge</p>
+            <p class="metric-value">99.9%</p>
+            <p class="metric-sub">Cloudflare Workers global</p>
+          </article>
+          <article class="metric-card">
+            <p class="metric-label">OAuth</p>
+            <p class="metric-value">Google · GitHub</p>
+            <p class="metric-sub">PKCE + state защита</p>
+          </article>
+          <article class="metric-card">
+            <p class="metric-label">Безопасность</p>
+            <p class="metric-value">Turnstile</p>
+            <p class="metric-sub">Token + refresh cookie</p>
+          </article>
+        </div>
+      </section>
+
       <section class="auth-layout">
         <div class="panels">
           <section class="auth-panel" data-view="auth">
