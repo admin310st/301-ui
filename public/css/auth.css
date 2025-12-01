@@ -60,6 +60,11 @@
   transform: translateY(-1px);
 }
 
+.tab:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
 /* FORMS */
 
 .auth-form {
@@ -69,6 +74,7 @@
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
   background: linear-gradient(145deg, var(--bg-elevated), var(--bg-soft));
+  box-shadow: var(--shadow-subtle);
 }
 
 .field {
@@ -77,12 +83,12 @@
   gap: var(--space-2);
 }
 
-label {
+.field-label {
   font-weight: var(--fw-semibold);
   font-size: var(--fs-sm);
 }
 
-input {
+.input {
   padding: 0.85rem 0.9rem;
   border-radius: var(--radius);
   border: 1px solid var(--input-border);
@@ -95,7 +101,7 @@ input {
     background-color var(--transition-md);
 }
 
-input:focus {
+.input:focus-visible {
   outline: none;
   border-color: var(--input-border-focus);
   box-shadow: 0 0 0 3px var(--primary-soft);
@@ -121,10 +127,20 @@ input:focus {
 }
 
 .inline-link {
+  appearance: none;
+  border: none;
+  background: transparent;
   cursor: pointer;
   color: var(--primary);
   font-weight: var(--fw-semibold);
   margin: 0;
+  padding: 0;
+}
+
+.inline-link:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-xs);
 }
 
 /* DIVIDER + SOCIAL LOGIN */

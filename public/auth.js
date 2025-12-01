@@ -1,5 +1,7 @@
 const API_ROOT = 'https://api.301.st/auth';
 const DEFAULT_SITEKEY = '1x00000000000000000000AA';
+const AUTH_TABS = ['login', 'register', 'forgot'];
+const THEME_STORAGE_KEY = '301-ui-theme';
 
 const ERROR_MESSAGES = {
   invalid_credentials: 'Неверный email или пароль.',
@@ -15,6 +17,7 @@ let currentUser = null;
 let currentAccount = null;
 let authStatus = 'anonymous';
 let oauthProviders = [];
+let turnstileSitekey = DEFAULT_SITEKEY;
 
 const qs = (sel, root = document) => root.querySelector(sel);
 const qsa = (sel, root = document) => Array.from(root.querySelectorAll(sel));
@@ -51,6 +54,41 @@ function setStatusText(text) {
 function setSessionSummary(text) {
   const node = qs('[data-session-summary]');
   if (node) node.textContent = text || '';
+}
+
+function updateThemeToggleLabel(theme) {
+  const toggleBtn = qs('[data-action="toggle-theme"]');
+  if (!toggleBtn) return;
+  toggleBtn.textContent = theme === 'light' ? 'Тёмная тема' : 'Светлая тема';
+}
+
+function setTheme(theme, { persist = true } = {}) {
+  const normalized = theme === 'light' ? 'light' : 'dark';
+  document.documentElement.dataset.theme = normalized;
+  if (persist) localStorage.setItem(THEME_STORAGE_KEY, normalized);
+  updateThemeToggleLabel(normalized);
+  applyTurnstileTheme(normalized);
+}
+
+function loadStoredTheme() {
+  const stored = localStorage.getItem(THEME_STORAGE_KEY);
+  return stored === 'light' || stored === 'dark' ? stored : document.documentElement.dataset.theme || 'dark';
+}
+
+function bindThemeToggle() {
+  const toggleBtn = qs('[data-action="toggle-theme"]');
+  if (!toggleBtn) return;
+
+  toggleBtn.addEventListener('click', () => {
+    const nextTheme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+    setTheme(nextTheme);
+  });
+}
+
+function initTheme() {
+  const initialTheme = loadStoredTheme();
+  setTheme(initialTheme, { persist: false });
+  bindThemeToggle();
 }
 
 function populateAccounts(accounts = []) {
@@ -122,13 +160,30 @@ function showAnonymousUI(message) {
 }
 
 function toggleTab(name) {
+  const target = AUTH_TABS.includes(name) ? name : AUTH_TABS[0];
+
+  document.documentElement.dataset.activeAuthTab = target;
+
   qsa('[data-auth-form]').forEach((form) => {
-    const active = form.dataset.authForm === name;
+    const active = form.dataset.authForm === target;
     form.hidden = !active;
+    form.setAttribute('aria-hidden', String(!active));
+    form.tabIndex = active ? 0 : -1;
   });
+
   qsa('[data-tab-target]').forEach((btn) => {
-    btn.classList.toggle('active', btn.dataset.tabTarget === name);
+    const isActive = btn.dataset.tabTarget === target;
+    btn.classList.toggle('active', isActive);
+    btn.setAttribute('aria-selected', String(isActive));
+    btn.tabIndex = isActive ? 0 : -1;
   });
+
+  clearFormMessages();
+
+  const activeForm = qs(`[data-auth-form="${target}"]`);
+  const firstField = qs('input', activeForm);
+  if (firstField) firstField.focus();
+  resetTurnstile();
 }
 
 function resetTurnstile() {
@@ -161,12 +216,22 @@ async function loadTurnstileSitekey() {
 }
 
 function renderTurnstile(sitekey) {
+  turnstileSitekey = sitekey;
   qsa('.cf-turnstile').forEach((node) => {
     node.dataset.sitekey = sitekey;
     try {
       if (window.turnstile) window.turnstile.render(node, { sitekey });
     } catch {}
   });
+}
+
+function applyTurnstileTheme(theme) {
+  const normalized = theme === 'light' ? 'light' : 'dark';
+  qsa('.cf-turnstile').forEach((node) => {
+    node.dataset.theme = normalized;
+  });
+  resetTurnstile();
+  renderTurnstile(turnstileSitekey);
 }
 
 async function apiRequest(path, { method = 'GET', body, headers = {}, auth = false } = {}) {
@@ -417,6 +482,7 @@ function handleOAuthReturn() {
 }
 
 async function bootstrap() {
+  initTheme();
   showAnonymousUI();
   toggleTab('login');
   bindForms();
