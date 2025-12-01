@@ -3,6 +3,26 @@ const DEFAULT_SITEKEY = '1x00000000000000000000AA';
 const AUTH_TABS = ['login', 'register', 'forgot'];
 const THEME_STORAGE_KEY = '301-ui-theme';
 
+const ANALYTICS_SNIPPET = `curl -X POST https://api.301.st/events \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "event": "redirect",
+    "url": "https://example.tld/utm?ref=ad",
+    "edge": "ams",
+    "status": 301
+  }'`;
+
+const FALLBACK_PROFILE = {
+  id: 'wsnlskfnv3rig_env0_cb1ent',
+  tld: '.smn.vo',
+  slug: 'tst-ca55f70619.cloudflareclient.com',
+  plan: 'Pro',
+  zone: 'fe3322f36e100d',
+  status: 'active',
+  analytics_url: 'https://www.google.com/analytics/redirect/zone/fe3322f36e100d',
+};
+
 const ERROR_MESSAGES = {
   invalid_credentials: 'Неверный email или пароль.',
   email_taken: 'Этот email уже зарегистрирован.',
@@ -132,22 +152,36 @@ function populateAccounts(accounts = []) {
 }
 
 function renderProfile(user) {
-  qs('[data-user-email]').textContent = user?.name || user?.email || 'друг';
+  const profile = user && Object.keys(user).length ? user : FALLBACK_PROFILE;
+
+  qs('[data-user-email]').textContent = profile?.name || profile?.email || 'друг';
   const subtitle = qs('[data-dashboard-subtitle]');
   if (subtitle) {
-    const role = user?.role || user?.user_type || user?.type;
-    const identifier = user?.email || user?.phone || user?.tg_id || user?.id;
-    subtitle.textContent = role && identifier
-      ? `${identifier} · ${role}`
-      : identifier || 'Ваш аккаунт пока не загружен';
+    const role = profile?.role || profile?.user_type || profile?.type || 'edge client';
+    const identifier = profile?.email || profile?.slug || profile?.id || profile?.phone || profile?.tg_id;
+    subtitle.textContent = identifier ? `${identifier} · ${role}` : 'Ваш аккаунт пока не загружен';
   }
 
   const pre = qs('[data-profile-dump]');
   if (pre) {
-    pre.textContent = user ? JSON.stringify(user, null, 2) : 'Профиль не загружен';
+    pre.textContent = JSON.stringify(profile || FALLBACK_PROFILE, null, 2);
   }
 
   populateAccounts(user?.accounts || []);
+}
+
+function renderAnalyticsSnippet(user) {
+  const block = qs('[data-analytics-snippet]');
+  if (!block) return;
+
+  const token = user?.access_token || user?.token || '<token>';
+  const zone = user?.zone || user?.zone_id || FALLBACK_PROFILE.zone;
+  const edge = user?.edge || 'ams';
+  const snippet = ANALYTICS_SNIPPET.replace('<token>', token)
+    .replace('https://example.tld/utm?ref=ad', `https://${zone}.tld/utm?ref=ad`)
+    .replace('"edge": "ams"', `"edge": "${edge}"`);
+
+  block.textContent = snippet;
 }
 
 function showAuthenticatedUI() {
@@ -348,6 +382,7 @@ async function loadMe({ attemptRefresh = true } = {}) {
   currentAccount = res.accounts?.[0] || null;
   setAuthState('authenticated');
   renderProfile(currentUser);
+  renderAnalyticsSnippet(currentUser);
   showAuthenticatedUI();
   return currentUser;
 }
@@ -444,8 +479,29 @@ function bindForms() {
 }
 
 function bindTabs() {
-  qsa('[data-tab-target]').forEach((btn) => {
+  const tabButtons = qsa('[data-tab-target]');
+  const tabList = qs('.tab-list');
+
+  tabButtons.forEach((btn) => {
     btn.addEventListener('click', () => toggleTab(btn.dataset.tabTarget));
+  });
+
+  tabList?.addEventListener('keydown', (event) => {
+    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+    event.preventDefault();
+
+    const currentIndex = tabButtons.findIndex((btn) => btn.classList.contains('active'));
+    if (currentIndex === -1) return;
+
+    let nextIndex = currentIndex;
+    if (event.key === 'ArrowLeft') nextIndex = (currentIndex - 1 + tabButtons.length) % tabButtons.length;
+    if (event.key === 'ArrowRight') nextIndex = (currentIndex + 1) % tabButtons.length;
+    if (event.key === 'Home') nextIndex = 0;
+    if (event.key === 'End') nextIndex = tabButtons.length - 1;
+
+    const nextTab = tabButtons[nextIndex];
+    nextTab?.focus();
+    toggleTab(nextTab?.dataset.tabTarget);
   });
 }
 
@@ -523,6 +579,7 @@ function handleOAuthReturn() {
 async function bootstrap() {
   initTheme();
   showAnonymousUI();
+  renderAnalyticsSnippet();
   toggleTab(getTabFromHash() || 'login');
   bindForms();
   bindTabs();
