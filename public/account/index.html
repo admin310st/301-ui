@@ -5,10 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Account · 301.st</title>
     <link rel="stylesheet" href="/css/theme.css" />
+    <link rel="stylesheet" href="/css/site.css" />
     <link rel="stylesheet" href="/css/auth-account.css" />
   </head>
   <body>
-    <section class="section-account">
+    <header class="site-header">
+      <div class="container header-bar">
+        <a class="brand" href="/">301.st</a>
+        <nav class="nav-links">
+          <a href="/auth/login">Вход</a>
+          <a href="/auth/register">Регистрация</a>
+          <a href="/auth/forgot">Напоминание</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="section-account">
       <div class="account-container">
         <div class="account-guard" data-onlogin="hide">
           <div class="account-card">
@@ -41,8 +53,8 @@
           </div>
         </div>
       </div>
-    </section>
-
+    </main>
+  
     <script type="module" src="/auth301.js"></script>
   </body>
 </html>
