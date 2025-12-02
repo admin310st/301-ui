@@ -110,7 +110,8 @@
 }
 
 /* TURNSTILE обычно сам по себе, но отступ можно задать здесь */
-.cf-turnstile {
+.cf-turnstile,
+.turnstile-widget {
   margin-top: var(--space-1);
 }
 

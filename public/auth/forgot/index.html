@@ -34,8 +34,11 @@
 
             <div data-status class="auth-status" hidden></div>
 
+            <input type="hidden" name="turnstile_token" value="" />
+            <div class="turnstile-widget" aria-live="polite"></div>
+
             <div class="auth-actions">
-              <button type="submit" class="btn btn-primary" data-auth-submit>Отправить письмо</button>
+              <button type="submit" class="btn btn-primary" data-auth-submit="forgot">Отправить письмо</button>
               <a href="/auth/login" class="btn btn-secondary">Вспомнил пароль</a>
             </div>
           </form>

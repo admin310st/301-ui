@@ -1,9 +1,159 @@
 const API_ROOT = 'https://api.301.st/auth';
+const TURNSTILE_SITE_KEY = '0x4AAAAAACB-_l9VwF1M_QHU';
+const TURNSTILE_DEBUG = false;
 
 let accessToken = null;
 let currentUser = null;
 const authSubscribers = new Set();
 const DEFAULT_AVATAR = 'https://www.gravatar.com/avatar/?s=120&d=mp';
+let turnstileScriptPromise = null;
+
+function loadTurnstileScript() {
+  if (typeof window === 'undefined') return Promise.resolve(null);
+  if (window.turnstile && typeof window.turnstile.render === 'function') {
+    return Promise.resolve(window.turnstile);
+  }
+
+  if (turnstileScriptPromise) return turnstileScriptPromise;
+
+  turnstileScriptPromise = new Promise((resolve) => {
+    const existing = document.querySelector('script[data-turnstile]');
+    if (!existing) {
+      const script = document.createElement('script');
+      script.src =
+        'https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileLoad&render=explicit';
+      script.async = true;
+      script.defer = true;
+      script.dataset.turnstile = 'true';
+      document.head.appendChild(script);
+    }
+
+    const ready = () => {
+      if (window.turnstile && typeof window.turnstile.render === 'function') {
+        renderTurnstileWidgets();
+      }
+      resolve(window.turnstile || null);
+    };
+    window.onTurnstileLoad = ready;
+    setTimeout(ready, 2000);
+  });
+
+  return turnstileScriptPromise;
+}
+
+function renderTurnstileWidgets(root = document) {
+  if (!window.turnstile || typeof window.turnstile.render !== 'function') return;
+
+  const containers = root.querySelectorAll('.turnstile-widget');
+  containers.forEach((container) => {
+    if (!container) return;
+    if (container.dataset.tsRendered === '1') return;
+    if (container.children.length > 0) return;
+
+    container.dataset.tsRendered = '1';
+
+    const form = container.closest('form');
+    const authMode = form?.dataset.auth || 'login';
+    const hiddenInput = form?.querySelector('input[name="turnstile_token"]');
+    const btn =
+      (authMode && form?.querySelector(`[data-auth-submit="${authMode}"]`)) ||
+      form?.querySelector('[data-auth-submit]');
+
+    if (btn) {
+      if (!btn.dataset.labelReady) btn.dataset.labelReady = (btn.textContent || 'Sign In').trim();
+      if (!btn.dataset.labelCaptcha) btn.dataset.labelCaptcha = 'Turnstile required';
+      btn.disabled = true;
+      btn.textContent = btn.dataset.labelCaptcha;
+    }
+
+    const widgetId = window.turnstile.render(container, {
+      sitekey: TURNSTILE_SITE_KEY,
+      theme: 'light',
+      size: 'normal',
+
+      callback(token) {
+        if (hiddenInput) hiddenInput.value = token;
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = btn.dataset.labelReady || 'Sign In';
+        }
+      },
+
+      'expired-callback'() {
+        if (hiddenInput) hiddenInput.value = '';
+        if (btn) {
+          btn.disabled = true;
+          btn.textContent = btn.dataset.labelCaptcha || 'Turnstile required';
+        }
+        try {
+          window.turnstile.reset(widgetId);
+        } catch {}
+      },
+
+      'error-callback'(errCode) {
+        if (TURNSTILE_DEBUG) console.error('Turnstile error:', errCode);
+        if (btn) {
+          btn.disabled = true;
+          btn.textContent = btn.dataset.labelCaptcha || 'Turnstile unavailable';
+        }
+        const status = form?.querySelector('[data-status]');
+        if (status) {
+          status.textContent = 'Captcha unavailable. Try again.';
+          status.dataset.type = 'error';
+          status.hidden = false;
+        }
+      },
+    });
+  });
+}
+
+function initTurnstileSupport(root = document) {
+  loadTurnstileScript().then(() => renderTurnstileWidgets(root));
+
+  const observer = new MutationObserver((mutations) => {
+    for (const m of mutations) {
+      if (m.type === 'attributes' && m.attributeName === 'data-state') {
+        const el = m.target;
+        if (el.getAttribute('data-state') === 'open' && el.querySelector('.turnstile-widget')) {
+          renderTurnstileWidgets(el);
+        }
+      }
+
+      if (m.type === 'childList' && m.addedNodes && m.addedNodes.length) {
+        m.addedNodes.forEach((node) => {
+          if (node.nodeType !== 1) return;
+
+          if (
+            node.matches?.('[data-state="open"]') &&
+            (node.querySelector('.turnstile-widget') || node.matches('.turnstile-widget'))
+          ) {
+            renderTurnstileWidgets(node);
+            return;
+          }
+
+          const openWithWidget =
+            node.querySelector?.('[data-state="open"] .turnstile-widget') ||
+            node.querySelector?.('.turnstile-widget');
+
+          if (openWithWidget) {
+            renderTurnstileWidgets(node);
+          }
+        });
+      }
+    }
+  });
+
+  observer.observe(document.documentElement, {
+    subtree: true,
+    childList: true,
+    attributes: true,
+    attributeFilter: ['data-state'],
+  });
+}
+
+function getTurnstileToken(form) {
+  return form?.querySelector('input[name="turnstile_token"]')?.value?.trim() || '';
+}
 
 function setAccessToken(token) {
   accessToken = token || null;
@@ -305,11 +455,15 @@ async function handleSignIn(event) {
   const form = event.currentTarget;
   const email = form.querySelector('[name="email"]')?.value?.trim();
   const password = form.querySelector('[name="password"]')?.value || '';
+  const turnstileToken = getTurnstileToken(form);
   const submitBtn = form.querySelector('[type="submit"]');
   const originalText = submitBtn?.textContent;
 
   if (!email || !password) {
     return setFormState(form, 'error', 'Enter email/phone & password');
+  }
+  if (!turnstileToken) {
+    return setFormState(form, 'error', 'Подтвердите капчу');
   }
 
   setFormState(form, 'loading', 'Signing in...');
@@ -318,7 +472,7 @@ async function handleSignIn(event) {
   try {
     const res = await apiRequest('/login', {
       method: 'POST',
-      body: { email, password },
+      body: { email, password, turnstile_token: turnstileToken },
     });
 
     if (res.ok && res.access_token) {
@@ -364,11 +518,15 @@ async function handleRegister(event) {
   const form = event.currentTarget;
   const email = form.querySelector('[name="email"]')?.value?.trim();
   const password = form.querySelector('[name="password"]')?.value || '';
+  const turnstileToken = getTurnstileToken(form);
   const submitBtn = form.querySelector('[type="submit"]');
   const originalText = submitBtn?.textContent;
 
   if (!email || !password) {
     return setFormState(form, 'error', 'Введите email и пароль');
+  }
+  if (!turnstileToken) {
+    return setFormState(form, 'error', 'Подтвердите капчу');
   }
 
   setFormState(form, 'loading', 'Создаём аккаунт...');
@@ -377,7 +535,7 @@ async function handleRegister(event) {
   try {
     const res = await apiRequest('/register', {
       method: 'POST',
-      body: { email, password },
+      body: { email, password, turnstile_token: turnstileToken },
     });
 
     if (res.ok) {
@@ -414,11 +572,15 @@ async function handleForgot(event) {
   event.preventDefault();
   const form = event.currentTarget;
   const email = form.querySelector('[name="email"]')?.value?.trim();
+  const turnstileToken = getTurnstileToken(form);
   const submitBtn = form.querySelector('[type="submit"]');
   const originalText = submitBtn?.textContent;
 
   if (!email) {
     return setFormState(form, 'error', 'Укажите email');
+  }
+  if (!turnstileToken) {
+    return setFormState(form, 'error', 'Подтвердите капчу');
   }
 
   setFormState(form, 'loading', 'Отправляем письмо...');
@@ -427,7 +589,7 @@ async function handleForgot(event) {
   try {
     const res = await apiRequest('/forgot', {
       method: 'POST',
-      body: { email },
+      body: { email, turnstile_token: turnstileToken },
     });
 
     if (res.ok) {
@@ -498,6 +660,7 @@ function initAuthUI() {
   bindAccountFields();
   toggleLoginVisibility(Boolean(currentUser));
   bindAvatarPreview();
+  initTurnstileSupport();
 }
 
 async function bootstrapAuth() {
