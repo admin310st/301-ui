@@ -15,6 +15,9 @@ const DEFAULT_AVATAR = '/img/anonymous-avatar.svg';
 let turnstileScriptPromise = null;
 let turnstileSiteKey = DEFAULT_TURNSTILE_SITE_KEY;
 let resetCsrfToken = '';
+let currentProfile = null;
+let currentAccounts = [];
+let currentActiveAccountId = null;
 
 async function loadTurnstileSiteKey() {
   try {
@@ -341,6 +344,24 @@ function buildAvatarUrl(email) {
   return `https://www.gravatar.com/avatar/${hash}?s=160&d=identicon`;
 }
 
+function renderAccountsText(accounts = [], activeId) {
+  if (!Array.isArray(accounts) || accounts.length === 0) return '';
+
+  const items = accounts
+    .map((acc) => {
+      if (!acc) return '';
+      const parts = [];
+      if (acc.role) parts.push(acc.role);
+      if (typeof acc.id !== 'undefined') parts.push(`#${acc.id}`);
+      if (acc.status && acc.status !== 'active') parts.push(`(${acc.status})`);
+      if (activeId && acc.id === activeId) parts.push('• active');
+      return parts.join(' ');
+    })
+    .filter(Boolean);
+
+  return items.join(', ');
+}
+
 function updateAvatarPreview(email) {
   const img = document.querySelector('[data-avatar-img]');
   const label = document.querySelector('[data-avatar-label]');
@@ -394,6 +415,12 @@ function applyAuthState(user) {
   const loggedIn = Boolean(user);
   document.documentElement.dataset.authState = loggedIn ? 'in' : 'out';
 
+  if (!user) {
+    currentProfile = null;
+    currentAccounts = [];
+    currentActiveAccountId = null;
+  }
+
   setWebstudioVariable('authUserEmail', user?.email ?? '');
   setWebstudioVariable('authUserName', user?.name ?? '');
 
@@ -446,9 +473,15 @@ async function apiRequest(path, { method = 'GET', body, headers = {}, auth = fal
 async function fetchMe() {
   const res = await apiRequest('/me', { auth: true });
   if (res.ok && res.user) {
+    currentProfile = res;
+    currentAccounts = Array.isArray(res.accounts) ? res.accounts : [];
+    currentActiveAccountId = res.active_account_id ?? null;
     applyAuthState(res.user);
     return res.user;
   }
+  currentProfile = null;
+  currentAccounts = [];
+  currentActiveAccountId = null;
   return null;
 }
 
@@ -503,8 +536,13 @@ async function handleSignIn(event) {
 
     if (res.ok && res.access_token) {
       setAccessToken(res.access_token);
-      const user = res.user || (await fetchMe());
-      applyAuthState(user);
+      const user = await fetchMe();
+      if (!user && res.user) {
+        currentProfile = null;
+        currentAccounts = [];
+        currentActiveAccountId = null;
+        applyAuthState(res.user);
+      }
       setFormState(form, 'success', 'Logged in.');
       setTimeout(() => {
         if (location.pathname.startsWith('/auth/login')) {
@@ -823,13 +861,19 @@ function bindAccountFields() {
   onAuthStateChanged((user) => {
     const nameEl = document.getElementById('AccountName');
     const emailEl = document.getElementById('AccountEmail');
+    const telegramEl = document.getElementById('AccountTelegram');
+    const accountsEl = document.getElementById('AccountAccounts');
+    const avatarEl = document.getElementById('AccountAvatar');
     const logout = document.getElementById('AccountLogout');
 
-    if (!nameEl || !emailEl) return;
+    if (!nameEl || !emailEl || !telegramEl || !accountsEl || !avatarEl) return;
 
     if (!user) {
       nameEl.textContent = '';
       emailEl.textContent = '';
+      telegramEl.textContent = '';
+      accountsEl.textContent = '';
+      avatarEl.src = DEFAULT_AVATAR;
       if (logout) logout.style.display = 'none';
       return;
     }
@@ -840,6 +884,9 @@ function bindAccountFields() {
       `User #${user.id}`;
     nameEl.textContent = label;
     emailEl.textContent = user.email || '';
+    telegramEl.textContent = user.tg_id || '';
+    accountsEl.textContent = renderAccountsText(currentAccounts, currentActiveAccountId);
+    avatarEl.src = buildAvatarUrl(user.email);
     if (logout) logout.style.display = '';
   });
 }
