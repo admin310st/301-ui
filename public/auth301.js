@@ -1,5 +1,5 @@
 const API_ROOT = 'https://api.301.st/auth';
-const TURNSTILE_SITE_KEY = '0x4AAAAAACB-_l9VwF1M_QHU';
+const DEFAULT_TURNSTILE_SITE_KEY = '0x4AAAAAACB-_l9VwF1M_QHU';
 const TURNSTILE_DEBUG = false;
 
 let accessToken = null;
@@ -7,6 +7,20 @@ let currentUser = null;
 const authSubscribers = new Set();
 const DEFAULT_AVATAR = 'https://www.gravatar.com/avatar/?s=120&d=mp';
 let turnstileScriptPromise = null;
+let turnstileSiteKey = DEFAULT_TURNSTILE_SITE_KEY;
+
+async function loadTurnstileSiteKey() {
+  try {
+    const res = await fetch('/env', { cache: 'no-store' });
+    if (!res.ok) throw new Error('env failed');
+    const data = await res.json();
+    const sitekey = data?.turnstileSitekey || data?.turnstile_sitekey;
+    return sitekey || DEFAULT_TURNSTILE_SITE_KEY;
+  } catch (err) {
+    if (TURNSTILE_DEBUG) console.error('Failed to load /env', err);
+    return DEFAULT_TURNSTILE_SITE_KEY;
+  }
+}
 
 function loadTurnstileScript() {
   if (typeof window === 'undefined') return Promise.resolve(null);
@@ -67,8 +81,8 @@ function renderTurnstileWidgets(root = document) {
     }
 
     const widgetId = window.turnstile.render(container, {
-      sitekey: TURNSTILE_SITE_KEY,
-      theme: 'light',
+      sitekey: turnstileSiteKey,
+      theme: document.documentElement.dataset.theme === 'light' ? 'light' : 'dark',
       size: 'normal',
 
       callback(token) {
@@ -108,7 +122,12 @@ function renderTurnstileWidgets(root = document) {
 }
 
 function initTurnstileSupport(root = document) {
-  loadTurnstileScript().then(() => renderTurnstileWidgets(root));
+  loadTurnstileSiteKey()
+    .then((sitekey) => {
+      turnstileSiteKey = sitekey;
+      return loadTurnstileScript();
+    })
+    .then(() => renderTurnstileWidgets(root));
 
   const observer = new MutationObserver((mutations) => {
     for (const m of mutations) {
