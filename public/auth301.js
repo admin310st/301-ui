@@ -1,6 +1,12 @@
 const API_ROOT = 'https://api.301.st/auth';
 const DEFAULT_TURNSTILE_SITE_KEY = '0x4AAAAAACB-_l9VwF1M_QHU';
 const TURNSTILE_DEBUG = false;
+const PROVIDER_NAMES = {
+  google: 'Google',
+  github: 'GitHub',
+  apple: 'Apple',
+  telegram: 'Telegram',
+};
 
 let accessToken = null;
 let currentUser = null;
@@ -8,6 +14,7 @@ const authSubscribers = new Set();
 const DEFAULT_AVATAR = 'https://www.gravatar.com/avatar/?s=120&d=mp';
 let turnstileScriptPromise = null;
 let turnstileSiteKey = DEFAULT_TURNSTILE_SITE_KEY;
+let resetCsrfToken = '';
 
 async function loadTurnstileSiteKey() {
   try {
@@ -520,6 +527,162 @@ async function handleSignIn(event) {
   }
 }
 
+function setResetSubtitle(text) {
+  const subtitle = document.querySelector('[data-reset-subtitle]');
+  if (subtitle && typeof text === 'string') subtitle.textContent = text;
+}
+
+function getResetParams() {
+  const url = new URL(location.href);
+  return {
+    type: url.searchParams.get('type'),
+    token: url.searchParams.get('token') || url.searchParams.get('reset_token'),
+  };
+}
+
+function disableResetForm(form) {
+  const passwordInput = form?.querySelector('[name="password"]');
+  const submitBtn = form?.querySelector('[type="submit"]');
+  if (passwordInput) passwordInput.disabled = true;
+  if (submitBtn) submitBtn.disabled = true;
+}
+
+function resolveResetVerifyError(res) {
+  const code = res?.error || res?.status;
+  if (code === 'expired_token') return 'Ссылка устарела. Запросите новое письмо.';
+  return resolveErrorMessage(res, 'Не удалось подтвердить ссылку');
+}
+
+function resolveResetConfirmError(res) {
+  const code = res?.error || res?.status;
+  switch (code) {
+    case 'reset_session_required':
+    case 'reset_session_expired':
+      return 'Ссылка для сброса истекла. Запросите новое письмо.';
+    case 'csrf_token_required':
+    case 'csrf_token_invalid':
+      return 'Сессия сброса не найдена или истекла. Запросите новое письмо.';
+    case 'password_too_weak':
+      return 'Пароль слишком слабый. Попробуйте сложнее.';
+    case 'password_reused':
+      return 'Новый пароль совпадает со старым.';
+    default:
+      return resolveErrorMessage(res, 'Не удалось обновить пароль');
+  }
+}
+
+async function verifyResetLink(form) {
+  if (!form) return false;
+
+  const passwordInput = form.querySelector('[name="password"]');
+  const submitBtn = form.querySelector('[type="submit"]');
+  const { type, token } = getResetParams();
+
+  resetCsrfToken = '';
+  disableResetForm(form);
+
+  if (type !== 'reset' || !token) {
+    setResetSubtitle('Ссылка сброса не найдена. Запросите новое письмо.');
+    setFormState(form, 'error', 'Ссылка сброса не найдена. Запросите новое письмо.');
+    return false;
+  }
+
+  setFormState(form, 'loading', 'Проверяем ссылку...');
+  setResetSubtitle('Проверяем ссылку из письма...');
+
+  try {
+    const res = await apiRequest('/verify', { method: 'POST', body: { token } });
+
+    if (res.ok && res.type === 'reset' && res.csrf_token) {
+      resetCsrfToken = res.csrf_token;
+      setFormState(form, 'success', 'Ссылка подтверждена. Введите новый пароль.');
+      setResetSubtitle('Придумайте новый пароль для входа.');
+      if (passwordInput) passwordInput.disabled = false;
+      if (submitBtn) submitBtn.disabled = false;
+      try {
+        history.replaceState(null, '', location.pathname);
+      } catch {}
+      passwordInput?.focus?.();
+      return true;
+    }
+
+    const message = resolveResetVerifyError(res);
+    setFormState(form, 'error', message);
+  } catch (err) {
+    console.error(err);
+    setFormState(form, 'error', 'Не удалось подтвердить ссылку.');
+  }
+
+  setResetSubtitle('Ссылка сброса недействительна. Запросите новое письмо.');
+  return false;
+}
+
+async function handleConfirmPassword(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const password = form.querySelector('[name="password"]')?.value || '';
+  const submitBtn = form.querySelector('[type="submit"]');
+
+  if (!resetCsrfToken) {
+    setFormState(form, 'error', 'Ссылка сброса не подтверждена или истекла.');
+    disableResetForm(form);
+    return;
+  }
+
+  if (!password) {
+    return setFormState(form, 'error', 'Введите новый пароль');
+  }
+
+  setFormState(form, 'loading', 'Обновляем пароль...');
+  if (submitBtn) submitBtn.disabled = true;
+
+  try {
+    const res = await apiRequest('/confirm_password', {
+      method: 'POST',
+      body: { password, csrf_token: resetCsrfToken },
+    });
+
+    if (res.ok && res.status === 'ok') {
+      setFormState(form, 'success', 'Пароль обновлён. Можно войти с ним прямо сейчас.');
+      form.reset();
+      resetCsrfToken = '';
+      disableResetForm(form);
+      return;
+    }
+
+    const message = resolveResetConfirmError(res);
+    setFormState(form, 'error', message);
+
+    const code = res?.error || res?.status;
+    if (
+      code === 'reset_session_required' ||
+      code === 'reset_session_expired' ||
+      code === 'csrf_token_required' ||
+      code === 'csrf_token_invalid'
+    ) {
+      resetCsrfToken = '';
+      disableResetForm(form);
+    }
+  } catch (err) {
+    console.error(err);
+    setFormState(form, 'error', 'Не удалось обновить пароль.');
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+    }
+  }
+}
+
+function bindResetConfirmForm() {
+  const form = document.querySelector('[data-auth="reset-confirm"]');
+  if (form && !form.dataset.authBound) {
+    form.dataset.authBound = 'true';
+    disableResetForm(form);
+    verifyResetLink(form);
+    form.addEventListener('submit', handleConfirmPassword);
+  }
+}
+
 function bindLoginForm() {
   const form =
     document.querySelector('[data-auth="login"]') ||
@@ -606,13 +769,23 @@ async function handleForgot(event) {
   if (submitBtn) submitBtn.disabled = true;
 
   try {
-    const res = await apiRequest('/forgot', {
+    const res = await apiRequest('/reset_password', {
       method: 'POST',
-      body: { email, turnstile_token: turnstileToken },
+      body: { type: 'email', value: email, turnstile_token: turnstileToken },
     });
 
+    const code = res.error || res.status;
+
+    if (code === 'oauth_only') {
+      const providerLabel = PROVIDER_NAMES[res.provider] || res.provider || 'OAuth';
+      const message =
+        res.message || `Вход через ${providerLabel}. Сброс пароля недоступен для этого аккаунта.`;
+      setFormState(form, 'error', message);
+      return;
+    }
+
     if (res.ok) {
-      setFormState(form, 'success', 'Письмо отправлено, проверьте почту.');
+      setFormState(form, 'success', 'Письмо отправлено. Проверьте почту, чтобы сбросить пароль.');
       return;
     }
 
@@ -675,6 +848,7 @@ function initAuthUI() {
   bindLoginForm();
   bindRegisterForm();
   bindForgotForm();
+  bindResetConfirmForm();
   bindLogoutButton();
   bindAccountFields();
   toggleLoginVisibility(Boolean(currentUser));
