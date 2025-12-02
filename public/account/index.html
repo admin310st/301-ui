@@ -5,15 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Account · 301.st</title>
     <link rel="stylesheet" href="/css/theme.css" />
-    <link rel="stylesheet" href="/css/auth-pages.css" />
+    <link rel="stylesheet" href="/css/auth-account.css" />
   </head>
   <body>
-    <section class="section account-section">
-      <div class="container account-container">
+    <section class="section-account">
+      <div class="account-container">
         <div class="account-guard" data-onlogin="hide">
-          <div class="card">
+          <div class="account-card">
             <h1 class="account-title">You are not signed in</h1>
-            <p class="account-text">
+            <p class="account-subtitle">
               Please sign in to manage your redirects and Cloudflare integrations.
             </p>
             <a href="/auth/login" class="btn btn-primary">Go to sign-in</a>
@@ -21,8 +21,9 @@
         </div>
 
         <div class="account-main" data-onlogin="show">
-          <div class="card">
+          <div class="account-card">
             <h1 class="account-title">Account</h1>
+            <p class="account-subtitle">Profile and connections.</p>
 
             <div class="account-row">
               <div class="account-label">Name</div>
@@ -32,14 +33,6 @@
             <div class="account-row">
               <div class="account-label">Email</div>
               <div class="account-value" id="AccountEmail"></div>
-            </div>
-
-            <div class="account-subtitle">Connected accounts</div>
-            <div class="account-row">
-              <div class="account-label">Cloudflare</div>
-              <div class="account-value">
-                <span class="badge badge-muted">Not configured yet</span>
-              </div>
             </div>
 
             <div class="account-actions">
