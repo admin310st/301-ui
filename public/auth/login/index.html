@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sign in · 301.st</title>
     <link rel="stylesheet" href="/css/theme.css" />
-    <link rel="stylesheet" href="/css/auth-pages.css" />
+    <link rel="stylesheet" href="/css/auth-account.css" />
   </head>
   <body>
-    <section class="section auth-section">
-      <div class="container auth-container">
+    <section class="section-auth">
+      <div class="auth-container">
         <div class="auth-panel">
           <h1 class="auth-title">Sign in to 301.st</h1>
           <p class="auth-subtitle">Use your email and password to access your account.</p>
@@ -23,7 +23,6 @@
                 name="email"
                 type="email"
                 autocomplete="email"
-                placeholder="you@domain.com"
                 required
               />
             </div>
@@ -46,14 +45,9 @@
               <button type="submit" class="btn btn-primary" data-auth-submit="login">
                 Sign in
               </button>
-              <a href="/auth/forgot" class="auth-link">Forgot password?</a>
+              <a href="/auth/register" class="auth-link">Create account</a>
             </div>
           </form>
-
-          <div class="auth-footer">
-            <span>Don’t have an account?</span>
-            <a href="/auth/register" class="auth-link">Create account</a>
-          </div>
         </div>
       </div>
     </section>

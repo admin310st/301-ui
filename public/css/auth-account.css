@@ -1,0 +1,223 @@
+/* Общая секция для auth/account страниц */
+.section-auth,
+.section-account {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  color: var(--text-main);
+}
+
+/* Внутренний контейнер */
+.section-auth .auth-container,
+.section-account .account-container {
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto;
+  padding: var(--space-5);
+}
+
+.auth-panel,
+.account-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-subtle);
+  padding: var(--space-5);
+}
+
+/* Заголовки блоков */
+.auth-title,
+.account-title {
+  font-size: var(--fs-xl);
+  font-weight: var(--fw-semibold);
+  margin: 0 0 var(--space-2);
+}
+
+.auth-subtitle,
+.account-subtitle {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  margin: 0 0 var(--space-4);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin-bottom: var(--space-4);
+}
+
+.field-label {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  color: var(--text-muted);
+}
+
+.input,
+.textarea,
+.select {
+  width: 100%;
+  background-color: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: var(--radius);
+  color: var(--text-main);
+  font-size: var(--fs-sm);
+  padding: 0.6rem 0.75rem;
+}
+
+.input::placeholder,
+.textarea::placeholder {
+  color: var(--text-subtle);
+}
+
+.input:focus,
+.textarea:focus,
+.select:focus {
+  outline: none;
+  border-color: var(--input-border-focus);
+  box-shadow: 0 0 0 1px var(--input-border-focus);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+  transition: background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+/* Primary: синий */
+.btn-primary {
+  background: var(--primary);
+  color: var(--btn-text-on-dark);
+}
+
+.btn-primary:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+}
+
+/* Secondary: прозрачная с рамкой */
+.btn-secondary {
+  background: transparent;
+  color: var(--text-main);
+  border-color: var(--border-strong);
+}
+
+.btn-secondary:hover {
+  background: var(--primary-soft);
+}
+
+/* Базовый блок статуса */
+.auth-status,
+[data-status].auth-status {
+  margin-top: var(--space-2);
+  font-size: var(--fs-xs);
+  line-height: 1.4;
+  color: var(--text-muted);
+}
+
+/* Ошибка */
+.auth-status[data-type="error"] {
+  color: var(--danger);
+  background: var(--danger-bg);
+  border: 1px solid rgba(255, 79, 110, 0.6);
+  border-radius: var(--radius);
+  padding: 0.4rem 0.6rem;
+}
+
+/* Успех */
+.auth-status[data-type="success"] {
+  color: var(--success);
+  background: var(--success-bg);
+  border: 1px solid rgba(24, 194, 122, 0.6);
+  border-radius: var(--radius);
+  padding: 0.4rem 0.6rem;
+}
+
+/* Pending (например "check your email") */
+.auth-status[data-type="pending"] {
+  color: var(--text-main);
+  background: var(--warning-bg);
+  border: 1px solid rgba(255, 179, 71, 0.7);
+  border-radius: var(--radius);
+  padding: 0.4rem 0.6rem;
+}
+
+/* Loading — без фона, просто текст */
+.auth-status[data-type="loading"] {
+  color: var(--text-muted);
+}
+
+.auth-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+}
+
+.auth-link,
+.account-link {
+  font-size: var(--fs-sm);
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.auth-link:hover,
+.account-link:hover {
+  color: var(--primary-hover);
+  text-decoration: underline;
+}
+
+.auth-footer {
+  margin-top: var(--space-4);
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.auth-footer a {
+  margin-left: 0.35rem;
+}
+
+.account-guard {
+  /* блок, который показывается, если пользователь не залогинен */
+}
+
+.account-main {
+  /* блок, который показывается, если пользователь залогинен */
+}
+
+.account-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.account-label {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.account-value {
+  font-size: var(--fs-sm);
+  color: var(--text-main);
+}
+
+.account-actions {
+  margin-top: var(--space-4);
+  display: flex;
+  justify-content: flex-end;
+}
