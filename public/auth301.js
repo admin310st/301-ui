@@ -11,7 +11,7 @@ const PROVIDER_NAMES = {
 let accessToken = null;
 let currentUser = null;
 const authSubscribers = new Set();
-const DEFAULT_AVATAR = 'https://www.gravatar.com/avatar/?s=120&d=mp';
+const DEFAULT_AVATAR = 'https://www.svgviewer.dev/s/aXqhpj2n';
 let turnstileScriptPromise = null;
 let turnstileSiteKey = DEFAULT_TURNSTILE_SITE_KEY;
 let resetCsrfToken = '';
