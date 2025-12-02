@@ -3,214 +3,103 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Вход в 301.st</title>
-
-    <!-- Новый порядок: тема → лейаут → auth -->
+    <title>301.st · Редиректы и аналитика</title>
     <link rel="stylesheet" href="/css/theme.css" />
-    <link rel="stylesheet" href="/css/layout.css" />
-    <link rel="stylesheet" href="/css/auth.css" />
-
-    <script
-      src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=onTurnstileLoad"
-      async
-      defer
-    ></script>
+    <link rel="stylesheet" href="/css/site.css" />
   </head>
   <body>
-    <header class="status-bar">
-      <div class="container status-bar__content">
-        <div class="status-bar__left">
-          <div class="status-indicator" aria-hidden="true"></div>
-          <div class="status-identity">
-            <p class="eyebrow">Статус</p>
-            <p class="status-text" data-auth-status>Вы не авторизованы</p>
-          </div>
-        </div>
-        <div class="status-bar__right">
-          <div data-session-summary>Авторизуйтесь, чтобы управлять 301.st</div>
-          <button class="btn btn-secondary btn-sm theme-toggle" data-action="toggle-theme" type="button">
-            Светлая тема
-          </button>
-        </div>
+    <header class="site-header">
+      <div class="container header-bar">
+        <a class="brand" href="/">301.st</a>
+        <nav class="nav-links">
+          <a href="/auth/login">Вход</a>
+          <a href="/auth/register">Регистрация</a>
+          <a href="/auth/forgot">Напоминание доступа</a>
+          <a href="/account" class="pill">Профиль</a>
+        </nav>
       </div>
     </header>
 
-    <main class="container page-grid">
-      <section class="hero-banner">
-        <div class="hero-copy">
-          <div class="pill-row">
-            <span class="pill pill--outline">Cloudflare protected</span>
-            <span class="pill pill--success">OAuth ready</span>
-            <span class="pill pill--muted">Turnstile enforced</span>
+    <main>
+      <section class="hero">
+        <div class="container hero-grid">
+          <div class="hero-copy">
+            <p class="eyebrow">Боевой интерфейс</p>
+            <h1>Собрали с нуля рабочий UI 301.st</h1>
+            <p class="lede">
+              Отдельные страницы для логина, регистрации и восстановления доступа. Готовы показывать
+              клиентам без тестовых заглушек.
+            </p>
+            <div class="cta">
+              <a class="btn btn-primary" href="/auth/register">Создать аккаунт</a>
+              <a class="btn btn-secondary" href="/auth/login">Войти</a>
+            </div>
+            <div class="meta">Работает в проде, API — https://api.301.st</div>
           </div>
-          <p class="eyebrow">Control plane 301.st</p>
-          <p class="h1">Управляйте редиректами и зонами в одном месте</p>
-          <p class="lead">
-            Единый вход в Cloudflare-инфраструктуру, редиректы, TDS и аналитика. Включили обновленные
-            OAuth-провайдеры и строгую валидацию Turnstile по гайду 301.st.
-          </p>
-        </div>
-        <div class="hero-metrics">
-          <article class="metric-card">
-            <p class="metric-label">SLA Edge</p>
-            <p class="metric-value">99.9%</p>
-            <p class="metric-sub">Cloudflare Workers global</p>
-          </article>
-          <article class="metric-card">
-            <p class="metric-label">OAuth</p>
-            <p class="metric-value">Google · GitHub</p>
-            <p class="metric-sub">PKCE + state защита</p>
-          </article>
-          <article class="metric-card">
-            <p class="metric-label">Безопасность</p>
-            <p class="metric-value">Turnstile</p>
-            <p class="metric-sub">Token + refresh cookie</p>
-          </article>
+
+          <div class="hero-panel">
+            <div class="panel-header">
+              <span class="dot" aria-hidden="true"></span>
+              <span>Страницы собраны</span>
+            </div>
+            <div class="panel-body">
+              <ul class="panel-list">
+                <li>
+                  <div class="label">Вход</div>
+                  <div class="value">/auth/login</div>
+                </li>
+                <li>
+                  <div class="label">Регистрация</div>
+                  <div class="value">/auth/register</div>
+                </li>
+                <li>
+                  <div class="label">Напоминание</div>
+                  <div class="value">/auth/forgot</div>
+                </li>
+                <li>
+                  <div class="label">Профиль</div>
+                  <div class="value">/account</div>
+                </li>
+              </ul>
+              <p class="muted">
+                Формы вызывают продовый API и готовы к подключению OAuth. Аватар подтягивается по email для
+                демонстрации логина.
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 
-      <section class="auth-layout">
-        <div class="panels">
-          <section class="auth-panel" data-view="auth">
-            <header class="auth-header">
-              <div class="logo-circle" aria-hidden="true">301</div>
-              <div>
-                <p class="eyebrow">Добро пожаловать</p>
-                <p class="h1">Вход или регистрация 301.st</p>
-              </div>
-            </header>
-
-            <nav class="tab-list" role="tablist">
-              <button
-                class="tab active"
-                data-tab-target="login"
-                id="tab-btn-login"
-                aria-controls="tab-panel-login"
-                aria-selected="true"
-                role="tab"
-                type="button"
-              >
-                Вход
-              </button>
-              <button
-                class="tab"
-                data-tab-target="register"
-                id="tab-btn-register"
-                aria-controls="tab-panel-register"
-                aria-selected="false"
-                role="tab"
-                type="button"
-              >
-                Регистрация
-              </button>
-              <button
-                class="tab"
-                data-tab-target="forgot"
-                id="tab-btn-forgot"
-                aria-controls="tab-panel-forgot"
-                aria-selected="false"
-                role="tab"
-                type="button"
-              >
-                Забыли пароль?
-              </button>
-            </nav>
-
-            <form class="auth-form" data-auth-form="login" id="tab-panel-login" role="tabpanel" aria-labelledby="tab-btn-login">
-              <div class="field">
-                <label class="field-label" for="login-email">Email</label>
-                <input class="input" id="login-email" name="email" type="email" autocomplete="email" required />
-              </div>
-              <div class="field">
-                <label class="field-label" for="login-password">Пароль</label>
-                <input class="input" id="login-password" name="password" type="password" autocomplete="current-password" required />
-              </div>
-              <div class="cf-turnstile" data-theme="dark"></div>
-              <button type="submit" class="btn btn-primary">Войти</button>
-              <div class="inline-actions">
-                <button type="button" class="text-muted inline-link" data-switch-to="register">Создать аккаунт</button>
-                <button type="button" class="text-muted inline-link" data-switch-to="forgot">Забыли пароль?</button>
-              </div>
-              <div class="form-message" data-status></div>
-            </form>
-
-            <form
-              class="auth-form"
-              data-auth-form="register"
-              id="tab-panel-register"
-              role="tabpanel"
-              aria-labelledby="tab-btn-register"
-              hidden
-            >
-              <div class="field">
-                <label class="field-label" for="register-email">Email</label>
-                <input class="input" id="register-email" name="email" type="email" autocomplete="email" required />
-              </div>
-              <div class="field">
-                <label class="field-label" for="register-password">Пароль</label>
-                <input class="input" id="register-password" name="password" type="password" autocomplete="new-password" required />
-              </div>
-              <div class="cf-turnstile" data-theme="dark"></div>
-              <button type="submit" class="btn btn-primary">Создать аккаунт</button>
-              <button type="button" class="text-muted inline-link" data-switch-to="login">Уже есть аккаунт?</button>
-              <div class="form-message" data-status></div>
-            </form>
-
-            <form
-              class="auth-form"
-              data-auth-form="forgot"
-              id="tab-panel-forgot"
-              role="tabpanel"
-              aria-labelledby="tab-btn-forgot"
-              hidden
-            >
-              <div class="field">
-                <label class="field-label" for="forgot-email">Email</label>
-                <input class="input" id="forgot-email" name="email" type="email" autocomplete="email" required />
-              </div>
-              <div class="cf-turnstile" data-theme="dark"></div>
-              <button type="submit" class="btn btn-primary">Отправить ссылку</button>
-              <button type="button" class="text-muted inline-link" data-switch-to="login">Вернуться ко входу</button>
-              <div class="form-message" data-status></div>
-            </form>
-
-            <div class="divider">или войдите через</div>
-            <div class="social-grid" data-oauth-buttons>
-              <div class="social-button social-button--placeholder">Загрузка провайдеров...</div>
-            </div>
-
-            <div class="global-message" data-global-message hidden></div>
-          </section>
-
-          <section class="dashboard" data-view="dashboard" hidden>
-            <header class="dashboard__header">
-              <div>
-                <p class="eyebrow">Сессия активна</p>
-                <p class="h1">Привет, <span data-user-email>друг</span>!</p>
-                <p class="text-muted" data-dashboard-subtitle>Ваш аккаунт пока не загружен</p>
-              </div>
-              <div class="dashboard__actions">
-                <button type="button" class="btn btn-secondary" data-action="refresh-session">Обновить сессию</button>
-                <button type="button" class="btn btn-secondary" data-action="reload-profile">Проверить профиль</button>
-                <button type="button" class="btn btn-danger" data-action="logout">Выйти</button>
-              </div>
-            </header>
-
-            <article class="dashboard__card dashboard__card--code">
-              <div class="card__label">Аналитика</div>
-              <p class="text-muted">Отправляйте события c edge и получайте realtime-аналитику.</p>
-              <pre class="code-block" data-analytics-snippet></pre>
-            </article>
-
-            <article class="dashboard__card">
-              <div class="card__label">Профиль</div>
-              <pre class="profile-dump" data-profile-dump>Данные профиля появятся после загрузки.</pre>
-            </article>
-          </section>
+      <section class="features">
+        <div class="container features-grid">
+          <div class="feature-card">
+            <h3>Раздельные сценарии</h3>
+            <p>У пользователя разные пути: новая регистрация, вход и восстановление. Каждая страница — отдельная.</p>
+          </div>
+          <div class="feature-card">
+            <h3>Настоящий API</h3>
+            <p>Формы отправляют запросы на <code>/auth</code> в продакшене и готовы к интеграции с SaaS.</p>
+          </div>
+          <div class="feature-card">
+            <h3>Демонстрация аватара</h3>
+            <p>На странице логина показываем Gravatar по введённому email — удобно на демо и для UX.</p>
+          </div>
         </div>
       </section>
     </main>
 
-    <script type="module" src="/auth.js"></script>
+    <footer class="site-footer">
+      <div class="container footer-grid">
+        <div>
+          <div class="brand">301.st</div>
+          <p class="muted">Редиректы с аналитикой и интеграцией с Cloudflare.</p>
+        </div>
+        <div class="footer-links">
+          <a href="/auth/login">Вход</a>
+          <a href="/auth/register">Регистрация</a>
+          <a href="/auth/forgot">Напоминание</a>
+        </div>
+      </div>
+    </footer>
   </body>
 </html>

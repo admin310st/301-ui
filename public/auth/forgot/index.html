@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ru" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Напомнить доступ · 301.st</title>
+    <link rel="stylesheet" href="/css/theme.css" />
+    <link rel="stylesheet" href="/css/site.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container header-bar">
+        <a class="brand" href="/">301.st</a>
+        <nav class="nav-links">
+          <a href="/auth/login">Вход</a>
+          <a href="/auth/register">Регистрация</a>
+          <a href="/account" class="pill">Профиль</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="auth-shell">
+      <div class="container auth-grid">
+        <div class="auth-card">
+          <p class="eyebrow">Восстановить</p>
+          <h1>Напомнить доступ</h1>
+          <p class="auth-subtitle">Отправим ссылку на вход или сброс пароля на указанный email.</p>
+
+          <form data-auth="forgot">
+            <div class="field">
+              <label for="forgot-email">Email</label>
+              <input class="input" id="forgot-email" name="email" type="email" required />
+            </div>
+
+            <div data-status class="auth-status" hidden></div>
+
+            <div class="auth-actions">
+              <button type="submit" class="btn btn-primary" data-auth-submit>Отправить письмо</button>
+              <a href="/auth/login" class="btn btn-secondary">Вспомнил пароль</a>
+            </div>
+          </form>
+
+          <div class="auth-links">
+            <a href="/auth/register">Создать аккаунт</a>
+            <a href="/auth/login">Вход</a>
+          </div>
+        </div>
+
+        <div class="side-card">
+          <h3>Как работает</h3>
+          <p class="muted">Запрос уходит на /auth/forgot. После письма можно сразу показать SaaS.</p>
+          <div class="avatar-preview">
+            <div class="avatar-ring">
+              <img src="https://www.gravatar.com/avatar/?s=80&d=mp" alt="Аватар" />
+            </div>
+            <p class="avatar-meta">Готовы к бою: формы и статусы без заглушек.</p>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-grid">
+        <div>
+          <div class="brand">301.st</div>
+          <p class="muted">Редиректы и аналитика.</p>
+        </div>
+        <div class="footer-links">
+          <a href="/auth/login">Вход</a>
+          <a href="/auth/register">Регистрация</a>
+        </div>
+      </div>
+    </footer>
+
+    <script type="module" src="/auth301.js"></script>
+  </body>
+</html>
