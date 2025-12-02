@@ -565,10 +565,18 @@ function renderOAuthButtons(providers) {
   });
 }
 
+function getTokenFromLocation(url) {
+  const searchToken = url.searchParams.get('token');
+  if (searchToken) return searchToken;
+
+  const hashParams = new URLSearchParams(url.hash.startsWith('#') ? url.hash.slice(1) : '');
+  return hashParams.get('token');
+}
+
 function handleOAuthReturn() {
-  const { pathname, searchParams } = new URL(window.location.href);
-  if (pathname === '/auth/success') {
-    const token = searchParams.get('token');
+  const url = new URL(window.location.href);
+  if (url.pathname === '/auth/success' || url.pathname === '/auth/success/') {
+    const token = getTokenFromLocation(url);
     if (token) {
       setAccessToken(token);
       history.replaceState(null, '', '/');
