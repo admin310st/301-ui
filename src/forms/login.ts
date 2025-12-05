@@ -11,6 +11,21 @@ function extractError(error: unknown): string {
   return apiError?.body?.message || apiError?.body?.error || apiError?.message || 'Login failed';
 }
 
+function mapErrorMessage(code: string): string {
+  switch (code) {
+    case 'invalid_login':
+      return 'Неправильный логин или пароль. Попробуйте ещё раз или запросите восстановление доступа.';
+    case 'user_already_registered':
+      return 'Такой email уже зарегистрирован. Попробуйте войти или восстановить пароль.';
+    case 'password_too_weak':
+      return 'Пароль слишком слабый. Минимум 8 символов, буквы в разных регистрах и цифры.';
+    case 'turnstile_failed':
+      return 'Проверка защиты не пройдена. Обновите виджет и попробуйте ещё раз.';
+    default:
+      return code;
+  }
+}
+
 function bindAvatarPreview(form: HTMLFormElement): void {
   const input = form.querySelector<HTMLInputElement>('[data-avatar-source]');
   const label = qs<HTMLElement>('[data-avatar-label]');
@@ -50,7 +65,7 @@ async function handleLoginSubmit(event: SubmitEvent): Promise<void> {
     form.reset();
     window.location.hash = '#account';
   } catch (error) {
-    const message = extractError(error);
+    const message = mapErrorMessage(extractError(error));
     setFormState(form, 'error', message);
     resetTurnstile(form);
   }

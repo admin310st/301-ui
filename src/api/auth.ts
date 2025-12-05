@@ -13,16 +13,20 @@ import type {
   VerifyRequest,
   VerifyResponse,
 } from './types';
-import { clearToken, setToken, setUser } from '@state/auth-state';
+import { clearAuthToken, setAuthToken, setUser } from '@state/auth-state';
 
 export async function login(payload: LoginRequest): Promise<LoginResponse> {
   const res = await apiFetch<LoginResponse>('/login', {
     method: 'POST',
     body: JSON.stringify(payload),
   });
-  if (res.access_token) setToken(res.access_token);
+  if (res.access_token) setAuthToken(res.access_token);
   if (res.user) setUser(res.user);
   return res;
+}
+
+export async function refresh(): Promise<LoginResponse> {
+  return apiFetch<LoginResponse>('/refresh', { method: 'POST' });
 }
 
 export async function register(payload: RegisterRequest): Promise<RegisterResponse> {
@@ -45,7 +49,7 @@ export async function verifyToken(payload: VerifyRequest): Promise<VerifyRespons
     method: 'POST',
     body: JSON.stringify(payload),
   });
-  if ('access_token' in res && res.access_token) setToken(res.access_token);
+  if ('access_token' in res && res.access_token) setAuthToken(res.access_token);
   if ('user' in res && res.user) setUser(res.user);
   return res;
 }
@@ -72,7 +76,7 @@ export async function logout(): Promise<void> {
     // ignore network errors to avoid blocking logout
     console.debug('Logout request failed', error);
   }
-  clearToken();
+  clearAuthToken();
   setUser(null);
 }
 

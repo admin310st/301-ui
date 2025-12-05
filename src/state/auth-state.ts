@@ -1,12 +1,11 @@
-import { me } from '@api/auth';
-import { apiFetch } from '@api/client';
+import { me, refresh } from '@api/auth';
 import type { LoginResponse, MeResponse } from '@api/types';
 import { logDebug, logInfo } from '@utils/logger';
+import { setWSVar, updateFetchBuster } from '@utils/webstudio';
+
+const REFRESH_INTERVAL_MS = 10 * 60 * 1000;
 
 type Listener = (state: AuthState) => void;
-
-const TOKEN_KEY = 'auth_token';
-const REFRESH_INTERVAL_MS = 10 * 60 * 1000;
 
 let refreshTimer: ReturnType<typeof setTimeout> | null = null;
 let listeners = new Set<Listener>();
@@ -15,16 +14,24 @@ export interface AuthState {
   token: string | null;
   user: MeResponse['user'] | null;
   loading: boolean;
+  isLoggedIn: boolean;
 }
 
 let currentState: AuthState = {
   token: null,
   user: null,
   loading: false,
+  isLoggedIn: false,
 };
 
 function notify(): void {
   listeners.forEach((listener) => listener({ ...currentState }));
+}
+
+function updateState(partial: Partial<AuthState>): void {
+  currentState = { ...currentState, ...partial };
+  currentState.isLoggedIn = Boolean(currentState.token && currentState.user);
+  notify();
 }
 
 export function onAuthChange(listener: Listener): () => void {
@@ -33,39 +40,36 @@ export function onAuthChange(listener: Listener): () => void {
   return () => listeners.delete(listener);
 }
 
-export function getToken(): string | null {
-  return currentState.token ?? localStorage.getItem(TOKEN_KEY);
+export function getAuthToken(): string | null {
+  return currentState.token;
 }
 
-export function setToken(token: string | null): void {
-  currentState = { ...currentState, token };
+export function setAuthToken(token: string | null): void {
+  updateState({ token });
+  updateFetchBuster();
+  setWSVar('authBearer', token ? `Bearer ${token}` : '');
   if (token) {
-    localStorage.setItem(TOKEN_KEY, token);
     scheduleRefresh();
   } else {
-    localStorage.removeItem(TOKEN_KEY);
     stopRefresh();
   }
-  notify();
 }
 
-export function clearToken(): void {
-  setToken(null);
+export function clearAuthToken(): void {
+  setAuthToken(null);
 }
 
 export function isLoggedIn(): boolean {
-  return Boolean(currentState.token && currentState.user);
+  return currentState.isLoggedIn;
 }
 
 export function setUser(user: MeResponse['user'] | null): void {
-  currentState = { ...currentState, user };
-  notify();
+  updateState({ user });
 }
 
 export async function loadUser(): Promise<MeResponse['user'] | null> {
   try {
-    currentState = { ...currentState, loading: true };
-    notify();
+    updateState({ loading: true });
     const profile = await me();
     setUser(profile.user ?? profile ?? null);
     return profile.user ?? profile ?? null;
@@ -74,26 +78,25 @@ export async function loadUser(): Promise<MeResponse['user'] | null> {
     setUser(null);
     return null;
   } finally {
-    currentState = { ...currentState, loading: false };
-    notify();
+    updateState({ loading: false });
   }
 }
 
 async function refreshToken(): Promise<void> {
   try {
-    const res = await apiFetch<LoginResponse>('/refresh', { method: 'POST' });
-    if (res.access_token) setToken(res.access_token);
+    const res = await refresh();
+    if (res.access_token) setAuthToken(res.access_token);
     if ((res as MeResponse).user) setUser((res as MeResponse).user ?? null);
   } catch (error) {
     logDebug('Refresh failed', error);
-    clearToken();
+    clearAuthToken();
     setUser(null);
   }
 }
 
 function scheduleRefresh(): void {
   stopRefresh();
-  if (!getToken()) return;
+  if (!getAuthToken()) return;
   refreshTimer = setTimeout(refreshToken, REFRESH_INTERVAL_MS);
 }
 
@@ -102,31 +105,31 @@ function stopRefresh(): void {
   refreshTimer = null;
 }
 
-function syncFromStorage(event: StorageEvent): void {
-  if (event.key !== TOKEN_KEY) return;
-  currentState = { ...currentState, token: event.newValue };
-  notify();
-  if (event.newValue) {
-    void loadUser();
-  } else {
-    setUser(null);
-  }
-}
-
 export async function initAuthState(): Promise<void> {
-  const existing = localStorage.getItem(TOKEN_KEY);
-  if (existing) {
-    setToken(existing);
-    await loadUser();
-  } else {
-    await refreshToken();
+  try {
+    updateState({ loading: true });
+    const refreshed = await refresh();
+
+    if (refreshed && (refreshed as LoginResponse).access_token) {
+      const accessToken = (refreshed as LoginResponse).access_token;
+      setAuthToken(accessToken ?? null);
+      const profile = await me();
+      setUser(profile.user ?? profile ?? null);
+    } else {
+      setAuthToken(null);
+      setUser(null);
+    }
+  } catch (error) {
+    logDebug('Auth init failed', error);
+    setAuthToken(null);
+    setUser(null);
+  } finally {
+    updateState({ loading: false });
+    logInfo('Auth state initialized');
   }
-  window.addEventListener('storage', syncFromStorage);
-  logInfo('Auth state initialized');
 }
 
 export function teardownAuthState(): void {
   stopRefresh();
-  window.removeEventListener('storage', syncFromStorage);
   listeners = new Set<Listener>();
 }

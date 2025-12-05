@@ -10,6 +10,21 @@ function extractError(error: unknown): string {
   return apiError?.body?.message || apiError?.body?.error || apiError?.message || 'Registration failed';
 }
 
+function mapErrorMessage(code: string): string {
+  switch (code) {
+    case 'invalid_login':
+      return 'Неправильный логин или пароль. Попробуйте ещё раз или запросите восстановление доступа.';
+    case 'user_already_registered':
+      return 'Такой email уже зарегистрирован. Попробуйте войти или восстановить пароль.';
+    case 'password_too_weak':
+      return 'Пароль слишком слабый. Минимум 8 символов, буквы в разных регистрах и цифры.';
+    case 'turnstile_failed':
+      return 'Проверка защиты не пройдена. Обновите виджет и попробуйте ещё раз.';
+    default:
+      return code;
+  }
+}
+
 async function handleRegisterSubmit(event: SubmitEvent): Promise<void> {
   event.preventDefault();
   const form = event.currentTarget as HTMLFormElement;
@@ -30,7 +45,7 @@ async function handleRegisterSubmit(event: SubmitEvent): Promise<void> {
     setFormState(form, 'success', statusMessage);
     showGlobalMessage('info', statusMessage);
   } catch (error) {
-    setFormState(form, 'error', extractError(error));
+    setFormState(form, 'error', mapErrorMessage(extractError(error)));
     resetTurnstile(form);
   }
 }
