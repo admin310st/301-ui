@@ -36,7 +36,11 @@ async function handleResetRequest(event: SubmitEvent): Promise<void> {
     }
 
     setFormState(form, 'pending', 'Отправляем ссылку...');
-    const res = await resetPassword({ type: 'email', value: email, turnstile_token: captcha });
+    const res = await resetPassword({
+      type: 'email',
+      identifier: email,
+      turnstile_token: captcha,
+    });
 
     if (res.status === 'oauth_only' || res.oauth_only) {
       const provider = res.provider ? PROVIDER_LABELS[res.provider] ?? res.provider : null;

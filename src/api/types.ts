@@ -40,7 +40,7 @@ export interface RegisterResponse {
 
 export interface ResetPasswordRequest {
   type: 'email' | 'tg';
-  value: string;
+  identifier: string;
   turnstile_token: string;
 }
 
