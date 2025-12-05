@@ -110,6 +110,19 @@ export function renderTurnstileWidgets(root: ParentNode = document): void {
       container.dataset.widgetId = widgetId;
     }
   });
+
+  root
+    .querySelectorAll<HTMLFormElement>(
+      'form[data-form="login"], form[data-form="register"], form[data-form="reset-request"], form[data-form="reset-confirm"], form[data-form="cf-bootstrap"]'
+    )
+    .forEach((form) => {
+      if (!form.querySelector('input[name="turnstile_token"]')) {
+        const hidden = document.createElement('input');
+        hidden.type = 'hidden';
+        hidden.name = 'turnstile_token';
+        form.appendChild(hidden);
+      }
+    });
 }
 
 export function getTurnstileToken(form?: HTMLFormElement): string | null {
