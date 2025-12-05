@@ -5,6 +5,7 @@ export interface UserProfile {
   tg_id?: string | number;
   role?: string;
   type?: string;
+  plan?: string;
 }
 
 export interface LoginRequest {
@@ -33,22 +34,55 @@ export interface RegisterResponse {
   user?: UserProfile;
   message?: string;
   error?: string;
+  channel?: string;
+  token?: string;
 }
 
-export interface ResetRequest {
-  email: string;
-  turnstile_token?: string;
+export interface ResetPasswordRequest {
+  type: 'email';
+  value: string;
+  turnstile_token: string;
 }
 
-export interface ResetConfirmRequest {
-  token: string;
+export interface ResetPasswordResponse {
+  ok?: boolean;
+  oauth_only?: boolean;
+  message?: string;
+  error?: string;
+}
+
+export interface ConfirmPasswordRequest {
   password: string;
+  csrf_token: string;
+}
+
+export interface ConfirmPasswordResponse {
+  ok?: boolean;
+  message?: string;
+  error?: string;
 }
 
 export interface VerifyRequest {
-  email: string;
-  code: string;
+  type: 'register' | 'reset';
+  token: string;
 }
+
+export interface VerifyRegisterResponse {
+  ok?: boolean;
+  access_token?: string;
+  user?: UserProfile;
+  message?: string;
+  error?: string;
+}
+
+export interface VerifyResetResponse {
+  ok?: boolean;
+  csrf_token?: string;
+  message?: string;
+  error?: string;
+}
+
+export type VerifyResponse = VerifyRegisterResponse | VerifyResetResponse;
 
 export interface MeResponse {
   ok?: boolean;

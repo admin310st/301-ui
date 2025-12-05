@@ -1,15 +1,17 @@
 import { apiFetch } from './client';
 import type {
-  CommonErrorResponse,
+  ConfirmPasswordRequest,
+  ConfirmPasswordResponse,
   LoginRequest,
   LoginResponse,
   MeResponse,
   OAuthStartResponse,
   RegisterRequest,
   RegisterResponse,
-  ResetConfirmRequest,
-  ResetRequest,
+  ResetPasswordRequest,
+  ResetPasswordResponse,
   VerifyRequest,
+  VerifyResponse,
 } from './types';
 import { clearToken, setToken, setUser } from '@state/auth-state';
 
@@ -28,27 +30,28 @@ export async function register(payload: RegisterRequest): Promise<RegisterRespon
     method: 'POST',
     body: JSON.stringify(payload),
   });
-  if (res.access_token) setToken(res.access_token);
-  if (res.user) setUser(res.user);
   return res;
 }
 
-export async function requestPasswordReset(payload: ResetRequest): Promise<CommonErrorResponse> {
-  return apiFetch<CommonErrorResponse>('/reset/request', {
+export async function resetPassword(payload: ResetPasswordRequest): Promise<ResetPasswordResponse> {
+  return apiFetch<ResetPasswordResponse>('/reset_password', {
     method: 'POST',
     body: JSON.stringify(payload),
   });
 }
 
-export async function confirmPasswordReset(payload: ResetConfirmRequest): Promise<CommonErrorResponse> {
-  return apiFetch<CommonErrorResponse>('/reset/confirm', {
+export async function verifyToken(payload: VerifyRequest): Promise<VerifyResponse> {
+  const res = await apiFetch<VerifyResponse>('/verify', {
     method: 'POST',
     body: JSON.stringify(payload),
   });
+  if ('access_token' in res && res.access_token) setToken(res.access_token);
+  if ('user' in res && res.user) setUser(res.user);
+  return res;
 }
 
-export async function verifyCode(payload: VerifyRequest): Promise<CommonErrorResponse> {
-  return apiFetch<CommonErrorResponse>('/verify', {
+export async function confirmPassword(payload: ConfirmPasswordRequest): Promise<ConfirmPasswordResponse> {
+  return apiFetch<ConfirmPasswordResponse>('/confirm_password', {
     method: 'POST',
     body: JSON.stringify(payload),
   });

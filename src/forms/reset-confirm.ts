@@ -1,5 +1,6 @@
-import { confirmPasswordReset } from '@api/auth';
+import { confirmPassword } from '@api/auth';
 import type { CommonErrorResponse } from '@api/types';
+import { getResetCsrfToken } from '@state/reset-session';
 import { setFormState } from '@ui/dom';
 import { showGlobalMessage } from '@ui/notifications';
 import type { ApiError } from '@utils/errors';
@@ -13,20 +14,32 @@ async function handleResetConfirm(event: SubmitEvent): Promise<void> {
   event.preventDefault();
   const form = event.currentTarget as HTMLFormElement;
 
-  const token = form.querySelector<HTMLInputElement>('[name="token"]')?.value.trim();
   const password = form.querySelector<HTMLInputElement>('[name="password"]')?.value || '';
+  const passwordConfirm = form.querySelector<HTMLInputElement>('[name="password_confirm"]')?.value || '';
+  const csrfToken = getResetCsrfToken();
 
-  if (!token || !password) {
-    setFormState(form, 'error', 'Token and new password are required');
+  if (!csrfToken) {
+    setFormState(form, 'error', 'Ссылка для сброса просрочена. Запросите новую.');
+    return;
+  }
+
+  if (!password || !passwordConfirm) {
+    setFormState(form, 'error', 'Введите новый пароль');
+    return;
+  }
+
+  if (password !== passwordConfirm) {
+    setFormState(form, 'error', 'Пароли не совпадают');
     return;
   }
 
   try {
-    setFormState(form, 'pending', 'Updating password...');
-    const res = await confirmPasswordReset({ token, password });
-    setFormState(form, 'success', res.message || 'Password updated');
-    showGlobalMessage('success', 'Password reset complete');
-    form.reset();
+    setFormState(form, 'pending', 'Обновляем пароль...');
+    const res = await confirmPassword({ password, csrf_token: csrfToken });
+    const message = res.message || 'Пароль обновлён, можно войти';
+    setFormState(form, 'success', message);
+    showGlobalMessage('success', message);
+    window.location.hash = '#login';
   } catch (error) {
     setFormState(form, 'error', extractError(error));
   }

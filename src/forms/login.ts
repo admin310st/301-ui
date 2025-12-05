@@ -37,17 +37,18 @@ async function handleLoginSubmit(event: SubmitEvent): Promise<void> {
   const captcha = getTurnstileToken(form);
 
   if (!email || !password) {
-    setFormState(form, 'error', 'Enter email and password');
+    setFormState(form, 'error', 'Введите email и пароль');
     return;
   }
 
   try {
-    setFormState(form, 'pending', 'Signing in...');
+    setFormState(form, 'pending', 'Входим...');
     const res = await login({ email, password, turnstile_token: captcha || undefined });
     await loadUser();
-    setFormState(form, 'success', res.message || 'Logged in');
-    showGlobalMessage('success', 'Logged in');
+    setFormState(form, 'success', res.message || 'Вы вошли в 301.st');
+    showGlobalMessage('success', 'Вы вошли в 301.st');
     form.reset();
+    window.location.hash = '#account';
   } catch (error) {
     const message = extractError(error);
     setFormState(form, 'error', message);
