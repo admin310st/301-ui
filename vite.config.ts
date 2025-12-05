@@ -10,4 +10,14 @@ export default defineConfig({
   server: {
     port: 5173,
   },
+  resolve: {
+    alias: {
+      '@api': '/src/api',
+      '@forms': '/src/forms',
+      '@ui': '/src/ui',
+      '@utils': '/src/utils',
+      '@state': '/src/state',
+      '@social': '/src/social',
+    },
+  },
 });

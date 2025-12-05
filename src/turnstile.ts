@@ -1,6 +1,9 @@
+import { logDebug } from '@utils/logger';
+
 const DEFAULT_SITE_KEY = '0x4AAAAAACB-_l9VwF1M_QHU';
-let turnstileReady: Promise<typeof window.turnstile | null> | null = null;
+const formTokens = new WeakMap<HTMLFormElement, string | null>();
 let siteKey = DEFAULT_SITE_KEY;
+let observer: MutationObserver | null = null;
 
 declare global {
   interface Window {
@@ -12,12 +15,23 @@ declare global {
   }
 }
 
+async function loadSiteKey(): Promise<string> {
+  try {
+    const res = await fetch('/env', { cache: 'no-store' });
+    if (!res.ok) return DEFAULT_SITE_KEY;
+    const data = (await res.json()) as { turnstileSitekey?: string; turnstile_sitekey?: string };
+    return data.turnstileSitekey || data.turnstile_sitekey || DEFAULT_SITE_KEY;
+  } catch (error) {
+    logDebug('Failed to load Turnstile sitekey', error as Error);
+    return DEFAULT_SITE_KEY;
+  }
+}
+
 function loadScript(): Promise<typeof window.turnstile | null> {
   if (typeof window === 'undefined') return Promise.resolve(null);
   if (window.turnstile) return Promise.resolve(window.turnstile);
-  if (turnstileReady) return turnstileReady;
 
-  turnstileReady = new Promise((resolve) => {
+  return new Promise((resolve) => {
     const existing = document.querySelector('script[data-turnstile]');
     if (!existing) {
       const script = document.createElement('script');
@@ -28,88 +42,86 @@ function loadScript(): Promise<typeof window.turnstile | null> {
       document.head.appendChild(script);
     }
 
-    const ready = (): void => {
-      resolve(window.turnstile || null);
-    };
-
+    const ready = (): void => resolve(window.turnstile || null);
     window.addEventListener('turnstileLoaded', ready, { once: true });
-    setTimeout(ready, 1500);
+    setTimeout(ready, 2000);
   });
+}
 
-  return turnstileReady;
+function bindObserver(root: ParentNode): void {
+  if (!(root instanceof Document)) return;
+  observer?.disconnect();
+  observer = new MutationObserver(() => renderTurnstileWidgets(root));
+  observer.observe(root, { childList: true, subtree: true });
 }
 
 export async function initTurnstile(root: ParentNode = document): Promise<void> {
   siteKey = await loadSiteKey();
   const api = await loadScript();
   if (!api) return;
-
   renderTurnstileWidgets(root);
+  bindObserver(root);
 }
 
-async function loadSiteKey(): Promise<string> {
-  try {
-    const res = await fetch('/env', { cache: 'no-store' });
-    if (!res.ok) return DEFAULT_SITE_KEY;
-    const data = await res.json();
-    return data?.turnstileSitekey || data?.turnstile_sitekey || DEFAULT_SITE_KEY;
-  } catch (err) {
-    console.debug('turnstile env failed', err);
-    return DEFAULT_SITE_KEY;
-  }
+function storeToken(form: HTMLFormElement | null, token: string | null): void {
+  if (!form) return;
+  formTokens.set(form, token);
+  const hidden = form.querySelector<HTMLInputElement>('input[name="turnstile_token"]');
+  if (hidden) hidden.value = token ?? '';
 }
 
 export function renderTurnstileWidgets(root: ParentNode = document): void {
   const api = window.turnstile;
   if (!api || typeof api.render !== 'function') return;
-  const containers = root.querySelectorAll<HTMLElement>('.turnstile-widget');
-  containers.forEach((container) => {
-    if (container.dataset.tsRendered === '1' || container.children.length > 0) return;
+
+  root.querySelectorAll<HTMLElement>('.turnstile-widget').forEach((container) => {
+    if (container.dataset.tsRendered === '1') return;
     container.dataset.tsRendered = '1';
 
     const form = container.closest('form');
-    const hidden = form?.querySelector<HTMLInputElement>('input[name="turnstile_token"]');
-    const btn = form?.querySelector<HTMLButtonElement>('[data-auth-submit]');
-
     const widgetId = api.render(container, {
       sitekey: siteKey,
-      callback(token) {
-        if (hidden) hidden.value = token;
-        if (btn) btn.disabled = false;
+      callback: (token: string) => {
+        storeToken(form, token);
+        const submit = form?.querySelector<HTMLButtonElement>('button[type="submit"]');
+        if (submit) submit.disabled = false;
       },
-      'expired-callback'() {
-        if (hidden) hidden.value = '';
-        if (btn) btn.disabled = true;
-        try {
-          api.reset(widgetId);
-        } catch {
-          /* noop */
-        }
+      'expired-callback': () => {
+        storeToken(form, null);
       },
-      'error-callback'() {
-        if (btn) btn.disabled = true;
+      'error-callback': () => {
+        storeToken(form, null);
+        const submit = form?.querySelector<HTMLButtonElement>('button[type="submit"]');
+        if (submit) submit.disabled = true;
       },
     });
+
+    if (typeof widgetId === 'string') {
+      container.dataset.widgetId = widgetId;
+    }
   });
 }
 
-export function getTurnstileTokenForForm(form: HTMLFormElement): string | null {
-  return form.querySelector<HTMLInputElement>('input[name="turnstile_token"]')?.value?.trim() || null;
+export function getTurnstileToken(form?: HTMLFormElement): string | null {
+  if (!form) return null;
+  if (formTokens.has(form)) return formTokens.get(form) ?? null;
+  return form.querySelector<HTMLInputElement>('input[name="turnstile_token"]')?.value || null;
 }
 
 export function resetTurnstile(form?: HTMLFormElement): void {
   const api = window.turnstile;
-  if (!api) return;
+  if (!api || typeof api.reset !== 'function') return;
   if (form) {
     const widget = form.querySelector<HTMLElement>('.turnstile-widget');
     if (widget?.dataset.widgetId) {
       api.reset(widget.dataset.widgetId);
+      storeToken(form, null);
       return;
     }
   }
   try {
     api.reset();
-  } catch (err) {
-    console.debug('turnstile reset failed', err);
+  } catch (error) {
+    logDebug('Turnstile reset failed', error as Error);
   }
 }

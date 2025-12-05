@@ -1,85 +1,51 @@
-import { getAuthToken, setAuthToken } from '../utils/authState';
-import type {
-  ErrorResponse,
-  LoginRequest,
-  LoginResponse,
-  LogoutResponse,
-  RefreshResponse,
-  RegisterRequest,
-  RegisterResponse,
-  UserMe,
-} from './types';
+import { getToken } from '@state/auth-state';
+import { createApiError } from '@utils/errors';
+import { logDebug } from '@utils/logger';
+import { parseJsonSafe } from '@utils/json';
 
 const API_ROOT = 'https://api.301.st/auth';
 
-async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
-  const headers: Record<string, string> = {
-    ...(options.headers as Record<string, string>),
-  };
+export async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
+  const headers = new Headers(options.headers ?? {});
+  const token = getToken();
 
-  if (options.body && !(options.body instanceof FormData)) {
-    headers['content-type'] = 'application/json';
+  if (token && !headers.has('authorization')) {
+    headers.set('authorization', `Bearer ${token}`);
   }
 
-  const res = await fetch(`${API_ROOT}${path}`, {
+  if (options.body && !(options.body instanceof FormData)) {
+    headers.set('content-type', 'application/json');
+  }
+
+  const response = await fetch(`${API_ROOT}${path}`, {
     credentials: 'include',
     ...options,
     headers,
   });
 
-  const data = (await res.json().catch(() => ({}))) as T & ErrorResponse;
+  const body = await parseJsonSafe<unknown>(response);
 
-  if (!res.ok) {
-    const error = data.error || data.message || res.statusText;
-    throw new Error(error);
+  if (!response.ok) {
+    throw createApiError(response.status, body, response.statusText);
   }
 
-  return data as T;
+  return (body ?? ({} as T)) as T;
 }
 
-export async function login(payload: LoginRequest): Promise<LoginResponse> {
-  const res = await request<LoginResponse>('/login', {
-    method: 'POST',
-    body: JSON.stringify(payload),
-  });
-  if (res.access_token) setAuthToken(res.access_token);
-  return res;
-}
-
-export async function register(payload: RegisterRequest): Promise<RegisterResponse> {
-  const res = await request<RegisterResponse>('/register', {
-    method: 'POST',
-    body: JSON.stringify(payload),
-  });
-  if (res.access_token) setAuthToken(res.access_token);
-  return res;
-}
-
-export async function me(): Promise<UserMe> {
-  const token = getAuthToken();
-  const headers: Record<string, string> = {};
-  if (token) headers.Authorization = `Bearer ${token}`;
-  return request<UserMe>('/me', { headers });
-}
-
-export async function refresh(): Promise<RefreshResponse> {
-  const res = await request<RefreshResponse>('/refresh', { method: 'POST' });
-  if (res.access_token) setAuthToken(res.access_token);
-  return res;
-}
-
-export async function logout(): Promise<LogoutResponse> {
-  const res = await request<LogoutResponse>('/logout', { method: 'POST' });
-  setAuthToken(null);
-  return res;
+export async function healthcheck(): Promise<boolean> {
+  try {
+    await apiFetch<unknown>('/me', { method: 'HEAD' });
+    return true;
+  } catch (error) {
+    logDebug('Healthcheck failed', error);
+    return false;
+  }
 }
 
 export async function authFetchBuster(): Promise<void> {
   try {
-    await request('/me', { method: 'HEAD' });
-  } catch (err) {
-    console.debug('auth fetch buster failed', err);
+    await apiFetch<unknown>('/me', { method: 'HEAD' });
+  } catch (error) {
+    logDebug('Auth fetch buster failed', error);
   }
 }
-
-export { request };
