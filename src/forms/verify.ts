@@ -68,6 +68,10 @@ export function initVerifyFlow(): void {
     }
   };
 
+  if (parseSearchParams() && window.location.hash.replace('#', '') !== 'verify') {
+    window.location.hash = '#verify';
+  }
+
   window.addEventListener('hashchange', runIfVerifyRoute);
   runIfVerifyRoute();
 }

@@ -39,14 +39,16 @@ export interface RegisterResponse {
 }
 
 export interface ResetPasswordRequest {
-  type: 'email';
+  type: 'email' | 'tg';
   value: string;
   turnstile_token: string;
 }
 
 export interface ResetPasswordResponse {
   ok?: boolean;
+  status?: 'ok' | 'oauth_only';
   oauth_only?: boolean;
+  provider?: 'google' | 'github' | 'apple' | 'telegram';
   message?: string;
   error?: string;
 }
@@ -58,6 +60,7 @@ export interface ConfirmPasswordRequest {
 
 export interface ConfirmPasswordResponse {
   ok?: boolean;
+  user_id?: number;
   message?: string;
   error?: string;
 }
@@ -77,6 +80,8 @@ export interface VerifyRegisterResponse {
 
 export interface VerifyResetResponse {
   ok?: boolean;
+  type?: 'reset';
+  user_id?: number;
   csrf_token?: string;
   message?: string;
   error?: string;
