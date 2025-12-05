@@ -18,6 +18,11 @@ export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
 
+    if (request.method === 'GET' && url.pathname.startsWith('/auth/verify')) {
+      const redirectUrl = new URL(url.pathname + url.search, 'https://api.301.st');
+      return Response.redirect(redirectUrl.toString(), 302);
+    }
+
     if (request.method === 'GET' && url.pathname === '/env') {
       return jsonResponse({ turnstileSitekey: env.TURNSTILE_SITEKEY });
     }
