@@ -1,5 +1,7 @@
 import { logDebug } from '@utils/logger';
 
+export const TURNSTILE_REQUIRED_MESSAGE = 'Пройдите проверку защиты (Turnstile).';
+
 const DEFAULT_SITE_KEY = '0x4AAAAAACB-_l9VwF1M_QHU';
 const formTokens = new WeakMap<HTMLFormElement, string | null>();
 let siteKey = DEFAULT_SITE_KEY;

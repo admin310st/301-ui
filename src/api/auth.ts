@@ -62,11 +62,11 @@ export async function confirmPassword(payload: ConfirmPasswordRequest): Promise<
 }
 
 export async function socialStartGoogle(): Promise<OAuthStartResponse> {
-  return apiFetch<OAuthStartResponse>('/oauth/google/start', { method: 'POST' });
+  return apiFetch<OAuthStartResponse>('/oauth/google/start');
 }
 
 export async function socialStartGithub(): Promise<OAuthStartResponse> {
-  return apiFetch<OAuthStartResponse>('/oauth/github/start', { method: 'POST' });
+  return apiFetch<OAuthStartResponse>('/oauth/github/start');
 }
 
 export async function logout(): Promise<void> {

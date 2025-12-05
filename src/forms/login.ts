@@ -1,6 +1,6 @@
 import { login } from '@api/auth';
 import type { CommonErrorResponse } from '@api/types';
-import { getTurnstileToken, resetTurnstile } from '../turnstile';
+import { TURNSTILE_REQUIRED_MESSAGE, getTurnstileToken, resetTurnstile } from '../turnstile';
 import { setFormState, qs } from '@ui/dom';
 import { clearGlobalMessage, showGlobalMessage } from '@ui/notifications';
 import { loadUser } from '@state/auth-state';
@@ -8,7 +8,9 @@ import type { ApiError } from '@utils/errors';
 
 function extractError(error: unknown): string {
   const apiError = error as ApiError<CommonErrorResponse>;
-  return apiError?.body?.message || apiError?.body?.error || apiError?.message || 'Login failed';
+  return (
+    apiError?.body?.code || apiError?.body?.error || apiError?.body?.message || apiError?.message || 'Login failed'
+  );
 }
 
 function mapErrorMessage(code: string): string {
@@ -21,6 +23,8 @@ function mapErrorMessage(code: string): string {
       return 'Пароль слишком слабый. Минимум 8 символов, буквы в разных регистрах и цифры.';
     case 'turnstile_failed':
       return 'Проверка защиты не пройдена. Обновите виджет и попробуйте ещё раз.';
+    case 'turnstile_required':
+      return 'Проверка защиты обязательна. Подтвердите Turnstile и попробуйте ещё раз.';
     default:
       return code;
   }
@@ -53,6 +57,11 @@ async function handleLoginSubmit(event: SubmitEvent): Promise<void> {
 
   if (!email || !password) {
     setFormState(form, 'error', 'Введите email и пароль');
+    return;
+  }
+
+  if (!captcha) {
+    setFormState(form, 'error', TURNSTILE_REQUIRED_MESSAGE);
     return;
   }
 

@@ -7,7 +7,9 @@ import type { ApiError } from '@utils/errors';
 
 function extractError(error: unknown): string {
   const apiError = error as ApiError<CommonErrorResponse>;
-  return apiError?.body?.message || apiError?.body?.error || apiError?.message || 'Verification failed';
+  return (
+    apiError?.body?.code || apiError?.body?.error || apiError?.body?.message || apiError?.message || 'Verification failed'
+  );
 }
 
 function setVerifyStatus(state: 'pending' | 'error' | 'success', message: string): void {
@@ -20,17 +22,23 @@ function setVerifyStatus(state: 'pending' | 'error' | 'success', message: string
 
 function parseSearchParams(): VerifyRequest | null {
   const params = new URLSearchParams(window.location.search);
-  const type = params.get('type');
   const token = params.get('token');
-  if (!type || !token) return null;
-  if (type !== 'register' && type !== 'reset') return null;
-  return { type, token } as VerifyRequest;
+  if (!token) return null;
+  return { token };
 }
 
 async function handleVerification(): Promise<void> {
   const payload = parseSearchParams();
+  const params = new URLSearchParams(window.location.search);
+  const uiType = params.get('type');
+
   if (!payload) {
     setVerifyStatus('error', 'Нет параметров для подтверждения.');
+    return;
+  }
+
+  if (uiType !== 'register' && uiType !== 'reset') {
+    setVerifyStatus('error', 'Некорректный тип подтверждения.');
     return;
   }
 
@@ -38,7 +46,7 @@ async function handleVerification(): Promise<void> {
     setVerifyStatus('pending', 'Подтверждаем...');
     const res = await verifyToken(payload);
 
-    if (payload.type === 'register') {
+    if (uiType === 'register') {
       applyLoginStateToDOM('user' in res ? res.user ?? null : null);
       showGlobalMessage('success', 'Email подтверждён, перенаправляем...');
       setVerifyStatus('success', 'Email подтверждён, перенаправляем...');
