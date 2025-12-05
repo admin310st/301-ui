@@ -53,7 +53,7 @@ async function handleResetRequest(event: SubmitEvent): Promise<void> {
     setFormState(form, 'pending', 'Отправляем ссылку...');
     const res = await resetPassword({
       type: 'email',
-      identifier: email,
+      value: email,
       turnstile_token: captcha,
     });
 
