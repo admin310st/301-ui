@@ -12,6 +12,43 @@ body {
   color: var(--text-main);
 }
 
+#GlobalNotice {
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--bg-elevated);
+  color: var(--text-main);
+  padding: 0.75rem 0;
+}
+
+#GlobalNotice p {
+  margin: 0;
+  font-weight: var(--fw-medium);
+}
+
+#GlobalNotice[data-notice='hidden'] {
+  display: none;
+}
+
+#GlobalNotice[data-notice='visible'] {
+  display: block;
+}
+
+#GlobalNotice[data-type='success'] {
+  background: var(--success-bg);
+  color: var(--success);
+  border-color: color-mix(in srgb, var(--success) 55%, transparent);
+}
+
+#GlobalNotice[data-type='error'] {
+  background: var(--danger-bg);
+  color: var(--danger);
+  border-color: color-mix(in srgb, var(--danger) 55%, transparent);
+}
+
+#GlobalNotice[data-type='info'] {
+  background: var(--bg-elevated);
+  color: var(--text-main);
+}
+
 .container {
   max-width: 1100px;
   margin: 0 auto;

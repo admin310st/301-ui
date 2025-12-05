@@ -68,6 +68,7 @@ export interface ConfirmPasswordResponse {
 export interface VerifyRequest {
   token: string;
   code?: string;
+  turnstile_token?: string;
 }
 
 export interface VerifyRegisterResponse {
