@@ -34,7 +34,7 @@ export async function apiFetch<T>(path: string, options: RequestInit = {}): Prom
 
 export async function healthcheck(): Promise<boolean> {
   try {
-    await apiFetch<unknown>('/me', { method: 'HEAD' });
+    await apiFetch<unknown>('/me');
     return true;
   } catch (error) {
     logDebug('Healthcheck failed', error);
@@ -44,7 +44,7 @@ export async function healthcheck(): Promise<boolean> {
 
 export async function authFetchBuster(): Promise<void> {
   try {
-    await apiFetch<unknown>('/me', { method: 'HEAD' });
+    await apiFetch<unknown>('/me');
   } catch (error) {
     logDebug('Auth fetch buster failed', error);
   }

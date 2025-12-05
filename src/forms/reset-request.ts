@@ -1,6 +1,6 @@
 import { resetPassword } from '@api/auth';
 import type { CommonErrorResponse } from '@api/types';
-import { getTurnstileToken, resetTurnstile } from '../turnstile';
+import { TURNSTILE_REQUIRED_MESSAGE, getTurnstileToken, resetTurnstile } from '../turnstile';
 import { setFormState } from '@ui/dom';
 import { showGlobalMessage } from '@ui/notifications';
 import type { ApiError } from '@utils/errors';
@@ -14,7 +14,22 @@ const PROVIDER_LABELS: Record<string, string> = {
 
 function extractError(error: unknown): string {
   const apiError = error as ApiError<CommonErrorResponse>;
-  return apiError?.body?.message || apiError?.body?.error || apiError?.message || 'Reset request failed';
+  return (
+    apiError?.body?.code || apiError?.body?.error || apiError?.body?.message || apiError?.message || 'Reset request failed'
+  );
+}
+
+function mapErrorMessage(code: string): string {
+  switch (code) {
+    case 'email_not_verified':
+      return 'Email не подтверждён. Проверьте почту или пройдите регистрацию заново.';
+    case 'turnstile_failed':
+      return 'Проверка защиты не пройдена. Обновите виджет и попробуйте ещё раз.';
+    case 'turnstile_required':
+      return 'Проверка защиты обязательна. Подтвердите Turnstile и попробуйте ещё раз.';
+    default:
+      return code;
+  }
 }
 
 async function handleResetRequest(event: SubmitEvent): Promise<void> {
@@ -29,12 +44,12 @@ async function handleResetRequest(event: SubmitEvent): Promise<void> {
     return;
   }
 
-  try {
-    if (!captcha) {
-      setFormState(form, 'error', 'Подтвердите проверку Turnstile');
-      return;
-    }
+  if (!captcha) {
+    setFormState(form, 'error', TURNSTILE_REQUIRED_MESSAGE);
+    return;
+  }
 
+  try {
     setFormState(form, 'pending', 'Отправляем ссылку...');
     const res = await resetPassword({
       type: 'email',
@@ -57,7 +72,7 @@ async function handleResetRequest(event: SubmitEvent): Promise<void> {
     setFormState(form, 'success', message);
     showGlobalMessage('info', message);
   } catch (error) {
-    setFormState(form, 'error', extractError(error));
+    setFormState(form, 'error', mapErrorMessage(extractError(error)));
     resetTurnstile(form);
   }
 }

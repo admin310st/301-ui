@@ -7,7 +7,7 @@ const VERIFIER_KEY = 'google_code_verifier';
 const STATE_KEY = 'google_oauth_state';
 
 function getRedirectUrl(response: { url?: string; auth_url?: string }): string {
-  return response.url || response.auth_url || '';
+  return response.auth_url || response.url || '';
 }
 
 async function beginGoogleFlow(): Promise<void> {

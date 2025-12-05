@@ -6,7 +6,7 @@ import { logDebug } from '@utils/logger';
 const STATE_KEY = 'github_oauth_state';
 
 function getRedirectUrl(response: { url?: string; auth_url?: string }): string {
-  return response.url || response.auth_url || '';
+  return response.auth_url || response.url || '';
 }
 
 async function beginGithubFlow(): Promise<void> {

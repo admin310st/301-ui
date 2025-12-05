@@ -106,6 +106,8 @@ function stopRefresh(): void {
 }
 
 export async function initAuthState(): Promise<void> {
+  // Strategy: refresh on startup plus periodic refreshes to keep the session aligned with the
+  // backend lifecycle described in the API docs. If refresh fails we clear local auth state.
   try {
     updateState({ loading: true });
     const refreshed = await refresh();
