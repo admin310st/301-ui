@@ -72,7 +72,7 @@ async function handleLoginSubmit(event: SubmitEvent): Promise<void> {
     setFormState(form, 'success', res.message || 'Вы вошли в 301.st');
     showGlobalMessage('success', 'Вы вошли в 301.st');
     form.reset();
-    window.location.hash = '#account';
+    window.location.hash = '#login';
   } catch (error) {
     const message = mapErrorMessage(extractError(error));
     setFormState(form, 'error', message);

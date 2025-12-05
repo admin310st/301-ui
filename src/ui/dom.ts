@@ -8,18 +8,19 @@ type FormState = 'idle' | 'pending' | 'error' | 'success';
 
 export function setFormState(form: HTMLFormElement, state: FormState, message?: string): void {
   form.dataset.state = state;
-  const status = qs<HTMLElement>('[data-status]', form);
+  const status = qs<HTMLElement>('[data-form-status], [data-status]', form);
   if (status) {
-    status.hidden = !message;
+    status.hidden = false;
     status.dataset.type = state;
-    status.textContent = message ?? '';
+    if (message !== undefined) status.textContent = message;
   }
 
   const submit = form.querySelector<HTMLButtonElement>('button[type="submit"]');
   if (submit) {
     if (!submit.dataset.labelReady) submit.dataset.labelReady = submit.textContent ?? '';
     submit.disabled = state === 'pending';
-    submit.textContent = state === 'pending' ? submit.dataset.labelLoading || 'Please wait...' : submit.dataset.labelReady;
+    submit.textContent =
+      state === 'pending' ? submit.dataset.labelLoading || 'Please wait...' : submit.dataset.labelReady;
   }
 }
 

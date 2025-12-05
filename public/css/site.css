@@ -241,6 +241,17 @@ body {
   background: var(--primary-hover);
 }
 
+.btn-cf {
+  background: var(--accent-cf-bg, var(--accent-cf));
+  color: var(--btn-text-on-dark, #fff);
+  border-color: var(--accent-cf-soft, transparent);
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--accent-cf-bg, var(--accent-cf)) 35%, transparent);
+}
+
+.btn-cf:hover {
+  background: var(--accent-cf-bg-hover, var(--accent-cf-hover));
+}
+
 .btn-secondary {
   background: transparent;
   color: var(--text-main);
