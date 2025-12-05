@@ -4,6 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>301.st · Auth</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="stylesheet" href="/css/theme.css" />
     <link rel="stylesheet" href="/css/site.css" />
   </head>
@@ -128,10 +130,14 @@
 
           <div class="side-card">
             <h3>Боевой поток</h3>
-            <p class="muted">Запрос уходит в продовый /auth/register, можно показывать клиентам.</p>
+            <p class="muted">
+              Регистрация и вход работают через продовый API 301.st.
+              Email подтверждается через OmniFlow, вход — по access_token + refresh cookie.
+            </p>
             <ul class="panel-list">
-              <li><span class="label">API</span><span class="value">https://api.301.st</span></li>
-              <li><span class="label">Ответ</span><span class="value">verify token + письмо</span></li>
+              <li><span class="label">API</span><span class="value">https://api.301.st/auth</span></li>
+              <li><span class="label">Token</span><span class="value">JWT · 15 минут</span></li>
+              <li><span class="label">Session</span><span class="value">refresh cookie · 7 дней</span></li>
             </ul>
           </div>
         </div>
@@ -201,7 +207,13 @@
         <div class="container" data-onlogin hidden>
           <div class="auth-card">
             <h2>Состояние сессии</h2>
-            <p>Вы вошли как <strong data-auth-email data-user-email></strong>.</p>
+            <p>
+              Вы вошли как <strong data-auth-email data-user-email></strong>.
+              Текущая роль: <span data-user-role>client:owner</span>.
+            </p>
+            <p class="muted">
+              Access token живёт 15 минут, продление сессии — через refresh cookie.
+            </p>
             <button class="btn btn-secondary" data-action="logout">Выйти</button>
           </div>
         </div>

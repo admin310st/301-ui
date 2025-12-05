@@ -1,5 +1,5 @@
 import { socialStartGithub } from '@api/auth';
-import { loadUser, setToken } from '@state/auth-state';
+import { loadUser, setAuthToken } from '@state/auth-state';
 import { showGlobalMessage } from '@ui/notifications';
 import { logDebug } from '@utils/logger';
 
@@ -29,7 +29,7 @@ async function handleOAuthReturn(): Promise<void> {
     return;
   }
 
-  setToken(token);
+  setAuthToken(token);
   await loadUser();
   showGlobalMessage('success', 'Signed in with GitHub');
   sessionStorage.removeItem(STATE_KEY);

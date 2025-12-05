@@ -1,5 +1,5 @@
 import type { UserProfile } from '@api/types';
-import { clearToken, initAuthState, setUser } from '@state/auth-state';
+import { clearAuthToken, initAuthState, setUser } from '@state/auth-state';
 
 export async function applyInitialAuthState(): Promise<void> {
   await initAuthState();
@@ -10,6 +10,6 @@ export function applyLoginStateToDOM(user?: UserProfile | null): void {
 }
 
 export function handleLogoutDom(): void {
-  clearToken();
+  clearAuthToken();
   setUser(null);
 }

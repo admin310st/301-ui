@@ -1,4 +1,4 @@
-import { getToken } from '@state/auth-state';
+import { getAuthToken } from '@state/auth-state';
 import { createApiError } from '@utils/errors';
 import { logDebug } from '@utils/logger';
 import { parseJsonSafe } from '@utils/json';
@@ -7,7 +7,7 @@ const API_ROOT = 'https://api.301.st/auth';
 
 export async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
   const headers = new Headers(options.headers ?? {});
-  const token = getToken();
+  const token = getAuthToken();
 
   if (token && !headers.has('authorization')) {
     headers.set('authorization', `Bearer ${token}`);
