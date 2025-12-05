@@ -5,6 +5,13 @@ import { setFormState } from '@ui/dom';
 import { showGlobalMessage } from '@ui/notifications';
 import type { ApiError } from '@utils/errors';
 
+const PROVIDER_LABELS: Record<string, string> = {
+  google: 'Google',
+  github: 'GitHub',
+  apple: 'Apple',
+  telegram: 'Telegram',
+};
+
 function extractError(error: unknown): string {
   const apiError = error as ApiError<CommonErrorResponse>;
   return apiError?.body?.message || apiError?.body?.error || apiError?.message || 'Reset request failed';
@@ -31,12 +38,18 @@ async function handleResetRequest(event: SubmitEvent): Promise<void> {
     setFormState(form, 'pending', 'Отправляем ссылку...');
     const res = await resetPassword({ type: 'email', value: email, turnstile_token: captcha });
 
-    if (res.oauth_only) {
-      setFormState(form, 'error', 'Войдите через Google/GitHub');
+    if (res.status === 'oauth_only' || res.oauth_only) {
+      const provider = res.provider ? PROVIDER_LABELS[res.provider] ?? res.provider : null;
+      const providerMessage = provider
+        ? `Сброс пароля недоступен. Войдите через ${provider}.`
+        : 'Сброс пароля недоступен. Войдите через привязанного провайдера.';
+      setFormState(form, 'error', res.message || providerMessage);
       return;
     }
 
-    const message = res.message || 'Письмо со ссылкой для сброса отправлено. Ссылка действует 15 минут.';
+    const message =
+      res.message ||
+      'Письмо со ссылкой для сброса отправлено. Ссылка действует 15 минут.';
     setFormState(form, 'success', message);
     showGlobalMessage('info', message);
   } catch (error) {
