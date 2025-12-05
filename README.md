@@ -2,13 +2,13 @@
 
 Modular frontend for 301.st authentication pages, built with Vite and deployed via Cloudflare Worker.
 
-This project implements **all auth flows described in the backend API docs**:
+This project implements **all auth flows described in the backend API docs** and keeps them aligned with the latest backend changes:
 
-- Login / Register
+- Login / Register (with Turnstile)
 - Email verification (Omni token)
 - Password reset (request + confirm)
 - OAuth (Google, GitHub)
-- Turnstile protection on critical endpoints
+- Session refresh + `/auth/me` health check
 
 > 🔗 **Backend API spec:**  
 > https://github.com/admin310st/301/wiki/API
@@ -306,8 +306,10 @@ wrangler deploy    # Uses wrangler.toml and serves public/
 
 ## Sync with backend API
 
-There is a dedicated doc with open sync tasks and technical notes:
+Auth endpoints and error mappings in this repo mirror the backend API spec from the Wiki. When the backend changes, please update:
 
-* [`docs/codex-auth-sync.md`](./docs/codex-auth-sync.md)
+* Request/response types in `src/api/types.ts`
+* Endpoint wrappers in `src/api/auth.ts`
+* Form handlers in `src/forms/`
 
-Please keep that file in sync with actual code changes.
+The source of truth for the contract remains the backend Wiki; use it to verify new fields or error codes.
