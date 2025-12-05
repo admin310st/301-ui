@@ -1,6 +1,5 @@
 import { verifyToken } from '@api/auth';
-import type { CommonErrorResponse, VerifyRequest, VerifyResetResponse } from '@api/types';
-import { setResetCsrfToken } from '@state/reset-session';
+import type { CommonErrorResponse, VerifyRequest } from '@api/types';
 import { applyLoginStateToDOM } from '@ui/auth-dom';
 import { showGlobalMessage } from '@ui/notifications';
 import type { ApiError } from '@utils/errors';
@@ -23,22 +22,16 @@ function setVerifyStatus(state: 'pending' | 'error' | 'success', message: string
 function parseSearchParams(): VerifyRequest | null {
   const params = new URLSearchParams(window.location.search);
   const token = params.get('token');
-  if (!token) return null;
+  const type = params.get('type');
+  if (!token || type !== 'register') return null;
   return { token };
 }
 
 async function handleVerification(): Promise<void> {
   const payload = parseSearchParams();
-  const params = new URLSearchParams(window.location.search);
-  const uiType = params.get('type');
 
   if (!payload) {
     setVerifyStatus('error', 'Нет параметров для подтверждения.');
-    return;
-  }
-
-  if (uiType !== 'register' && uiType !== 'reset') {
-    setVerifyStatus('error', 'Некорректный тип подтверждения.');
     return;
   }
 
@@ -46,24 +39,10 @@ async function handleVerification(): Promise<void> {
     setVerifyStatus('pending', 'Подтверждаем...');
     const res = await verifyToken(payload);
 
-    if (uiType === 'register') {
-      applyLoginStateToDOM('user' in res ? res.user ?? null : null);
-      showGlobalMessage('success', 'Email подтверждён, перенаправляем...');
-      setVerifyStatus('success', 'Email подтверждён, перенаправляем...');
-      window.location.hash = '#account';
-      return;
-    }
-
-    const resetRes = res as VerifyResetResponse;
-    setResetCsrfToken(resetRes.csrf_token ?? null);
-    if (!resetRes.csrf_token) {
-      setVerifyStatus('error', 'Ссылка для сброса устарела.');
-      return;
-    }
-
-    showGlobalMessage('success', 'Подтверждено, задайте новый пароль');
-    setVerifyStatus('success', 'Переходим к установке нового пароля');
-    window.location.hash = '#reset';
+    applyLoginStateToDOM('user' in res ? res.user ?? null : null);
+    showGlobalMessage('success', 'Email подтверждён, перенаправляем...');
+    setVerifyStatus('success', 'Email подтверждён, перенаправляем...');
+    window.location.hash = '#account';
   } catch (error) {
     setVerifyStatus('error', extractError(error));
   }

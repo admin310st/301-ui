@@ -1,21 +1,12 @@
-import { qs } from './dom';
+import type { NoticeType } from './notice';
+import { hideNotice, showNotice } from './notice';
 
-type MessageKind = 'success' | 'error' | 'info';
-
-export function showGlobalMessage(type: MessageKind, text: string): void {
-  const box = qs<HTMLElement>('[data-global-message]');
-  if (!box) return;
-  box.hidden = false;
-  box.dataset.type = type;
-  box.textContent = text;
+export function showGlobalMessage(type: NoticeType, text: string): void {
+  showNotice(type, text);
 }
 
 export function clearGlobalMessage(): void {
-  const box = qs<HTMLElement>('[data-global-message]');
-  if (!box) return;
-  box.hidden = true;
-  box.textContent = '';
-  delete box.dataset.type;
+  hideNotice();
 }
 
 export function showInlineError(target: HTMLElement | null, message: string): void {

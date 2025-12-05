@@ -3,11 +3,13 @@ import { initLoginForm } from '@forms/login';
 import { initRegisterForm } from '@forms/register';
 import { initResetConfirmForm } from '@forms/reset-confirm';
 import { initResetRequestForm } from '@forms/reset-request';
+import { initResetVerifyFlow } from '@forms/reset-verify';
 import { initVerifyFlow } from '@forms/verify';
 import { initCloudflareWizard } from '@forms/cf-wizard';
 import { initGithubOAuth } from '@social/github';
 import { initGoogleOAuth } from '@social/google';
 import { applyInitialAuthState, handleLogoutDom } from '@ui/auth-dom';
+import { initNoticeFromSources } from '@ui/notice';
 import { initTurnstile } from './turnstile';
 import { showGlobalMessage } from '@ui/notifications';
 import { initVisibilityController } from '@ui/visibility';
@@ -68,6 +70,7 @@ function bindLogoutButtons(): void {
 window.addEventListener('hashchange', applyRouteFromHash);
 
 document.addEventListener('DOMContentLoaded', async () => {
+  initNoticeFromSources();
   initVisibilityController();
   await applyInitialAuthState();
   await initTurnstile();
@@ -76,6 +79,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initRegisterForm();
   initResetRequestForm();
   initResetConfirmForm();
+  initResetVerifyFlow();
   initVerifyFlow();
   initGoogleOAuth();
   initGithubOAuth();
