@@ -6,6 +6,9 @@ const DEFAULT_SITE_KEY = '0x4AAAAAACB-_l9VwF1M_QHU';
 const formTokens = new WeakMap<HTMLFormElement, string | null>();
 let siteKey = DEFAULT_SITE_KEY;
 let observer: MutationObserver | null = null;
+let globalToken: string | null = null;
+let globalTokenIssuedAt = 0;
+const GLOBAL_TOKEN_TTL_MS = 2 * 60 * 1000;
 
 declare global {
   interface Window {
@@ -66,10 +69,15 @@ export async function initTurnstile(root: ParentNode = document): Promise<void> 
 }
 
 function storeToken(form: HTMLFormElement | null, token: string | null): void {
-  if (!form) return;
-  formTokens.set(form, token);
-  const hidden = form.querySelector<HTMLInputElement>('input[name="turnstile_token"]');
-  if (hidden) hidden.value = token ?? '';
+  if (form) {
+    formTokens.set(form, token);
+    const hidden = form.querySelector<HTMLInputElement>('input[name="turnstile_token"]');
+    if (hidden) hidden.value = token ?? '';
+    return;
+  }
+
+  globalToken = token;
+  globalTokenIssuedAt = token ? Date.now() : 0;
 }
 
 export function renderTurnstileWidgets(root: ParentNode = document): void {
@@ -105,14 +113,27 @@ export function renderTurnstileWidgets(root: ParentNode = document): void {
 }
 
 export function getTurnstileToken(form?: HTMLFormElement): string | null {
-  if (!form) return null;
-  if (formTokens.has(form)) return formTokens.get(form) ?? null;
-  return form.querySelector<HTMLInputElement>('input[name="turnstile_token"]')?.value || null;
+  if (form && formTokens.has(form)) {
+    return formTokens.get(form) ?? null;
+  }
+
+  const isGlobalFresh = Boolean(globalToken && Date.now() - globalTokenIssuedAt < GLOBAL_TOKEN_TTL_MS);
+  if (isGlobalFresh) return globalToken;
+
+  if (form) {
+    return form.querySelector<HTMLInputElement>('input[name="turnstile_token"]')?.value || null;
+  }
+
+  return null;
 }
 
 export function resetTurnstile(form?: HTMLFormElement): void {
   const api = window.turnstile;
   if (!api || typeof api.reset !== 'function') return;
+
+  globalToken = null;
+  globalTokenIssuedAt = 0;
+
   if (form) {
     const widget = form.querySelector<HTMLElement>('.turnstile-widget');
     if (widget?.dataset.widgetId) {
@@ -121,6 +142,7 @@ export function resetTurnstile(form?: HTMLFormElement): void {
       return;
     }
   }
+
   try {
     api.reset();
   } catch (error) {

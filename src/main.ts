@@ -4,6 +4,7 @@ import { initRegisterForm } from '@forms/register';
 import { initResetConfirmForm } from '@forms/reset-confirm';
 import { initResetRequestForm } from '@forms/reset-request';
 import { initVerifyFlow } from '@forms/verify';
+import { initCloudflareWizard } from '@forms/cf-wizard';
 import { initGithubOAuth } from '@social/github';
 import { initGoogleOAuth } from '@social/google';
 import { applyInitialAuthState, handleLogoutDom } from '@ui/auth-dom';
@@ -56,6 +57,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initVerifyFlow();
   initGoogleOAuth();
   initGithubOAuth();
+  initCloudflareWizard();
   applyRouteFromHash();
   bindLogoutButtons();
 });
