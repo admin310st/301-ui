@@ -218,6 +218,58 @@
             </p>
             <button class="btn btn-secondary" data-action="logout">Выйти</button>
           </div>
+
+          <section data-integrations-wizard="cloudflare" class="wizard">
+            <header class="wizard-header">
+              <div>
+                <p class="eyebrow">Интеграции</p>
+                <h2>Cloudflare</h2>
+                <p class="muted">Подключите аккаунт Cloudflare, чтобы управлять зонами.</p>
+              </div>
+            </header>
+
+            <div class="wizard-grid">
+              <ol class="wizard-steps">
+                <li class="wizard-step is-active" data-step="1" aria-current="step">Добавьте Bootstrap Token</li>
+                <li class="wizard-step" data-step="2">Настройте зоны</li>
+                <li class="wizard-step" data-step="3">Подтвердите выпуск сертификатов</li>
+              </ol>
+
+              <div class="wizard-panels">
+                <section class="wizard-step-panel is-active" data-step-panel="1">
+                  <h3>Шаг 1. Добавьте Cloudflare Bootstrap Token</h3>
+                  <p class="muted">Укажите Account ID и bootstrap токен, полученный в Cloudflare.</p>
+
+                  <form data-form="cf-bootstrap">
+                    <div class="field">
+                      <label>Cloudflare Account ID</label>
+                      <input type="text" name="cf_account_id" required />
+                    </div>
+                    <div class="field">
+                      <label>Bootstrap Token</label>
+                      <textarea name="cf_bootstrap_token" rows="3" required></textarea>
+                    </div>
+
+                    <div class="turnstile-widget" aria-live="polite"></div>
+                    <input type="hidden" name="turnstile_token" />
+
+                    <button type="submit" class="btn primary">Сохранить и проверить</button>
+                    <p class="form-status" data-status></p>
+                  </form>
+                </section>
+
+                <section class="wizard-step-panel" data-step-panel="2" hidden>
+                  <h3>Шаг 2. Настройка зон</h3>
+                  <p class="muted">После сохранения токена вы сможете выбрать зоны и подключить их к 301.st.</p>
+                </section>
+
+                <section class="wizard-step-panel" data-step-panel="3" hidden>
+                  <h3>Шаг 3. Подтверждение</h3>
+                  <p class="muted">Завершите настройку SSL и убедитесь, что редиректы работают.</p>
+                </section>
+              </div>
+            </div>
+          </section>
         </div>
         <div class="container" data-onlogout>
           <div class="auth-card">
