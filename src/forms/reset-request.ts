@@ -1,5 +1,5 @@
 import { resetPassword } from '@api/auth';
-import type { CommonErrorResponse } from '@api/types';
+import type { CommonErrorResponse, ResetPasswordRequest } from '@api/types';
 import { TURNSTILE_REQUIRED_MESSAGE, getTurnstileToken, resetTurnstile } from '../turnstile';
 import { setFormState } from '@ui/dom';
 import { showGlobalMessage } from '@ui/notifications';
@@ -23,6 +23,8 @@ function mapErrorMessage(code: string): string {
   switch (code) {
     case 'email_not_verified':
       return 'Email не подтверждён. Проверьте почту или пройдите регистрацию заново.';
+    case 'invalid_identifier':
+      return 'Не удалось найти пользователя с таким email.';
     case 'turnstile_failed':
       return 'Проверка защиты не пройдена. Обновите виджет и попробуйте ещё раз.';
     case 'turnstile_required':
@@ -32,15 +34,27 @@ function mapErrorMessage(code: string): string {
   }
 }
 
+function readResetPayload(form: HTMLFormElement) {
+  const typeInput = form.querySelector<HTMLInputElement>('[name="type"]');
+  const valueInput =
+    form.querySelector<HTMLInputElement>('[name="value"]') ||
+    form.querySelector<HTMLInputElement>('[name="email"]');
+
+  const value = valueInput?.value.trim() || '';
+  const type = (typeInput?.value as ResetPasswordRequest['type']) || 'email';
+
+  return { type, value } as const;
+}
+
 async function handleResetRequest(event: SubmitEvent): Promise<void> {
   event.preventDefault();
   const form = event.currentTarget as HTMLFormElement;
 
-  const email = form.querySelector<HTMLInputElement>('[name="email"]')?.value.trim();
+  const { value, type } = readResetPayload(form);
   const captcha = getTurnstileToken(form);
 
-  if (!email) {
-    setFormState(form, 'error', 'Укажите email');
+  if (!value) {
+    setFormState(form, 'error', 'Укажите email для восстановления');
     return;
   }
 
@@ -52,8 +66,8 @@ async function handleResetRequest(event: SubmitEvent): Promise<void> {
   try {
     setFormState(form, 'pending', 'Отправляем ссылку...');
     const res = await resetPassword({
-      type: 'email',
-      value: email,
+      type,
+      value,
       turnstile_token: captcha,
     });
 

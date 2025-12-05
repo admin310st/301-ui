@@ -151,10 +151,12 @@
             <form data-form="reset-request">
               <div class="field">
                 <label for="reset-email">Email</label>
-                <input class="input" id="reset-email" name="email" type="email" required />
+                <input class="input" id="reset-email" name="value" type="email" required />
               </div>
 
               <div data-status class="auth-status" hidden></div>
+
+              <input type="hidden" name="type" value="email" />
 
               <input type="hidden" name="turnstile_token" value="" />
               <div class="turnstile-widget" aria-live="polite"></div>
