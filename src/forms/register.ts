@@ -1,8 +1,15 @@
-import { register } from '../api/client';
-import { getTurnstileTokenForForm } from '../turnstile';
-import { setFormState } from '../ui/dom';
-import { showGlobalMessage } from '../ui/notifications';
-import { applyLoginStateToDOM, updateAuthStateFromMe } from '../utils/authState';
+import { register } from '@api/auth';
+import type { CommonErrorResponse } from '@api/types';
+import { loadUser } from '@state/auth-state';
+import { getTurnstileToken, resetTurnstile } from '../turnstile';
+import { setFormState } from '@ui/dom';
+import { showGlobalMessage } from '@ui/notifications';
+import type { ApiError } from '@utils/errors';
+
+function extractError(error: unknown): string {
+  const apiError = error as ApiError<CommonErrorResponse>;
+  return apiError?.body?.message || apiError?.body?.error || apiError?.message || 'Registration failed';
+}
 
 async function handleRegisterSubmit(event: SubmitEvent): Promise<void> {
   event.preventDefault();
@@ -10,41 +17,30 @@ async function handleRegisterSubmit(event: SubmitEvent): Promise<void> {
 
   const email = form.querySelector<HTMLInputElement>('[name="email"]')?.value.trim();
   const password = form.querySelector<HTMLInputElement>('[name="password"]')?.value || '';
-  const turnstileToken = getTurnstileTokenForForm(form);
+  const captcha = getTurnstileToken(form);
 
   if (!email || !password) {
-    setFormState(form, 'error', 'Введите email и пароль');
-    return;
-  }
-  if (!turnstileToken) {
-    setFormState(form, 'error', 'Подтвердите капчу');
+    setFormState(form, 'error', 'Email and password are required');
     return;
   }
 
   try {
-    setFormState(form, 'loading', 'Создаём аккаунт...');
-    const res = await register({ email, password, turnstile_token: turnstileToken });
-
-    if (res.ok || res.access_token) {
-      const user = res.user || (await updateAuthStateFromMe());
-      applyLoginStateToDOM(user || res.user || null);
-      setFormState(form, 'success', 'Проверьте почту или войдите сразу.');
-      showGlobalMessage('success', 'Регистрация завершена');
-      form.reset();
-      return;
-    }
-
-    setFormState(form, 'error', res.message || res.error || 'Не удалось создать аккаунт');
-  } catch (err) {
-    console.error(err);
-    setFormState(form, 'error', (err as Error).message || 'Ошибка регистрации');
+    setFormState(form, 'pending', 'Creating account...');
+    const res = await register({ email, password, turnstile_token: captcha || undefined });
+    await loadUser();
+    setFormState(form, 'success', res.message || 'Check your inbox to verify email');
+    showGlobalMessage('success', 'Account created');
+    form.reset();
+  } catch (error) {
+    setFormState(form, 'error', extractError(error));
+    resetTurnstile(form);
   }
 }
 
 export function initRegisterForm(): void {
-  const form = document.querySelector<HTMLFormElement>('[data-auth="register"]');
-  if (!form) return;
-  if (form.dataset.bound === 'true') return;
-  form.dataset.bound = 'true';
-  form.addEventListener('submit', handleRegisterSubmit);
+  document.querySelectorAll<HTMLFormElement>('[data-form="register"]').forEach((form) => {
+    if (form.dataset.bound === 'true') return;
+    form.dataset.bound = 'true';
+    form.addEventListener('submit', handleRegisterSubmit);
+  });
 }

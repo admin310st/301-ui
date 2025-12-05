@@ -1,23 +1,39 @@
-import { initLoginForm } from './forms/login';
-import { initRegisterForm } from './forms/register';
+import { logout } from '@api/auth';
+import { initLoginForm } from '@forms/login';
+import { initRegisterForm } from '@forms/register';
+import { initResetConfirmForm } from '@forms/reset-confirm';
+import { initResetRequestForm } from '@forms/reset-request';
+import { initVerifyForm } from '@forms/verify';
+import { initGithubOAuth } from '@social/github';
+import { initGoogleOAuth } from '@social/google';
+import { initAuthState } from '@state/auth-state';
 import { initTurnstile } from './turnstile';
-import { applyInitialAuthState, handleLogoutDom } from './utils/authState';
-import { logout } from './api/client';
-import { showGlobalMessage } from './ui/notifications';
+import { showGlobalMessage } from '@ui/notifications';
+import { initVisibilityController } from '@ui/visibility';
 
-document.addEventListener('DOMContentLoaded', () => {
-  applyInitialAuthState();
-  initTurnstile();
-  initLoginForm();
-  initRegisterForm();
-
-  const logoutBtn = document.querySelector<HTMLButtonElement>('[data-action="logout"]');
-  if (logoutBtn) {
-    logoutBtn.addEventListener('click', async (event) => {
+function bindLogoutButtons(): void {
+  document.querySelectorAll<HTMLElement>('[data-action="logout"]').forEach((btn) => {
+    if (btn.dataset.bound === 'true') return;
+    btn.dataset.bound = 'true';
+    btn.addEventListener('click', async (event) => {
       event.preventDefault();
-      await logout().catch((err) => console.debug('logout failed', err));
-      handleLogoutDom();
+      await logout();
       showGlobalMessage('success', 'Logged out');
     });
-  }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+  initVisibilityController();
+  await initAuthState();
+  await initTurnstile();
+
+  initLoginForm();
+  initRegisterForm();
+  initResetRequestForm();
+  initResetConfirmForm();
+  initVerifyForm();
+  initGoogleOAuth();
+  initGithubOAuth();
+  bindLogoutButtons();
 });

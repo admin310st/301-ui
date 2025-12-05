@@ -4,7 +4,15 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "strict": true,
-    "baseUrl": "./src"
+    "baseUrl": "./src",
+    "paths": {
+      "@api/*": ["api/*"],
+      "@forms/*": ["forms/*"],
+      "@ui/*": ["ui/*"],
+      "@utils/*": ["utils/*"],
+      "@state/*": ["state/*"],
+      "@social/*": ["social/*"]
+    }
   },
   "include": ["src"]
 }
