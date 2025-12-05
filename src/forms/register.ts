@@ -1,6 +1,5 @@
 import { register } from '@api/auth';
 import type { CommonErrorResponse } from '@api/types';
-import { loadUser } from '@state/auth-state';
 import { getTurnstileToken, resetTurnstile } from '../turnstile';
 import { setFormState } from '@ui/dom';
 import { showGlobalMessage } from '@ui/notifications';
@@ -20,17 +19,16 @@ async function handleRegisterSubmit(event: SubmitEvent): Promise<void> {
   const captcha = getTurnstileToken(form);
 
   if (!email || !password) {
-    setFormState(form, 'error', 'Email and password are required');
+    setFormState(form, 'error', 'Нужны email и пароль');
     return;
   }
 
   try {
-    setFormState(form, 'pending', 'Creating account...');
+    setFormState(form, 'pending', 'Создаём аккаунт...');
     const res = await register({ email, password, turnstile_token: captcha || undefined });
-    await loadUser();
-    setFormState(form, 'success', res.message || 'Check your inbox to verify email');
-    showGlobalMessage('success', 'Account created');
-    form.reset();
+    const statusMessage = res.message || `Мы отправили письмо на ${email}. Перейдите по ссылке, чтобы завершить регистрацию.`;
+    setFormState(form, 'success', statusMessage);
+    showGlobalMessage('info', statusMessage);
   } catch (error) {
     setFormState(form, 'error', extractError(error));
     resetTurnstile(form);
