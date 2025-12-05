@@ -4,17 +4,20 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>301.st · Auth</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="stylesheet" href="/css/theme.css" />
     <link rel="stylesheet" href="/css/site.css" />
-    <script type="module" crossorigin src="/assets/index-BDRB8ZCw.js"></script>
+    <script type="module" crossorigin src="/assets/index-BCtHV_ta.js"></script>
   </head>
   <body>
     <header class="site-header">
       <div class="container header-bar">
         <a class="brand" href="/">301.st</a>
         <nav class="nav-links" data-onlogout>
-          <a href="#login">Вход</a>
-          <a href="#register">Регистрация</a>
+          <a href="#login" data-route-link="login">Вход</a>
+          <a href="#register" data-route-link="register">Регистрация</a>
+          <a href="#reset" data-route-link="reset">Забыли пароль?</a>
         </nav>
         <div class="nav-links" data-onlogin hidden>
           <span data-user-email></span>
@@ -23,182 +26,238 @@
       </div>
     </header>
 
-    <main class="auth-shell">
-      <div class="container auth-grid">
-        <div class="auth-card" id="login">
-          <p class="eyebrow">Боевой вход</p>
-          <h1>Войти в 301.st</h1>
-          <p class="auth-subtitle">Используйте email и пароль, чтобы попасть в аккаунт.</p>
+    <main class="page">
+      <section data-route="auth" id="auth">
+        <div class="container auth-shell">
+          <div class="auth-grid">
+            <section class="auth-card">
+              <p class="eyebrow">Боевой вход</p>
+              <h1>Доступ к 301.st</h1>
+              <p class="auth-subtitle">
+                Используйте email и пароль, чтобы попасть в аккаунт, либо запросите восстановление.
+              </p>
 
-          <form id="auth-login-form" data-form="login">
-            <div class="field">
-              <label for="signin-email">Email</label>
-              <input
-                class="input"
-                id="signin-email"
-                name="email"
-                type="email"
-                autocomplete="email"
-                required
-                data-avatar-source
-              />
-            </div>
+              <div class="auth-actions" role="tablist" aria-label="Тип операции">
+                <a class="btn btn-secondary" href="#login" data-auth-tab="login" data-route-link="login">Вход</a>
+                <a class="btn btn-secondary" href="#register" data-auth-tab="register" data-route-link="register"
+                  >Регистрация</a
+                >
+                <a class="btn btn-secondary" href="#reset" data-auth-tab="reset" data-route-link="reset">Восстановление</a>
+              </div>
 
-            <div class="field">
-              <label for="signin-password">Пароль</label>
-              <input
-                class="input"
-                id="signin-password"
-                name="password"
-                type="password"
-                autocomplete="current-password"
-                required
-              />
-            </div>
+              <form id="auth-login-form" data-form="login" data-auth-view="login">
+                <div class="field">
+                  <label class="field-label" for="signin-email">Email</label>
+                  <input
+                    class="input"
+                    id="signin-email"
+                    name="email"
+                    type="email"
+                    autocomplete="email"
+                    required
+                    data-avatar-source
+                  />
+                </div>
 
-            <div data-status class="auth-status" hidden></div>
+                <div class="field">
+                  <label class="field-label" for="signin-password">Пароль</label>
+                  <input
+                    class="input"
+                    id="signin-password"
+                    name="password"
+                    type="password"
+                    autocomplete="current-password"
+                    required
+                  />
+                </div>
 
-            <input type="hidden" name="turnstile_token" value="" />
-            <div class="turnstile-widget" aria-live="polite"></div>
+                <div class="auth-status" data-type="pending" data-form-status="login">
+                  Введите email и пароль, чтобы войти в аккаунт.
+                </div>
 
-            <div class="auth-actions">
-              <button type="submit" class="btn btn-primary" data-auth-submit="login">Войти</button>
-              <a href="#register" class="btn btn-secondary">Создать аккаунт</a>
-            </div>
-          </form>
+                <div class="auth-actions">
+                  <button type="submit" class="btn btn-primary" data-auth-submit="login">Войти</button>
+                  <a href="#register" class="btn btn-secondary" data-auth-switch="register" data-route-link="register"
+                    >Создать аккаунт</a
+                  >
+                </div>
 
-          <div class="auth-links">
-            <a href="#register">Регистрация</a>
+                <div class="auth-links">
+                  <a href="#register" data-auth-switch="register" data-route-link="register">Регистрация</a>
+                  <a href="#reset" data-auth-switch="reset" data-route-link="reset">Забыли пароль?</a>
+                </div>
+              </form>
+
+              <form data-form="register" data-auth-view="register" hidden>
+                <div class="field">
+                  <label class="field-label" for="register-email">Email</label>
+                  <input class="input" id="register-email" name="email" type="email" autocomplete="email" required />
+                </div>
+                <div class="field">
+                  <label class="field-label" for="register-password">Пароль</label>
+                  <input
+                    class="input"
+                    id="register-password"
+                    name="password"
+                    type="password"
+                    autocomplete="new-password"
+                    required
+                  />
+                </div>
+
+                <div class="auth-status" data-type="pending" data-form-status="register">
+                  Минимум 8 символов, буквы в разных регистрах и цифры.
+                </div>
+
+                <div class="auth-actions">
+                  <button type="submit" class="btn btn-primary" data-auth-submit="register">Создать</button>
+                  <a href="#login" class="btn btn-secondary" data-auth-switch="login" data-route-link="login"
+                    >Уже есть аккаунт</a
+                  >
+                </div>
+              </form>
+
+              <form data-form="reset-request" data-auth-view="reset" hidden>
+                <div class="field">
+                  <label class="field-label" for="reset-email">Email</label>
+                  <input class="input" id="reset-email" name="value" type="email" autocomplete="email" required />
+                </div>
+
+                <input type="hidden" name="type" value="email" />
+
+                <div class="auth-status" data-type="pending" data-form-status="reset-request">
+                  Мы отправим ссылку для восстановления на указанный email.
+                </div>
+
+                <div class="auth-actions">
+                  <button type="submit" class="btn btn-primary">Отправить ссылку</button>
+                  <a href="#login" class="btn btn-secondary" data-auth-switch="login" data-route-link="login"
+                    >Вернуться ко входу</a
+                  >
+                </div>
+              </form>
+
+              <div class="auth-status" data-type="pending" data-turnstile-status>
+                <div class="turnstile-widget"></div>
+                <p class="text-muted">
+                  Turnstile protects login, registration, reset and Cloudflare bootstrap from bots.
+                </p>
+              </div>
+
+              <div class="session-block">
+                <div data-onlogin style="display: none">
+                  <p class="muted">Сессия активна.</p>
+                  <p>
+                    Вы вошли как <strong data-auth-email data-user-email></strong>. Текущая роль:
+                    <span data-user-role>client:owner</span>.
+                  </p>
+                  <div class="auth-actions">
+                    <button class="btn btn-secondary" data-action="logout">Выйти</button>
+                  </div>
+                </div>
+                <div data-onlogout>
+                  <p class="muted">Вы не авторизованы.</p>
+                </div>
+              </div>
+            </section>
+
+            <aside class="side-card">
+              <h3 class="h2">Cloudflare account bootstrap</h3>
+              <p class="text-muted">
+                Step 1 · Paste your <strong>Account ID</strong> and
+                <strong>Bootstrap API token</strong> as in the Integrations guide.
+              </p>
+
+              <div class="avatar-preview">
+                <div class="avatar-ring">
+                  <img src="https://www.cloudflare.com/img/logo-cloudflare.svg" alt="Cloudflare" />
+                </div>
+                <p class="avatar-meta">
+                  Orange actions below are reserved for Cloudflare-level changes.
+                </p>
+              </div>
+
+              <form data-form="cf-bootstrap">
+                <div class="field">
+                  <label class="field-label">Cloudflare Account ID</label>
+                  <input
+                    class="input"
+                    type="text"
+                    name="cf_account_id"
+                    autocomplete="off"
+                    placeholder="e.g. 1234567890abcdef1234567890abcdef"
+                    required
+                  />
+                </div>
+
+                <div class="field">
+                  <label class="field-label">Bootstrap API token</label>
+                  <textarea
+                    class="input"
+                    name="cf_bootstrap_token"
+                    rows="4"
+                    placeholder="Paste token with 'Account API Tokens: Edit' scope…"
+                    required
+                  ></textarea>
+                  <p class="field-help text-muted">
+                    Created as <code>301st Bootstrap</code> with
+                    <em>Account API Tokens: Edit</em> permission.
+                  </p>
+                </div>
+
+                <div class="auth-actions">
+                  <button type="submit" class="btn btn-cf">Save &amp; verify token</button>
+                </div>
+
+                <div class="auth-status" data-type="pending" data-form-status="cf-bootstrap">
+                  This will hit <code>/auth/integrations/cloudflare/bootstrap</code> once wired.
+                </div>
+              </form>
+            </aside>
           </div>
         </div>
+      </section>
 
-        <div class="side-card">
-          <h3>Аватар по email</h3>
-          <p class="muted">Для демонстрации логина подтягиваем Gravatar сразу при вводе почты.</p>
-          <div class="avatar-preview">
-            <div class="avatar-ring">
-              <img data-avatar-img src="/img/anonymous-avatar.svg" alt="Avatar" />
-            </div>
-            <div>
-              <strong data-avatar-label>Укажите email</strong>
-              <p class="avatar-meta">Аватар обновится мгновенно.</p>
+      <section data-route="verify" id="verify" hidden>
+        <div class="container auth-shell">
+          <div class="auth-grid">
+            <div class="auth-card">
+              <p class="eyebrow">Подтверждение</p>
+              <h2>Подтверждаем…</h2>
+              <p class="muted">Мы проверяем ссылку из письма. Это займёт пару секунд.</p>
+              <div data-verify-status class="auth-status" hidden></div>
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      <div class="container auth-grid" id="register">
-        <div class="auth-card">
-          <p class="eyebrow">Создать аккаунт</p>
-          <h1>Регистрация</h1>
-          <p class="auth-subtitle">Введите email и пароль, чтобы подключить 301.st.</p>
-
-          <form data-form="register">
-            <div class="field">
-              <label for="register-email">Email</label>
-              <input class="input" id="register-email" name="email" type="email" required />
+      <section data-route="reset-confirm" id="reset" hidden>
+        <div class="container auth-shell">
+          <div class="auth-grid">
+            <div class="auth-card">
+              <p class="eyebrow">Новый пароль</p>
+              <h2>Установить пароль</h2>
+              <form data-form="reset-confirm">
+                <div class="field">
+                  <label class="field-label" for="reset-password">Новый пароль</label>
+                  <input class="input" id="reset-password" name="password" type="password" required />
+                </div>
+                <div class="field">
+                  <label class="field-label" for="reset-password-confirm">Повторите пароль</label>
+                  <input class="input" id="reset-password-confirm" name="password_confirm" type="password" required />
+                </div>
+                <div class="auth-status" data-type="pending" data-form-status="reset-confirm">
+                  Убедитесь, что пароли совпадают и достаточно надёжны.
+                </div>
+                <div class="auth-actions">
+                  <button type="submit" class="btn btn-primary">Обновить пароль</button>
+                  <a href="#login" class="btn btn-secondary" data-route-link="login">Войти</a>
+                </div>
+              </form>
             </div>
-            <div class="field">
-              <label for="register-password">Пароль</label>
-              <input
-                class="input"
-                id="register-password"
-                name="password"
-                type="password"
-                autocomplete="new-password"
-                required
-              />
-            </div>
-
-            <div data-status class="auth-status" hidden></div>
-
-            <input type="hidden" name="turnstile_token" value="" />
-            <div class="turnstile-widget" aria-live="polite"></div>
-
-            <div class="auth-actions">
-              <button type="submit" class="btn btn-primary" data-auth-submit="register">Создать</button>
-              <a href="#login" class="btn btn-secondary">Я уже зарегистрирован</a>
-            </div>
-          </form>
+          </div>
         </div>
-
-        <div class="side-card">
-          <h3>Боевой поток</h3>
-          <p class="muted">Запрос уходит в продовый /auth/register, можно показывать клиентам.</p>
-          <ul class="panel-list">
-            <li><span class="label">API</span><span class="value">https://api.301.st</span></li>
-            <li><span class="label">Ответ</span><span class="value">access_token + user</span></li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="container auth-grid" id="recovery">
-        <div class="auth-card">
-          <p class="eyebrow">Восстановление</p>
-          <h2>Запросить сброс</h2>
-          <form data-form="reset-request">
-            <div class="field">
-              <label for="reset-email">Email</label>
-              <input class="input" id="reset-email" name="email" type="email" required />
-            </div>
-
-            <div data-status class="auth-status" hidden></div>
-
-            <input type="hidden" name="turnstile_token" value="" />
-            <div class="turnstile-widget" aria-live="polite"></div>
-
-            <div class="auth-actions">
-              <button type="submit" class="btn btn-primary">Отправить ссылку</button>
-            </div>
-          </form>
-        </div>
-
-        <div class="auth-card">
-          <p class="eyebrow">Новый пароль</p>
-          <h2>Подтверждение</h2>
-          <form data-form="reset-confirm">
-            <div class="field">
-              <label for="reset-token">Токен</label>
-              <input class="input" id="reset-token" name="token" type="text" required />
-            </div>
-            <div class="field">
-              <label for="reset-password">Новый пароль</label>
-              <input class="input" id="reset-password" name="password" type="password" required />
-            </div>
-            <div data-status class="auth-status" hidden></div>
-            <div class="auth-actions">
-              <button type="submit" class="btn btn-primary">Обновить пароль</button>
-            </div>
-          </form>
-        </div>
-
-        <div class="auth-card">
-          <p class="eyebrow">OmniFlow</p>
-          <h2>Проверка кода</h2>
-          <form data-form="verify">
-            <div class="field">
-              <label for="verify-email">Email</label>
-              <input class="input" id="verify-email" name="email" type="email" required />
-            </div>
-            <div class="field">
-              <label for="verify-code">Код подтверждения</label>
-              <input class="input" id="verify-code" name="code" type="text" required />
-            </div>
-            <div data-status class="auth-status" hidden></div>
-            <div class="auth-actions">
-              <button type="submit" class="btn btn-primary">Подтвердить</button>
-            </div>
-          </form>
-        </div>
-      </div>
-
-      <div class="container" data-onlogin hidden>
-        <div class="auth-card">
-          <h2>Состояние сессии</h2>
-          <p>Вы вошли как <strong data-auth-email data-user-email></strong>.</p>
-          <button class="btn btn-secondary" data-action="logout">Выйти</button>
-        </div>
-      </div>
+      </section>
     </main>
 
     <div class="container" data-global-message hidden></div>
@@ -210,11 +269,12 @@
           <p class="muted">Редиректы и аналитика.</p>
         </div>
         <div class="footer-links">
-          <a href="#login">Вход</a>
-          <a href="#register">Регистрация</a>
+          <a href="#login" data-route-link="login">Вход</a>
+          <a href="#register" data-route-link="register">Регистрация</a>
+          <a href="#reset" data-route-link="reset">Забыли пароль?</a>
         </div>
       </div>
     </footer>
-
+
   </body>
 </html>
