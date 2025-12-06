@@ -27,7 +27,10 @@ export default {
         url.pathname === '/auth/success' ||
         url.pathname === '/auth/success/')
     ) {
-      const indexReq = new Request(new URL('/index.html', url.origin).toString(), request);
+      const indexReq = new Request(new URL('/index.html', url.origin).toString(), {
+        method: 'GET',
+        headers: request.headers,
+      });
       return env.ASSETS.fetch(indexReq);
     }
 
