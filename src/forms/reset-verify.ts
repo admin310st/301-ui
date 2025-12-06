@@ -7,7 +7,10 @@ import { logDebug } from '@utils/logger';
 const API_ROOT = 'https://api.301.st/auth';
 const INVALID_LINK_MESSAGE = () => t('auth.resetVerify.invalidLink');
 
-function setVerifyStatus(state: 'pending' | 'error' | 'success', message: string): void {
+function setVerifyStatus(
+  state: 'pending' | 'error' | 'success',
+  message: string,
+): void {
   const status = document.querySelector<HTMLElement>('[data-verify-status]');
   if (!status) return;
   status.dataset.type = state;
@@ -29,10 +32,28 @@ function parseSearchParams(): ResetVerifyParams {
 }
 
 function sanitizeUrl(url: URL, hash?: string): void {
-  const targetUrl = new URL(url.toString());
-  targetUrl.search = '';
-  if (hash) targetUrl.hash = `#${hash.replace('#', '')}`;
-  window.history.replaceState({}, document.title, targetUrl.toString());
+  const clean = new URL(url.toString());
+  clean.search = '';
+  if (hash) clean.hash = `#${hash.replace('#', '')}`;
+  window.history.replaceState({}, document.title, clean.toString());
+}
+
+function showResetStep(step: 'request' | 'confirm'): void {
+  const shouldShowRequest = step === 'request';
+
+  document
+    .querySelectorAll<HTMLElement>('[data-reset-step="request"]')
+    .forEach((el) => {
+      el.hidden = !shouldShowRequest;
+      el.setAttribute('aria-hidden', shouldShowRequest ? 'false' : 'true');
+    });
+
+  document
+    .querySelectorAll<HTMLElement>('[data-reset-step="confirm"]')
+    .forEach((el) => {
+      el.hidden = shouldShowRequest;
+      el.setAttribute('aria-hidden', shouldShowRequest ? 'true' : 'false');
+    });
 }
 
 async function fetchResetVerification(type: string, token: string): Promise<VerifyResetResponse> {
@@ -54,6 +75,7 @@ function handleResetError(message: string, url: URL): void {
   setVerifyStatus('error', message);
   sanitizeUrl(url, 'reset');
   window.location.hash = '#reset';
+  showResetStep('request');
 }
 
 export function initResetVerifyFlow(): void {
@@ -81,7 +103,8 @@ export function initResetVerifyFlow(): void {
         showGlobalNotice('success', message);
         setVerifyStatus('success', t('auth.resetVerify.proceed'));
         sanitizeUrl(params.url, 'reset');
-        window.location.href = '/auth#reset';
+        window.location.hash = '#reset';
+        showResetStep('confirm');
         return;
       }
 
