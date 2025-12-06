@@ -53,11 +53,27 @@
           <span data-theme-icon="dark" aria-hidden="true">🌙</span>
           <span data-theme-icon="light" aria-hidden="true" hidden>☀️</span>
         </button>
-        <nav class="lang-switcher" aria-label="Language selection" data-i18n-aria="layout.langSwitcher.label">
-          <button type="button" data-lang="en" data-i18n="layout.langSwitcher.en" data-i18n-aria="layout.langSwitcher.label">
+        <nav
+          class="btn-chip-group lang-switcher"
+          aria-label="Language selection"
+          data-i18n-aria="layout.langSwitcher.label"
+        >
+          <button
+            type="button"
+            class="btn-chip is-active"
+            data-lang="en"
+            data-i18n="layout.langSwitcher.en"
+            data-i18n-aria="layout.langSwitcher.label"
+          >
             EN
           </button>
-          <button type="button" data-lang="ru" data-i18n="layout.langSwitcher.ru" data-i18n-aria="layout.langSwitcher.label">
+          <button
+            type="button"
+            class="btn-chip"
+            data-lang="ru"
+            data-i18n="layout.langSwitcher.ru"
+            data-i18n-aria="layout.langSwitcher.label"
+          >
             RU
           </button>
         </nav>
@@ -76,25 +92,26 @@
               </p>
 
               <div
-                class="auth-tabs"
+                class="btn-chip-group auth-tabs"
                 role="tablist"
                 data-i18n-aria="layout.headerTabsLabel"
                 aria-label="Authentication actions"
               >
-                <a class="auth-tab" href="#login" data-auth-tab="login" data-route-link="login" data-i18n="layout.nav.login"
-                  >Login</a
-                >
-                <a
-                  class="auth-tab"
-                  href="#register"
+                <button type="button" class="btn-chip is-active" data-auth-tab="login" data-route-link="login" data-i18n="layout.nav.login">
+                  Login
+                </button>
+                <button
+                  type="button"
+                  class="btn-chip"
                   data-auth-tab="register"
                   data-route-link="register"
                   data-i18n="layout.nav.register"
-                  >Register</a
                 >
-                <a class="auth-tab" href="#reset" data-auth-tab="reset" data-route-link="reset" data-i18n="layout.nav.reset"
-                  >Forgot password?</a
-                >
+                  Register
+                </button>
+                <button type="button" class="btn-chip" data-auth-tab="reset" data-route-link="reset" data-i18n="layout.nav.reset">
+                  Forgot password?
+                </button>
               </div>
 
               <form id="auth-login-form" data-form="login" data-auth-view="login">
