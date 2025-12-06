@@ -223,47 +223,49 @@
                 </div>
               </form>
 
-              <form data-form="reset-request" data-auth-view="reset" hidden>
-                <div class="field">
-                  <label class="field-label" for="reset-email" data-i18n="auth.login.emailLabel">Email</label>
-                  <input
-                    class="input"
-                    id="reset-email"
-                    name="value"
-                    type="email"
-                    autocomplete="email"
-                    required
-                    aria-describedby="reset-status"
-                  />
-                </div>
+              <div data-reset-step="request">
+                <form data-form="reset-request" data-auth-view="reset" hidden>
+                  <div class="field">
+                    <label class="field-label" for="reset-email" data-i18n="auth.login.emailLabel">Email</label>
+                    <input
+                      class="input"
+                      id="reset-email"
+                      name="value"
+                      type="email"
+                      autocomplete="email"
+                      required
+                      aria-describedby="reset-status"
+                    />
+                  </div>
 
-                <input type="hidden" name="type" value="email" />
+                  <input type="hidden" name="type" value="email" />
 
-                <div
-                  class="auth-status"
-                  data-type="pending"
-                  data-form-status="reset-request"
-                  id="reset-status"
-                  data-i18n="auth.reset.statusDefault"
-                >
-                  We’ll send you a link to set a new password.
-                </div>
-
-                <div class="auth-actions">
-                  <button
-                    type="submit"
-                    class="btn btn-primary"
-                    data-i18n="auth.reset.requestButton"
-                    data-i18n-aria="auth.reset.requestAria"
-                    aria-label="Request password reset link"
+                  <div
+                    class="auth-status"
+                    data-type="pending"
+                    data-form-status="reset-request"
+                    id="reset-status"
+                    data-i18n="auth.reset.statusDefault"
                   >
-                    Request reset link
-                  </button>
-                  <a href="#login" class="btn btn-secondary" data-auth-switch="login" data-route-link="login" data-i18n="auth.reset.linkToLogin"
-                    >Back to login</a
-                  >
-                </div>
-              </form>
+                    We’ll send you a link to set a new password.
+                  </div>
+
+                  <div class="auth-actions">
+                    <button
+                      type="submit"
+                      class="btn btn-primary"
+                      data-i18n="auth.reset.requestButton"
+                      data-i18n-aria="auth.reset.requestAria"
+                      aria-label="Request password reset link"
+                    >
+                      Request reset link
+                    </button>
+                    <a href="#login" class="btn btn-secondary" data-auth-switch="login" data-route-link="login" data-i18n="auth.reset.linkToLogin"
+                      >Back to login</a
+                    >
+                  </div>
+                </form>
+              </div>
 
               <div class="auth-status" data-type="pending" data-turnstile-status>
                 <div class="turnstile-widget" role="img" aria-describedby="turnstile-help"></div>
@@ -373,7 +375,7 @@
         </div>
       </section>
 
-      <section data-route="reset-confirm" id="reset" hidden>
+      <section data-route="reset-confirm" id="reset" data-reset-step="confirm" hidden aria-hidden="true">
         <div class="container auth-shell">
           <div class="auth-grid">
             <div class="auth-card">
