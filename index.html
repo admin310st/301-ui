@@ -114,157 +114,214 @@
                 </button>
               </div>
 
-              <form id="auth-login-form" data-form="login" data-auth-view="login">
-                <div class="field">
-                  <label class="field-label" for="signin-email" data-i18n="auth.login.emailLabel">Email</label>
-                  <input
-                    class="input"
-                    id="signin-email"
-                    name="email"
-                    type="email"
-                    autocomplete="email"
-                    required
-                    data-avatar-source
-                    aria-describedby="login-status"
-                  />
-                </div>
+              <div data-auth-views>
+                <section class="auth-view" data-auth-view="login" aria-hidden="false">
+                  <form id="auth-login-form" data-form="login">
+                    <div class="field">
+                      <label class="field-label" for="signin-email" data-i18n="auth.login.emailLabel">Email</label>
+                      <input
+                        class="input"
+                        id="signin-email"
+                        name="email"
+                        type="email"
+                        autocomplete="email"
+                        required
+                        data-avatar-source
+                        aria-describedby="login-status"
+                      />
+                    </div>
 
-                <div class="field">
-                  <label class="field-label" for="signin-password" data-i18n="auth.login.passwordLabel">Password</label>
-                  <input
-                    class="input"
-                    id="signin-password"
-                    name="password"
-                    type="password"
-                    autocomplete="current-password"
-                    required
-                    aria-describedby="login-status"
-                  />
-                </div>
+                    <div class="field">
+                      <label class="field-label" for="signin-password" data-i18n="auth.login.passwordLabel">Password</label>
+                      <input
+                        class="input"
+                        id="signin-password"
+                        name="password"
+                        type="password"
+                        autocomplete="current-password"
+                        required
+                        aria-describedby="login-status"
+                      />
+                    </div>
 
-                <div class="auth-status" id="login-status" data-type="pending" data-form-status="login" data-i18n="auth.login.statusDefault">
-                  Enter your email and password to sign in.
-                </div>
+                    <div class="auth-status" id="login-status" data-type="pending" data-form-status="login" data-i18n="auth.login.statusDefault">
+                      Enter your email and password to sign in.
+                    </div>
 
-                <div class="auth-actions">
-                  <button
-                    type="submit"
-                    class="btn btn-primary"
-                    data-auth-submit="login"
-                    data-i18n="auth.login.submit"
-                    data-i18n-aria="auth.login.submitAria"
-                    aria-label="Sign in to 301.st"
-                  >
-                    Sign in
-                  </button>
-                  <a
-                    href="#register"
-                    class="btn btn-secondary"
-                    data-auth-switch="register"
-                    data-route-link="register"
-                    data-i18n="auth.login.linkToRegister"
-                  >
-                    Create account
-                  </a>
-                </div>
+                    <div class="auth-actions">
+                      <button
+                        type="submit"
+                        class="btn btn-primary"
+                        data-auth-submit="login"
+                        data-i18n="auth.login.submit"
+                        data-i18n-aria="auth.login.submitAria"
+                        aria-label="Sign in to 301.st"
+                      >
+                        Sign in
+                      </button>
+                      <a
+                        href="#register"
+                        class="btn btn-secondary"
+                        data-auth-switch="register"
+                        data-route-link="register"
+                        data-i18n="auth.login.linkToRegister"
+                      >
+                        Create account
+                      </a>
+                    </div>
 
-                <div class="auth-links">
-                  <a href="#register" data-auth-switch="register" data-route-link="register" data-i18n="auth.login.linkToRegister"
-                    >Create account</a
-                  >
-                  <a href="#reset" data-auth-switch="reset" data-route-link="reset" data-i18n="auth.login.linkToReset"
-                    >Forgot password?</a
-                  >
-                </div>
-              </form>
+                    <div class="auth-links">
+                      <a href="#register" data-auth-switch="register" data-route-link="register" data-i18n="auth.login.linkToRegister"
+                        >Create account</a
+                      >
+                      <a href="#reset" data-auth-switch="reset" data-route-link="reset" data-i18n="auth.login.linkToReset"
+                        >Forgot password?</a
+                      >
+                    </div>
+                  </form>
+                </section>
 
-              <form data-form="register" data-auth-view="register" hidden>
-                <div class="field">
-                  <label class="field-label" for="register-email" data-i18n="auth.login.emailLabel">Email</label>
-                  <input class="input" id="register-email" name="email" type="email" autocomplete="email" required aria-describedby="register-status" />
-                </div>
-                <div class="field">
-                  <label class="field-label" for="register-password" data-i18n="auth.login.passwordLabel">Password</label>
-                  <input
-                    class="input"
-                    id="register-password"
-                    name="password"
-                    type="password"
-                    autocomplete="new-password"
-                    required
-                    aria-describedby="register-status"
-                  />
-                </div>
+                <section class="auth-view" data-auth-view="register" hidden aria-hidden="true">
+                  <form data-form="register">
+                    <div class="field">
+                      <label class="field-label" for="register-email" data-i18n="auth.login.emailLabel">Email</label>
+                      <input class="input" id="register-email" name="email" type="email" autocomplete="email" required aria-describedby="register-status" />
+                    </div>
+                    <div class="field">
+                      <label class="field-label" for="register-password" data-i18n="auth.login.passwordLabel">Password</label>
+                      <input
+                        class="input"
+                        id="register-password"
+                        name="password"
+                        type="password"
+                        autocomplete="new-password"
+                        required
+                        aria-describedby="register-status"
+                      />
+                    </div>
 
-                <div
-                  class="auth-status"
-                  data-type="pending"
-                  data-form-status="register"
-                  id="register-status"
-                  data-i18n="auth.register.passwordHint"
-                >
-                  Must contain upper & lower case letters and at least one digit.
-                </div>
-
-                <div class="auth-actions">
-                  <button
-                    type="submit"
-                    class="btn btn-primary"
-                    data-auth-submit="register"
-                    data-i18n="auth.register.submit"
-                    data-i18n-aria="auth.register.submitAria"
-                    aria-label="Create your 301.st account"
-                  >
-                    Create account
-                  </button>
-                  <a href="#login" class="btn btn-secondary" data-auth-switch="login" data-route-link="login" data-i18n="auth.links.toLogin"
-                    >Back to login</a
-                  >
-                </div>
-              </form>
-
-              <div data-reset-step="request">
-                <form data-form="reset-request" data-auth-view="reset" hidden>
-                  <div class="field">
-                    <label class="field-label" for="reset-email" data-i18n="auth.login.emailLabel">Email</label>
-                    <input
-                      class="input"
-                      id="reset-email"
-                      name="value"
-                      type="email"
-                      autocomplete="email"
-                      required
-                      aria-describedby="reset-status"
-                    />
-                  </div>
-
-                  <input type="hidden" name="type" value="email" />
-
-                  <div
-                    class="auth-status"
-                    data-type="pending"
-                    data-form-status="reset-request"
-                    id="reset-status"
-                    data-i18n="auth.reset.statusDefault"
-                  >
-                    We’ll send you a link to set a new password.
-                  </div>
-
-                  <div class="auth-actions">
-                    <button
-                      type="submit"
-                      class="btn btn-primary"
-                      data-i18n="auth.reset.requestButton"
-                      data-i18n-aria="auth.reset.requestAria"
-                      aria-label="Request password reset link"
+                    <div
+                      class="auth-status"
+                      data-type="pending"
+                      data-form-status="register"
+                      id="register-status"
+                      data-i18n="auth.register.passwordHint"
                     >
-                      Request reset link
+                      Must contain upper & lower case letters and at least one digit.
+                    </div>
+
+                    <div class="auth-actions">
+                      <button
+                        type="submit"
+                        class="btn btn-primary"
+                        data-auth-submit="register"
+                        data-i18n="auth.register.submit"
+                        data-i18n-aria="auth.register.submitAria"
+                        aria-label="Create your 301.st account"
+                      >
+                        Create account
+                      </button>
+                      <a href="#login" class="btn btn-secondary" data-auth-switch="login" data-route-link="login" data-i18n="auth.links.toLogin"
+                        >Back to login</a
+                      >
+                    </div>
+                  </form>
+                </section>
+
+                <section class="auth-view" data-auth-view="reset" hidden aria-hidden="true">
+                  <form data-form="reset-request">
+                    <div class="field">
+                      <label class="field-label" for="reset-email" data-i18n="auth.login.emailLabel">Email</label>
+                      <input
+                        class="input"
+                        id="reset-email"
+                        name="value"
+                        type="email"
+                        autocomplete="email"
+                        required
+                        aria-describedby="reset-status"
+                      />
+                    </div>
+
+                    <input type="hidden" name="type" value="email" />
+
+                    <div
+                      class="auth-status"
+                      data-type="pending"
+                      data-form-status="reset-request"
+                      id="reset-status"
+                      data-i18n="auth.reset.statusDefault"
+                    >
+                      We’ll send you a link to set a new password.
+                    </div>
+
+                    <div class="auth-actions">
+                      <button
+                        type="submit"
+                        class="btn btn-primary"
+                        data-i18n="auth.reset.requestButton"
+                        data-i18n-aria="auth.reset.requestAria"
+                        aria-label="Request password reset link"
+                      >
+                        Request reset link
+                      </button>
+                      <a href="#login" class="btn btn-secondary" data-auth-switch="login" data-route-link="login" data-i18n="auth.reset.linkToLogin"
+                        >Back to login</a
+                      >
+                    </div>
+                  </form>
+                </section>
+
+                <section class="auth-view" data-auth-view="reset-confirm" hidden aria-hidden="true">
+                  <header class="auth-section__header">
+                    <p class="auth-eyebrow">Новый пароль</p>
+                    <h2 class="auth-title">Установить пароль</h2>
+                    <p class="auth-subtitle">
+                      Придумайте новый пароль для входа в 301.st.
+                    </p>
+                  </header>
+
+                  <form data-form="reset-confirm" class="auth-form">
+                    <div class="form-status" data-status role="status" aria-live="polite"></div>
+
+                    <label class="form-field">
+                      <span class="form-label">Новый пароль</span>
+                      <input
+                        name="password"
+                        type="password"
+                        autocomplete="new-password"
+                        required
+                      />
+                    </label>
+
+                    <label class="form-field">
+                      <span class="form-label">Повторите пароль</span>
+                      <input
+                        name="password_confirm"
+                        type="password"
+                        autocomplete="new-password"
+                        required
+                      />
+                    </label>
+
+                    <button type="submit" class="btn btn-primary">
+                      Обновить пароль
                     </button>
-                    <a href="#login" class="btn btn-secondary" data-auth-switch="login" data-route-link="login" data-i18n="auth.reset.linkToLogin"
-                      >Back to login</a
-                    >
-                  </div>
-                </form>
+
+                    <p class="form-footer">
+                      <a href="#login" data-auth-link="login">Вернуться ко входу</a>
+                    </p>
+                  </form>
+                </section>
+
+                <section class="auth-view" data-auth-view="verify" hidden aria-hidden="true">
+                  <p class="eyebrow" data-i18n="auth.verify.eyebrow">Verification</p>
+                  <h2 data-i18n="auth.verify.title">Verifying…</h2>
+                  <p class="muted" data-i18n="auth.verify.subtitle">
+                    We are validating the link from your email. This takes a few seconds.
+                  </p>
+                  <div data-verify-status class="auth-status" hidden></div>
+                </section>
               </div>
 
               <div class="auth-status" data-type="pending" data-turnstile-status>
@@ -360,62 +417,6 @@
         </div>
       </section>
 
-      <section data-route="verify" id="verify" hidden>
-        <div class="container auth-shell">
-          <div class="auth-grid">
-            <div class="auth-card">
-              <p class="eyebrow" data-i18n="auth.verify.eyebrow">Verification</p>
-              <h2 data-i18n="auth.verify.title">Verifying…</h2>
-              <p class="muted" data-i18n="auth.verify.subtitle">
-                We are validating the link from your email. This takes a few seconds.
-              </p>
-              <div data-verify-status class="auth-status" hidden></div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="auth-section" data-route="reset-confirm">
-        <header class="auth-section__header">
-          <p class="auth-eyebrow">Новый пароль</p>
-          <h1 class="auth-title">Установить пароль</h1>
-          <p class="auth-subtitle">
-            Придумайте новый пароль для входа в 301.st.
-          </p>
-        </header>
-
-        <form data-form="reset-confirm" class="auth-form">
-          <div class="form-status" data-status role="status" aria-live="polite"></div>
-
-          <label class="form-field">
-            <span class="form-label">Новый пароль</span>
-            <input
-              name="password"
-              type="password"
-              autocomplete="new-password"
-              required
-            />
-          </label>
-
-          <label class="form-field">
-            <span class="form-label">Повторите пароль</span>
-            <input
-              name="password_confirm"
-              type="password"
-              autocomplete="new-password"
-              required
-            />
-          </label>
-
-          <button type="submit" class="btn btn-primary">
-            Обновить пароль
-          </button>
-
-          <p class="form-footer">
-            <a href="#login" data-route-link="login">Вернуться ко входу</a>
-          </p>
-        </form>
-      </section>
     </main>
 
     <footer class="site-footer">

@@ -45,7 +45,7 @@ async function handleVerification(): Promise<void> {
     setVerifyStatus('pending', t('auth.verify.pending'));
     const res = await verifyToken(payload);
 
-    history.replaceState(null, '', window.location.pathname + window.location.hash);
+    const basePath = window.location.pathname;
 
     if (payload.type === 'register') {
       const user = ('user' in res ? res.user : null) || null;
@@ -53,6 +53,7 @@ async function handleVerification(): Promise<void> {
       const successMessage = res.message || t('auth.verify.successRegister');
       showGlobalMessage('success', successMessage);
       setVerifyStatus('success', successMessage);
+      history.replaceState(null, '', `${basePath}#account`);
       window.location.hash = '#account';
     } else {
       const csrf = (res as any).csrf_token || '';
@@ -60,6 +61,7 @@ async function handleVerification(): Promise<void> {
       const successMessage = (res as any).message || t('auth.verify.resetSuccess');
       showGlobalMessage('success', successMessage);
       setVerifyStatus('success', successMessage);
+      history.replaceState(null, '', `${basePath}#reset-confirm`);
       window.location.hash = '#reset-confirm';
     }
   } catch (error) {
