@@ -18,9 +18,17 @@ export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
 
-    if (request.method === 'GET' && url.pathname.startsWith('/auth/verify')) {
-      const redirectUrl = new URL(url.pathname + url.search, 'https://api.301.st');
-      return Response.redirect(redirectUrl.toString(), 302);
+    if (
+      request.method === 'GET' &&
+      (url.pathname === '/auth' ||
+        url.pathname === '/auth/' ||
+        url.pathname === '/auth/verify' ||
+        url.pathname === '/auth/verify/' ||
+        url.pathname === '/auth/success' ||
+        url.pathname === '/auth/success/')
+    ) {
+      const indexReq = new Request(new URL('/index.html', url.origin).toString(), request);
+      return env.ASSETS.fetch(indexReq);
     }
 
     if (request.method === 'GET' && url.pathname === '/env') {

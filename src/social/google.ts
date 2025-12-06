@@ -1,7 +1,7 @@
 import { socialStartGoogle } from '@api/auth';
-import { loadUser, setAuthToken } from '@state/auth-state';
 import { showGlobalMessage } from '@ui/notifications';
 import { logDebug } from '@utils/logger';
+import { handleOAuthSuccess, isOAuthSuccessPath } from './oauth-success';
 
 const VERIFIER_KEY = 'google_code_verifier';
 const STATE_KEY = 'google_oauth_state';
@@ -21,9 +21,13 @@ async function beginGoogleFlow(): Promise<void> {
 
 async function handleOAuthReturn(): Promise<void> {
   const url = new URL(window.location.href);
+  if (!isOAuthSuccessPath(url)) return;
   const token = url.searchParams.get('token');
   const state = url.searchParams.get('state');
-  if (!token) return;
+  if (!token) {
+    showGlobalMessage('error', 'Google sign-in is unavailable right now');
+    return;
+  }
 
   const expectedState = sessionStorage.getItem(STATE_KEY);
   if (expectedState && state && expectedState !== state) {
@@ -31,12 +35,10 @@ async function handleOAuthReturn(): Promise<void> {
     return;
   }
 
-  setAuthToken(token);
-  await loadUser();
-  showGlobalMessage('success', 'Signed in with Google');
   sessionStorage.removeItem(VERIFIER_KEY);
   sessionStorage.removeItem(STATE_KEY);
-  window.history.replaceState({}, document.title, '/account');
+
+  await handleOAuthSuccess(token, 'Signed in with Google');
 }
 
 export function initGoogleOAuth(): void {
