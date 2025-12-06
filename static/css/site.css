@@ -12,41 +12,69 @@ body {
   color: var(--text-main);
 }
 
-#GlobalNotice {
-  border-bottom: 1px solid var(--border-subtle);
-  background: var(--bg-elevated);
-  color: var(--text-main);
-  padding: 0.75rem 0;
+.global-notice {
+  position: fixed;
+  inset-inline: 0;
+  top: 0;
+  z-index: 50;
+  pointer-events: none;
+  transform: translateY(-100%);
+  opacity: 0;
+  transition:
+    transform 0.3s ease,
+    opacity 0.3s ease;
 }
 
-#GlobalNotice p {
-  margin: 0;
-  font-weight: var(--fw-medium);
+.global-notice[data-state='visible'] {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
 }
 
-#GlobalNotice[data-notice='hidden'] {
-  display: none;
+.global-notice__inner {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: var(--space-2) var(--space-3);
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  background: var(--panel, var(--bg-elevated));
+  color: var(--text, var(--text-main));
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-#GlobalNotice[data-notice='visible'] {
-  display: block;
+.global-notice[data-type='success'] .global-notice__inner {
+  border-color: var(--ok, var(--success));
 }
 
-#GlobalNotice[data-type='success'] {
-  background: var(--success-bg);
-  color: var(--success);
-  border-color: color-mix(in srgb, var(--success) 55%, transparent);
+.global-notice[data-type='error'] .global-notice__inner {
+  border-color: var(--danger, var(--danger));
 }
 
-#GlobalNotice[data-type='error'] {
-  background: var(--danger-bg);
-  color: var(--danger);
-  border-color: color-mix(in srgb, var(--danger) 55%, transparent);
+.global-notice[data-type='info'] .global-notice__inner {
+  border-color: var(--brand, var(--primary));
 }
 
-#GlobalNotice[data-type='info'] {
-  background: var(--bg-elevated);
-  color: var(--text-main);
+.global-notice__text {
+  flex: 1 1 auto;
+  font-size: 0.875rem;
+}
+
+.global-notice__close {
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font-size: 1.25rem;
+  line-height: 1;
+  padding: 0 var(--space-1);
+}
+
+.global-notice__close:focus-visible {
+  outline: 2px solid var(--brand, var(--primary));
+  outline-offset: 2px;
 }
 
 .container {

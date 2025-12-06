@@ -8,12 +8,27 @@
     <link rel="alternate icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="stylesheet" href="/css/theme.css" />
     <link rel="stylesheet" href="/css/site.css" />
-    <script type="module" crossorigin src="/assets/index-DAp-vTtb.js"></script>
+    <script type="module" crossorigin src="/assets/index-BlJ-bFbs.js"></script>
   </head>
   <body>
-    <div id="GlobalNotice" data-notice="hidden" role="status" aria-live="polite">
-      <div class="container">
-        <p id="GlobalNoticeText"></p>
+    <div
+      id="GlobalNotice"
+      class="global-notice"
+      data-state="hidden"
+      role="status"
+      aria-live="polite"
+    >
+      <div class="global-notice__inner">
+        <span class="global-notice__icon" aria-hidden="true"></span>
+        <p id="GlobalNoticeText" class="global-notice__text"></p>
+        <button
+          type="button"
+          class="global-notice__close"
+          aria-label="Dismiss notification"
+          data-i18n-aria="notice.close"
+        >
+          ×
+        </button>
       </div>
     </div>
     <header class="site-header">
@@ -402,5 +417,4 @@
     </footer>
 
   </body>
-</html>
 </html>

@@ -2,7 +2,7 @@ import { verifyToken } from '@api/auth';
 import type { CommonErrorResponse, VerifyRequest, VerifyResetResponse } from '@api/types';
 import { t } from '@i18n';
 import { setResetCsrfToken } from '@state/reset-session';
-import { showNotice } from '@ui/notice';
+import { showGlobalNotice } from '@ui/globalNotice';
 import type { ApiError } from '@utils/errors';
 import { getTurnstileToken } from '../turnstile';
 
@@ -58,7 +58,7 @@ async function handleResetVerification(payload: VerifyRequest): Promise<void> {
 
     if (res.csrf_token) {
       setResetCsrfToken(res.csrf_token);
-      showNotice('success', message);
+      showGlobalNotice('success', message);
       setVerifyStatus('success', t('auth.resetVerify.proceed'));
       sanitizeUrl('reset');
       window.location.hash = '#reset';
@@ -66,14 +66,14 @@ async function handleResetVerification(payload: VerifyRequest): Promise<void> {
     }
 
     const fallbackSuccess = t('auth.resetVerify.successFallback');
-    showNotice('success', message || fallbackSuccess);
+    showGlobalNotice('success', message || fallbackSuccess);
     setVerifyStatus('success', message || fallbackSuccess);
     sanitizeUrl('login');
     window.location.hash = '#login';
   } catch (error) {
     const message = mapErrorMessage(extractError(error));
     setResetCsrfToken(null);
-    showNotice('error', message);
+    showGlobalNotice('error', message);
     setVerifyStatus('error', message);
     sanitizeUrl('login');
   }
@@ -87,7 +87,7 @@ export function initResetVerifyFlow(): void {
 
   if (!params.token) {
     const invalidMessage = INVALID_LINK_MESSAGE();
-    showNotice('error', invalidMessage);
+    showGlobalNotice('error', invalidMessage);
     setVerifyStatus('error', invalidMessage);
     sanitizeUrl('login');
     return;
