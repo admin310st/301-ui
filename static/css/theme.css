@@ -81,8 +81,11 @@
   --radius-lg: 0.75rem;
   --radius-xl: 1rem;
 
-  --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.35);
-  --shadow-subtle: 0 12px 30px rgba(15, 23, 42, 0.16);
+  --shadow-soft: 0 10px 26px rgba(0, 0, 0, 0.22);
+  --shadow-subtle: 0 3px 10px rgba(3, 7, 18, 0.18);
+
+  --border-width: 1px;
+  --border-style: solid;
 
   --transition-fast: 120ms ease-out;
   --transition-md: 160ms ease-out;
@@ -97,6 +100,8 @@
   --bg: #111111;
   --bg-elevated: #181A1F;
   --bg-soft: #1F2229;
+
+  --panel-border: color-mix(in srgb, #fff 10%, transparent);
 
   --text-main: #E7E9EE;    /* ≈15.5:1 vs #111111 */
   --text-muted: #A0A4AF;   /* ≈7.5:1 vs #111111 */
@@ -142,6 +147,8 @@
   --bg-elevated: #F7F7F8;
   --bg-soft: #F4F8FC;
 
+  --panel-border: color-mix(in srgb, #000 10%, transparent);
+
   --text-main: #111111;
   --text-muted: #666A73;
   --text-subtle: #8A8F99;
@@ -184,4 +191,19 @@
 
 a {
   color: inherit;
+}
+
+.border {
+  border: var(--border-width) var(--border-style) currentColor;
+  opacity: 0.28;
+}
+
+.border-interactive {
+  border: var(--border-width) var(--border-style) currentColor;
+  opacity: 0.55;
+}
+
+.border-strong {
+  border: var(--border-width) var(--border-style) currentColor;
+  opacity: 0.8;
 }
