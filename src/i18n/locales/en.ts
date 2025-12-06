@@ -171,6 +171,7 @@ export const en = {
     },
   },
   notice: {
+    close: 'Dismiss notification',
     errors: {
       resetInvalid: 'The reset link is invalid or expired.',
     },

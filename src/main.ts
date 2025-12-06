@@ -9,7 +9,7 @@ import { initCloudflareWizard } from '@forms/cf-wizard';
 import { initGithubOAuth } from '@social/github';
 import { initGoogleOAuth } from '@social/google';
 import { applyInitialAuthState, handleLogoutDom } from '@ui/auth-dom';
-import { initNoticeFromSources } from '@ui/notice';
+import { initGlobalNotice } from '@ui/globalNotice';
 import { initTurnstile } from './turnstile';
 import { showGlobalMessage } from '@ui/notifications';
 import { initVisibilityController } from '@ui/visibility';
@@ -74,7 +74,7 @@ window.addEventListener('hashchange', applyRouteFromHash);
 document.addEventListener('DOMContentLoaded', async () => {
   applyTranslations();
   initLangSwitcher();
-  initNoticeFromSources();
+  initGlobalNotice();
   initVisibilityController();
   await applyInitialAuthState();
   await initTurnstile();

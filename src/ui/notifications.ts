@@ -1,12 +1,12 @@
-import type { NoticeType } from './notice';
-import { hideNotice, showNotice } from './notice';
+import type { NoticeType } from './globalNotice';
+import { hideGlobalNotice, showGlobalNotice } from './globalNotice';
 
 export function showGlobalMessage(type: NoticeType, text: string): void {
-  showNotice(type, text);
+  showGlobalNotice(type, text);
 }
 
 export function clearGlobalMessage(): void {
-  hideNotice();
+  hideGlobalNotice();
 }
 
 export function showInlineError(target: HTMLElement | null, message: string): void {

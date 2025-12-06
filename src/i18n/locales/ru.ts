@@ -174,6 +174,7 @@ export const ru: Translation = {
     },
   },
   notice: {
+    close: 'Закрыть уведомление',
     errors: {
       resetInvalid: 'Ссылка восстановления недействительна или устарела.',
     },
