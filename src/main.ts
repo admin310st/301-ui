@@ -13,6 +13,8 @@ import { initNoticeFromSources } from '@ui/notice';
 import { initTurnstile } from './turnstile';
 import { showGlobalMessage } from '@ui/notifications';
 import { initVisibilityController } from '@ui/visibility';
+import { applyTranslations, initLangSwitcher } from '@i18n/dom';
+import { t } from '@i18n';
 
 const AUTH_VIEWS = ['login', 'register', 'reset'] as const;
 type AuthView = (typeof AUTH_VIEWS)[number];
@@ -60,7 +62,7 @@ function bindLogoutButtons(): void {
       event.preventDefault();
       await logout();
       handleLogoutDom();
-      showGlobalMessage('success', 'Вы вышли из аккаунта');
+      showGlobalMessage('success', t('auth.messages.logoutSuccess'));
       window.location.hash = '#login';
       applyRouteFromHash();
     });
@@ -70,6 +72,8 @@ function bindLogoutButtons(): void {
 window.addEventListener('hashchange', applyRouteFromHash);
 
 document.addEventListener('DOMContentLoaded', async () => {
+  applyTranslations();
+  initLangSwitcher();
   initNoticeFromSources();
   initVisibilityController();
   await applyInitialAuthState();

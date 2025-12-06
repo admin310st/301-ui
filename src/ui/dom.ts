@@ -20,7 +20,7 @@ export function setFormState(form: HTMLFormElement, state: FormState, message?: 
     if (!submit.dataset.labelReady) submit.dataset.labelReady = submit.textContent ?? '';
     submit.disabled = state === 'pending';
     submit.textContent =
-      state === 'pending' ? submit.dataset.labelLoading || 'Please wait...' : submit.dataset.labelReady;
+      state === 'pending' ? submit.dataset.labelLoading || t('common.pleaseWait') : submit.dataset.labelReady;
   }
 }
 
@@ -29,3 +29,4 @@ export function toggle(element: HTMLElement | null, show: boolean): void {
   element.hidden = !show;
   element.toggleAttribute('aria-hidden', !show);
 }
+import { t } from '@i18n';

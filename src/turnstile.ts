@@ -1,6 +1,9 @@
+import { t } from '@i18n';
 import { logDebug } from '@utils/logger';
 
-export const TURNSTILE_REQUIRED_MESSAGE = 'Пройдите проверку защиты (Turnstile).';
+export function getTurnstileRequiredMessage(): string {
+  return t('auth.messages.turnstileRequired');
+}
 
 const DEFAULT_SITE_KEY = '0x4AAAAAACB-_l9VwF1M_QHU';
 const formTokens = new WeakMap<HTMLFormElement, string | null>();

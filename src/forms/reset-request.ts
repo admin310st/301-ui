@@ -1,6 +1,7 @@
 import { resetPassword } from '@api/auth';
 import type { CommonErrorResponse, ResetPasswordRequest } from '@api/types';
-import { TURNSTILE_REQUIRED_MESSAGE, getTurnstileToken, resetTurnstile } from '../turnstile';
+import { t, tWithVars } from '@i18n';
+import { getTurnstileRequiredMessage, getTurnstileToken, resetTurnstile } from '../turnstile';
 import { setFormState } from '@ui/dom';
 import { showGlobalMessage } from '@ui/notifications';
 import type { ApiError } from '@utils/errors';
@@ -15,22 +16,22 @@ const PROVIDER_LABELS: Record<string, string> = {
 function extractError(error: unknown): string {
   const apiError = error as ApiError<CommonErrorResponse>;
   return (
-    apiError?.body?.code || apiError?.body?.error || apiError?.body?.message || apiError?.message || 'Reset request failed'
+    apiError?.body?.code || apiError?.body?.error || apiError?.body?.message || apiError?.message || t('auth.reset.errors.fallback')
   );
 }
 
 function mapErrorMessage(code: string): string {
   switch (code) {
     case 'email_not_verified':
-      return 'Email не подтверждён. Проверьте почту или пройдите регистрацию заново.';
+      return t('auth.reset.errors.emailNotVerified');
     case 'invalid_identifier':
-      return 'Не удалось найти пользователя с таким email.';
+      return t('auth.reset.errors.invalidIdentifier');
     case 'turnstile_failed':
-      return 'Проверка защиты не пройдена. Обновите виджет и попробуйте ещё раз.';
+      return t('auth.reset.errors.turnstileFailed');
     case 'turnstile_required':
-      return 'Проверка защиты обязательна. Подтвердите Turnstile и попробуйте ещё раз.';
+      return t('auth.reset.errors.turnstileRequired');
     default:
-      return code;
+      return code || t('auth.reset.errors.fallback');
   }
 }
 
@@ -54,17 +55,17 @@ async function handleResetRequest(event: SubmitEvent): Promise<void> {
   const captcha = getTurnstileToken(form);
 
   if (!value) {
-    setFormState(form, 'error', 'Укажите email для восстановления');
+    setFormState(form, 'error', t('auth.reset.statusMissing'));
     return;
   }
 
   if (!captcha) {
-    setFormState(form, 'error', TURNSTILE_REQUIRED_MESSAGE);
+    setFormState(form, 'error', getTurnstileRequiredMessage());
     return;
   }
 
   try {
-    setFormState(form, 'pending', 'Отправляем ссылку...');
+    setFormState(form, 'pending', t('auth.reset.statusPending'));
     const res = await resetPassword({
       type,
       value,
@@ -74,15 +75,13 @@ async function handleResetRequest(event: SubmitEvent): Promise<void> {
     if (res.status === 'oauth_only' || res.oauth_only) {
       const provider = res.provider ? PROVIDER_LABELS[res.provider] ?? res.provider : null;
       const providerMessage = provider
-        ? `Сброс пароля недоступен. Войдите через ${provider}.`
-        : 'Сброс пароля недоступен. Войдите через привязанного провайдера.';
+        ? tWithVars('auth.reset.oauthOnlyProvider', { provider })
+        : t('auth.reset.oauthOnly');
       setFormState(form, 'error', res.message || providerMessage);
       return;
     }
 
-    const message =
-      res.message ||
-      'Письмо со ссылкой для сброса отправлено. Ссылка действует 15 минут.';
+    const message = res.message || t('auth.reset.statusSent');
     setFormState(form, 'success', message);
     showGlobalMessage('info', message);
   } catch (error) {

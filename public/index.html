@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ru" data-theme="dark">
+<html lang="en" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,7 +8,7 @@
     <link rel="alternate icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="stylesheet" href="/css/theme.css" />
     <link rel="stylesheet" href="/css/site.css" />
-    <script type="module" crossorigin src="/assets/index-BCtHV_ta.js"></script>
+    <script type="module" crossorigin src="/assets/index-DAp-vTtb.js"></script>
   </head>
   <body>
     <div id="GlobalNotice" data-notice="hidden" role="status" aria-live="polite">
@@ -19,15 +19,25 @@
     <header class="site-header">
       <div class="container header-bar">
         <a class="brand" href="/">301.st</a>
-        <nav class="nav-links" data-onlogout>
-          <a href="#login" data-route-link="login">Вход</a>
-          <a href="#register" data-route-link="register">Регистрация</a>
-          <a href="#reset" data-route-link="reset">Забыли пароль?</a>
+        <nav class="nav-links" data-onlogout data-i18n-aria="layout.nav.aria" aria-label="Authentication navigation">
+          <a href="#login" data-route-link="login" data-i18n="layout.nav.login">Login</a>
+          <a href="#register" data-route-link="register" data-i18n="layout.nav.register">Register</a>
+          <a href="#reset" data-route-link="reset" data-i18n="layout.nav.reset">Forgot password?</a>
         </nav>
         <div class="nav-links" data-onlogin hidden>
           <span data-user-email></span>
-          <button class="btn btn-secondary" data-action="logout">Выйти</button>
+          <button class="btn btn-secondary" data-action="logout" data-i18n="layout.nav.logout" aria-label="Log out">
+            Log out
+          </button>
         </div>
+        <nav class="lang-switcher" aria-label="Language selection" data-i18n-aria="layout.langSwitcher.label">
+          <button type="button" data-lang="en" data-i18n="layout.langSwitcher.en" data-i18n-aria="layout.langSwitcher.label">
+            EN
+          </button>
+          <button type="button" data-lang="ru" data-i18n="layout.langSwitcher.ru" data-i18n-aria="layout.langSwitcher.label">
+            RU
+          </button>
+        </nav>
       </div>
     </header>
 
@@ -36,23 +46,32 @@
         <div class="container auth-shell">
           <div class="auth-grid">
             <section class="auth-card">
-              <p class="eyebrow">Боевой вход</p>
-              <h1>Доступ к 301.st</h1>
-              <p class="auth-subtitle">
-                Используйте email и пароль, чтобы попасть в аккаунт, либо запросите восстановление.
+              <p class="eyebrow" data-i18n="auth.hero.eyebrow">Production login</p>
+              <h1 data-i18n="auth.hero.title">Access 301.st</h1>
+              <p class="auth-subtitle" data-i18n="auth.hero.subtitle">
+                Use email and password to access your account or request a reset.
               </p>
 
-              <div class="auth-actions" role="tablist" aria-label="Тип операции">
-                <a class="btn btn-secondary" href="#login" data-auth-tab="login" data-route-link="login">Вход</a>
-                <a class="btn btn-secondary" href="#register" data-auth-tab="register" data-route-link="register"
-                  >Регистрация</a
+              <div class="auth-actions" role="tablist" data-i18n-aria="layout.headerTabsLabel" aria-label="Authentication actions">
+                <a class="btn btn-secondary" href="#login" data-auth-tab="login" data-route-link="login" data-i18n="layout.nav.login"
+                  >Login</a
                 >
-                <a class="btn btn-secondary" href="#reset" data-auth-tab="reset" data-route-link="reset">Восстановление</a>
+                <a
+                  class="btn btn-secondary"
+                  href="#register"
+                  data-auth-tab="register"
+                  data-route-link="register"
+                  data-i18n="layout.nav.register"
+                  >Register</a
+                >
+                <a class="btn btn-secondary" href="#reset" data-auth-tab="reset" data-route-link="reset" data-i18n="layout.nav.reset"
+                  >Forgot password?</a
+                >
               </div>
 
               <form id="auth-login-form" data-form="login" data-auth-view="login">
                 <div class="field">
-                  <label class="field-label" for="signin-email">Email</label>
+                  <label class="field-label" for="signin-email" data-i18n="auth.login.emailLabel">Email</label>
                   <input
                     class="input"
                     id="signin-email"
@@ -61,11 +80,12 @@
                     autocomplete="email"
                     required
                     data-avatar-source
+                    aria-describedby="login-status"
                   />
                 </div>
 
                 <div class="field">
-                  <label class="field-label" for="signin-password">Пароль</label>
+                  <label class="field-label" for="signin-password" data-i18n="auth.login.passwordLabel">Password</label>
                   <input
                     class="input"
                     id="signin-password"
@@ -73,33 +93,53 @@
                     type="password"
                     autocomplete="current-password"
                     required
+                    aria-describedby="login-status"
                   />
                 </div>
 
-                <div class="auth-status" data-type="pending" data-form-status="login">
-                  Введите email и пароль, чтобы войти в аккаунт.
+                <div class="auth-status" id="login-status" data-type="pending" data-form-status="login" data-i18n="auth.login.statusDefault">
+                  Enter your email and password to sign in.
                 </div>
 
                 <div class="auth-actions">
-                  <button type="submit" class="btn btn-primary" data-auth-submit="login">Войти</button>
-                  <a href="#register" class="btn btn-secondary" data-auth-switch="register" data-route-link="register"
-                    >Создать аккаунт</a
+                  <button
+                    type="submit"
+                    class="btn btn-primary"
+                    data-auth-submit="login"
+                    data-i18n="auth.login.submit"
+                    data-i18n-aria="auth.login.submitAria"
+                    aria-label="Sign in to 301.st"
                   >
+                    Sign in
+                  </button>
+                  <a
+                    href="#register"
+                    class="btn btn-secondary"
+                    data-auth-switch="register"
+                    data-route-link="register"
+                    data-i18n="auth.login.linkToRegister"
+                  >
+                    Create account
+                  </a>
                 </div>
 
                 <div class="auth-links">
-                  <a href="#register" data-auth-switch="register" data-route-link="register">Регистрация</a>
-                  <a href="#reset" data-auth-switch="reset" data-route-link="reset">Забыли пароль?</a>
+                  <a href="#register" data-auth-switch="register" data-route-link="register" data-i18n="auth.login.linkToRegister"
+                    >Create account</a
+                  >
+                  <a href="#reset" data-auth-switch="reset" data-route-link="reset" data-i18n="auth.login.linkToReset"
+                    >Forgot password?</a
+                  >
                 </div>
               </form>
 
               <form data-form="register" data-auth-view="register" hidden>
                 <div class="field">
-                  <label class="field-label" for="register-email">Email</label>
-                  <input class="input" id="register-email" name="email" type="email" autocomplete="email" required />
+                  <label class="field-label" for="register-email" data-i18n="auth.login.emailLabel">Email</label>
+                  <input class="input" id="register-email" name="email" type="email" autocomplete="email" required aria-describedby="register-status" />
                 </div>
                 <div class="field">
-                  <label class="field-label" for="register-password">Пароль</label>
+                  <label class="field-label" for="register-password" data-i18n="auth.login.passwordLabel">Password</label>
                   <input
                     class="input"
                     id="register-password"
@@ -107,114 +147,164 @@
                     type="password"
                     autocomplete="new-password"
                     required
+                    aria-describedby="register-status"
                   />
                 </div>
 
-                <div class="auth-status" data-type="pending" data-form-status="register">
-                  Минимум 8 символов, буквы в разных регистрах и цифры.
+                <div
+                  class="auth-status"
+                  data-type="pending"
+                  data-form-status="register"
+                  id="register-status"
+                  data-i18n="auth.register.passwordHint"
+                >
+                  Must contain upper & lower case letters and at least one digit.
                 </div>
 
                 <div class="auth-actions">
-                  <button type="submit" class="btn btn-primary" data-auth-submit="register">Создать</button>
-                  <a href="#login" class="btn btn-secondary" data-auth-switch="login" data-route-link="login"
-                    >Уже есть аккаунт</a
+                  <button
+                    type="submit"
+                    class="btn btn-primary"
+                    data-auth-submit="register"
+                    data-i18n="auth.register.submit"
+                    data-i18n-aria="auth.register.submitAria"
+                    aria-label="Create your 301.st account"
+                  >
+                    Create account
+                  </button>
+                  <a href="#login" class="btn btn-secondary" data-auth-switch="login" data-route-link="login" data-i18n="auth.links.toLogin"
+                    >Back to login</a
                   >
                 </div>
               </form>
 
               <form data-form="reset-request" data-auth-view="reset" hidden>
                 <div class="field">
-                  <label class="field-label" for="reset-email">Email</label>
-                  <input class="input" id="reset-email" name="value" type="email" autocomplete="email" required />
+                  <label class="field-label" for="reset-email" data-i18n="auth.login.emailLabel">Email</label>
+                  <input
+                    class="input"
+                    id="reset-email"
+                    name="value"
+                    type="email"
+                    autocomplete="email"
+                    required
+                    aria-describedby="reset-status"
+                  />
                 </div>
 
                 <input type="hidden" name="type" value="email" />
 
-                <div class="auth-status" data-type="pending" data-form-status="reset-request">
-                  Мы отправим ссылку для восстановления на указанный email.
+                <div
+                  class="auth-status"
+                  data-type="pending"
+                  data-form-status="reset-request"
+                  id="reset-status"
+                  data-i18n="auth.reset.statusDefault"
+                >
+                  We’ll send you a link to set a new password.
                 </div>
 
                 <div class="auth-actions">
-                  <button type="submit" class="btn btn-primary">Отправить ссылку</button>
-                  <a href="#login" class="btn btn-secondary" data-auth-switch="login" data-route-link="login"
-                    >Вернуться ко входу</a
+                  <button
+                    type="submit"
+                    class="btn btn-primary"
+                    data-i18n="auth.reset.requestButton"
+                    data-i18n-aria="auth.reset.requestAria"
+                    aria-label="Request password reset link"
+                  >
+                    Request reset link
+                  </button>
+                  <a href="#login" class="btn btn-secondary" data-auth-switch="login" data-route-link="login" data-i18n="auth.reset.linkToLogin"
+                    >Back to login</a
                   >
                 </div>
               </form>
 
               <div class="auth-status" data-type="pending" data-turnstile-status>
-                <div class="turnstile-widget"></div>
-                <p class="text-muted">
+                <div class="turnstile-widget" role="img" aria-describedby="turnstile-help"></div>
+                <p class="text-muted" id="turnstile-help" data-i18n="auth.turnstile.hint">
                   Turnstile protects login, registration, reset and Cloudflare bootstrap from bots.
                 </p>
               </div>
 
               <div class="session-block">
                 <div data-onlogin style="display: none">
-                  <p class="muted">Сессия активна.</p>
-                  <p>
-                    Вы вошли как <strong data-auth-email data-user-email></strong>. Текущая роль:
+                  <p class="muted" data-i18n="auth.session.active">Session is active.</p>
+                  <p data-i18n-html="auth.session.signedInAs">
+                    You are signed in as <strong data-auth-email data-user-email></strong>. Current role:
                     <span data-user-role>client:owner</span>.
                   </p>
                   <div class="auth-actions">
-                    <button class="btn btn-secondary" data-action="logout">Выйти</button>
+                    <button class="btn btn-secondary" data-action="logout" data-i18n="auth.session.logout" aria-label="Log out">
+                      Log out
+                    </button>
                   </div>
                 </div>
                 <div data-onlogout>
-                  <p class="muted">Вы не авторизованы.</p>
+                  <p class="muted" data-i18n="auth.messages.notAuthenticated">You are not authenticated yet.</p>
                 </div>
               </div>
             </section>
 
             <aside class="side-card">
-              <h3 class="h2">Cloudflare account bootstrap</h3>
-              <p class="text-muted">
-                Step 1 · Paste your <strong>Account ID</strong> and
-                <strong>Bootstrap API token</strong> as in the Integrations guide.
+              <h3 class="h2" data-i18n="cf.wizard.title">Cloudflare account bootstrap</h3>
+              <p class="text-muted" data-i18n="cf.wizard.subtitle">
+                Step 1 · Paste your Account ID and Bootstrap API token.
               </p>
 
               <div class="avatar-preview">
                 <div class="avatar-ring">
                   <img src="https://www.cloudflare.com/img/logo-cloudflare.svg" alt="Cloudflare" />
                 </div>
-                <p class="avatar-meta">
+                <p class="avatar-meta" data-i18n="cf.wizard.avatarMeta">
                   Orange actions below are reserved for Cloudflare-level changes.
                 </p>
               </div>
 
               <form data-form="cf-bootstrap">
                 <div class="field">
-                  <label class="field-label">Cloudflare Account ID</label>
+                  <label class="field-label" data-i18n="cf.wizard.accountIdLabel">Cloudflare Account ID</label>
                   <input
                     class="input"
                     type="text"
                     name="cf_account_id"
                     autocomplete="off"
+                    data-i18n-placeholder="cf.wizard.accountIdPlaceholder"
                     placeholder="e.g. 1234567890abcdef1234567890abcdef"
                     required
+                    aria-describedby="cf-status"
                   />
                 </div>
 
                 <div class="field">
-                  <label class="field-label">Bootstrap API token</label>
+                  <label class="field-label" data-i18n="cf.wizard.tokenLabel">Bootstrap API token</label>
                   <textarea
                     class="input"
                     name="cf_bootstrap_token"
                     rows="4"
+                    data-i18n-placeholder="cf.wizard.tokenPlaceholder"
                     placeholder="Paste token with 'Account API Tokens: Edit' scope…"
                     required
+                    aria-describedby="cf-token-hint cf-status"
                   ></textarea>
-                  <p class="field-help text-muted">
-                    Created as <code>301st Bootstrap</code> with
-                    <em>Account API Tokens: Edit</em> permission.
+                  <p class="field-help text-muted" id="cf-token-hint" data-i18n="cf.wizard.tokenHint">
+                    Created as <code>301st Bootstrap</code> with <em>Account API Tokens: Edit</em> permission.
                   </p>
                 </div>
 
                 <div class="auth-actions">
-                  <button type="submit" class="btn btn-cf">Save &amp; verify token</button>
+                  <button
+                    type="submit"
+                    class="btn btn-cf"
+                    data-i18n="cf.wizard.submit"
+                    data-i18n-aria="cf.wizard.submitAria"
+                    aria-label="Save and verify Cloudflare token"
+                  >
+                    Save &amp; verify token
+                  </button>
                 </div>
 
-                <div class="auth-status" data-type="pending" data-form-status="cf-bootstrap">
+                <div class="auth-status" data-type="pending" data-form-status="cf-bootstrap" id="cf-status" data-i18n="cf.wizard.statusStub">
                   This will hit <code>/auth/integrations/cloudflare/bootstrap</code> once wired.
                 </div>
               </form>
@@ -227,9 +317,11 @@
         <div class="container auth-shell">
           <div class="auth-grid">
             <div class="auth-card">
-              <p class="eyebrow">Подтверждение</p>
-              <h2>Подтверждаем…</h2>
-              <p class="muted">Мы проверяем ссылку из письма. Это займёт пару секунд.</p>
+              <p class="eyebrow" data-i18n="auth.verify.eyebrow">Verification</p>
+              <h2 data-i18n="auth.verify.title">Verifying…</h2>
+              <p class="muted" data-i18n="auth.verify.subtitle">
+                We are validating the link from your email. This takes a few seconds.
+              </p>
               <div data-verify-status class="auth-status" hidden></div>
             </div>
           </div>
@@ -240,23 +332,53 @@
         <div class="container auth-shell">
           <div class="auth-grid">
             <div class="auth-card">
-              <p class="eyebrow">Новый пароль</p>
-              <h2>Установить пароль</h2>
+              <p class="eyebrow" data-i18n="auth.resetConfirm.eyebrow">New password</p>
+              <h2 data-i18n="auth.resetConfirm.title">Set a password</h2>
               <form data-form="reset-confirm">
                 <div class="field">
-                  <label class="field-label" for="reset-password">Новый пароль</label>
-                  <input class="input" id="reset-password" name="password" type="password" required />
+                  <label class="field-label" for="reset-password" data-i18n="auth.resetConfirm.passwordLabel">New password</label>
+                  <input
+                    class="input"
+                    id="reset-password"
+                    name="password"
+                    type="password"
+                    required
+                    aria-describedby="reset-confirm-status"
+                  />
                 </div>
                 <div class="field">
-                  <label class="field-label" for="reset-password-confirm">Повторите пароль</label>
-                  <input class="input" id="reset-password-confirm" name="password_confirm" type="password" required />
+                  <label class="field-label" for="reset-password-confirm" data-i18n="auth.resetConfirm.confirmLabel">Confirm password</label>
+                  <input
+                    class="input"
+                    id="reset-password-confirm"
+                    name="password_confirm"
+                    type="password"
+                    required
+                    aria-describedby="reset-confirm-status"
+                  />
                 </div>
-                <div class="auth-status" data-type="pending" data-form-status="reset-confirm">
-                  Убедитесь, что пароли совпадают и достаточно надёжны.
+                <div
+                  class="auth-status"
+                  data-type="pending"
+                  data-form-status="reset-confirm"
+                  id="reset-confirm-status"
+                  data-i18n="auth.resetConfirm.statusDefault"
+                >
+                  Make sure passwords match and are strong enough.
                 </div>
                 <div class="auth-actions">
-                  <button type="submit" class="btn btn-primary">Обновить пароль</button>
-                  <a href="#login" class="btn btn-secondary" data-route-link="login">Войти</a>
+                  <button
+                    type="submit"
+                    class="btn btn-primary"
+                    data-i18n="auth.resetConfirm.submit"
+                    data-i18n-aria="auth.resetConfirm.submitAria"
+                    aria-label="Update password and continue"
+                  >
+                    Update password
+                  </button>
+                  <a href="#login" class="btn btn-secondary" data-route-link="login" data-i18n="auth.resetConfirm.linkToLogin"
+                    >Sign in</a
+                  >
                 </div>
               </form>
             </div>
@@ -269,15 +391,16 @@
       <div class="container footer-grid">
         <div>
           <div class="brand">301.st</div>
-          <p class="muted">Редиректы и аналитика.</p>
+          <p class="muted" data-i18n="layout.footer.description">Redirects and analytics.</p>
         </div>
         <div class="footer-links">
-          <a href="#login" data-route-link="login">Вход</a>
-          <a href="#register" data-route-link="register">Регистрация</a>
-          <a href="#reset" data-route-link="reset">Забыли пароль?</a>
+          <a href="#login" data-route-link="login" data-i18n="layout.nav.login">Login</a>
+          <a href="#register" data-route-link="register" data-i18n="layout.nav.register">Register</a>
+          <a href="#reset" data-route-link="reset" data-i18n="layout.nav.reset">Forgot password?</a>
         </div>
       </div>
     </footer>
-
+
   </body>
+</html>
 </html>

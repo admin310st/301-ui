@@ -1,5 +1,6 @@
 import { verifyToken } from '@api/auth';
 import type { CommonErrorResponse, VerifyRequest } from '@api/types';
+import { t } from '@i18n';
 import { applyLoginStateToDOM } from '@ui/auth-dom';
 import { showGlobalMessage } from '@ui/notifications';
 import type { ApiError } from '@utils/errors';
@@ -7,7 +8,7 @@ import type { ApiError } from '@utils/errors';
 function extractError(error: unknown): string {
   const apiError = error as ApiError<CommonErrorResponse>;
   return (
-    apiError?.body?.code || apiError?.body?.error || apiError?.body?.message || apiError?.message || 'Verification failed'
+    apiError?.body?.code || apiError?.body?.error || apiError?.body?.message || apiError?.message || t('auth.verify.error')
   );
 }
 
@@ -31,17 +32,18 @@ async function handleVerification(): Promise<void> {
   const payload = parseSearchParams();
 
   if (!payload) {
-    setVerifyStatus('error', 'Нет параметров для подтверждения.');
+    setVerifyStatus('error', t('auth.verify.missingParams'));
     return;
   }
 
   try {
-    setVerifyStatus('pending', 'Подтверждаем...');
+    setVerifyStatus('pending', t('auth.verify.pending'));
     const res = await verifyToken(payload);
 
     applyLoginStateToDOM('user' in res ? res.user ?? null : null);
-    showGlobalMessage('success', 'Email подтверждён, перенаправляем...');
-    setVerifyStatus('success', 'Email подтверждён, перенаправляем...');
+    const successMessage = t('auth.verify.success');
+    showGlobalMessage('success', successMessage);
+    setVerifyStatus('success', successMessage);
     window.location.hash = '#account';
   } catch (error) {
     setVerifyStatus('error', extractError(error));

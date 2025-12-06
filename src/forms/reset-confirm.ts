@@ -1,5 +1,6 @@
 import { confirmPassword } from '@api/auth';
 import type { CommonErrorResponse } from '@api/types';
+import { t } from '@i18n';
 import { getResetCsrfToken, setResetCsrfToken } from '@state/reset-session';
 import { setFormState } from '@ui/dom';
 import { showGlobalMessage } from '@ui/notifications';
@@ -9,24 +10,24 @@ import { validatePasswordStrength } from '@utils/password';
 function extractError(error: unknown): string {
   const apiError = error as ApiError<CommonErrorResponse>;
   return (
-    apiError?.body?.code || apiError?.body?.error || apiError?.body?.message || apiError?.message || 'Reset failed'
+    apiError?.body?.code || apiError?.body?.error || apiError?.body?.message || apiError?.message || t('auth.resetConfirm.errors.fallback')
   );
 }
 
 function mapErrorMessage(code: string): string {
   switch (code) {
     case 'reset_session_required':
-      return 'Сессия сброса не найдена. Запросите сброс пароля ещё раз.';
+      return t('auth.resetConfirm.errors.sessionRequired');
     case 'reset_session_expired':
-      return 'Ссылка для сброса устарела. Запросите новый сброс пароля.';
+      return t('auth.resetConfirm.errors.sessionExpired');
     case 'csrf_token_invalid':
-      return 'Сессия сброса некорректна. Запросите новую ссылку.';
+      return t('auth.resetConfirm.errors.csrfInvalid');
     case 'password_reused':
-      return 'Новый пароль не должен совпадать с предыдущим.';
+      return t('auth.resetConfirm.errors.passwordReused');
     case 'password_too_weak':
-      return 'Пароль слишком слабый. Минимум 8 символов, буквы в разных регистрах и цифры.';
+      return t('auth.resetConfirm.errors.passwordTooWeak');
     default:
-      return code;
+      return code || t('auth.resetConfirm.errors.fallback');
   }
 }
 
@@ -39,12 +40,12 @@ async function handleResetConfirm(event: SubmitEvent): Promise<void> {
   const csrfToken = getResetCsrfToken();
 
   if (!csrfToken) {
-    setFormState(form, 'error', 'Ссылка для сброса просрочена. Запросите новую.');
+    setFormState(form, 'error', t('auth.resetConfirm.errors.expiredLink'));
     return;
   }
 
   if (!password || !passwordConfirm) {
-    setFormState(form, 'error', 'Введите новый пароль');
+    setFormState(form, 'error', t('auth.resetConfirm.statusMissing'));
     return;
   }
 
@@ -55,14 +56,14 @@ async function handleResetConfirm(event: SubmitEvent): Promise<void> {
   }
 
   if (password !== passwordConfirm) {
-    setFormState(form, 'error', 'Пароли не совпадают');
+    setFormState(form, 'error', t('auth.resetConfirm.statusMismatch'));
     return;
   }
 
   try {
-    setFormState(form, 'pending', 'Обновляем пароль...');
+    setFormState(form, 'pending', t('auth.resetConfirm.statusPending'));
     const res = await confirmPassword({ password, csrf_token: csrfToken });
-    const message = res.message || 'Пароль обновлён, можно войти';
+    const message = res.message || t('auth.resetConfirm.statusSuccess');
     setFormState(form, 'success', message);
     showGlobalMessage('success', message);
     window.location.hash = '#login';

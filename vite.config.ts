@@ -18,6 +18,7 @@ export default defineConfig({
       '@utils': '/src/utils',
       '@state': '/src/state',
       '@social': '/src/social',
+      '@i18n': '/src/i18n',
     },
   },
 });

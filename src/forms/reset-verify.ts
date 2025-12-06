@@ -1,11 +1,12 @@
 import { verifyToken } from '@api/auth';
 import type { CommonErrorResponse, VerifyRequest, VerifyResetResponse } from '@api/types';
+import { t } from '@i18n';
 import { setResetCsrfToken } from '@state/reset-session';
 import { showNotice } from '@ui/notice';
 import type { ApiError } from '@utils/errors';
 import { getTurnstileToken } from '../turnstile';
 
-const INVALID_LINK_MESSAGE = 'Ссылка восстановления недействительна или устарела.';
+const INVALID_LINK_MESSAGE = () => t('auth.resetVerify.invalidLink');
 
 function setVerifyStatus(state: 'pending' | 'error' | 'success', message: string): void {
   const status = document.querySelector<HTMLElement>('[data-verify-status]');
@@ -31,7 +32,7 @@ function sanitizeUrl(hash?: string): void {
 function extractError(error: unknown): string {
   const apiError = error as ApiError<CommonErrorResponse>;
   return (
-    apiError?.body?.code || apiError?.body?.error || apiError?.body?.message || apiError?.message || INVALID_LINK_MESSAGE
+    apiError?.body?.code || apiError?.body?.error || apiError?.body?.message || apiError?.message || INVALID_LINK_MESSAGE()
   );
 }
 
@@ -41,31 +42,32 @@ function mapErrorMessage(code: string): string {
     case 'reset_session_required':
     case 'token_invalid':
     case 'token_expired':
-      return INVALID_LINK_MESSAGE;
+      return INVALID_LINK_MESSAGE();
     default:
-      return code || INVALID_LINK_MESSAGE;
+      return code || INVALID_LINK_MESSAGE();
   }
 }
 
 async function handleResetVerification(payload: VerifyRequest): Promise<void> {
-  setVerifyStatus('pending', 'Подтверждаем ссылку для сброса...');
+  setVerifyStatus('pending', t('auth.resetVerify.pending'));
   const turnstileToken = getTurnstileToken();
 
   try {
     const res = (await verifyToken({ ...payload, turnstile_token: turnstileToken ?? undefined })) as VerifyResetResponse;
-    const message = res.message || 'Ссылка подтверждена, задайте новый пароль.';
+    const message = res.message || t('notice.success.resetDone');
 
     if (res.csrf_token) {
       setResetCsrfToken(res.csrf_token);
       showNotice('success', message);
-      setVerifyStatus('success', 'Переходим к установке нового пароля');
+      setVerifyStatus('success', t('auth.resetVerify.proceed'));
       sanitizeUrl('reset');
       window.location.hash = '#reset';
       return;
     }
 
-    showNotice('success', message || 'Пароль обновлён, можете войти.');
-    setVerifyStatus('success', message || 'Пароль обновлён.');
+    const fallbackSuccess = t('auth.resetVerify.successFallback');
+    showNotice('success', message || fallbackSuccess);
+    setVerifyStatus('success', message || fallbackSuccess);
     sanitizeUrl('login');
     window.location.hash = '#login';
   } catch (error) {
@@ -84,8 +86,9 @@ export function initResetVerifyFlow(): void {
   window.location.hash = '#verify';
 
   if (!params.token) {
-    showNotice('error', INVALID_LINK_MESSAGE);
-    setVerifyStatus('error', INVALID_LINK_MESSAGE);
+    const invalidMessage = INVALID_LINK_MESSAGE();
+    showNotice('error', invalidMessage);
+    setVerifyStatus('error', invalidMessage);
     sanitizeUrl('login');
     return;
   }
