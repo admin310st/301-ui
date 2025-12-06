@@ -1,6 +1,7 @@
 import { register } from '@api/auth';
 import type { CommonErrorResponse } from '@api/types';
-import { TURNSTILE_REQUIRED_MESSAGE, getTurnstileToken, resetTurnstile } from '../turnstile';
+import { t, tWithVars } from '@i18n';
+import { getTurnstileRequiredMessage, getTurnstileToken, resetTurnstile } from '../turnstile';
 import { setFormState } from '@ui/dom';
 import { showGlobalMessage } from '@ui/notifications';
 import type { ApiError } from '@utils/errors';
@@ -9,24 +10,24 @@ import { validatePasswordStrength } from '@utils/password';
 function extractError(error: unknown): string {
   const apiError = error as ApiError<CommonErrorResponse>;
   return (
-    apiError?.body?.code || apiError?.body?.error || apiError?.body?.message || apiError?.message || 'Registration failed'
+    apiError?.body?.code || apiError?.body?.error || apiError?.body?.message || apiError?.message || t('auth.register.errors.fallback')
   );
 }
 
 function mapErrorMessage(code: string): string {
   switch (code) {
     case 'invalid_login':
-      return 'Неправильный логин или пароль. Попробуйте ещё раз или запросите восстановление доступа.';
+      return t('auth.register.errors.invalidLogin');
     case 'user_already_registered':
-      return 'Такой email уже зарегистрирован. Попробуйте войти или восстановить пароль.';
+      return t('auth.register.errors.userAlreadyRegistered');
     case 'password_too_weak':
-      return 'Пароль слишком слабый. Минимум 8 символов, буквы в разных регистрах и цифры.';
+      return t('auth.register.errors.passwordTooWeak');
     case 'turnstile_failed':
-      return 'Проверка защиты не пройдена. Обновите виджет и попробуйте ещё раз.';
+      return t('auth.register.errors.turnstileFailed');
     case 'turnstile_required':
-      return 'Проверка защиты обязательна. Подтвердите Turnstile и попробуйте ещё раз.';
+      return t('auth.register.errors.turnstileRequired');
     default:
-      return code;
+      return code || t('auth.register.errors.fallback');
   }
 }
 
@@ -39,7 +40,7 @@ async function handleRegisterSubmit(event: SubmitEvent): Promise<void> {
   const captcha = getTurnstileToken(form);
 
   if (!email || !password) {
-    setFormState(form, 'error', 'Нужны email и пароль');
+    setFormState(form, 'error', t('auth.register.statusMissing'));
     return;
   }
 
@@ -50,14 +51,15 @@ async function handleRegisterSubmit(event: SubmitEvent): Promise<void> {
   }
 
   if (!captcha) {
-    setFormState(form, 'error', TURNSTILE_REQUIRED_MESSAGE);
+    setFormState(form, 'error', getTurnstileRequiredMessage());
     return;
   }
 
   try {
-    setFormState(form, 'pending', 'Создаём аккаунт...');
+    setFormState(form, 'pending', t('auth.register.statusPending'));
     const res = await register({ email, password, turnstile_token: captcha || undefined });
-    const statusMessage = res.message || `Мы отправили письмо на ${email}. Перейдите по ссылке, чтобы завершить регистрацию.`;
+    const statusMessage =
+      res.message || tWithVars('auth.register.statusSuccess', { email });
     setFormState(form, 'success', statusMessage);
     showGlobalMessage('info', statusMessage);
   } catch (error) {

@@ -1,5 +1,6 @@
+import { t } from '@i18n';
 import { setFormState, qs } from '@ui/dom';
-import { getTurnstileToken, resetTurnstile, TURNSTILE_REQUIRED_MESSAGE } from '../turnstile';
+import { getTurnstileRequiredMessage, getTurnstileToken } from '../turnstile';
 
 async function handleBootstrapSubmit(event: SubmitEvent): Promise<void> {
   event.preventDefault();
@@ -9,17 +10,17 @@ async function handleBootstrapSubmit(event: SubmitEvent): Promise<void> {
   const bootstrapToken = qs<HTMLTextAreaElement>('[name="cf_bootstrap_token"]', form)?.value.trim();
 
   if (!accountId || !bootstrapToken) {
-    setFormState(form, 'error', 'Заполните Account ID и Bootstrap Token.');
+    setFormState(form, 'error', t('cf.wizard.statusMissing'));
     return;
   }
 
   const tsToken = getTurnstileToken(form);
   if (!tsToken) {
-    setFormState(form, 'error', TURNSTILE_REQUIRED_MESSAGE);
+    setFormState(form, 'error', getTurnstileRequiredMessage());
     return;
   }
 
-  setFormState(form, 'pending', 'Проверяем токен...');
+  setFormState(form, 'pending', t('cf.wizard.statusPending'));
 
   const payload = {
     cf_account_id: accountId,
@@ -28,11 +29,7 @@ async function handleBootstrapSubmit(event: SubmitEvent): Promise<void> {
   };
 
   console.log('Stub: Cloudflare bootstrap payload', payload);
-  setFormState(
-    form,
-    'success',
-    'Stub: payload logged, ready to wire to /auth/integrations/cloudflare/bootstrap'
-  );
+  setFormState(form, 'success', t('cf.wizard.statusLogged'));
 }
 
 export function initCloudflareWizard(): void {

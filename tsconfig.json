@@ -11,7 +11,8 @@
       "@ui/*": ["ui/*"],
       "@utils/*": ["utils/*"],
       "@state/*": ["state/*"],
-      "@social/*": ["social/*"]
+      "@social/*": ["social/*"],
+      "@i18n/*": ["i18n/*"]
     }
   },
   "include": ["src"]

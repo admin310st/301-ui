@@ -1,6 +1,7 @@
 import { login } from '@api/auth';
 import type { CommonErrorResponse } from '@api/types';
-import { TURNSTILE_REQUIRED_MESSAGE, getTurnstileToken, resetTurnstile } from '../turnstile';
+import { t } from '@i18n';
+import { getTurnstileRequiredMessage, getTurnstileToken, resetTurnstile } from '../turnstile';
 import { setFormState, qs } from '@ui/dom';
 import { clearGlobalMessage, showGlobalMessage } from '@ui/notifications';
 import { loadUser } from '@state/auth-state';
@@ -9,24 +10,24 @@ import type { ApiError } from '@utils/errors';
 function extractError(error: unknown): string {
   const apiError = error as ApiError<CommonErrorResponse>;
   return (
-    apiError?.body?.code || apiError?.body?.error || apiError?.body?.message || apiError?.message || 'Login failed'
+    apiError?.body?.code || apiError?.body?.error || apiError?.body?.message || apiError?.message || t('auth.login.errors.fallback')
   );
 }
 
 function mapErrorMessage(code: string): string {
   switch (code) {
     case 'invalid_login':
-      return 'Неправильный логин или пароль. Попробуйте ещё раз или запросите восстановление доступа.';
+      return t('auth.login.errors.invalidLogin');
     case 'user_already_registered':
-      return 'Такой email уже зарегистрирован. Попробуйте войти или восстановить пароль.';
+      return t('auth.login.errors.userAlreadyRegistered');
     case 'password_too_weak':
-      return 'Пароль слишком слабый. Минимум 8 символов, буквы в разных регистрах и цифры.';
+      return t('auth.login.errors.passwordTooWeak');
     case 'turnstile_failed':
-      return 'Проверка защиты не пройдена. Обновите виджет и попробуйте ещё раз.';
+      return t('auth.login.errors.turnstileFailed');
     case 'turnstile_required':
-      return 'Проверка защиты обязательна. Подтвердите Turnstile и попробуйте ещё раз.';
+      return t('auth.login.errors.turnstileRequired');
     default:
-      return code;
+      return code || t('auth.login.errors.fallback');
   }
 }
 
@@ -38,7 +39,7 @@ function bindAvatarPreview(form: HTMLFormElement): void {
 
   const update = (value: string): void => {
     const trimmed = value.trim();
-    if (label) label.textContent = trimmed || 'Укажите email';
+    if (label) label.textContent = trimmed || t('auth.login.avatarPlaceholder');
     if (img) img.src = trimmed ? '/img/anonymous-avatar.svg' : '/img/anonymous-avatar.svg';
   };
 
@@ -56,21 +57,22 @@ async function handleLoginSubmit(event: SubmitEvent): Promise<void> {
   const captcha = getTurnstileToken(form);
 
   if (!email || !password) {
-    setFormState(form, 'error', 'Введите email и пароль');
+    setFormState(form, 'error', t('auth.login.statusMissing'));
     return;
   }
 
   if (!captcha) {
-    setFormState(form, 'error', TURNSTILE_REQUIRED_MESSAGE);
+    setFormState(form, 'error', getTurnstileRequiredMessage());
     return;
   }
 
   try {
-    setFormState(form, 'pending', 'Входим...');
+    setFormState(form, 'pending', t('auth.login.statusPending'));
     const res = await login({ email, password, turnstile_token: captcha || undefined });
     await loadUser();
-    setFormState(form, 'success', res.message || 'Вы вошли в 301.st');
-    showGlobalMessage('success', 'Вы вошли в 301.st');
+    const successMessage = res.message || t('auth.login.statusSuccess');
+    setFormState(form, 'success', successMessage);
+    showGlobalMessage('success', successMessage);
     form.reset();
     window.location.hash = '#login';
   } catch (error) {
