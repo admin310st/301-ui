@@ -15,6 +15,7 @@ import { showGlobalMessage } from '@ui/notifications';
 import { initVisibilityController } from '@ui/visibility';
 import { applyTranslations, initLangSwitcher } from '@i18n/dom';
 import { t } from '@i18n';
+import { initTheme, initThemeToggle } from '@ui/theme';
 
 const AUTH_VIEWS = ['login', 'register', 'reset'] as const;
 type AuthView = (typeof AUTH_VIEWS)[number];
@@ -72,6 +73,7 @@ function bindLogoutButtons(): void {
 window.addEventListener('hashchange', applyRouteFromHash);
 
 document.addEventListener('DOMContentLoaded', async () => {
+  initTheme();
   applyTranslations();
   initLangSwitcher();
   initGlobalNotice();
@@ -90,4 +92,5 @@ document.addEventListener('DOMContentLoaded', async () => {
   initCloudflareWizard();
   applyRouteFromHash();
   bindLogoutButtons();
+  initThemeToggle();
 });
