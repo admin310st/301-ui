@@ -9,44 +9,52 @@
   color-scheme: dark;
 
   /* Blues (primary brand) */
-  --blue-900: #0b2144;
-  --blue-700: #0d3a7a;
-  --blue-500: #1f63c6;
-  --blue-300: #4a8de8;
-  --blue-neon: #5fb4ff;
+  --blue-900: #003682;
+  --blue-700: #0055DC;
+  --blue-500: #3475C0;
+  --blue-300: #408BC9;
+  --blue-neon: #4DA3FF;
 
   /* Oranges (Cloudflare-ish family) */
-  --orange-500: #f48120;
-  --orange-700: #e56912;
-  --orange-900: #c65000;
+  --orange-500: #F48120;
+  --orange-700: #F38020;
+  --orange-900: #C65000;
 
-  /* Cloudflare CTA accent (контрастно с белым текстом) */
-  --accent-cf: #e3641a;
-  --accent-cf-hover: #ff7a28;
-  --accent-cf-soft: rgba(244, 129, 32, 0.14);
+  /*
+    Cloudflare CTA accent.
+
+    Chosen to keep CF vibe but pass WCAG AA with WHITE text:
+    - #C24F00 on #FFFFFF ≈ 4.76:1
+    - #C24F00 on #000000 ≈ 4.41:1
+  */
+  --accent-cf: #C24F00;
+  --accent-cf-hover: #E05A00;
+  --accent-cf-soft: rgba(244, 129, 32, 0.16);
 
   /* Neutrals */
-  --gray-950: #050608;
-  --gray-900: #0c0e12;
-  --gray-800: #161922;
-  --gray-700: #1f2430;
-  --gray-600: #2c313f;
-  --gray-500: #444a5a;
-  --gray-400: #7b8191;
-  --gray-50: #f8fbfb;
-  --gray-100: #f7f7f8;
-  --gray-200: #eef1f6;
-  --gray-250: #e5e7ec;
-  --gray-300: #d6d9e0;
-  --gray-350: #c2c7d0;
+  --gray-950: #000000;
+  --gray-900: #111111;
+  --gray-800: #222222;
+  --gray-700: #333333;
+  --gray-600: #404242;
+  --gray-500: #424242;
+  --gray-400: #808080;
+
+  --gray-50:  #F8FBFB;
+  --gray-100: #F7F7F8;
+  --gray-200: #F4F8FC;
+  --gray-250: #EAEBEB;
+  --gray-300: #E5E5E4;
+  --gray-350: #CAC8C8;
 
   /* Semantic */
-  --danger: #ff4f6e;
-  --success: #18c27a;
-  --warning: #ffb347;
+  --danger: #FF4F6E;
+  --success: #18C27A;
+  --warning: #FFB347;
 
   /* Typography */
-  --font-sans: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+    "Segoe UI", sans-serif;
 
   --fs-xs: 0.75rem;
   --fs-sm: 0.875rem;
@@ -69,43 +77,56 @@
   --space-6: 2rem;
 
   --radius-xs: 0.25rem;
-  --radius: 0.55rem;
-  --radius-lg: 0.9rem;
-  --radius-xl: 1.15rem;
+  --radius: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
 
-  --shadow-soft: 0 16px 60px rgba(0, 0, 0, 0.3);
-  --shadow-subtle: 0 16px 40px rgba(8, 15, 40, 0.18);
+  --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.35);
+  --shadow-subtle: 0 12px 30px rgba(15, 23, 42, 0.16);
 
   --transition-fast: 120ms ease-out;
   --transition-md: 160ms ease-out;
+
+  /* High-contrast text for buttons / chips on dark backgrounds */
+  --btn-text-on-dark: #FFFFFF;
+  --btn-text-on-bright: #111111;
 }
 
 /* DARK THEME – default */
 :root[data-theme="dark"] {
   --bg: #111111;
-  --bg-elevated: #141722;
-  --bg-soft: #191d28;
+  --bg-elevated: #181A1F;
+  --bg-soft: #1F2229;
 
-  --text-main: #e7e9ee;
-  --text-muted: #b1b6c3;
-  --text-subtle: #8a8fa0;
-  --text-invert: #ffffff;
+  --text-main: #E7E9EE;    /* ≈15.5:1 vs #111111 */
+  --text-muted: #A0A4AF;   /* ≈7.5:1 vs #111111 */
+  --text-subtle: #7A7E87;  /* for helper text only */
+  --text-invert: #FFFFFF;
 
   --border-subtle: rgba(255, 255, 255, 0.06);
-  --border-strong: rgba(255, 255, 255, 0.16);
+  --border-strong: rgba(255, 255, 255, 0.14);
 
-  --primary: #1f63c6;
-  --primary-soft: rgba(95, 180, 255, 0.12);
-  --primary-hover: #4a8de8;
+  /*
+    Primary uses blue-500:
+    - #3475C0 with white text ≈ 4.72:1 (AA for normal text).
+  */
+  --primary: #3475C0;
+  --primary-soft: rgba(77, 163, 255, 0.1);
+  --primary-hover: #4DA3FF;
 
+  /*
+    Cloudflare accent = shared accent-cf.
+    White text passes AA.
+  */
   --accent-cf-bg: var(--accent-cf);
   --accent-cf-bg-hover: var(--accent-cf-hover);
 
-  --danger-bg: #36101c;
-  --success-bg: #0d2d20;
-  --warning-bg: #3a2811;
+  /* Status backgrounds (solid for predictable contrast) */
+  --danger-bg: #3D0915;
+  --success-bg: #042C1C;
+  --warning-bg: #38240A;
 
-  --input-bg: rgba(18, 21, 30, 0.92);
+  --input-bg: rgba(15, 16, 22, 0.9);
   --input-border: var(--border-subtle);
   --input-border-focus: rgba(77, 163, 255, 0.8);
 
@@ -117,35 +138,42 @@
 :root[data-theme="light"] {
   color-scheme: light;
 
-  --bg: #ffffff;
-  --bg-elevated: #f7f7f8;
-  --bg-soft: #f4f8fc;
+  --bg: #FFFFFF;
+  --bg-elevated: #F7F7F8;
+  --bg-soft: #F4F8FC;
 
   --text-main: #111111;
-  --text-muted: #666a73;
-  --text-subtle: #8a8f99;
-  --text-invert: #ffffff;
+  --text-muted: #666A73;
+  --text-subtle: #8A8F99;
+  --text-invert: #FFFFFF;
 
   --border-subtle: rgba(15, 23, 42, 0.06);
   --border-strong: rgba(15, 23, 42, 0.16);
 
-  --primary: #0055dc;
+  /*
+    Primary uses blue-700:
+    - #0055DC with white text ≈ 6.30:1 (AA).
+  */
+  --primary: #0055DC;
   --primary-soft: rgba(0, 85, 220, 0.08);
-  --primary-hover: #003682;
+  --primary-hover: #003682; /* even higher contrast */
 
+  /*
+    Cloudflare accent = same accent-cf to keep brand consistent.
+  */
   --accent-cf-bg: var(--accent-cf);
   --accent-cf-bg-hover: var(--accent-cf-hover);
 
-  --danger-bg: #fde6ea;
-  --success-bg: #e0f7ee;
-  --warning-bg: #fff1d8;
+  --danger-bg: #FDE6EA;
+  --success-bg: #E0F7EE;
+  --warning-bg: #FFF1D8;
 
-  --input-bg: #ffffff;
+  --input-bg: #FFFFFF;
   --input-border: var(--border-subtle);
   --input-border-focus: rgba(0, 85, 220, 0.8);
 
   --nav-bg: rgba(255, 255, 255, 0.92);
-  --sidebar-bg: #ffffff;
+  --sidebar-bg: #FFFFFF;
 }
 
 /* Глобальные мелочи */

@@ -1,5 +1,7 @@
 :root {
   font-family: var(--font-sans);
+  --border-width-thin: 1px;
+  --border-width-strong: 1px;
 }
 
 * {
@@ -10,6 +12,26 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--text-main);
+}
+
+.border-thin {
+  border-width: var(--border-width-thin);
+  border-style: solid;
+  border-color: var(--border-subtle);
+}
+
+.border-strong {
+  border-width: var(--border-width-strong);
+  border-style: solid;
+  border-color: var(--border-strong);
+}
+
+.shadow-soft {
+  box-shadow: var(--shadow-soft);
+}
+
+.shadow-subtle {
+  box-shadow: var(--shadow-subtle);
 }
 
 .global-notice {
@@ -41,20 +63,26 @@ body {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: var(--shadow-soft);
+  border: 1px solid var(--border-subtle);
 }
 
 .global-notice[data-type='success'] .global-notice__inner {
-  border-color: var(--ok, var(--success));
+  border-color: rgba(24, 194, 122, 0.7);
+  background: var(--success-bg);
+  color: var(--success);
 }
 
 .global-notice[data-type='error'] .global-notice__inner {
-  border-color: var(--danger, var(--danger));
+  border-color: rgba(255, 79, 110, 0.8);
+  background: var(--danger-bg);
+  color: var(--danger);
 }
 
 .global-notice[data-type='info'] .global-notice__inner {
-  border-color: var(--brand, var(--primary));
+  border-color: rgba(77, 163, 255, 0.6);
+  background: var(--primary-soft);
+  color: var(--text-main);
 }
 
 .global-notice__text {
@@ -299,7 +327,8 @@ body {
 
 .btn-primary {
   background: var(--primary);
-  color: var(--btn-text-on-dark, #fff);
+  color: var(--btn-text-on-dark);
+  box-shadow: 0 0 0 1px var(--border-strong);
 }
 
 .btn-primary:hover {
@@ -308,9 +337,9 @@ body {
 
 .btn-cf {
   background: var(--accent-cf-bg, var(--accent-cf));
-  color: var(--btn-text-on-dark, #fff);
+  color: var(--btn-text-on-dark);
   border-color: var(--accent-cf-soft, transparent);
-  box-shadow: 0 4px 14px color-mix(in srgb, var(--accent-cf-bg, var(--accent-cf)) 35%, transparent);
+  box-shadow: 0 0 0 1px var(--border-strong);
 }
 
 .btn-cf:hover {
@@ -325,6 +354,11 @@ body {
 
 .btn-secondary:hover {
   background: var(--primary-soft);
+}
+
+.btn-sm {
+  padding: 0.35rem 0.7rem;
+  font-size: var(--fs-xs);
 }
 
 .muted {
