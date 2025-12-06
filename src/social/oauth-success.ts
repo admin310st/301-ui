@@ -17,6 +17,6 @@ export async function handleOAuthSuccess(token: string, successMessage: string):
     const cleanedUrl = new URL(window.location.href);
     cleanedUrl.search = '';
     window.history.replaceState({}, document.title, cleanedUrl.toString());
-    window.location.href = '/account';
+    window.location.href = '/#account';
   }
 }

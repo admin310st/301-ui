@@ -18,24 +18,14 @@ export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
 
-    if (
-      request.method === 'GET' &&
-      (url.pathname === '/auth' ||
-        url.pathname === '/auth/' ||
-        url.pathname === '/auth/verify' ||
-        url.pathname === '/auth/verify/' ||
-        url.pathname === '/auth/success' ||
-        url.pathname === '/auth/success/')
-    ) {
-      const indexReq = new Request(new URL('/index.html', url.origin).toString(), {
-        method: 'GET',
-        headers: request.headers,
-      });
-      return env.ASSETS.fetch(indexReq);
-    }
-
     if (request.method === 'GET' && url.pathname === '/env') {
       return jsonResponse({ turnstileSitekey: env.TURNSTILE_SITEKEY });
+    }
+
+    if (request.method === 'GET' && url.pathname.startsWith('/auth/')) {
+      const indexUrl = new URL('/index.html', url.origin);
+      const indexReq = new Request(indexUrl.toString(), request);
+      return env.ASSETS.fetch(indexReq);
     }
 
     return env.ASSETS.fetch(request);
