@@ -1,11 +1,10 @@
-import { verifyToken } from '@api/auth';
-import type { CommonErrorResponse, VerifyRequest, VerifyResetResponse } from '@api/types';
+import type { VerifyResetResponse } from '@api/types';
 import { t } from '@i18n';
 import { setResetCsrfToken } from '@state/reset-session';
 import { showGlobalNotice } from '@ui/globalNotice';
-import type { ApiError } from '@utils/errors';
-import { getTurnstileToken } from '../turnstile';
+import { logDebug } from '@utils/logger';
 
+const API_ROOT = 'https://api.301.st/auth';
 const INVALID_LINK_MESSAGE = () => t('auth.resetVerify.invalidLink');
 
 function setVerifyStatus(state: 'pending' | 'error' | 'success', message: string): void {
@@ -16,82 +15,80 @@ function setVerifyStatus(state: 'pending' | 'error' | 'success', message: string
   status.hidden = false;
 }
 
-function parseSearchParams(): { token: string | null; type: string | null } {
-  const params = new URLSearchParams(window.location.search);
-  const token = params.get('token');
-  const type = params.get('type');
-  return { token, type };
+interface ResetVerifyParams {
+  type: string | null;
+  token: string | null;
+  url: URL;
 }
 
-function sanitizeUrl(hash?: string): void {
-  const basePath = window.location.pathname.startsWith('/auth') ? '/auth/' : '/';
-  const targetHash = hash ? `#${hash.replace('#', '')}` : '';
-  window.history.replaceState({}, document.title, `${basePath}${targetHash}`);
+function parseSearchParams(): ResetVerifyParams {
+  const url = new URL(window.location.href);
+  const token = url.searchParams.get('token');
+  const type = url.searchParams.get('type');
+  return { token, type, url };
 }
 
-function extractError(error: unknown): string {
-  const apiError = error as ApiError<CommonErrorResponse>;
-  return (
-    apiError?.body?.code || apiError?.body?.error || apiError?.body?.message || apiError?.message || INVALID_LINK_MESSAGE()
-  );
+function sanitizeUrl(url: URL, hash?: string): void {
+  const targetUrl = new URL(url.toString());
+  targetUrl.search = '';
+  if (hash) targetUrl.hash = `#${hash.replace('#', '')}`;
+  window.history.replaceState({}, document.title, targetUrl.toString());
 }
 
-function mapErrorMessage(code: string): string {
-  switch (code) {
-    case 'reset_session_expired':
-    case 'reset_session_required':
-    case 'token_invalid':
-    case 'token_expired':
-      return INVALID_LINK_MESSAGE();
-    default:
-      return code || INVALID_LINK_MESSAGE();
+async function fetchResetVerification(type: string, token: string): Promise<VerifyResetResponse> {
+  const apiUrl = new URL('/verify', API_ROOT);
+  apiUrl.searchParams.set('type', type);
+  apiUrl.searchParams.set('token', token);
+
+  const res = await fetch(apiUrl.toString(), { method: 'GET', credentials: 'include' });
+  if (!res.ok) {
+    throw new Error('verification_failed');
   }
+
+  return (await res.json()) as VerifyResetResponse;
 }
 
-async function handleResetVerification(payload: VerifyRequest): Promise<void> {
-  setVerifyStatus('pending', t('auth.resetVerify.pending'));
-  const turnstileToken = getTurnstileToken();
-
-  try {
-    const res = (await verifyToken({ ...payload, turnstile_token: turnstileToken ?? undefined })) as VerifyResetResponse;
-    const message = res.message || t('notice.success.resetDone');
-
-    if (res.csrf_token) {
-      setResetCsrfToken(res.csrf_token);
-      showGlobalNotice('success', message);
-      setVerifyStatus('success', t('auth.resetVerify.proceed'));
-      sanitizeUrl('reset');
-      window.location.hash = '#reset';
-      return;
-    }
-
-    const fallbackSuccess = t('auth.resetVerify.successFallback');
-    showGlobalNotice('success', message || fallbackSuccess);
-    setVerifyStatus('success', message || fallbackSuccess);
-    sanitizeUrl('login');
-    window.location.hash = '#login';
-  } catch (error) {
-    const message = mapErrorMessage(extractError(error));
-    setResetCsrfToken(null);
-    showGlobalNotice('error', message);
-    setVerifyStatus('error', message);
-    sanitizeUrl('login');
-  }
+function handleResetError(message: string, url: URL): void {
+  setResetCsrfToken(null);
+  showGlobalNotice('error', message);
+  setVerifyStatus('error', message);
+  sanitizeUrl(url, 'reset');
+  window.location.hash = '#reset';
 }
 
 export function initResetVerifyFlow(): void {
   const params = parseSearchParams();
+
+  if (params.url.pathname !== '/auth/verify' && params.url.pathname !== '/auth/verify/') return;
   if (params.type !== 'reset') return;
 
+  sanitizeUrl(params.url);
   window.location.hash = '#verify';
 
   if (!params.token) {
     const invalidMessage = INVALID_LINK_MESSAGE();
-    showGlobalNotice('error', invalidMessage);
-    setVerifyStatus('error', invalidMessage);
-    sanitizeUrl('login');
+    handleResetError(invalidMessage, params.url);
     return;
   }
 
-  void handleResetVerification({ token: params.token });
+  setVerifyStatus('pending', t('auth.resetVerify.pending'));
+
+  void fetchResetVerification(params.type, params.token)
+    .then((res) => {
+      if (res.ok && res.type === 'reset' && res.csrf_token) {
+        const message = res.message || t('notice.success.resetDone');
+        setResetCsrfToken(res.csrf_token);
+        showGlobalNotice('success', message);
+        setVerifyStatus('success', t('auth.resetVerify.proceed'));
+        sanitizeUrl(params.url, 'reset');
+        window.location.href = '/auth#reset';
+        return;
+      }
+
+      handleResetError(INVALID_LINK_MESSAGE(), params.url);
+    })
+    .catch((error) => {
+      logDebug('Reset verification failed', error as Error);
+      handleResetError(INVALID_LINK_MESSAGE(), params.url);
+    });
 }

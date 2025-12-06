@@ -1,7 +1,7 @@
 import { socialStartGithub } from '@api/auth';
-import { loadUser, setAuthToken } from '@state/auth-state';
 import { showGlobalMessage } from '@ui/notifications';
 import { logDebug } from '@utils/logger';
+import { handleOAuthSuccess, isOAuthSuccessPath } from './oauth-success';
 
 const STATE_KEY = 'github_oauth_state';
 
@@ -19,9 +19,13 @@ async function beginGithubFlow(): Promise<void> {
 
 async function handleOAuthReturn(): Promise<void> {
   const url = new URL(window.location.href);
+  if (!isOAuthSuccessPath(url)) return;
   const token = url.searchParams.get('token');
   const state = url.searchParams.get('state');
-  if (!token) return;
+  if (!token) {
+    showGlobalMessage('error', 'GitHub sign-in is unavailable');
+    return;
+  }
 
   const expectedState = sessionStorage.getItem(STATE_KEY);
   if (expectedState && state && expectedState !== state) {
@@ -29,11 +33,9 @@ async function handleOAuthReturn(): Promise<void> {
     return;
   }
 
-  setAuthToken(token);
-  await loadUser();
-  showGlobalMessage('success', 'Signed in with GitHub');
   sessionStorage.removeItem(STATE_KEY);
-  window.history.replaceState({}, document.title, '/account');
+
+  await handleOAuthSuccess(token, 'Signed in with GitHub');
 }
 
 export function initGithubOAuth(): void {
