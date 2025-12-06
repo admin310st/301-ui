@@ -10,6 +10,7 @@
   - Глобальная интеграция Turnstile: общий loader, обязательная проверка перед отправкой форм, reset виджета по серверным ошибкам.
   - Auth state: `/auth/refresh` на старте, периодическое обновление, очистка токена при ошибках, `/auth/me` используется как health-check.
   - Встраивание в Webstudio через `data-*` атрибуты и утилиты `@ui/visibility`.
+  - Конфигурация Cloudflare Worker обновлена: `main = src/worker.ts`, ассеты из `public/`, SPA-роутинг через `not_found_handling = "single-page-application"`.
 
 Актуальная спецификация API и описание OmniFlow лежат в Wiki основного проекта и доступны локально в `docs/301-wiki/` (точка входа — `Home.md`).
 

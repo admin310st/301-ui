@@ -302,6 +302,23 @@ npm run build
 wrangler deploy    # Uses wrangler.toml and serves public/
 ```
 
+Current `wrangler.toml` (kept in sync with the worker entry + Vite output):
+
+```toml
+name = "301-app"
+main = "src/worker.ts"
+compatibility_date = "2024-10-10"
+
+[assets]
+directory = "./public"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+```
+
+* `main` points to the TypeScript worker entry.
+* `assets.directory` matches the Vite build output (`public/`).
+* `not_found_handling = "single-page-application"` ensures SPA-style routing for deep links.
+
 ---
 
 ## Sync with backend API
