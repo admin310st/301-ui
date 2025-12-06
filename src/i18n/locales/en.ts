@@ -116,6 +116,8 @@ export const en = {
       missingParams: 'No verification parameters found.',
       pending: 'Verifying...',
       success: 'Email verified, redirecting...',
+      successRegister: 'Email verified, redirecting...',
+      resetSuccess: 'Reset link confirmed. Set a new password.',
       error: 'Verification failed',
     },
     resetVerify: {

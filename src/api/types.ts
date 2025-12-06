@@ -66,6 +66,7 @@ export interface ConfirmPasswordResponse {
 }
 
 export interface VerifyRequest {
+  type: 'register' | 'reset';
   token: string;
   code?: string;
   turnstile_token?: string;

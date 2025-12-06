@@ -4,6 +4,7 @@ import { t } from '@i18n';
 import { applyLoginStateToDOM } from '@ui/auth-dom';
 import { showGlobalMessage } from '@ui/notifications';
 import type { ApiError } from '@utils/errors';
+import { setResetCsrfToken } from '@state/reset-session';
 
 function extractError(error: unknown): string {
   const apiError = error as ApiError<CommonErrorResponse>;
@@ -22,10 +23,14 @@ function setVerifyStatus(state: 'pending' | 'error' | 'success', message: string
 
 function parseSearchParams(): VerifyRequest | null {
   const params = new URLSearchParams(window.location.search);
-  const token = params.get('token');
-  const type = params.get('type');
-  if (!token || type !== 'register') return null;
-  return { token };
+  const token = params.get('token') || '';
+  const typeParam = params.get('type');
+
+  const type = typeParam === 'register' || typeParam === 'reset' ? typeParam : null;
+
+  if (!token || !type) return null;
+
+  return { type, token };
 }
 
 async function handleVerification(): Promise<void> {
@@ -40,11 +45,23 @@ async function handleVerification(): Promise<void> {
     setVerifyStatus('pending', t('auth.verify.pending'));
     const res = await verifyToken(payload);
 
-    applyLoginStateToDOM('user' in res ? res.user ?? null : null);
-    const successMessage = t('auth.verify.success');
-    showGlobalMessage('success', successMessage);
-    setVerifyStatus('success', successMessage);
-    window.location.hash = '#account';
+    history.replaceState(null, '', window.location.pathname + window.location.hash);
+
+    if (payload.type === 'register') {
+      const user = ('user' in res ? res.user : null) || null;
+      applyLoginStateToDOM(user);
+      const successMessage = res.message || t('auth.verify.successRegister');
+      showGlobalMessage('success', successMessage);
+      setVerifyStatus('success', successMessage);
+      window.location.hash = '#account';
+    } else {
+      const csrf = (res as any).csrf_token || '';
+      if (csrf) setResetCsrfToken(csrf);
+      const successMessage = (res as any).message || t('auth.verify.resetSuccess');
+      showGlobalMessage('success', successMessage);
+      setVerifyStatus('success', successMessage);
+      window.location.hash = '#reset-confirm';
+    }
   } catch (error) {
     setVerifyStatus('error', extractError(error));
   }
@@ -52,7 +69,11 @@ async function handleVerification(): Promise<void> {
 
 export function initVerifyFlow(): void {
   const runIfVerifyRoute = (): void => {
-    if (window.location.hash.replace('#', '') === 'verify') {
+    const { pathname, hash } = window.location;
+    const isVerifyPath = pathname.startsWith('/auth/verify');
+    const isVerifyHash = hash.replace('#', '') === 'verify';
+
+    if (isVerifyPath || isVerifyHash) {
       void handleVerification();
     }
   };

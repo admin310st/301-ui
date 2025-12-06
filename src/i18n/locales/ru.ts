@@ -118,6 +118,8 @@ export const ru: Translation = {
       missingParams: 'Нет параметров для подтверждения.',
       pending: 'Подтверждаем...',
       success: 'Email подтверждён, перенаправляем...',
+      successRegister: 'Email подтверждён, перенаправляем...',
+      resetSuccess: 'Ссылка для сброса подтверждена. Задайте новый пароль.',
       error: 'Ошибка подтверждения',
     },
     resetVerify: {
