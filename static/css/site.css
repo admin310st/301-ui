@@ -364,6 +364,67 @@ body {
   background: var(--primary-soft);
 }
 
+/* Более плоский вид второстепенных кнопок в светлой теме */
+html[data-theme="light"] .btn-secondary {
+  background: #ffffff;
+  color: var(--text-main);
+  border-color: color-mix(in srgb, var(--text-main) 10%, transparent);
+}
+
+html[data-theme="light"] .btn-secondary:hover {
+  background: #ffffff;
+  border-color: color-mix(in srgb, var(--primary) 40%, transparent);
+  color: var(--primary);
+}
+
+/* =========================
+   Segmented / chip buttons
+   ========================= */
+
+/* Контейнер для групп переключателей: login tabs, языки и т.п. */
+.btn-chip-group {
+  display: inline-flex;
+  padding: 2px;
+  border-radius: 999px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  gap: 2px;
+}
+
+/* Базовая «чип»-кнопка */
+.btn-chip {
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-subtle);
+  font-size: 0.9rem;
+  padding: 0.3rem 0.9rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  transition:
+    background var(--transition-md),
+    border-color var(--transition-md),
+    color var(--transition-md);
+}
+
+/* Активное состояние */
+.btn-chip.is-active {
+  color: var(--primary);
+  border-color: color-mix(in srgb, var(--primary) 55%, transparent);
+}
+
+/* Hover-подсветка */
+html[data-theme="light"] .btn-chip:hover {
+  background: #ffffff;
+}
+
+html[data-theme="dark"] .btn-chip:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
 .btn-outline {
   background: transparent;
   color: var(--text-main);
@@ -414,29 +475,8 @@ body {
 }
 
 .auth-tabs {
+  margin-bottom: 1rem;
   display: inline-flex;
-  padding: 4px;
-  border-radius: 999px;
-  background: var(--bg-soft);
-  border: var(--border-width) var(--border-style) var(--panel-border);
-  gap: 4px;
-}
-
-.auth-tab {
-  border: none;
-  background: transparent;
-  color: var(--text-muted);
-  padding: 4px 12px;
-  border-radius: 999px;
-  cursor: pointer;
-  font-weight: var(--fw-medium);
-  text-decoration: none;
-}
-
-.auth-tab.active,
-.auth-tab[aria-current='true'] {
-  background: var(--primary-soft);
-  color: var(--text-on-primary, var(--btn-text-on-dark));
 }
 
 .field {

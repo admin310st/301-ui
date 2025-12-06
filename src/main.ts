@@ -29,8 +29,27 @@ function setAuthView(view: AuthView): void {
 
   document.querySelectorAll<HTMLElement>('[data-auth-tab]').forEach((tab) => {
     const isActive = tab.dataset.authTab === view;
-    tab.classList.toggle('active', isActive);
+    tab.classList.toggle('is-active', isActive);
     tab.toggleAttribute('aria-current', isActive);
+    tab.setAttribute('aria-pressed', String(isActive));
+  });
+}
+
+function initAuthTabs(): void {
+  document.querySelectorAll<HTMLButtonElement>('[data-auth-tab]').forEach((tab) => {
+    if (tab.dataset.bound === 'true') return;
+    tab.dataset.bound = 'true';
+    tab.addEventListener('click', () => {
+      const target = tab.dataset.authTab;
+      if (!target || !(AUTH_VIEWS as readonly string[]).includes(target)) return;
+      const newHash = `#${target}`;
+
+      if (window.location.hash === newHash) {
+        setAuthView(target as AuthView);
+      } else {
+        window.location.hash = newHash;
+      }
+    });
   });
 }
 
@@ -90,6 +109,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initGoogleOAuth();
   initGithubOAuth();
   initCloudflareWizard();
+  initAuthTabs();
   applyRouteFromHash();
   bindLogoutButtons();
   initThemeToggle();
