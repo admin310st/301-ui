@@ -375,62 +375,46 @@
         </div>
       </section>
 
-      <section data-route="reset-confirm" id="reset" data-reset-step="confirm" hidden aria-hidden="true">
-        <div class="container auth-shell">
-          <div class="auth-grid">
-            <div class="auth-card">
-              <p class="eyebrow" data-i18n="auth.resetConfirm.eyebrow">New password</p>
-              <h2 data-i18n="auth.resetConfirm.title">Set a password</h2>
-              <form data-form="reset-confirm">
-                <div class="field">
-                  <label class="field-label" for="reset-password" data-i18n="auth.resetConfirm.passwordLabel">New password</label>
-                  <input
-                    class="input"
-                    id="reset-password"
-                    name="password"
-                    type="password"
-                    required
-                    aria-describedby="reset-confirm-status"
-                  />
-                </div>
-                <div class="field">
-                  <label class="field-label" for="reset-password-confirm" data-i18n="auth.resetConfirm.confirmLabel">Confirm password</label>
-                  <input
-                    class="input"
-                    id="reset-password-confirm"
-                    name="password_confirm"
-                    type="password"
-                    required
-                    aria-describedby="reset-confirm-status"
-                  />
-                </div>
-                <div
-                  class="auth-status"
-                  data-type="pending"
-                  data-form-status="reset-confirm"
-                  id="reset-confirm-status"
-                  data-i18n="auth.resetConfirm.statusDefault"
-                >
-                  Make sure passwords match and are strong enough.
-                </div>
-                <div class="auth-actions">
-                  <button
-                    type="submit"
-                    class="btn btn-primary"
-                    data-i18n="auth.resetConfirm.submit"
-                    data-i18n-aria="auth.resetConfirm.submitAria"
-                    aria-label="Update password and continue"
-                  >
-                    Update password
-                  </button>
-                  <a href="#login" class="btn btn-secondary" data-route-link="login" data-i18n="auth.resetConfirm.linkToLogin"
-                    >Sign in</a
-                  >
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
+      <section class="auth-section" data-route="reset-confirm">
+        <header class="auth-section__header">
+          <p class="auth-eyebrow">Новый пароль</p>
+          <h1 class="auth-title">Установить пароль</h1>
+          <p class="auth-subtitle">
+            Придумайте новый пароль для входа в 301.st.
+          </p>
+        </header>
+
+        <form data-form="reset-confirm" class="auth-form">
+          <div class="form-status" data-status role="status" aria-live="polite"></div>
+
+          <label class="form-field">
+            <span class="form-label">Новый пароль</span>
+            <input
+              name="password"
+              type="password"
+              autocomplete="new-password"
+              required
+            />
+          </label>
+
+          <label class="form-field">
+            <span class="form-label">Повторите пароль</span>
+            <input
+              name="password_confirm"
+              type="password"
+              autocomplete="new-password"
+              required
+            />
+          </label>
+
+          <button type="submit" class="btn btn-primary">
+            Обновить пароль
+          </button>
+
+          <p class="form-footer">
+            <a href="#login" data-route-link="login">Вернуться ко входу</a>
+          </p>
+        </form>
       </section>
     </main>
 
