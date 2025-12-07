@@ -1,71 +1,109 @@
-# Icons workflow
+# Icons Workflow
 
-This document describes how SVG icons are stored, processed and used in the 301 UI.
+This document describes how SVG icons are stored, processed, generated and used inside the 301 UI.
 
 The goal is:
 
-- keep all raw icons in a single place in the repo,
-- generate an SVG sprite + small helper files automatically,
-- use icons in markup via `<svg><use></use></svg>` without duplicating paths,
-- make it easy for any contributor (including Codex) to understand the rules.
+- keep all raw SVG icons in a clear folder structure;
+- automatically generate a single SVG sprite + preview + map;
+- avoid duplicating SVG paths in templates;
+- enable color-adaptive UI (icons follow light/dark theme automatically);
+- make the process easy for any contributor (Codex, external devs, etc.).
 
 ---
 
-## Source locations
+## 1. Source icons
 
-All **source** SVG icons live in:
+All **source** SVGs live in:
 
-- `static/img/icons-src/mono` – monochrome icons that should be tinted via `currentColor`
-- `static/img/icons-src/brand` – colored icons (Google, GitHub, Cloudflare, etc.)
+```
 
-Examples:
+static/img/icons-src/
+mono/    → monochrome icons tinted via currentColor
+brand/   → colored icons (Google, GitHub, Cloudflare, etc.)
 
-```text
+```
+
+Example:
+
+```
+
 static/
-  img/
-    icons-src/
-      mono/
-        eye.svg
-        theme-light-dark.svg
-      brand/
-        google.svg
-        github.svg
-        cloudflare.svg
+img/
+icons-src/
+mono/
+eye.svg
+theme-light-dark.svg
+brand/
+google.svg
+github.svg
+cloudflare.svg
+
 ````
 
-> Never edit the generated sprite directly. Always edit icons in `icons-src` and re-run the build script.
+You must **not** edit the generated sprite manually — always modify raw SVGs in `icons-src`.
+
+---
+
+## 2. Rules for mono vs. brand icons
 
 ### Mono icons (`mono/`)
 
-* These icons are meant to be tinted via CSS.
-* Each **visible shape** should have `fill="currentColor"` set **in the source SVG**.
-* We do **not** auto-modify `fill` in the build script – the author of the icon decides what is tintable.
+Used for UI controls, buttons, toggles, inputs, etc.
 
-Example `static/img/icons-src/mono/eye.svg`:
+❗ Rule:
+
+> **Mono icons must have `fill="currentColor"` applied to every visible shape.**
+
+This allows them to automatically inherit CSS color:
+
+- They become white inside a white-on-brand button
+- They become dark in light mode
+- They become light in dark mode
+- They follow any CSS class color (danger, muted, etc.)
+
+Mono icons **must not** contain hardcoded colors like `fill="#000"`.
+
+Example raw SVG (`static/img/icons-src/mono/eye.svg`):
 
 ```svg
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-  <title>eye</title>
-  <path
-    fill="currentColor"
-    d="M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9M12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17M12,4.5C7,4.5 2.73,7.61 1,12C2.73,16.39 7,19.5 12,19.5C17,19.5 21.27,16.39 23,12C21.27,7.61 17,4.5 12,4.5Z"
-  />
+<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <path fill="currentColor"
+        d="M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9
+           M12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17
+           M12,4.5C7,4.5 2.73,7.61 1,12C2.73,16.39 7,19.5 12,19.5
+           C17,19.5 21.27,16.39 23,12C21.27,7.61 17,4.5 12,4.5Z" />
 </svg>
-```
-
-### Brand icons (`brand/`)
-
-* Brand icons keep their **original colors**.
-* Do not replace `fill` with `currentColor` for brand logos.
-* Use official SVGs whenever possible (Google, GitHub, etc).
+````
 
 ---
 
-## Build step
+### Brand icons (`brand/`)
 
-Icons are processed by a small Node script:
+Used for:
 
-* `scripts/build-icons.mjs`
+* Google OAuth
+* GitHub OAuth
+* Cloudflare branding
+* External service logos
+
+Rules:
+
+* **Keep all original colors.**
+* Do not convert to `currentColor`.
+* Do not simplify shapes.
+
+Brand icons must look identical across all themes.
+
+---
+
+## 3. Build process
+
+Icons are processed by the Node script:
+
+```
+scripts/build-icons.mjs
+```
 
 Run:
 
@@ -73,116 +111,179 @@ Run:
 npm run build:icons
 ```
 
-This will:
+This generates 3 files:
 
-1. Walk `static/img/icons-src/mono` and `static/img/icons-src/brand`
-2. Optimize each SVG with **SVGO** (remove metadata, titles, dimensions, etc.)
-3. Wrap each SVG into `<symbol>` and generate a single sprite file
-4. Generate:
+| Output file                 | Purpose                                      |
+| --------------------------- | -------------------------------------------- |
+| `static/icons-sprite.svg`   | Contains `<symbol>` elements used in `<use>` |
+| `static/icons-map.json`     | Machine-readable list of available icons     |
+| `static/icons-preview.html` | Visual gallery of all icons                  |
 
-   * `static/icons-sprite.svg`     – the sprite with `<symbol>` elements
-   * `static/icons-map.json`       – simple JSON map of available icons
-   * `static/icons-preview.html`   – a small preview page showing all icons
+### How generation works
 
-### Output files
+1. Script walks `static/img/icons-src/mono` and `static/img/icons-src/brand`.
+2. Optimizes SVG via SVGO (removes metadata, titles, dimensions, comments).
+3. Extracts inner SVG content with `<symbol id="…">`.
+4. Builds a sprite containing all symbols.
+5. Saves a human-friendly preview with live icons and IDs.
 
-* Sprite: `static/icons-sprite.svg` → served as `/icons-sprite.svg`
-* Map: `static/icons-map.json` → served as `/icons-map.json` (for tooling)
-* Preview: `static/icons-preview.html` → served as `/icons-preview.html`
+### Where generated files are served
 
-On dev (Vite):
+Under Vite dev:
 
-```text
+```
 http://localhost:5173/icons-preview.html
+http://localhost:5173/icons-sprite.svg
 ```
 
-> Note: Codex / remote tools do **not** see these static files directly, but the IDs and structure are documented here.
+Under Wrangler:
 
----
-
-## Sprite IDs and naming
-
-Each icon becomes a `<symbol>` inside the sprite with the following `id` pattern:
-
-* Mono icon (`static/img/icons-src/mono/eye.svg`)
-  → `<symbol id="i-mono-eye" ...>`
-
-* Brand icon (`static/img/icons-src/brand/google.svg`)
-  → `<symbol id="i-brand-google" ...>`
-
-General rule:
-
-```text
-i-<category>-<fileNameWithoutExtension>
 ```
-
-Where `category` is `mono` or `brand`.
-
-You can inspect all generated IDs and how the icons look via:
-
-```text
 /icons-preview.html
+/icons-sprite.svg
 ```
+
+📝 Note: Codex does **not** see `icons-src` in sandbox,
+but **all IDs and usage rules are documented** here.
 
 ---
 
-## Sprite injection in the app
+## 4. Symbol naming
 
-We do not inline the sprite in HTML manually. Instead we load it once at runtime.
+Naming pattern:
 
-In `src/main.ts` there is a helper:
+```
+i-<category>-<fileName>
+```
+
+Examples:
+
+| Source file                                  | Symbol ID                  |
+| -------------------------------------------- | -------------------------- |
+| `static/img/icons-src/mono/eye.svg`          | `#i-mono-eye`              |
+| `static/img/icons-src/mono/theme-light-dark` | `#i-mono-theme-light-dark` |
+| `static/img/icons-src/brand/google.svg`      | `#i-brand-google`          |
+| `static/img/icons-src/brand/github.svg`      | `#i-brand-github`          |
+
+Preview gallery (`/icons-preview.html`) shows icons exactly as rendered.
+
+---
+
+## 5. Injecting the sprite in the application
+
+We do not inline the sprite manually.
+
+`main.ts` loads it once:
 
 ```ts
 async function injectIconSprite(): Promise<void> {
-  try {
-    const res = await fetch('/icons-sprite.svg', { cache: 'force-cache' });
-    if (!res.ok) return;
-    const svgText = await res.text();
-    const wrapper = document.createElement('div');
-    wrapper.style.position = 'absolute';
-    wrapper.style.width = '0';
-    wrapper.style.height = '0';
-    wrapper.style.overflow = 'hidden';
-    wrapper.innerHTML = svgText;
-    const sprite = wrapper.firstElementChild;
-    if (sprite) {
-      document.body.prepend(sprite);
-    }
-  } catch (err) {
-    console.warn('[icons] Failed to inject sprite', err);
-  }
+  const res = await fetch('/icons-sprite.svg', { cache: 'force-cache' });
+  if (!res.ok) return;
+  const svgText = await res.text();
+
+  const wrapper = document.createElement('div');
+  wrapper.style.position = 'absolute';
+  wrapper.style.width = '0';
+  wrapper.style.height = '0';
+  wrapper.style.overflow = 'hidden';
+  wrapper.innerHTML = svgText;
+
+  const sprite = wrapper.firstElementChild;
+  if (sprite) document.body.prepend(sprite);
 }
 ```
 
-And it is called on `DOMContentLoaded`:
-
-```ts
-document.addEventListener('DOMContentLoaded', async () => {
-  await injectIconSprite();
-  // ... other init calls
-});
-```
-
-So every page has the sprite available once in the DOM.
+This makes all `<symbol>` icons available globally.
 
 ---
 
-## Using icons in markup
+# ⭐ 6. Coloring icons via `currentColor` (the most important concept)
 
-To use an icon, reference it via `<use>` and the `id` defined above.
+Mono icons (`mono/`) are **color-adaptive** by design.
 
-### Mono icon example (tinted with `currentColor`)
+They inherit the CSS `color:` property of **any parent element**.
+
+> If you change the `color` of a button, link, label, or wrapper —
+> the icon automatically changes with it.
+
+This makes all icons:
+
+* automatically dark in light theme,
+* automatically light in dark theme,
+* consistent in buttons,
+* consistent in form controls,
+* consistent across all languages and layouts.
+
+### Example: white icon in primary button
 
 ```html
-<button class="password-toggle" type="button">
-  <svg class="icon" aria-hidden="true">
-    <use href="#i-mono-eye"></use>
-  </svg>
-  <span class="sr-only">Show password</span>
+<button class="btn-primary">
+  <svg class="icon"><use href="#i-mono-eye"></use></svg>
+  Login
 </button>
 ```
 
-With CSS:
+```css
+.btn-primary {
+  color: white;         /* the eye icon becomes white automatically */
+  background: var(--brand);
+}
+```
+
+### Example: muted icon in input
+
+```css
+.password-toggle {
+  color: var(--muted);
+}
+```
+
+### Example: theme switching
+
+If your theme uses variables:
+
+```css
+:root { --text-color: #111; }
+[data-theme="dark"] { --text-color: #eee; }
+
+.icon {
+  color: var(--text-color);
+}
+```
+
+Then icons automatically flip to correct contrast.
+
+### Example: error state
+
+```css
+.error .icon {
+  color: var(--danger);
+}
+```
+
+### ❗ Brand icons do **not** inherit color
+
+Because they preserve official colors:
+
+* Google
+* GitHub
+* Cloudflare
+
+They ignore `currentColor`.
+
+---
+
+# 7. Using icons in markup
+
+Use:
+
+```html
+<svg class="icon" aria-hidden="true">
+  <use href="#i-mono-eye"></use>
+</svg>
+```
+
+Recommended base CSS:
 
 ```css
 .icon {
@@ -190,47 +291,56 @@ With CSS:
   height: 1.25rem;
   display: inline-block;
 }
-
-.password-toggle {
-  color: var(--muted);
-}
-
-.button-primary .icon {
-  color: #fff; /* mono icons will inherit this */
-}
 ```
 
-### Brand icon example (Google / GitHub)
+### Examples
+
+#### Password toggle
 
 ```html
-<button class="auth-social-btn auth-social-btn--google" type="button">
-  <svg class="icon" aria-hidden="true">
-    <use href="#i-brand-google"></use>
-  </svg>
-  <span>Continue with Google</span>
+<button class="password-toggle" type="button">
+  <svg class="icon"><use href="#i-mono-eye"></use></svg>
 </button>
 ```
 
-Brand icons use their own `fill` colors from the source SVG, so they do **not** respond to `color:`.
+#### Theme toggle
+
+```html
+<button class="theme-toggle">
+  <svg class="icon"><use href="#i-mono-theme-light-dark"></use></svg>
+</button>
+```
+
+#### Google login
+
+```html
+<button class="auth-social-btn auth-social-btn--google">
+  <svg class="icon"><use href="#i-brand-google"></use></svg>
+  Continue with Google
+</button>
+```
 
 ---
 
-## Adding a new icon
+## 8. Adding a new icon
 
-1. Decide the category:
+1. Choose category:
 
-   * `mono` if it should inherit `currentColor`
-   * `brand` if it should keep its own colors
+   | When to use   | Folder                       |
+   | ------------- | ---------------------------- |
+   | Tintable icon | `static/img/icons-src/mono`  |
+   | Logo/brand    | `static/img/icons-src/brand` |
 
-2. Place the SVG:
+2. Prepare SVG:
 
-   * `static/img/icons-src/mono/my-icon.svg`
-   * or `static/img/icons-src/brand/my-brand.svg`
+   * **mono:** ensure every `<path>` has `fill="currentColor"`
+   * **brand:** keep original fills
 
-3. For mono icons:
+3. Save the file as:
 
-   * Ensure visible shapes have `fill="currentColor"`
-   * Remove any hardcoded colors (black, etc.)
+   ```
+   static/img/icons-src/<category>/<name>.svg
+   ```
 
 4. Run:
 
@@ -238,32 +348,47 @@ Brand icons use their own `fill` colors from the source SVG, so they do **not** 
    npm run build:icons
    ```
 
-5. Check `/icons-preview.html` to make sure it looks correct.
+5. Check preview:
 
-6. Use the icon in markup via:
+   ```
+   http://localhost:5173/icons-preview.html
+   ```
+
+6. Use in markup:
 
    ```html
-   <svg class="icon" aria-hidden="true">
-     <use href="#i-mono-my-icon"></use>
-   </svg>
+   <svg class="icon"><use href="#i-mono-name"></use></svg>
    ```
 
 ---
 
-## Notes for external contributors (Codex, etc.)
+## 9. Notes for Codex / external tools
 
-* The raw SVG files under `static/img/icons-src` are **not** visible in remote sandboxes,
-  so you may not see the actual graphics.
+* Raw SVGs in `static/img/icons-src/` may not be visible in a sandbox,
+  but all symbols follow a **predictable naming convention**.
 
-* However, you can safely rely on the documented IDs:
+* The authoritative list of available icons is always visible at:
+
+  ```
+  /icons-preview.html
+  ```
+
+* To use an icon, refer to its ID:
 
   * `#i-mono-eye`
   * `#i-mono-theme-light-dark`
   * `#i-brand-google`
   * `#i-brand-github`
   * `#i-brand-cloudflare`
-  * (and any future icons following the same naming pattern)
+  * etc.
 
-* When adding markup or CSS, use `<svg><use href="#..."></use></svg>` and the IDs listed here.
+* Do **not** manually edit:
 
-* Do not modify `icons-sprite.svg` by hand – it is generated.
+  * `icons-sprite.svg`
+  * SVG inside templates
+
+* Always update icons via:
+
+  ```bash
+  npm run build:icons
+  ```
