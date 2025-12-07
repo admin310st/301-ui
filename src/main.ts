@@ -22,30 +22,30 @@ import { initPasswordToggles } from '@ui/password-toggle';
 /**
  * Inject SVG sprite with icons once per page.
  */
-async function injectIconSprite(): Promise<void> {
-  try {
-    const res = await fetch('/static/icons-sprite.svg', { cache: 'force-cache' });
-    if (!res.ok) return;
+async function injectIconSprite() {
+  const res = await fetch('/icons-sprite.svg', { cache: 'force-cache' });
+  if (!res.ok) return;
 
-    const svgText = await res.text();
-    const wrapper = document.createElement('div');
+  let svgText = await res.text();
 
-    wrapper.style.position = 'absolute';
-    wrapper.style.width = '0';
-    wrapper.style.height = '0';
-    wrapper.style.overflow = 'hidden';
+  // Removing the parasitic Cloudflare script
+  svgText = svgText.replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, '');
 
-    wrapper.innerHTML = svgText;
-    const sprite = wrapper.firstElementChild;
-
-    if (sprite) {
-      document.body.prepend(sprite);
-    }
-  } catch (err) {
-    // Silent fail, icons are optional for core auth logic
-    console.warn('[icons] Failed to inject sprite', err);
+  if (!svgText.includes('xmlns="http://www.w3.org/2000/svg"')) {
+    svgText = svgText.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"');
   }
+
+  const wrap = document.createElement('div');
+  wrap.style.position = 'absolute';
+  wrap.style.width = '0';
+  wrap.style.height = '0';
+  wrap.style.overflow = 'hidden';
+  wrap.innerHTML = svgText;
+
+  const svg = wrap.querySelector('svg');
+  if (svg) document.body.prepend(svg);
 }
+
 
 function bindLogoutButtons(): void {
   document.querySelectorAll<HTMLElement>('[data-action="logout"]').forEach((btn) => {
