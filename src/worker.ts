@@ -20,9 +20,15 @@ export default {
 
     if (request.method === 'GET' && url.pathname === '/env') {
       return jsonResponse({ turnstileSitekey: env.TURNSTILE_SITEKEY });
-    }
-
-    if (request.method === 'GET' && url.pathname.startsWith('/auth/')) {
+    } else if (
+      request.method === 'GET' &&
+      url.pathname === '/auth/verify' &&
+      url.searchParams.get('type') === 'reset'
+    ) {
+      const resetUrl = new URL('/reset-password.html', url.origin);
+      const resetReq = new Request(resetUrl.toString(), request);
+      return env.ASSETS.fetch(resetReq);
+    } else if (request.method === 'GET' && url.pathname.startsWith('/auth/')) {
       const indexUrl = new URL('/index.html', url.origin);
       const indexReq = new Request(indexUrl.toString(), request);
       return env.ASSETS.fetch(indexReq);
