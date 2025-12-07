@@ -32,7 +32,15 @@
     </div>
     <header class="site-header">
       <div class="container header-bar">
-        <a class="brand" href="/">301.st</a>
+        <a class="brand" href="/" aria-label="Бренд 301.st">
+          <img
+            class="brand__logo"
+            src="/static/img/icons-src/brand/301.svg"
+            alt=""
+            aria-hidden="true"
+          />
+          <span class="brand__text">301.st</span>
+        </a>
         <nav class="nav-links" data-onlogout data-i18n-aria="layout.nav.aria" aria-label="Authentication navigation">
           <a href="#login" data-route-link="login" data-i18n="layout.nav.login">Login</a>
           <a href="#register" data-route-link="register" data-i18n="layout.nav.register">Register</a>
@@ -532,7 +540,15 @@
     <footer class="site-footer">
       <div class="container footer-grid">
         <div>
-          <div class="brand">301.st</div>
+          <div class="brand" aria-label="Бренд 301.st">
+            <img
+              class="brand__logo"
+              src="/static/img/icons-src/brand/301.svg"
+              alt=""
+              aria-hidden="true"
+            />
+            <span class="brand__text">301.st</span>
+          </div>
           <p class="muted" data-i18n="layout.footer.description">Redirects and analytics.</p>
         </div>
         <div class="footer-links">

@@ -143,10 +143,23 @@ body {
 }
 
 .brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
   font-size: 1.25rem;
   font-weight: var(--fw-semibold);
   text-decoration: none;
   color: var(--text-main);
+}
+
+.brand__logo {
+  width: 1.75rem;
+  height: 1.75rem;
+  display: block;
+}
+
+.brand__text {
+  line-height: 1;
 }
 
 .nav-links {
