@@ -1,7 +1,7 @@
 import { register } from '@api/auth';
 import type { CommonErrorResponse } from '@api/types';
 import { t, tWithVars } from '@i18n';
-import { getTurnstileRequiredMessage, getTurnstileToken, resetTurnstile } from '../turnstile';
+import { requireTurnstileToken, resetTurnstile } from '../turnstile';
 import { setFormState } from '@ui/dom';
 import { showGlobalMessage } from '@ui/notifications';
 import type { ApiError } from '@utils/errors';
@@ -37,7 +37,7 @@ async function handleRegisterSubmit(event: SubmitEvent): Promise<void> {
 
   const email = form.querySelector<HTMLInputElement>('[name="email"]')?.value.trim();
   const password = form.querySelector<HTMLInputElement>('[name="password"]')?.value || '';
-  const captcha = getTurnstileToken(form);
+  const captcha = requireTurnstileToken(form);
 
   if (!email || !password) {
     setFormState(form, 'error', t('auth.register.statusMissing'));
@@ -50,14 +50,11 @@ async function handleRegisterSubmit(event: SubmitEvent): Promise<void> {
     return;
   }
 
-  if (!captcha) {
-    setFormState(form, 'error', getTurnstileRequiredMessage());
-    return;
-  }
+  if (!captcha) return;
 
   try {
     setFormState(form, 'pending', t('auth.register.statusPending'));
-    const res = await register({ email, password, turnstile_token: captcha || undefined });
+    const res = await register({ email, password, turnstile_token: captcha });
     const statusMessage =
       res.message || tWithVars('auth.register.statusSuccess', { email });
     setFormState(form, 'success', statusMessage);

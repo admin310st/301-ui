@@ -1,7 +1,7 @@
 import { resetPassword } from '@api/auth';
 import type { CommonErrorResponse, ResetPasswordRequest } from '@api/types';
 import { t, tWithVars } from '@i18n';
-import { getTurnstileRequiredMessage, getTurnstileToken, resetTurnstile } from '../turnstile';
+import { requireTurnstileToken, resetTurnstile } from '../turnstile';
 import { setFormState } from '@ui/dom';
 import { showGlobalMessage } from '@ui/notifications';
 import type { ApiError } from '@utils/errors';
@@ -52,17 +52,14 @@ async function handleResetRequest(event: SubmitEvent): Promise<void> {
   const form = event.currentTarget as HTMLFormElement;
 
   const { value, type } = readResetPayload(form);
-  const captcha = getTurnstileToken(form);
+  const captcha = requireTurnstileToken(form);
 
   if (!value) {
     setFormState(form, 'error', t('auth.reset.statusMissing'));
     return;
   }
 
-  if (!captcha) {
-    setFormState(form, 'error', getTurnstileRequiredMessage());
-    return;
-  }
+  if (!captcha) return;
 
   try {
     setFormState(form, 'pending', t('auth.reset.statusPending'));

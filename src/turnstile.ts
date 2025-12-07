@@ -1,4 +1,5 @@
 import { t } from '@i18n';
+import { setFormState } from '@ui/dom';
 import { logDebug } from '@utils/logger';
 
 export function getTurnstileRequiredMessage(): string {
@@ -139,6 +140,19 @@ export function getTurnstileToken(form?: HTMLFormElement): string | null {
   if (form) {
     return form.querySelector<HTMLInputElement>('input[name="turnstile_token"]')?.value || null;
   }
+
+  return null;
+}
+
+export function requireTurnstileToken(form: HTMLFormElement): string | null {
+  const token = getTurnstileToken(form);
+  if (token) return token;
+
+  setFormState(form, 'error', getTurnstileRequiredMessage());
+
+  const widget = form.querySelector<HTMLElement>('.turnstile-widget');
+  const iframe = widget?.querySelector<HTMLIFrameElement>('iframe');
+  (iframe || widget)?.focus?.();
 
   return null;
 }

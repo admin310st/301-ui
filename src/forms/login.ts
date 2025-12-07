@@ -1,7 +1,7 @@
 import { login } from '@api/auth';
 import type { CommonErrorResponse } from '@api/types';
 import { t } from '@i18n';
-import { getTurnstileRequiredMessage, getTurnstileToken, resetTurnstile } from '../turnstile';
+import { requireTurnstileToken, resetTurnstile } from '../turnstile';
 import { setFormState, qs } from '@ui/dom';
 import { clearGlobalMessage, showGlobalMessage } from '@ui/notifications';
 import { loadUser } from '@state/auth-state';
@@ -54,21 +54,18 @@ async function handleLoginSubmit(event: SubmitEvent): Promise<void> {
 
   const email = form.querySelector<HTMLInputElement>('[name="email"]')?.value.trim();
   const password = form.querySelector<HTMLInputElement>('[name="password"]')?.value || '';
-  const captcha = getTurnstileToken(form);
+  const captcha = requireTurnstileToken(form);
 
   if (!email || !password) {
     setFormState(form, 'error', t('auth.login.statusMissing'));
     return;
   }
 
-  if (!captcha) {
-    setFormState(form, 'error', getTurnstileRequiredMessage());
-    return;
-  }
+  if (!captcha) return;
 
   try {
     setFormState(form, 'pending', t('auth.login.statusPending'));
-    const res = await login({ email, password, turnstile_token: captcha || undefined });
+    const res = await login({ email, password, turnstile_token: captcha });
     await loadUser();
     const successMessage = res.message || t('auth.login.statusSuccess');
     setFormState(form, 'success', successMessage);
