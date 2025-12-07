@@ -3,6 +3,7 @@ import { initLoginForm } from '@forms/login';
 import { initRegisterForm } from '@forms/register';
 import { initResetConfirmForm } from '@forms/reset-confirm';
 import { initResetRequestForm } from '@forms/reset-request';
+import { initResetVerifyFlow } from '@forms/reset-verify';
 import { initVerifyFlow } from '@forms/verify';
 import { initCloudflareWizard } from '@forms/cf-wizard';
 import { initGithubOAuth } from '@social/github';
@@ -46,6 +47,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initRegisterForm();
   initResetRequestForm();
   initResetConfirmForm();
+  initResetVerifyFlow();
   initVerifyFlow();
   initGoogleOAuth();
   initGithubOAuth();

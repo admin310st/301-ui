@@ -1,117 +1,120 @@
-import type { VerifyResetResponse } from '@api/types';
-import { t } from '@i18n';
+// src/forms/reset-verify.ts
+//
+// Обработка ссылок вида /auth/verify?type=reset&token=XXX
+// без самостоятельной верстки форм. Всё, что мы делаем:
+//  - забираем token из URL;
+//  - шлём POST /auth/verify на api.301.st;
+//  - сохраняем csrf_token в reset-session;
+//  - переключаем экраны: с "verify" -> "reset-confirm".
+
+import { qs, toggle } from '@ui/dom';
+import { apiFetch } from '@api/auth';
 import { setResetCsrfToken } from '@state/reset-session';
-import { showGlobalNotice } from '@ui/globalNotice';
-import { logDebug } from '@utils/logger';
+import { showNotice } from '@ui/notifications';
 
-const API_ROOT = 'https://api.301.st/auth';
-const INVALID_LINK_MESSAGE = () => t('auth.resetVerify.invalidLink');
+type VerifyResponse = {
+  ok: boolean;
+  type: string;
+  csrf_token?: string;
+  message?: string;
+};
 
-function setVerifyStatus(
-  state: 'pending' | 'error' | 'success',
-  message: string,
-): void {
-  const status = document.querySelector<HTMLElement>('[data-verify-status]');
-  if (!status) return;
-  status.dataset.type = state;
-  status.textContent = message;
-  status.hidden = false;
+type AuthViewName = 'login' | 'register' | 'reset' | 'verify' | 'reset-confirm';
+
+function getAuthView(name: AuthViewName): HTMLElement | null {
+  return qs<HTMLElement>(`[data-auth-view="${name}"]`);
 }
 
-interface ResetVerifyParams {
-  type: string | null;
-  token: string | null;
-  url: URL;
+function switchAuthView(active: AuthViewName): void {
+  const all = document.querySelectorAll<HTMLElement>('[data-auth-view]');
+  all.forEach((el) => {
+    const isActive = el.dataset.authView === active;
+    toggle(el, isActive);
+  });
 }
 
-function parseSearchParams(): ResetVerifyParams {
+function extractResetToken(): { token: string | null; isResetRoute: boolean } {
   const url = new URL(window.location.href);
-  const token = url.searchParams.get('token');
   const type = url.searchParams.get('type');
-  return { token, type, url };
-}
+  const isResetRoute = type === 'reset';
 
-function sanitizeUrl(url: URL, hash?: string): void {
-  const clean = new URL(url.toString());
-  clean.search = '';
-  if (hash) clean.hash = `#${hash.replace('#', '')}`;
-  window.history.replaceState({}, document.title, clean.toString());
-}
+  if (!isResetRoute) return { token: null, isResetRoute };
 
-function showResetStep(step: 'request' | 'confirm'): void {
-  const shouldShowRequest = step === 'request';
+  const token = url.searchParams.get('token')?.trim() || null;
 
-  document
-    .querySelectorAll<HTMLElement>('[data-reset-step="request"]')
-    .forEach((el) => {
-      el.hidden = !shouldShowRequest;
-      el.setAttribute('aria-hidden', shouldShowRequest ? 'false' : 'true');
-    });
-
-  document
-    .querySelectorAll<HTMLElement>('[data-reset-step="confirm"]')
-    .forEach((el) => {
-      el.hidden = shouldShowRequest;
-      el.setAttribute('aria-hidden', shouldShowRequest ? 'true' : 'false');
-    });
-}
-
-async function fetchResetVerification(type: string, token: string): Promise<VerifyResetResponse> {
-  const apiUrl = new URL('/verify', API_ROOT);
-  apiUrl.searchParams.set('type', type);
-  apiUrl.searchParams.set('token', token);
-
-  const res = await fetch(apiUrl.toString(), { method: 'GET', credentials: 'include' });
-  if (!res.ok) {
-    throw new Error('verification_failed');
+  // Убираем токен из адресной строки, чтобы не светить его в history
+  if (token) {
+    try {
+      url.searchParams.delete('token');
+      const clean = url.search ? `${url.pathname}${url.search}` : url.pathname;
+      window.history.replaceState(null, '', clean);
+    } catch {
+      // no-op
+    }
   }
 
-  return (await res.json()) as VerifyResetResponse;
+  return { token, isResetRoute };
 }
 
-function handleResetError(message: string, url: URL): void {
-  setResetCsrfToken(null);
-  showGlobalNotice('error', message);
-  setVerifyStatus('error', message);
-  sanitizeUrl(url, 'reset');
-  window.location.hash = '#reset';
-  showResetStep('request');
-}
+async function handleResetVerify(token: string): Promise<void> {
+  // Показываем "Verifying…" (секция data-auth-view="verify")
+  const verifyView = getAuthView('verify');
+  const resetConfirmView = getAuthView('reset-confirm');
 
-export function initResetVerifyFlow(): void {
-  const params = parseSearchParams();
+  if (verifyView || resetConfirmView) {
+    // если секции размечены, включаем экран верификации
+    if (verifyView) switchAuthView('verify');
+  }
 
-  if (params.url.pathname !== '/auth/verify' && params.url.pathname !== '/auth/verify/') return;
-  if (params.type !== 'reset') return;
+  let data: VerifyResponse | null = null;
 
-  sanitizeUrl(params.url);
-  window.location.hash = '#verify';
-
-  if (!params.token) {
-    const invalidMessage = INVALID_LINK_MESSAGE();
-    handleResetError(invalidMessage, params.url);
+  try {
+    data = await apiFetch<VerifyResponse>('/verify', {
+      method: 'POST',
+      body: JSON.stringify({ token }),
+      credentials: 'include',
+    });
+  } catch (err) {
+    console.error('[ResetVerify] /auth/verify failed', err);
+    showNotice('error', 'Reset link validation failed. Please request a new link.');
+    switchAuthView('reset');
     return;
   }
 
-  setVerifyStatus('pending', t('auth.resetVerify.pending'));
+  if (!data || !data.ok || data.type !== 'reset' || !data.csrf_token) {
+    const msg =
+      data?.message === 'expired_token'
+        ? 'The reset link has expired. Please request a new one.'
+        : 'Reset link is invalid. Please start password recovery again.';
+    showNotice('error', msg);
+    switchAuthView('reset');
+    return;
+  }
 
-  void fetchResetVerification(params.type, params.token)
-    .then((res) => {
-      if (res.ok && res.type === 'reset' && res.csrf_token) {
-        const message = res.message || t('notice.success.resetDone');
-        setResetCsrfToken(res.csrf_token);
-        showGlobalNotice('success', message);
-        setVerifyStatus('success', t('auth.resetVerify.proceed'));
-        sanitizeUrl(params.url, 'reset');
-        window.location.hash = '#reset';
-        showResetStep('confirm');
-        return;
-      }
+  // Всё хорошо: есть CSRF + reset_session cookie
+  setResetCsrfToken(data.csrf_token);
 
-      handleResetError(INVALID_LINK_MESSAGE(), params.url);
-    })
-    .catch((error) => {
-      logDebug('Reset verification failed', error as Error);
-      handleResetError(INVALID_LINK_MESSAGE(), params.url);
-    });
+  // Переключаемся на форму нового пароля
+  if (resetConfirmView) {
+    switchAuthView('reset-confirm');
+  } else {
+    // На всякий случай — если секция не размечена, хотя бы останемся на reset
+    switchAuthView('reset');
+  }
+}
+
+export function initResetVerifyFlow(): void {
+  // Работает только на /auth/verify
+  if (!window.location.pathname.startsWith('/auth/verify')) return;
+
+  const { token, isResetRoute } = extractResetToken();
+  if (!isResetRoute) return;
+
+  if (!token) {
+    showNotice('error', 'Reset link is invalid. Please start password recovery again.');
+    switchAuthView('reset');
+    return;
+  }
+
+  void handleResetVerify(token);
 }
