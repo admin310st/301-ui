@@ -17,6 +17,7 @@ import { applyTranslations, initLangSwitcher } from '@i18n/dom';
 import { t } from '@i18n';
 import { initTheme, initThemeToggle } from '@ui/theme';
 import { applyRouteFromHash, initAuthRouting, initAuthTabs } from '@ui/auth-routing';
+import { initPasswordToggles } from '@ui/password-toggle';
 
 function bindLogoutButtons(): void {
   document.querySelectorAll<HTMLElement>('[data-action="logout"]').forEach((btn) => {
@@ -55,4 +56,5 @@ document.addEventListener('DOMContentLoaded', async () => {
   initAuthTabs();
   bindLogoutButtons();
   initThemeToggle();
+  initPasswordToggles();
 });
