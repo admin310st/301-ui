@@ -8,16 +8,16 @@
 //  - переключаем экраны: с "verify" -> "reset-confirm".
 
 import { apiFetch } from '@api/auth';
+import type { CommonErrorResponse, VerifyResetResponse } from '@api/types';
 import { setResetCsrfToken } from '@state/reset-session';
 import { showAuthView } from '@ui/auth-routing';
 import { qs } from '@ui/dom';
 import { showNotice } from '@ui/notifications';
+import type { ApiError } from '@utils/errors';
 
-type VerifyResponse = {
-  ok: boolean;
-  type: string;
-  csrf_token?: string;
-  message?: string;
+type VerifyResponse = VerifyResetResponse & {
+  ok?: boolean;
+  type?: string;
 };
 
 type AuthViewName = 'login' | 'register' | 'reset' | 'verify' | 'reset-confirm';
@@ -28,6 +28,20 @@ function getAuthView(name: AuthViewName): HTMLElement | null {
 
 function extractResetToken(url: URL): string | null {
   return url.searchParams.get('token')?.trim() || null;
+}
+
+function mapVerifyError(code?: string | null): string {
+  switch (code) {
+    case 'invalid_token':
+      return 'Reset link is invalid. Please start password recovery again.';
+    case 'expired_token':
+      return 'Reset link has expired. Please request a new one.';
+    case 'reset_session_required':
+    case 'reset_session_expired':
+      return 'Reset session has expired. Please restart the reset flow.';
+    default:
+      return 'Unable to validate reset link, please try again later.';
+  }
 }
 
 async function handleResetVerify(url: URL, token: string): Promise<void> {
@@ -49,18 +63,19 @@ async function handleResetVerify(url: URL, token: string): Promise<void> {
     });
   } catch (err) {
     console.error('[ResetVerify] /auth/verify failed', err);
-    showNotice('error', 'Unable to validate reset link, please try again later.');
+    const apiError = err as ApiError<CommonErrorResponse>;
+    const errorCode = apiError?.body?.code || apiError?.body?.error;
+    showNotice('error', mapVerifyError(errorCode));
+    setResetCsrfToken(null);
     window.location.hash = '#reset';
     showAuthView('reset');
     return;
   }
 
   if (!data || !data.ok || data.type !== 'reset' || !data.csrf_token) {
-    const msg =
-      data?.message === 'expired_token'
-        ? 'Reset link has expired. Please request a new one.'
-        : 'Reset link is invalid. Please start password recovery again.';
-    showNotice('error', msg);
+    const errorCode = data?.error || data?.message || null;
+    showNotice('error', mapVerifyError(errorCode));
+    setResetCsrfToken(null);
     window.location.hash = '#reset';
     showAuthView('reset');
     return;

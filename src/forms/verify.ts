@@ -24,28 +24,47 @@ function setVerifyStatus(state: 'pending' | 'error' | 'success', message: string
   status.hidden = false;
 }
 
-function isResetVerification(): boolean {
+type VerifyUrlParams = {
+  token: string | null;
+  type: string | null;
+  code: string | null;
+};
+
+function parseSearchParams(): VerifyUrlParams {
   const params = new URLSearchParams(window.location.search);
-  const typeParam = params.get('type');
-  return typeParam === 'reset';
+
+  return {
+    token: params.get('token') || null,
+    type: params.get('type'),
+    code: params.get('code') || null,
+  };
 }
 
-function parseSearchParams(): VerifyRequest | null {
-  const params = new URLSearchParams(window.location.search);
-  const token = params.get('token') || '';
-  const typeParam = params.get('type');
+function buildVerifyPayload(params: VerifyUrlParams): VerifyRequest | null {
+  if (!params.token) return null;
 
-  const type = typeParam === 'register' ? typeParam : null;
+  const payload: VerifyRequest = { token: params.token };
+  if (params.code) payload.code = params.code;
 
-  if (!token || !type) return null;
-
-  return { type, token };
+  return payload;
 }
 
-async function handleVerification(): Promise<void> {
-  if (isResetVerification()) return;
+function shouldHandleVerification(params: VerifyUrlParams): boolean {
+  const hash = window.location.hash.replace('#', '');
 
-  const payload = parseSearchParams();
+  if (params.type === 'reset') return false;
+
+  if (params.type === 'register' && params.token) return true;
+
+  if (hash === 'verify') return true;
+
+  return Boolean(params.token);
+}
+
+async function handleVerification(params: VerifyUrlParams): Promise<void> {
+  if (!shouldHandleVerification(params)) return;
+
+  const payload = buildVerifyPayload(params);
 
   if (!payload) {
     setVerifyStatus('error', t('auth.verify.missingParams'));
@@ -71,16 +90,23 @@ async function handleVerification(): Promise<void> {
 
 export function initVerifyFlow(): void {
   const runIfVerifyRoute = (): void => {
+    const params = parseSearchParams();
     const { pathname, hash } = window.location;
     const isVerifyPath = pathname.startsWith('/auth/verify');
     const isVerifyHash = hash.replace('#', '') === 'verify';
 
     if (isVerifyPath || isVerifyHash) {
-      void handleVerification();
+      void handleVerification(params);
     }
   };
 
-  if (parseSearchParams() && window.location.hash.replace('#', '') !== 'verify') {
+  const params = parseSearchParams();
+
+  if (
+    params.type === 'register' &&
+    params.token &&
+    window.location.hash.replace('#', '') !== 'verify'
+  ) {
     window.location.hash = '#verify';
   }
 
