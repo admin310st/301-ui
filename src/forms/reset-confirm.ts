@@ -10,17 +10,23 @@ import { validatePasswordStrength } from '@utils/password';
 function extractError(error: unknown): string {
   const apiError = error as ApiError<CommonErrorResponse>;
   return (
-    apiError?.body?.code || apiError?.body?.error || apiError?.body?.message || apiError?.message || t('auth.resetConfirm.errors.fallback')
+    apiError?.body?.code ||
+    apiError?.body?.error ||
+    apiError?.body?.message ||
+    apiError?.message ||
+    t('auth.resetConfirm.errors.fallback')
   );
 }
 
 function mapErrorMessage(code: string): string {
   switch (code) {
     case 'reset_session_required':
+    case 'reset_session_missing':
       return t('auth.resetConfirm.errors.sessionRequired');
     case 'reset_session_expired':
       return t('auth.resetConfirm.errors.sessionExpired');
     case 'csrf_token_invalid':
+    case 'csrf_invalid':
       return t('auth.resetConfirm.errors.csrfInvalid');
     case 'password_reused':
       return t('auth.resetConfirm.errors.passwordReused');
@@ -40,7 +46,10 @@ async function handleResetConfirm(event: SubmitEvent): Promise<void> {
   const csrfToken = getResetCsrfToken();
 
   if (!csrfToken) {
-    setFormState(form, 'error', t('auth.resetConfirm.errors.expiredLink'));
+    const message = t('auth.resetConfirm.errors.sessionExpired');
+    setFormState(form, 'error', message);
+    showGlobalMessage('error', message);
+    window.location.hash = '#reset';
     return;
   }
 
@@ -66,16 +75,24 @@ async function handleResetConfirm(event: SubmitEvent): Promise<void> {
     const message = res.message || t('auth.resetConfirm.statusSuccess');
     setFormState(form, 'success', message);
     showGlobalMessage('success', message);
-    window.location.hash = '#login';
+    setTimeout(() => {
+      window.location.hash = '#login';
+    }, 1200);
   } catch (error) {
     const code = extractError(error);
-    setFormState(form, 'error', mapErrorMessage(code));
+    const message = mapErrorMessage(code);
+    setFormState(form, 'error', message);
+
     if (
       code === 'reset_session_required' ||
+      code === 'reset_session_missing' ||
       code === 'reset_session_expired' ||
-      code === 'csrf_token_invalid'
+      code === 'csrf_token_invalid' ||
+      code === 'csrf_invalid'
     ) {
       setResetCsrfToken(null);
+      showGlobalMessage('error', message);
+      window.location.hash = '#reset';
     }
   }
 }
