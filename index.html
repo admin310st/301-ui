@@ -44,14 +44,12 @@
             Log out
           </button>
         </div>
-        <button
-          type="button"
-          class="btn btn-secondary btn-sm"
-          data-theme-toggle
-          aria-label="Toggle theme"
-        >
-          <span data-theme-icon="dark" aria-hidden="true">🌙</span>
-          <span data-theme-icon="light" aria-hidden="true" hidden>☀️</span>
+        <button type="button" class="btn btn-secondary btn-sm theme-toggle" data-theme-toggle>
+          <svg class="icon" aria-hidden="true">
+            <use href="#i-mono-theme-light-dark"></use>
+          </svg>
+          <span class="sr-only" data-theme-icon="dark">Switch to light theme</span>
+          <span class="sr-only" data-theme-icon="light" hidden>Switch to dark theme</span>
         </button>
         <nav
           class="btn-chip-group lang-switcher"
@@ -149,7 +147,9 @@
                           data-password-toggle
                           aria-label="Show password"
                         >
-                          <img src="/static/img/icons/eye-circle.svg" alt="" aria-hidden="true" />
+                          <svg class="icon" aria-hidden="true">
+                            <use href="#i-mono-eye"></use>
+                          </svg>
                         </button>
                       </div>
                     </div>
@@ -188,6 +188,32 @@
                         >Forgot password?</a
                       >
                     </div>
+
+                    <div class="auth-social" aria-label="Social sign-in options">
+                      <div class="auth-social__buttons">
+                        <button
+                          type="button"
+                          class="auth-social-btn auth-social-btn--google"
+                          data-social="google"
+                        >
+                          <svg class="icon" aria-hidden="true">
+                            <use href="#i-brand-google"></use>
+                          </svg>
+                          <span>Continue with Google</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          class="auth-social-btn auth-social-btn--github"
+                          data-social="github"
+                        >
+                          <svg class="icon" aria-hidden="true">
+                            <use href="#i-brand-github"></use>
+                          </svg>
+                          <span>Continue with GitHub</span>
+                        </button>
+                      </div>
+                    </div>
                   </form>
                 </section>
 
@@ -215,9 +241,11 @@
                           data-password-toggle
                           aria-label="Show password"
                         >
-                          <img src="/static/img/icons/eye-circle.svg" alt="" aria-hidden="true" />
+                          <svg class="icon" aria-hidden="true">
+                            <use href="#i-mono-eye"></use>
+                          </svg>
                         </button>
-                      </div>
+                    </div>
                     </div>
 
                     <div
@@ -286,17 +314,17 @@
                         >
                           Request reset link
                         </button>
-                        <a
-                          href="#login"
-                          class="btn btn-secondary"
-                          data-auth-switch="login"
-                          data-route-link="login"
-                          data-i18n="auth.reset.linkToLogin"
-                          >Back to login</a
-                        >
-                      </div>
-                    </form>
-                  </div>
+                      <a
+                        href="#login"
+                        class="btn btn-secondary"
+                        data-auth-switch="login"
+                        data-route-link="login"
+                        data-i18n="auth.reset.linkToLogin"
+                        >Back to login</a
+                      >
+                    </div>
+                  </form>
+                </div>
 
                   <div data-reset-mode="confirm" hidden>
                     <header class="auth-section__header">
@@ -339,7 +367,9 @@
                             data-password-toggle
                             aria-label="Show password"
                           >
-                            <img src="/static/img/icons/eye-circle.svg" alt="" aria-hidden="true" />
+                            <svg class="icon" aria-hidden="true">
+                              <use href="#i-mono-eye"></use>
+                            </svg>
                           </button>
                         </div>
                       </div>
@@ -364,7 +394,9 @@
                             data-password-toggle
                             aria-label="Show password"
                           >
-                            <img src="/static/img/icons/eye-circle.svg" alt="" aria-hidden="true" />
+                            <svg class="icon" aria-hidden="true">
+                              <use href="#i-mono-eye"></use>
+                            </svg>
                           </button>
                         </div>
                       </div>
