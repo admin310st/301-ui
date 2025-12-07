@@ -94,7 +94,8 @@ export const ru: Translation = {
     },
     resetConfirm: {
       eyebrow: 'Новый пароль',
-      title: 'Установить пароль',
+      title: 'Установите новый пароль',
+      subtitle: 'Выберите новый пароль для доступа к 301.st',
       passwordLabel: 'Новый пароль',
       confirmLabel: 'Повторите пароль',
       submit: 'Обновить пароль',

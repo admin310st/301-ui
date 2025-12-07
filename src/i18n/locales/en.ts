@@ -92,7 +92,8 @@ export const en = {
     },
     resetConfirm: {
       eyebrow: 'New password',
-      title: 'Set a password',
+      title: 'Set a new password',
+      subtitle: 'Choose a new password for your 301.st account.',
       passwordLabel: 'New password',
       confirmLabel: 'Confirm password',
       submit: 'Update password',

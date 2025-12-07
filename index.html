@@ -280,48 +280,74 @@
 
                   <div data-reset-mode="confirm" hidden>
                     <header class="auth-section__header">
-                      <p class="auth-eyebrow">New password</p>
-                      <h2 class="auth-title">Set a new password</h2>
-                      <p class="auth-subtitle">
+                      <h2 class="auth-title" data-i18n="auth.resetConfirm.title">Set a new password</h2>
+                      <p class="auth-subtitle" data-i18n="auth.resetConfirm.subtitle">
                         Choose a new password for your 301.st account.
                       </p>
                     </header>
 
                     <form data-form="reset-confirm" class="auth-form">
                       <div
-                        class="form-status"
-                        data-status
+                        class="auth-status"
+                        data-type="pending"
+                        data-form-status="reset-confirm"
+                        id="reset-confirm-status"
+                        data-i18n="auth.resetConfirm.statusDefault"
                         role="status"
                         aria-live="polite"
-                      ></div>
+                      >
+                        Make sure passwords match and are strong enough.
+                      </div>
 
-                      <label class="form-field">
-                        <span class="form-label">New password</span>
+                      <div class="field">
+                        <label class="field-label" for="reset-password" data-i18n="auth.resetConfirm.passwordLabel"
+                          >New password</label
+                        >
                         <input
+                          class="input"
+                          id="reset-password"
                           name="password"
                           type="password"
                           autocomplete="new-password"
                           required
+                          aria-describedby="reset-confirm-status"
                         />
-                      </label>
+                      </div>
 
-                      <label class="form-field">
-                        <span class="form-label">Repeat password</span>
+                      <div class="field">
+                        <label class="field-label" for="reset-password-confirm" data-i18n="auth.resetConfirm.confirmLabel"
+                          >Repeat password</label
+                        >
                         <input
+                          class="input"
+                          id="reset-password-confirm"
                           name="password_confirm"
                           type="password"
                           autocomplete="new-password"
                           required
+                          aria-describedby="reset-confirm-status"
                         />
-                      </label>
+                      </div>
 
-                      <button type="submit" class="btn btn-primary">
-                        Update password
-                      </button>
-
-                      <p class="form-footer">
-                        <a href="#login" data-auth-link="login">Back to login</a>
-                      </p>
+                      <div class="auth-actions">
+                        <button
+                          type="submit"
+                          class="btn btn-primary"
+                          data-i18n="auth.resetConfirm.submit"
+                          data-i18n-aria="auth.resetConfirm.submitAria"
+                          aria-label="Update password and continue"
+                        >
+                          Update password
+                        </button>
+                        <a
+                          href="#login"
+                          class="btn btn-secondary"
+                          data-auth-link="login"
+                          data-i18n="auth.links.toLogin"
+                        >
+                          Back to login
+                        </a>
+                      </div>
                     </form>
                   </div>
                 </section>
