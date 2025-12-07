@@ -116,7 +116,7 @@
 
               <div data-auth-views>
                 <section class="auth-view" data-auth-view="login" aria-hidden="false">
-                  <form id="auth-login-form" data-form="login">
+                  <form id="auth-login-form" data-form="login" class="auth-form">
                     <div class="field">
                       <label class="field-label" for="signin-email" data-i18n="auth.login.emailLabel">Email</label>
                       <input
@@ -133,15 +133,25 @@
 
                     <div class="field">
                       <label class="field-label" for="signin-password" data-i18n="auth.login.passwordLabel">Password</label>
-                      <input
-                        class="input"
-                        id="signin-password"
-                        name="password"
-                        type="password"
-                        autocomplete="current-password"
-                        required
-                        aria-describedby="login-status"
-                      />
+                      <div class="password-field" data-password-field>
+                        <input
+                          class="input"
+                          id="signin-password"
+                          name="password"
+                          type="password"
+                          autocomplete="current-password"
+                          required
+                          aria-describedby="login-status"
+                        />
+                        <button
+                          type="button"
+                          class="password-toggle"
+                          data-password-toggle
+                          aria-label="Show password"
+                        >
+                          <img src="/static/img/icons/eye-circle.svg" alt="" aria-hidden="true" />
+                        </button>
+                      </div>
                     </div>
 
                     <div class="auth-status" id="login-status" data-type="pending" data-form-status="login" data-i18n="auth.login.statusDefault">
@@ -182,22 +192,32 @@
                 </section>
 
                 <section class="auth-view" data-auth-view="register" hidden aria-hidden="true">
-                  <form data-form="register">
+                  <form data-form="register" class="auth-form">
                     <div class="field">
                       <label class="field-label" for="register-email" data-i18n="auth.login.emailLabel">Email</label>
                       <input class="input" id="register-email" name="email" type="email" autocomplete="email" required aria-describedby="register-status" />
                     </div>
                     <div class="field">
                       <label class="field-label" for="register-password" data-i18n="auth.login.passwordLabel">Password</label>
-                      <input
-                        class="input"
-                        id="register-password"
-                        name="password"
-                        type="password"
-                        autocomplete="new-password"
-                        required
-                        aria-describedby="register-status"
-                      />
+                      <div class="password-field" data-password-field>
+                        <input
+                          class="input"
+                          id="register-password"
+                          name="password"
+                          type="password"
+                          autocomplete="new-password"
+                          required
+                          aria-describedby="register-status"
+                        />
+                        <button
+                          type="button"
+                          class="password-toggle"
+                          data-password-toggle
+                          aria-label="Show password"
+                        >
+                          <img src="/static/img/icons/eye-circle.svg" alt="" aria-hidden="true" />
+                        </button>
+                      </div>
                     </div>
 
                     <div
@@ -230,7 +250,7 @@
 
                 <section class="auth-view" data-auth-view="reset" hidden aria-hidden="true">
                   <div data-reset-mode="request">
-                    <form data-form="reset-request">
+                    <form data-form="reset-request" class="auth-form">
                       <div class="field">
                         <label class="field-label" for="reset-email" data-i18n="auth.login.emailLabel">Email</label>
                         <input
@@ -303,30 +323,50 @@
                         <label class="field-label" for="reset-password" data-i18n="auth.resetConfirm.passwordLabel"
                           >New password</label
                         >
-                        <input
-                          class="input"
-                          id="reset-password"
-                          name="password"
-                          type="password"
-                          autocomplete="new-password"
-                          required
-                          aria-describedby="reset-confirm-status"
-                        />
+                        <div class="password-field" data-password-field>
+                          <input
+                            class="input"
+                            id="reset-password"
+                            name="password"
+                            type="password"
+                            autocomplete="new-password"
+                            required
+                            aria-describedby="reset-confirm-status"
+                          />
+                          <button
+                            type="button"
+                            class="password-toggle"
+                            data-password-toggle
+                            aria-label="Show password"
+                          >
+                            <img src="/static/img/icons/eye-circle.svg" alt="" aria-hidden="true" />
+                          </button>
+                        </div>
                       </div>
 
                       <div class="field">
                         <label class="field-label" for="reset-password-confirm" data-i18n="auth.resetConfirm.confirmLabel"
                           >Repeat password</label
                         >
-                        <input
-                          class="input"
-                          id="reset-password-confirm"
-                          name="password_confirm"
-                          type="password"
-                          autocomplete="new-password"
-                          required
-                          aria-describedby="reset-confirm-status"
-                        />
+                        <div class="password-field" data-password-field>
+                          <input
+                            class="input"
+                            id="reset-password-confirm"
+                            name="password_confirm"
+                            type="password"
+                            autocomplete="new-password"
+                            required
+                            aria-describedby="reset-confirm-status"
+                          />
+                          <button
+                            type="button"
+                            class="password-toggle"
+                            data-password-toggle
+                            aria-label="Show password"
+                          >
+                            <img src="/static/img/icons/eye-circle.svg" alt="" aria-hidden="true" />
+                          </button>
+                        </div>
                       </div>
 
                       <div class="auth-actions">
