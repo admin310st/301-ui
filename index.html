@@ -229,94 +229,101 @@
                 </section>
 
                 <section class="auth-view" data-auth-view="reset" hidden aria-hidden="true">
-                  <form data-form="reset-request">
-                    <div class="field">
-                      <label class="field-label" for="reset-email" data-i18n="auth.login.emailLabel">Email</label>
-                      <input
-                        class="input"
-                        id="reset-email"
-                        name="value"
-                        type="email"
-                        autocomplete="email"
-                        required
-                        aria-describedby="reset-status"
-                      />
-                    </div>
+                  <div data-reset-mode="request">
+                    <form data-form="reset-request">
+                      <div class="field">
+                        <label class="field-label" for="reset-email" data-i18n="auth.login.emailLabel">Email</label>
+                        <input
+                          class="input"
+                          id="reset-email"
+                          name="value"
+                          type="email"
+                          autocomplete="email"
+                          required
+                          aria-describedby="reset-status"
+                        />
+                      </div>
 
-                    <input type="hidden" name="type" value="email" />
+                      <input type="hidden" name="type" value="email" />
 
-                    <div
-                      class="auth-status"
-                      data-type="pending"
-                      data-form-status="reset-request"
-                      id="reset-status"
-                      data-i18n="auth.reset.statusDefault"
-                    >
-                      We’ll send you a link to set a new password.
-                    </div>
-
-                    <div class="auth-actions">
-                      <button
-                        type="submit"
-                        class="btn btn-primary"
-                        data-i18n="auth.reset.requestButton"
-                        data-i18n-aria="auth.reset.requestAria"
-                        aria-label="Request password reset link"
+                      <div
+                        class="auth-status"
+                        data-type="pending"
+                        data-form-status="reset-request"
+                        id="reset-status"
+                        data-i18n="auth.reset.statusDefault"
                       >
-                        Request reset link
+                        We’ll send you a link to set a new password.
+                      </div>
+
+                      <div class="auth-actions">
+                        <button
+                          type="submit"
+                          class="btn btn-primary"
+                          data-i18n="auth.reset.requestButton"
+                          data-i18n-aria="auth.reset.requestAria"
+                          aria-label="Request password reset link"
+                        >
+                          Request reset link
+                        </button>
+                        <a
+                          href="#login"
+                          class="btn btn-secondary"
+                          data-auth-switch="login"
+                          data-route-link="login"
+                          data-i18n="auth.reset.linkToLogin"
+                          >Back to login</a
+                        >
+                      </div>
+                    </form>
+                  </div>
+
+                  <div data-reset-mode="confirm" hidden>
+                    <header class="auth-section__header">
+                      <p class="auth-eyebrow">New password</p>
+                      <h2 class="auth-title">Set a new password</h2>
+                      <p class="auth-subtitle">
+                        Choose a new password for your 301.st account.
+                      </p>
+                    </header>
+
+                    <form data-form="reset-confirm" class="auth-form">
+                      <div
+                        class="form-status"
+                        data-status
+                        role="status"
+                        aria-live="polite"
+                      ></div>
+
+                      <label class="form-field">
+                        <span class="form-label">New password</span>
+                        <input
+                          name="password"
+                          type="password"
+                          autocomplete="new-password"
+                          required
+                        />
+                      </label>
+
+                      <label class="form-field">
+                        <span class="form-label">Repeat password</span>
+                        <input
+                          name="password_confirm"
+                          type="password"
+                          autocomplete="new-password"
+                          required
+                        />
+                      </label>
+
+                      <button type="submit" class="btn btn-primary">
+                        Update password
                       </button>
-                      <a href="#login" class="btn btn-secondary" data-auth-switch="login" data-route-link="login" data-i18n="auth.reset.linkToLogin"
-                        >Back to login</a
-                      >
-                    </div>
-                  </form>
-                </section>
 
-                <section class="auth-view" data-auth-view="reset-confirm" hidden aria-hidden="true">
-                  <header class="auth-section__header">
-                    <p class="auth-eyebrow">New password</p>
-                    <h2 class="auth-title">Set a new password</h2>
-                    <p class="auth-subtitle">
-                      Choose a new password for your 301.st account.
-                    </p>
-                  </header>
-
-                  <form data-form="reset-confirm" class="auth-form">
-                    <div
-                      class="form-status"
-                      data-status
-                      role="status"
-                      aria-live="polite"
-                    ></div>
-
-                    <label class="form-field">
-                      <span class="form-label">New password</span>
-                      <input
-                        name="password"
-                        type="password"
-                        autocomplete="new-password"
-                        required
-                      />
-                    </label>
-
-                    <label class="form-field">
-                      <span class="form-label">Repeat password</span>
-                      <input
-                        name="password_confirm"
-                        type="password"
-                        autocomplete="new-password"
-                        required
-                      />
-                    </label>
-
-                    <button type="submit" class="btn btn-primary">
-                      Update password
-                    </button>
-
-                    <p class="form-footer">
-                      <a href="#login" data-auth-link="login">Back to login</a>
-                    </p>
-                  </form>
+                      <p class="form-footer">
+                        <a href="#login" data-auth-link="login">Back to login</a>
+                      </p>
+                    </form>
+                  </div>
                 </section>
 
                 <section class="auth-view" data-auth-view="verify" hidden aria-hidden="true">

@@ -5,13 +5,12 @@
 //  - забираем token из URL;
 //  - шлём POST /auth/verify на api.301.st;
 //  - сохраняем csrf_token в reset-session;
-//  - переключаем экраны: с "verify" -> "reset-confirm".
+//  - переключаем экраны внутри вкладки reset.
 
 import { apiFetch } from '@api/auth';
 import type { CommonErrorResponse, VerifyResetResponse } from '@api/types';
 import { setResetCsrfToken } from '@state/reset-session';
-import { showAuthView } from '@ui/auth-routing';
-import { qs } from '@ui/dom';
+import { setResetMode, showAuthView } from '@ui/auth-routing';
 import { showNotice } from '@ui/notifications';
 import type { ApiError } from '@utils/errors';
 
@@ -19,12 +18,6 @@ type VerifyResponse = VerifyResetResponse & {
   ok?: boolean;
   type?: string;
 };
-
-type AuthViewName = 'login' | 'register' | 'reset' | 'verify' | 'reset-confirm';
-
-function getAuthView(name: AuthViewName): HTMLElement | null {
-  return qs<HTMLElement>(`[data-auth-view="${name}"]`);
-}
 
 function extractResetToken(url: URL): string | null {
   return url.searchParams.get('token')?.trim() || null;
@@ -45,13 +38,9 @@ function mapVerifyError(code?: string | null): string {
 }
 
 async function handleResetVerify(url: URL, token: string): Promise<void> {
-  const verifyView = getAuthView('verify');
-  const resetConfirmView = getAuthView('reset-confirm');
-
-  if (verifyView) {
-    showAuthView('verify');
-    window.location.hash = '#verify';
-  }
+  window.location.hash = '#reset';
+  showAuthView('reset');
+  setResetMode('confirm');
 
   let data: VerifyResponse | null = null;
 
@@ -69,6 +58,7 @@ async function handleResetVerify(url: URL, token: string): Promise<void> {
     setResetCsrfToken(null);
     window.location.hash = '#reset';
     showAuthView('reset');
+    setResetMode('request');
     return;
   }
 
@@ -78,6 +68,7 @@ async function handleResetVerify(url: URL, token: string): Promise<void> {
     setResetCsrfToken(null);
     window.location.hash = '#reset';
     showAuthView('reset');
+    setResetMode('request');
     return;
   }
 
@@ -85,16 +76,16 @@ async function handleResetVerify(url: URL, token: string): Promise<void> {
 
   try {
     url.searchParams.delete('token');
+    url.searchParams.delete('type');
     const search = url.searchParams.toString();
     const cleanUrl = search ? `${url.pathname}?${search}` : url.pathname;
-    history.replaceState(null, '', `${cleanUrl}#reset-confirm`);
+    history.replaceState(null, '', `${cleanUrl}#reset`);
   } catch {
     // ignore history errors
   }
 
-  if (resetConfirmView) {
-    showAuthView('reset-confirm');
-  }
+  showAuthView('reset');
+  setResetMode('confirm');
 }
 
 export function initResetVerifyFlow(): void {
@@ -109,6 +100,7 @@ export function initResetVerifyFlow(): void {
     showNotice('error', 'Reset link is invalid. Please start password recovery again.');
     window.location.hash = '#reset';
     showAuthView('reset');
+    setResetMode('request');
     return;
   }
 
