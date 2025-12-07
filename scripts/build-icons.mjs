@@ -5,9 +5,9 @@ import { optimize } from 'svgo';
 
 const ROOT = process.cwd();
 const SRC_ROOT = path.join(ROOT, 'static', 'img', 'icons-src');
-const OUT_SPRITE = path.join(ROOT, 'static', 'img', 'icons-sprite.svg');
-const OUT_MAP = path.join(ROOT, 'static', 'img', 'icons-map.json');
-const OUT_PREVIEW = path.join(ROOT, 'static', 'img', 'icons-preview.html');
+const OUT_SPRITE = path.join(ROOT, 'static', 'icons-sprite.svg');
+const OUT_MAP = path.join(ROOT, 'static', 'icons-map.json');
+const OUT_PREVIEW = path.join(ROOT, 'static', 'icons-preview.html');
 
 function walkDir(dir) {
   const entries = fs.readdirSync(dir, { withFileTypes: true });
