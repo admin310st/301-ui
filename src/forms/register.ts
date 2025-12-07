@@ -18,10 +18,18 @@ function mapErrorMessage(code: string): string {
   switch (code) {
     case 'invalid_login':
       return t('auth.register.errors.invalidLogin');
+    case 'email_required':
+      return t('auth.register.errors.emailRequired');
     case 'user_already_registered':
       return t('auth.register.errors.userAlreadyRegistered');
     case 'password_too_weak':
       return t('auth.register.errors.passwordTooWeak');
+    case 'password_too_short':
+      return t('auth.register.errors.passwordTooShort');
+    case 'password_too_common':
+      return t('auth.register.errors.passwordTooCommon');
+    case 'email_send_failed':
+      return t('auth.register.errors.emailSendFailed');
     case 'turnstile_failed':
       return t('auth.register.errors.turnstileFailed');
     case 'turnstile_required':

@@ -60,8 +60,12 @@ export const en = {
       statusSuccess: 'We sent a verification email to {{email}}. Follow the link to finish registration.',
       errors: {
         invalidLogin: 'Invalid login or password. Try again or request a reset.',
+        emailRequired: 'Email is required. Enter an email address to continue.',
         userAlreadyRegistered: 'This email is already registered. Try signing in or resetting password.',
         passwordTooWeak: 'Password is too weak. Use upper & lower case letters plus digits.',
+        passwordTooShort: 'Password is too short. Use at least 8 characters.',
+        passwordTooCommon: 'Password is too common. Please choose a more unique password.',
+        emailSendFailed: 'We could not send the verification email. Please try again.',
         turnstileFailed: 'Turnstile check failed. Refresh the widget and try again.',
         turnstileRequired: 'Turnstile is required. Complete the check and try again.',
         fallback: 'Registration failed',
