@@ -10,7 +10,11 @@ import type { ApiError } from '@utils/errors';
 function extractError(error: unknown): string {
   const apiError = error as ApiError<CommonErrorResponse>;
   return (
-    apiError?.body?.code || apiError?.body?.error || apiError?.body?.message || apiError?.message || t('auth.login.errors.fallback')
+    apiError?.body?.message ||
+    apiError?.body?.error ||
+    apiError?.body?.code ||
+    apiError?.message ||
+    t('auth.login.errors.fallback')
   );
 }
 

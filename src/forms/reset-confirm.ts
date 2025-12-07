@@ -10,9 +10,9 @@ import { validatePasswordStrength } from '@utils/password';
 function extractError(error: unknown): string {
   const apiError = error as ApiError<CommonErrorResponse>;
   return (
-    apiError?.body?.code ||
-    apiError?.body?.error ||
     apiError?.body?.message ||
+    apiError?.body?.error ||
+    apiError?.body?.code ||
     apiError?.message ||
     t('auth.resetConfirm.errors.fallback')
   );
