@@ -1,5 +1,7 @@
-const AUTH_VIEWS = ['login', 'register', 'reset', 'reset-confirm', 'verify'] as const;
+const AUTH_VIEWS = ['login', 'register', 'reset', 'verify'] as const;
 export type AuthView = (typeof AUTH_VIEWS)[number];
+
+export type ResetMode = 'request' | 'confirm';
 
 function getViewFromHash(hash: string): AuthView {
   const normalized = hash.replace('#', '') as AuthView;
@@ -19,6 +21,24 @@ export function showAuthView(view: AuthView): void {
     tab.toggleAttribute('aria-current', isActive);
     tab.setAttribute('aria-pressed', String(isActive));
   });
+}
+
+export function setResetMode(mode: ResetMode): void {
+  const root = document.querySelector<HTMLElement>('[data-auth-view="reset"]');
+  if (!root) return;
+
+  const request = root.querySelector<HTMLElement>('[data-reset-mode="request"]');
+  const confirm = root.querySelector<HTMLElement>('[data-reset-mode="confirm"]');
+
+  const isRequest = mode === 'request';
+
+  if (request) {
+    request.toggleAttribute('hidden', !isRequest);
+  }
+
+  if (confirm) {
+    confirm.toggleAttribute('hidden', isRequest);
+  }
 }
 
 function setRouteVisibility(targetRoute: string): void {
