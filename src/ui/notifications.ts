@@ -1,5 +1,6 @@
 import type { NoticeType } from './globalNotice';
 import { hideGlobalNotice, showGlobalNotice } from './globalNotice';
+export { showNotice } from './notice';
 
 export function showGlobalMessage(type: NoticeType, text: string): void {
   showGlobalNotice(type, text);

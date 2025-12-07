@@ -1,4 +1,5 @@
 import { apiFetch } from './client';
+export { apiFetch } from './client';
 import type {
   ConfirmPasswordRequest,
   ConfirmPasswordResponse,
