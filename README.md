@@ -2,18 +2,27 @@
 
 Modular frontend for 301.st authentication pages, built with Vite and deployed via Cloudflare Worker.
 
-This project implements **all auth flows described in the backend API docs** and keeps them aligned with the latest backend changes:
-
-- Login / Register (with Turnstile)
-- Email verification (Omni token)
-- Password reset (request + confirm)
-- OAuth (Google, GitHub)
-- Session refresh + `/auth/me` health check
-
-> 🔗 **Backend API spec:**  
+> 🔗 **Backend API spec:**
 > https://github.com/admin310st/301/wiki/API
 
-The goal of this repo is to keep the UI **strictly in sync** with that API spec.
+The current codebase covers the core login/register/reset flows with Turnstile, Omni-token verification for password reset, and OAuth start links. However, a recent audit against the [API wiki](https://github.com/admin310st/301/wiki/API) shows several gaps and contract drifts that need to be addressed.
+
+## Current implementation (code status)
+
+- **Email/password auth** with Turnstile for login and registration (`src/forms/login.ts`, `src/forms/register.ts`).
+- **Password reset** via email/TG identifier with Turnstile, including reset-session verification and CSRF handling (`src/forms/reset-request.ts`, `src/forms/reset-verify.ts`, `src/forms/reset-confirm.ts`).
+- **Register verification** handler wired to `/auth/verify` on hash `#verify` (`src/forms/verify.ts`).
+- **OAuth start links** for Google and GitHub (`src/social/google.ts`, `src/social/github.ts`).
+- **Session restore/refresh** via `/auth/refresh` and `/auth/me` (`src/state/auth-state.ts`).
+
+## Known divergences vs API wiki
+
+1. **Verify request shape** — API expects only `{ token, code? }` with type encoded inside the token, but UI sends `{ type: 'register', token }` and ignores reset verification in this path. This breaks OmniFlow parity, especially for phone/OTP variants. 【F:src/api/types.ts†L46-L55】【F:src/forms/verify.ts†L21-L48】【d519b4†L31-L64】
+2. **Login inputs** — API supports `email` **or** `phone` plus password and requires Turnstile; the UI form only accepts email/password and never passes phone. 【F:src/forms/login.ts†L39-L67】【9bcd75†L18-L39】
+3. **Response typing** — API returns `active_account_id`, `accounts`, and `expires_in` for `/auth/login` and `/auth/me`, but client types only model `access_token` and a minimal `user` object. Downstream UI ignores account selection entirely. 【F:src/api/types.ts†L12-L24】【F:src/api/types.ts†L66-L78】【e7e50e†L12-L35】
+4. **Register response** — API returns `{ status, mode, channel, token }` while the UI types still expect `access_token`/`user` and treat any message as final success. This can mislead the UI into thinking registration is complete before verification. 【F:src/api/types.ts†L25-L37】【03ba13†L35-L58】
+
+Use the bullets above as the starting backlog to bring the UI back in sync with the backend contract.
 
 ---
 
