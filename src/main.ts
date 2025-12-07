@@ -19,6 +19,34 @@ import { initTheme, initThemeToggle } from '@ui/theme';
 import { applyRouteFromHash, initAuthRouting, initAuthTabs } from '@ui/auth-routing';
 import { initPasswordToggles } from '@ui/password-toggle';
 
+/**
+ * Inject SVG sprite with icons once per page.
+ */
+async function injectIconSprite(): Promise<void> {
+  try {
+    const res = await fetch('/static/icons-sprite.svg', { cache: 'force-cache' });
+    if (!res.ok) return;
+
+    const svgText = await res.text();
+    const wrapper = document.createElement('div');
+
+    wrapper.style.position = 'absolute';
+    wrapper.style.width = '0';
+    wrapper.style.height = '0';
+    wrapper.style.overflow = 'hidden';
+
+    wrapper.innerHTML = svgText;
+    const sprite = wrapper.firstElementChild;
+
+    if (sprite) {
+      document.body.prepend(sprite);
+    }
+  } catch (err) {
+    // Silent fail, icons are optional for core auth logic
+    console.warn('[icons] Failed to inject sprite', err);
+  }
+}
+
 function bindLogoutButtons(): void {
   document.querySelectorAll<HTMLElement>('[data-action="logout"]').forEach((btn) => {
     if (btn.dataset.bound === 'true') return;
@@ -35,6 +63,8 @@ function bindLogoutButtons(): void {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+  await injectIconSprite();
+
   initTheme();
   applyTranslations();
   initLangSwitcher();
