@@ -50,6 +50,19 @@
         padding-bottom: var(--space-6);
       }
 
+      .guide-tools {
+        display: flex;
+        gap: var(--space-3);
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .guide-theme-toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2);
+      }
+
       .token-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -83,6 +96,43 @@
           Consolas, "Liberation Mono", "Courier New", monospace;
         font-size: var(--fs-sm);
         color: var(--text-muted);
+      }
+
+      .space-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: var(--space-4);
+      }
+
+      .space-swatch {
+        padding: var(--space-3);
+        background: var(--bg-soft);
+        border-radius: var(--r);
+        border: 1px solid var(--border-subtle);
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-2);
+      }
+
+      .space-bar {
+        width: 100%;
+        height: 14px;
+        border-radius: 999px;
+        background: var(--primary-soft);
+        border: 1px dashed color-mix(in srgb, var(--primary) 50%, transparent);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .space-bar::after {
+        content: '';
+        position: absolute;
+        inset: 4px auto 4px 8px;
+        width: calc(var(--space-size) * 8);
+        max-width: calc(100% - 12px);
+        background: var(--primary);
+        border-radius: 999px;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16);
       }
 
       .section-header {
@@ -149,10 +199,18 @@
             Single source of truth for UI tokens & components used in 301.st app frontend. Codex and developers should pull
             colors, typography, layout helpers and component classes from here instead of raw values.
           </p>
+          <div class="guide-tools">
+            <button type="button" class="btn btn-secondary btn-sm guide-theme-toggle" data-theme-toggle>
+              <span class="icon" data-icon="mono/theme-light-dark"></span>
+              <span data-theme-label>Switch to light theme</span>
+            </button>
+            <p class="text-muted">Toggle to preview both light and dark palettes.</p>
+          </div>
         </div>
 
         <nav class="guide-nav cluster" aria-label="On-page navigation">
           <a href="#colors">Colors &amp; tokens</a>
+          <a href="#spacing">Spacing scale</a>
           <a href="#typography">Typography</a>
           <a href="#layout">Layout helpers</a>
           <a href="#buttons">Buttons</a>
@@ -225,6 +283,62 @@
             </div>
           </div>
         </div>
+      </section>
+
+      <section id="spacing" class="card stack-md">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">Spacing</p>
+            <h2 class="text-title">Spacing scale</h2>
+          </div>
+          <p class="text-muted">Base rhythm for padding, gaps and margins.</p>
+        </div>
+
+        <div class="space-grid">
+          <div class="space-swatch" style="--space-size: var(--space-1)">
+            <div class="space-bar"></div>
+            <div class="stack-sm">
+              <div class="token-name">--space-1</div>
+              <div class="token-value" data-token-value="--space-1"></div>
+            </div>
+          </div>
+          <div class="space-swatch" style="--space-size: var(--space-2)">
+            <div class="space-bar"></div>
+            <div class="stack-sm">
+              <div class="token-name">--space-2</div>
+              <div class="token-value" data-token-value="--space-2"></div>
+            </div>
+          </div>
+          <div class="space-swatch" style="--space-size: var(--space-3)">
+            <div class="space-bar"></div>
+            <div class="stack-sm">
+              <div class="token-name">--space-3</div>
+              <div class="token-value" data-token-value="--space-3"></div>
+            </div>
+          </div>
+          <div class="space-swatch" style="--space-size: var(--space-4)">
+            <div class="space-bar"></div>
+            <div class="stack-sm">
+              <div class="token-name">--space-4</div>
+              <div class="token-value" data-token-value="--space-4"></div>
+            </div>
+          </div>
+          <div class="space-swatch" style="--space-size: var(--space-5)">
+            <div class="space-bar"></div>
+            <div class="stack-sm">
+              <div class="token-name">--space-5</div>
+              <div class="token-value" data-token-value="--space-5"></div>
+            </div>
+          </div>
+          <div class="space-swatch" style="--space-size: var(--space-6)">
+            <div class="space-bar"></div>
+            <div class="stack-sm">
+              <div class="token-name">--space-6</div>
+              <div class="token-value" data-token-value="--space-6"></div>
+            </div>
+          </div>
+        </div>
+        <p class="label-inline">Aliases: <span class="code-inline">--s-1</span> → <span class="code-inline">--space-2</span>, <span class="code-inline">--s-2</span> → <span class="code-inline">--space-3</span>, <span class="code-inline">--s-3</span> → <span class="code-inline">--space-4</span>.</p>
       </section>
 
       <section id="typography" class="card stack-md">
@@ -478,11 +592,62 @@
 
     <script>
       const root = document.documentElement;
-      const styles = getComputedStyle(root);
-      document.querySelectorAll('[data-token-value]').forEach((el) => {
-        const token = el.getAttribute('data-token-value');
-        const value = styles.getPropertyValue(token)?.trim();
-        el.textContent = value || 'n/a';
+      const tokenEls = document.querySelectorAll('[data-token-value]');
+      const themeToggle = document.querySelector('[data-theme-toggle]');
+      const themeLabel = document.querySelector('[data-theme-label]');
+      const THEME_KEY = 'theme';
+
+      const getTheme = () => (root.dataset.theme === 'light' ? 'light' : 'dark');
+
+      const refreshTokenValues = () => {
+        const styles = getComputedStyle(root);
+        tokenEls.forEach((el) => {
+          const token = el.getAttribute('data-token-value');
+          const value = token ? styles.getPropertyValue(token)?.trim() : '';
+          el.textContent = value || 'n/a';
+        });
+      };
+
+      const updateThemeLabel = () => {
+        if (!themeToggle || !themeLabel) return;
+        const theme = getTheme();
+        themeLabel.textContent = theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+        themeToggle.setAttribute('aria-pressed', theme === 'light' ? 'true' : 'false');
+      };
+
+      const setTheme = (theme, persist = true) => {
+        root.dataset.theme = theme;
+        if (persist) {
+          try {
+            window.localStorage.setItem(THEME_KEY, theme);
+          } catch {
+            // ignore
+          }
+        }
+        refreshTokenValues();
+        updateThemeLabel();
+      };
+
+      const resolveInitialTheme = () => {
+        try {
+          const stored = window.localStorage.getItem(THEME_KEY);
+          if (stored === 'dark' || stored === 'light') return stored;
+        } catch {
+          // ignore
+        }
+
+        const explicit = root.dataset.theme;
+        if (explicit === 'dark' || explicit === 'light') return explicit;
+
+        const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches;
+        return prefersDark ? 'dark' : 'light';
+      };
+
+      setTheme(resolveInitialTheme(), false);
+
+      themeToggle?.addEventListener('click', () => {
+        const next = getTheme() === 'dark' ? 'light' : 'dark';
+        setTheme(next);
       });
 
       document.querySelectorAll('[data-icon]').forEach((el) => {
