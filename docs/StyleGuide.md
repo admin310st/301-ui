@@ -5,16 +5,16 @@ Design system for **301.st** (marketing front + member area).
 Goals:
 
 - clear visual language for redirect / domains / Cloudflare management;
-- consistent dark & light themes;
-- strong contrast (WCAG AA / Google Material baseline);
+- consistent dark & light themes based on CSS custom properties;
+- strong contrast (WCAG AA baseline);
 - orange CTAs reserved for **Cloudflare-level** actions.
 
 ---
 
 ## 1. Themes & tokens
 
-We use CSS custom properties (`--token`) and a theme switch via  
-`<html data-theme="dark">` / `<html data-theme="light">`.
+We use CSS custom properties (`--token`) and a theme switch via
+`<html data-theme="dark">` / `<html data-theme="light">`. There is **no Tailwind runtime**; keep styling in vanilla CSS.
 
 ### 1.1. Base palette
 
@@ -32,13 +32,7 @@ We use CSS custom properties (`--token`) and a theme switch via
   --orange-700: #F38020;
   --orange-900: #C65000;
 
-  /*
-    Cloudflare CTA accent.
-
-    Chosen to keep CF vibe but pass WCAG AA with WHITE text:
-    - #C24F00 on #FFFFFF ≈ 4.76:1
-    - #C24F00 on #000000 ≈ 4.41:1
-  */
+  /* Cloudflare CTA accent */
   --accent-cf: #C24F00;
   --accent-cf-hover: #E05A00;
   --accent-cf-soft: rgba(244, 129, 32, 0.16);
@@ -103,7 +97,7 @@ We use CSS custom properties (`--token`) and a theme switch via
   --btn-text-on-dark: #FFFFFF;
   --btn-text-on-bright: #111111;
 }
-````
+```
 
 ### 1.2. Dark theme (default)
 
@@ -121,18 +115,12 @@ We use CSS custom properties (`--token`) and a theme switch via
   --border-subtle: rgba(255, 255, 255, 0.06);
   --border-strong: rgba(255, 255, 255, 0.14);
 
-  /*
-    Primary uses blue-500:
-    - #3475C0 with white text ≈ 4.72:1 (AA for normal text).
-  */
+  /* Primary uses blue-500 */
   --primary: #3475C0;
   --primary-soft: rgba(77, 163, 255, 0.1);
   --primary-hover: #4DA3FF;
 
-  /*
-    Cloudflare accent = shared accent-cf.
-    White text passes AA.
-  */
+  /* Cloudflare accent = shared accent-cf */
   --accent-cf-bg: var(--accent-cf);
   --accent-cf-bg-hover: var(--accent-cf-hover);
 
@@ -166,17 +154,12 @@ We use CSS custom properties (`--token`) and a theme switch via
   --border-subtle: rgba(15, 23, 42, 0.06);
   --border-strong: rgba(15, 23, 42, 0.16);
 
-  /*
-    Primary uses blue-700:
-    - #0055DC with white text ≈ 6.30:1 (AA).
-  */
+  /* Primary uses blue-700 */
   --primary: #0055DC;
   --primary-soft: rgba(0, 85, 220, 0.08);
   --primary-hover: #003682; /* even higher contrast */
 
-  /*
-    Cloudflare accent = same accent-cf to keep brand consistent.
-  */
+  /* Cloudflare accent = same accent-cf to keep brand consistent */
   --accent-cf-bg: var(--accent-cf);
   --accent-cf-bg-hover: var(--accent-cf-hover);
 
@@ -211,38 +194,39 @@ function toggleTheme() {
 
 ## 2. Layout
 
-### 2.1. Breakpoints (Tailwind-compatible)
+### 2.1. Breakpoints
 
 * `sm` — 640px
 * `md` — 768px
 * `lg` — 1024px
 * `xl` — 1280px
-* `2xl` — 1536px
 
 ### 2.2. Container
 
 ```css
 .container {
-  max-width: 1200px;
+  max-width: 1100px;
   margin: 0 auto;
-  padding: 0 var(--space-5);
+  padding: 0 1.5rem;
 }
 ```
 
-### 2.3. Member area layout
+### 2.3. Auth layout
 
 ```css
-.layout {
+.auth-shell {
+  padding: var(--space-6) 0;
+}
+
+.auth-grid {
   display: grid;
-  grid-template-columns: 240px minmax(0, 1fr);
-  min-height: 100vh;
+  gap: var(--space-6);
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  align-items: start;
 }
 ```
 
-Sidebar: left, fixed width.
-Content: right, scrollable, padding `var(--space-5)`.
-
-On mobile (`max-width: 960px`), sidebar can be hidden or replaced with a drawer.
+On mobile (`max-width: 640px`) stack header controls and auth actions vertically.
 
 ---
 
@@ -261,27 +245,16 @@ html, body {
 }
 ```
 
-Headings:
+Headings and helpers:
 
 ```css
-.h1 {
-  font-size: var(--fs-2xl);
-  font-weight: var(--fw-semibold);
-  letter-spacing: -0.02em;
-}
-
-.h2 {
-  font-size: var(--fs-xl);
-  font-weight: var(--fw-semibold);
-}
-
-.text-muted {
-  color: var(--text-muted);
-  font-size: var(--fs-sm);
-}
+.h1 { font-size: var(--fs-2xl); font-weight: var(--fw-semibold); letter-spacing: -0.02em; }
+.h2 { font-size: var(--fs-xl); font-weight: var(--fw-semibold); }
+.text-muted { color: var(--text-muted); font-size: var(--fs-sm); }
+.eyebrow { text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-subtle); font-weight: var(--fw-semibold); font-size: 0.85rem; }
 ```
 
-Use `.h1` for page titles in the member area and marketing hero, `.h2` for section titles.
+Use `.h1` for page titles in the member area and auth hero, `.h2` for section titles. Prefer `.stack-*` utilities instead of ad-hoc margins.
 
 ---
 
@@ -289,17 +262,12 @@ Use `.h1` for page titles in the member area and marketing hero, `.h2` for secti
 
 ### 4.1. Buttons (contrast-safe)
 
-**Contrast targets:**
-
-* Normal-size labels (~14–16px): aim for ≥ 4.5:1.
-* We use **white text on blues and CF orange**, tuned for AA.
-
 **Rules:**
 
 * Blue (`.btn-primary`) — default primary actions (Save, Create, Continue).
-* **Orange (`.btn-cf`) — Cloudflare-level actions only**
-  (connect account, apply WAF rules, update SSL mode, purge cache, bulk CF rules).
+* **Orange (`.btn-cf`) — Cloudflare-level actions only** (connect account, apply WAF rules, update SSL mode, purge cache, bulk CF rules).
 * `.btn-secondary` — neutral secondary actions (Cancel, Details, Filters).
+* `.btn-ghost` — quiet actions in toolbars/tertiary areas.
 * `.btn-danger` — destructive actions (delete domain, remove rule).
 
 ```css
@@ -326,82 +294,32 @@ Use `.h1` for page titles in the member area and marketing hero, `.h2` for secti
     transform var(--transition-fast);
 }
 
-.btn:disabled {
-  opacity: 0.55;
-  cursor: default;
-  pointer-events: none;
-}
+.btn:disabled { opacity: 0.55; cursor: default; pointer-events: none; }
 
-/* Primary (blue) — white text AA-OK on both themes */
-.btn-primary {
-  background: var(--primary);
-  color: var(--btn-text-on-dark);
-  box-shadow: 0 0 0 1px rgba(0,0,0,0.3);
-}
-.btn-primary:hover {
-  background: var(--primary-hover);
-  transform: translateY(-1px);
-}
+.btn-primary { background: var(--primary); color: var(--btn-text-on-dark); box-shadow: 0 0 0 1px rgba(0,0,0,0.3); }
+.btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
 
-/* Cloudflare actions (orange) — white text AA-OK */
-.btn-cf {
-  background: var(--accent-cf-bg);
-  color: var(--btn-text-on-dark);
-  box-shadow: 0 0 0 1px rgba(0,0,0,0.3);
-}
-.btn-cf:hover {
-  background: var(--accent-cf-bg-hover);
-  transform: translateY(-1px);
-}
+.btn-cf { background: var(--accent-cf-bg); color: var(--btn-text-on-dark); box-shadow: 0 0 0 1px rgba(0,0,0,0.3); }
+.btn-cf:hover { background: var(--accent-cf-bg-hover); transform: translateY(-1px); }
 
-/* Secondary */
-.btn-secondary {
-  border-color: var(--border-strong);
-  background: transparent;
-  color: var(--text-main);
-}
-.btn-secondary:hover {
-  background: var(--primary-soft);
-}
+.btn-secondary { border-color: var(--border-strong); background: transparent; color: var(--text-main); }
+.btn-secondary:hover { background: var(--primary-soft); }
 
-/* Danger */
-.btn-danger {
-  background: var(--danger);
-  color: var(--btn-text-on-dark);
-}
-.btn-danger:hover {
-  filter: brightness(1.05);
-}
+.btn-ghost { border-color: transparent; background: transparent; color: var(--text-main); }
+.btn-ghost:hover { color: var(--primary); background: var(--primary-soft); border-color: color-mix(in srgb, var(--primary) 25%, transparent); }
 
-/* Sizes */
+.btn-danger { background: var(--danger); color: var(--btn-text-on-dark); }
+.btn-danger:hover { filter: brightness(1.05); }
+
 .btn-sm { padding: 0.35rem 0.7rem; font-size: var(--fs-xs); }
 .btn-lg { padding: 0.75rem 1.3rem; font-size: var(--fs-md); }
 ```
 
-**Cloudflare usage examples:**
-
-```html
-<button class="btn btn-cf">Connect Cloudflare account</button>
-<button class="btn btn-cf btn-sm">Apply Cloudflare security rules</button>
-<button class="btn btn-primary">Save settings</button>
-```
-
----
-
 ### 4.2. Form controls
 
 ```css
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-}
-
-.field-label {
-  font-size: var(--fs-xs);
-  font-weight: var(--fw-medium);
-  color: var(--text-muted);
-}
+.field { display: flex; flex-direction: column; gap: 0.35rem; }
+.field-label { font-size: var(--fs-xs); font-weight: var(--fw-medium); color: var(--text-muted); }
 
 .input,
 .select,
@@ -422,295 +340,82 @@ Use `.h1` for page titles in the member area and marketing hero, `.h2` for secti
 }
 
 .input::placeholder,
-.textarea::placeholder {
-  color: var(--text-subtle);
-}
+.textarea::placeholder { color: var(--text-subtle); }
 
 .input:focus,
 .select:focus,
-.textarea:focus {
-  border-color: var(--input-border-focus);
-  box-shadow: 0 0 0 1px rgba(77, 163, 255, 0.6);
-}
+.textarea:focus { border-color: var(--input-border-focus); box-shadow: 0 0 0 1px rgba(77, 163, 255, 0.6); }
 
-.field-error {
-  color: var(--danger);
-  font-size: var(--fs-xs);
-}
+.field-error { color: var(--danger); font-size: var(--fs-xs); }
 ```
 
----
+Password toggles: wrap input + toggle button in `.password-field` (flex row) with `data-password-field` hook.
 
-### 4.3. Cards
+### 4.3. Cards / panels
 
-Used in the dashboard for stats, domain groups, Cloudflare status blocks, etc.
+Used in dashboard stats, domain groups, Cloudflare status blocks.
 
 ```css
-.card {
-  background: var(--bg-elevated);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--border-subtle);
-  padding: var(--space-4);
-  box-shadow: var(--shadow-subtle);
-}
-
-.card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
-  margin-bottom: var(--space-3);
-}
-
-.card-title {
-  font-size: var(--fs-md);
-  font-weight: var(--fw-semibold);
-}
-
-.card-subtitle {
-  font-size: var(--fs-sm);
-  color: var(--text-muted);
-}
-
-.card-footer {
-  margin-top: var(--space-4);
-  display: flex;
-  justify-content: flex-end;
-  gap: var(--space-2);
-}
+.card,
+.panel { background: var(--bg-elevated); border-radius: var(--radius-lg); border: 1px solid var(--border-subtle); padding: var(--space-4); box-shadow: var(--shadow-subtle); }
+.card-header { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); margin-bottom: var(--space-3); }
+.card-title { font-size: var(--fs-md); font-weight: var(--fw-semibold); }
+.card-subtitle { font-size: var(--fs-sm); color: var(--text-muted); }
+.card-footer { margin-top: var(--space-4); display: flex; justify-content: flex-end; gap: var(--space-2); }
+.card-section { padding: var(--space-4) 0 0; border-top: 1px solid var(--border-subtle); margin-top: var(--space-4); }
+.card-section:first-child { border-top: none; margin-top: 0; padding-top: 0; }
+.card--emphasis { border-color: color-mix(in srgb, var(--primary) 35%, transparent); background: color-mix(in srgb, var(--bg-elevated) 70%, var(--primary-soft)); }
 ```
-
----
 
 ### 4.4. Tables
 
 Primary use: domains list, Cloudflare zones, rulesets, logs.
 
 ```css
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: var(--fs-sm);
-}
-
-.table thead {
-  background: var(--bg-soft);
-}
-
+.table { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); }
+.table thead { background: var(--bg-soft); }
 .table th,
-.table td {
-  padding: 0.6rem 0.75rem;
-  text-align: left;
-}
+.table td { padding: 0.6rem 0.75rem; text-align: left; }
+.table th { font-weight: var(--fw-medium); color: var(--text-muted); border-bottom: 1px solid var(--border-strong); }
+.table tbody tr { border-bottom: 1px solid var(--border-subtle); }
+.table tbody tr:hover { background: rgba(255, 255, 255, 0.02); }
+```
 
-.table th {
-  font-weight: var(--fw-medium);
-  color: var(--text-muted);
-  border-bottom: 1px solid var(--border-strong);
-}
+### 4.5. Navigation shell
 
-.table tbody tr {
-  border-bottom: 1px solid var(--border-subtle);
-}
+Header (`.site-header`) uses a blurred background with a thin border. Primary nav links are inline, theme switch is a ghost button, language selector uses `.btn-chip-group`.
 
-.table tbody tr:hover {
-  background: rgba(255, 255, 255, 0.02);
-}
+```css
+.site-header { border-bottom: 1px solid var(--border-subtle); background: color-mix(in srgb, var(--bg) 80%, var(--bg-elevated)); }
+.header-bar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem 0; }
+.brand { display: inline-flex; align-items: center; gap: 0.6rem; font-size: 1.25rem; font-weight: var(--fw-semibold); text-decoration: none; color: var(--text-main); }
+.nav-links { display: flex; align-items: center; gap: 1rem; font-size: 0.95rem; }
+.nav-links a { color: var(--text-main); text-decoration: none; padding: 0.35rem 0.75rem; border-radius: var(--radius); border: 1px solid transparent; transition: color var(--transition-fast), background var(--transition-fast), border-color var(--transition-fast); }
+.nav-links a:hover { color: var(--primary); border-color: var(--border-subtle); background: var(--bg-soft); }
+.btn-chip-group { display: inline-flex; padding: 2px; border-radius: 999px; background: var(--bg-elevated); border: 1px solid var(--border-subtle); gap: 2px; }
+.btn-chip { border-radius: 999px; border: 1px solid transparent; background: transparent; color: var(--text-subtle); font-size: 0.9rem; padding: 0.3rem 0.9rem; cursor: pointer; transition: background-color var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast); }
+.btn-chip:hover { color: var(--text-main); background: var(--bg-soft); border-color: var(--border-subtle); }
+.btn-chip.is-active { color: var(--btn-text-on-dark); background: var(--primary); border-color: var(--primary); box-shadow: 0 8px 18px rgba(0, 0, 0, 0.28); }
 ```
 
 ---
 
-### 4.5. Badges (statuses)
+## 5. Auth experience
 
-Badge text colours are chosen to keep at least a ~3:1 contrast against their backgrounds; use for short labels, not for long body text.
-
-```css
-.badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.15rem 0.5rem;
-  border-radius: 999px;
-  font-size: var(--fs-xs);
-  font-weight: var(--fw-medium);
-  border: 1px solid transparent;
-}
-
-/* Neutral / muted status (expired, inactive) */
-.badge-muted {
-  background: rgba(148, 163, 184, 0.12);
-  color: var(--text-subtle);
-  border-color: rgba(148, 163, 184, 0.35);
-}
-
-/* Success (active domain, healthy config) */
-.badge-success {
-  background: var(--success-bg);
-  color: var(--success);
-  border-color: rgba(24, 194, 122, 0.7);
-}
-
-/* Danger (errors) */
-.badge-danger {
-  background: var(--danger-bg);
-  color: var(--danger);
-  border-color: rgba(255, 79, 110, 0.7);
-}
-
-/* Cloudflare-related status */
-.badge-cf {
-  background: var(--accent-cf-soft);
-  color: var(--accent-cf);
-  border-color: rgba(194, 79, 0, 0.7);
-}
-```
-
-Usage:
-
-* `.badge-success` — active domain / valid config.
-* `.badge-muted` — expired / inactive.
-* `.badge-cf` — Cloudflare-related status: “WAF + Cache”, “Rulesets applied”, etc.
+* Tabs (`.auth-tabs`) reuse the chip group; keep the active item fully filled.
+* Forms live inside `.auth-card` with `gap: var(--space-4)`.
+* Social buttons use `.auth-social-btn` with brand-specific skins for Google/GitHub.
+* `.global-notice` is the top sticky status banner. Use `data-type="success" | "error" | "info"` to color it.
 
 ---
 
-### 4.6. Alerts
-
-```css
-.alert {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-3);
-  border-radius: var(--radius);
-  padding: var(--space-3) var(--space-4);
-  border: 1px solid transparent;
-  font-size: var(--fs-sm);
-}
-
-.alert-title {
-  font-weight: var(--fw-medium);
-  margin-bottom: 0.1rem;
-}
-
-.alert-info {
-  background: var(--primary-soft);
-  border-color: rgba(77, 163, 255, 0.6);
-  color: var(--text-main);
-}
-
-.alert-success {
-  background: var(--success-bg);
-  border-color: rgba(24, 194, 122, 0.7);
-  color: var(--text-main);
-}
-
-.alert-danger {
-  background: var(--danger-bg);
-  border-color: rgba(255, 79, 110, 0.8);
-  color: var(--text-main);
-}
-```
-
----
-
-### 4.7. Navigation
-
-Top bar:
-
-```css
-.topbar {
-  position: sticky;
-  top: 0;
-  z-index: 40;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.6rem var(--space-5);
-  background: var(--nav-bg);
-  backdrop-filter: blur(14px);
-  border-bottom: 1px solid var(--border-subtle);
-}
-```
-
-Sidebar:
-
-```css
-.sidebar {
-  background: var(--sidebar-bg);
-  border-right: 1px solid var(--border-subtle);
-  padding: var(--space-4) var(--space-3);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-}
-
-.sidebar-nav {
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-}
-
-.sidebar-link {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.4rem 0.55rem;
-  border-radius: var(--radius);
-  font-size: var(--fs-sm);
-  color: var(--text-muted);
-  text-decoration: none;
-  transition: background-color var(--transition-fast),
-              color var(--transition-fast);
-}
-
-.sidebar-link:hover {
-  background: var(--primary-soft);
-  color: var(--text-main);
-}
-
-.sidebar-link[data-active="true"] {
-  background: var(--primary-soft);
-  color: var(--primary-hover);
-}
-```
-
----
-
-## 5. Cloudflare-specific UI rules
+## 6. Cloudflare-specific UI rules
 
 * **Orange buttons (`.btn-cf`) are reserved for Cloudflare actions only.**
-
   * Good: `Connect Cloudflare account`, `Sync zones`, `Apply Cloudflare security rules`, `Purge Cloudflare cache`, `Update SSL mode`.
   * Bad: generic `Save`, `Next`, `Create project` → use blue (`.btn-primary`) instead.
 * Cloudflare states should use `.badge-cf` or `.badge-success` depending on context.
 * Screens that are “Cloudflare-heavy” (WAF, cache presets) may use subtle orange highlights, but avoid full orange backgrounds — keep the minimal SaaS feel and contrast predictable.
-
----
-
-## 6. Tailwind integration (optional)
-
-Example `tailwind.config.js` snippet:
-
-```js
-module.exports = {
-  theme: {
-    extend: {
-      colors: {
-        bg: "var(--bg)",
-        panel: "var(--bg-elevated)",
-        primary: "var(--primary)",
-        accent: "var(--accent-cf)",
-        text: {
-          main: "var(--text-main)",
-          muted: "var(--text-muted)",
-        },
-      },
-      borderRadius: {
-        DEFAULT: "var(--radius)",
-        lg: "var(--radius-lg)",
-      },
-    },
-  },
-};
-```
 
 ---
 
@@ -720,4 +425,3 @@ module.exports = {
 * Avoid changing `--primary`, `--accent-cf`, and `--text-main` without re-checking contrast (e.g. via any WCAG contrast tool).
 * Use `.text-muted` for secondary information, not for critical content.
 * For long paragraphs on colored backgrounds, prefer solid backgrounds from `--bg`, `--bg-elevated`, `--bg-soft` rather than semi-transparent overlays.
-
