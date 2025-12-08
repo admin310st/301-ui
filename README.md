@@ -1,6 +1,8 @@
 # 301 UI Worker
 
-Modular frontend for 301.st authentication pages, built with Vite and deployed via Cloudflare Worker.
+Modular frontend for 301.st authentication pages, built with Vite and deployed via Cloudflare Worker. Today the repo ships the login/registration/reset flows, Turnstile integration, OAuth starts, and auth-state helpers that power the existing auth page.
+
+The broader product roadmap (user cabinet, integrations, domains, TDS/streams, sites, redirects, admin tooling) is captured in `docs/ui-roadmap.ru.md`; the current codebase is the "layer 0" foundation described there.
 
 > 🔗 **Backend API spec:**
 > https://github.com/admin310st/301/wiki/API
