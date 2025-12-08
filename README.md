@@ -4,6 +4,10 @@ Modular frontend for 301.st authentication pages, built with Vite and deployed v
 
 The broader product roadmap (user cabinet, integrations, domains, TDS/streams, sites, redirects, admin tooling) is captured in `docs/ui-roadmap.ru.md`; the current codebase is the "layer 0" foundation described there.
 
+## Stage 2 / Layer 0
+
+- **UI style guide:** `/ui-style-guide.html` (only on app.301.st) — single source of truth for shared tokens and classes that Codex and developers should reuse.
+
 > 🔗 **Backend API spec:**
 > https://github.com/admin310st/301/wiki/API
 

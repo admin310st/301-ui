@@ -76,6 +76,16 @@
   --space-5: 1.5rem;
   --space-6: 2rem;
 
+  /* Aliases used across legacy/static pages */
+  --s-1: var(--space-2);
+  --s-2: var(--space-3);
+  --s-3: var(--space-4);
+  --s-4: var(--space-5);
+  --s-5: var(--space-6);
+
+  --r: var(--radius);
+  --r-lg: var(--radius-lg);
+
   --radius-xs: 0.25rem;
   --radius: 0.5rem;
   --radius-lg: 0.75rem;
@@ -103,12 +113,17 @@
   --bg-elevated: #181A1F;
   --bg-soft: #1F2229;
 
+  --panel: var(--bg-elevated);
+
   --panel-border: color-mix(in srgb, var(--gray-100) 22%, transparent);
 
-  --text-main: #E7E9EE; 
+  --text-main: #E7E9EE;
   --text-muted: #A0A4AF;
   --text-subtle: #7A7E87;
   --text-invert: #FFFFFF;
+
+  --text: var(--text-main);
+  --muted: var(--text-muted);
 
   --border-subtle: rgba(255, 255, 255, 0.06);
   --border-strong: rgba(255, 255, 255, 0.14);
@@ -124,6 +139,10 @@
   --primary: #3475C0;
   --primary-soft: rgba(77, 163, 255, 0.1);
   --primary-hover: #4DA3FF;
+
+  --ok: var(--success);
+
+  --brand: var(--primary);
 
   /*
     Cloudflare accent = shared accent-cf.
@@ -153,12 +172,17 @@
   --bg-elevated: #F7F7F8;
   --bg-soft: #F4F8FC;
 
+  --panel: var(--bg-elevated);
+
   --panel-border: color-mix(in srgb, var(--gray-900) 18%, transparent);
 
   --text-main: #111111;
   --text-muted: #666A73;
   --text-subtle: #8A8F99;
   --text-invert: #FFFFFF;
+
+  --text: var(--text-main);
+  --muted: var(--text-muted);
 
   --border-subtle: rgba(15, 23, 42, 0.06);
   --border-strong: rgba(15, 23, 42, 0.16);
@@ -170,6 +194,9 @@
   --primary: #0055DC;
   --primary-soft: rgba(0, 85, 220, 0.08);
   --primary-hover: #003682; /* even higher contrast */
+
+  --brand: var(--primary);
+  --ok: var(--success);
 
   /*
     Cloudflare accent = same accent-cf to keep brand consistent.
