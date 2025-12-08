@@ -26,7 +26,6 @@ body {
   width: 100%;
   height: 100%;
   display: block;
-/*  fill: currentColor;*/
 }
 
 .sr-only {
@@ -707,18 +706,8 @@ html[data-theme="dark"] .btn-chip:hover {
   gap: var(--space-2);
 }
 
-/* === БАЗА ДЛЯ СОЦ-КНОПОК ===
-   Используем общую .btn, добавляем только layout.
-   .auth-social-btn оставляем как алиас для плавной миграции. */
-
-.btn.btn-social,
-.auth-social-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+.btn.btn-social {
   gap: var(--space-2);
-
-  width: 100%;
   min-height: calc(var(--space-5) + var(--space-2)); /* ≈ 56px */
   padding-inline: var(--space-5);
 
@@ -726,10 +715,7 @@ html[data-theme="dark"] .btn-chip:hover {
   font-weight: var(--fw-medium);
 }
 
-/* Иконка + подпись. Иконка — через общий .icon из гайда. */
-
-.btn-social .icon,
-.auth-social-btn .icon {
+.btn-social .icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -737,37 +723,41 @@ html[data-theme="dark"] .btn-chip:hover {
   height: 20px;
 }
 
-.btn-social .label,
-.auth-social-btn .label {
+.btn-social [data-social-label] {
   line-height: 1.2;
 }
 
 
-/* Google */
-.btn-social-google,
-.auth-social-btn--google {
+.btn-social-google {
   background: #fff; /* брендовый white ok */
   color: var(--text);
   border-color: rgba(0, 0, 0, 0.06);
 }
 
-html[data-theme="dark"] .btn-social-google,
-html[data-theme="dark"] .auth-social-btn--google {
+html[data-theme="dark"] .btn-social-google {
   background: var(--panel);
   border-color: var(--border-subtle);
 }
 
-/* GitHub */
-.btn-social-github,
-.auth-social-btn--github {
+.btn-social-github {
   background: #0f1116;
   color: #fff;
-  border-color: color-mix(in srgb, var(--border-strong) 60%, transparent);
+  border-color: var(--gray-700);
 }
 
-html[data-theme="light"] .btn-social-github,
-html[data-theme="light"] .auth-social-btn--github {
+.btn-social-github:hover {
+  background: #1a1d24;
+  border-color: var(--gray-600);
+  color: #fff;
+}
+
+html[data-theme="light"] .btn-social-github {
   background: #0f1116;
+}
+
+.auth-social__buttons .btn-social {
+  width: 100%;
+  justify-content: center;
 }
 
 .auth-links {
