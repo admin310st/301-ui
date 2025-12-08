@@ -2,6 +2,12 @@ import { t } from '@i18n';
 
 export type NoticeType = 'success' | 'error' | 'info';
 
+const ICON_BY_TYPE: Record<NoticeType, string> = {
+  success: '#i-mono-success',
+  error: '#i-mono-alert',
+  info: '#i-mono-info',
+};
+
 let hideTimer: number | null = null;
 
 function getRoot(): HTMLElement | null {
@@ -10,6 +16,10 @@ function getRoot(): HTMLElement | null {
 
 function getTextNode(): HTMLElement | null {
   return document.getElementById('GlobalNoticeText') as HTMLElement | null;
+}
+
+function getIconUse(): SVGUseElement | null {
+  return document.querySelector('#GlobalNotice .global-notice__icon use');
 }
 
 export interface ShowNoticeOptions {
@@ -23,6 +33,7 @@ export function showGlobalNotice(
 ): void {
   const root = getRoot();
   const textNode = getTextNode();
+  const iconUse = getIconUse();
   if (!root || !textNode) return;
 
   const autoHideMs = opts.autoHideMs ?? 6000;
@@ -36,6 +47,9 @@ export function showGlobalNotice(
   root.dataset.type = type;
   root.setAttribute('role', type === 'error' ? 'alert' : 'status');
   root.setAttribute('aria-live', 'polite');
+  if (iconUse) {
+    iconUse.setAttribute('href', ICON_BY_TYPE[type]);
+  }
   textNode.textContent = message;
   root.dataset.state = 'visible';
 
