@@ -108,7 +108,7 @@
         gap: var(--space-4);
       }
 
-      .space-swatch {
+      .spacing-card {
         padding: var(--space-3);
         background: var(--bg-soft);
         border-radius: var(--r);
@@ -118,25 +118,47 @@
         gap: var(--space-2);
       }
 
-      .space-bar {
-        width: 100%;
-        height: 14px;
-        border-radius: 999px;
-        background: var(--primary-soft);
-        border: 1px dashed color-mix(in srgb, var(--primary) 50%, transparent);
+      .spacing-meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-2);
+        font-size: var(--fs-sm);
+      }
+
+      .spacing-name {
+        font-weight: var(--fw-semibold);
+      }
+
+      .spacing-value {
+        color: var(--text-muted);
+        font-variant-numeric: tabular-nums;
+      }
+
+      .metric-pill {
+        display: block;
+        padding: 0.25rem 0.5rem;
+      }
+
+      .metric-pill__track {
         position: relative;
+        width: 100%;
+        height: 0.4rem;
+        border-radius: 999px;
+        background: rgba(94, 139, 255, 0.14);
+        box-shadow: inset 0 0 0 1px rgba(94, 139, 255, 0.35);
         overflow: hidden;
       }
 
-      .space-bar::after {
-        content: '';
+      .metric-pill__fill {
+        --metric-fill: 1;
+
         position: absolute;
-        inset: 4px auto 4px 8px;
-        width: calc(var(--space-size) * 8);
-        max-width: calc(100% - 12px);
-        background: var(--primary);
+        inset: 2px;
         border-radius: 999px;
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16);
+        background: rgba(94, 139, 255, 0.9);
+        transform-origin: left center;
+        transform: scaleX(var(--metric-fill));
       }
 
       .section-header {
@@ -202,35 +224,52 @@
       .badge {
         display: inline-flex;
         align-items: center;
-        padding: 0.15rem 0.5rem;
+        justify-content: center;
+        padding-inline: 0.75em;
+        padding-block: 0.15em;
         border-radius: 999px;
-        font-size: var(--fs-xs);
-        font-weight: var(--fw-medium);
         border: 1px solid transparent;
+
+        font-size: 0.75rem;
+        line-height: 1.6;
+        font-weight: 500;
+
+        background-color: rgba(255, 255, 255, 0.03);
+        color: var(--text);
       }
 
-      .badge-muted {
-        background: rgba(148, 163, 184, 0.12);
-        color: var(--text-subtle);
-        border-color: rgba(148, 163, 184, 0.35);
+      .badge + .badge {
+        margin-left: 0.25rem;
       }
 
-      .badge-success {
-        background: var(--success-bg);
-        color: var(--success);
-        border-color: rgba(24, 194, 122, 0.7);
+      .badge--neutral {
+        background-color: rgba(255, 255, 255, 0.02);
+        border-color: rgba(255, 255, 255, 0.08);
+        color: var(--muted);
       }
 
-      .badge-danger {
-        background: var(--danger-bg);
+      .badge--success {
+        background-color: rgba(37, 208, 164, 0.12);
+        border-color: rgba(37, 208, 164, 0.5);
+        color: var(--ok);
+      }
+
+      .badge--danger {
+        background-color: rgba(255, 107, 107, 0.12);
+        border-color: rgba(255, 107, 107, 0.5);
         color: var(--danger);
-        border-color: rgba(255, 79, 110, 0.7);
       }
 
-      .badge-cf {
-        background: var(--accent-cf-soft);
-        color: var(--accent-cf);
-        border-color: rgba(194, 79, 0, 0.7);
+      .badge--brand {
+        background-color: rgba(94, 139, 255, 0.16);
+        border-color: rgba(94, 139, 255, 0.55);
+        color: var(--brand);
+      }
+
+      .badge--cf {
+        background-color: rgba(246, 130, 31, 0.16);
+        border-color: rgba(246, 130, 31, 0.55);
+        color: #f6821f;
       }
 
       .code-block {
@@ -282,6 +321,7 @@
           <a href="#spacing">Spacing scale</a>
           <a href="#typography">Typography</a>
           <a href="#layout">Layout helpers</a>
+          <a href="#badges">Badges</a>
           <a href="#tables">Tables</a>
           <a href="#buttons">Buttons</a>
           <a href="#forms">Form fields</a>
@@ -408,47 +448,83 @@
           <p class="text-muted">Base rhythm for padding, gaps and margins.</p>
         </div>
 
+        <p class="text-body">
+          <code class="code-inline">metric-pill</code> — это маленький визуальный meter, который можно реиспользовать для любых
+          мини-метрик (freshness, coverage и т.п.). Ширина заливки контролируется через CSS-переменную
+          <code class="code-inline">--metric-fill</code> (0–1).
+        </p>
+
         <div class="space-grid">
-          <div class="space-swatch" style="--space-size: var(--space-1)">
-            <div class="space-bar"></div>
-            <div class="stack-sm">
-              <div class="token-name">--space-1</div>
-              <div class="token-value" data-token-value="--space-1"></div>
+          <div class="spacing-card">
+            <div class="metric-pill" data-value="1">
+              <div class="metric-pill__track">
+                <div class="metric-pill__fill" style="--metric-fill: 0.2"></div>
+              </div>
+            </div>
+
+            <div class="spacing-meta">
+              <div class="spacing-name">--space-1</div>
+              <div class="spacing-value" data-token-value="--space-1"></div>
             </div>
           </div>
-          <div class="space-swatch" style="--space-size: var(--space-2)">
-            <div class="space-bar"></div>
-            <div class="stack-sm">
-              <div class="token-name">--space-2</div>
-              <div class="token-value" data-token-value="--space-2"></div>
+          <div class="spacing-card">
+            <div class="metric-pill" data-value="2">
+              <div class="metric-pill__track">
+                <div class="metric-pill__fill" style="--metric-fill: 0.4"></div>
+              </div>
+            </div>
+
+            <div class="spacing-meta">
+              <div class="spacing-name">--space-2</div>
+              <div class="spacing-value" data-token-value="--space-2"></div>
             </div>
           </div>
-          <div class="space-swatch" style="--space-size: var(--space-3)">
-            <div class="space-bar"></div>
-            <div class="stack-sm">
-              <div class="token-name">--space-3</div>
-              <div class="token-value" data-token-value="--space-3"></div>
+          <div class="spacing-card">
+            <div class="metric-pill" data-value="3">
+              <div class="metric-pill__track">
+                <div class="metric-pill__fill" style="--metric-fill: 0.6"></div>
+              </div>
+            </div>
+
+            <div class="spacing-meta">
+              <div class="spacing-name">--space-3</div>
+              <div class="spacing-value" data-token-value="--space-3"></div>
             </div>
           </div>
-          <div class="space-swatch" style="--space-size: var(--space-4)">
-            <div class="space-bar"></div>
-            <div class="stack-sm">
-              <div class="token-name">--space-4</div>
-              <div class="token-value" data-token-value="--space-4"></div>
+          <div class="spacing-card">
+            <div class="metric-pill" data-value="4">
+              <div class="metric-pill__track">
+                <div class="metric-pill__fill" style="--metric-fill: 0.8"></div>
+              </div>
+            </div>
+
+            <div class="spacing-meta">
+              <div class="spacing-name">--space-4</div>
+              <div class="spacing-value" data-token-value="--space-4"></div>
             </div>
           </div>
-          <div class="space-swatch" style="--space-size: var(--space-5)">
-            <div class="space-bar"></div>
-            <div class="stack-sm">
-              <div class="token-name">--space-5</div>
-              <div class="token-value" data-token-value="--space-5"></div>
+          <div class="spacing-card">
+            <div class="metric-pill" data-value="5">
+              <div class="metric-pill__track">
+                <div class="metric-pill__fill" style="--metric-fill: 1"></div>
+              </div>
+            </div>
+
+            <div class="spacing-meta">
+              <div class="spacing-name">--space-5</div>
+              <div class="spacing-value" data-token-value="--space-5"></div>
             </div>
           </div>
-          <div class="space-swatch" style="--space-size: var(--space-6)">
-            <div class="space-bar"></div>
-            <div class="stack-sm">
-              <div class="token-name">--space-6</div>
-              <div class="token-value" data-token-value="--space-6"></div>
+          <div class="spacing-card">
+            <div class="metric-pill" data-value="6">
+              <div class="metric-pill__track">
+                <div class="metric-pill__fill" style="--metric-fill: 1"></div>
+              </div>
+            </div>
+
+            <div class="spacing-meta">
+              <div class="spacing-name">--space-6</div>
+              <div class="spacing-value" data-token-value="--space-6"></div>
             </div>
           </div>
         </div>
@@ -559,6 +635,31 @@
         </div>
       </section>
 
+      <section id="badges" class="card stack-md">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">Status</p>
+            <h2 class="text-title">Badges / status pills</h2>
+          </div>
+          <p class="text-muted">Compact status labels for tables, logs, sync state and environments.</p>
+        </div>
+
+        <div class="stack-sm">
+          <div class="cluster">
+            <span class="badge badge--success">Active</span>
+            <span class="badge badge--danger">DNS error</span>
+            <span class="badge badge--cf">WAF + Cache</span>
+            <span class="badge badge--brand">Syncing…</span>
+            <span class="badge badge--neutral">3 min ago</span>
+          </div>
+          <p class="text-muted">
+            Используем для статуса домена (<code class="code-inline">Active / Paused / Expired</code>), Cloudflare-интеграции (<code class="code-inline">No CF</code>,
+            <code class="code-inline">WAF only</code>, <code class="code-inline">WAF + Cache</code>), мини-статусов обновления (<code class="code-inline">3 min ago</code>,
+            <code class="code-inline">Queued</code>, <code class="code-inline">Syncing…</code>) и окружений (<code class="code-inline">Dev / Staging / Prod</code>).
+          </p>
+        </div>
+      </section>
+
       <section id="tables" class="card stack-md">
         <div class="section-header">
           <div>
@@ -584,9 +685,9 @@
                 <tbody>
                   <tr>
                     <td>example.com</td>
-                    <td><span class="badge badge-success">Active</span></td>
-                    <td><span class="badge badge-cf">WAF + Cache</span></td>
-                    <td>3 min ago</td>
+                    <td><span class="badge badge--success">Active</span></td>
+                    <td><span class="badge badge--cf">WAF + Cache</span></td>
+                    <td><span class="badge badge--neutral">3 min ago</span></td>
                     <td style="text-align: right;">
                       <div class="cluster" style="justify-content: flex-end;">
                         <button class="btn btn-secondary btn-sm">Details</button>
@@ -596,9 +697,9 @@
                   </tr>
                   <tr>
                     <td>status.301.st</td>
-                    <td><span class="badge badge-muted">Paused</span></td>
-                    <td><span class="badge badge-cf">Rulesets applied</span></td>
-                    <td>1 hour ago</td>
+                    <td><span class="badge badge--neutral">Paused</span></td>
+                    <td><span class="badge badge--cf">Rulesets applied</span></td>
+                    <td><span class="badge badge--neutral">1 hour ago</span></td>
                     <td style="text-align: right;">
                       <div class="cluster" style="justify-content: flex-end;">
                         <button class="btn btn-secondary btn-sm">Details</button>
@@ -608,9 +709,9 @@
                   </tr>
                   <tr>
                     <td>staging.cloudapp.dev</td>
-                    <td><span class="badge badge-danger">DNS error</span></td>
-                    <td><span class="badge badge-muted">Pending DNS</span></td>
-                    <td>Yesterday</td>
+                    <td><span class="badge badge--danger">DNS error</span></td>
+                    <td><span class="badge badge--brand">Pending DNS</span></td>
+                    <td><span class="badge badge--neutral">Yesterday</span></td>
                     <td style="text-align: right;">
                       <div class="cluster" style="justify-content: flex-end;">
                         <button class="btn btn-secondary btn-sm">Retry</button>
@@ -628,9 +729,9 @@
             &lt;tbody&gt;
             &nbsp;&nbsp;&lt;tr&gt;
             &nbsp;&nbsp;&nbsp;&nbsp;&lt;td&gt;example.com&lt;/td&gt;
-            &nbsp;&nbsp;&nbsp;&nbsp;&lt;td&gt;&lt;span class=&quot;badge badge-success&quot;&gt;Active&lt;/span&gt;&lt;/td&gt;
-            &nbsp;&nbsp;&nbsp;&nbsp;&lt;td&gt;&lt;span class=&quot;badge badge-cf&quot;&gt;WAF + Cache&lt;/span&gt;&lt;/td&gt;
-            &nbsp;&nbsp;&nbsp;&nbsp;&lt;td&gt;3 min ago&lt;/td&gt;
+            &nbsp;&nbsp;&nbsp;&nbsp;&lt;td&gt;&lt;span class=&quot;badge badge--success&quot;&gt;Active&lt;/span&gt;&lt;/td&gt;
+            &nbsp;&nbsp;&nbsp;&nbsp;&lt;td&gt;&lt;span class=&quot;badge badge--cf&quot;&gt;WAF + Cache&lt;/span&gt;&lt;/td&gt;
+            &nbsp;&nbsp;&nbsp;&nbsp;&lt;td&gt;&lt;span class=&quot;badge badge--neutral&quot;&gt;3 min ago&lt;/span&gt;&lt;/td&gt;
             &nbsp;&nbsp;&nbsp;&nbsp;&lt;td&gt;...actions...&lt;/td&gt;
             &nbsp;&nbsp;&lt;/tr&gt;
             &lt;/tbody&gt;
