@@ -1,6 +1,14 @@
 {
   "mono": [
+    "alert",
+    "confused",
     "eye",
+    "info",
+    "pause",
+    "prod",
+    "staging",
+    "success",
+    "sync",
     "theme-light-dark"
   ],
   "brand": [
