@@ -26,7 +26,7 @@ body {
   width: 100%;
   height: 100%;
   display: block;
-  fill: currentColor;
+/*  fill: currentColor;*/
 }
 
 .sr-only {
@@ -419,51 +419,6 @@ body {
   border-color: color-mix(in srgb, var(--primary) 25%, transparent);
 }
 
-.btn-social {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: 0.75rem 1rem;
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--border-subtle);
-  background: var(--bg-elevated);
-  color: var(--text-main);
-  font-weight: var(--fw-medium);
-}
-
-.btn-social:hover {
-  border-color: var(--border-strong);
-  background: var(--bg-soft);
-}
-
-.btn-social .icon {
-  width: 1.1rem;
-  height: 1.1rem;
-}
-
-.btn-social-google {
-  background: var(--gray-50);
-  color: var(--gray-900);
-  border-color: var(--gray-300);
-}
-html[data-theme="dark"] .btn-social-google {
-  background: var(--gray-900);
-  color: var(--gray-50);
-  border-color: var(--gray-700);
-}
-
-.btn-social-github {
-  background: var(--gray-900);
-  color: var(--gray-100);
-  border-color: var(--gray-700);
-}
-html[data-theme="light"] .btn-social-github {
-  background: var(--gray-100);
-  color: var(--gray-900);
-  border-color: var(--gray-300);
-}
-
-/* Более плоский вид второстепенных кнопок в светлой теме */
 html[data-theme="light"] .btn-secondary {
   background: #ffffff;
   color: var(--text-main);
