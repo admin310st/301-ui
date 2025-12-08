@@ -155,7 +155,7 @@ export const ru: Translation = {
       toRegister: 'Создать аккаунт',
     },
     turnstile: {
-      hint: 'Turnstile защищает вход, регистрацию, восстановление и Cloudflare bootstrap от ботов.',
+      hint: 'Turnstile защищает формы авторизации от ботов.',
     },
     password: {
       minLength: 'Пароль должен быть не короче 8 символов.',

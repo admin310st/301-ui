@@ -152,7 +152,7 @@ export const en = {
       toRegister: 'Create account',
     },
     turnstile: {
-      hint: 'Turnstile protects login, registration, reset and Cloudflare bootstrap from bots.',
+      hint: 'Turnstile protects authorisation forms from bots.',
     },
     password: {
       minLength: 'Password must be at least 8 characters long.',
