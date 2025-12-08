@@ -272,6 +272,42 @@
         color: #f6821f;
       }
 
+      :root[data-theme='light'] .badge {
+        background-color: color-mix(in srgb, var(--text) 5%, #ffffff);
+        border-color: color-mix(in srgb, var(--text) 18%, transparent);
+        color: var(--text);
+      }
+
+      :root[data-theme='light'] .badge--neutral {
+        background-color: color-mix(in srgb, var(--text) 5%, var(--bg));
+        border-color: color-mix(in srgb, var(--text) 22%, transparent);
+        color: var(--muted);
+      }
+
+      :root[data-theme='light'] .badge--success {
+        background-color: color-mix(in srgb, var(--ok) 16%, #ffffff);
+        border-color: color-mix(in srgb, var(--ok) 42%, transparent);
+        color: var(--ok);
+      }
+
+      :root[data-theme='light'] .badge--danger {
+        background-color: color-mix(in srgb, var(--danger) 16%, #ffffff);
+        border-color: color-mix(in srgb, var(--danger) 44%, transparent);
+        color: var(--danger);
+      }
+
+      :root[data-theme='light'] .badge--brand {
+        background-color: color-mix(in srgb, var(--brand) 14%, #ffffff);
+        border-color: color-mix(in srgb, var(--brand) 40%, transparent);
+        color: var(--brand);
+      }
+
+      :root[data-theme='light'] .badge--cf {
+        background-color: color-mix(in srgb, var(--accent-cf-bg) 14%, #ffffff);
+        border-color: color-mix(in srgb, var(--accent-cf-bg) 40%, transparent);
+        color: var(--accent-cf-bg);
+      }
+
       .code-block {
         font-family: "SFMono-Regular", ui-monospace, SFMono-Regular, Menlo, Monaco,
           Consolas, "Liberation Mono", "Courier New", monospace;
@@ -449,8 +485,8 @@
         </div>
 
         <p class="text-body">
-          <code class="code-inline">metric-pill</code> — это маленький визуальный meter, который можно реиспользовать для любых
-          мини-метрик (freshness, coverage и т.п.). Ширина заливки контролируется через CSS-переменную
+          <code class="code-inline">metric-pill</code> is a small visual meter that can be reused for any compact metrics
+          (freshness, coverage, etc.). The fill width is controlled via the CSS variable
           <code class="code-inline">--metric-fill</code> (0–1).
         </p>
 
@@ -653,9 +689,9 @@
             <span class="badge badge--neutral">3 min ago</span>
           </div>
           <p class="text-muted">
-            Используем для статуса домена (<code class="code-inline">Active / Paused / Expired</code>), Cloudflare-интеграции (<code class="code-inline">No CF</code>,
-            <code class="code-inline">WAF only</code>, <code class="code-inline">WAF + Cache</code>), мини-статусов обновления (<code class="code-inline">3 min ago</code>,
-            <code class="code-inline">Queued</code>, <code class="code-inline">Syncing…</code>) и окружений (<code class="code-inline">Dev / Staging / Prod</code>).
+            Use for domain status (<code class="code-inline">Active / Paused / Expired</code>), Cloudflare integration (<code class="code-inline">No CF</code>,
+            <code class="code-inline">WAF only</code>, <code class="code-inline">WAF + Cache</code>), mini sync statuses (<code class="code-inline">3 min ago</code>,
+            <code class="code-inline">Queued</code>, <code class="code-inline">Syncing…</code>) and environments (<code class="code-inline">Dev / Staging / Prod</code>).
           </p>
         </div>
       </section>
