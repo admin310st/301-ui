@@ -34,6 +34,8 @@ export function showGlobalNotice(
   }
 
   root.dataset.type = type;
+  root.setAttribute('role', type === 'error' ? 'alert' : 'status');
+  root.setAttribute('aria-live', 'polite');
   textNode.textContent = message;
   root.dataset.state = 'visible';
 
