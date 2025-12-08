@@ -6,8 +6,10 @@ import { handleOAuthSuccess, isOAuthSuccessPath } from './oauth-success';
 const VERIFIER_KEY = 'google_code_verifier';
 const STATE_KEY = 'google_oauth_state';
 
-function getRedirectUrl(response: { url?: string; auth_url?: string }): string {
-  return response.auth_url || response.url || '';
+type OAuthStartPayload = { url?: string; auth_url?: string; redirect_url?: string; verifier?: string; code_verifier?: string; state?: string };
+
+function getRedirectUrl(response: OAuthStartPayload): string {
+  return response.redirect_url || response.auth_url || response.url || '';
 }
 
 async function beginGoogleFlow(): Promise<void> {
@@ -41,17 +43,39 @@ async function handleOAuthReturn(): Promise<void> {
   await handleOAuthSuccess(token, 'Signed in with Google');
 }
 
+function setLoadingState(btn: HTMLButtonElement, labelEl: HTMLElement | null): () => void {
+  const originalText = labelEl?.textContent ?? btn.textContent ?? '';
+  btn.disabled = true;
+  btn.classList.add('is-loading');
+  if (labelEl) {
+    labelEl.textContent = 'Connecting…';
+  }
+
+  return () => {
+    btn.disabled = false;
+    btn.classList.remove('is-loading');
+    if (labelEl) {
+      labelEl.textContent = originalText;
+    }
+  };
+}
+
 export function initGoogleOAuth(): void {
-  document.querySelectorAll<HTMLElement>('[data-social="google"]').forEach((btn) => {
+  document.querySelectorAll<HTMLButtonElement>('[data-social="google"]').forEach((btn) => {
     if (btn.dataset.bound === 'true') return;
     btn.dataset.bound = 'true';
+
+    const label = btn.querySelector<HTMLElement>('[data-social-label]');
+
     btn.addEventListener('click', async (event) => {
       event.preventDefault();
+      const resetLoading = setLoadingState(btn, label);
       try {
         await beginGoogleFlow();
       } catch (error) {
         logDebug('Google OAuth start failed', error as Error);
-        showGlobalMessage('error', 'Google sign-in is unavailable right now');
+        showGlobalMessage('error', 'Unable to start Google login. Please try again later.');
+        resetLoading();
       }
     });
   });
