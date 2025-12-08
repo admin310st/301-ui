@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>301.st UI Style Guide</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" href="/css/theme.css" />
+    <link rel="stylesheet" href="/css/site.css" />
+    <style>
+      body {
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      .guide-hero {
+        border-bottom: 1px solid var(--border-subtle);
+        padding: var(--space-5) 0;
+        background: color-mix(in srgb, var(--bg) 80%, var(--bg-elevated));
+      }
+
+      .guide-subtitle {
+        max-width: 780px;
+      }
+
+      .guide-nav {
+        margin-top: var(--space-4);
+        gap: var(--space-2);
+        flex-wrap: wrap;
+      }
+
+      .guide-nav a {
+        padding: 0.5rem 0.9rem;
+        border-radius: var(--r);
+        border: 1px solid var(--border-subtle);
+        text-decoration: none;
+        color: var(--text);
+        background: var(--panel);
+        font-size: var(--fs-sm);
+      }
+
+      .guide-nav a:hover {
+        border-color: color-mix(in srgb, var(--primary) 40%, transparent);
+        color: var(--primary);
+      }
+
+      main.container {
+        padding-top: var(--space-5);
+        padding-bottom: var(--space-6);
+      }
+
+      .token-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: var(--space-4);
+      }
+
+      .token-swatch {
+        padding: var(--space-3);
+        background: var(--bg-soft);
+        border-radius: var(--r);
+        border: 1px solid var(--border-subtle);
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-2);
+      }
+
+      .token-color {
+        height: 80px;
+        border-radius: var(--r);
+        border: 1px solid var(--border-subtle);
+        background: var(--token-var);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      }
+
+      .token-name {
+        font-weight: var(--fw-semibold);
+      }
+
+      .token-value {
+        font-family: "SFMono-Regular", ui-monospace, SFMono-Regular, Menlo, Monaco,
+          Consolas, "Liberation Mono", "Courier New", monospace;
+        font-size: var(--fs-sm);
+        color: var(--text-muted);
+      }
+
+      .section-header {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: var(--space-2);
+        flex-wrap: wrap;
+      }
+
+      .code-inline {
+        background: color-mix(in srgb, var(--bg) 70%, var(--bg-elevated));
+        border-radius: var(--r);
+        padding: 0.15rem 0.35rem;
+        font-family: "SFMono-Regular", ui-monospace, SFMono-Regular, Menlo, Monaco,
+          Consolas, "Liberation Mono", "Courier New", monospace;
+        font-size: var(--fs-sm);
+      }
+
+      .example-grid {
+        display: grid;
+        gap: var(--space-4);
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      }
+
+      .example-card {
+        padding: var(--space-4);
+        border-radius: var(--r);
+        border: 1px solid var(--border-subtle);
+        background: var(--bg-soft);
+      }
+
+      .code-block {
+        font-family: "SFMono-Regular", ui-monospace, SFMono-Regular, Menlo, Monaco,
+          Consolas, "Liberation Mono", "Courier New", monospace;
+        font-size: var(--fs-sm);
+        background: color-mix(in srgb, var(--bg) 80%, var(--bg-elevated));
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--r);
+        padding: var(--space-3);
+        overflow-x: auto;
+      }
+
+      .guide-icon-row {
+        display: flex;
+        gap: var(--space-3);
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .label-inline {
+        font-size: var(--fs-sm);
+        color: var(--text-muted);
+      }
+    </style>
+  </head>
+  <body>
+    <header class="guide-hero">
+      <div class="container stack-md">
+        <div class="stack-sm">
+          <p class="eyebrow">Layer 0</p>
+          <h1 class="text-display">301.st UI Style Guide</h1>
+          <p class="text-lead guide-subtitle">
+            Single source of truth for UI tokens & components used in 301.st app frontend. Codex and developers should pull
+            colors, typography, layout helpers and component classes from here instead of raw values.
+          </p>
+        </div>
+
+        <nav class="guide-nav cluster" aria-label="On-page navigation">
+          <a href="#colors">Colors &amp; tokens</a>
+          <a href="#typography">Typography</a>
+          <a href="#layout">Layout helpers</a>
+          <a href="#buttons">Buttons</a>
+          <a href="#forms">Form fields</a>
+          <a href="#tabs">Tabs &amp; chips</a>
+          <a href="#cards">Cards / panels</a>
+          <a href="#icons">Icons</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container stack-lg">
+      <section id="colors" class="card stack-md">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">Tokens</p>
+            <h2 class="text-title">Colors &amp; tokens</h2>
+          </div>
+          <p class="text-muted">Use tokens, never raw hex codes.</p>
+        </div>
+
+        <div class="token-grid">
+          <div class="token-swatch" style="--token-var: var(--bg)">
+            <div class="token-color"></div>
+            <div class="stack-sm">
+              <div class="token-name">--bg</div>
+              <div class="token-value" data-token-value="--bg"></div>
+            </div>
+          </div>
+          <div class="token-swatch" style="--token-var: var(--panel)">
+            <div class="token-color"></div>
+            <div class="stack-sm">
+              <div class="token-name">--panel</div>
+              <div class="token-value" data-token-value="--panel"></div>
+            </div>
+          </div>
+          <div class="token-swatch" style="--token-var: var(--brand)">
+            <div class="token-color"></div>
+            <div class="stack-sm">
+              <div class="token-name">--brand</div>
+              <div class="token-value" data-token-value="--brand"></div>
+            </div>
+          </div>
+          <div class="token-swatch" style="--token-var: var(--danger)">
+            <div class="token-color"></div>
+            <div class="stack-sm">
+              <div class="token-name">--danger</div>
+              <div class="token-value" data-token-value="--danger"></div>
+            </div>
+          </div>
+          <div class="token-swatch" style="--token-var: var(--ok)">
+            <div class="token-color"></div>
+            <div class="stack-sm">
+              <div class="token-name">--ok</div>
+              <div class="token-value" data-token-value="--ok"></div>
+            </div>
+          </div>
+          <div class="token-swatch" style="--token-var: var(--muted)">
+            <div class="token-color"></div>
+            <div class="stack-sm">
+              <div class="token-name">--muted</div>
+              <div class="token-value" data-token-value="--muted"></div>
+            </div>
+          </div>
+          <div class="token-swatch" style="--token-var: var(--text)">
+            <div class="token-color"></div>
+            <div class="stack-sm">
+              <div class="token-name">--text</div>
+              <div class="token-value" data-token-value="--text"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="typography" class="card stack-md">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">Type scale</p>
+            <h2 class="text-title">Typography</h2>
+          </div>
+          <p class="text-muted">Use text helpers for consistent sizing and leading.</p>
+        </div>
+
+        <div class="stack-md">
+          <div class="stack-sm">
+            <p class="eyebrow">Display</p>
+            <p class="text-display">Access 301.st — display heading</p>
+            <p class="text-muted">Class: <span class="code-inline">.text-display</span></p>
+          </div>
+
+          <div class="stack-sm">
+            <h1 class="text-title">Section title — h1/h2/h3</h1>
+            <p class="text-muted">Class: <span class="code-inline">.text-title</span></p>
+            <p class="text-lead">Lead paragraph for callouts or descriptions.</p>
+            <p class="text-body">
+              Default body text — uses <span class="code-inline">.text-body</span> for forms and descriptive copy.
+              <span class="text-muted">Use <span class="code-inline">.text-muted</span> for helper texts, subtitles, validation messages.</span>
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="layout" class="card stack-md">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">Spacing</p>
+            <h2 class="text-title">Layout helpers</h2>
+          </div>
+          <p class="text-muted">Avoid ad-hoc margins; reuse stack/cluster/card helpers.</p>
+        </div>
+
+        <div class="example-grid">
+          <div class="example-card stack-sm">
+            <h3 class="text-title">Vertical stack</h3>
+            <p class="text-body">Use <span class="code-inline">.stack</span> with size modifiers for vertical gaps.</p>
+            <div class="stack stack-sm" style="background: var(--bg-soft); padding: var(--space-3); border-radius: var(--r);">
+              <span class="text-body">Item 1</span>
+              <span class="text-body">Item 2</span>
+              <span class="text-body">Item 3</span>
+            </div>
+            <p class="label-inline">Modifiers: <span class="code-inline">.stack-sm</span>, <span class="code-inline">.stack-md</span>, <span class="code-inline">.stack-lg</span>.</p>
+          </div>
+          <div class="example-card stack-sm">
+            <h3 class="text-title">Cluster</h3>
+            <p class="text-body">Use <span class="code-inline">.cluster</span> to line up buttons, tags, chips.</p>
+            <div class="cluster" style="background: var(--bg-soft); padding: var(--space-3); border-radius: var(--r);">
+              <button class="btn btn-secondary btn-sm">One</button>
+              <button class="btn btn-secondary btn-sm">Two</button>
+              <button class="btn btn-secondary btn-sm">Three</button>
+            </div>
+          </div>
+          <div class="example-card stack-sm">
+            <h3 class="text-title">Cards / panels</h3>
+            <p class="text-body">
+              <span class="code-inline">.card</span> or <span class="code-inline">.panel</span> for elevated blocks. Inside, break content with
+              <span class="code-inline">.card-section</span>.
+            </p>
+            <div class="card">
+              <div class="card-section">
+                <h4 class="text-title">Default panel</h4>
+                <p class="text-body text-muted">Neutral background on <span class="code-inline">--panel</span>.</p>
+              </div>
+              <div class="card-section card--emphasis">
+                <p class="text-body">Emphasized variant (on <span class="code-inline">.card--emphasis</span>).</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="buttons" class="card stack-md">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">Controls</p>
+            <h2 class="text-title">Buttons</h2>
+          </div>
+          <p class="text-muted">Primary = blue, ghost = quiet, danger = alerts, social = OAuth.</p>
+        </div>
+
+        <div class="example-grid">
+          <div class="example-card stack-sm">
+            <h3 class="text-title">Primary</h3>
+            <div class="cluster">
+              <button class="btn btn-primary">Sign in</button>
+              <button class="btn btn-primary">Update password</button>
+            </div>
+            <div class="code-block">&lt;button class="btn btn-primary"&gt;Sign in&lt;/button&gt;</div>
+          </div>
+          <div class="example-card stack-sm">
+            <h3 class="text-title">Ghost / secondary</h3>
+            <div class="cluster">
+              <button class="btn btn-ghost">Cancel</button>
+              <button class="btn btn-secondary">Back to login</button>
+            </div>
+            <div class="code-block">&lt;button class="btn btn-ghost"&gt;Cancel&lt;/button&gt;</div>
+          </div>
+          <div class="example-card stack-sm">
+            <h3 class="text-title">Danger</h3>
+            <div class="cluster">
+              <button class="btn btn-danger">Delete</button>
+              <button class="btn btn-secondary">Abort</button>
+            </div>
+            <div class="code-block">&lt;button class="btn btn-danger"&gt;Delete&lt;/button&gt;</div>
+          </div>
+          <div class="example-card stack-sm">
+            <h3 class="text-title">Social</h3>
+            <div class="stack-sm">
+              <button class="btn btn-social btn-social-google">
+                <span class="icon icon-brand" data-icon="brand/google"></span>
+                Continue with Google
+              </button>
+              <button class="btn btn-social btn-social-github">
+                <span class="icon icon-brand" data-icon="brand/github"></span>
+                Continue with GitHub
+              </button>
+            </div>
+            <div class="code-block">&lt;button class="btn btn-social btn-social-google"&gt;...&lt;/button&gt;</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="forms" class="card stack-md">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">Inputs</p>
+            <h2 class="text-title">Form fields</h2>
+          </div>
+          <p class="text-muted">Default, focus, error, success states reuse auth tokens.</p>
+        </div>
+
+        <div class="example-grid">
+          <div class="example-card stack-sm">
+            <h3 class="text-title">Email</h3>
+            <div class="field" data-status="default">
+              <label class="field-label" for="guide-email">Email</label>
+              <input class="input" id="guide-email" type="email" placeholder="user@example.com" />
+              <p class="field-hint">We’ll never share your email.</p>
+            </div>
+          </div>
+          <div class="example-card stack-sm">
+            <h3 class="text-title">Password with icon</h3>
+            <div class="field" data-status="error">
+              <label class="field-label" for="guide-password">Password</label>
+              <div class="password-field">
+                <input class="input is-error" id="guide-password" type="password" placeholder="••••••••" />
+                <button type="button" class="password-toggle" aria-label="Show password">
+                  <span class="icon" data-icon="mono/eye"></span>
+                </button>
+              </div>
+              <p class="field-error">Too weak — add numbers and symbols.</p>
+            </div>
+          </div>
+          <div class="example-card stack-sm">
+            <h3 class="text-title">Success state</h3>
+            <div class="field" data-status="success">
+              <label class="field-label" for="guide-success">OTP code</label>
+              <input class="input is-success" id="guide-success" type="text" value="123456" />
+              <p class="field-success">Looks good. Code accepted.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="tabs" class="card stack-md">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">Navigation</p>
+            <h2 class="text-title">Tabs &amp; chips</h2>
+          </div>
+          <p class="text-muted">Reuse auth tabs for pill navigation and filters.</p>
+        </div>
+
+        <div class="stack-sm">
+          <div class="btn-chip-group" role="tablist" aria-label="Auth tabs sample">
+            <button type="button" class="btn-chip is-active">Login</button>
+            <button type="button" class="btn-chip">Register</button>
+            <button type="button" class="btn-chip">Forgot password?</button>
+          </div>
+          <p class="text-muted">
+            Classes: <span class="code-inline">.btn-chip</span> + <span class="code-inline">.is-active</span>. Use for any pill navigation or filters.
+          </p>
+        </div>
+      </section>
+
+      <section id="cards" class="card stack-md">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">Containers</p>
+            <h2 class="text-title">Cards / panels</h2>
+          </div>
+          <p class="text-muted">Use <span class="code-inline">--panel</span> background and shared radii.</p>
+        </div>
+
+        <div class="example-grid">
+          <div class="example-card stack-sm">
+            <h3 class="text-title">Neutral panel</h3>
+            <div class="card">
+              <p class="text-body">Wrap auth sections and wizard steps in <span class="code-inline">.panel</span>.</p>
+              <div class="card-section">
+                <p class="text-muted">Panel sections use <span class="code-inline">.card-section</span> to separate rows.</p>
+              </div>
+            </div>
+          </div>
+          <div class="example-card stack-sm">
+            <h3 class="text-title">Emphasized</h3>
+            <div class="card card--emphasis">
+              <p class="text-body">For highlighted flows (e.g., Cloudflare wizard).</p>
+              <div class="card-section">
+                <p class="text-muted">Same radii and padding; only border/background change.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="icons" class="card stack-md">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">Assets</p>
+            <h2 class="text-title">Icons</h2>
+          </div>
+          <p class="text-muted">Sprite consumption via <span class="code-inline">.icon</span> + <span class="code-inline">data-icon</span>.</p>
+        </div>
+
+        <div class="stack-sm">
+          <div class="guide-icon-row">
+            <span class="icon" data-icon="mono/eye"></span>
+            <span class="icon" data-icon="mono/theme-light-dark"></span>
+            <span class="icon icon-brand" data-icon="brand/google"></span>
+            <span class="icon icon-brand" data-icon="brand/github"></span>
+            <span class="icon icon-brand" data-icon="brand/301"></span>
+          </div>
+          <div class="code-block">
+&lt;span class="icon" data-icon="mono/eye"&gt;&lt;/span&gt;
+&lt;span class="icon icon-brand" data-icon="brand/google"&gt;&lt;/span&gt;
+          </div>
+          <p class="text-muted">
+            Full catalog: <a href="/icons-preview.html">/icons-preview.html</a>. Sprite source: <code class="code-inline">/icons-sprite.svg</code>.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const root = document.documentElement;
+      const styles = getComputedStyle(root);
+      document.querySelectorAll('[data-token-value]').forEach((el) => {
+        const token = el.getAttribute('data-token-value');
+        const value = styles.getPropertyValue(token)?.trim();
+        el.textContent = value || 'n/a';
+      });
+
+      document.querySelectorAll('[data-icon]').forEach((el) => {
+        const iconName = el.getAttribute('data-icon');
+        if (!iconName) return;
+        const symbolId = `i-${iconName.replace('/', '-')}`;
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('aria-hidden', 'true');
+        const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+        use.setAttribute('href', `/icons-sprite.svg#${symbolId}`);
+        svg.appendChild(use);
+        el.appendChild(svg);
+      });
+    </script>
+  </body>
+</html>
