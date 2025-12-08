@@ -98,6 +98,10 @@
         color: var(--text-muted);
       }
 
+      .token-usage {
+        font-size: var(--fs-sm);
+      }
+
       .space-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -273,6 +277,7 @@
         </div>
 
         <nav class="guide-nav cluster" aria-label="On-page navigation">
+          <a href="#themes">Themes</a>
           <a href="#colors">Colors &amp; tokens</a>
           <a href="#spacing">Spacing scale</a>
           <a href="#typography">Typography</a>
@@ -288,6 +293,32 @@
     </header>
 
     <main class="container stack stack-lg">
+      <section id="themes" class="card stack-md">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">Core</p>
+            <h2 class="text-title">Themes</h2>
+          </div>
+          <p class="text-muted">Dark-first palette with a light alternative.</p>
+        </div>
+
+        <p class="text-body">
+          301.st uses a <strong>dark-first</strong> palette with an optional light theme. All components must rely on CSS
+          tokens (e.g. <code class="code-inline">--bg</code>, <code class="code-inline">--panel</code>,
+          <code class="code-inline">--text</code>), never raw hex values. The theme switcher only flips token values, not
+          component-specific styles.
+        </p>
+        <ul class="text-muted">
+          <li>Dark theme: default for app.301.st, optimized for dashboard usage.</li>
+          <li>Light theme: used for previews/marketing; same tokens, different values.</li>
+          <li>Implementation: theme is controlled via <code class="code-inline">data-theme="light|dark"</code> on the
+            <code class="code-inline">&lt;html&gt;</code> element.</li>
+        </ul>
+        <p class="text-body">
+          When adding new components, <strong>never hardcode colors</strong>. Always reuse existing tokens so both themes stay
+          in sync.
+        </p>
+      </section>
       <section id="colors" class="card stack-md">
         <div class="section-header">
           <div>
@@ -297,12 +328,24 @@
           <p class="text-muted">Use tokens, never raw hex codes.</p>
         </div>
 
+        <div class="code-block">
+          <strong>Usage map</strong><br />
+          --bg — page background<br />
+          --panel — cards/panels background<br />
+          --brand — primary CTAs and focus<br />
+          --danger — destructive actions / error text<br />
+          --ok — positive/success states<br />
+          --muted — secondary text, captions<br />
+          --text — default text color
+        </div>
+
         <div class="token-grid">
           <div class="token-swatch" style="--token-var: var(--bg)">
             <div class="token-color"></div>
             <div class="stack-sm">
               <div class="token-name">--bg</div>
               <div class="token-value" data-token-value="--bg"></div>
+              <div class="token-usage text-muted">App/page background</div>
             </div>
           </div>
           <div class="token-swatch" style="--token-var: var(--panel)">
@@ -310,6 +353,7 @@
             <div class="stack-sm">
               <div class="token-name">--panel</div>
               <div class="token-value" data-token-value="--panel"></div>
+              <div class="token-usage text-muted">Cards, panels, inset blocks</div>
             </div>
           </div>
           <div class="token-swatch" style="--token-var: var(--brand)">
@@ -317,6 +361,7 @@
             <div class="stack-sm">
               <div class="token-name">--brand</div>
               <div class="token-value" data-token-value="--brand"></div>
+              <div class="token-usage text-muted">Primary actions, focus rings</div>
             </div>
           </div>
           <div class="token-swatch" style="--token-var: var(--danger)">
@@ -324,6 +369,7 @@
             <div class="stack-sm">
               <div class="token-name">--danger</div>
               <div class="token-value" data-token-value="--danger"></div>
+              <div class="token-usage text-muted">Destructive actions, error text</div>
             </div>
           </div>
           <div class="token-swatch" style="--token-var: var(--ok)">
@@ -331,6 +377,7 @@
             <div class="stack-sm">
               <div class="token-name">--ok</div>
               <div class="token-value" data-token-value="--ok"></div>
+              <div class="token-usage text-muted">Success/positive states</div>
             </div>
           </div>
           <div class="token-swatch" style="--token-var: var(--muted)">
@@ -338,6 +385,7 @@
             <div class="stack-sm">
               <div class="token-name">--muted</div>
               <div class="token-value" data-token-value="--muted"></div>
+              <div class="token-usage text-muted">Secondary/caption text</div>
             </div>
           </div>
           <div class="token-swatch" style="--token-var: var(--text)">
@@ -345,6 +393,7 @@
             <div class="stack-sm">
               <div class="token-name">--text</div>
               <div class="token-value" data-token-value="--text"></div>
+              <div class="token-usage text-muted">Default text color</div>
             </div>
           </div>
         </div>
@@ -404,6 +453,14 @@
           </div>
         </div>
         <p class="label-inline">Aliases: <span class="code-inline">--s-1</span> → <span class="code-inline">--space-2</span>, <span class="code-inline">--s-2</span> → <span class="code-inline">--space-3</span>, <span class="code-inline">--s-3</span> → <span class="code-inline">--space-4</span>.</p>
+        <div class="example-card stack-sm" style="margin-top: var(--space-2);">
+          <h3 class="text-title">Stack helper</h3>
+          <div class="stack stack-md" style="background: var(--bg-soft); padding: var(--space-3); border-radius: var(--r);">
+            <div class="card-section">Item 1</div>
+            <div class="card-section">Item 2</div>
+          </div>
+          <p class="text-muted">.stack-md applies <code class="code-inline">gap: var(--space-3)</code>.</p>
+        </div>
       </section>
 
       <section id="typography" class="card stack-md">
@@ -431,6 +488,11 @@
               <span class="text-muted">Use <span class="code-inline">.text-muted</span> for helper texts, subtitles, validation messages.</span>
             </p>
           </div>
+
+          <div class="code-block">
+            &lt;p class="text-body"&gt;Default body text — uses .text-body for forms and descriptive copy.&lt;/p&gt;<br />
+            &lt;p class="text-muted"&gt;Helper text, subtitles and validation messages use .text-muted.&lt;/p&gt;
+          </div>
         </div>
       </section>
 
@@ -453,6 +515,12 @@
               <span class="text-body">Item 3</span>
             </div>
             <p class="label-inline">Modifiers: <span class="code-inline">.stack-sm</span>, <span class="code-inline">.stack-md</span>, <span class="code-inline">.stack-lg</span>.</p>
+            <div class="code-block">
+              &lt;div class="stack stack-md"&gt;<br />
+              &nbsp;&nbsp;&lt;div&gt;Item 1&lt;/div&gt;<br />
+              &nbsp;&nbsp;&lt;div&gt;Item 2&lt;/div&gt;<br />
+              &lt;/div&gt;
+            </div>
           </div>
           <div class="example-card stack-sm">
             <h3 class="text-title">Cluster</h3>
@@ -462,6 +530,7 @@
               <button class="btn btn-secondary btn-sm">Two</button>
               <button class="btn btn-secondary btn-sm">Three</button>
             </div>
+            <div class="code-block">&lt;div class="cluster"&gt;...inline items...&lt;/div&gt;</div>
           </div>
           <div class="example-card stack-sm">
             <h3 class="text-title">Cards / panels</h3>
@@ -477,6 +546,14 @@
               <div class="card-section card--emphasis">
                 <p class="text-body">Emphasized variant (on <span class="code-inline">.card--emphasis</span>).</p>
               </div>
+            </div>
+            <div class="code-block">
+              &lt;section class="panel"&gt;<br />
+              &nbsp;&nbsp;&lt;header class="card-section"&gt;<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&lt;h3 class="text-title"&gt;Project settings&lt;/h3&gt;<br />
+              &nbsp;&nbsp;&lt;/header&gt;<br />
+              &nbsp;&nbsp;&lt;div class="card-section"&gt;...&lt;/div&gt;<br />
+              &lt;/section&gt;
             </div>
           </div>
         </div>
@@ -600,15 +677,16 @@
             <h3 class="text-title">Social</h3>
             <div class="stack-sm">
               <button class="btn btn-social btn-social-google">
-                <span class="icon icon-brand" data-icon="brand/google"></span>
-                Continue with Google
+                <span class="icon icon-brand" data-icon="brand/google" aria-hidden="true"></span>
+                <span>Continue with Google</span>
               </button>
               <button class="btn btn-social btn-social-github">
-                <span class="icon icon-brand" data-icon="brand/github"></span>
-                Continue with GitHub
+                <span class="icon icon-brand" data-icon="brand/github" aria-hidden="true"></span>
+                <span>Continue with GitHub</span>
               </button>
             </div>
             <div class="code-block">&lt;button class="btn btn-social btn-social-google"&gt;...&lt;/button&gt;</div>
+            <p class="text-muted">Social buttons use <span class="code-inline">.btn-social-*</span> for brand colors; icons come from the sprite (no &lt;img&gt;).</p>
           </div>
         </div>
       </section>
@@ -630,6 +708,13 @@
               <input class="input" id="guide-email" type="email" placeholder="user@example.com" />
               <p class="field-hint">We’ll never share your email.</p>
             </div>
+            <div class="code-block">
+              &lt;div class="field"&gt;<br />
+              &nbsp;&nbsp;&lt;label class="field-label" for="email"&gt;Email&lt;/label&gt;<br />
+              &nbsp;&nbsp;&lt;input class="input" id="email" type="email" placeholder="user@example.com" /&gt;<br />
+              &nbsp;&nbsp;&lt;p class="field-hint"&gt;We’ll never share your email.&lt;/p&gt;<br />
+              &lt;/div&gt;
+            </div>
           </div>
           <div class="example-card stack-sm">
             <h3 class="text-title">Password with icon</h3>
@@ -643,6 +728,18 @@
               </div>
               <p class="field-error">Too weak — add numbers and symbols.</p>
             </div>
+            <div class="code-block">
+              &lt;div class="field field--error"&gt;<br />
+              &nbsp;&nbsp;&lt;label class="field-label" for="password"&gt;Password&lt;/label&gt;<br />
+              &nbsp;&nbsp;&lt;div class="password-field"&gt;<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&lt;input class="input is-error" id="password" type="password" /&gt;<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&lt;button class="password-toggle" type="button" aria-label="Show password"&gt;<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;span class="icon" data-icon="mono/eye"&gt;&lt;/span&gt;<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&lt;/button&gt;<br />
+              &nbsp;&nbsp;&lt;/div&gt;<br />
+              &nbsp;&nbsp;&lt;p class="field-error"&gt;Too weak — add numbers and symbols.&lt;/p&gt;<br />
+              &lt;/div&gt;
+            </div>
           </div>
           <div class="example-card stack-sm">
             <h3 class="text-title">Success state</h3>
@@ -651,6 +748,7 @@
               <input class="input is-success" id="guide-success" type="text" value="123456" />
               <p class="field-success">Looks good. Code accepted.</p>
             </div>
+            <div class="code-block">&lt;div class="field" data-status="success"&gt;...success hint...&lt;/div&gt;</div>
           </div>
         </div>
       </section>
@@ -665,14 +763,22 @@
         </div>
 
         <div class="stack-sm">
-          <div class="btn-chip-group" role="tablist" aria-label="Auth tabs sample">
-            <button type="button" class="btn-chip is-active">Login</button>
-            <button type="button" class="btn-chip">Register</button>
-            <button type="button" class="btn-chip">Forgot password?</button>
+          <div class="btn-chip-group tabs" role="tablist" aria-label="Auth tabs sample">
+            <button type="button" class="btn-chip is-active" role="tab">Login</button>
+            <button type="button" class="btn-chip" role="tab">Register</button>
+            <button type="button" class="btn-chip" role="tab">Forgot password?</button>
           </div>
           <p class="text-muted">
-            Classes: <span class="code-inline">.btn-chip</span> + <span class="code-inline">.is-active</span>. Use for any pill navigation or filters.
+            Classes: <span class="code-inline">.btn-chip</span> + <span class="code-inline">.is-active</span>. Use for any pill navigation or filters. Tabs live inside a
+            <span class="code-inline">.tabs</span> / <span class="code-inline">.btn-chip-group</span> container.
           </p>
+          <div class="code-block">
+            &lt;div class="tabs" role="tablist"&gt;<br />
+            &nbsp;&nbsp;&lt;button class="btn-chip is-active" role="tab"&gt;Login&lt;/button&gt;<br />
+            &nbsp;&nbsp;&lt;button class="btn-chip" role="tab"&gt;Register&lt;/button&gt;<br />
+            &nbsp;&nbsp;&lt;button class="btn-chip" role="tab"&gt;Forgot password?&lt;/button&gt;<br />
+            &lt;/div&gt;
+          </div>
         </div>
       </section>
 
@@ -730,6 +836,8 @@
           </div>
           <p class="text-muted">
             Full catalog: <a href="/icons-preview.html">/icons-preview.html</a>. Sprite source: <code class="code-inline">/icons-sprite.svg</code>.
+            Monochrome icons inherit <code class="code-inline">currentColor</code>; brand icons stay colorful and use <code class="code-inline">.icon-brand</code>. For adding new
+            icons, see <code class="code-inline">docs/icons.md</code>.
           </p>
         </div>
       </section>
