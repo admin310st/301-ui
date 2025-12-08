@@ -165,6 +165,70 @@
         background: var(--bg-soft);
       }
 
+      .table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: var(--fs-sm);
+      }
+
+      .table thead {
+        background: var(--bg-soft);
+      }
+
+      .table th,
+      .table td {
+        padding: 0.6rem 0.75rem;
+        text-align: left;
+      }
+
+      .table th {
+        font-weight: var(--fw-medium);
+        color: var(--text-muted);
+        border-bottom: 1px solid var(--border-strong);
+      }
+
+      .table tbody tr {
+        border-bottom: 1px solid var(--border-subtle);
+      }
+
+      .table tbody tr:hover {
+        background: rgba(255, 255, 255, 0.02);
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.15rem 0.5rem;
+        border-radius: 999px;
+        font-size: var(--fs-xs);
+        font-weight: var(--fw-medium);
+        border: 1px solid transparent;
+      }
+
+      .badge-muted {
+        background: rgba(148, 163, 184, 0.12);
+        color: var(--text-subtle);
+        border-color: rgba(148, 163, 184, 0.35);
+      }
+
+      .badge-success {
+        background: var(--success-bg);
+        color: var(--success);
+        border-color: rgba(24, 194, 122, 0.7);
+      }
+
+      .badge-danger {
+        background: var(--danger-bg);
+        color: var(--danger);
+        border-color: rgba(255, 79, 110, 0.7);
+      }
+
+      .badge-cf {
+        background: var(--accent-cf-soft);
+        color: var(--accent-cf);
+        border-color: rgba(194, 79, 0, 0.7);
+      }
+
       .code-block {
         font-family: "SFMono-Regular", ui-monospace, SFMono-Regular, Menlo, Monaco,
           Consolas, "Liberation Mono", "Courier New", monospace;
@@ -213,6 +277,7 @@
           <a href="#spacing">Spacing scale</a>
           <a href="#typography">Typography</a>
           <a href="#layout">Layout helpers</a>
+          <a href="#tables">Tables</a>
           <a href="#buttons">Buttons</a>
           <a href="#forms">Form fields</a>
           <a href="#tabs">Tabs &amp; chips</a>
@@ -222,7 +287,7 @@
       </div>
     </header>
 
-    <main class="container stack-lg">
+    <main class="container stack stack-lg">
       <section id="colors" class="card stack-md">
         <div class="section-header">
           <div>
@@ -413,6 +478,86 @@
                 <p class="text-body">Emphasized variant (on <span class="code-inline">.card--emphasis</span>).</p>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="tables" class="card stack-md">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">Data display</p>
+            <h2 class="text-title">Tables</h2>
+          </div>
+          <p class="text-muted">Domains list example with statuses &amp; actions.</p>
+        </div>
+
+        <div class="stack-sm">
+          <div class="card">
+            <div class="card-section" style="padding-top: 0; border-top: none;">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Domain</th>
+                    <th>Status</th>
+                    <th>Cloudflare</th>
+                    <th>Updated</th>
+                    <th style="text-align: right;">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>example.com</td>
+                    <td><span class="badge badge-success">Active</span></td>
+                    <td><span class="badge badge-cf">WAF + Cache</span></td>
+                    <td>3 min ago</td>
+                    <td style="text-align: right;">
+                      <div class="cluster" style="justify-content: flex-end;">
+                        <button class="btn btn-secondary btn-sm">Details</button>
+                        <button class="btn btn-primary btn-sm">Manage</button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>status.301.st</td>
+                    <td><span class="badge badge-muted">Paused</span></td>
+                    <td><span class="badge badge-cf">Rulesets applied</span></td>
+                    <td>1 hour ago</td>
+                    <td style="text-align: right;">
+                      <div class="cluster" style="justify-content: flex-end;">
+                        <button class="btn btn-secondary btn-sm">Details</button>
+                        <button class="btn btn-primary btn-sm">Resume</button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>staging.cloudapp.dev</td>
+                    <td><span class="badge badge-danger">DNS error</span></td>
+                    <td><span class="badge badge-muted">Pending DNS</span></td>
+                    <td>Yesterday</td>
+                    <td style="text-align: right;">
+                      <div class="cluster" style="justify-content: flex-end;">
+                        <button class="btn btn-secondary btn-sm">Retry</button>
+                        <button class="btn btn-ghost btn-sm">Remove</button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="code-block">
+            &lt;table class="table"&gt;
+            &lt;thead&gt;...&lt;/thead&gt;
+            &lt;tbody&gt;
+            &nbsp;&nbsp;&lt;tr&gt;
+            &nbsp;&nbsp;&nbsp;&nbsp;&lt;td&gt;example.com&lt;/td&gt;
+            &nbsp;&nbsp;&nbsp;&nbsp;&lt;td&gt;&lt;span class=&quot;badge badge-success&quot;&gt;Active&lt;/span&gt;&lt;/td&gt;
+            &nbsp;&nbsp;&nbsp;&nbsp;&lt;td&gt;&lt;span class=&quot;badge badge-cf&quot;&gt;WAF + Cache&lt;/span&gt;&lt;/td&gt;
+            &nbsp;&nbsp;&nbsp;&nbsp;&lt;td&gt;3 min ago&lt;/td&gt;
+            &nbsp;&nbsp;&nbsp;&nbsp;&lt;td&gt;...actions...&lt;/td&gt;
+            &nbsp;&nbsp;&lt;/tr&gt;
+            &lt;/tbody&gt;
+            &lt;/table&gt;
           </div>
         </div>
       </section>
