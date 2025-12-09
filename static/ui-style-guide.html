@@ -247,6 +247,23 @@
         gap: 0.5rem;
       }
 
+      .table-filter {
+        display: inline-flex;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .btn-chip {
+        gap: 0.5rem;
+      }
+
+      .btn-chip .icon {
+        width: 1rem;
+        height: 1rem;
+        flex: 0 0 auto;
+        color: currentColor;
+      }
+
       .btn-chip__icon,
       .btn-chip__chevron {
         display: inline-flex;
@@ -298,10 +315,9 @@
       }
 
       .btn-chip--primary .icon {
-        color: inherit;
+        color: currentColor;
       }
 
-      .btn-chip--dropdown .btn-chip__icon .icon,
       .btn-chip--dropdown .btn-chip__chevron .icon {
         color: var(--muted);
       }
@@ -313,6 +329,15 @@
 
       .btn-chip--dropdown.is-open .btn-chip__chevron .icon {
         transform: rotate(180deg);
+      }
+
+      .dropdown-panel {
+        margin-top: 0.25rem;
+        padding: 0.25rem 0;
+        border-radius: var(--r-lg);
+        background: var(--panel);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        min-width: 12rem;
       }
 
       .table-search {
@@ -345,6 +370,30 @@
 
       .table-search--active .table-search__clear {
         display: inline-flex;
+      }
+
+      .btn-icon {
+        width: 2rem;
+        height: 2rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: var(--r);
+        border: 0;
+        background: transparent;
+        cursor: pointer;
+        color: var(--muted);
+      }
+
+      .btn-icon--ghost:hover {
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--text);
+      }
+
+      .btn-icon .icon {
+        width: 1rem;
+        height: 1rem;
+        color: currentColor;
       }
 
       .dropdown {
@@ -985,20 +1034,25 @@
                   </button>
                 </div>
 
-                <button class="btn-chip btn-chip--dropdown is-open" type="button">
-                  <span class="btn-chip__icon">
+                <div class="table-filter">
+                  <button class="btn-chip btn-chip--dropdown is-open" type="button">
                     <span class="icon" data-icon="mono/filter"></span>
-                  </span>
-                  <span class="btn-chip__label">Status: Active</span>
-                  <span class="btn-chip__chevron">
-                    <span class="icon" data-icon="mono/chevron-down"></span>
-                  </span>
-                </button>
+                    <span class="btn-chip__label">Status: Active</span>
+                    <span class="btn-chip__chevron">
+                      <span class="icon" data-icon="mono/chevron-down"></span>
+                    </span>
+                  </button>
+
+                  <div class="dropdown-panel">
+                    <button class="dropdown__item" type="button">All statuses</button>
+                    <button class="dropdown__item" type="button">Active only</button>
+                    <button class="dropdown__item" type="button">Paused</button>
+                    <button class="dropdown__item" type="button">DNS error</button>
+                  </div>
+                </div>
 
                 <button class="btn-chip btn-chip--dropdown" type="button">
-                  <span class="btn-chip__icon">
-                    <span class="icon" data-icon="mono/filter"></span>
-                  </span>
+                  <span class="icon" data-icon="mono/filter"></span>
                   <span class="btn-chip__label">Provider</span>
                   <span class="btn-chip__chevron">
                     <span class="icon" data-icon="mono/chevron-down"></span>
@@ -1273,10 +1327,27 @@
 
           <div class="code-block">
 &lt;div class=&quot;btn-chip-group table-controls&quot;&gt;<br />
-&nbsp;&nbsp;&lt;div class=&quot;btn-chip btn-chip--input table-search&quot;&gt;...search...&lt;/div&gt;<br />
-&nbsp;&nbsp;&lt;button class=&quot;btn-chip btn-chip--dropdown&quot;&gt;Status&lt;/button&gt;<br />
-&nbsp;&nbsp;&lt;button class=&quot;btn-chip btn-chip--dropdown&quot;&gt;Provider&lt;/button&gt;<br />
-&nbsp;&nbsp;&lt;button class=&quot;btn-chip btn-chip--primary&quot;&gt;Add domain&lt;/button&gt;<br />
+&nbsp;&nbsp;&lt;div class=&quot;btn-chip btn-chip--input table-search&quot;&gt;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/search&quot;&gt;&lt;/span&gt;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;input class=&quot;table-search__input&quot; placeholder=&quot;Search by domain, project or account...&quot; /&gt;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;button class=&quot;table-search__clear&quot; type=&quot;button&quot;&gt;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/close&quot;&gt;&lt;/span&gt;&lt;/button&gt;<br />
+&nbsp;&nbsp;&lt;/div&gt;<br />
+&nbsp;&nbsp;&lt;div class=&quot;table-filter&quot;&gt;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;button class=&quot;btn-chip btn-chip--dropdown is-open&quot;&gt;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/filter&quot;&gt;&lt;/span&gt;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;btn-chip__label&quot;&gt;Status: Active&lt;/span&gt;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;btn-chip__chevron&quot;&gt;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/chevron-down&quot;&gt;&lt;/span&gt;&lt;/span&gt;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/button&gt;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;div class=&quot;dropdown-panel&quot;&gt;...filter menu...&lt;/div&gt;<br />
+&nbsp;&nbsp;&lt;/div&gt;<br />
+&nbsp;&nbsp;&lt;button class=&quot;btn-chip btn-chip--dropdown&quot;&gt;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/filter&quot;&gt;&lt;/span&gt;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;btn-chip__label&quot;&gt;Provider&lt;/span&gt;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;btn-chip__chevron&quot;&gt;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/chevron-down&quot;&gt;&lt;/span&gt;&lt;/span&gt;<br />
+&nbsp;&nbsp;&lt;/button&gt;<br />
+&nbsp;&nbsp;&lt;button class=&quot;btn-chip btn-chip--primary&quot;&gt;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/plus&quot;&gt;&lt;/span&gt;&lt;span&gt;Add domain&lt;/span&gt;<br />
+&nbsp;&nbsp;&lt;/button&gt;<br />
 &lt;/div&gt;<br />
 &lt;div class=&quot;table-wrapper&quot;&gt;<br />
 &nbsp;&nbsp;&lt;table class=&quot;table table--domains&quot;&gt;...domains rows with dropdown actions...&lt;/table&gt;<br />
