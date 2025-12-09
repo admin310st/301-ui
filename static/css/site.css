@@ -456,11 +456,19 @@ html[data-theme="light"] .btn-secondary:hover {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 0.5rem;
   white-space: nowrap;
   transition:
     background var(--transition-md),
     border-color var(--transition-md),
     color var(--transition-md);
+}
+
+.btn-chip .icon {
+  width: 1rem;
+  height: 1rem;
+  flex: 0 0 auto;
+  color: currentColor;
 }
 
 .btn-chip__icon,
@@ -515,9 +523,7 @@ html[data-theme="light"] .btn-secondary:hover {
   background: var(--primary-hover);
 }
 
-.btn-chip--primary .icon {
-  color: inherit;
-}
+.btn-chip--primary .icon { color: currentColor; }
 
 /* Активное состояние */
 .btn-chip.is-active {
@@ -525,10 +531,7 @@ html[data-theme="light"] .btn-secondary:hover {
   border-color: color-mix(in srgb, var(--primary) 55%, transparent);
 }
 
-.btn-chip--dropdown .btn-chip__icon .icon,
-.btn-chip--dropdown .btn-chip__chevron .icon {
-  color: var(--muted);
-}
+.btn-chip--dropdown .btn-chip__chevron .icon { color: var(--muted); }
 
 .btn-chip--dropdown.is-open {
   background: var(--panel);
@@ -537,6 +540,16 @@ html[data-theme="light"] .btn-secondary:hover {
 
 .btn-chip--dropdown.is-open .btn-chip__chevron .icon {
   transform: rotate(180deg);
+}
+
+/* Demo-only dropdown panel for style guide */
+.dropdown-panel {
+  margin-top: 0.25rem;
+  padding: 0.25rem 0;
+  border-radius: var(--r-lg);
+  background: var(--panel);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  min-width: 12rem;
 }
 
 /* Hover-подсветка */
@@ -553,6 +566,12 @@ html[data-theme="dark"] .btn-chip:hover {
   flex-wrap: wrap;
   align-items: center;
   gap: 0.5rem;
+}
+
+.table-filter {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .table-search {
@@ -584,6 +603,30 @@ html[data-theme="dark"] .btn-chip:hover {
 
 .table-search--active .table-search__clear {
   display: inline-flex;
+}
+
+.btn-icon {
+  width: 2rem;
+  height: 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r);
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  color: var(--muted);
+}
+
+.btn-icon--ghost:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text);
+}
+
+.btn-icon .icon {
+  width: 1rem;
+  height: 1rem;
+  color: currentColor;
 }
 
 .btn-outline {

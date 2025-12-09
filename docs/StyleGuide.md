@@ -319,26 +319,43 @@ Use `.h1` for page titles in the member area and auth hero, `.h2` for section ti
 
 Chip buttons (`.btn-chip`) sit inside a `.btn-chip-group` container for tab navigation and segmented controls.
 
+#### Chip buttons with icons
+
+Use `.btn-chip` with inner `.icon` elements from the sprite:
+
+```html
+<button class="btn-chip is-active">
+  <span class="icon" data-icon="mono/search"></span>
+  <span>Search</span>
+</button>
+```
+
+Icon rules inside chips:
+
+* icon element: `<span class="icon" data-icon="mono/...">`
+* size: 16×16 px
+* color: inherits `currentColor` from `.btn-chip`
+* spacing between icon and text: 8px (0.5rem)
+
 #### Filter / dropdown chips
 
 Use `.btn-chip--dropdown` for filter controls in tables.
 
-- Left icon: `mono/filter`
-- Right icon: `mono/chevron-down`
-- Icons inherit `currentColor`; the chip sets color for text and icons.
-- Active/open state is indicated by `.is-open` modifier.
-
 ```html
 <button class="btn-chip btn-chip--dropdown">
-  <span class="btn-chip__icon">
-    <span class="icon" data-icon="mono/filter"></span>
-  </span>
+  <span class="icon" data-icon="mono/filter"></span>
   <span class="btn-chip__label">Status: Active</span>
   <span class="btn-chip__chevron">
     <span class="icon" data-icon="mono/chevron-down"></span>
   </span>
 </button>
 ```
+
+- Left icon: `mono/filter`
+- Right icon: `mono/chevron-down`
+- Icons inherit `currentColor`; the chevron can be muted with `var(--muted)`.
+- Active/open state is indicated by `.is-open` modifier (rotates chevron and outlines the chip).
+- Demo-only open state may show a `.dropdown-panel` aligned below the chip with menu buttons.
 
 #### Icon usage inside chips
 
@@ -415,6 +432,7 @@ Primary use: domains list, Cloudflare zones, rulesets, logs.
 .table--domains { min-width: 720px; }
 .table__th-actions, .table__cell-actions { width: 1%; white-space: nowrap; text-align: right; }
 .btn-chip-group.table-controls { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+.table-filter { display: inline-flex; flex-direction: column; align-items: flex-start; }
 .btn-chip__icon, .btn-chip__chevron { display: inline-flex; align-items: center; justify-content: center; }
 .btn-chip__label { white-space: nowrap; }
 .btn-chip--dropdown { display: inline-flex; align-items: center; gap: 0.35rem; padding-inline: 0.75rem; border-color: var(--border-subtle); background: var(--bg-elevated); color: var(--text-main); }
@@ -462,27 +480,35 @@ Example toolbar + table markup:
 ```html
 <div class="btn-chip-group table-controls">
   <div class="btn-chip btn-chip--input table-search" data-table-search>
-    <i class="icon icon-mono icon-search"></i>
+    <span class="icon" data-icon="mono/search"></span>
     <input class="table-search__input" placeholder="Search by domain, project or account..." />
     <button class="table-search__clear" type="button">
-      <i class="icon icon-mono icon-close"></i>
+      <span class="icon" data-icon="mono/close"></span>
     </button>
   </div>
 
-  <button class="btn-chip btn-chip--dropdown" type="button">
-    <span class="btn-chip__icon"><i class="icon icon-mono icon-filter"></i></span>
-    <span class="btn-chip__label">Status: Active</span>
-    <span class="btn-chip__chevron"><i class="icon icon-mono icon-chevron-down"></i></span>
-  </button>
+  <div class="table-filter">
+    <button class="btn-chip btn-chip--dropdown is-open" type="button">
+      <span class="icon" data-icon="mono/filter"></span>
+      <span class="btn-chip__label">Status: Active</span>
+      <span class="btn-chip__chevron"><span class="icon" data-icon="mono/chevron-down"></span></span>
+    </button>
+    <div class="dropdown-panel">
+      <button class="dropdown__item" type="button">All statuses</button>
+      <button class="dropdown__item" type="button">Active only</button>
+      <button class="dropdown__item" type="button">Paused</button>
+      <button class="dropdown__item" type="button">DNS error</button>
+    </div>
+  </div>
 
   <button class="btn-chip btn-chip--dropdown" type="button">
-    <span class="btn-chip__icon"><i class="icon icon-mono icon-filter"></i></span>
+    <span class="icon" data-icon="mono/filter"></span>
     <span class="btn-chip__label">Provider</span>
-    <span class="btn-chip__chevron"><i class="icon icon-mono icon-chevron-down"></i></span>
+    <span class="btn-chip__chevron"><span class="icon" data-icon="mono/chevron-down"></span></span>
   </button>
 
   <button class="btn-chip btn-chip--primary" type="button">
-    <i class="icon icon-mono icon-plus"></i>
+    <span class="icon" data-icon="mono/plus"></span>
     <span>Add domain</span>
   </button>
 </div>
