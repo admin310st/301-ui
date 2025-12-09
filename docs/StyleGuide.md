@@ -506,19 +506,43 @@ Control heights come from `--control-height-md` and `--control-height-lg`; do no
 
 Icons inside buttons are 16px SVGs with `stroke="currentColor"` / `fill="none"` so they stay legible in both themes.
 
-#### Table chips / action chips
+#### Table chips / action chips (Table Controls & Chips)
 
-* Base `.btn-chip` uses the same control height, pill radius, `--panel` background, subtle border and 14px icons in `currentColor`.
-* `.btn-chip--primary` mirrors the primary button colors; `.btn-chip--cf` mirrors the Cloudflare CTA.
-* Dropdown chip pattern:
+**Разметка для всех чипов:**
+
+```html
+<button class="btn-chip btn-chip--variant">
+  <span class="btn-chip__icon" data-icon="..."></span>     <!-- optional -->
+  <span class="btn-chip__label">Label text</span>           <!-- required -->
+  <span class="btn-chip__chevron" data-icon="mono/chevron-down"></span> <!-- optional -->
+</button>
+```
+
+Базовые правила:
+
+* высота: `var(--control-height-md)`;
+* фон: `var(--bg-elevated)`;
+* текст: `var(--text-main)`;
+* иконки — только через `.btn-chip__icon` / `.btn-chip__chevron` с 14px SVG в `currentColor`;
+* `padding-inline: var(--space-2)`;
+* скругление: `var(--radius-pill)`.
+
+Варианты (`btn-chip--*`):
+
+| Вариант              | Использование         | Описание                                                 |
+| -------------------- | --------------------- | -------------------------------------------------------- |
+| `btn-chip--dropdown` | фильтры со стрелкой   | Добавляет chevron справа                                 |
+| `btn-chip--cf`       | Cloudflare provider   | Цвет фона = `--accent-cf-bg`, текст = `--accent-cf-text` |
+| `btn-chip--status`   | Active/Paused/Expired | Цвет фона по статусу (`--status-active`, …)              |
+| `btn-chip--primary`  | основной акцент       | Использует токены primary                                |
+
+Dropdown chip pattern:
 
 ```html
 <button class="btn-chip btn-chip--dropdown">
-  <span class="btn-chip__icon icon" data-icon="mono/filter"></span>
+  <span class="btn-chip__icon" data-icon="mono/filter"></span>
   <span class="btn-chip__label">Status: Active</span>
-  <span class="btn-chip__chevron" aria-hidden="true">
-    <span class="icon" data-icon="mono/chevron-down"></span>
-  </span>
+  <span class="btn-chip__chevron" data-icon="mono/chevron-down"></span>
 </button>
 
 <div class="table-filter__menu">
@@ -543,11 +567,9 @@ Toolbar example combining the real components (search bar + dropdown chip + Clou
 
   <div class="table-filter" data-demo="status-filter">
     <button class="btn-chip btn-chip--dropdown" type="button" aria-expanded="false">
-      <span class="btn-chip__icon icon" data-icon="mono/filter"></span>
+      <span class="btn-chip__icon" data-icon="mono/filter"></span>
       <span class="btn-chip__label">Status: Active</span>
-      <span class="btn-chip__chevron" aria-hidden="true">
-        <span class="icon" data-icon="mono/chevron-down"></span>
-      </span>
+      <span class="btn-chip__chevron" data-icon="mono/chevron-down"></span>
     </button>
 
     <div class="table-filter__menu" hidden>
@@ -559,8 +581,8 @@ Toolbar example combining the real components (search bar + dropdown chip + Clou
   </div>
 
   <button class="btn-chip btn-chip--cf" type="button">
-    <span class="icon" data-icon="brand/cloudflare"></span>
-    <span>Cloudflare</span>
+    <span class="btn-chip__icon" data-icon="brand/cloudflare"></span>
+    <span class="btn-chip__label">Cloudflare</span>
   </button>
 
   <button class="btn btn--primary" type="button">
@@ -570,7 +592,7 @@ Toolbar example combining the real components (search bar + dropdown chip + Clou
 </div>
 ```
 
-Icons in chips must stay as SVG with `stroke="currentColor"` / `fill="none"` and 14px sizing.
+**Важно:** разметка и классы чипов в документации и демо-страницах должны совпадать.
 ### 4.2. Form controls
 
 ```css
