@@ -503,6 +503,12 @@ html[data-theme="light"] .btn-secondary:hover {
   color: var(--text-main);
 }
 
+.btn-chip--ghost {
+  background: var(--bg-elevated);
+  border-color: var(--border-subtle);
+  color: var(--text-main);
+}
+
 /* Input-style chip */
 .btn-chip--input {
   display: inline-flex;
@@ -540,6 +546,20 @@ html[data-theme="light"] .btn-chip--primary:hover {
 
 .btn-chip--primary .icon { color: currentColor; }
 
+.btn-chip--cf {
+  background: var(--accent-cf-bg, var(--accent-cf));
+  color: var(--accent-cf-fg, var(--btn-text-on-dark));
+  border-color: var(--accent-cf-border, var(--accent-cf-soft, transparent));
+}
+
+.btn-chip--cf:hover {
+  background: var(--accent-cf-bg-hover, var(--accent-cf-hover));
+  border-color: var(--accent-cf-border-hover, var(--accent-cf-soft, transparent));
+  color: var(--accent-cf-fg, var(--btn-text-on-dark));
+}
+
+.btn-chip--cf .icon { color: currentColor; }
+
 /* Активное состояние */
 .btn-chip.is-active {
   color: var(--text);
@@ -564,7 +584,7 @@ html[data-theme="light"] .btn-chip--primary:hover {
 }
 
 
-.btn-chip-group.table-controls {
+.table-controls {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
