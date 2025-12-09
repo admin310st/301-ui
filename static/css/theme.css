@@ -77,8 +77,10 @@
   --space-6: 2rem;
 
   /* Control sizing */
+  --control-height-sm: 32px;
   --control-height-md: 40px;
   --control-height-lg: 44px;
+  --control-radius: 999px;
 
   /* Aliases used across legacy/static pages */
   --s-1: var(--space-2);
