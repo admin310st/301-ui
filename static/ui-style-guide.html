@@ -342,6 +342,11 @@
       .table-search {
         flex: 1 1 16rem;
         min-width: 0;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding-inline: 0.75rem;
+        color: var(--text);
       }
 
       .table-search__input {
@@ -360,13 +365,12 @@
 
       .table-search__clear {
         border: 0;
-        background: transparent;
         padding: 0;
+        background: transparent;
         display: none;
         align-items: center;
         justify-content: center;
         cursor: pointer;
-        color: var(--muted);
       }
 
       .table-search--active .table-search__clear {
@@ -1376,19 +1380,23 @@
             <p class="eyebrow">Components</p>
             <h2 class="text-title">Table Search Bar</h2>
           </div>
-          <p class="text-muted">Chip-style search aligned to <code class="code-inline">chip--lg</code> height.</p>
+          <p class="text-muted">
+            Chip-style search aligned to <code class="code-inline">chip--lg</code> height. Icons must be rendered via
+            <code class="code-inline">&lt;span class=&quot;icon&quot; data-icon=&quot;mono/search|close&quot;&gt;</code> and follow
+            <code class="code-inline">currentColor</code>; the clear button icon uses a muted color so it remains visible in
+            both light and dark themes.
+          </p>
         </div>
 
         <div class="stack-sm">
           <div class="table-search chip chip--ghost chip--lg" data-table-search>
             <span class="icon" data-icon="mono/search"></span>
             <input
-              type="search"
               class="table-search__input"
               placeholder="Search by domain, project or account..."
               value="cloudflare"
             />
-            <button class="table-search__clear" type="button" aria-label="Clear search">
+            <button class="table-search__clear" type="button">
               <span class="icon" data-icon="mono/close"></span>
             </button>
           </div>
@@ -1402,7 +1410,7 @@
           <div class="code-block">
 &lt;div class=&quot;table-search chip chip--ghost chip--lg&quot; data-table-search&gt;<br />
 &nbsp;&nbsp;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/search&quot;&gt;&lt;/span&gt;<br />
-&nbsp;&nbsp;&lt;input class=&quot;table-search__input&quot; placeholder=&quot;Search by domain, project or account...&quot; /&gt;<br />
+&nbsp;&nbsp;&lt;input class=&quot;table-search__input&quot; placeholder=&quot;Search by domain, project or account...&quot; value=&quot;cloudflare&quot; /&gt;<br />
 &nbsp;&nbsp;&lt;button class=&quot;table-search__clear&quot; type=&quot;button&quot;&gt;<br />
 &nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/close&quot;&gt;&lt;/span&gt;<br />
 &nbsp;&nbsp;&lt;/button&gt;<br />

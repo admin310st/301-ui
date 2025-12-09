@@ -480,9 +480,10 @@ Primary use: domains list, Cloudflare zones, rulesets, logs.
 .btn-chip--input:focus-within { border-color: var(--input-border-focus); box-shadow: 0 0 0 1px color-mix(in srgb, var(--primary) 40%, transparent); }
 .btn-chip--primary { background: var(--primary); border-color: color-mix(in srgb, var(--primary) 45%, transparent); color: var(--btn-text-on-dark); }
 .btn-chip--primary:hover { background: var(--primary-hover); }
-.table-search { flex: 1 1 16rem; min-width: 0; }
-.table-search__input { flex: 1 1 auto; background: transparent; border: none; color: inherit; font: inherit; width: 100%; }
-.table-search__clear { display: none; background: transparent; border: none; color: var(--text-muted); padding: 0; align-items: center; justify-content: center; }
+.table-search { flex: 1 1 16rem; min-width: 0; display: inline-flex; align-items: center; gap: 0.5rem; padding-inline: 0.75rem; color: var(--text); }
+.table-search__input { flex: 1 1 auto; background: transparent; border: none; color: var(--text); font: inherit; width: 100%; outline: none; }
+.table-search__input::placeholder { color: var(--muted); }
+.table-search__clear { display: none; background: transparent; border: none; padding: 0; align-items: center; justify-content: center; }
 .table-search__clear .icon { color: var(--muted); }
 .table-search--active .table-search__clear { display: inline-flex; }
 .dropdown { position: relative; display: inline-block; }
