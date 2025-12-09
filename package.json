@@ -6,10 +6,12 @@
     "dev": "npm run build:icons && vite",
     "build": "npm run build:icons && vite build",
     "preview": "vite preview",
-    "deploy": "npm run build && wrangler deploy"
+    "deploy": "npm run build && wrangler deploy",
+    "purge:report": "purgecss --css 'static/css/**/*.css' --content 'static/**/*.html' --safelist '/^btn--/', '/^btn-chip--/', '/^icon-/', '/^is-/', '/^has-/', 'dark', 'light' --rejected --output build/purge-report"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
+    "purgecss": "^7.0.2",
     "svgo": "^3.3.2",
     "typescript": "^5.6.3",
     "vite": "^5.4.21",
