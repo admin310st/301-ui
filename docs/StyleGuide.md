@@ -379,7 +379,94 @@ Primary use: domains list, Cloudflare zones, rulesets, logs.
 .table th { font-weight: var(--fw-medium); color: var(--text-muted); border-bottom: 1px solid var(--border-strong); }
 .table tbody tr { border-bottom: 1px solid var(--border-subtle); }
 .table tbody tr:hover { background: rgba(255, 255, 255, 0.02); }
+
+.table-wrapper { overflow-x: auto; width: 100%; }
+.table--domains { min-width: 720px; }
+.table__th-actions, .table__cell-actions { width: 1%; white-space: nowrap; text-align: right; }
+.table-search { display: inline-flex; align-items: center; gap: var(--space-2); padding: 0 var(--space-3); min-height: 2.2rem; border: 1px solid var(--border-subtle); border-radius: var(--r-lg); background: var(--panel); color: var(--text); }
+.table-search__input { background: transparent; border: none; color: var(--text); font-size: var(--fs-sm); width: 100%; padding: 0.35rem 0; }
+.table-search__clear { display: none; background: transparent; border: none; color: var(--text-muted); }
+.table-search--active .table-search__clear { display: inline-flex; }
+.dropdown { position: relative; display: inline-block; }
+.dropdown__menu { position: absolute; top: calc(100% + 0.35rem); right: 0; min-width: 220px; background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: var(--r); padding: var(--space-2) 0; display: none; box-shadow: var(--shadow-soft); }
+.dropdown--open .dropdown__menu { display: block; }
+.dropdown__item { display: flex; align-items: center; gap: var(--space-2); width: 100%; padding: var(--space-2) var(--space-3); background: transparent; border: none; color: var(--text); font-size: var(--fs-sm); text-align: left; }
+.dropdown__item--danger { color: var(--danger); }
+.link-button { display: inline-flex; gap: var(--space-2); align-items: center; background: transparent; border: none; color: var(--primary); font-size: var(--fs-sm); }
+.link-button--sm { font-size: var(--fs-xs); }
 ```
+
+#### 4.4.1. Domains table reference
+
+* Responsive rule: keep `.table--domains` at `min-width: 720px` and wrap in `.table-wrapper` for horizontal scroll on mobile (no card collapse).
+* Actions live inside a dropdown menu; provider column shows only `cloudflare`, `namecheap`, `namesilo` brand icons.
+* Status/expiry stays in one column, SSL mode and Zone ID surface through the dropdown actions only.
+
+Example toolbar + table markup:
+
+```html
+<div class="table-demo-controls">
+  <div class="table-search" data-table-search>
+    <span class="icon" data-icon="mono/search"></span>
+    <input class="table-search__input" placeholder="Search by domain, project or account…" />
+    <button class="table-search__clear" type="button">
+      <span class="icon" data-icon="mono/close"></span>
+    </button>
+  </div>
+
+  <div class="table-filters">
+    <button class="btn-chip" type="button"><span class="icon" data-icon="mono/filter"></span>Status: Active</button>
+    <button class="btn-chip" type="button"><span class="icon" data-icon="mono/chevron-down"></span>Provider</button>
+  </div>
+
+  <button class="btn btn-primary btn-sm" type="button"><span class="icon" data-icon="mono/plus"></span>Add domain</button>
+</div>
+
+<div class="table-wrapper">
+  <table class="table table--domains">
+    <thead>
+      <tr>
+        <th>Domain</th><th>Project</th><th>Status / Expiry</th><th>Provider</th><th class="table__th-actions"></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>
+          <div class="domain-cell">
+            <span class="domain-cell__name">example.com</span>
+            <div class="domain-cell__meta">
+              <span class="icon icon-brand" data-icon="brand/cloudflare"></span>
+              <span class="text-muted">main-account</span>
+              <span class="badge badge--pill">TDS</span>
+            </div>
+          </div>
+        </td>
+        <td><button class="link-button link-button--sm"><span class="icon" data-icon="mono/project"></span>Main project</button></td>
+        <td><span class="badge badge--success">Active</span><div class="text-muted text-xs">Exp: 2026-03-21</div></td>
+        <td><span class="provider-label"><span class="icon icon-brand" data-icon="brand/cloudflare"></span>Cloudflare</span></td>
+        <td class="table__cell-actions">
+          <div class="dropdown" data-dropdown>
+            <button class="btn-icon btn-icon--ghost dropdown__trigger" type="button" aria-haspopup="menu" aria-expanded="false">
+              <span class="icon" data-icon="mono/dots-vertical"></span>
+            </button>
+            <div class="dropdown__menu dropdown__menu--align-right" role="menu">
+              <button class="dropdown__item"><span class="icon" data-icon="mono/eye"></span><span>View details</span></button>
+              <button class="dropdown__item"><span class="icon" data-icon="mono/logs"></span><span>Open logs</span></button>
+              <button class="dropdown__item"><span class="icon" data-icon="mono/refresh"></span><span>Sync with provider</span></button>
+              <button class="dropdown__item"><span class="icon" data-icon="mono/copy"></span><span>Copy Zone ID</span></button>
+              <button class="dropdown__item"><span class="icon" data-icon="mono/pencil-circle"></span><span>Edit domain</span></button>
+              <button class="dropdown__item dropdown__item--danger"><span class="icon" data-icon="mono/delete"></span><span>Delete</span></button>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <!-- other rows -->
+    </tbody>
+  </table>
+</div>
+```
+
+Icon budget for this block: `mono/search`, `mono/close`, `mono/filter`, `mono/chevron-down`, `mono/plus`, `mono/dots-vertical`, `mono/eye`, `mono/logs`, `mono/refresh` or `mono/sync`, `mono/copy`, `mono/pencil-circle`, `mono/delete`, `mono/check-status`; providers: `brand/cloudflare`, `brand/namecheap`, `brand/namesilo`.
 
 ### 4.5. Navigation shell
 
