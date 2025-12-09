@@ -525,6 +525,10 @@ html[data-theme="light"] .btn-secondary:hover {
   color: var(--btn-text-on-dark);
 }
 
+html[data-theme="light"] .btn-chip--primary:hover {
+  color: var(--text-main);
+}
+
 .btn-chip--primary .icon { color: currentColor; }
 
 /* Активное состояние */
@@ -550,11 +554,45 @@ html[data-theme="light"] .btn-secondary:hover {
   border-color: color-mix(in srgb, var(--primary) 40%, transparent);
 }
 
+
 .btn-chip-group.table-controls {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 0.5rem;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text);
+  transition:
+    background var(--transition-md),
+    border-color var(--transition-md),
+    color var(--transition-md);
+}
+
+.chip--ghost {
+  background: var(--bg-elevated);
+  border-color: var(--border-subtle);
+}
+
+.chip--lg {
+  min-height: 2.5rem;
+  padding-inline: 0.85rem;
+  padding-block: 0.45rem;
+}
+
+.chip .icon {
+  width: 1rem;
+  height: 1rem;
+  flex: 0 0 auto;
+  color: currentColor;
 }
 
 .table-filter {
