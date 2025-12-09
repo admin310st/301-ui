@@ -306,7 +306,7 @@
         display: flex;
         flex-wrap: wrap;
         align-items: stretch;
-        gap: var(--space-3);
+        gap: var(--inline-gap);
       }
 
       @media (max-width: 768px) {
@@ -347,12 +347,12 @@
         min-width: 0;
         display: inline-flex;
         align-items: center;
-        gap: var(--space-2);
-        font-size: var(--control-font-size);
-        line-height: var(--control-line-height);
-        padding-inline: var(--control-padding-x);
-        padding-block: var(--control-padding-y);
-        min-height: calc(1em * var(--control-line-height) + 2 * var(--control-padding-y));
+        gap: 0.4em;
+        font-size: var(--fs-control);
+        line-height: var(--lh-control);
+        padding-inline: var(--control-pad-x);
+        padding-block: var(--control-pad-y);
+        min-height: calc(1em * var(--lh-control) + 2 * var(--control-pad-y));
         border-radius: var(--control-radius);
         border: 1px solid var(--border-subtle);
         background: var(--panel);
@@ -1216,6 +1216,7 @@
                 <span class="icon" data-icon="mono/search"></span>
                 <input
                   class="table-search__input"
+                  type="text"
                   placeholder="Search by domain, project or account..."
                 />
                 <button class="table-search__clear" type="button">
@@ -1232,19 +1233,19 @@
               </button>
 
               <button class="btn-chip btn-chip--cf" type="button">
-                <span class="icon" data-icon="brand/cloudflare"></span>
-                <span>Cloudflare</span>
+                <span class="btn-chip__icon icon" data-icon="brand/cloudflare"></span>
+                <span class="btn-chip__label">Cloudflare</span>
               </button>
 
-              <button class="btn btn--primary btn--md" type="button">
+              <button class="btn btn--primary" type="button">
                 <span class="icon" data-icon="mono/plus"></span>
                 <span>Add domain</span>
               </button>
             </div>
 
             <p class="text-muted" style="margin: 0;">
-              Search, status chip, Cloudflare chip and primary action are one row of `control-md` elements with the same pill
-              radius — no custom paddings per control.
+              Search, status chip, Cloudflare chip and primary action reuse the unified control recipe — identical pill height
+              and radii with no per-control padding overrides.
             </p>
           </div>
         </div>
@@ -1276,6 +1277,7 @@
                   <span class="icon" data-icon="mono/search"></span>
                   <input
                     class="table-search__input"
+                    type="text"
                     placeholder="Search by domain, project or account..."
                     value=""
                   />
@@ -1302,11 +1304,11 @@
                 </div>
 
                 <button class="btn-chip btn-chip--cf" type="button">
-                  <span class="icon" data-icon="brand/cloudflare"></span>
-                  <span>Cloudflare</span>
+                  <span class="btn-chip__icon icon" data-icon="brand/cloudflare"></span>
+                  <span class="btn-chip__label">Cloudflare</span>
                 </button>
 
-                <button class="btn btn--primary btn--md" type="button">
+                <button class="btn btn--primary" type="button">
                   <span class="icon" data-icon="mono/plus"></span>
                   <span>Add domain</span>
                 </button>
@@ -1576,20 +1578,20 @@
   &lt;div class=&quot;controls-row table-controls&quot;&gt;<br />
 &nbsp;&nbsp;&lt;div class=&quot;table-search&quot; data-table-search&gt;<br />
   &nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/search&quot;&gt;&lt;/span&gt;<br />
-  &nbsp;&nbsp;&nbsp;&nbsp;&lt;input class=&quot;table-search__input&quot; type=&quot;search&quot; placeholder=&quot;Search by domain, project or account...&quot; /&gt;<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&lt;input class=&quot;table-search__input&quot; type=&quot;text&quot; placeholder=&quot;Search by domain, project or account...&quot; /&gt;<br />
   &nbsp;&nbsp;&nbsp;&nbsp;&lt;button class=&quot;table-search__clear&quot; type=&quot;button&quot; aria-label=&quot;Clear search&quot;&gt;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/close&quot;&gt;&lt;/span&gt;&lt;/button&gt;<br />
   &nbsp;&nbsp;&lt;/div&gt;<br />
   &nbsp;&nbsp;&lt;div class=&quot;table-filter&quot; data-demo=&quot;status-filter&quot;&gt;<br />
 &nbsp;&nbsp;&nbsp;&nbsp;&lt;button class=&quot;btn-chip btn-chip--dropdown&quot; aria-expanded=&quot;false&quot;&gt;<br />
-  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/filter&quot;&gt;&lt;/span&gt;<br />
-  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;span&gt;Status: Active&lt;/span&gt;<br />
-  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/chevron-down&quot;&gt;&lt;/span&gt;<br />
-  &nbsp;&nbsp;&nbsp;&nbsp;&lt;/button&gt;<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;btn-chip__icon icon&quot; data-icon=&quot;mono/filter&quot;&gt;&lt;/span&gt;<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;btn-chip__label&quot;&gt;Status: Active&lt;/span&gt;<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;btn-chip__chevron&quot;&gt;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/chevron-down&quot;&gt;&lt;/span&gt;&lt;/span&gt;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/button&gt;<br />
   &nbsp;&nbsp;&nbsp;&nbsp;&lt;div class=&quot;table-filter__menu&quot; hidden&gt;...filter menu...&lt;/div&gt;<br />
   &nbsp;&nbsp;&lt;/div&gt;<br />
   &nbsp;&nbsp;&lt;button class=&quot;btn-chip btn-chip--cf&quot;&gt;<br />
-  &nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;icon&quot; data-icon=&quot;brand/cloudflare&quot;&gt;&lt;/span&gt;<br />
-  &nbsp;&nbsp;&nbsp;&nbsp;&lt;span&gt;Cloudflare&lt;/span&gt;<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;btn-chip__icon icon&quot; data-icon=&quot;brand/cloudflare&quot;&gt;&lt;/span&gt;<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;btn-chip__label&quot;&gt;Cloudflare&lt;/span&gt;<br />
   &nbsp;&nbsp;&lt;/button&gt;<br />
 &nbsp;&nbsp;&lt;button class=&quot;btn btn--primary&quot;&gt;<br />
   &nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/plus&quot;&gt;&lt;/span&gt;<br />
@@ -1632,6 +1634,7 @@
             <span class="icon" data-icon="mono/search"></span>
             <input
               class="table-search__input"
+              type="text"
               placeholder="Search by domain, project or account..."
               value="cloudflare"
             />
@@ -1655,7 +1658,7 @@
           <div class="code-block">
 &lt;div class=&quot;table-search&quot; data-table-search&gt;<br />
 &nbsp;&nbsp;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/search&quot;&gt;&lt;/span&gt;<br />
-&nbsp;&nbsp;&lt;input class=&quot;table-search__input&quot; placeholder=&quot;Search by domain, project or account...&quot; value=&quot;cloudflare&quot; /&gt;<br />
+&nbsp;&nbsp;&lt;input class=&quot;table-search__input&quot; type=&quot;text&quot; placeholder=&quot;Search by domain, project or account...&quot; value=&quot;cloudflare&quot; /&gt;<br />
 &nbsp;&nbsp;&lt;button class=&quot;table-search__clear&quot; type=&quot;button&quot;&gt;<br />
 &nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/close&quot;&gt;&lt;/span&gt;<br />
 &nbsp;&nbsp;&lt;/button&gt;<br />

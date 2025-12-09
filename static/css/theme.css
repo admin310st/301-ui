@@ -63,6 +63,15 @@
   --fs-control: 0.9375rem;
   --lh-control: 1.25;
 
+  /* Control spacing (relative, no px) */
+  --control-pad-y: 0.35em;
+  --control-pad-x: 0.9em;
+
+  /* Radius & layout spacing */
+  --control-radius: 999px;
+  --inline-gap: 0.5rem;
+  --stack-gap: 0.75rem;
+
   --fs-xs: 0.75rem;
   --fs-sm: 0.875rem;
   --fs-md: 1rem;
@@ -84,14 +93,9 @@
   --space-6: 2rem;
 
   /* Control sizing */
-  --control-font-size: var(--fs-control);
-  --control-line-height: var(--lh-control);
-  --control-padding-y: 0.5em;
-  --control-padding-x: 0.875em;
   --control-scale-sm: 0.9;
   --control-scale-md: 1;
   --control-scale-lg: 1.1;
-  --control-radius: 999px;
 
   /* Aliases used across legacy/static pages */
   --s-1: var(--space-2);

@@ -72,6 +72,12 @@
 > 2. обновления демки
 > 3. обновления документации
 
+> **Repository Ecology Rule**
+> Whenever design system updates are introduced, all UI components and all demo pages must be refactored to follow the new rules.
+> No page in the system is allowed to use outdated paddings, heights, or markup.
+> StyleGuide + demo pages = single source of truth.
+> Codex must always update demos when changing components.
+
 ---
 
 ## Текущее покрытие по аутентификации
