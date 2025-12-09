@@ -8,6 +8,12 @@ const ICON_BY_TYPE: Record<NoticeType, string> = {
   info: '#i-mono-info',
 };
 
+const TYPE_CLASSNAME: Record<NoticeType, string> = {
+  success: 'app-alert--success',
+  error: 'app-alert--error',
+  info: 'app-alert--info',
+};
+
 let hideTimer: number | null = null;
 
 function getRoot(): HTMLElement | null {
@@ -19,7 +25,13 @@ function getTextNode(): HTMLElement | null {
 }
 
 function getIconUse(): SVGUseElement | null {
-  return document.querySelector('#GlobalNotice .global-notice__icon use');
+  return document.querySelector('#GlobalNotice .app-alert__icon use');
+}
+
+function applyType(root: HTMLElement, type: NoticeType): void {
+  root.dataset.type = type;
+  Object.values(TYPE_CLASSNAME).forEach((className) => root.classList.remove(className));
+  root.classList.add(TYPE_CLASSNAME[type]);
 }
 
 export interface ShowNoticeOptions {
@@ -44,7 +56,7 @@ export function showGlobalNotice(
     hideTimer = null;
   }
 
-  root.dataset.type = type;
+  applyType(root, type);
   root.setAttribute('role', type === 'error' ? 'alert' : 'status');
   root.setAttribute('aria-live', 'polite');
   if (iconUse) {
@@ -52,6 +64,7 @@ export function showGlobalNotice(
   }
   textNode.textContent = message;
   root.dataset.state = 'visible';
+  root.dataset.notice = 'visible';
 
   if (autoHideMs > 0) {
     hideTimer = window.setTimeout(() => {
@@ -65,6 +78,7 @@ export function hideGlobalNotice(): void {
   if (!root) return;
 
   root.dataset.state = 'hidden';
+  root.dataset.notice = 'hidden';
 
   if (hideTimer != null) {
     window.clearTimeout(hideTimer);
@@ -76,7 +90,7 @@ export function initGlobalNotice(): void {
   const root = getRoot();
   if (!root) return;
 
-  const closeBtn = root.querySelector<HTMLButtonElement>('.global-notice__close');
+  const closeBtn = root.querySelector<HTMLButtonElement>('.app-alert__close');
   if (closeBtn) {
     closeBtn.addEventListener('click', () => hideGlobalNotice());
   }
