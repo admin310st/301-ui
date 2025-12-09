@@ -1,11 +1,25 @@
 {
   "mono": [
     "alert",
+    "check-status",
+    "chevron-down",
+    "close",
     "confused",
+    "copy",
+    "delete",
+    "dns",
+    "dots-vertical",
     "eye",
+    "filter",
     "info",
+    "logs",
     "pause",
+    "pencil-circle",
+    "plus",
     "prod",
+    "project",
+    "refresh",
+    "search",
     "staging",
     "success",
     "sync",
@@ -15,6 +29,8 @@
     "301",
     "cloudflare",
     "github",
-    "google"
+    "google",
+    "namecheap",
+    "namesilo"
   ]
 }
