@@ -322,7 +322,15 @@ Recommended base CSS:
 
 ---
 
-## 8. Adding a new icon
+## 8. Icon rules (global)
+
+- All icons are 16×16 px.
+- Mono icons inherit `currentColor`.
+- Brand icons may use fixed brand colors.
+- Dropdown items use 8px gap between icon and label.
+- Minimum interactive target: 32×32 px via padding.
+
+## 9. Adding a new icon
 
 1. Choose category:
 
@@ -362,7 +370,7 @@ Recommended base CSS:
 
 ---
 
-## 9. Notes for Codex / external tools
+## 10. Notes for Codex / external tools
 
 * Raw SVGs in `static/img/icons-src/` may not be visible in a sandbox,
   but all symbols follow a **predictable naming convention**.

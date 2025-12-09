@@ -365,6 +365,14 @@
         display: block;
       }
 
+      .table-demo-controls .icon,
+      .table--domains .icon,
+      .dropdown__menu .icon {
+        width: 1rem;
+        height: 1rem;
+        color: currentColor;
+      }
+
       .domain-cell {
         display: flex;
         flex-direction: column;
@@ -940,10 +948,12 @@
                   <button class="btn-chip" type="button">
                     <span class="icon" data-icon="mono/filter"></span>
                     Status: Active
+                    <span class="icon" data-icon="mono/chevron-down"></span>
                   </button>
                   <button class="btn-chip" type="button">
-                    <span class="icon" data-icon="mono/chevron-down"></span>
+                    <span class="icon" data-icon="mono/filter"></span>
                     Provider
+                    <span class="icon" data-icon="mono/chevron-down"></span>
                   </button>
                 </div>
 
@@ -1007,7 +1017,7 @@
                               <span>Open logs</span>
                             </button>
                             <button class="dropdown__item" type="button">
-                              <span class="icon" data-icon="mono/refresh"></span>
+                              <span class="icon" data-icon="mono/sync"></span>
                               <span>Sync with provider</span>
                             </button>
                             <button class="dropdown__item" type="button">
@@ -1049,7 +1059,7 @@
                       <td>
                         <span class="provider-label">
                           <span class="icon icon-brand" data-icon="brand/namesilo"></span>
-                          <span>Namesilo</span>
+                          <span>NameSilo</span>
                         </span>
                       </td>
                       <td class="table__cell-actions">
@@ -1128,7 +1138,7 @@
                               <span>Open logs</span>
                             </button>
                             <button class="dropdown__item" type="button">
-                              <span class="icon" data-icon="mono/refresh"></span>
+                              <span class="icon" data-icon="mono/sync"></span>
                               <span>Sync with provider</span>
                             </button>
                             <button class="dropdown__item" type="button">
@@ -1184,13 +1194,13 @@
                               <span>View details</span>
                             </button>
                             <button class="dropdown__item" type="button">
-                              <span class="icon" data-icon="mono/logs"></span>
-                              <span>Open logs</span>
-                            </button>
-                            <button class="dropdown__item" type="button">
-                              <span class="icon" data-icon="mono/refresh"></span>
-                              <span>Sync with provider</span>
-                            </button>
+                            <span class="icon" data-icon="mono/logs"></span>
+                            <span>Open logs</span>
+                          </button>
+                          <button class="dropdown__item" type="button">
+                            <span class="icon" data-icon="mono/sync"></span>
+                            <span>Sync with provider</span>
+                          </button>
                             <button class="dropdown__item" type="button">
                               <span class="icon" data-icon="mono/copy"></span>
                               <span>Copy Zone ID</span>
@@ -1301,7 +1311,7 @@
                 <span>Open logs</span>
               </button>
               <button class="dropdown__item" type="button">
-                <span class="icon" data-icon="mono/refresh"></span>
+                <span class="icon" data-icon="mono/sync"></span>
                 <span>Sync with provider</span>
               </button>
               <button class="dropdown__item" type="button">
@@ -1350,7 +1360,7 @@
         <div class="stack-sm">
           <p class="text-body">
             Combine the table search pill, filter chips, and dropdown menu inside a single toolbar above a
-            <code class="code-inline">table--domains</code>. Keep the provider column strictly to Cloudflare, Namecheap or Namesilo
+            <code class="code-inline">table--domains</code>. Keep the provider column strictly to Cloudflare, Namecheap or NameSilo
             icons; expose Zone ID, edit and delete actions via the dropdown, not inline columns.
           </p>
           <p class="text-muted">

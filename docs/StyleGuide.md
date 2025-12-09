@@ -452,7 +452,7 @@ Example toolbar + table markup:
             <div class="dropdown__menu dropdown__menu--align-right" role="menu">
               <button class="dropdown__item"><span class="icon" data-icon="mono/eye"></span><span>View details</span></button>
               <button class="dropdown__item"><span class="icon" data-icon="mono/logs"></span><span>Open logs</span></button>
-              <button class="dropdown__item"><span class="icon" data-icon="mono/refresh"></span><span>Sync with provider</span></button>
+              <button class="dropdown__item"><span class="icon" data-icon="mono/sync"></span><span>Sync with provider</span></button>
               <button class="dropdown__item"><span class="icon" data-icon="mono/copy"></span><span>Copy Zone ID</span></button>
               <button class="dropdown__item"><span class="icon" data-icon="mono/pencil-circle"></span><span>Edit domain</span></button>
               <button class="dropdown__item dropdown__item--danger"><span class="icon" data-icon="mono/delete"></span><span>Delete</span></button>
@@ -466,7 +466,35 @@ Example toolbar + table markup:
 </div>
 ```
 
-Icon budget for this block: `mono/search`, `mono/close`, `mono/filter`, `mono/chevron-down`, `mono/plus`, `mono/dots-vertical`, `mono/eye`, `mono/logs`, `mono/refresh` or `mono/sync`, `mono/copy`, `mono/pencil-circle`, `mono/delete`, `mono/check-status`; providers: `brand/cloudflare`, `brand/namecheap`, `brand/namesilo`.
+Icon budget for this block: `mono/search`, `mono/close`, `mono/filter`, `mono/chevron-down`, `mono/plus`, `mono/dots-vertical`, `mono/eye`, `mono/logs`, `mono/sync`, `mono/copy`, `mono/pencil-circle`, `mono/delete`, `mono/check-status`; providers: `brand/cloudflare`, `brand/namecheap`, `brand/namesilo`.
+
+### Dropdown action icons (domains table)
+
+| Action             | Icon |
+|--------------------|------|
+| View details       | eye  |
+| Open logs          | logs |
+| Sync with provider | sync |
+| Copy Zone ID       | copy |
+| Edit domain        | pencil-circle |
+| Delete             | delete |
+
+Only this set is allowed for dropdown actions across all tables.
+
+### Table controls · Icon mapping
+
+- Search prefix: search  
+- Clear search: close  
+- Filter chip prefix: filter  
+- Chip dropdown arrow: chevron-down  
+- Primary action ("Add domain"): plus  
+
+### Provider icons (domains table)
+
+- Cloudflare → icon-cloudflare (brand)
+- Namecheap → icon-namecheap (brand)
+- NameSilo → icon-namesilo (brand)
+- Manual DNS → icon-dns (mono)
 
 ### 4.5. Navigation shell
 
