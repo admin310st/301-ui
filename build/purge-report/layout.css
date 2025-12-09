@@ -1,0 +1,109 @@
+:root {
+  --page-gutter-desktop: var(--space-6);
+  --page-gutter-mobile: var(--space-4);
+
+  --section-gap: var(--space-5);
+  --block-gap: var(--space-4);
+  --stack-gap: 0.75rem;
+  --inline-gap: 0.5rem;
+}
+
+.page-shell {
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-inline: var(--page-gutter-desktop);
+  padding-block: var(--space-6);
+}
+
+@media (max-width: 768px) {
+  .page-shell {
+    padding-inline: var(--page-gutter-mobile);
+    padding-block: var(--space-4);
+  }
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--inline-gap);
+  margin-bottom: var(--section-gap);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+@media (max-width: 768px) {
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+.controls-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--inline-gap);
+  margin-bottom: var(--block-gap);
+}
+
+@media (max-width: 768px) {
+  .controls-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.stack-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--block-gap);
+}
+
+.table-scroll {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.table-scroll > table {
+  min-width: 600px;
+}
+
+.layout-shell {
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+@media (min-width: 1024px) {
+  .layout-shell {
+    display: grid;
+    grid-template-columns: 260px minmax(0, 1fr);
+  }
+
+  .layout-sidebar {
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--border-subtle);
+    padding: var(--space-5) var(--space-4);
+  }
+
+  .layout-main {
+    max-width: 1200px;
+    margin-inline: auto;
+    padding-inline: var(--page-gutter-desktop);
+    padding-block: var(--space-6);
+  }
+}
+
+@media (max-width: 1023px) {
+  .layout-shell {
+    display: block;
+  }
+
+  .layout-sidebar {
+    display: none;
+  }
+
+  .layout-main {
+    padding-inline: var(--page-gutter-mobile);
+    padding-block: var(--space-4);
+  }
+}

@@ -300,13 +300,3 @@ a {
   border: var(--border-width) var(--border-style) currentColor;
   opacity: 0.28;
 }
-
-.border-interactive {
-  border: var(--border-width) var(--border-style) currentColor;
-  opacity: 0.55;
-}
-
-.border-strong {
-  border: var(--border-width) var(--border-style) currentColor;
-  opacity: 0.8;
-}

@@ -191,6 +191,11 @@ All interactive UI elements share the same sizing recipe:
 Height = `font-size × line-height + padding × 2`
 → **No fixed pixel heights in the system.**
 
+**Mobile rules**
+
+* Icons inside controls scale via `em` sizing (no px icons).
+* Variants never change padding or height; responsive tweaks adjust only layout/wrapping, not control dimensions.
+
 **Rule**
 
 Changing the design system requires updating:
@@ -491,10 +496,12 @@ Use `.h1` for page titles in the member area and auth hero, `.h2` for section ti
 
 **Rules:**
 
-* `.btn.btn--primary` — default primary actions (Save, Create, Continue). 
-* `.btn.btn--cf` — Cloudflare-level CTAs only (connect account, verify token, purge cache, apply WAF/SSL rules). 
-* `.btn.btn--ghost` — neutral/secondary actions (cancel, filters, toolbar toggles). 
-* `.btn.btn--danger` — destructive actions. 
+* Modifiers follow BEM: `.btn btn--{primary|ghost|danger|social}`; legacy `.btn-ghost`/`.btn-danger` are deprecated.
+* `.btn.btn--primary` — default primary actions (Save, Create, Continue).
+* `.btn.btn--cf` — Cloudflare-level CTAs only (connect account, verify token, purge cache, apply WAF/SSL rules).
+* `.btn.btn--ghost` — neutral/secondary actions (cancel, filters, toolbar toggles).
+* `.btn.btn--danger` — destructive actions.
+* `.btn.btn--social` — OAuth starts; layout = icon + left-aligned label, same height as other controls.
 
 Buttons use explicit size modifiers: `.btn--sm`, `.btn--md`, `.btn--lg`. `btn--md` is the default and must match `.btn-chip` height so chips, search bars and primary buttons align inside toolbars. Use `btn--md` for all table headers; reserve `btn--lg` for hero/landing layouts.
 
@@ -504,9 +511,9 @@ Buttons use explicit size modifiers: `.btn--sm`, `.btn--md`, `.btn--lg`. `btn--m
 <button class="btn btn--danger btn--md">Delete</button>
 ```
 
-❗ Do not hard-code button heights or paddings per screen. Always use `.btn--*` size modifiers + shared control tokens. 
+❗ Variants must never alter padding/height. Do not hard-code button heights or paddings per screen; rely on `.btn--*` size modifiers + shared control tokens.
 
-Icons inside buttons are 16px SVGs with `stroke="currentColor"` / `fill="none"` so they stay legible in both themes.
+Icons inside buttons use `1em` sizing with `stroke="currentColor"` / `fill="none"` so they stay legible in both themes.
 
 #### Tabs & chips
 
@@ -529,7 +536,7 @@ Tabs, filters and table chips reuse the same `.btn-chip` component and the share
 * высота выводится из рецепта `font-size × line-height + 2 × paddingY`;
 * фон: `var(--bg-elevated)`;
 * текст: `var(--text-main)`;
-* иконки — только через `.btn-chip__icon` / `.btn-chip__chevron` с 0.875rem SVG в `currentColor`;
+* иконки — только через `.btn-chip__icon` / `.btn-chip__chevron` с `1em` SVG в `currentColor`;
 * `padding-inline: var(--control-pad-x)` (вертикальный паддинг считаем через `--control-pad-y`);
 * скругление: `var(--control-radius)`.
 
@@ -537,10 +544,12 @@ Tabs, filters and table chips reuse the same `.btn-chip` component and the share
 
 | Вариант              | Использование         | Описание                                                 |
 | -------------------- | --------------------- | -------------------------------------------------------- |
-| `btn-chip--dropdown` | фильтры со стрелкой   | Добавляет chevron справа                                 |
+| `btn-chip--dropdown` | фильтры со стрелкой   | Добавляет chevron справа; управление обёрнуто в Table Search Bar markup |
 | `btn-chip--cf`       | Cloudflare provider   | Цвет фона = `--accent-cf-bg`, текст = `--accent-cf-text` |
 | `btn-chip--status`   | Active/Paused/Expired | Цвет фона по статусу (`--status-active`, …)              |
 | `btn-chip--primary`  | основной акцент       | Использует токены primary                                |
+
+Toolbar with chips **должен** переиспользовать разметку Table Search Bar целиком (search + clear button) — форы и «альтернативные» инпуты запрещены. Любые новые состояния добавляем в компонент и копируем в демо.
 
 Dropdown chip pattern:
 
@@ -855,16 +864,16 @@ Header (`.site-header`) uses a blurred background with a thin border. Primary na
 
 * Tabs (`.auth-tabs`) reuse the chip group; keep the active item fully filled.
 * Forms live inside `.auth-card` with `gap: var(--space-4)`.
-* Social buttons use `.auth-social-btn` with brand-specific skins for Google/GitHub.
+* Social buttons use `.btn.btn--social` with brand-specific skins for Google/GitHub.
 * `.app-alert` is the global status banner. Align with `.page-shell` gutters via `.app-alert__inner`, keep `padding-block: var(--space-3)` and `margin-bottom: var(--block-gap)`; color via modifiers `.app-alert--success | .app-alert--error | .app-alert--info`.
 
 ---
 
 ## 6. Cloudflare-specific UI rules
 
-* **Orange buttons (`.btn-cf`) are reserved for Cloudflare actions only.**
+* **Orange buttons (`.btn--cf`) are reserved for Cloudflare actions only.**
   * Good: `Connect Cloudflare account`, `Sync zones`, `Apply Cloudflare security rules`, `Purge Cloudflare cache`, `Update SSL mode`.
-  * Bad: generic `Save`, `Next`, `Create project` → use blue (`.btn-primary`) instead.
+  * Bad: generic `Save`, `Next`, `Create project` → use blue (`.btn btn--primary`) instead.
 * Cloudflare states should use `.badge-cf` or `.badge-success` depending on context.
 * Screens that are “Cloudflare-heavy” (WAF, cache presets) may use subtle orange highlights, but avoid full orange backgrounds — keep the minimal SaaS feel and contrast predictable.
 
@@ -872,7 +881,16 @@ Header (`.site-header`) uses a blurred background with a thin border. Primary na
 
 ## 7. Accessibility notes
 
-* Main text colors (`--text-main`, `--text-muted`) and button labels (`.btn-primary`, `.btn-cf`) are tuned to meet **WCAG AA** contrast targets on their backgrounds.
+* Main text colors (`--text-main`, `--text-muted`) and button labels (`.btn btn--primary`, `.btn btn--cf`) are tuned to meet **WCAG AA** contrast targets on their backgrounds.
 * Avoid changing `--primary`, `--accent-cf`, and `--text-main` without re-checking contrast (e.g. via any WCAG contrast tool).
 * Use `.text-muted` for secondary information, not for critical content.
 * For long paragraphs on colored backgrounds, prefer solid backgrounds from `--bg`, `--bg-elevated`, `--bg-soft` rather than semi-transparent overlays.
+
+---
+
+## 8. UI System 1.0 migration map
+
+* Tokens: `--s-*`, `--r`, `--r-lg` → `--space-*`, `--control-radius`, unified control tokens (`--fs-control`, `--lh-control`, `--control-pad-*`).
+* Classes: `.btn-ghost` / `.btn-danger` → `.btn.btn--ghost` / `.btn.btn--danger`.
+* Controls: table toolbars reuse the exact Table Search Bar markup (search + clear button). No forks per page.
+* Demos: any change to tokens/components requires rebuilding all demo pages in the same PR.
