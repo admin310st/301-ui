@@ -348,10 +348,12 @@
         display: inline-flex;
         align-items: center;
         gap: var(--space-2);
-        padding-inline: var(--space-3);
-        padding-block: calc((var(--control-height-md) - 1.2em) / 2);
-        min-height: var(--control-height-md);
-        border-radius: 999px;
+        font-size: var(--control-font-size);
+        line-height: var(--control-line-height);
+        padding-inline: var(--control-padding-x);
+        padding-block: var(--control-padding-y);
+        min-height: calc(1em * var(--control-line-height) + 2 * var(--control-padding-y));
+        border-radius: var(--control-radius);
         border: 1px solid var(--border-subtle);
         background: var(--panel);
         color: var(--text);
@@ -1617,10 +1619,11 @@
             <h2 class="text-title">Table Search Bar</h2>
           </div>
           <p class="text-muted">
-            Search bar that matches button/input height via <code class="code-inline">--control-height-md</code>. Icons use
-            <code class="code-inline">currentColor</code>; the clear button icon is muted to stay visible in both light and dark
-            themes. Input uses a plain text field — no <code class="code-inline">type="search"</code> — because we always show a
-            custom clear button instead of the browser-provided control.
+            Search bar follows the shared control recipe (font size, line height and paddings) so it matches buttons and
+            inputs without pixel heights. Icons use <code class="code-inline">currentColor</code>; the clear button icon is muted
+            to stay visible in both light and dark themes. Input uses a plain text field — no
+            <code class="code-inline">type="search"</code> — because we always show a custom clear button instead of the
+            browser-provided control.
           </p>
         </div>
 

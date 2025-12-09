@@ -360,6 +360,20 @@ body {
   color: var(--primary);
 }
 
+.control-md,
+.input,
+.table-search,
+.btn,
+.btn-chip,
+.tabs__trigger {
+  font-size: var(--control-font-size);
+  line-height: var(--control-line-height);
+  padding-block: var(--control-padding-y);
+  padding-inline: var(--control-padding-x);
+  min-height: calc(1em * var(--control-line-height) + 2 * var(--control-padding-y));
+  border-radius: var(--control-radius);
+}
+
 .btn {
   display: inline-flex;
   align-items: center;
@@ -367,9 +381,7 @@ body {
   gap: var(--space-2);
   border-radius: var(--control-radius);
   border: 1px solid transparent;
-  font-size: var(--fs-sm);
   font-weight: var(--fw-medium);
-  line-height: 1.15;
   text-decoration: none;
   color: inherit;
   cursor: pointer;
@@ -381,13 +393,6 @@ body {
     box-shadow var(--transition-md);
 }
 
-.btn,
-.btn--md {
-  min-height: var(--control-height-md);
-  padding-inline: var(--space-4);
-  padding-block: calc((var(--control-height-md) - 1.15em) / 2);
-}
-
 .btn:disabled {
   opacity: 0.55;
   cursor: not-allowed;
@@ -395,17 +400,17 @@ body {
 
 .btn--sm,
 .btn-sm {
-  min-height: var(--control-height-sm);
-  padding-inline: var(--space-3);
-  padding-block: calc((var(--control-height-sm) - 1.05em) / 2);
-  font-size: var(--fs-sm);
+  font-size: calc(var(--control-font-size) * var(--control-scale-sm));
+  padding-block: calc(var(--control-padding-y) * var(--control-scale-sm));
+  padding-inline: calc(var(--control-padding-x) * var(--control-scale-sm));
+  min-height: calc(1em * var(--control-line-height) + 2 * calc(var(--control-padding-y) * var(--control-scale-sm)));
 }
 
 .btn--lg {
-  min-height: var(--control-height-lg);
-  padding-inline: var(--space-5);
-  padding-block: calc((var(--control-height-lg) - 1.2em) / 2);
-  font-size: var(--fs-md);
+  font-size: calc(var(--control-font-size) * 1.05);
+  padding-block: calc(var(--control-padding-y) * var(--control-scale-lg));
+  padding-inline: calc(var(--control-padding-x) * var(--control-scale-lg));
+  min-height: calc(1em * var(--control-line-height) + 2 * calc(var(--control-padding-y) * var(--control-scale-lg)));
 }
 
 .btn--primary,
@@ -488,25 +493,21 @@ html[data-theme="light"] .btn-ghost:hover {
 
 .btn-chip-group {
   display: inline-flex;
-  padding: 2px;
+  padding: calc(var(--space-1) / 2);
   border-radius: 999px;
   background: var(--bg-elevated);
   border: 1px solid var(--border-subtle);
-  gap: 2px;
+  gap: calc(var(--space-1) / 2);
 }
 
 .btn-chip {
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  min-height: var(--control-height-md);
-  padding-inline: var(--space-3);
-  padding-block: calc((var(--control-height-md) - 1.1em) / 2);
   background: var(--panel);
   border: 1px solid var(--border-subtle);
   border-radius: var(--control-radius);
   color: var(--text-muted);
-  font-size: var(--fs-sm);
   font-weight: var(--fw-medium);
   cursor: pointer;
   white-space: nowrap;
@@ -524,8 +525,8 @@ html[data-theme="light"] .btn-ghost:hover {
 
 .btn-chip .icon,
 .btn-chip svg {
-  width: 14px;
-  height: 14px;
+  width: 0.875rem;
+  height: 0.875rem;
   flex: 0 0 auto;
   color: currentColor;
 }
@@ -654,18 +655,14 @@ html[data-theme="light"] .btn-ghost:hover {
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  padding-inline: var(--space-3);
-  padding-block: calc((var(--control-height-md) - 1.1em) / 2);
-  min-height: var(--control-height-md);
-  border-radius: var(--control-radius);
   border: 1px solid var(--border-subtle);
   background: var(--panel);
   color: var(--text);
 }
 
 .table-search .icon {
-  width: 14px;
-  height: 14px;
+  width: 0.875rem;
+  height: 0.875rem;
   color: currentColor;
 }
 
@@ -830,11 +827,7 @@ html[data-theme="light"] .btn-ghost:hover {
   background: var(--input-bg);
   color: var(--text-main);
   border: 1px solid var(--input-border);
-  border-radius: var(--radius);
-  min-height: var(--control-height-md);
-  padding-inline: var(--space-4);
-  padding-block: calc((var(--control-height-md) - 1.3em) / 2);
-  line-height: 1.3;
+  border-radius: var(--control-radius);
   transition:
     border-color var(--transition-md),
     box-shadow var(--transition-md),
@@ -938,7 +931,7 @@ html[data-theme="light"] .btn-ghost:hover {
 /* Контейнер соц-логина — можно оставить как есть, тут всё ок */
 .auth-actions .btn {
   flex: 1 1 0;
-  min-width: 180px;
+  min-width: 11.25rem;
 }
 
 .auth-social {
@@ -953,18 +946,14 @@ html[data-theme="light"] .btn-ghost:hover {
 
 .btn.btn-social {
   gap: var(--space-2);
-  min-height: var(--control-height-md);
-  padding-inline: var(--space-4);
-  font-size: var(--fs-sm);
-  font-weight: var(--fw-medium);
 }
 
 .btn-social .icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
+  width: 1.25rem;
+  height: 1.25rem;
 }
 
 .btn-social [data-social-label] {

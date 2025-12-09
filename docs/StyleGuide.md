@@ -176,23 +176,20 @@ We use CSS custom properties (`--token`) and a theme switch via
 }
 ```
 
-### 1.4. Control sizes
+### 1.4. Control sizing
 
-Control sizes are shared between form inputs, chips and buttons. Tokens:
+* Base body font: `--fs-body` (1rem).
+* Control font size: `--fs-control` and `--lh-control`.
+* Controls (inputs, buttons, chips, tabs, table search) use **one recipe** based on font size and padding.
+* We do **not** define button height in pixels. Height is derived from: `height ≈ font-size × line-height + 2 × paddingY`.
 
-```
-Control sizes:
-- control-md — default size for forms, chips, table controls
-- control-sm — compact icons/buttons
-- control-lg — rare large CTA (hero, oversized forms)
-```
+| Family          | Size modifier | Использование                  |
+| --------------- | ------------- | ------------------------------ |
+| `.btn`, `.chip` | `--sm`        | второстепенные, иконки         |
+| `.btn`, `.chip` | `--md`        | формы, таблицы, табы (default) |
+| `.btn`, `.chip` | `--lg`        | hero/landing CTA only          |
 
-Rules:
-
-* `control-md` is the baseline for auth tabs (`.btn-chip`), table control chips (`.btn-chip`), the primary `+ Add domain` button above tables and the `Table Search Bar`.
-* `.btn-chip`, `.table-search` and `.btn.btn--md` share the same min-height and pill radius via the tokens above.
-* Compact actions use `.btn--sm` / `control-sm`; avoid introducing custom paddings or heights per screen.
-* Large controls (`control-lg`) are for hero / landing layouts only; not for table headers.
+Codex must **not** introduce `min-height` / `padding` in `px` for controls. Everything goes through the tokens above; if a control ends up taller/shorter than its siblings, treat it as a bug instead of a new style.
 
 ### 1.5. Elevation & Shadows
 
@@ -518,11 +515,11 @@ Tabs, filters and table chips reuse the same `.btn-chip` component and the same 
 
 Базовые правила:
 
-* высота: `var(--control-height-md)`;
+* высота выводится из рецепта `font-size × line-height + 2 × paddingY`;
 * фон: `var(--bg-elevated)`;
 * текст: `var(--text-main)`;
-* иконки — только через `.btn-chip__icon` / `.btn-chip__chevron` с 14px SVG в `currentColor`;
-* `padding-inline: var(--space-3)` (вертикальный паддинг считается от `control-md`);
+* иконки — только через `.btn-chip__icon` / `.btn-chip__chevron` с 0.875rem SVG в `currentColor`;
+* `padding-inline: var(--control-padding-x)` (вертикальный паддинг считаем через `--control-padding-y`);
 * скругление: `var(--control-radius)`.
 
 Варианты (`btn-chip--*`):
@@ -672,7 +669,7 @@ Domains tables stay in a single row layout even on mobile; wrap the table in a h
 .table-filter { position: relative; }
 .btn-chip__icon, .btn-chip__chevron { display: inline-flex; align-items: center; justify-content: center; }
 .btn-chip__label { white-space: nowrap; }
-.table-search { flex: 1 1 16rem; min-width: 0; display: inline-flex; align-items: center; gap: var(--space-2); padding-inline: var(--space-3); padding-block: calc((var(--control-height-md) - 1.1em) / 2); min-height: var(--control-height-md); border-radius: var(--control-radius); border: 1px solid var(--border-subtle); background: var(--panel); color: var(--text); }
+.table-search { flex: 1 1 16rem; min-width: 0; display: inline-flex; align-items: center; gap: var(--space-2); font-size: var(--control-font-size); line-height: var(--control-line-height); padding-inline: var(--control-padding-x); padding-block: var(--control-padding-y); min-height: calc(1em * var(--control-line-height) + 2 * var(--control-padding-y)); border-radius: var(--control-radius); border: 1px solid var(--border-subtle); background: var(--panel); color: var(--text); }
 .table-search__input { flex: 1 1 auto; background: transparent; border: none; color: var(--text); font: inherit; width: 100%; outline: none; }
 .table-search__input::placeholder { color: var(--muted); }
 .table-search__clear { display: none; background: transparent; border: none; padding: 0; align-items: center; justify-content: center; }
