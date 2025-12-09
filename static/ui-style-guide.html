@@ -1817,13 +1817,18 @@
             <h3 class="text-title">Email</h3>
             <div class="field" data-status="default">
               <label class="field-label" for="guide-email">Email</label>
-              <input class="input" id="guide-email" type="email" placeholder="user@example.com" />
+              <input
+                class="input input--control"
+                id="guide-email"
+                type="email"
+                placeholder="user@example.com"
+              />
               <p class="field-hint">We’ll never share your email.</p>
             </div>
             <div class="code-block">
               &lt;div class="field"&gt;<br />
               &nbsp;&nbsp;&lt;label class="field-label" for="email"&gt;Email&lt;/label&gt;<br />
-              &nbsp;&nbsp;&lt;input class="input" id="email" type="email" placeholder="user@example.com" /&gt;<br />
+              &nbsp;&nbsp;&lt;input class="input input--control" id="email" type="email" placeholder="user@example.com" /&gt;<br />
               &nbsp;&nbsp;&lt;p class="field-hint"&gt;We’ll never share your email.&lt;/p&gt;<br />
               &lt;/div&gt;
             </div>
@@ -1833,7 +1838,12 @@
             <div class="field" data-status="error">
               <label class="field-label" for="guide-password">Password</label>
               <div class="password-field">
-                <input class="input is-error" id="guide-password" type="password" placeholder="••••••••" />
+                <input
+                  class="input input--control is-error"
+                  id="guide-password"
+                  type="password"
+                  placeholder="••••••••"
+                />
                 <button type="button" class="password-toggle" aria-label="Show password">
                   <span class="icon" data-icon="mono/eye"></span>
                 </button>
@@ -1844,7 +1854,7 @@
               &lt;div class="field field--error"&gt;<br />
               &nbsp;&nbsp;&lt;label class="field-label" for="password"&gt;Password&lt;/label&gt;<br />
               &nbsp;&nbsp;&lt;div class="password-field"&gt;<br />
-              &nbsp;&nbsp;&nbsp;&nbsp;&lt;input class="input is-error" id="password" type="password" /&gt;<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&lt;input class="input input--control is-error" id="password" type="password" /&gt;<br />
               &nbsp;&nbsp;&nbsp;&nbsp;&lt;button class="password-toggle" type="button" aria-label="Show password"&gt;<br />
               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;span class="icon" data-icon="mono/eye"&gt;&lt;/span&gt;<br />
               &nbsp;&nbsp;&nbsp;&nbsp;&lt;/button&gt;<br />
@@ -1857,7 +1867,7 @@
             <h3 class="text-title">Success state</h3>
             <div class="field" data-status="success">
               <label class="field-label" for="guide-success">OTP code</label>
-              <input class="input is-success" id="guide-success" type="text" value="123456" />
+              <input class="input input--control" id="guide-success" type="text" value="123456" />
               <p class="field-success">Looks good. Code accepted.</p>
             </div>
             <div class="code-block">&lt;div class="field" data-status="success"&gt;...success hint...&lt;/div&gt;</div>
