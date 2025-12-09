@@ -627,9 +627,65 @@ Used in dashboard stats, domain groups, Cloudflare status blocks.
 .card--emphasis { border-color: color-mix(in srgb, var(--primary) 35%, transparent); background: color-mix(in srgb, var(--bg-elevated) 70%, var(--primary-soft)); }
 ```
 
-### 4.4. Tables
+### 4.4. Table control chips
 
-Primary use: domains list, Cloudflare zones, rulesets, logs.
+Chip buttons for table toolbars: search, dropdown filters, provider actions and the main CTA. All elements share the same height, radius and icon/text spacing to keep the toolbar aligned.
+
+**Shared sizing & tone rules**
+
+- All table chips reuse `chip--lg` height.
+- Radius matches the shared chip radius (same as auth tabs).
+- Icon-to-text gap = `--space-2` with icons inheriting `currentColor`.
+- Tone options are limited to: `ghost` (filters), `provider` (orange Cloudflare), `primary` (blue main action).
+
+| Variant        | Class / modifier                 | Usage                          |
+| -------------- | -------------------------------- | ------------------------------ |
+| Search chip    | `.table-search.chip--lg`         | Domain / project search        |
+| Dropdown chip  | `.btn-chip.btn-chip--ghost`      | Status filters and similar     |
+| Provider chip  | `.btn-chip.btn-chip--cf`         | Cloudflare-specific actions    |
+| Primary chip   | `.btn.btn--primary.btn--lg`      | Main action above the table    |
+
+#### Table control chips demo
+
+```html
+<div class="controls-row">
+  <!-- Search chip -->
+  <div class="table-search chip chip--ghost chip--lg">
+    <span class="icon" data-icon="mono/search"></span>
+    <input class="table-search__input"
+           type="search"
+           placeholder="Search by domain, project or account..." />
+    <button class="table-search__clear" type="button">
+      <span class="icon" data-icon="mono/close"></span>
+    </button>
+  </div>
+
+  <!-- Dropdown chip -->
+  <button class="btn-chip btn-chip--ghost btn-chip--dropdown" type="button">
+    <span class="icon" data-icon="mono/filter"></span>
+    <span>Status: Active</span>
+    <span class="icon" data-icon="mono/chevron-down"></span>
+  </button>
+
+  <!-- Provider chip -->
+  <button class="btn-chip btn-chip--cf" type="button">
+    <span class="icon" data-icon="brand/cloudflare"></span>
+    <span>Cloudflare</span>
+  </button>
+
+  <!-- Primary chip-button -->
+  <button class="btn btn--primary btn--lg" type="button">
+    <span class="icon" data-icon="mono/plus"></span>
+    <span>Add domain</span>
+  </button>
+</div>
+```
+
+Search is handled by the `Table Search Bar` component but matches the chip sizing/radius; the other three controls are buttons: ghost dropdown, provider chip and primary action.
+
+### 4.5. Tables
+
+Domains tables stay in a single row layout even on mobile; wrap the table in a horizontal scroller and keep action menus inside dropdowns so the row stays compact. Above the table you can place a search chip, one or more dropdown filter chips, provider action chips and a primary button. The example shows a search chip, a status dropdown chip, a Cloudflare action chip and a primary “Add domain” button.
 
 ```css
 .table { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); }
@@ -687,26 +743,7 @@ Dropdown menus use `--shadow-md` elevation:
 </div>
 ```
 
-#### Table controls as chips
-
-Table controls in the `Tables` section always reuse `.btn-chip` variants in a single `controls-row`:
-
-- search → `table-search chip chip--ghost chip--lg` + `search` / `close` icons
-- dropdown filters → `btn-chip btn-chip--ghost btn-chip--dropdown` + `filter` + `chevron-up/down`
-- action chips (e.g., Cloudflare) → `btn-chip btn-chip--cf` + `brand/cloudflare`
-- primary actions → `btn btn--primary btn--lg` + `plus`
-
-Filter menus stay visually attached to their trigger chip without changing the toolbar layout thanks to `.table-filter__menu { position: absolute; }` in the demo.
-
-Allowed icons:
-
-- Search prefix: `search`
-- Clear search: `close`
-- Filter prefix: `filter`
-- Dropdown indicator: `chevron-down` / `chevron-up`
-- Cloudflare action: `brand/cloudflare`
-
-#### 4.4.1. Domains table reference
+#### 4.5.1. Domains table reference
 
 * Responsive rule: keep `.table--domains` at `min-width: 720px` and wrap in `.table-wrapper` for horizontal scroll on mobile (no card collapse).
 * Actions live inside a dropdown menu; provider column shows only `cloudflare`, `namecheap`, `namesilo` brand icons.
@@ -824,7 +861,7 @@ Only this set is allowed for dropdown actions across all tables.
 - NameSilo → icon-namesilo (brand)
 - Manual DNS → icon-dns (mono)
 
-### 4.5. Navigation shell
+### 4.6. Navigation shell
 
 Header (`.site-header`) uses a blurred background with a thin border. Primary nav links are inline, theme switch is a ghost button, language selector uses `.btn-chip-group`.
 

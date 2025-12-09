@@ -642,6 +642,10 @@ html[data-theme="light"] .btn-chip--primary:hover {
   box-shadow: var(--shadow-md);
 }
 
+.table-filter__menu[hidden] {
+  display: none;
+}
+
 .table-search {
   flex: 1 1 16rem;
   min-width: 0;
