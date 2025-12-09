@@ -29,7 +29,7 @@
         </nav>
         <div class="nav-links" data-onlogin hidden>
           <span data-user-email></span>
-          <button class="btn btn--ghost" data-action="logout" data-i18n="layout.nav.logout" aria-label="Log out">
+          <button class="btn btn--ghost btn--md" data-action="logout" data-i18n="layout.nav.logout" aria-label="Log out">
             Log out
           </button>
         </div>
@@ -117,28 +117,28 @@
             <div class="auth-grid">
               <section class="auth-card">
 
-              <div
-                class="btn-chip-group auth-tabs controls-row"
+              <nav
+                class="auth-tabs btn-chip-group"
                 role="tablist"
                 data-i18n-aria="layout.headerTabsLabel"
                 aria-label="Authentication actions"
               >
-                <button type="button" class="btn-chip is-active" data-auth-tab="login" data-route-link="login" data-i18n="layout.nav.login">
-                  Login
-                </button>
                 <button
                   type="button"
-                  class="btn-chip"
-                  data-auth-tab="register"
-                  data-route-link="register"
-                  data-i18n="layout.nav.register"
+                  class="tabs__trigger btn-chip is-active"
+                  data-auth-tab="login"
+                  data-route-link="login"
+                  data-i18n="layout.nav.login"
                 >
+                  Login
+                </button>
+                <button type="button" class="tabs__trigger btn-chip" data-auth-tab="register" data-route-link="register" data-i18n="layout.nav.register">
                   Register
                 </button>
-                <button type="button" class="btn-chip" data-auth-tab="reset" data-route-link="reset" data-i18n="layout.nav.reset">
+                <button type="button" class="tabs__trigger btn-chip" data-auth-tab="reset" data-route-link="reset" data-i18n="layout.nav.reset">
                   Forgot password?
                 </button>
-              </div>
+              </nav>
 
               <div data-auth-views>
                 <section class="auth-view" data-auth-view="login" aria-hidden="false">
@@ -146,7 +146,7 @@
                     <div class="field">
                       <label class="field-label" for="signin-email" data-i18n="auth.login.emailLabel">Email</label>
                       <input
-                        class="input"
+                        class="input input--control"
                         id="signin-email"
                         name="email"
                         type="email"
@@ -161,7 +161,7 @@
                       <label class="field-label" for="signin-password" data-i18n="auth.login.passwordLabel">Password</label>
                       <div class="password-field" data-password-field>
                         <input
-                          class="input"
+                          class="input input--control"
                           id="signin-password"
                           name="password"
                           type="password"
@@ -189,7 +189,7 @@
                     <div class="auth-actions">
                       <button
                         type="submit"
-                        class="btn btn--primary"
+                        class="btn btn--primary btn--md"
                         data-auth-submit="login"
                         data-i18n="auth.login.submit"
                         data-i18n-aria="auth.login.submitAria"
@@ -199,7 +199,7 @@
                       </button>
                       <a
                         href="#register"
-                        class="btn btn--ghost"
+                        class="btn btn--ghost btn--md"
                         data-auth-switch="register"
                         data-route-link="register"
                         data-i18n="auth.login.linkToRegister"
@@ -221,7 +221,7 @@
                       <div class="auth-social__buttons">
                         <button
                           type="button"
-                        class="btn btn--md btn--social btn--social-google"
+                        class="btn btn--social btn--md btn--social-google"
                           data-social="google"
                         >
                           <span class="icon" aria-hidden="true">
@@ -234,7 +234,7 @@
 
                         <button
                           type="button"
-                          class="btn btn--md btn--social btn--social-github"
+                          class="btn btn--social btn--md btn--social-github"
                           data-social="github"
                         >
                           <span class="icon" aria-hidden="true">
@@ -253,13 +253,13 @@
                   <form data-form="register" class="auth-form">
                     <div class="field">
                       <label class="field-label" for="register-email" data-i18n="auth.login.emailLabel">Email</label>
-                      <input class="input" id="register-email" name="email" type="email" autocomplete="email" required aria-describedby="register-status" />
+                      <input class="input input--control" id="register-email" name="email" type="email" autocomplete="email" required aria-describedby="register-status" />
                     </div>
                     <div class="field">
                       <label class="field-label" for="register-password" data-i18n="auth.login.passwordLabel">Password</label>
                       <div class="password-field" data-password-field>
                         <input
-                          class="input"
+                          class="input input--control"
                           id="register-password"
                           name="password"
                           type="password"
@@ -293,7 +293,7 @@
                     <div class="auth-actions">
                       <button
                         type="submit"
-                        class="btn btn--primary"
+                        class="btn btn--primary btn--md"
                         data-auth-submit="register"
                         data-i18n="auth.register.submit"
                         data-i18n-aria="auth.register.submitAria"
@@ -301,7 +301,7 @@
                       >
                         Create account
                       </button>
-                      <a href="#login" class="btn btn--ghost" data-auth-switch="login" data-route-link="login" data-i18n="auth.links.toLogin"
+                      <a href="#login" class="btn btn--ghost btn--md" data-auth-switch="login" data-route-link="login" data-i18n="auth.links.toLogin"
                         >Back to login</a
                       >
                     </div>
@@ -314,7 +314,7 @@
                       <div class="field">
                         <label class="field-label" for="reset-email" data-i18n="auth.login.emailLabel">Email</label>
                         <input
-                          class="input"
+                          class="input input--control"
                           id="reset-email"
                           name="value"
                           type="email"
@@ -339,8 +339,8 @@
                       <div class="auth-actions">
                         <button
                           type="submit"
-                          class="btn btn--primary"
-                          data-i18n="auth.reset.requestButton"
+                        class="btn btn--primary btn--md"
+                        data-i18n="auth.reset.requestButton"
                           data-i18n-aria="auth.reset.requestAria"
                           aria-label="Request password reset link"
                         >
@@ -348,7 +348,7 @@
                         </button>
                       <a
                         href="#login"
-                        class="btn btn--ghost"
+                        class="btn btn--ghost btn--md"
                         data-auth-switch="login"
                         data-route-link="login"
                         data-i18n="auth.reset.linkToLogin"
@@ -385,7 +385,7 @@
                         >
                         <div class="password-field" data-password-field>
                           <input
-                            class="input"
+                            class="input input--control"
                             id="reset-password"
                             name="password"
                             type="password"
@@ -412,7 +412,7 @@
                         >
                         <div class="password-field" data-password-field>
                           <input
-                            class="input"
+                            class="input input--control"
                             id="reset-password-confirm"
                             name="password_confirm"
                             type="password"
@@ -436,7 +436,7 @@
                       <div class="auth-actions">
                         <button
                           type="submit"
-                          class="btn btn--primary"
+                          class="btn btn--primary btn--md"
                           data-i18n="auth.resetConfirm.submit"
                           data-i18n-aria="auth.resetConfirm.submitAria"
                           aria-label="Update password and continue"
@@ -445,7 +445,7 @@
                         </button>
                         <a
                           href="#login"
-                          class="btn btn--ghost"
+                          class="btn btn--ghost btn--md"
                           data-auth-link="login"
                           data-i18n="auth.links.toLogin"
                         >
@@ -481,7 +481,7 @@
                     <span data-user-role>client:owner</span>.
                   </p>
                   <div class="auth-actions">
-                    <button class="btn btn--ghost" data-action="logout" data-i18n="auth.session.logout" aria-label="Log out">
+                    <button class="btn btn--ghost btn--md" data-action="logout" data-i18n="auth.session.logout" aria-label="Log out">
                       Log out
                     </button>
                   </div>
@@ -514,7 +514,7 @@
                 <div class="field">
                   <label class="field-label" data-i18n="cf.wizard.accountIdLabel">Cloudflare Account ID</label>
                   <input
-                    class="input"
+                    class="input input--control"
                     type="text"
                     name="cf_account_id"
                     autocomplete="off"
@@ -528,7 +528,7 @@
                 <div class="field">
                   <label class="field-label" data-i18n="cf.wizard.tokenLabel">Bootstrap API token</label>
                   <textarea
-                    class="input"
+                    class="input input--control"
                     name="cf_bootstrap_token"
                     rows="4"
                     data-i18n-placeholder="cf.wizard.tokenPlaceholder"
@@ -544,7 +544,7 @@
                 <div class="auth-actions">
                   <button
                     type="submit"
-                    class="btn btn--cf"
+                    class="btn btn--cf btn--md"
                     data-i18n="cf.wizard.submit"
                     data-i18n-aria="cf.wizard.submitAria"
                     aria-label="Save and verify Cloudflare token"
