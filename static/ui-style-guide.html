@@ -221,6 +221,207 @@
         background: rgba(255, 255, 255, 0.02);
       }
 
+      .table-wrapper {
+        overflow-x: auto;
+        width: 100%;
+      }
+
+      .table--domains {
+        min-width: 720px;
+      }
+
+      .table__th-actions,
+      .table__cell-actions {
+        width: 1%;
+        white-space: nowrap;
+      }
+
+      .table__cell-actions {
+        text-align: right;
+      }
+
+      .table-demo-controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-2);
+        align-items: center;
+      }
+
+      .table-demo-controls .table-search {
+        flex: 1 1 240px;
+        min-width: 240px;
+      }
+
+      .table-filters {
+        display: inline-flex;
+        gap: var(--space-2);
+        flex-wrap: wrap;
+      }
+
+      .table-search {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2);
+        padding: 0 var(--space-3);
+        min-height: 2.2rem;
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--r-lg);
+        background: var(--panel);
+        color: var(--text);
+        transition: border-color var(--transition-md), box-shadow var(--transition-md);
+      }
+
+      .table-search:focus-within {
+        border-color: var(--input-border-focus);
+        box-shadow: 0 0 0 1px color-mix(in srgb, var(--primary) 40%, transparent);
+      }
+
+      .table-search__input {
+        border: none;
+        background: transparent;
+        color: var(--text);
+        font-size: var(--fs-sm);
+        width: 100%;
+        min-width: 0;
+        padding: 0.35rem 0;
+        outline: none;
+      }
+
+      .table-search__input::placeholder {
+        color: var(--text-muted);
+      }
+
+      .table-search__clear {
+        display: none;
+        border: none;
+        background: transparent;
+        color: var(--text-muted);
+        padding: 0;
+        cursor: pointer;
+      }
+
+      .table-search--active .table-search__clear {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .dropdown {
+        position: relative;
+        display: inline-block;
+      }
+
+      .dropdown__trigger {
+        color: var(--text-muted);
+      }
+
+      .dropdown__menu {
+        position: absolute;
+        top: calc(100% + 0.35rem);
+        right: 0;
+        min-width: 220px;
+        background: var(--bg-elevated);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--r);
+        box-shadow: var(--shadow-soft);
+        padding: var(--space-2) 0;
+        display: none;
+        z-index: 4;
+      }
+
+      .dropdown__menu--align-right {
+        right: 0;
+      }
+
+      .dropdown__item {
+        width: 100%;
+        background: transparent;
+        border: none;
+        color: var(--text);
+        font-size: var(--fs-sm);
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+        padding: var(--space-2) var(--space-3);
+        cursor: pointer;
+        text-align: left;
+        transition: background var(--transition-md), color var(--transition-md);
+      }
+
+      .dropdown__item:hover {
+        background: color-mix(in srgb, var(--primary) 8%, transparent);
+        color: var(--text);
+      }
+
+      .dropdown__item--danger {
+        color: var(--danger);
+      }
+
+      .dropdown__item--danger:hover {
+        background: color-mix(in srgb, var(--danger) 12%, transparent);
+      }
+
+      .dropdown--open .dropdown__menu {
+        display: block;
+      }
+
+      .domain-cell {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+      }
+
+      .domain-cell__name {
+        font-weight: var(--fw-semibold);
+        color: var(--text);
+      }
+
+      .domain-cell__meta {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2);
+        flex-wrap: wrap;
+        color: var(--text-muted);
+        font-size: var(--fs-xs);
+      }
+
+      .domain-cell__meta .badge {
+        font-size: var(--fs-xs);
+        padding-inline: 0.6em;
+      }
+
+      .provider-label {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2);
+        color: var(--text-muted);
+      }
+
+      .link-button {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2);
+        background: transparent;
+        border: none;
+        color: var(--primary);
+        font-size: var(--fs-sm);
+        cursor: pointer;
+        padding: 0.2rem 0.35rem;
+        border-radius: var(--r);
+      }
+
+      .link-button:hover {
+        background: color-mix(in srgb, var(--primary) 10%, transparent);
+      }
+
+      .link-button--sm {
+        font-size: var(--fs-xs);
+      }
+
+      .text-xs {
+        font-size: var(--fs-xs);
+      }
+
       .badge {
         display: inline-flex;
         align-items: center;
@@ -236,6 +437,10 @@
 
         background-color: rgba(255, 255, 255, 0.03);
         color: var(--text);
+      }
+
+      .badge--pill {
+        border-radius: 999px;
       }
 
       .badge + .badge {
@@ -359,6 +564,9 @@
           <a href="#layout">Layout helpers</a>
           <a href="#badges">Badges</a>
           <a href="#tables">Tables</a>
+          <a href="#table-search">Table search</a>
+          <a href="#dropdown">Dropdown</a>
+          <a href="#domains-example">Domains table</a>
           <a href="#buttons">Buttons</a>
           <a href="#forms">Form fields</a>
           <a href="#tabs">Tabs &amp; chips</a>
@@ -395,6 +603,7 @@
           in sync.
         </p>
       </section>
+
       <section id="colors" class="card stack-md">
         <div class="section-header">
           <div>
@@ -702,77 +911,452 @@
             <p class="eyebrow">Data display</p>
             <h2 class="text-title">Tables</h2>
           </div>
-          <p class="text-muted">Domains list example with statuses &amp; actions.</p>
+          <p class="text-muted">Domains list reference with horizontal scroll, table search and dropdown actions.</p>
         </div>
 
         <div class="stack-sm">
-          <div class="card">
-            <div class="card-section" style="padding-top: 0; border-top: none;">
-              <table class="table">
-                <thead>
-                  <tr>
-                    <th>Domain</th>
-                    <th>Status</th>
-                    <th>Cloudflare</th>
-                    <th>Updated</th>
-                    <th style="text-align: right;">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>example.com</td>
-                    <td><span class="badge badge--success">Active</span></td>
-                    <td><span class="badge badge--cf">WAF + Cache</span></td>
-                    <td><span class="badge badge--neutral">3 min ago</span></td>
-                    <td style="text-align: right;">
-                      <div class="cluster" style="justify-content: flex-end;">
-                        <button class="btn btn-secondary btn-sm">Details</button>
-                        <button class="btn btn-primary btn-sm">Manage</button>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>status.301.st</td>
-                    <td><span class="badge badge--neutral">Paused</span></td>
-                    <td><span class="badge badge--cf">Rulesets applied</span></td>
-                    <td><span class="badge badge--neutral">1 hour ago</span></td>
-                    <td style="text-align: right;">
-                      <div class="cluster" style="justify-content: flex-end;">
-                        <button class="btn btn-secondary btn-sm">Details</button>
-                        <button class="btn btn-primary btn-sm">Resume</button>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>staging.cloudapp.dev</td>
-                    <td><span class="badge badge--danger">DNS error</span></td>
-                    <td><span class="badge badge--brand">Pending DNS</span></td>
-                    <td><span class="badge badge--neutral">Yesterday</span></td>
-                    <td style="text-align: right;">
-                      <div class="cluster" style="justify-content: flex-end;">
-                        <button class="btn btn-secondary btn-sm">Retry</button>
-                        <button class="btn btn-ghost btn-sm">Remove</button>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+          <p class="text-body">
+            Domains tables stay in a single row layout even on mobile; wrap the table in a horizontal scroller and keep action
+            menus inside dropdowns so the row stays compact. Only use the allowed icon set for actions and providers.
+          </p>
+
+          <div class="card stack-sm">
+            <div class="card-section stack-sm" style="border-top: none; padding-top: 0;">
+              <div class="table-demo-controls">
+                <div class="table-search" data-table-search>
+                  <span class="icon" data-icon="mono/search"></span>
+                  <input
+                    type="search"
+                    class="table-search__input"
+                    placeholder="Search by domain, project or account…"
+                    value=""
+                  />
+                  <button class="table-search__clear" type="button" aria-label="Clear search">
+                    <span class="icon" data-icon="mono/close"></span>
+                  </button>
+                </div>
+
+                <div class="table-filters">
+                  <button class="btn-chip" type="button">
+                    <span class="icon" data-icon="mono/filter"></span>
+                    Status: Active
+                  </button>
+                  <button class="btn-chip" type="button">
+                    <span class="icon" data-icon="mono/chevron-down"></span>
+                    Provider
+                  </button>
+                </div>
+
+                <button class="btn btn-primary btn-sm" type="button">
+                  <span class="icon" data-icon="mono/plus"></span>
+                  Add domain
+                </button>
+              </div>
+
+              <div class="table-wrapper">
+                <table class="table table--domains">
+                  <thead>
+                    <tr>
+                      <th>Domain</th>
+                      <th>Project</th>
+                      <th>Status / Expiry</th>
+                      <th>Provider</th>
+                      <th class="table__th-actions"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <div class="domain-cell">
+                          <span class="domain-cell__name">example.com</span>
+                          <div class="domain-cell__meta">
+                            <span class="icon icon-brand" data-icon="brand/cloudflare"></span>
+                            <span class="text-muted">main-account</span>
+                            <span class="badge badge--pill">TDS</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <button class="link-button link-button--sm" type="button">
+                          <span class="icon" data-icon="mono/project"></span>
+                          Main project
+                        </button>
+                      </td>
+                      <td>
+                        <span class="badge badge--success">Active</span>
+                        <div class="text-muted text-xs">Exp: 2026-03-21</div>
+                      </td>
+                      <td>
+                        <span class="provider-label">
+                          <span class="icon icon-brand" data-icon="brand/cloudflare"></span>
+                          <span>Cloudflare</span>
+                        </span>
+                      </td>
+                      <td class="table__cell-actions">
+                        <div class="dropdown" data-dropdown>
+                          <button class="btn-icon btn-icon--ghost dropdown__trigger" type="button" aria-haspopup="menu" aria-expanded="false">
+                            <span class="icon" data-icon="mono/dots-vertical"></span>
+                          </button>
+                          <div class="dropdown__menu dropdown__menu--align-right" role="menu">
+                            <button class="dropdown__item" type="button">
+                              <span class="icon" data-icon="mono/eye"></span>
+                              <span>View details</span>
+                            </button>
+                            <button class="dropdown__item" type="button">
+                              <span class="icon" data-icon="mono/logs"></span>
+                              <span>Open logs</span>
+                            </button>
+                            <button class="dropdown__item" type="button">
+                              <span class="icon" data-icon="mono/refresh"></span>
+                              <span>Sync with provider</span>
+                            </button>
+                            <button class="dropdown__item" type="button">
+                              <span class="icon" data-icon="mono/copy"></span>
+                              <span>Copy Zone ID</span>
+                            </button>
+                            <button class="dropdown__item" type="button">
+                              <span class="icon" data-icon="mono/pencil-circle"></span>
+                              <span>Edit domain</span>
+                            </button>
+                            <button class="dropdown__item dropdown__item--danger" type="button">
+                              <span class="icon" data-icon="mono/delete"></span>
+                              <span>Delete</span>
+                            </button>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div class="domain-cell">
+                          <span class="domain-cell__name">status.301.st</span>
+                          <div class="domain-cell__meta">
+                            <span class="icon icon-brand" data-icon="brand/namesilo"></span>
+                            <span class="text-muted">blue-team</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <button class="link-button link-button--sm" type="button">
+                          <span class="icon" data-icon="mono/project"></span>
+                          Status page
+                        </button>
+                      </td>
+                      <td>
+                        <span class="badge badge--neutral">Paused</span>
+                        <div class="text-muted text-xs">Exp: 2024-12-11</div>
+                      </td>
+                      <td>
+                        <span class="provider-label">
+                          <span class="icon icon-brand" data-icon="brand/namesilo"></span>
+                          <span>Namesilo</span>
+                        </span>
+                      </td>
+                      <td class="table__cell-actions">
+                        <div class="dropdown" data-dropdown>
+                          <button class="btn-icon btn-icon--ghost dropdown__trigger" type="button" aria-haspopup="menu" aria-expanded="false">
+                            <span class="icon" data-icon="mono/dots-vertical"></span>
+                          </button>
+                          <div class="dropdown__menu dropdown__menu--align-right" role="menu">
+                            <button class="dropdown__item" type="button">
+                              <span class="icon" data-icon="mono/eye"></span>
+                              <span>View details</span>
+                            </button>
+                            <button class="dropdown__item" type="button">
+                              <span class="icon" data-icon="mono/logs"></span>
+                              <span>Open logs</span>
+                            </button>
+                            <button class="dropdown__item" type="button">
+                              <span class="icon" data-icon="mono/sync"></span>
+                              <span>Sync with provider</span>
+                            </button>
+                            <button class="dropdown__item" type="button">
+                              <span class="icon" data-icon="mono/copy"></span>
+                              <span>Copy Zone ID</span>
+                            </button>
+                            <button class="dropdown__item" type="button">
+                              <span class="icon" data-icon="mono/pencil-circle"></span>
+                              <span>Edit domain</span>
+                            </button>
+                            <button class="dropdown__item dropdown__item--danger" type="button">
+                              <span class="icon" data-icon="mono/delete"></span>
+                              <span>Delete</span>
+                            </button>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div class="domain-cell">
+                          <span class="domain-cell__name">staging.cloudapp.dev</span>
+                          <div class="domain-cell__meta">
+                            <span class="icon icon-brand" data-icon="brand/cloudflare"></span>
+                            <span class="text-muted">ops-shared</span>
+                            <span class="badge badge--brand">Syncing…</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <button class="link-button link-button--sm" type="button">
+                          <span class="icon" data-icon="mono/project"></span>
+                          Cloud app (staging)
+                        </button>
+                      </td>
+                      <td>
+                        <span class="badge badge--danger">DNS error</span>
+                        <div class="text-muted text-xs">Exp: 2025-06-10</div>
+                      </td>
+                      <td>
+                        <span class="provider-label">
+                          <span class="icon icon-brand" data-icon="brand/cloudflare"></span>
+                          <span>Cloudflare</span>
+                        </span>
+                      </td>
+                      <td class="table__cell-actions">
+                        <div class="dropdown" data-dropdown>
+                          <button class="btn-icon btn-icon--ghost dropdown__trigger" type="button" aria-haspopup="menu" aria-expanded="false">
+                            <span class="icon" data-icon="mono/dots-vertical"></span>
+                          </button>
+                          <div class="dropdown__menu dropdown__menu--align-right" role="menu">
+                            <button class="dropdown__item" type="button">
+                              <span class="icon" data-icon="mono/eye"></span>
+                              <span>View details</span>
+                            </button>
+                            <button class="dropdown__item" type="button">
+                              <span class="icon" data-icon="mono/logs"></span>
+                              <span>Open logs</span>
+                            </button>
+                            <button class="dropdown__item" type="button">
+                              <span class="icon" data-icon="mono/refresh"></span>
+                              <span>Sync with provider</span>
+                            </button>
+                            <button class="dropdown__item" type="button">
+                              <span class="icon" data-icon="mono/copy"></span>
+                              <span>Copy Zone ID</span>
+                            </button>
+                            <button class="dropdown__item" type="button">
+                              <span class="icon" data-icon="mono/pencil-circle"></span>
+                              <span>Edit domain</span>
+                            </button>
+                            <button class="dropdown__item dropdown__item--danger" type="button">
+                              <span class="icon" data-icon="mono/delete"></span>
+                              <span>Delete</span>
+                            </button>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div class="domain-cell">
+                          <span class="domain-cell__name">newdomain.xyz</span>
+                          <div class="domain-cell__meta">
+                            <span class="icon icon-brand" data-icon="brand/namecheap"></span>
+                            <span class="text-muted">nc-billing</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <button class="link-button link-button--sm" type="button">
+                          <span class="icon" data-icon="mono/project"></span>
+                          Marketing microsite
+                        </button>
+                      </td>
+                      <td>
+                        <span class="badge badge--success">Active</span>
+                        <div class="text-muted text-xs">Exp: 2027-01-05</div>
+                      </td>
+                      <td>
+                        <span class="provider-label">
+                          <span class="icon icon-brand" data-icon="brand/namecheap"></span>
+                          <span>Namecheap</span>
+                        </span>
+                      </td>
+                      <td class="table__cell-actions">
+                        <div class="dropdown" data-dropdown>
+                          <button class="btn-icon btn-icon--ghost dropdown__trigger" type="button" aria-haspopup="menu" aria-expanded="false">
+                            <span class="icon" data-icon="mono/dots-vertical"></span>
+                          </button>
+                          <div class="dropdown__menu dropdown__menu--align-right" role="menu">
+                            <button class="dropdown__item" type="button">
+                              <span class="icon" data-icon="mono/eye"></span>
+                              <span>View details</span>
+                            </button>
+                            <button class="dropdown__item" type="button">
+                              <span class="icon" data-icon="mono/logs"></span>
+                              <span>Open logs</span>
+                            </button>
+                            <button class="dropdown__item" type="button">
+                              <span class="icon" data-icon="mono/refresh"></span>
+                              <span>Sync with provider</span>
+                            </button>
+                            <button class="dropdown__item" type="button">
+                              <span class="icon" data-icon="mono/copy"></span>
+                              <span>Copy Zone ID</span>
+                            </button>
+                            <button class="dropdown__item" type="button">
+                              <span class="icon" data-icon="mono/pencil-circle"></span>
+                              <span>Edit domain</span>
+                            </button>
+                            <button class="dropdown__item dropdown__item--danger" type="button">
+                              <span class="icon" data-icon="mono/delete"></span>
+                              <span>Delete</span>
+                            </button>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
+
           <div class="code-block">
-            &lt;table class="table"&gt;
-            &lt;thead&gt;...&lt;/thead&gt;
-            &lt;tbody&gt;
-            &nbsp;&nbsp;&lt;tr&gt;
-            &nbsp;&nbsp;&nbsp;&nbsp;&lt;td&gt;example.com&lt;/td&gt;
-            &nbsp;&nbsp;&nbsp;&nbsp;&lt;td&gt;&lt;span class=&quot;badge badge--success&quot;&gt;Active&lt;/span&gt;&lt;/td&gt;
-            &nbsp;&nbsp;&nbsp;&nbsp;&lt;td&gt;&lt;span class=&quot;badge badge--cf&quot;&gt;WAF + Cache&lt;/span&gt;&lt;/td&gt;
-            &nbsp;&nbsp;&nbsp;&nbsp;&lt;td&gt;&lt;span class=&quot;badge badge--neutral&quot;&gt;3 min ago&lt;/span&gt;&lt;/td&gt;
-            &nbsp;&nbsp;&nbsp;&nbsp;&lt;td&gt;...actions...&lt;/td&gt;
-            &nbsp;&nbsp;&lt;/tr&gt;
-            &lt;/tbody&gt;
-            &lt;/table&gt;
+&lt;div class="table-demo-controls"&gt;<br />
+&nbsp;&nbsp;&lt;div class=&quot;table-search&quot;&gt;...search...&lt;/div&gt;<br />
+&nbsp;&nbsp;&lt;div class=&quot;table-filters&quot;&gt;...chips...&lt;/div&gt;<br />
+&nbsp;&nbsp;&lt;button class=&quot;btn btn-primary btn-sm&quot;&gt;Add domain&lt;/button&gt;<br />
+&lt;/div&gt;<br />
+&lt;div class=&quot;table-wrapper&quot;&gt;<br />
+&nbsp;&nbsp;&lt;table class=&quot;table table--domains&quot;&gt;...domains rows with dropdown actions...&lt;/table&gt;<br />
+&lt;/div&gt;
           </div>
+
+          <p class="text-muted">
+            Keep <code class="code-inline">table--domains</code> at <code class="code-inline">min-width: 720px</code> for predictable
+            scroll on mobile; do not collapse rows into cards. Use <code class="code-inline">mono</code> action icons only (search,
+            close, filter, chevron-down, plus, dots-vertical, eye, logs, refresh/sync, copy, pencil-circle, delete, check-status)
+            and provider icons from <code class="code-inline">brand</code> sprite (cloudflare, namecheap, namesilo).
+          </p>
+        </div>
+      </section>
+
+
+
+      <section id="table-search" class="card stack-md">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">Components</p>
+            <h2 class="text-title">Table Search Bar</h2>
+          </div>
+          <p class="text-muted">Pill-style search aligned to <code class="code-inline">btn-sm</code> height.</p>
+        </div>
+
+        <div class="stack-sm">
+          <div class="table-search" data-table-search>
+            <span class="icon" data-icon="mono/search"></span>
+            <input
+              type="search"
+              class="table-search__input"
+              placeholder="Search by domain, project or account…"
+              value="cloudflare"
+            />
+            <button class="table-search__clear" type="button" aria-label="Clear search">
+              <span class="icon" data-icon="mono/close"></span>
+            </button>
+          </div>
+
+          <p class="text-body">
+            Use inside table headers or toolbars. Background inherits <code class="code-inline">--panel</code>, border matches
+            chips. The clear button only appears when the input has a value; on mobile the search pill stays first in the
+            controls row and wraps naturally.
+          </p>
+
+          <div class="code-block">
+&lt;div class=&quot;table-search&quot; data-table-search&gt;<br />
+&nbsp;&nbsp;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/search&quot;&gt;&lt;/span&gt;<br />
+&nbsp;&nbsp;&lt;input class=&quot;table-search__input&quot; placeholder=&quot;Search by domain, project or account…&quot; /&gt;<br />
+&nbsp;&nbsp;&lt;button class=&quot;table-search__clear&quot; type=&quot;button&quot;&gt;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/close&quot;&gt;&lt;/span&gt;<br />
+&nbsp;&nbsp;&lt;/button&gt;<br />
+&lt;/div&gt;
+          </div>
+        </div>
+      </section>
+
+      <section id="dropdown" class="card stack-md">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">Components</p>
+            <h2 class="text-title">Dropdown Menu</h2>
+          </div>
+          <p class="text-muted">Reusable actions menu for table rows and compact controls.</p>
+        </div>
+
+        <div class="stack-sm">
+          <div class="dropdown" data-dropdown>
+            <button class="btn-icon btn-icon--ghost dropdown__trigger" type="button" aria-haspopup="menu" aria-expanded="false">
+              <span class="icon" data-icon="mono/dots-vertical"></span>
+            </button>
+
+            <div class="dropdown__menu dropdown__menu--align-right" role="menu">
+              <button class="dropdown__item" type="button">
+                <span class="icon" data-icon="mono/eye"></span>
+                <span>View details</span>
+              </button>
+              <button class="dropdown__item" type="button">
+                <span class="icon" data-icon="mono/logs"></span>
+                <span>Open logs</span>
+              </button>
+              <button class="dropdown__item" type="button">
+                <span class="icon" data-icon="mono/refresh"></span>
+                <span>Sync with provider</span>
+              </button>
+              <button class="dropdown__item" type="button">
+                <span class="icon" data-icon="mono/copy"></span>
+                <span>Copy Zone ID</span>
+              </button>
+              <button class="dropdown__item" type="button">
+                <span class="icon" data-icon="mono/pencil-circle"></span>
+                <span>Edit domain</span>
+              </button>
+              <button class="dropdown__item dropdown__item--danger" type="button">
+                <span class="icon" data-icon="mono/delete"></span>
+                <span>Delete</span>
+              </button>
+            </div>
+          </div>
+
+          <p class="text-body">
+            Attach <code class="code-inline">data-dropdown</code> to the wrapper and toggle <code class="code-inline">dropdown--open</code>
+            on trigger click. Clicking outside closes all open menus. Align right with
+            <code class="code-inline">dropdown__menu--align-right</code>; keep icons within the approved set only.
+          </p>
+
+          <div class="code-block">
+&lt;div class=&quot;dropdown&quot; data-dropdown&gt;<br />
+&nbsp;&nbsp;&lt;button class=&quot;btn-icon btn-icon--ghost dropdown__trigger&quot; aria-expanded=&quot;false&quot;&gt;...dots...&lt;/button&gt;<br />
+&nbsp;&nbsp;&lt;div class=&quot;dropdown__menu dropdown__menu--align-right&quot; role=&quot;menu&quot;&gt;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;button class=&quot;dropdown__item&quot;&gt;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/eye&quot;&gt;&lt;/span&gt;View details&lt;/button&gt;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;...other actions...<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;button class=&quot;dropdown__item dropdown__item--danger&quot;&gt;Delete&lt;/button&gt;<br />
+&nbsp;&nbsp;&lt;/div&gt;<br />
+&lt;/div&gt;
+          </div>
+        </div>
+      </section>
+
+      <section id="domains-example" class="card stack-md">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">Examples</p>
+            <h2 class="text-title">Domains table</h2>
+          </div>
+          <p class="text-muted">Reference layout = search + filters + add button + scrollable domains table.</p>
+        </div>
+
+        <div class="stack-sm">
+          <p class="text-body">
+            Combine the table search pill, filter chips, and dropdown menu inside a single toolbar above a
+            <code class="code-inline">table--domains</code>. Keep the provider column strictly to Cloudflare, Namecheap or Namesilo
+            icons; expose Zone ID, edit and delete actions via the dropdown, not inline columns.
+          </p>
+          <p class="text-muted">
+            This example reuses the table above. To adapt it, swap row data only — do not introduce new icons or per-row
+            layouts, and keep the min-width to force horizontal scroll on small screens.
+          </p>
         </div>
       </section>
 
@@ -1050,6 +1634,63 @@
         use.setAttribute('href', `/icons-sprite.svg#${symbolId}`);
         svg.appendChild(use);
         el.appendChild(svg);
+      });
+
+      // Table search clear toggle
+      const searchBars = document.querySelectorAll('[data-table-search]');
+
+      const toggleSearchState = (wrapper) => {
+        const input = wrapper.querySelector('.table-search__input');
+        const hasValue = Boolean(input?.value?.trim());
+        wrapper.classList.toggle('table-search--active', hasValue);
+      };
+
+      searchBars.forEach((wrapper) => {
+        const input = wrapper.querySelector('.table-search__input');
+        const clear = wrapper.querySelector('.table-search__clear');
+
+        if (input) {
+          input.addEventListener('input', () => toggleSearchState(wrapper));
+          toggleSearchState(wrapper);
+        }
+
+        clear?.addEventListener('click', () => {
+          if (!input) return;
+          input.value = '';
+          toggleSearchState(wrapper);
+          input.focus();
+        });
+      });
+
+      // Dropdown menus
+      const dropdowns = Array.from(document.querySelectorAll('[data-dropdown]'));
+
+      const closeDropdowns = (except) => {
+        dropdowns.forEach((dropdown) => {
+          if (dropdown === except) return;
+          dropdown.classList.remove('dropdown--open');
+          dropdown.querySelector('.dropdown__trigger')?.setAttribute('aria-expanded', 'false');
+        });
+      };
+
+      dropdowns.forEach((dropdown) => {
+        const trigger = dropdown.querySelector('.dropdown__trigger');
+        trigger?.addEventListener('click', (event) => {
+          event.stopPropagation();
+          const isOpen = dropdown.classList.contains('dropdown--open');
+          closeDropdowns(dropdown);
+          dropdown.classList.toggle('dropdown--open', !isOpen);
+          trigger.setAttribute('aria-expanded', (!isOpen).toString());
+        });
+      });
+
+      document.addEventListener('click', (event) => {
+        const clickedDropdown = event.target?.closest?.('[data-dropdown]');
+        if (!clickedDropdown) {
+          closeDropdowns();
+        } else if (!clickedDropdown.classList.contains('dropdown--open')) {
+          closeDropdowns(clickedDropdown);
+        }
       });
     </script>
   </body>
