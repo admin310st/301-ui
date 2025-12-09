@@ -176,20 +176,31 @@ We use CSS custom properties (`--token`) and a theme switch via
 }
 ```
 
-### 1.4. Control sizing
+### 1.4. Unified Control System
 
-* Base body font: `--fs-body` (1rem).
-* Control font size: `--fs-control` and `--lh-control`.
-* Controls (inputs, buttons, chips, tabs, table search) use **one recipe** based on font size and padding.
-* We do **not** define button height in pixels. Height is derived from: `height ≈ font-size × line-height + 2 × paddingY`.
+All interactive UI elements share the same sizing recipe:
 
-| Family          | Size modifier | Использование                  |
-| --------------- | ------------- | ------------------------------ |
-| `.btn`, `.chip` | `--sm`        | второстепенные, иконки         |
-| `.btn`, `.chip` | `--md`        | формы, таблицы, табы (default) |
-| `.btn`, `.chip` | `--lg`        | hero/landing CTA only          |
+* Buttons (primary, ghost, danger, social)
+* Chips (filter, provider, table chips)
+* Table search bar
+* Auth tabs
+* Input fields used in forms
 
-Codex must **not** introduce `min-height` / `padding` in `px` for controls. Everything goes through the tokens above; if a control ends up taller/shorter than its siblings, treat it as a bug instead of a new style.
+**Height formula**
+
+Height = `font-size × line-height + padding × 2`
+→ **No fixed pixel heights in the system.**
+
+**Rule**
+
+Changing the design system requires updating:
+
+1. Global tokens
+2. Component recipes
+3. **Every demo page**
+4. **Every real page that uses these components**
+
+Old markup or legacy paddings are *not allowed* once change is applied.
 
 ### 1.5. Elevation & Shadows
 
@@ -499,7 +510,7 @@ Icons inside buttons are 16px SVGs with `stroke="currentColor"` / `fill="none"` 
 
 #### Tabs & chips
 
-Tabs, filters and table chips reuse the same `.btn-chip` component and the same `control-md` size. Do not create alternate chip paddings or heights; the auth tabs, table filter chips and toolbar filters must look like a single family of controls.
+Tabs, filters and table chips reuse the same `.btn-chip` component and the shared control recipe. Do not create alternate chip paddings or heights; the auth tabs, table filter chips and toolbar filters must look like a single family of controls.
 
 #### Table chips / action chips (Table Controls & Chips)
 
@@ -519,7 +530,7 @@ Tabs, filters and table chips reuse the same `.btn-chip` component and the same 
 * фон: `var(--bg-elevated)`;
 * текст: `var(--text-main)`;
 * иконки — только через `.btn-chip__icon` / `.btn-chip__chevron` с 0.875rem SVG в `currentColor`;
-* `padding-inline: var(--control-padding-x)` (вертикальный паддинг считаем через `--control-padding-y`);
+* `padding-inline: var(--control-pad-x)` (вертикальный паддинг считаем через `--control-pad-y`);
 * скругление: `var(--control-radius)`.
 
 Варианты (`btn-chip--*`):
@@ -548,13 +559,13 @@ Dropdown chip pattern:
 </div>
 ```
 
-Toolbar example combining the real components (search bar + dropdown chip + Cloudflare chip + primary button). All four controls share the same `control-md` height and pill radius; do not introduce custom paddings or heights on individual buttons:
+Toolbar example combining the real components (search bar + dropdown chip + Cloudflare chip + primary button). All four controls share the unified control recipe; do not introduce custom paddings or heights on individual buttons:
 
 ```html
 <div class="controls-row table-controls">
   <div class="table-search" data-table-search>
     <span class="icon" data-icon="mono/search"></span>
-    <input type="search" class="table-search__input" placeholder="Search by domain, project or account..." />
+    <input type="text" class="table-search__input" placeholder="Search by domain, project or account..." />
     <button class="table-search__clear" type="button" aria-label="Clear search">
       <span class="icon" data-icon="mono/close"></span>
     </button>
@@ -580,7 +591,7 @@ Toolbar example combining the real components (search bar + dropdown chip + Clou
     <span class="btn-chip__label">Cloudflare</span>
   </button>
 
-  <button class="btn btn--primary btn--md" type="button">
+  <button class="btn btn--primary" type="button">
     <span class="icon" data-icon="mono/plus"></span>
     <span>Add domain</span>
   </button>
@@ -589,12 +600,12 @@ Toolbar example combining the real components (search bar + dropdown chip + Clou
 
 Variant table for the toolbar row:
 
-| Variant     | Class                          | Notes                                   |
-| ----------- | ----------------------------- | --------------------------------------- |
-| Search bar  | `.table-search`               | `control-md`, pill radius               |
-| Status chip | `.btn-chip.btn-chip--dropdown`| `control-md`, pill radius               |
-| Provider    | `.btn-chip.btn-chip--cf`      | `control-md`, pill radius               |
-| Primary     | `.btn.btn--primary.btn--md`   | `control-md`, pill radius               |
+| Variant     | Class                          | Notes                              |
+| ----------- | ----------------------------- | ---------------------------------- |
+| Search bar  | `.table-search`               | Unified control recipe + pill radius |
+| Status chip | `.btn-chip.btn-chip--dropdown`| Unified control recipe + pill radius |
+| Provider    | `.btn-chip.btn-chip--cf`      | Unified control recipe + pill radius |
+| Primary     | `.btn.btn--primary`           | Unified control recipe + pill radius |
 
 **Важно:** разметка и классы чипов в документации и демо-страницах должны совпадать.
 ### 4.2. Form controls
@@ -651,7 +662,7 @@ Used in dashboard stats, domain groups, Cloudflare status blocks.
 
 ### 4.5. Tables
 
-Domains tables stay in a single row layout even on mobile; wrap the table in a horizontal scroller and keep action menus inside dropdowns so the row stays compact. Above the table you can place a search bar, one or more dropdown filter chips, provider action chips and a primary button. The example shows a table search bar, a status dropdown chip, a Cloudflare action chip and a primary “Add domain” button — all on the same `control-md` baseline.
+Domains tables stay in a single row layout even on mobile; wrap the table in a horizontal scroller and keep action menus inside dropdowns so the row stays compact. Above the table you can place a search bar, one or more dropdown filter chips, provider action chips and a primary button. The example shows a table search bar, a status dropdown chip, a Cloudflare action chip and a primary “Add domain” button — all sharing the unified control recipe.
 
 ```css
 .table { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); }
@@ -665,11 +676,11 @@ Domains tables stay in a single row layout even on mobile; wrap the table in a h
 .table-wrapper { overflow-x: auto; width: 100%; }
 .table--domains { min-width: 720px; }
 .table__th-actions, .table__cell-actions { width: 1%; white-space: nowrap; text-align: right; }
-.table-controls { display: flex; align-items: stretch; gap: var(--space-3); flex-wrap: wrap; }
+.table-controls { display: flex; align-items: stretch; gap: var(--inline-gap); flex-wrap: wrap; }
 .table-filter { position: relative; }
 .btn-chip__icon, .btn-chip__chevron { display: inline-flex; align-items: center; justify-content: center; }
 .btn-chip__label { white-space: nowrap; }
-.table-search { flex: 1 1 16rem; min-width: 0; display: inline-flex; align-items: center; gap: var(--space-2); font-size: var(--control-font-size); line-height: var(--control-line-height); padding-inline: var(--control-padding-x); padding-block: var(--control-padding-y); min-height: calc(1em * var(--control-line-height) + 2 * var(--control-padding-y)); border-radius: var(--control-radius); border: 1px solid var(--border-subtle); background: var(--panel); color: var(--text); }
+.table-search { flex: 1 1 16rem; min-width: 0; display: inline-flex; align-items: center; gap: 0.4em; font-size: var(--fs-control); line-height: var(--lh-control); padding-inline: var(--control-pad-x); padding-block: var(--control-pad-y); min-height: calc(1em * var(--lh-control) + 2 * var(--control-pad-y)); border-radius: var(--control-radius); border: 1px solid var(--border-subtle); background: var(--panel); color: var(--text); }
 .table-search__input { flex: 1 1 auto; background: transparent; border: none; color: var(--text); font: inherit; width: 100%; outline: none; }
 .table-search__input::placeholder { color: var(--muted); }
 .table-search__clear { display: none; background: transparent; border: none; padding: 0; align-items: center; justify-content: center; }
@@ -714,7 +725,7 @@ Example toolbar + table markup:
   <div class="controls-row table-controls">
     <div class="table-search" data-table-search>
       <span class="icon" data-icon="mono/search"></span>
-      <input type="search" class="table-search__input" placeholder="Search by domain, project or account..." />
+      <input type="text" class="table-search__input" placeholder="Search by domain, project or account..." />
       <button class="table-search__clear" type="button" aria-label="Clear search">
         <span class="icon" data-icon="mono/close"></span>
       </button>
