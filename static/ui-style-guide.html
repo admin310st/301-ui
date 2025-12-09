@@ -302,7 +302,7 @@
         text-align: right;
       }
 
-      .btn-chip-group.table-controls {
+      .table-controls {
         display: flex;
         flex-wrap: wrap;
         align-items: center;
@@ -1258,22 +1258,24 @@
             <p class="eyebrow">Data display</p>
             <h2 class="text-title">Tables</h2>
           </div>
-          <p class="text-muted">Domains list reference with horizontal scroll, table search and dropdown actions.</p>
+          <p class="text-muted">Domains list reference with horizontal scroll, table search, dropdown filters and action chips.</p>
         </div>
 
         <div class="stack-sm">
           <p class="text-body">
             Domains tables stay in a single row layout even on mobile; wrap the table in a horizontal scroller and keep action
-            menus inside dropdowns so the row stays compact. Only use the allowed icon set for actions and providers.
+            menus inside dropdowns so the row stays compact. Above the table you can place search, one or more dropdown filters
+            and action chips. The example shows search, a status dropdown filter and a Cloudflare action chip.
           </p>
 
           <div class="card stack-sm">
             <div class="card-section stack-sm" style="border-top: none; padding-top: 0;">
-              <div class="btn-chip-group table-controls controls-row">
+              <div class="controls-row table-controls">
                 <div class="table-search chip chip--ghost chip--lg" data-table-search>
                   <span class="icon" data-icon="mono/search"></span>
                   <input
                     class="table-search__input"
+                    type="search"
                     placeholder="Search by domain, project or account..."
                     value=""
                   />
@@ -1283,33 +1285,23 @@
                 </div>
 
                 <div class="table-filter">
-                  <button class="btn-chip btn-chip--dropdown is-open" type="button">
+                  <button class="btn-chip btn-chip--ghost btn-chip--dropdown is-open" type="button">
                     <span class="icon" data-icon="mono/filter"></span>
-                    <span class="btn-chip__label">Status: Active</span>
-                    <span class="btn-chip__chevron">
-                      <span class="icon" data-icon="mono/chevron-up"></span>
-                    </span>
+                    <span>Status: Active</span>
+                    <span class="icon" data-icon="mono/chevron-up"></span>
                   </button>
 
                   <div class="table-filter__menu">
-                    <button class="dropdown__item" type="button">All statuses</button>
+                    <button class="dropdown__item is-active" type="button">All statuses</button>
                     <button class="dropdown__item" type="button">Active only</button>
                     <button class="dropdown__item" type="button">Paused</button>
                     <button class="dropdown__item" type="button">DNS error</button>
                   </div>
                 </div>
 
-                <button class="btn-chip btn-chip--dropdown" type="button">
-                  <span class="icon" data-icon="mono/filter"></span>
-                  <span class="btn-chip__label">Provider</span>
-                  <span class="btn-chip__chevron">
-                    <span class="icon" data-icon="mono/chevron-down"></span>
-                  </span>
-                </button>
-
-                <button class="btn-chip btn-chip--primary" type="button">
-                  <span class="icon" data-icon="mono/plus"></span>
-                  <span>Add domain</span>
+                <button class="btn-chip btn-chip--cf" type="button">
+                  <span class="icon" data-icon="brand/cloudflare"></span>
+                  <span>Cloudflare action</span>
                 </button>
               </div>
 
@@ -1574,32 +1566,28 @@
           </div>
 
           <div class="code-block">
-&lt;div class=&quot;btn-chip-group table-controls&quot;&gt;<br />
-&nbsp;&nbsp;&lt;div class=&quot;table-search chip chip--ghost chip--lg&quot; data-table-search&gt;<br />
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/search&quot;&gt;&lt;/span&gt;<br />
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;input class=&quot;table-search__input&quot; placeholder=&quot;Search by domain, project or account...&quot; /&gt;<br />
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;button class=&quot;table-search__clear&quot; type=&quot;button&quot; aria-label=&quot;Clear search&quot;&gt;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/close&quot;&gt;&lt;/span&gt;&lt;/button&gt;<br />
-&nbsp;&nbsp;&lt;/div&gt;<br />
-&nbsp;&nbsp;&lt;div class=&quot;table-filter&quot;&gt;<br />
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;button class=&quot;btn-chip btn-chip--dropdown is-open&quot;&gt;<br />
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/filter&quot;&gt;&lt;/span&gt;<br />
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;btn-chip__label&quot;&gt;Status: Active&lt;/span&gt;<br />
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;btn-chip__chevron&quot;&gt;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/chevron-up&quot;&gt;&lt;/span&gt;&lt;/span&gt;<br />
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;/button&gt;<br />
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;div class=&quot;table-filter__menu&quot;&gt;...filter menu...&lt;/div&gt;<br />
-&nbsp;&nbsp;&lt;/div&gt;<br />
-&nbsp;&nbsp;&lt;button class=&quot;btn-chip btn-chip--dropdown&quot;&gt;<br />
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/filter&quot;&gt;&lt;/span&gt;<br />
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;btn-chip__label&quot;&gt;Provider&lt;/span&gt;<br />
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;btn-chip__chevron&quot;&gt;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/chevron-down&quot;&gt;&lt;/span&gt;&lt;/span&gt;<br />
-&nbsp;&nbsp;&lt;/button&gt;<br />
-&nbsp;&nbsp;&lt;button class=&quot;btn-chip btn-chip--primary&quot;&gt;<br />
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/plus&quot;&gt;&lt;/span&gt;&lt;span&gt;Add domain&lt;/span&gt;<br />
-&nbsp;&nbsp;&lt;/button&gt;<br />
-&lt;/div&gt;<br />
-&lt;div class=&quot;table-scroll&quot;&gt;<br />
-&nbsp;&nbsp;&lt;table class=&quot;table table--domains&quot;&gt;...domains rows with dropdown actions...&lt;/table&gt;<br />
-&lt;/div&gt;
+  &lt;div class=&quot;controls-row table-controls&quot;&gt;<br />
+  &nbsp;&nbsp;&lt;div class=&quot;table-search chip chip--ghost chip--lg&quot; data-table-search&gt;<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/search&quot;&gt;&lt;/span&gt;<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&lt;input class=&quot;table-search__input&quot; type=&quot;search&quot; placeholder=&quot;Search by domain, project or account...&quot; /&gt;<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&lt;button class=&quot;table-search__clear&quot; type=&quot;button&quot; aria-label=&quot;Clear search&quot;&gt;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/close&quot;&gt;&lt;/span&gt;&lt;/button&gt;<br />
+  &nbsp;&nbsp;&lt;/div&gt;<br />
+  &nbsp;&nbsp;&lt;div class=&quot;table-filter&quot;&gt;<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&lt;button class=&quot;btn-chip btn-chip--ghost btn-chip--dropdown is-open&quot;&gt;<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/filter&quot;&gt;&lt;/span&gt;<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;span&gt;Status: Active&lt;/span&gt;<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/chevron-up&quot;&gt;&lt;/span&gt;<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&lt;/button&gt;<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&lt;div class=&quot;table-filter__menu&quot;&gt;...filter menu...&lt;/div&gt;<br />
+  &nbsp;&nbsp;&lt;/div&gt;<br />
+  &nbsp;&nbsp;&lt;button class=&quot;btn-chip btn-chip--cf&quot;&gt;<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;icon&quot; data-icon=&quot;brand/cloudflare&quot;&gt;&lt;/span&gt;<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&lt;span&gt;Cloudflare action&lt;/span&gt;<br />
+  &nbsp;&nbsp;&lt;/button&gt;<br />
+  &lt;/div&gt;<br />
+  &lt;div class=&quot;table-scroll&quot;&gt;<br />
+  &nbsp;&nbsp;&lt;table class=&quot;table table--domains&quot;&gt;...domains rows with dropdown actions...&lt;/table&gt;<br />
+  &lt;/div&gt;
           </div>
 
           <p class="text-muted">

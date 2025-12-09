@@ -643,15 +643,18 @@ Primary use: domains list, Cloudflare zones, rulesets, logs.
 .table-wrapper { overflow-x: auto; width: 100%; }
 .table--domains { min-width: 720px; }
 .table__th-actions, .table__cell-actions { width: 1%; white-space: nowrap; text-align: right; }
-.btn-chip-group.table-controls { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+.table-controls { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
 .table-filter { position: relative; }
 .btn-chip__icon, .btn-chip__chevron { display: inline-flex; align-items: center; justify-content: center; }
 .btn-chip__label { white-space: nowrap; }
-.btn-chip--dropdown { display: inline-flex; align-items: center; gap: 0.35rem; padding-inline: 0.75rem; border-color: var(--border-subtle); background: var(--bg-elevated); color: var(--text-main); }
+.btn-chip--dropdown { display: inline-flex; align-items: center; gap: 0.35rem; padding-inline: 0.75rem; border-color: var(--border-subtle); background: transparent; color: var(--text-main); }
+.btn-chip--ghost { background: var(--bg-elevated); border-color: var(--border-subtle); color: var(--text-main); }
 .btn-chip--input { display: inline-flex; align-items: center; gap: 0.5rem; padding-inline: 0.75rem; background: var(--bg-elevated); border-color: var(--border-subtle); color: var(--text-main); }
 .btn-chip--input:focus-within { border-color: var(--input-border-focus); box-shadow: 0 0 0 1px color-mix(in srgb, var(--primary) 40%, transparent); }
 .btn-chip--primary { background: var(--primary); border-color: color-mix(in srgb, var(--primary) 45%, transparent); color: var(--btn-text-on-dark); }
 .btn-chip--primary:hover { background: var(--primary-hover); }
+.btn-chip--cf { background: var(--accent-cf-bg); border-color: var(--accent-cf-border, var(--accent-cf-soft, transparent)); color: var(--accent-cf-fg, var(--btn-text-on-dark)); }
+.btn-chip--cf:hover { background: var(--accent-cf-bg-hover); border-color: var(--accent-cf-border-hover, var(--accent-cf-soft, transparent)); color: var(--accent-cf-fg, var(--btn-text-on-dark)); }
 .table-search { flex: 1 1 16rem; min-width: 0; display: inline-flex; align-items: center; gap: 0.5rem; padding-inline: 0.75rem; color: var(--text); }
 .table-search__input { flex: 1 1 auto; background: transparent; border: none; color: var(--text); font: inherit; width: 100%; outline: none; }
 .table-search__input::placeholder { color: var(--muted); }
@@ -686,11 +689,11 @@ Dropdown menus use `--shadow-md` elevation:
 
 #### Table controls as chips
 
-Table controls in the `Tables` section always reuse `.btn-chip` variants:
+Table controls in the `Tables` section always reuse `.btn-chip` variants in a single `controls-row`:
 
-- search → `btn-chip btn-chip--input` + `search` / `close` icons
-- filters → `btn-chip btn-chip--dropdown` + `filter` + `chevron-down`
-- primary action → `btn-chip btn-chip--primary` + `plus`
+- search → `table-search chip chip--ghost chip--lg` + `search` / `close` icons
+- dropdown filters → `btn-chip btn-chip--ghost btn-chip--dropdown` + `filter` + `chevron-up/down`
+- action chips (e.g., Cloudflare) → `btn-chip btn-chip--cf` + `brand/cloudflare`
 
 Filter menus stay visually attached to their trigger chip without changing the toolbar layout thanks to `.table-filter__menu { position: absolute; }` in the demo.
 
@@ -700,19 +703,20 @@ Allowed icons:
 - Clear search: `close`
 - Filter prefix: `filter`
 - Dropdown indicator: `chevron-down` / `chevron-up`
-- Add domain: `plus`
+- Cloudflare action: `brand/cloudflare`
 
 #### 4.4.1. Domains table reference
 
 * Responsive rule: keep `.table--domains` at `min-width: 720px` and wrap in `.table-wrapper` for horizontal scroll on mobile (no card collapse).
 * Actions live inside a dropdown menu; provider column shows only `cloudflare`, `namecheap`, `namesilo` brand icons.
 * Status/expiry stays in one column, SSL mode and Zone ID surface through the dropdown actions only.
+* Toolbar demo pairs search with a single status dropdown filter plus a Cloudflare action chip in the same controls row.
 
 Example toolbar + table markup:
 
 ```html
-  <div class="btn-chip-group table-controls">
-    <div class="btn-chip btn-chip--input table-search" data-table-search>
+  <div class="controls-row table-controls">
+    <div class="table-search chip chip--ghost chip--lg" data-table-search>
       <span class="icon" data-icon="mono/search"></span>
       <input type="search" class="table-search__input" placeholder="Search by domain, project or account..." />
       <button class="table-search__clear" type="button" aria-label="Clear search">
@@ -720,31 +724,25 @@ Example toolbar + table markup:
       </button>
     </div>
 
-  <div class="table-filter">
-    <button class="btn-chip btn-chip--dropdown is-open" type="button">
-      <span class="icon" data-icon="mono/filter"></span>
-      <span class="btn-chip__label">Status: Active</span>
-      <span class="btn-chip__chevron"><span class="icon" data-icon="mono/chevron-up"></span></span>
-    </button>
-    <div class="table-filter__menu">
-      <button class="dropdown__item" type="button">All statuses</button>
-      <button class="dropdown__item" type="button">Active only</button>
-      <button class="dropdown__item" type="button">Paused</button>
-      <button class="dropdown__item" type="button">DNS error</button>
+    <div class="table-filter">
+      <button class="btn-chip btn-chip--ghost btn-chip--dropdown is-open" type="button">
+        <span class="icon" data-icon="mono/filter"></span>
+        <span>Status: Active</span>
+        <span class="icon" data-icon="mono/chevron-up"></span>
+      </button>
+      <div class="table-filter__menu">
+        <button class="dropdown__item" type="button">All statuses</button>
+        <button class="dropdown__item" type="button">Active only</button>
+        <button class="dropdown__item" type="button">Paused</button>
+        <button class="dropdown__item" type="button">DNS error</button>
+      </div>
     </div>
+
+    <button class="btn-chip btn-chip--cf" type="button">
+      <span class="icon" data-icon="brand/cloudflare"></span>
+      <span>Cloudflare action</span>
+    </button>
   </div>
-
-  <button class="btn-chip btn-chip--dropdown" type="button">
-    <span class="icon" data-icon="mono/filter"></span>
-    <span class="btn-chip__label">Provider</span>
-    <span class="btn-chip__chevron"><span class="icon" data-icon="mono/chevron-down"></span></span>
-  </button>
-
-  <button class="btn-chip btn-chip--primary" type="button">
-    <span class="icon" data-icon="mono/plus"></span>
-    <span>Add domain</span>
-  </button>
-</div>
 
 <div class="table-wrapper">
   <table class="table table--domains">
