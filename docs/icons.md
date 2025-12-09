@@ -217,14 +217,14 @@ This makes all icons:
 ### Example: white icon in primary button
 
 ```html
-<button class="btn-primary">
+<button class="btn btn--primary">
   <svg class="icon"><use href="#i-mono-eye"></use></svg>
   Login
 </button>
 ```
 
 ```css
-.btn-primary {
+.btn--primary {
   color: white;         /* the eye icon becomes white automatically */
   background: var(--brand);
 }

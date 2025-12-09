@@ -305,132 +305,23 @@
       .table-controls {
         display: flex;
         flex-wrap: wrap;
-        align-items: center;
-        gap: 0.5rem;
+        align-items: stretch;
+        gap: var(--space-3);
       }
 
-      .chip {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.35rem 0.75rem;
-        border-radius: 999px;
-        border: 1px solid transparent;
-        background: transparent;
-        color: var(--text);
-        transition:
-          background var(--transition-md),
-          border-color var(--transition-md),
-          color var(--transition-md);
-      }
+      @media (max-width: 768px) {
+        .table-controls {
+          flex-direction: column;
+          align-items: stretch;
+        }
 
-      .chip--ghost {
-        background: var(--bg-elevated);
-        border-color: var(--border-subtle);
-      }
-
-      .chip--lg {
-        min-height: 2.5rem;
-        padding-inline: 0.85rem;
-        padding-block: 0.45rem;
-      }
-
-      .chip .icon {
-        width: 1rem;
-        height: 1rem;
-        flex: 0 0 auto;
-        color: currentColor;
+        .table-controls > * {
+          width: 100%;
+        }
       }
 
       .table-filter {
         position: relative;
-      }
-
-      .btn-chip {
-        gap: 0.5rem;
-      }
-
-      .btn-chip .icon {
-        width: 1rem;
-        height: 1rem;
-        flex: 0 0 auto;
-        color: currentColor;
-      }
-
-      .btn-chip__icon,
-      .btn-chip__chevron {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-      }
-
-      .btn-chip__label {
-        white-space: nowrap;
-      }
-
-      .btn-chip--dropdown,
-      .btn-chip--secondary {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.35rem;
-        padding-inline: 0.75rem;
-        border-color: var(--border-subtle);
-        background: transparent;
-        color: var(--text-main);
-      }
-
-      .btn-chip--input {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding-inline: 0.75rem;
-        background: var(--bg-elevated);
-        border-color: var(--border-subtle);
-        color: var(--text);
-      }
-
-      .btn-chip--input .icon[data-icon^="mono/"] {
-        color: var(--muted);
-      }
-
-      .btn-chip--input:focus-within {
-        border-color: var(--input-border-focus);
-        box-shadow: 0 0 0 1px color-mix(in srgb, var(--primary) 40%, transparent);
-      }
-
-      .btn-chip--primary {
-        background: var(--primary);
-        border-color: transparent;
-        color: var(--btn-text-on-dark);
-      }
-
-      .btn-chip--primary:hover {
-        background: var(--primary-hover);
-        color: var(--btn-text-on-dark);
-      }
-
-      html[data-theme="light"] .btn-chip--primary:hover {
-        color: var(--text-main);
-      }
-
-      .btn-chip--primary .icon {
-        color: currentColor;
-      }
-
-      .btn-chip--dropdown:hover,
-      .btn-chip--secondary:hover,
-      .btn-chip:hover {
-        background: var(--primary-soft);
-        border-color: color-mix(in srgb, var(--primary) 40%, transparent);
-      }
-
-      .btn-chip--dropdown .btn-chip__chevron .icon {
-        color: var(--muted);
-      }
-
-      .btn-chip--dropdown.is-open {
-        background: var(--panel);
-        box-shadow: 0 0 0 1px var(--brand);
       }
 
       .table-filter__menu {
@@ -443,7 +334,7 @@
         padding: 0.25rem 0;
         border-radius: var(--r-lg);
         background: var(--panel);
-        border: 1px solid rgba(0, 0, 0, 0.08);
+        border: 1px solid var(--border-subtle);
         box-shadow: var(--shadow-md);
       }
 
@@ -456,8 +347,13 @@
         min-width: 0;
         display: inline-flex;
         align-items: center;
-        gap: 0.5rem;
-        padding-inline: 0.75rem;
+        gap: var(--space-2);
+        padding-inline: var(--space-3);
+        padding-block: calc((var(--control-height-md) - 1.2em) / 2);
+        min-height: var(--control-height-md);
+        border-radius: 999px;
+        border: 1px solid var(--border-subtle);
+        background: var(--panel);
         color: var(--text);
       }
 
@@ -767,7 +663,7 @@
             colors, typography, layout helpers and component classes from here instead of raw values.
           </p>
           <div class="guide-tools">
-            <button type="button" class="btn btn-secondary btn-sm guide-theme-toggle" data-theme-toggle>
+            <button type="button" class="btn btn--ghost btn-sm guide-theme-toggle" data-theme-toggle>
               <span class="icon" data-icon="mono/theme-light-dark"></span>
               <span data-theme-label>Switch to light theme</span>
             </button>
@@ -1106,7 +1002,7 @@
                       <h4 class="text-title">Page header</h4>
                     </div>
                     <div class="controls-row">
-                      <button class="btn btn-secondary btn-sm">Action</button>
+                      <button class="btn btn--ghost btn-sm">Action</button>
                       <button class="btn btn-ghost btn-sm">Ghost</button>
                     </div>
                   </div>
@@ -1139,7 +1035,7 @@
                         <td>domain.com</td>
                         <td><span class="badge badge--success">Active</span></td>
                         <td>alex@example.com</td>
-                        <td class="table__cell-actions"><button class="btn btn-secondary btn-sm">Open</button></td>
+                        <td class="table__cell-actions"><button class="btn btn--ghost btn-sm">Open</button></td>
                       </tr>
                     </tbody>
                   </table>
@@ -1268,9 +1164,9 @@
 
         <div class="stack-sm">
           <p class="text-body">
-            All table controls share the <code class="code-inline">chip--lg</code> height, a common chip radius (same as auth tabs) and
-            icon/text gap of <code class="code-inline">--space-2</code>. Icons always inherit <code class="code-inline">currentColor</code>.
-            Tone options are limited to ghost filters, the orange provider chip and the primary blue action.
+            Table controls share the base control height so the search bar, chips and buttons align. Icons always inherit
+            <code class="code-inline">currentColor</code>. Tone options are limited to neutral filters, the orange provider chip and the
+            primary blue action.
           </p>
 
           <div class="table-scroll">
@@ -1285,12 +1181,12 @@
               <tbody>
                 <tr>
                   <td>Search chip</td>
-                  <td><code class="code-inline">.table-search.chip--lg</code></td>
+                  <td><code class="code-inline">.table-search</code></td>
                   <td>Domain / project search</td>
                 </tr>
                 <tr>
                   <td>Dropdown chip</td>
-                  <td><code class="code-inline">.btn-chip.btn-chip--ghost</code></td>
+                  <td><code class="code-inline">.btn-chip.btn-chip--dropdown</code></td>
                   <td>Status filters and similar</td>
                 </tr>
                 <tr>
@@ -1299,8 +1195,8 @@
                   <td>Cloudflare-specific actions</td>
                 </tr>
                 <tr>
-                  <td>Primary chip</td>
-                  <td><code class="code-inline">.btn.btn--primary.btn--lg</code></td>
+                  <td>Primary button</td>
+                  <td><code class="code-inline">.btn.btn--primary</code></td>
                   <td>Main action above the table</td>
                 </tr>
               </tbody>
@@ -1309,22 +1205,24 @@
 
           <div class="card stack-sm" style="padding: var(--space-4);">
             <div class="controls-row">
-              <div class="table-search chip chip--ghost chip--lg">
+              <div class="table-search" data-table-search>
                 <span class="icon" data-icon="mono/search"></span>
                 <input
                   class="table-search__input"
                   type="search"
                   placeholder="Search by domain, project or account..."
                 />
-                <button class="table-search__clear" type="button">
+                <button class="table-search__clear" type="button" aria-label="Clear search">
                   <span class="icon" data-icon="mono/close"></span>
                 </button>
               </div>
 
-              <button class="btn-chip btn-chip--ghost btn-chip--dropdown" type="button">
-                <span class="icon" data-icon="mono/filter"></span>
-                <span>Status: Active</span>
-                <span class="icon" data-icon="mono/chevron-down"></span>
+              <button class="btn-chip btn-chip--dropdown" type="button">
+                <span class="btn-chip__icon icon" data-icon="mono/filter"></span>
+                <span class="btn-chip__label">Status: Active</span>
+                <span class="btn-chip__chevron" aria-hidden="true">
+                  <span class="icon" data-icon="mono/chevron-down"></span>
+                </span>
               </button>
 
               <button class="btn-chip btn-chip--cf" type="button">
@@ -1332,7 +1230,7 @@
                 <span>Cloudflare</span>
               </button>
 
-              <button class="btn btn--primary btn--lg" type="button">
+              <button class="btn btn--primary" type="button">
                 <span class="icon" data-icon="mono/plus"></span>
                 <span>Add domain</span>
               </button>
@@ -1368,7 +1266,7 @@
           <div class="card stack-sm">
             <div class="card-section stack-sm" style="border-top: none; padding-top: 0;">
               <div class="controls-row table-controls">
-                <div class="table-search chip chip--ghost chip--lg" data-table-search>
+                <div class="table-search" data-table-search>
                   <span class="icon" data-icon="mono/search"></span>
                   <input
                     class="table-search__input"
@@ -1382,10 +1280,12 @@
                 </div>
 
                 <div class="table-filter" data-demo="status-filter">
-                  <button class="btn-chip btn-chip--ghost btn-chip--dropdown" type="button" aria-expanded="false">
-                    <span class="icon" data-icon="mono/filter"></span>
-                    <span>Status: Active</span>
-                    <span class="icon" data-icon="mono/chevron-down"></span>
+                  <button class="btn-chip btn-chip--dropdown" type="button" aria-expanded="false">
+                    <span class="btn-chip__icon icon" data-icon="mono/filter"></span>
+                    <span class="btn-chip__label">Status: Active</span>
+                    <span class="btn-chip__chevron" aria-hidden="true">
+                      <span class="icon" data-icon="mono/chevron-down"></span>
+                    </span>
                   </button>
 
                   <div class="table-filter__menu" hidden>
@@ -1401,7 +1301,7 @@
                   <span>Cloudflare</span>
                 </button>
 
-                <button class="btn btn--primary btn--lg" type="button">
+                <button class="btn btn--primary" type="button">
                   <span class="icon" data-icon="mono/plus"></span>
                   <span>Add domain</span>
                 </button>
@@ -1669,13 +1569,13 @@
 
           <div class="code-block">
   &lt;div class=&quot;controls-row table-controls&quot;&gt;<br />
-  &nbsp;&nbsp;&lt;div class=&quot;table-search chip chip--ghost chip--lg&quot; data-table-search&gt;<br />
+&nbsp;&nbsp;&lt;div class=&quot;table-search&quot; data-table-search&gt;<br />
   &nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/search&quot;&gt;&lt;/span&gt;<br />
   &nbsp;&nbsp;&nbsp;&nbsp;&lt;input class=&quot;table-search__input&quot; type=&quot;search&quot; placeholder=&quot;Search by domain, project or account...&quot; /&gt;<br />
   &nbsp;&nbsp;&nbsp;&nbsp;&lt;button class=&quot;table-search__clear&quot; type=&quot;button&quot; aria-label=&quot;Clear search&quot;&gt;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/close&quot;&gt;&lt;/span&gt;&lt;/button&gt;<br />
   &nbsp;&nbsp;&lt;/div&gt;<br />
   &nbsp;&nbsp;&lt;div class=&quot;table-filter&quot; data-demo=&quot;status-filter&quot;&gt;<br />
-  &nbsp;&nbsp;&nbsp;&nbsp;&lt;button class=&quot;btn-chip btn-chip--ghost btn-chip--dropdown&quot; aria-expanded=&quot;false&quot;&gt;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;button class=&quot;btn-chip btn-chip--dropdown&quot; aria-expanded=&quot;false&quot;&gt;<br />
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/filter&quot;&gt;&lt;/span&gt;<br />
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;span&gt;Status: Active&lt;/span&gt;<br />
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/chevron-down&quot;&gt;&lt;/span&gt;<br />
@@ -1686,7 +1586,7 @@
   &nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;icon&quot; data-icon=&quot;brand/cloudflare&quot;&gt;&lt;/span&gt;<br />
   &nbsp;&nbsp;&nbsp;&nbsp;&lt;span&gt;Cloudflare&lt;/span&gt;<br />
   &nbsp;&nbsp;&lt;/button&gt;<br />
-  &nbsp;&nbsp;&lt;button class=&quot;btn btn--primary btn--lg&quot;&gt;<br />
+&nbsp;&nbsp;&lt;button class=&quot;btn btn--primary&quot;&gt;<br />
   &nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/plus&quot;&gt;&lt;/span&gt;<br />
   &nbsp;&nbsp;&nbsp;&nbsp;&lt;span&gt;Add domain&lt;/span&gt;<br />
   &nbsp;&nbsp;&lt;/button&gt;<br />
@@ -1714,15 +1614,14 @@
             <h2 class="text-title">Table Search Bar</h2>
           </div>
           <p class="text-muted">
-            Chip-style search aligned to <code class="code-inline">chip--lg</code> height. Icons must be rendered via
-            <code class="code-inline">&lt;span class=&quot;icon&quot; data-icon=&quot;mono/search|close&quot;&gt;</code> and follow
-            <code class="code-inline">currentColor</code>; the clear button icon uses a muted color so it remains visible in
-            both light and dark themes.
+            Search bar that matches button/input height via <code class="code-inline">--control-height-md</code>. Icons use
+            <code class="code-inline">currentColor</code>; the clear button icon is muted to stay visible in both light and dark
+            themes.
           </p>
         </div>
 
         <div class="stack-sm">
-          <div class="table-search chip chip--ghost chip--lg" data-table-search>
+          <div class="table-search" data-table-search>
             <span class="icon" data-icon="mono/search"></span>
             <input
               class="table-search__input"
@@ -1741,7 +1640,7 @@
           </p>
 
           <div class="code-block">
-&lt;div class=&quot;table-search chip chip--ghost chip--lg&quot; data-table-search&gt;<br />
+&lt;div class=&quot;table-search&quot; data-table-search&gt;<br />
 &nbsp;&nbsp;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/search&quot;&gt;&lt;/span&gt;<br />
 &nbsp;&nbsp;&lt;input class=&quot;table-search__input&quot; placeholder=&quot;Search by domain, project or account...&quot; value=&quot;cloudflare&quot; /&gt;<br />
 &nbsp;&nbsp;&lt;button class=&quot;table-search__clear&quot; type=&quot;button&quot;&gt;<br />
@@ -1849,16 +1748,16 @@
           <div class="example-card stack-sm">
             <h3 class="text-title">Primary</h3>
             <div class="cluster">
-              <button class="btn btn-primary">Sign in</button>
-              <button class="btn btn-primary">Update password</button>
+              <button class="btn btn--primary">Sign in</button>
+              <button class="btn btn--primary">Update password</button>
             </div>
-            <div class="code-block">&lt;button class="btn btn-primary"&gt;Sign in&lt;/button&gt;</div>
+            <div class="code-block">&lt;button class="btn btn--primary"&gt;Sign in&lt;/button&gt;</div>
           </div>
           <div class="example-card stack-sm">
             <h3 class="text-title">Ghost / secondary</h3>
             <div class="cluster">
               <button class="btn btn-ghost">Cancel</button>
-              <button class="btn btn-secondary">Back to login</button>
+              <button class="btn btn--ghost">Back to login</button>
             </div>
             <div class="code-block">&lt;button class="btn btn-ghost"&gt;Cancel&lt;/button&gt;</div>
           </div>
@@ -1866,7 +1765,7 @@
             <h3 class="text-title">Danger</h3>
             <div class="cluster">
               <button class="btn btn-danger">Delete</button>
-              <button class="btn btn-secondary">Abort</button>
+              <button class="btn btn--ghost">Abort</button>
             </div>
             <div class="code-block">&lt;button class="btn btn-danger"&gt;Delete&lt;/button&gt;</div>
           </div>
@@ -2142,22 +2041,51 @@
       document.querySelectorAll('.table-filter[data-demo="status-filter"]').forEach((filter) => {
         const trigger = filter.querySelector('button.btn-chip');
         const menu = filter.querySelector('.table-filter__menu');
+        const label = trigger?.querySelector('.btn-chip__label');
+        const options = Array.from(menu?.querySelectorAll('.dropdown__item') || []);
         if (!trigger || !menu) return;
+
+        const closeMenu = () => {
+          trigger.classList.remove('is-open');
+          trigger.setAttribute('aria-expanded', 'false');
+          menu.hidden = true;
+        };
+
+        const openMenu = () => {
+          trigger.classList.add('is-open');
+          trigger.setAttribute('aria-expanded', 'true');
+          menu.hidden = false;
+        };
 
         menu.hidden = true;
         trigger.setAttribute('aria-expanded', 'false');
 
-        trigger.addEventListener('click', () => {
-          const open = trigger.classList.toggle('is-open');
-          trigger.setAttribute('aria-expanded', open.toString());
-          menu.hidden = !open;
+        trigger.addEventListener('click', (event) => {
+          event.stopPropagation();
+          const open = trigger.classList.contains('is-open');
+          if (open) {
+            closeMenu();
+          } else {
+            openMenu();
+          }
+        });
+
+        options.forEach((option) => {
+          option.addEventListener('click', (event) => {
+            event.preventDefault();
+            options.forEach((opt) => opt.classList.remove('is-active'));
+            option.classList.add('is-active');
+            const text = option.textContent?.trim();
+            if (label && text) {
+              label.textContent = `Status: ${text}`;
+            }
+            closeMenu();
+          });
         });
 
         document.addEventListener('click', (event) => {
           if (!filter.contains(event.target)) {
-            trigger.classList.remove('is-open');
-            trigger.setAttribute('aria-expanded', 'false');
-            menu.hidden = true;
+            closeMenu();
           }
         });
       });

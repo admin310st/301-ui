@@ -465,116 +465,112 @@ Use `.h1` for page titles in the member area and auth hero, `.h2` for section ti
 
 **Rules:**
 
-* Blue (`.btn-primary`) — default primary actions (Save, Create, Continue).
-* **Orange (`.btn-cf`) — Cloudflare-level actions only** (connect account, apply WAF rules, update SSL mode, purge cache, bulk CF rules).
-* `.btn-secondary` — neutral secondary actions (Cancel, Details, Filters).
-* `.btn-ghost` — quiet actions in toolbars/tertiary areas.
-* `.btn-danger` — destructive actions (delete domain, remove rule).
+* `.btn.btn--primary` — default primary actions (Save, Create, Continue).
+* `.btn.btn--cf` — Cloudflare-level CTAs only (connect account, verify token, purge cache, apply WAF/SSL rules).
+* `.btn.btn--ghost` — neutral/secondary actions (cancel, filters, toolbar toggles).
+* `.btn.btn--danger` — destructive actions.
+
+**Button sizes**
+
+| Size | Usage |
+| --- | --- |
+| `md` | Forms, filters, auth (default). |
+| `lg` | Rare CTA emphasis (keeps height close to inputs, ~44px). |
+
+Control heights come from `--control-height-md` and `--control-height-lg`; do not hard-code heights.
 
 ```css
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.4rem;
-  padding: 0.55rem 1rem;
+  gap: var(--space-2);
+  min-height: var(--control-height-md);
+  padding-inline: var(--space-4);
+  padding-block: calc((var(--control-height-md) - 1.15em) / 2);
   border-radius: var(--radius);
   border: 1px solid transparent;
   font-size: var(--fs-sm);
   font-weight: var(--fw-medium);
-  line-height: 1.2;
-  cursor: pointer;
-  white-space: nowrap;
-  background: transparent;
-  color: var(--text-main);
-  transition:
-    background-color var(--transition-fast),
-    border-color var(--transition-fast),
-    color var(--transition-fast),
-    box-shadow var(--transition-fast),
-    transform var(--transition-fast);
+  line-height: 1.15;
 }
 
-.btn:disabled { opacity: 0.55; cursor: default; pointer-events: none; }
-
-.btn-primary { background: var(--primary); color: var(--btn-text-on-dark); box-shadow: 0 0 0 1px rgba(0,0,0,0.3); }
-.btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
-
-.btn-cf { background: var(--accent-cf-bg); color: var(--btn-text-on-dark); box-shadow: 0 0 0 1px rgba(0,0,0,0.3); }
-.btn-cf:hover { background: var(--accent-cf-bg-hover); transform: translateY(-1px); }
-
-.btn-secondary { border-color: var(--border-strong); background: transparent; color: var(--text-main); }
-.btn-secondary:hover { background: var(--primary-soft); }
-
-.btn-ghost { border-color: transparent; background: transparent; color: var(--text-main); }
-.btn-ghost:hover { color: var(--primary); background: var(--primary-soft); border-color: color-mix(in srgb, var(--primary) 25%, transparent); }
-
-.btn-danger { background: var(--danger); color: var(--btn-text-on-dark); }
-.btn-danger:hover { filter: brightness(1.05); }
-
-.btn-sm { padding: 0.35rem 0.7rem; font-size: var(--fs-xs); }
-.btn-lg { padding: 0.75rem 1.3rem; font-size: var(--fs-md); }
+.btn--lg { min-height: var(--control-height-lg); padding-inline: var(--space-5); padding-block: calc((var(--control-height-lg) - 1.2em) / 2); font-size: var(--fs-md); }
+.btn--primary { background: var(--brand); color: var(--btn-text-on-dark); }
+.btn--primary:hover { background: var(--primary-hover); }
+.btn--ghost { background: transparent; color: var(--text); border-color: var(--border-subtle); }
+.btn--ghost:hover { background: var(--panel); border-color: var(--border-strong); }
+.btn--cf { background: var(--accent-cf-bg); color: var(--btn-text-on-dark); border-color: var(--accent-cf-soft); }
+.btn--cf:hover { background: var(--accent-cf-bg-hover); }
 ```
 
-#### Tabs & chips
+Icons inside buttons are 16px SVGs with `stroke="currentColor"` / `fill="none"` so they stay legible in both themes.
 
-Chip buttons (`.btn-chip`) sit inside a `.btn-chip-group` container for tab navigation and segmented controls.
+#### Table chips / action chips
 
-#### Chip primary / secondary
-
-`btn-chip--primary` and `btn-chip--secondary` reuse the same color tokens as regular buttons:
-
-- `btn-chip--primary` → `btn--primary` (bg, hover bg, text color)
-- `btn-chip--secondary` → `btn--secondary` (border, text, hover bg)
-
-Text and icon colors inside chips do not change on hover:
-only the background and/or border colors follow the button states.
-Icons are rendered via `<span class="icon" data-icon="mono/...">` and use `currentColor`.
-
-#### Chip buttons with icons
-
-Use `.btn-chip` with inner `.icon` elements from the sprite:
-
-```html
-<button class="btn-chip is-active">
-  <span class="icon" data-icon="mono/search"></span>
-  <span>Search</span>
-</button>
-```
-
-Icon rules inside chips:
-
-* icon element: `<span class="icon" data-icon="mono/...">`
-* size: 16×16 px
-* color: inherits `currentColor` from `.btn-chip`
-* spacing between icon and text: 8px (0.5rem)
-
-#### Filter / dropdown chips
-
-Use `.btn-chip--dropdown` for filter controls in tables.
+* Base `.btn-chip` uses the same control height, pill radius, `--panel` background, subtle border and 14px icons in `currentColor`.
+* `.btn-chip--primary` mirrors the primary button colors; `.btn-chip--cf` mirrors the Cloudflare CTA.
+* Dropdown chip pattern:
 
 ```html
 <button class="btn-chip btn-chip--dropdown">
-  <span class="icon" data-icon="mono/filter"></span>
+  <span class="btn-chip__icon icon" data-icon="mono/filter"></span>
   <span class="btn-chip__label">Status: Active</span>
-  <span class="btn-chip__chevron">
+  <span class="btn-chip__chevron" aria-hidden="true">
     <span class="icon" data-icon="mono/chevron-down"></span>
   </span>
 </button>
+
+<div class="table-filter__menu">
+  <button class="dropdown__item is-active" type="button">All statuses</button>
+  <button class="dropdown__item" type="button">Active only</button>
+  <button class="dropdown__item" type="button">Paused</button>
+  <button class="dropdown__item" type="button">DNS error</button>
+</div>
 ```
 
-- Left icon: `mono/filter`
-- Right icon: `mono/chevron-down` (swap to `mono/chevron-up` on `.is-open`).
-- Icons inherit `currentColor`; the chevron can be muted with `var(--muted)`.
-- Active/open state is indicated by `.is-open` modifier (swaps the chevron and outlines the chip).
-- Demo-only open state may show a `.table-filter__menu` absolutely positioned under the chip so the toolbar layout doesn't shift.
+Toolbar example combining the real components (search bar + dropdown chip + Cloudflare chip + primary button):
 
-#### Icon usage inside chips
+```html
+<div class="controls-row table-controls">
+  <div class="table-search" data-table-search>
+    <span class="icon" data-icon="mono/search"></span>
+    <input type="search" class="table-search__input" placeholder="Search by domain, project or account..." />
+    <button class="table-search__clear" type="button" aria-label="Clear search">
+      <span class="icon" data-icon="mono/close"></span>
+    </button>
+  </div>
 
-- Mono icons are always used via `<span class="icon" data-icon="mono/...">`.
-- Brand icons via `<span class="icon icon-brand" data-icon="brand/...">`.
-- Do not hardcode SVGs or custom `<i>` tags in components.
+  <div class="table-filter" data-demo="status-filter">
+    <button class="btn-chip btn-chip--dropdown" type="button" aria-expanded="false">
+      <span class="btn-chip__icon icon" data-icon="mono/filter"></span>
+      <span class="btn-chip__label">Status: Active</span>
+      <span class="btn-chip__chevron" aria-hidden="true">
+        <span class="icon" data-icon="mono/chevron-down"></span>
+      </span>
+    </button>
 
+    <div class="table-filter__menu" hidden>
+      <button class="dropdown__item is-active" type="button">All statuses</button>
+      <button class="dropdown__item" type="button">Active only</button>
+      <button class="dropdown__item" type="button">Paused</button>
+      <button class="dropdown__item" type="button">DNS error</button>
+    </div>
+  </div>
+
+  <button class="btn-chip btn-chip--cf" type="button">
+    <span class="icon" data-icon="brand/cloudflare"></span>
+    <span>Cloudflare</span>
+  </button>
+
+  <button class="btn btn--primary" type="button">
+    <span class="icon" data-icon="mono/plus"></span>
+    <span>Add domain</span>
+  </button>
+</div>
+```
+
+Icons in chips must stay as SVG with `stroke="currentColor"` / `fill="none"` and 14px sizing.
 ### 4.2. Form controls
 
 ```css
@@ -627,65 +623,9 @@ Used in dashboard stats, domain groups, Cloudflare status blocks.
 .card--emphasis { border-color: color-mix(in srgb, var(--primary) 35%, transparent); background: color-mix(in srgb, var(--bg-elevated) 70%, var(--primary-soft)); }
 ```
 
-### 4.4. Table control chips
-
-Chip buttons for table toolbars: search, dropdown filters, provider actions and the main CTA. All elements share the same height, radius and icon/text spacing to keep the toolbar aligned.
-
-**Shared sizing & tone rules**
-
-- All table chips reuse `chip--lg` height.
-- Radius matches the shared chip radius (same as auth tabs).
-- Icon-to-text gap = `--space-2` with icons inheriting `currentColor`.
-- Tone options are limited to: `ghost` (filters), `provider` (orange Cloudflare), `primary` (blue main action).
-
-| Variant        | Class / modifier                 | Usage                          |
-| -------------- | -------------------------------- | ------------------------------ |
-| Search chip    | `.table-search.chip--lg`         | Domain / project search        |
-| Dropdown chip  | `.btn-chip.btn-chip--ghost`      | Status filters and similar     |
-| Provider chip  | `.btn-chip.btn-chip--cf`         | Cloudflare-specific actions    |
-| Primary chip   | `.btn.btn--primary.btn--lg`      | Main action above the table    |
-
-#### Table control chips demo
-
-```html
-<div class="controls-row">
-  <!-- Search chip -->
-  <div class="table-search chip chip--ghost chip--lg">
-    <span class="icon" data-icon="mono/search"></span>
-    <input class="table-search__input"
-           type="search"
-           placeholder="Search by domain, project or account..." />
-    <button class="table-search__clear" type="button">
-      <span class="icon" data-icon="mono/close"></span>
-    </button>
-  </div>
-
-  <!-- Dropdown chip -->
-  <button class="btn-chip btn-chip--ghost btn-chip--dropdown" type="button">
-    <span class="icon" data-icon="mono/filter"></span>
-    <span>Status: Active</span>
-    <span class="icon" data-icon="mono/chevron-down"></span>
-  </button>
-
-  <!-- Provider chip -->
-  <button class="btn-chip btn-chip--cf" type="button">
-    <span class="icon" data-icon="brand/cloudflare"></span>
-    <span>Cloudflare</span>
-  </button>
-
-  <!-- Primary chip-button -->
-  <button class="btn btn--primary btn--lg" type="button">
-    <span class="icon" data-icon="mono/plus"></span>
-    <span>Add domain</span>
-  </button>
-</div>
-```
-
-Search is handled by the `Table Search Bar` component but matches the chip sizing/radius; the other three controls are buttons: ghost dropdown, provider chip and primary action.
-
 ### 4.5. Tables
 
-Domains tables stay in a single row layout even on mobile; wrap the table in a horizontal scroller and keep action menus inside dropdowns so the row stays compact. Above the table you can place a search chip, one or more dropdown filter chips, provider action chips and a primary button. The example shows a search chip, a status dropdown chip, a Cloudflare action chip and a primary “Add domain” button.
+Domains tables stay in a single row layout even on mobile; wrap the table in a horizontal scroller and keep action menus inside dropdowns so the row stays compact. Above the table you can place a search bar, one or more dropdown filter chips, provider action chips and a primary button. The example shows a table search bar, a status dropdown chip, a Cloudflare action chip and a primary “Add domain” button.
 
 ```css
 .table { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); }
@@ -699,19 +639,11 @@ Domains tables stay in a single row layout even on mobile; wrap the table in a h
 .table-wrapper { overflow-x: auto; width: 100%; }
 .table--domains { min-width: 720px; }
 .table__th-actions, .table__cell-actions { width: 1%; white-space: nowrap; text-align: right; }
-.table-controls { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+.table-controls { display: flex; align-items: stretch; gap: var(--space-3); flex-wrap: wrap; }
 .table-filter { position: relative; }
 .btn-chip__icon, .btn-chip__chevron { display: inline-flex; align-items: center; justify-content: center; }
 .btn-chip__label { white-space: nowrap; }
-.btn-chip--dropdown { display: inline-flex; align-items: center; gap: 0.35rem; padding-inline: 0.75rem; border-color: var(--border-subtle); background: transparent; color: var(--text-main); }
-.btn-chip--ghost { background: var(--bg-elevated); border-color: var(--border-subtle); color: var(--text-main); }
-.btn-chip--input { display: inline-flex; align-items: center; gap: 0.5rem; padding-inline: 0.75rem; background: var(--bg-elevated); border-color: var(--border-subtle); color: var(--text-main); }
-.btn-chip--input:focus-within { border-color: var(--input-border-focus); box-shadow: 0 0 0 1px color-mix(in srgb, var(--primary) 40%, transparent); }
-.btn-chip--primary { background: var(--primary); border-color: color-mix(in srgb, var(--primary) 45%, transparent); color: var(--btn-text-on-dark); }
-.btn-chip--primary:hover { background: var(--primary-hover); }
-.btn-chip--cf { background: var(--accent-cf-bg); border-color: var(--accent-cf-border, var(--accent-cf-soft, transparent)); color: var(--accent-cf-fg, var(--btn-text-on-dark)); }
-.btn-chip--cf:hover { background: var(--accent-cf-bg-hover); border-color: var(--accent-cf-border-hover, var(--accent-cf-soft, transparent)); color: var(--accent-cf-fg, var(--btn-text-on-dark)); }
-.table-search { flex: 1 1 16rem; min-width: 0; display: inline-flex; align-items: center; gap: 0.5rem; padding-inline: 0.75rem; color: var(--text); }
+.table-search { flex: 1 1 16rem; min-width: 0; display: inline-flex; align-items: center; gap: var(--space-2); padding-inline: var(--space-3); padding-block: calc((var(--control-height-md) - 1.2em) / 2); min-height: var(--control-height-md); border-radius: 999px; border: 1px solid var(--border-subtle); background: var(--panel); color: var(--text); }
 .table-search__input { flex: 1 1 auto; background: transparent; border: none; color: var(--text); font: inherit; width: 100%; outline: none; }
 .table-search__input::placeholder { color: var(--muted); }
 .table-search__clear { display: none; background: transparent; border: none; padding: 0; align-items: center; justify-content: center; }
@@ -720,7 +652,7 @@ Domains tables stay in a single row layout even on mobile; wrap the table in a h
 .dropdown { position: relative; display: inline-block; }
 .dropdown__menu { position: absolute; top: calc(100% + 0.35rem); right: 0; min-width: 220px; background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: var(--r); padding: var(--space-2) 0; display: none; box-shadow: var(--shadow-soft); }
 .dropdown--open .dropdown__menu { display: block; }
-.table-filter__menu { position: absolute; top: calc(100% + 0.25rem); left: 0; z-index: 20; min-width: 11rem; padding: 0.25rem 0; border-radius: var(--r-lg); background: var(--panel); border: 1px solid rgba(0, 0, 0, 0.08); box-shadow: var(--shadow-md); }
+.table-filter__menu { position: absolute; top: calc(100% + 0.25rem); left: 0; z-index: 20; min-width: 11rem; padding: 0.25rem 0; border-radius: var(--r-lg); background: var(--panel); border: 1px solid var(--border-subtle); box-shadow: var(--shadow-md); }
 .dropdown__item { display: flex; align-items: center; gap: var(--space-2); width: 100%; padding: var(--space-2) var(--space-3); background: transparent; border: none; color: var(--text); font-size: var(--fs-sm); text-align: left; }
 .dropdown__item--danger { color: var(--danger); }
 .link-button { display: inline-flex; gap: var(--space-2); align-items: center; background: transparent; border: none; color: var(--primary); font-size: var(--fs-sm); }
@@ -754,7 +686,7 @@ Example toolbar + table markup:
 
 ```html
   <div class="controls-row table-controls">
-    <div class="table-search chip chip--ghost chip--lg" data-table-search>
+    <div class="table-search" data-table-search>
       <span class="icon" data-icon="mono/search"></span>
       <input type="search" class="table-search__input" placeholder="Search by domain, project or account..." />
       <button class="table-search__clear" type="button" aria-label="Clear search">
@@ -763,10 +695,12 @@ Example toolbar + table markup:
     </div>
 
     <div class="table-filter" data-demo="status-filter">
-      <button class="btn-chip btn-chip--ghost btn-chip--dropdown" type="button" aria-expanded="false">
-        <span class="icon" data-icon="mono/filter"></span>
-        <span>Status: Active</span>
-        <span class="icon" data-icon="mono/chevron-down"></span>
+      <button class="btn-chip btn-chip--dropdown" type="button" aria-expanded="false">
+        <span class="btn-chip__icon icon" data-icon="mono/filter"></span>
+        <span class="btn-chip__label">Status: Active</span>
+        <span class="btn-chip__chevron" aria-hidden="true">
+          <span class="icon" data-icon="mono/chevron-down"></span>
+        </span>
       </button>
       <div class="table-filter__menu" hidden>
         <button class="dropdown__item is-active" type="button">All statuses</button>
@@ -781,7 +715,7 @@ Example toolbar + table markup:
       <span>Cloudflare</span>
     </button>
 
-    <button class="btn btn--primary btn--lg">
+    <button class="btn btn--primary">
       <span class="icon" data-icon="mono/plus"></span>
       <span>Add domain</span>
     </button>
