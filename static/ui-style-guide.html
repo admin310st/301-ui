@@ -641,6 +641,11 @@
         overflow-x: auto;
       }
 
+      .guide-section .code-block,
+      .guide-section pre {
+        margin-top: var(--stack-gap);
+      }
+
       .guide-icon-row {
         display: flex;
         gap: var(--space-3);
@@ -1210,8 +1215,8 @@
             </table>
           </div>
 
-          <div class="card stack-sm" style="padding: var(--space-4);">
-            <div class="controls-row">
+          <div class="card stack" style="padding: var(--space-4);">
+            <div class="row table-controls">
               <div class="table-search" data-table-search>
                 <span class="icon" data-icon="mono/search"></span>
                 <input
@@ -1219,7 +1224,7 @@
                   type="text"
                   placeholder="Search by domain, project or account..."
                 />
-                <button class="table-search__clear" type="button">
+                <button class="table-search__clear" type="button" aria-label="Clear search">
                   <span class="icon" data-icon="mono/close"></span>
                 </button>
               </div>
@@ -1270,18 +1275,17 @@
             Cloudflare action chip and a primary “Add domain” button.
           </p>
 
-          <div class="card stack-sm">
-            <div class="card-section stack-sm" style="border-top: none; padding-top: 0;">
-              <div class="controls-row table-controls">
+          <div class="card stack">
+            <div class="card-section stack" style="border-top: none; padding-top: 0;">
+              <div class="row table-controls">
                 <div class="table-search" data-table-search>
                   <span class="icon" data-icon="mono/search"></span>
                   <input
                     class="table-search__input"
                     type="text"
                     placeholder="Search by domain, project or account..."
-                    value=""
                   />
-                  <button class="table-search__clear" type="button">
+                  <button class="table-search__clear" type="button" aria-label="Clear search">
                     <span class="icon" data-icon="mono/close"></span>
                   </button>
                 </div>
@@ -1575,7 +1579,7 @@
           </div>
 
           <div class="code-block">
-  &lt;div class=&quot;controls-row table-controls&quot;&gt;<br />
+  &lt;div class=&quot;row table-controls&quot;&gt;<br />
 &nbsp;&nbsp;&lt;div class=&quot;table-search&quot; data-table-search&gt;<br />
   &nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/search&quot;&gt;&lt;/span&gt;<br />
   &nbsp;&nbsp;&nbsp;&nbsp;&lt;input class=&quot;table-search__input&quot; type=&quot;text&quot; placeholder=&quot;Search by domain, project or account...&quot; /&gt;<br />
@@ -1636,9 +1640,8 @@
               class="table-search__input"
               type="text"
               placeholder="Search by domain, project or account..."
-              value="cloudflare"
             />
-            <button class="table-search__clear" type="button">
+            <button class="table-search__clear" type="button" aria-label="Clear search">
               <span class="icon" data-icon="mono/close"></span>
             </button>
           </div>
@@ -1658,8 +1661,8 @@
           <div class="code-block">
 &lt;div class=&quot;table-search&quot; data-table-search&gt;<br />
 &nbsp;&nbsp;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/search&quot;&gt;&lt;/span&gt;<br />
-&nbsp;&nbsp;&lt;input class=&quot;table-search__input&quot; type=&quot;text&quot; placeholder=&quot;Search by domain, project or account...&quot; value=&quot;cloudflare&quot; /&gt;<br />
-&nbsp;&nbsp;&lt;button class=&quot;table-search__clear&quot; type=&quot;button&quot;&gt;<br />
+&nbsp;&nbsp;&lt;input class=&quot;table-search__input&quot; type=&quot;text&quot; placeholder=&quot;Search by domain, project or account...&quot; /&gt;<br />
+&nbsp;&nbsp;&lt;button class=&quot;table-search__clear&quot; type=&quot;button&quot; aria-label=&quot;Clear search&quot;&gt;<br />
 &nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/close&quot;&gt;&lt;/span&gt;<br />
 &nbsp;&nbsp;&lt;/button&gt;<br />
 &lt;/div&gt;
@@ -1761,33 +1764,33 @@
         </div>
 
         <div class="example-grid">
-          <div class="example-card stack-sm">
+          <div class="example-card stack">
             <h3 class="text-title">Primary</h3>
-            <div class="cluster">
+            <div class="row">
               <button class="btn btn--primary">Sign in</button>
               <button class="btn btn--primary">Update password</button>
             </div>
             <div class="code-block">&lt;button class="btn btn--primary"&gt;Sign in&lt;/button&gt;</div>
           </div>
-          <div class="example-card stack-sm">
+          <div class="example-card stack">
             <h3 class="text-title">Ghost / secondary</h3>
-            <div class="cluster">
+            <div class="row">
               <button class="btn btn--ghost">Cancel</button>
               <button class="btn btn--ghost">Back to login</button>
             </div>
             <div class="code-block">&lt;button class="btn btn--ghost"&gt;Cancel&lt;/button&gt;</div>
           </div>
-          <div class="example-card stack-sm">
+          <div class="example-card stack">
             <h3 class="text-title">Danger</h3>
-            <div class="cluster">
+            <div class="row">
               <button class="btn btn--danger">Delete</button>
               <button class="btn btn--ghost">Abort</button>
             </div>
             <div class="code-block">&lt;button class="btn btn--danger"&gt;Delete&lt;/button&gt;</div>
           </div>
-          <div class="example-card stack-sm">
+          <div class="example-card stack">
             <h3 class="text-title">Social</h3>
-            <div class="stack-sm">
+            <div class="row">
               <button class="btn btn--social btn--social-google">
                 <span class="icon icon-brand" data-icon="brand/google" aria-hidden="true"></span>
                 <span>Continue with Google</span>
@@ -1813,7 +1816,7 @@
         </div>
 
         <div class="example-grid">
-          <div class="example-card stack-sm">
+          <div class="example-card stack">
             <h3 class="text-title">Email</h3>
             <div class="field" data-status="default">
               <label class="field-label" for="guide-email">Email</label>
@@ -1826,14 +1829,14 @@
               <p class="field-hint">We’ll never share your email.</p>
             </div>
             <div class="code-block">
-              &lt;div class="field"&gt;<br />
-              &nbsp;&nbsp;&lt;label class="field-label" for="email"&gt;Email&lt;/label&gt;<br />
-              &nbsp;&nbsp;&lt;input class="input input--control" id="email" type="email" placeholder="user@example.com" /&gt;<br />
-              &nbsp;&nbsp;&lt;p class="field-hint"&gt;We’ll never share your email.&lt;/p&gt;<br />
+              &lt;div class="field" data-status=&quot;default&quot;&gt;<br />
+              &nbsp;&nbsp;&lt;label class=&quot;field-label&quot; for=&quot;email&quot;&gt;Email&lt;/label&gt;<br />
+              &nbsp;&nbsp;&lt;input class=&quot;input input--control&quot; id=&quot;email&quot; type=&quot;email&quot; placeholder=&quot;user@example.com&quot; /&gt;<br />
+              &nbsp;&nbsp;&lt;p class=&quot;field-hint&quot;&gt;We’ll never share your email.&lt;/p&gt;<br />
               &lt;/div&gt;
             </div>
           </div>
-          <div class="example-card stack-sm">
+          <div class="example-card stack">
             <h3 class="text-title">Password with icon</h3>
             <div class="field" data-status="error">
               <label class="field-label" for="guide-password">Password</label>
@@ -1851,26 +1854,32 @@
               <p class="field-error">Too weak — add numbers and symbols.</p>
             </div>
             <div class="code-block">
-              &lt;div class="field field--error"&gt;<br />
-              &nbsp;&nbsp;&lt;label class="field-label" for="password"&gt;Password&lt;/label&gt;<br />
-              &nbsp;&nbsp;&lt;div class="password-field"&gt;<br />
-              &nbsp;&nbsp;&nbsp;&nbsp;&lt;input class="input input--control is-error" id="password" type="password" /&gt;<br />
-              &nbsp;&nbsp;&nbsp;&nbsp;&lt;button class="password-toggle" type="button" aria-label="Show password"&gt;<br />
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;span class="icon" data-icon="mono/eye"&gt;&lt;/span&gt;<br />
+              &lt;div class=&quot;field&quot; data-status=&quot;error&quot;&gt;<br />
+              &nbsp;&nbsp;&lt;label class=&quot;field-label&quot; for=&quot;password&quot;&gt;Password&lt;/label&gt;<br />
+              &nbsp;&nbsp;&lt;div class=&quot;password-field&quot;&gt;<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&lt;input class=&quot;input input--control is-error&quot; id=&quot;password&quot; type=&quot;password&quot; placeholder=&quot;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&quot; /&gt;<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&lt;button class=&quot;password-toggle&quot; type=&quot;button&quot; aria-label=&quot;Show password&quot;&gt;<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/eye&quot;&gt;&lt;/span&gt;<br />
               &nbsp;&nbsp;&nbsp;&nbsp;&lt;/button&gt;<br />
               &nbsp;&nbsp;&lt;/div&gt;<br />
-              &nbsp;&nbsp;&lt;p class="field-error"&gt;Too weak — add numbers and symbols.&lt;/p&gt;<br />
+              &nbsp;&nbsp;&lt;p class=&quot;field-error&quot;&gt;Too weak — add numbers and symbols.&lt;/p&gt;<br />
               &lt;/div&gt;
             </div>
           </div>
-          <div class="example-card stack-sm">
+          <div class="example-card stack">
             <h3 class="text-title">Success state</h3>
             <div class="field" data-status="success">
               <label class="field-label" for="guide-success">OTP code</label>
               <input class="input input--control" id="guide-success" type="text" value="123456" />
               <p class="field-success">Looks good. Code accepted.</p>
             </div>
-            <div class="code-block">&lt;div class="field" data-status="success"&gt;...success hint...&lt;/div&gt;</div>
+            <div class="code-block">
+              &lt;div class=&quot;field&quot; data-status=&quot;success&quot;&gt;<br />
+              &nbsp;&nbsp;&lt;label class=&quot;field-label&quot; for=&quot;otp&quot;&gt;OTP code&lt;/label&gt;<br />
+              &nbsp;&nbsp;&lt;input class=&quot;input input--control&quot; id=&quot;otp&quot; type=&quot;text&quot; value=&quot;123456&quot; /&gt;<br />
+              &nbsp;&nbsp;&lt;p class=&quot;field-success&quot;&gt;Looks good. Code accepted.&lt;/p&gt;<br />
+              &lt;/div&gt;
+            </div>
           </div>
         </div>
       </section>
