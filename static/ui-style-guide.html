@@ -197,6 +197,24 @@
         font-variant-numeric: tabular-nums;
       }
 
+      .guide-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: var(--fs-sm);
+      }
+
+      .guide-table th,
+      .guide-table td {
+        text-align: left;
+        padding: var(--space-2);
+        border: 1px solid var(--border-subtle);
+      }
+
+      .guide-table th {
+        color: var(--text-muted);
+        font-weight: var(--fw-medium);
+      }
+
       .metric-pill {
         display: block;
         padding: 0.25rem 0.5rem;
@@ -1815,6 +1833,43 @@
           <p class="text-muted">Default, focus, error, success states reuse auth tokens.</p>
         </div>
 
+        <div class="stack-sm">
+          <h3 class="text-title">Pill vs Field</h3>
+          <p class="text-body">
+            Inline controls (buttons, chips, table search, tabs) keep a pill radius; form fields (inputs, selects,
+            textareas) use a rectangular radius. All share the same control sizing tokens — states never change height.
+          </p>
+          <table class="guide-table">
+            <thead>
+              <tr>
+                <th>Family</th>
+                <th>Classes</th>
+                <th>Radius token</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Pill</td>
+                <td><code>.btn</code>, <code>.btn-chip</code>, <code>.table-search</code>, <code>.tabs__trigger</code></td>
+                <td><code>--r-pill</code></td>
+              </tr>
+              <tr>
+                <td>Field</td>
+                <td><code>.input</code>/<code>.select</code>, <code>.textarea</code></td>
+                <td><code>--r-field</code></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="code-block">
+:root {<br />
+&nbsp;&nbsp;--r-pill: 999px; /* inline controls */<br />
+&nbsp;&nbsp;--r-field: .75rem; /* form fields */<br />
+}<br />
+.btn, .btn-chip, .table-search, .tabs__trigger { border-radius: var(--r-pill); }<br />
+.input, .select, .textarea { border-radius: var(--r-field); }
+          </div>
+        </div>
+
         <div class="example-grid">
           <div class="example-card stack">
             <h3 class="text-title">Email</h3>
@@ -1878,6 +1933,26 @@
               &nbsp;&nbsp;&lt;label class=&quot;field-label&quot; for=&quot;otp&quot;&gt;OTP code&lt;/label&gt;<br />
               &nbsp;&nbsp;&lt;input class=&quot;input input--control&quot; id=&quot;otp&quot; type=&quot;text&quot; value=&quot;123456&quot; /&gt;<br />
               &nbsp;&nbsp;&lt;p class=&quot;field-success&quot;&gt;Looks good. Code accepted.&lt;/p&gt;<br />
+              &lt;/div&gt;
+            </div>
+          </div>
+          <div class="example-card stack">
+            <h3 class="text-title">Textarea</h3>
+            <div class="field">
+              <label class="field-label" for="guide-feedback">Feedback</label>
+              <textarea
+                class="textarea"
+                id="guide-feedback"
+                placeholder="Share more details…"
+                aria-label="Feedback message"
+              ></textarea>
+              <p class="field-hint">Resizable; field radius, not pill.</p>
+            </div>
+            <div class="code-block">
+              &lt;div class=&quot;field&quot;&gt;<br />
+              &nbsp;&nbsp;&lt;label class=&quot;field-label&quot; for=&quot;feedback&quot;&gt;Feedback&lt;/label&gt;<br />
+              &nbsp;&nbsp;&lt;textarea class=&quot;textarea&quot; id=&quot;feedback&quot; placeholder=&quot;Share more details…&quot;&gt;&lt;/textarea&gt;<br />
+              &nbsp;&nbsp;&lt;p class=&quot;field-hint&quot;&gt;Resizable; field radius, not pill.&lt;/p&gt;<br />
               &lt;/div&gt;
             </div>
           </div>
