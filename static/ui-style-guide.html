@@ -1169,6 +1169,11 @@
             primary blue action.
           </p>
 
+          <p class="text-body">
+            The search control in table toolbars always reuses the <strong>Table Search Bar</strong> component. Do not fork
+            <code class="code-inline">table-search</code> markup for specific screens — update the component and reuse it.
+          </p>
+
           <div class="table-scroll">
             <table class="table" style="min-width: 620px;">
               <thead>
@@ -1209,10 +1214,9 @@
                 <span class="icon" data-icon="mono/search"></span>
                 <input
                   class="table-search__input"
-                  type="search"
                   placeholder="Search by domain, project or account..."
                 />
-                <button class="table-search__clear" type="button" aria-label="Clear search">
+                <button class="table-search__clear" type="button">
                   <span class="icon" data-icon="mono/close"></span>
                 </button>
               </div>
@@ -1270,11 +1274,10 @@
                   <span class="icon" data-icon="mono/search"></span>
                   <input
                     class="table-search__input"
-                    type="search"
                     placeholder="Search by domain, project or account..."
                     value=""
                   />
-                  <button class="table-search__clear" type="button" aria-label="Clear search">
+                  <button class="table-search__clear" type="button">
                     <span class="icon" data-icon="mono/close"></span>
                   </button>
                 </div>
@@ -1616,7 +1619,8 @@
           <p class="text-muted">
             Search bar that matches button/input height via <code class="code-inline">--control-height-md</code>. Icons use
             <code class="code-inline">currentColor</code>; the clear button icon is muted to stay visible in both light and dark
-            themes.
+            themes. Input uses a plain text field — no <code class="code-inline">type="search"</code> — because we always show a
+            custom clear button instead of the browser-provided control.
           </p>
         </div>
 
@@ -1637,6 +1641,12 @@
             Use inside table headers or toolbars. Background inherits <code class="code-inline">--panel</code>, border matches
             chip filters. The clear button only appears when the input has a value; on mobile the search chip stays first in
             the controls row and wraps naturally.
+          </p>
+
+          <p class="text-body">
+            This fragment is the single source of truth for table search. All table demos (Table control chips, Tables,
+            Domains table, etc.) must reuse this exact <code class="code-inline">table-search</code> markup rather than forking it
+            per screen.
           </p>
 
           <div class="code-block">
