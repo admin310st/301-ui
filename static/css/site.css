@@ -365,10 +365,7 @@ body {
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
-  min-height: var(--control-height-md);
-  padding-inline: var(--space-4);
-  padding-block: calc((var(--control-height-md) - 1.15em) / 2);
-  border-radius: var(--radius);
+  border-radius: var(--control-radius);
   border: 1px solid transparent;
   font-size: var(--fs-sm);
   font-weight: var(--fw-medium);
@@ -384,9 +381,24 @@ body {
     box-shadow var(--transition-md);
 }
 
+.btn,
+.btn--md {
+  min-height: var(--control-height-md);
+  padding-inline: var(--space-4);
+  padding-block: calc((var(--control-height-md) - 1.15em) / 2);
+}
+
 .btn:disabled {
   opacity: 0.55;
   cursor: not-allowed;
+}
+
+.btn--sm,
+.btn-sm {
+  min-height: var(--control-height-sm);
+  padding-inline: var(--space-3);
+  padding-block: calc((var(--control-height-sm) - 1.05em) / 2);
+  font-size: var(--fs-sm);
 }
 
 .btn--lg {
@@ -488,10 +500,11 @@ html[data-theme="light"] .btn-ghost:hover {
   align-items: center;
   gap: var(--space-2);
   min-height: var(--control-height-md);
-  padding: var(--space-2) var(--space-3);
+  padding-inline: var(--space-3);
+  padding-block: calc((var(--control-height-md) - 1.1em) / 2);
   background: var(--panel);
   border: 1px solid var(--border-subtle);
-  border-radius: 999px;
+  border-radius: var(--control-radius);
   color: var(--text-muted);
   font-size: var(--fs-sm);
   font-weight: var(--fw-medium);
@@ -642,9 +655,9 @@ html[data-theme="light"] .btn-ghost:hover {
   align-items: center;
   gap: var(--space-2);
   padding-inline: var(--space-3);
-  padding-block: calc((var(--control-height-md) - 1.2em) / 2);
+  padding-block: calc((var(--control-height-md) - 1.1em) / 2);
   min-height: var(--control-height-md);
-  border-radius: 999px;
+  border-radius: var(--control-radius);
   border: 1px solid var(--border-subtle);
   background: var(--panel);
   color: var(--text);
@@ -721,11 +734,6 @@ html[data-theme="light"] .btn-ghost:hover {
 
 .btn-outline:hover {
   opacity: 0.9;
-}
-
-.btn-sm {
-  padding: 0.35rem 0.7rem;
-  font-size: var(--fs-xs);
 }
 
 .auth-shell {

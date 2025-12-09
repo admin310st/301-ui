@@ -176,7 +176,25 @@ We use CSS custom properties (`--token`) and a theme switch via
 }
 ```
 
-### 1.4. Elevation & Shadows
+### 1.4. Control sizes
+
+Control sizes are shared between form inputs, chips and buttons. Tokens:
+
+```
+Control sizes:
+- control-md — default size for forms, chips, table controls
+- control-sm — compact icons/buttons
+- control-lg — rare large CTA (hero, oversized forms)
+```
+
+Rules:
+
+* `control-md` is the baseline for auth tabs (`.btn-chip`), table control chips (`.btn-chip`), the primary `+ Add domain` button above tables and the `Table Search Bar`.
+* `.btn-chip`, `.table-search` and `.btn.btn--md` share the same min-height and pill radius via the tokens above.
+* Compact actions use `.btn--sm` / `control-sm`; avoid introducing custom paddings or heights per screen.
+* Large controls (`control-lg`) are for hero / landing layouts only; not for table headers.
+
+### 1.5. Elevation & Shadows
 
 We use a simple, consistent elevation system for floating UI elements.
 
@@ -465,46 +483,26 @@ Use `.h1` for page titles in the member area and auth hero, `.h2` for section ti
 
 **Rules:**
 
-* `.btn.btn--primary` — default primary actions (Save, Create, Continue).
-* `.btn.btn--cf` — Cloudflare-level CTAs only (connect account, verify token, purge cache, apply WAF/SSL rules).
-* `.btn.btn--ghost` — neutral/secondary actions (cancel, filters, toolbar toggles).
-* `.btn.btn--danger` — destructive actions.
+* `.btn.btn--primary` — default primary actions (Save, Create, Continue). 
+* `.btn.btn--cf` — Cloudflare-level CTAs only (connect account, verify token, purge cache, apply WAF/SSL rules). 
+* `.btn.btn--ghost` — neutral/secondary actions (cancel, filters, toolbar toggles). 
+* `.btn.btn--danger` — destructive actions. 
 
-**Button sizes**
+Buttons use explicit size modifiers: `.btn--sm`, `.btn--md`, `.btn--lg`. `btn--md` is the default and must match `.btn-chip` height so chips, search bars and primary buttons align inside toolbars. Use `btn--md` for all table headers; reserve `btn--lg` for hero/landing layouts.
 
-| Size | Usage |
-| --- | --- |
-| `md` | Forms, filters, auth (default). |
-| `lg` | Rare CTA emphasis (keeps height close to inputs, ~44px). |
-
-Control heights come from `--control-height-md` and `--control-height-lg`; do not hard-code heights.
-
-```css
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-2);
-  min-height: var(--control-height-md);
-  padding-inline: var(--space-4);
-  padding-block: calc((var(--control-height-md) - 1.15em) / 2);
-  border-radius: var(--radius);
-  border: 1px solid transparent;
-  font-size: var(--fs-sm);
-  font-weight: var(--fw-medium);
-  line-height: 1.15;
-}
-
-.btn--lg { min-height: var(--control-height-lg); padding-inline: var(--space-5); padding-block: calc((var(--control-height-lg) - 1.2em) / 2); font-size: var(--fs-md); }
-.btn--primary { background: var(--brand); color: var(--btn-text-on-dark); }
-.btn--primary:hover { background: var(--primary-hover); }
-.btn--ghost { background: transparent; color: var(--text); border-color: var(--border-subtle); }
-.btn--ghost:hover { background: var(--panel); border-color: var(--border-strong); }
-.btn--cf { background: var(--accent-cf-bg); color: var(--btn-text-on-dark); border-color: var(--accent-cf-soft); }
-.btn--cf:hover { background: var(--accent-cf-bg-hover); }
+```html
+<button class="btn btn--primary btn--md">Sign in</button>
+<button class="btn btn--ghost btn--md">Cancel</button>
+<button class="btn btn--danger btn--md">Delete</button>
 ```
 
+❗ Do not hard-code button heights or paddings per screen. Always use `.btn--*` size modifiers + shared control tokens. 
+
 Icons inside buttons are 16px SVGs with `stroke="currentColor"` / `fill="none"` so they stay legible in both themes.
+
+#### Tabs & chips
+
+Tabs, filters and table chips reuse the same `.btn-chip` component and the same `control-md` size. Do not create alternate chip paddings or heights; the auth tabs, table filter chips and toolbar filters must look like a single family of controls.
 
 #### Table chips / action chips (Table Controls & Chips)
 
@@ -524,8 +522,8 @@ Icons inside buttons are 16px SVGs with `stroke="currentColor"` / `fill="none"` 
 * фон: `var(--bg-elevated)`;
 * текст: `var(--text-main)`;
 * иконки — только через `.btn-chip__icon` / `.btn-chip__chevron` с 14px SVG в `currentColor`;
-* `padding-inline: var(--space-2)`;
-* скругление: `var(--radius-pill)`.
+* `padding-inline: var(--space-3)` (вертикальный паддинг считается от `control-md`);
+* скругление: `var(--control-radius)`.
 
 Варианты (`btn-chip--*`):
 
@@ -553,7 +551,7 @@ Dropdown chip pattern:
 </div>
 ```
 
-Toolbar example combining the real components (search bar + dropdown chip + Cloudflare chip + primary button):
+Toolbar example combining the real components (search bar + dropdown chip + Cloudflare chip + primary button). All four controls share the same `control-md` height and pill radius; do not introduce custom paddings or heights on individual buttons:
 
 ```html
 <div class="controls-row table-controls">
@@ -585,12 +583,21 @@ Toolbar example combining the real components (search bar + dropdown chip + Clou
     <span class="btn-chip__label">Cloudflare</span>
   </button>
 
-  <button class="btn btn--primary" type="button">
+  <button class="btn btn--primary btn--md" type="button">
     <span class="icon" data-icon="mono/plus"></span>
     <span>Add domain</span>
   </button>
 </div>
 ```
+
+Variant table for the toolbar row:
+
+| Variant     | Class                          | Notes                                   |
+| ----------- | ----------------------------- | --------------------------------------- |
+| Search bar  | `.table-search`               | `control-md`, pill radius               |
+| Status chip | `.btn-chip.btn-chip--dropdown`| `control-md`, pill radius               |
+| Provider    | `.btn-chip.btn-chip--cf`      | `control-md`, pill radius               |
+| Primary     | `.btn.btn--primary.btn--md`   | `control-md`, pill radius               |
 
 **Важно:** разметка и классы чипов в документации и демо-страницах должны совпадать.
 ### 4.2. Form controls
@@ -647,7 +654,7 @@ Used in dashboard stats, domain groups, Cloudflare status blocks.
 
 ### 4.5. Tables
 
-Domains tables stay in a single row layout even on mobile; wrap the table in a horizontal scroller and keep action menus inside dropdowns so the row stays compact. Above the table you can place a search bar, one or more dropdown filter chips, provider action chips and a primary button. The example shows a table search bar, a status dropdown chip, a Cloudflare action chip and a primary “Add domain” button.
+Domains tables stay in a single row layout even on mobile; wrap the table in a horizontal scroller and keep action menus inside dropdowns so the row stays compact. Above the table you can place a search bar, one or more dropdown filter chips, provider action chips and a primary button. The example shows a table search bar, a status dropdown chip, a Cloudflare action chip and a primary “Add domain” button — all on the same `control-md` baseline.
 
 ```css
 .table { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); }
@@ -665,7 +672,7 @@ Domains tables stay in a single row layout even on mobile; wrap the table in a h
 .table-filter { position: relative; }
 .btn-chip__icon, .btn-chip__chevron { display: inline-flex; align-items: center; justify-content: center; }
 .btn-chip__label { white-space: nowrap; }
-.table-search { flex: 1 1 16rem; min-width: 0; display: inline-flex; align-items: center; gap: var(--space-2); padding-inline: var(--space-3); padding-block: calc((var(--control-height-md) - 1.2em) / 2); min-height: var(--control-height-md); border-radius: 999px; border: 1px solid var(--border-subtle); background: var(--panel); color: var(--text); }
+.table-search { flex: 1 1 16rem; min-width: 0; display: inline-flex; align-items: center; gap: var(--space-2); padding-inline: var(--space-3); padding-block: calc((var(--control-height-md) - 1.1em) / 2); min-height: var(--control-height-md); border-radius: var(--control-radius); border: 1px solid var(--border-subtle); background: var(--panel); color: var(--text); }
 .table-search__input { flex: 1 1 auto; background: transparent; border: none; color: var(--text); font: inherit; width: 100%; outline: none; }
 .table-search__input::placeholder { color: var(--muted); }
 .table-search__clear { display: none; background: transparent; border: none; padding: 0; align-items: center; justify-content: center; }
