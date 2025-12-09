@@ -352,10 +352,10 @@ Use `.btn-chip--dropdown` for filter controls in tables.
 ```
 
 - Left icon: `mono/filter`
-- Right icon: `mono/chevron-down`
+- Right icon: `mono/chevron-down` (swap to `mono/chevron-up` on `.is-open`).
 - Icons inherit `currentColor`; the chevron can be muted with `var(--muted)`.
-- Active/open state is indicated by `.is-open` modifier (rotates chevron and outlines the chip).
-- Demo-only open state may show a `.dropdown-panel` aligned below the chip with menu buttons.
+- Active/open state is indicated by `.is-open` modifier (swaps the chevron and outlines the chip).
+- Demo-only open state may show a `.table-filter__menu` absolutely positioned under the chip so the toolbar layout doesn't shift.
 
 #### Icon usage inside chips
 
@@ -432,21 +432,23 @@ Primary use: domains list, Cloudflare zones, rulesets, logs.
 .table--domains { min-width: 720px; }
 .table__th-actions, .table__cell-actions { width: 1%; white-space: nowrap; text-align: right; }
 .btn-chip-group.table-controls { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
-.table-filter { display: inline-flex; flex-direction: column; align-items: flex-start; }
+.table-filter { position: relative; }
 .btn-chip__icon, .btn-chip__chevron { display: inline-flex; align-items: center; justify-content: center; }
 .btn-chip__label { white-space: nowrap; }
 .btn-chip--dropdown { display: inline-flex; align-items: center; gap: 0.35rem; padding-inline: 0.75rem; border-color: var(--border-subtle); background: var(--bg-elevated); color: var(--text-main); }
-.btn-chip--input { display: inline-flex; align-items: center; gap: 0.35rem; padding-inline: 0.75rem; background: var(--bg-elevated); border-color: var(--border-subtle); color: var(--text-main); }
+.btn-chip--input { display: inline-flex; align-items: center; gap: 0.5rem; padding-inline: 0.75rem; background: var(--bg-elevated); border-color: var(--border-subtle); color: var(--text-main); }
 .btn-chip--input:focus-within { border-color: var(--input-border-focus); box-shadow: 0 0 0 1px color-mix(in srgb, var(--primary) 40%, transparent); }
 .btn-chip--primary { background: var(--primary); border-color: color-mix(in srgb, var(--primary) 45%, transparent); color: var(--btn-text-on-dark); }
 .btn-chip--primary:hover { background: var(--primary-hover); }
 .table-search { flex: 1 1 16rem; min-width: 0; }
-.table-search__input { background: transparent; border: none; color: inherit; font: inherit; width: 100%; }
-.table-search__clear { display: none; background: transparent; border: none; color: var(--text-muted); padding: 0; }
+.table-search__input { flex: 1 1 auto; background: transparent; border: none; color: inherit; font: inherit; width: 100%; }
+.table-search__clear { display: none; background: transparent; border: none; color: var(--text-muted); padding: 0; align-items: center; justify-content: center; }
+.table-search__clear .icon { color: var(--muted); }
 .table-search--active .table-search__clear { display: inline-flex; }
 .dropdown { position: relative; display: inline-block; }
 .dropdown__menu { position: absolute; top: calc(100% + 0.35rem); right: 0; min-width: 220px; background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: var(--r); padding: var(--space-2) 0; display: none; box-shadow: var(--shadow-soft); }
 .dropdown--open .dropdown__menu { display: block; }
+.table-filter__menu { position: absolute; top: calc(100% + 0.25rem); left: 0; z-index: 20; min-width: 11rem; padding: 0.25rem 0; border-radius: var(--r-lg); background: var(--panel); border: 1px solid rgba(0, 0, 0, 0.12); box-shadow: 0 18px 45px rgba(0, 0, 0, 0.4); }
 .dropdown__item { display: flex; align-items: center; gap: var(--space-2); width: 100%; padding: var(--space-2) var(--space-3); background: transparent; border: none; color: var(--text); font-size: var(--fs-sm); text-align: left; }
 .dropdown__item--danger { color: var(--danger); }
 .link-button { display: inline-flex; gap: var(--space-2); align-items: center; background: transparent; border: none; color: var(--primary); font-size: var(--fs-sm); }
@@ -461,12 +463,14 @@ Table controls in the `Tables` section always reuse `.btn-chip` variants:
 - filters → `btn-chip btn-chip--dropdown` + `filter` + `chevron-down`
 - primary action → `btn-chip btn-chip--primary` + `plus`
 
+Filter menus stay visually attached to their trigger chip without changing the toolbar layout thanks to `.table-filter__menu { position: absolute; }` in the demo.
+
 Allowed icons:
 
 - Search prefix: `search`
 - Clear search: `close`
 - Filter prefix: `filter`
-- Dropdown indicator: `chevron-down`
+- Dropdown indicator: `chevron-down` / `chevron-up`
 - Add domain: `plus`
 
 #### 4.4.1. Domains table reference
@@ -478,22 +482,22 @@ Allowed icons:
 Example toolbar + table markup:
 
 ```html
-<div class="btn-chip-group table-controls">
-  <div class="btn-chip btn-chip--input table-search" data-table-search>
-    <span class="icon" data-icon="mono/search"></span>
-    <input class="table-search__input" placeholder="Search by domain, project or account..." />
-    <button class="table-search__clear" type="button">
-      <span class="icon" data-icon="mono/close"></span>
-    </button>
-  </div>
+  <div class="btn-chip-group table-controls">
+    <div class="btn-chip btn-chip--input table-search" data-table-search>
+      <span class="icon" data-icon="mono/search"></span>
+      <input type="search" class="table-search__input" placeholder="Search by domain, project or account..." />
+      <button class="table-search__clear" type="button" aria-label="Clear search">
+        <span class="icon" data-icon="mono/close"></span>
+      </button>
+    </div>
 
   <div class="table-filter">
     <button class="btn-chip btn-chip--dropdown is-open" type="button">
       <span class="icon" data-icon="mono/filter"></span>
       <span class="btn-chip__label">Status: Active</span>
-      <span class="btn-chip__chevron"><span class="icon" data-icon="mono/chevron-down"></span></span>
+      <span class="btn-chip__chevron"><span class="icon" data-icon="mono/chevron-up"></span></span>
     </button>
-    <div class="dropdown-panel">
+    <div class="table-filter__menu">
       <button class="dropdown__item" type="button">All statuses</button>
       <button class="dropdown__item" type="button">Active only</button>
       <button class="dropdown__item" type="button">Paused</button>

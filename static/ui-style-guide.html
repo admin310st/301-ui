@@ -248,9 +248,7 @@
       }
 
       .table-filter {
-        display: inline-flex;
-        flex-direction: column;
-        align-items: flex-start;
+        position: relative;
       }
 
       .btn-chip {
@@ -288,7 +286,7 @@
       .btn-chip--input {
         display: inline-flex;
         align-items: center;
-        gap: 0.35rem;
+        gap: 0.5rem;
         padding-inline: 0.75rem;
         background: var(--bg-elevated);
         border-color: var(--border-subtle);
@@ -327,17 +325,18 @@
         box-shadow: 0 0 0 1px var(--brand);
       }
 
-      .btn-chip--dropdown.is-open .btn-chip__chevron .icon {
-        transform: rotate(180deg);
-      }
+      .table-filter__menu {
+        position: absolute;
+        top: calc(100% + 0.25rem);
+        left: 0;
+        z-index: 20;
 
-      .dropdown-panel {
-        margin-top: 0.25rem;
+        min-width: 11rem;
         padding: 0.25rem 0;
         border-radius: var(--r-lg);
         background: var(--panel);
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        min-width: 12rem;
+        border: 1px solid rgba(0, 0, 0, 0.12);
+        box-shadow: 0 18px 45px rgba(0, 0, 0, 0.4);
       }
 
       .table-search {
@@ -346,6 +345,7 @@
       }
 
       .table-search__input {
+        flex: 1 1 auto;
         border: 0;
         background: transparent;
         outline: none;
@@ -364,12 +364,17 @@
         padding: 0;
         display: none;
         align-items: center;
+        justify-content: center;
         cursor: pointer;
         color: var(--muted);
       }
 
       .table-search--active .table-search__clear {
         display: inline-flex;
+      }
+
+      .table-search__clear .icon {
+        color: var(--muted);
       }
 
       .btn-icon {
@@ -1039,11 +1044,11 @@
                     <span class="icon" data-icon="mono/filter"></span>
                     <span class="btn-chip__label">Status: Active</span>
                     <span class="btn-chip__chevron">
-                      <span class="icon" data-icon="mono/chevron-down"></span>
+                      <span class="icon" data-icon="mono/chevron-up"></span>
                     </span>
                   </button>
 
-                  <div class="dropdown-panel">
+                  <div class="table-filter__menu">
                     <button class="dropdown__item" type="button">All statuses</button>
                     <button class="dropdown__item" type="button">Active only</button>
                     <button class="dropdown__item" type="button">Paused</button>
@@ -1329,16 +1334,16 @@
 &lt;div class=&quot;btn-chip-group table-controls&quot;&gt;<br />
 &nbsp;&nbsp;&lt;div class=&quot;btn-chip btn-chip--input table-search&quot;&gt;<br />
 &nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/search&quot;&gt;&lt;/span&gt;<br />
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;input class=&quot;table-search__input&quot; placeholder=&quot;Search by domain, project or account...&quot; /&gt;<br />
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;button class=&quot;table-search__clear&quot; type=&quot;button&quot;&gt;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/close&quot;&gt;&lt;/span&gt;&lt;/button&gt;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;input type=&quot;search&quot; class=&quot;table-search__input&quot; placeholder=&quot;Search by domain, project or account...&quot; /&gt;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;button class=&quot;table-search__clear&quot; type=&quot;button&quot; aria-label=&quot;Clear search&quot;&gt;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/close&quot;&gt;&lt;/span&gt;&lt;/button&gt;<br />
 &nbsp;&nbsp;&lt;/div&gt;<br />
 &nbsp;&nbsp;&lt;div class=&quot;table-filter&quot;&gt;<br />
 &nbsp;&nbsp;&nbsp;&nbsp;&lt;button class=&quot;btn-chip btn-chip--dropdown is-open&quot;&gt;<br />
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/filter&quot;&gt;&lt;/span&gt;<br />
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;btn-chip__label&quot;&gt;Status: Active&lt;/span&gt;<br />
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;btn-chip__chevron&quot;&gt;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/chevron-down&quot;&gt;&lt;/span&gt;&lt;/span&gt;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;btn-chip__chevron&quot;&gt;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/chevron-up&quot;&gt;&lt;/span&gt;&lt;/span&gt;<br />
 &nbsp;&nbsp;&nbsp;&nbsp;&lt;/button&gt;<br />
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;div class=&quot;dropdown-panel&quot;&gt;...filter menu...&lt;/div&gt;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;div class=&quot;table-filter__menu&quot;&gt;...filter menu...&lt;/div&gt;<br />
 &nbsp;&nbsp;&lt;/div&gt;<br />
 &nbsp;&nbsp;&lt;button class=&quot;btn-chip btn-chip--dropdown&quot;&gt;<br />
 &nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/filter&quot;&gt;&lt;/span&gt;<br />
