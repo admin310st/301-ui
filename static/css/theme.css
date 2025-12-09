@@ -76,6 +76,10 @@
   --space-5: 1.5rem;
   --space-6: 2rem;
 
+  /* Control sizing */
+  --control-height-md: 40px;
+  --control-height-lg: 44px;
+
   /* Aliases used across legacy/static pages */
   --s-1: var(--space-2);
   --s-2: var(--space-3);
@@ -85,6 +89,8 @@
 
   --r: var(--radius);
   --r-lg: var(--radius-lg);
+
+  --radius-md: var(--radius);
 
   --radius-xs: 0.25rem;
   --radius: 0.5rem;

@@ -364,76 +364,107 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: var(--space-2);
+  min-height: var(--control-height-md);
+  padding-inline: var(--space-4);
+  padding-block: calc((var(--control-height-md) - 1.15em) / 2);
   border-radius: var(--radius);
   border: 1px solid transparent;
+  font-size: var(--fs-sm);
   font-weight: var(--fw-medium);
-  padding: 0.85rem 1.1rem;
+  line-height: 1.15;
   text-decoration: none;
   color: inherit;
   cursor: pointer;
   box-shadow: none;
-  transition: background var(--transition-md), border-color var(--transition-md), color var(--transition-md);
+  transition:
+    background var(--transition-md),
+    border-color var(--transition-md),
+    color var(--transition-md),
+    box-shadow var(--transition-md);
 }
 
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.btn--lg {
+  min-height: var(--control-height-lg);
+  padding-inline: var(--space-5);
+  padding-block: calc((var(--control-height-lg) - 1.2em) / 2);
+  font-size: var(--fs-md);
+}
+
+.btn--primary,
 .btn-primary {
   background: var(--primary);
   color: var(--btn-text-on-dark);
 }
 
+.btn--primary:hover,
 .btn-primary:hover {
   background: var(--primary-hover);
-  filter: brightness(1.08);
+  border-color: color-mix(in srgb, var(--primary) 35%, transparent);
 }
 
-.btn-danger {
-  background: var(--danger);
-  color: var(--btn-text-on-dark);
-  border-color: color-mix(in srgb, var(--danger) 40%, transparent);
+.btn--ghost,
+.btn-secondary,
+.btn-ghost {
+  background: transparent;
+  color: var(--text-main);
+  border-color: var(--border-subtle);
 }
 
-.btn-danger:hover {
-  background: color-mix(in srgb, var(--danger) 88%, #000 6%);
+.btn--ghost:hover,
+.btn-secondary:hover,
+.btn-ghost:hover {
+  background: var(--panel);
+  border-color: var(--border-strong);
+  color: var(--text-main);
 }
 
+.btn--cf,
 .btn-cf {
   background: var(--accent-cf-bg, var(--accent-cf));
   color: var(--btn-text-on-dark);
   border-color: var(--accent-cf-soft, transparent);
 }
 
+.btn--cf:hover,
 .btn-cf:hover {
   background: var(--accent-cf-bg-hover, var(--accent-cf-hover));
 }
 
-.btn-secondary {
-  background: transparent;
-  color: var(--text-main);
-  border-color: var(--border-subtle);
+.btn--danger,
+.btn-danger {
+  background: var(--danger);
+  color: var(--btn-text-on-dark);
+  border-color: color-mix(in srgb, var(--danger) 40%, transparent);
 }
 
-.btn-secondary:hover {
-  background: var(--primary-soft);
+.btn--danger:hover,
+.btn-danger:hover {
+  background: color-mix(in srgb, var(--danger) 88%, #000 6%);
 }
 
-.btn-ghost {
-  background: transparent;
-  color: var(--text-main);
-  border-color: transparent;
+.btn .icon {
+  width: 1rem;
+  height: 1rem;
+  color: currentColor;
 }
 
-.btn-ghost:hover {
-  color: var(--primary);
-  background: var(--primary-soft);
-  border-color: color-mix(in srgb, var(--primary) 25%, transparent);
-}
-
-html[data-theme="light"] .btn-secondary {
+html[data-theme="light"] .btn-secondary,
+html[data-theme="light"] .btn--ghost,
+html[data-theme="light"] .btn-ghost {
   background: #ffffff;
   color: var(--text-main);
   border-color: color-mix(in srgb, var(--text-main) 10%, transparent);
 }
 
-html[data-theme="light"] .btn-secondary:hover {
+html[data-theme="light"] .btn-secondary:hover,
+html[data-theme="light"] .btn--ghost:hover,
+html[data-theme="light"] .btn-ghost:hover {
   background: #ffffff;
   border-color: color-mix(in srgb, var(--primary) 40%, transparent);
   color: var(--primary);
@@ -443,7 +474,6 @@ html[data-theme="light"] .btn-secondary:hover {
    Segmented / chip buttons
    ========================= */
 
-/* Контейнер для групп переключателей: login tabs, языки и т.п. */
 .btn-chip-group {
   display: inline-flex;
   padding: 2px;
@@ -453,29 +483,36 @@ html[data-theme="light"] .btn-secondary:hover {
   gap: 2px;
 }
 
-/* Базовая «чип»-кнопка */
 .btn-chip {
-  border-radius: 999px;
-  border: 1px solid transparent;
-  background: transparent;
-  color: var(--text);
-  font-size: 0.9rem;
-  padding: 0.3rem 0.9rem;
-  cursor: pointer;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
+  gap: var(--space-2);
+  min-height: var(--control-height-md);
+  padding: var(--space-2) var(--space-3);
+  background: var(--panel);
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  cursor: pointer;
   white-space: nowrap;
   transition:
-    background var(--transition-md),
-    border-color var(--transition-md),
-    color var(--transition-md);
+    background var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast);
 }
 
-.btn-chip .icon {
-  width: 1rem;
-  height: 1rem;
+.btn-chip:hover {
+  background: var(--panel-hover, var(--bg-soft));
+  border-color: var(--brand);
+  color: var(--text);
+}
+
+.btn-chip .icon,
+.btn-chip svg {
+  width: 14px;
+  height: 14px;
   flex: 0 0 auto;
   color: currentColor;
 }
@@ -487,35 +524,25 @@ html[data-theme="light"] .btn-secondary:hover {
   justify-content: center;
 }
 
+.btn-chip__chevron .icon {
+  color: var(--muted);
+}
+
 .btn-chip__label {
   white-space: nowrap;
 }
 
-/* Dropdown / filter chip */
-.btn-chip--dropdown,
-.btn-chip--secondary {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding-inline: 0.75rem;
-  border-color: var(--border-subtle);
-  background: transparent;
-  color: var(--text-main);
-}
-
 .btn-chip--ghost {
-  background: var(--bg-elevated);
-  border-color: var(--border-subtle);
-  color: var(--text-main);
+  background: var(--panel);
+  color: var(--text);
 }
 
-/* Input-style chip */
 .btn-chip--input {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  padding-inline: 0.75rem;
-  background: var(--bg-elevated);
+  gap: var(--space-2);
+  padding-inline: var(--space-3);
+  background: var(--panel);
   border-color: var(--border-subtle);
   color: var(--text);
 }
@@ -531,97 +558,59 @@ html[data-theme="light"] .btn-secondary:hover {
 
 .btn-chip--primary {
   background: var(--primary);
-  border-color: transparent;
+  border-color: var(--primary);
   color: var(--btn-text-on-dark);
 }
 
 .btn-chip--primary:hover {
   background: var(--primary-hover);
+  border-color: var(--primary-hover);
   color: var(--btn-text-on-dark);
 }
 
-html[data-theme="light"] .btn-chip--primary:hover {
-  color: var(--text-main);
-}
-
-.btn-chip--primary .icon { color: currentColor; }
-
 .btn-chip--cf {
-  background: var(--accent-cf-bg, var(--accent-cf));
-  color: var(--accent-cf-fg, var(--btn-text-on-dark));
-  border-color: var(--accent-cf-border, var(--accent-cf-soft, transparent));
+  background: var(--accent-cf-soft);
+  border-color: transparent;
+  color: var(--accent-cf-bg);
 }
 
 .btn-chip--cf:hover {
-  background: var(--accent-cf-bg-hover, var(--accent-cf-hover));
-  border-color: var(--accent-cf-border-hover, var(--accent-cf-soft, transparent));
-  color: var(--accent-cf-fg, var(--btn-text-on-dark));
+  background: var(--accent-cf-bg);
+  color: var(--btn-text-on-dark);
 }
 
-.btn-chip--cf .icon { color: currentColor; }
-
-/* Активное состояние */
-.btn-chip.is-active {
+.btn-chip--dropdown {
   color: var(--text);
-  border-color: color-mix(in srgb, var(--primary) 55%, transparent);
 }
-
-.btn-chip--dropdown .btn-chip__chevron .icon { color: var(--muted); }
 
 .btn-chip--dropdown.is-open {
   background: var(--panel);
+  border-color: var(--brand);
   box-shadow: 0 0 0 1px var(--brand);
 }
 
-
-
-/* Hover-подсветка */
-.btn-chip--dropdown:hover,
-.btn-chip--secondary:hover,
-.btn-chip:hover {
-  background: var(--primary-soft);
-  border-color: color-mix(in srgb, var(--primary) 40%, transparent);
+.btn-chip.is-active {
+  color: var(--text);
+  border-color: color-mix(in srgb, var(--primary) 55%, transparent);
 }
 
 
 .table-controls {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem;
+  align-items: stretch;
+  gap: var(--space-3);
 }
 
-.chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.35rem 0.75rem;
-  border-radius: 999px;
-  border: 1px solid transparent;
-  background: transparent;
-  color: var(--text);
-  transition:
-    background var(--transition-md),
-    border-color var(--transition-md),
-    color var(--transition-md);
-}
+@media (max-width: 768px) {
+  .table-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
 
-.chip--ghost {
-  background: var(--bg-elevated);
-  border-color: var(--border-subtle);
-}
-
-.chip--lg {
-  min-height: 2.5rem;
-  padding-inline: 0.85rem;
-  padding-block: 0.45rem;
-}
-
-.chip .icon {
-  width: 1rem;
-  height: 1rem;
-  flex: 0 0 auto;
-  color: currentColor;
+  .table-controls > * {
+    width: 100%;
+  }
 }
 
 .table-filter {
@@ -638,7 +627,7 @@ html[data-theme="light"] .btn-chip--primary:hover {
   padding: 0.25rem 0;
   border-radius: var(--r-lg);
   background: var(--panel);
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--border-subtle);
   box-shadow: var(--shadow-md);
 }
 
@@ -651,9 +640,20 @@ html[data-theme="light"] .btn-chip--primary:hover {
   min-width: 0;
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  padding-inline: 0.75rem;
+  gap: var(--space-2);
+  padding-inline: var(--space-3);
+  padding-block: calc((var(--control-height-md) - 1.2em) / 2);
+  min-height: var(--control-height-md);
+  border-radius: 999px;
+  border: 1px solid var(--border-subtle);
+  background: var(--panel);
   color: var(--text);
+}
+
+.table-search .icon {
+  width: 14px;
+  height: 14px;
+  color: currentColor;
 }
 
 .table-search__input {
@@ -823,7 +823,10 @@ html[data-theme="light"] .btn-chip--primary:hover {
   color: var(--text-main);
   border: 1px solid var(--input-border);
   border-radius: var(--radius);
-  padding: var(--space-3) var(--space-4);
+  min-height: var(--control-height-md);
+  padding-inline: var(--space-4);
+  padding-block: calc((var(--control-height-md) - 1.3em) / 2);
+  line-height: 1.3;
   transition:
     border-color var(--transition-md),
     box-shadow var(--transition-md),
@@ -942,9 +945,8 @@ html[data-theme="light"] .btn-chip--primary:hover {
 
 .btn.btn-social {
   gap: var(--space-2);
-  min-height: calc(var(--space-5) + var(--space-2)); /* ≈ 56px */
-  padding-inline: var(--space-5);
-
+  min-height: var(--control-height-md);
+  padding-inline: var(--space-4);
   font-size: var(--fs-sm);
   font-weight: var(--fw-medium);
 }
