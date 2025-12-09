@@ -447,6 +447,10 @@
         box-shadow: var(--shadow-md);
       }
 
+      .table-filter__menu[hidden] {
+        display: none;
+      }
+
       .table-search {
         flex: 1 1 16rem;
         min-width: 0;
@@ -778,6 +782,7 @@
           <a href="#typography">Typography</a>
           <a href="#layout">Layout helpers</a>
           <a href="#badges">Badges</a>
+          <a href="#table-control-chips">Table control chips</a>
           <a href="#tables">Tables</a>
           <a href="#table-search">Table search</a>
           <a href="#dropdown">Dropdown</a>
@@ -1252,6 +1257,95 @@
         </div>
       </section>
 
+      <section id="table-control-chips" class="card guide-section guide-stack">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">Components</p>
+            <h2 class="text-title">Table control chips</h2>
+          </div>
+          <p class="text-muted">Chip buttons for table toolbars: search, dropdown filters, provider actions and the primary CTA.</p>
+        </div>
+
+        <div class="stack-sm">
+          <p class="text-body">
+            All table controls share the <code class="code-inline">chip--lg</code> height, a common chip radius (same as auth tabs) and
+            icon/text gap of <code class="code-inline">--space-2</code>. Icons always inherit <code class="code-inline">currentColor</code>.
+            Tone options are limited to ghost filters, the orange provider chip and the primary blue action.
+          </p>
+
+          <div class="table-scroll">
+            <table class="table" style="min-width: 620px;">
+              <thead>
+                <tr>
+                  <th>Variant</th>
+                  <th>Class / modifier</th>
+                  <th>Usage</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Search chip</td>
+                  <td><code class="code-inline">.table-search.chip--lg</code></td>
+                  <td>Domain / project search</td>
+                </tr>
+                <tr>
+                  <td>Dropdown chip</td>
+                  <td><code class="code-inline">.btn-chip.btn-chip--ghost</code></td>
+                  <td>Status filters and similar</td>
+                </tr>
+                <tr>
+                  <td>Provider chip</td>
+                  <td><code class="code-inline">.btn-chip.btn-chip--cf</code></td>
+                  <td>Cloudflare-specific actions</td>
+                </tr>
+                <tr>
+                  <td>Primary chip</td>
+                  <td><code class="code-inline">.btn.btn--primary.btn--lg</code></td>
+                  <td>Main action above the table</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="card stack-sm" style="padding: var(--space-4);">
+            <div class="controls-row">
+              <div class="table-search chip chip--ghost chip--lg">
+                <span class="icon" data-icon="mono/search"></span>
+                <input
+                  class="table-search__input"
+                  type="search"
+                  placeholder="Search by domain, project or account..."
+                />
+                <button class="table-search__clear" type="button">
+                  <span class="icon" data-icon="mono/close"></span>
+                </button>
+              </div>
+
+              <button class="btn-chip btn-chip--ghost btn-chip--dropdown" type="button">
+                <span class="icon" data-icon="mono/filter"></span>
+                <span>Status: Active</span>
+                <span class="icon" data-icon="mono/chevron-down"></span>
+              </button>
+
+              <button class="btn-chip btn-chip--cf" type="button">
+                <span class="icon" data-icon="brand/cloudflare"></span>
+                <span>Cloudflare</span>
+              </button>
+
+              <button class="btn btn--primary btn--lg" type="button">
+                <span class="icon" data-icon="mono/plus"></span>
+                <span>Add domain</span>
+              </button>
+            </div>
+
+            <p class="text-muted" style="margin: 0;">
+              Search uses the Table Search Bar component but matches chip sizing/radius; the other three controls are buttons:
+              ghost dropdown, provider chip and primary action.
+            </p>
+          </div>
+        </div>
+      </section>
+
       <section id="tables" class="card guide-section guide-stack">
         <div class="section-header">
           <div>
@@ -1266,8 +1360,9 @@
         <div class="stack-sm">
           <p class="text-body">
             Domains tables stay in a single row layout even on mobile; wrap the table in a horizontal scroller and keep action
-            menus inside dropdowns so the row stays compact. Above the table you can place search, one or more dropdown filters
-            and action chips. The example shows search, a status dropdown filter, a Cloudflare action chip and a primary button.
+            menus inside dropdowns so the row stays compact. Above the table you can place a search chip, one or more dropdown
+            filter chips, provider action chips and a primary button. The example shows a search chip, a status dropdown chip, a
+            Cloudflare action chip and a primary “Add domain” button.
           </p>
 
           <div class="card stack-sm">
@@ -2047,18 +2142,22 @@
       document.querySelectorAll('.table-filter[data-demo="status-filter"]').forEach((filter) => {
         const trigger = filter.querySelector('button.btn-chip');
         const menu = filter.querySelector('.table-filter__menu');
+        if (!trigger || !menu) return;
 
-        trigger?.addEventListener('click', () => {
-          const isOpen = trigger.classList.toggle('is-open');
-          trigger.setAttribute('aria-expanded', isOpen.toString());
-          if (menu) menu.hidden = !isOpen;
+        menu.hidden = true;
+        trigger.setAttribute('aria-expanded', 'false');
+
+        trigger.addEventListener('click', () => {
+          const open = trigger.classList.toggle('is-open');
+          trigger.setAttribute('aria-expanded', open.toString());
+          menu.hidden = !open;
         });
 
-        document.addEventListener('click', (e) => {
-          if (!filter.contains(e.target)) {
-            trigger?.classList.remove('is-open');
-            if (menu) menu.hidden = true;
-            trigger?.setAttribute('aria-expanded', 'false');
+        document.addEventListener('click', (event) => {
+          if (!filter.contains(event.target)) {
+            trigger.classList.remove('is-open');
+            trigger.setAttribute('aria-expanded', 'false');
+            menu.hidden = true;
           }
         });
       });
