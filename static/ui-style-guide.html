@@ -1258,14 +1258,16 @@
             <p class="eyebrow">Data display</p>
             <h2 class="text-title">Tables</h2>
           </div>
-          <p class="text-muted">Domains list reference with horizontal scroll, table search, dropdown filters and action chips.</p>
+          <p class="text-muted">
+            Domains list reference with horizontal scroll, table search, dropdown filters, action chips and a primary action.
+          </p>
         </div>
 
         <div class="stack-sm">
           <p class="text-body">
             Domains tables stay in a single row layout even on mobile; wrap the table in a horizontal scroller and keep action
             menus inside dropdowns so the row stays compact. Above the table you can place search, one or more dropdown filters
-            and action chips. The example shows search, a status dropdown filter and a Cloudflare action chip.
+            and action chips. The example shows search, a status dropdown filter, a Cloudflare action chip and a primary button.
           </p>
 
           <div class="card stack-sm">
@@ -1284,14 +1286,14 @@
                   </button>
                 </div>
 
-                <div class="table-filter">
-                  <button class="btn-chip btn-chip--ghost btn-chip--dropdown is-open" type="button">
+                <div class="table-filter" data-demo="status-filter">
+                  <button class="btn-chip btn-chip--ghost btn-chip--dropdown" type="button" aria-expanded="false">
                     <span class="icon" data-icon="mono/filter"></span>
                     <span>Status: Active</span>
-                    <span class="icon" data-icon="mono/chevron-up"></span>
+                    <span class="icon" data-icon="mono/chevron-down"></span>
                   </button>
 
-                  <div class="table-filter__menu">
+                  <div class="table-filter__menu" hidden>
                     <button class="dropdown__item is-active" type="button">All statuses</button>
                     <button class="dropdown__item" type="button">Active only</button>
                     <button class="dropdown__item" type="button">Paused</button>
@@ -1301,7 +1303,12 @@
 
                 <button class="btn-chip btn-chip--cf" type="button">
                   <span class="icon" data-icon="brand/cloudflare"></span>
-                  <span>Cloudflare action</span>
+                  <span>Cloudflare</span>
+                </button>
+
+                <button class="btn btn--primary btn--lg" type="button">
+                  <span class="icon" data-icon="mono/plus"></span>
+                  <span>Add domain</span>
                 </button>
               </div>
 
@@ -1572,17 +1579,21 @@
   &nbsp;&nbsp;&nbsp;&nbsp;&lt;input class=&quot;table-search__input&quot; type=&quot;search&quot; placeholder=&quot;Search by domain, project or account...&quot; /&gt;<br />
   &nbsp;&nbsp;&nbsp;&nbsp;&lt;button class=&quot;table-search__clear&quot; type=&quot;button&quot; aria-label=&quot;Clear search&quot;&gt;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/close&quot;&gt;&lt;/span&gt;&lt;/button&gt;<br />
   &nbsp;&nbsp;&lt;/div&gt;<br />
-  &nbsp;&nbsp;&lt;div class=&quot;table-filter&quot;&gt;<br />
-  &nbsp;&nbsp;&nbsp;&nbsp;&lt;button class=&quot;btn-chip btn-chip--ghost btn-chip--dropdown is-open&quot;&gt;<br />
+  &nbsp;&nbsp;&lt;div class=&quot;table-filter&quot; data-demo=&quot;status-filter&quot;&gt;<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&lt;button class=&quot;btn-chip btn-chip--ghost btn-chip--dropdown&quot; aria-expanded=&quot;false&quot;&gt;<br />
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/filter&quot;&gt;&lt;/span&gt;<br />
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;span&gt;Status: Active&lt;/span&gt;<br />
-  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/chevron-up&quot;&gt;&lt;/span&gt;<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/chevron-down&quot;&gt;&lt;/span&gt;<br />
   &nbsp;&nbsp;&nbsp;&nbsp;&lt;/button&gt;<br />
-  &nbsp;&nbsp;&nbsp;&nbsp;&lt;div class=&quot;table-filter__menu&quot;&gt;...filter menu...&lt;/div&gt;<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&lt;div class=&quot;table-filter__menu&quot; hidden&gt;...filter menu...&lt;/div&gt;<br />
   &nbsp;&nbsp;&lt;/div&gt;<br />
   &nbsp;&nbsp;&lt;button class=&quot;btn-chip btn-chip--cf&quot;&gt;<br />
   &nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;icon&quot; data-icon=&quot;brand/cloudflare&quot;&gt;&lt;/span&gt;<br />
-  &nbsp;&nbsp;&nbsp;&nbsp;&lt;span&gt;Cloudflare action&lt;/span&gt;<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&lt;span&gt;Cloudflare&lt;/span&gt;<br />
+  &nbsp;&nbsp;&lt;/button&gt;<br />
+  &nbsp;&nbsp;&lt;button class=&quot;btn btn--primary btn--lg&quot;&gt;<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/plus&quot;&gt;&lt;/span&gt;<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&lt;span&gt;Add domain&lt;/span&gt;<br />
   &nbsp;&nbsp;&lt;/button&gt;<br />
   &lt;/div&gt;<br />
   &lt;div class=&quot;table-scroll&quot;&gt;<br />
@@ -2029,6 +2040,26 @@
           input.value = '';
           toggleSearchState(wrapper);
           input.focus();
+        });
+      });
+
+      // Status filter demo toggle
+      document.querySelectorAll('.table-filter[data-demo="status-filter"]').forEach((filter) => {
+        const trigger = filter.querySelector('button.btn-chip');
+        const menu = filter.querySelector('.table-filter__menu');
+
+        trigger?.addEventListener('click', () => {
+          const isOpen = trigger.classList.toggle('is-open');
+          trigger.setAttribute('aria-expanded', isOpen.toString());
+          if (menu) menu.hidden = !isOpen;
+        });
+
+        document.addEventListener('click', (e) => {
+          if (!filter.contains(e.target)) {
+            trigger?.classList.remove('is-open');
+            if (menu) menu.hidden = true;
+            trigger?.setAttribute('aria-expanded', 'false');
+          }
         });
       });
 
