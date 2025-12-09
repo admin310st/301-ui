@@ -383,9 +383,15 @@ Primary use: domains list, Cloudflare zones, rulesets, logs.
 .table-wrapper { overflow-x: auto; width: 100%; }
 .table--domains { min-width: 720px; }
 .table__th-actions, .table__cell-actions { width: 1%; white-space: nowrap; text-align: right; }
-.table-search { display: inline-flex; align-items: center; gap: var(--space-2); padding: 0 var(--space-3); min-height: 2.2rem; border: 1px solid var(--border-subtle); border-radius: var(--r-lg); background: var(--panel); color: var(--text); }
-.table-search__input { background: transparent; border: none; color: var(--text); font-size: var(--fs-sm); width: 100%; padding: 0.35rem 0; }
-.table-search__clear { display: none; background: transparent; border: none; color: var(--text-muted); }
+.table-controls { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+.chip { display: inline-flex; align-items: center; gap: 0.35rem; border-radius: 999px; border: 1px solid transparent; background: transparent; color: var(--text); font-size: var(--fs-sm); font-weight: var(--fw-medium); padding: 0.5rem 0.75rem; cursor: pointer; text-decoration: none; }
+.chip--ghost { background: var(--panel); border-color: var(--border-subtle); }
+.chip--outline { background: transparent; border-color: var(--border-subtle); }
+.chip--primary { background: var(--primary); border-color: color-mix(in srgb, var(--primary) 45%, transparent); color: var(--btn-text-on-dark); }
+.chip.chip--lg { min-height: 2.25rem; padding-inline: 0.75rem; }
+.table-search { flex: 1 1 16rem; min-width: 0; }
+.table-search__input { background: transparent; border: none; color: inherit; font: inherit; width: 100%; }
+.table-search__clear { display: none; background: transparent; border: none; color: var(--text-muted); padding: 0; }
 .table-search--active .table-search__clear { display: inline-flex; }
 .dropdown { position: relative; display: inline-block; }
 .dropdown__menu { position: absolute; top: calc(100% + 0.35rem); right: 0; min-width: 220px; background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: var(--r); padding: var(--space-2) 0; display: none; box-shadow: var(--shadow-soft); }
@@ -396,6 +402,22 @@ Primary use: domains list, Cloudflare zones, rulesets, logs.
 .link-button--sm { font-size: var(--fs-xs); }
 ```
 
+#### Table controls as chips
+
+Table controls (search, filters, primary action) are implemented as **chip-like buttons**:
+
+- search → `chip chip--ghost chip--lg` + `search` / `close` icons
+- filters → `chip chip--outline chip--lg` + `filter` + `chevron-down`
+- primary action → `chip chip--primary chip--lg` + `plus`
+
+Allowed icons:
+
+- Search prefix: `search`
+- Clear search: `close`
+- Filter prefix: `filter`
+- Dropdown indicator: `chevron-down`
+- Add domain: `plus`
+
 #### 4.4.1. Domains table reference
 
 * Responsive rule: keep `.table--domains` at `min-width: 720px` and wrap in `.table-wrapper` for horizontal scroll on mobile (no card collapse).
@@ -405,21 +427,31 @@ Primary use: domains list, Cloudflare zones, rulesets, logs.
 Example toolbar + table markup:
 
 ```html
-<div class="table-demo-controls">
-  <div class="table-search" data-table-search>
+<div class="table-controls">
+  <div class="table-search chip chip--ghost chip--lg" data-table-search>
     <span class="icon" data-icon="mono/search"></span>
-    <input class="table-search__input" placeholder="Search by domain, project or account…" />
+    <input class="table-search__input" placeholder="Search by domain, project or account..." />
     <button class="table-search__clear" type="button">
       <span class="icon" data-icon="mono/close"></span>
     </button>
   </div>
 
-  <div class="table-filters">
-    <button class="btn-chip" type="button"><span class="icon" data-icon="mono/filter"></span>Status: Active</button>
-    <button class="btn-chip" type="button"><span class="icon" data-icon="mono/chevron-down"></span>Provider</button>
-  </div>
+  <button class="chip chip--outline chip--lg" type="button">
+    <span class="icon" data-icon="mono/filter"></span>
+    <span>Status: Active</span>
+    <span class="icon" data-icon="mono/chevron-down"></span>
+  </button>
 
-  <button class="btn btn-primary btn-sm" type="button"><span class="icon" data-icon="mono/plus"></span>Add domain</button>
+  <button class="chip chip--outline chip--lg" type="button">
+    <span class="icon" data-icon="mono/filter"></span>
+    <span>Provider</span>
+    <span class="icon" data-icon="mono/chevron-down"></span>
+  </button>
+
+  <button class="chip chip--primary chip--lg" type="button">
+    <span class="icon" data-icon="mono/plus"></span>
+    <span>Add domain</span>
+  </button>
 </div>
 
 <div class="table-wrapper">
