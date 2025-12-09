@@ -234,14 +234,175 @@ function toggleTheme() {
 
 ## 2. Layout
 
-### 2.1. Breakpoints
+### 2.1. Spacing & Rhythm
+
+| Токен       | Значение | Использование                                                |
+| ----------- | -------- | ------------------------------------------------------------ |
+| `--space-1` | 4px      | микро-отступы, иконки, внутренние вспомогательные расстояния |
+| `--space-2` | 8px      | стандартный `gap` в флекс-рядах                              |
+| `--space-3` | 12px     | вертикальные под-отступы внутри карточек                     |
+| `--space-4` | 16px     | базовый внутренний padding                                   |
+| `--space-5` | 24px     | расстояние между секциями                                    |
+| `--space-6` | 32px     | крупные отступы / паддинги страницы                          |
+
+Семантические слои (завёрнуты в `layout.css`):
+
+* `--page-gutter-desktop / mobile`
+* `--section-gap`
+* `--block-gap`
+* `--stack-gap`
+* `--inline-gap`
+
+### 2.2. Page Shell
+
+```css
+.page-shell {
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-inline: var(--page-gutter-desktop);
+  padding-block: var(--space-6);
+}
+
+@media (max-width: 768px) {
+  .page-shell {
+    padding-inline: var(--page-gutter-mobile);
+    padding-block: var(--space-4);
+  }
+}
+```
+
+* любой экран не должен иметь собственных левых/правых паддингов;
+* все страницы (гайд, index, будущий кабинет) стартуют с `.page-shell`.
+
+### 2.3. Common Patterns
+
+**Page header**
+
+```css
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--inline-gap);
+  margin-bottom: var(--section-gap);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+@media (max-width: 768px) {
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+```
+
+**Controls row (поиск, чипы, фильтры)**
+
+```css
+.controls-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--inline-gap);
+  margin-bottom: var(--block-gap);
+}
+
+@media (max-width: 768px) {
+  .controls-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+```
+
+**Stack list**
+
+```css
+.stack-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--block-gap);
+}
+```
+
+### 2.4. Scrollable Tables
+
+```css
+.table-scroll {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.table-scroll > table {
+  min-width: 600px;
+}
+```
+
+Использовать для таблиц, которые шире мобильного экрана. Не уменьшать шрифты и не ломать сетку.
+
+### 2.5. Dashboard Shell
+
+```css
+.layout-shell {
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+@media (min-width: 1024px) {
+  .layout-shell {
+    display: grid;
+    grid-template-columns: 260px minmax(0, 1fr);
+  }
+
+  .layout-sidebar {
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--border-subtle);
+    padding: var(--space-5) var(--space-4);
+  }
+
+  .layout-main {
+    max-width: 1200px;
+    margin-inline: auto;
+    padding-inline: var(--page-gutter-desktop);
+    padding-block: var(--space-6);
+  }
+}
+
+@media (max-width: 1023px) {
+  .layout-shell {
+    display: block;
+  }
+
+  .layout-sidebar {
+    display: none;
+  }
+
+  .layout-main {
+    padding-inline: var(--page-gutter-mobile);
+    padding-block: var(--space-4);
+  }
+}
+```
+
+```html
+<div class="layout-shell">
+  <aside class="layout-sidebar">…</aside>
+  <main class="layout-main">
+    <header class="page-header">…</header>
+    <section class="controls-row">…</section>
+    <section class="stack-list">…</section>
+  </main>
+</div>
+```
+
+### 2.6. Breakpoints
 
 * `sm` — 640px
 * `md` — 768px
 * `lg` — 1024px
 * `xl` — 1280px
 
-### 2.2. Container
+### 2.7. Container
 
 ```css
 .container {
@@ -251,7 +412,7 @@ function toggleTheme() {
 }
 ```
 
-### 2.3. Auth layout
+### 2.8. Auth layout
 
 ```css
 .auth-shell {

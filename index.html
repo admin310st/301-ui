@@ -7,11 +7,12 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="alternate icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="stylesheet" href="/css/theme.css" />
+    <link rel="stylesheet" href="/css/layout.css" />
     <link rel="stylesheet" href="/css/site.css" />
   </head>
   <body>
     <header class="site-header">
-      <div class="container header-bar">
+      <div class="page-shell header-bar">
         <a class="brand" href="/" aria-label="Бренд 301.st">
           <img
             class="brand__logo"
@@ -32,37 +33,6 @@
             Log out
           </button>
         </div>
-        <button type="button" class="btn btn-ghost btn-sm theme-toggle" data-theme-toggle>
-          <svg class="icon" aria-hidden="true">
-            <use href="#i-mono-theme-light-dark"></use>
-          </svg>
-          <span class="sr-only" data-theme-icon="dark">Switch to light theme</span>
-          <span class="sr-only" data-theme-icon="light" hidden>Switch to dark theme</span>
-        </button>
-        <nav
-          class="btn-chip-group lang-switcher"
-          aria-label="Language selection"
-          data-i18n-aria="layout.langSwitcher.label"
-        >
-          <button
-            type="button"
-            class="btn-chip is-active"
-            data-lang="en"
-            data-i18n="layout.langSwitcher.en"
-            data-i18n-aria="layout.langSwitcher.label"
-          >
-            EN
-          </button>
-          <button
-            type="button"
-            class="btn-chip"
-            data-lang="ru"
-            data-i18n="layout.langSwitcher.ru"
-            data-i18n-aria="layout.langSwitcher.label"
-          >
-            RU
-          </button>
-        </nav>
       </div>
     </header>
 
@@ -91,18 +61,56 @@
     </div>
 
     <main class="page">
-      <section data-route="auth" id="auth">
-        <div class="container auth-shell">
-          <div class="auth-grid">
-            <section class="auth-card">
-              <p class="eyebrow" data-i18n="auth.hero.eyebrow">Production login</p>
-              <h1 class="h1" data-i18n="auth.hero.title">Access 301.st</h1>
-              <p class="auth-subtitle" data-i18n="auth.hero.subtitle">
-                Use email and password to access your account or request a reset.
-              </p>
+      <div class="page-shell">
+        <header class="page-header">
+          <div class="stack-list">
+            <p class="eyebrow" data-i18n="auth.hero.eyebrow">Production login</p>
+            <h1 class="h1" data-i18n="auth.hero.title">Access 301.st</h1>
+            <p class="auth-subtitle" data-i18n="auth.hero.subtitle">
+              Use email and password to access your account or request a reset.
+            </p>
+          </div>
+          <div class="controls-row" aria-label="Quick actions">
+            <nav
+              class="btn-chip-group lang-switcher"
+              aria-label="Language selection"
+              data-i18n-aria="layout.langSwitcher.label"
+            >
+              <button
+                type="button"
+                class="btn-chip is-active"
+                data-lang="en"
+                data-i18n="layout.langSwitcher.en"
+                data-i18n-aria="layout.langSwitcher.label"
+              >
+                EN
+              </button>
+              <button
+                type="button"
+                class="btn-chip"
+                data-lang="ru"
+                data-i18n="layout.langSwitcher.ru"
+                data-i18n-aria="layout.langSwitcher.label"
+              >
+                RU
+              </button>
+            </nav>
+            <button type="button" class="btn btn-ghost btn-sm theme-toggle" data-theme-toggle>
+              <svg class="icon" aria-hidden="true">
+                <use href="#i-mono-theme-light-dark"></use>
+              </svg>
+              <span class="sr-only" data-theme-icon="dark">Switch to light theme</span>
+              <span class="sr-only" data-theme-icon="light" hidden>Switch to dark theme</span>
+            </button>
+          </div>
+        </header>
+        <section data-route="auth" id="auth">
+          <div class="auth-shell">
+            <div class="auth-grid">
+              <section class="auth-card">
 
               <div
-                class="btn-chip-group auth-tabs"
+                class="btn-chip-group auth-tabs controls-row"
                 role="tablist"
                 data-i18n-aria="layout.headerTabsLabel"
                 aria-label="Authentication actions"
@@ -545,11 +553,12 @@
           </div>
         </div>
       </section>
+      </div>
 
     </main>
 
     <footer class="site-footer">
-      <div class="container footer-grid">
+      <div class="page-shell footer-grid">
         <div>
           <div class="brand" aria-label="Бренд 301.st">
             <img
