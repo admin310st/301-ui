@@ -694,6 +694,7 @@ Table controls in the `Tables` section always reuse `.btn-chip` variants in a si
 - search → `table-search chip chip--ghost chip--lg` + `search` / `close` icons
 - dropdown filters → `btn-chip btn-chip--ghost btn-chip--dropdown` + `filter` + `chevron-up/down`
 - action chips (e.g., Cloudflare) → `btn-chip btn-chip--cf` + `brand/cloudflare`
+- primary actions → `btn btn--primary btn--lg` + `plus`
 
 Filter menus stay visually attached to their trigger chip without changing the toolbar layout thanks to `.table-filter__menu { position: absolute; }` in the demo.
 
@@ -710,7 +711,7 @@ Allowed icons:
 * Responsive rule: keep `.table--domains` at `min-width: 720px` and wrap in `.table-wrapper` for horizontal scroll on mobile (no card collapse).
 * Actions live inside a dropdown menu; provider column shows only `cloudflare`, `namecheap`, `namesilo` brand icons.
 * Status/expiry stays in one column, SSL mode and Zone ID surface through the dropdown actions only.
-* Toolbar demo pairs search with a single status dropdown filter plus a Cloudflare action chip in the same controls row.
+* Toolbar demo pairs search with a single status dropdown filter, a Cloudflare action chip and a primary button in the same controls row.
 
 Example toolbar + table markup:
 
@@ -724,14 +725,14 @@ Example toolbar + table markup:
       </button>
     </div>
 
-    <div class="table-filter">
-      <button class="btn-chip btn-chip--ghost btn-chip--dropdown is-open" type="button">
+    <div class="table-filter" data-demo="status-filter">
+      <button class="btn-chip btn-chip--ghost btn-chip--dropdown" type="button" aria-expanded="false">
         <span class="icon" data-icon="mono/filter"></span>
         <span>Status: Active</span>
-        <span class="icon" data-icon="mono/chevron-up"></span>
+        <span class="icon" data-icon="mono/chevron-down"></span>
       </button>
-      <div class="table-filter__menu">
-        <button class="dropdown__item" type="button">All statuses</button>
+      <div class="table-filter__menu" hidden>
+        <button class="dropdown__item is-active" type="button">All statuses</button>
         <button class="dropdown__item" type="button">Active only</button>
         <button class="dropdown__item" type="button">Paused</button>
         <button class="dropdown__item" type="button">DNS error</button>
@@ -740,7 +741,12 @@ Example toolbar + table markup:
 
     <button class="btn-chip btn-chip--cf" type="button">
       <span class="icon" data-icon="brand/cloudflare"></span>
-      <span>Cloudflare action</span>
+      <span>Cloudflare</span>
+    </button>
+
+    <button class="btn btn--primary btn--lg">
+      <span class="icon" data-icon="mono/plus"></span>
+      <span>Add domain</span>
     </button>
   </div>
 
