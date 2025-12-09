@@ -78,6 +78,11 @@
 > StyleGuide + demo pages = single source of truth.
 > Codex must always update demos when changing components and attach dark/light + mobile screenshots for the affected demos.
 
+### Repository hygiene
+
+- Build outputs (including `/dist`, `/public`, `/build/`) and PurgeCSS reports (`/build/purge-report/`) are local/CI-only and must **never** be committed.
+- Keep purge tooling (`npm run purge:report`) for local inspection of unused CSS, but do not add its artifacts to git history.
+
 ---
 
 ## Текущее покрытие по аутентификации

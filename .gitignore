@@ -1,6 +1,8 @@
 ### Build output
 public/
 dist/
+/build/
+/build/purge-report/
 
 ### Node
 node_modules/
