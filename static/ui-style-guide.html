@@ -7,6 +7,7 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="alternate icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="stylesheet" href="/css/theme.css" />
+    <link rel="stylesheet" href="/css/layout.css" />
     <link rel="stylesheet" href="/css/site.css" />
     <style>
       body {
@@ -16,7 +17,7 @@
 
       .guide-hero {
         border-bottom: 1px solid var(--border-subtle);
-        padding: var(--space-5) 0;
+        padding-block: var(--space-5);
         background: color-mix(in srgb, var(--bg) 80%, var(--bg-elevated));
       }
 
@@ -25,8 +26,7 @@
       }
 
       .guide-nav {
-        margin-top: var(--space-4);
-        gap: var(--space-2);
+        gap: var(--inline-gap);
         flex-wrap: wrap;
       }
 
@@ -45,16 +45,27 @@
         color: var(--primary);
       }
 
-      main.container {
-        padding-top: var(--space-5);
-        padding-bottom: var(--space-6);
-      }
-
       .guide-tools {
         display: flex;
-        gap: var(--space-3);
+        gap: var(--inline-gap);
         align-items: center;
         flex-wrap: wrap;
+      }
+
+      .guide-section {
+        margin-bottom: var(--section-gap);
+      }
+
+      .guide-stack {
+        display: flex;
+        flex-direction: column;
+        gap: var(--stack-gap);
+      }
+
+      .guide-blocks {
+        display: flex;
+        flex-direction: column;
+        gap: var(--block-gap);
       }
 
       .guide-theme-toggle {
@@ -221,7 +232,7 @@
         background: rgba(255, 255, 255, 0.02);
       }
 
-      .table-wrapper {
+      .table-scroll {
         overflow-x: auto;
         width: 100%;
       }
@@ -692,8 +703,8 @@
   </head>
   <body>
     <header class="guide-hero">
-      <div class="container stack-md">
-        <div class="stack-sm">
+      <div class="page-shell stack-list">
+        <div class="guide-stack">
           <p class="eyebrow">Layer 0</p>
           <h1 class="text-display">301.st UI Style Guide</h1>
           <p class="text-lead guide-subtitle">
@@ -709,7 +720,7 @@
           </div>
         </div>
 
-        <nav class="guide-nav cluster" aria-label="On-page navigation">
+        <nav class="guide-nav controls-row" aria-label="On-page navigation">
           <a href="#themes">Themes</a>
           <a href="#colors">Colors &amp; tokens</a>
           <a href="#spacing">Spacing scale</a>
@@ -729,8 +740,8 @@
       </div>
     </header>
 
-    <main class="container stack stack-lg">
-      <section id="themes" class="card stack-md">
+    <main class="page-shell stack-list">
+      <section id="themes" class="card guide-section guide-stack">
         <div class="section-header">
           <div>
             <p class="eyebrow">Core</p>
@@ -757,7 +768,7 @@
         </p>
       </section>
 
-      <section id="colors" class="card stack-md">
+      <section id="colors" class="card guide-section guide-stack">
         <div class="section-header">
           <div>
             <p class="eyebrow">Tokens</p>
@@ -837,7 +848,7 @@
         </div>
       </section>
 
-      <section id="spacing" class="card stack-md">
+      <section id="spacing" class="card guide-section guide-stack">
         <div class="section-header">
           <div>
             <p class="eyebrow">Spacing</p>
@@ -937,7 +948,7 @@
         </div>
       </section>
 
-      <section id="typography" class="card stack-md">
+      <section id="typography" class="card guide-section guide-stack">
         <div class="section-header">
           <div>
             <p class="eyebrow">Type scale</p>
@@ -970,70 +981,144 @@
         </div>
       </section>
 
-      <section id="layout" class="card stack-md">
+      <section id="layout" class="card guide-section guide-stack">
         <div class="section-header">
           <div>
             <p class="eyebrow">Spacing</p>
             <h2 class="text-title">Layout helpers</h2>
           </div>
-          <p class="text-muted">Avoid ad-hoc margins; reuse stack/cluster/card helpers.</p>
+          <p class="text-muted">Avoid ad-hoc margins; rely on shared layout tokens and patterns.</p>
         </div>
 
-        <div class="example-grid">
-          <div class="example-card stack-sm">
-            <h3 class="text-title">Vertical stack</h3>
-            <p class="text-body">Use <span class="code-inline">.stack</span> with size modifiers for vertical gaps.</p>
-            <div class="stack stack-sm" style="background: var(--bg-soft); padding: var(--space-3); border-radius: var(--r);">
-              <span class="text-body">Item 1</span>
-              <span class="text-body">Item 2</span>
-              <span class="text-body">Item 3</span>
-            </div>
-            <p class="label-inline">Modifiers: <span class="code-inline">.stack-sm</span>, <span class="code-inline">.stack-md</span>, <span class="code-inline">.stack-lg</span>.</p>
-            <div class="code-block">
-              &lt;div class="stack stack-md"&gt;<br />
-              &nbsp;&nbsp;&lt;div&gt;Item 1&lt;/div&gt;<br />
-              &nbsp;&nbsp;&lt;div&gt;Item 2&lt;/div&gt;<br />
-              &lt;/div&gt;
+        <div class="guide-blocks">
+          <div class="guide-stack">
+            <h3 class="text-title">Spacing tokens</h3>
+            <p class="text-body">Use layout aliases instead of raw pixel values.</p>
+            <div class="space-grid">
+              <div class="spacing-card guide-stack">
+                <div class="spacing-meta">
+                  <span class="spacing-name">Page gutter</span>
+                  <span class="spacing-value">--page-gutter-desktop / --page-gutter-mobile</span>
+                </div>
+                <p class="spacing-value">32px / 16px</p>
+                <p class="text-body text-muted">Horizontal padding for every screen.</p>
+              </div>
+              <div class="spacing-card guide-stack">
+                <div class="spacing-meta">
+                  <span class="spacing-name">Section gap</span>
+                  <span class="spacing-value">--section-gap</span>
+                </div>
+                <p class="spacing-value">24px</p>
+                <p class="text-body text-muted">Distance between major sections.</p>
+              </div>
+              <div class="spacing-card guide-stack">
+                <div class="spacing-meta">
+                  <span class="spacing-name">Blocks</span>
+                  <span class="spacing-value">--block-gap</span>
+                </div>
+                <p class="spacing-value">16px</p>
+                <p class="text-body text-muted">Cards, lists, cards inside modals.</p>
+              </div>
+              <div class="spacing-card guide-stack">
+                <div class="spacing-meta">
+                  <span class="spacing-name">Stack</span>
+                  <span class="spacing-value">--stack-gap</span>
+                </div>
+                <p class="spacing-value">12px</p>
+                <p class="text-body text-muted">Tight vertical rhythm within panels.</p>
+              </div>
+              <div class="spacing-card guide-stack">
+                <div class="spacing-meta">
+                  <span class="spacing-name">Inline</span>
+                  <span class="spacing-value">--inline-gap</span>
+                </div>
+                <p class="spacing-value">8px</p>
+                <p class="text-body text-muted">Chip/button gaps in control rows.</p>
+              </div>
             </div>
           </div>
-          <div class="example-card stack-sm">
-            <h3 class="text-title">Cluster</h3>
-            <p class="text-body">Use <span class="code-inline">.cluster</span> to line up buttons, tags, chips.</p>
-            <div class="cluster" style="background: var(--bg-soft); padding: var(--space-3); border-radius: var(--r);">
-              <button class="btn btn-secondary btn-sm">One</button>
-              <button class="btn btn-secondary btn-sm">Two</button>
-              <button class="btn btn-secondary btn-sm">Three</button>
+
+          <div class="guide-stack">
+            <h3 class="text-title">Page shell &amp; patterns</h3>
+            <div class="guide-blocks">
+              <div class="guide-stack">
+                <p class="text-body">Wrap every page in <span class="code-inline">.page-shell</span>. Combine with <span class="code-inline">.page-header</span> and <span class="code-inline">.controls-row</span> for consistent chrome.</p>
+                <div class="card guide-stack">
+                  <div class="page-header">
+                    <div class="guide-stack">
+                      <p class="eyebrow">Pattern</p>
+                      <h4 class="text-title">Page header</h4>
+                    </div>
+                    <div class="controls-row">
+                      <button class="btn btn-secondary btn-sm">Action</button>
+                      <button class="btn btn-ghost btn-sm">Ghost</button>
+                    </div>
+                  </div>
+                  <div class="controls-row">
+                    <button class="btn-chip is-active">Chip</button>
+                    <button class="btn-chip">Filter</button>
+                    <button class="btn-chip">Another</button>
+                  </div>
+                  <div class="stack-list">
+                    <div class="card-section">Stack item 1</div>
+                    <div class="card-section">Stack item 2</div>
+                  </div>
+                </div>
+                <div class="code-block">&lt;div class="page-shell"&gt;...&lt;/div&gt;</div>
+              </div>
+              <div class="guide-stack">
+                <p class="text-body">For wide tables wrap content in <span class="code-inline">.table-scroll</span>.</p>
+                <div class="table-scroll">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <th>Status</th>
+                        <th>Owner</th>
+                        <th class="table__cell-actions">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>domain.com</td>
+                        <td><span class="badge badge--success">Active</span></td>
+                        <td>alex@example.com</td>
+                        <td class="table__cell-actions"><button class="btn btn-secondary btn-sm">Open</button></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
-            <div class="code-block">&lt;div class="cluster"&gt;...inline items...&lt;/div&gt;</div>
           </div>
-          <div class="example-card stack-sm">
-            <h3 class="text-title">Cards / panels</h3>
-            <p class="text-body">
-              <span class="code-inline">.card</span> or <span class="code-inline">.panel</span> for elevated blocks. Inside, break content with
-              <span class="code-inline">.card-section</span>.
-            </p>
-            <div class="card">
-              <div class="card-section">
-                <h4 class="text-title">Default panel</h4>
-                <p class="text-body text-muted">Neutral background on <span class="code-inline">--panel</span>.</p>
-              </div>
-              <div class="card-section card--emphasis">
-                <p class="text-body">Emphasized variant (on <span class="code-inline">.card--emphasis</span>).</p>
-              </div>
-            </div>
-            <div class="code-block">
-              &lt;section class="panel"&gt;<br />
-              &nbsp;&nbsp;&lt;header class="card-section"&gt;<br />
-              &nbsp;&nbsp;&nbsp;&nbsp;&lt;h3 class="text-title"&gt;Project settings&lt;/h3&gt;<br />
-              &nbsp;&nbsp;&lt;/header&gt;<br />
-              &nbsp;&nbsp;&lt;div class="card-section"&gt;...&lt;/div&gt;<br />
-              &lt;/section&gt;
+
+          <div class="guide-stack">
+            <h3 class="text-title">Dashboard shell</h3>
+            <p class="text-body">Desktop uses a sidebar grid; on mobile sidebar hides and content uses the same gutters.</p>
+            <div class="layout-shell" style="border: 1px solid var(--border-subtle); border-radius: var(--r);">
+              <aside class="layout-sidebar">Sidebar (links, logo, filters)</aside>
+              <main class="layout-main">
+                <header class="page-header">
+                  <div class="guide-stack">
+                    <p class="eyebrow">Layout demo</p>
+                    <h4 class="text-title">Main area</h4>
+                  </div>
+                  <div class="controls-row">
+                    <button class="btn btn-primary btn-sm">Create</button>
+                    <button class="btn btn-secondary btn-sm">Filters</button>
+                  </div>
+                </header>
+                <div class="stack-list">
+                  <div class="card-section">Card / table block</div>
+                  <div class="card-section">Another block</div>
+                </div>
+              </main>
             </div>
           </div>
         </div>
       </section>
 
-      <section id="badges" class="card stack-md">
+      <section id="badges" class="card guide-section guide-stack">
         <div class="section-header">
           <div>
             <p class="eyebrow">Status</p>
@@ -1058,7 +1143,7 @@
         </div>
       </section>
 
-      <section id="tables" class="card stack-md">
+      <section id="tables" class="card guide-section guide-stack">
         <div class="section-header">
           <div>
             <p class="eyebrow">Data display</p>
@@ -1075,7 +1160,7 @@
 
           <div class="card stack-sm">
             <div class="card-section stack-sm" style="border-top: none; padding-top: 0;">
-              <div class="btn-chip-group table-controls">
+              <div class="btn-chip-group table-controls controls-row">
                 <div class="table-search chip chip--ghost chip--lg" data-table-search>
                   <span class="icon" data-icon="mono/search"></span>
                   <input
@@ -1119,7 +1204,7 @@
                 </button>
               </div>
 
-              <div class="table-wrapper">
+              <div class="table-scroll">
                 <table class="table table--domains">
                   <thead>
                     <tr>
@@ -1403,7 +1488,7 @@
 &nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/plus&quot;&gt;&lt;/span&gt;&lt;span&gt;Add domain&lt;/span&gt;<br />
 &nbsp;&nbsp;&lt;/button&gt;<br />
 &lt;/div&gt;<br />
-&lt;div class=&quot;table-wrapper&quot;&gt;<br />
+&lt;div class=&quot;table-scroll&quot;&gt;<br />
 &nbsp;&nbsp;&lt;table class=&quot;table table--domains&quot;&gt;...domains rows with dropdown actions...&lt;/table&gt;<br />
 &lt;/div&gt;
           </div>
@@ -1419,7 +1504,7 @@
 
 
 
-      <section id="table-search" class="card stack-md">
+      <section id="table-search" class="card guide-section guide-stack">
         <div class="section-header">
           <div>
             <p class="eyebrow">Components</p>
@@ -1464,7 +1549,7 @@
         </div>
       </section>
 
-      <section id="dropdown" class="card stack-md">
+      <section id="dropdown" class="card guide-section guide-stack">
         <div class="section-header">
           <div>
             <p class="eyebrow">Components</p>
@@ -1526,7 +1611,7 @@
         </div>
       </section>
 
-      <section id="domains-example" class="card stack-md">
+      <section id="domains-example" class="card guide-section guide-stack">
         <div class="section-header">
           <div>
             <p class="eyebrow">Examples</p>
@@ -1548,7 +1633,7 @@
         </div>
       </section>
 
-      <section id="buttons" class="card stack-md">
+      <section id="buttons" class="card guide-section guide-stack">
         <div class="section-header">
           <div>
             <p class="eyebrow">Controls</p>
@@ -1600,7 +1685,7 @@
         </div>
       </section>
 
-      <section id="forms" class="card stack-md">
+      <section id="forms" class="card guide-section guide-stack">
         <div class="section-header">
           <div>
             <p class="eyebrow">Inputs</p>
@@ -1662,7 +1747,7 @@
         </div>
       </section>
 
-      <section id="tabs" class="card stack-md">
+      <section id="tabs" class="card guide-section guide-stack">
         <div class="section-header">
           <div>
             <p class="eyebrow">Navigation</p>
@@ -1691,7 +1776,7 @@
         </div>
       </section>
 
-      <section id="cards" class="card stack-md">
+      <section id="cards" class="card guide-section guide-stack">
         <div class="section-header">
           <div>
             <p class="eyebrow">Containers</p>
@@ -1722,7 +1807,7 @@
         </div>
       </section>
 
-      <section id="icons" class="card stack-md">
+      <section id="icons" class="card guide-section guide-stack">
         <div class="section-header">
           <div>
             <p class="eyebrow">Assets</p>
