@@ -463,6 +463,54 @@ html[data-theme="light"] .btn-secondary:hover {
     color var(--transition-md);
 }
 
+.btn-chip__icon,
+.btn-chip__chevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-chip__label {
+  white-space: nowrap;
+}
+
+/* Dropdown / filter chip */
+.btn-chip--dropdown {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding-inline: 0.75rem;
+  border-color: var(--border-subtle);
+  background: var(--bg-elevated);
+  color: var(--text-main);
+}
+
+/* Input-style chip */
+.btn-chip--input {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding-inline: 0.75rem;
+  background: var(--bg-elevated);
+  border-color: var(--border-subtle);
+  color: var(--text-main);
+}
+
+.btn-chip--input:focus-within {
+  border-color: var(--input-border-focus);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--primary) 40%, transparent);
+}
+
+.btn-chip--primary {
+  background: var(--primary);
+  border-color: color-mix(in srgb, var(--primary) 45%, transparent);
+  color: var(--btn-text-on-dark);
+}
+
+.btn-chip--primary:hover {
+  background: var(--primary-hover);
+}
+
 /* Активное состояние */
 .btn-chip.is-active {
   color: var(--primary);
@@ -476,6 +524,44 @@ html[data-theme="light"] .btn-chip:hover {
 
 html[data-theme="dark"] .btn-chip:hover {
   background: rgba(255, 255, 255, 0.04);
+}
+
+.btn-chip-group.table-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.table-search {
+  flex: 1 1 16rem;
+  min-width: 0;
+}
+
+.table-search__input {
+  background: transparent;
+  border: none;
+  color: inherit;
+  font: inherit;
+  width: 100%;
+  outline: none;
+}
+
+.table-search__input::placeholder {
+  color: var(--text-muted);
+}
+
+.table-search__clear {
+  display: none;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  padding: 0;
+  cursor: pointer;
+}
+
+.table-search--active .table-search__clear {
+  display: inline-flex;
 }
 
 .btn-outline {
