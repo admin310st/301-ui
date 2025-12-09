@@ -449,7 +449,7 @@ html[data-theme="light"] .btn-secondary:hover {
   border-radius: 999px;
   border: 1px solid transparent;
   background: transparent;
-  color: var(--text-subtle);
+  color: var(--text);
   font-size: 0.9rem;
   padding: 0.3rem 0.9rem;
   cursor: pointer;
@@ -482,7 +482,7 @@ html[data-theme="light"] .btn-secondary:hover {
   padding-inline: 0.75rem;
   border-color: var(--border-subtle);
   background: var(--bg-elevated);
-  color: var(--text-main);
+  color: var(--text);
 }
 
 /* Input-style chip */
@@ -493,7 +493,11 @@ html[data-theme="light"] .btn-secondary:hover {
   padding-inline: 0.75rem;
   background: var(--bg-elevated);
   border-color: var(--border-subtle);
-  color: var(--text-main);
+  color: var(--text);
+}
+
+.btn-chip--input .icon[data-icon^="mono/"] {
+  color: var(--muted);
 }
 
 .btn-chip--input:focus-within {
@@ -502,19 +506,37 @@ html[data-theme="light"] .btn-secondary:hover {
 }
 
 .btn-chip--primary {
-  background: var(--primary);
+  background: var(--brand);
   border-color: color-mix(in srgb, var(--primary) 45%, transparent);
-  color: var(--btn-text-on-dark);
+  color: var(--bg);
 }
 
 .btn-chip--primary:hover {
   background: var(--primary-hover);
 }
 
+.btn-chip--primary .icon {
+  color: inherit;
+}
+
 /* Активное состояние */
 .btn-chip.is-active {
-  color: var(--primary);
+  color: var(--text);
   border-color: color-mix(in srgb, var(--primary) 55%, transparent);
+}
+
+.btn-chip--dropdown .btn-chip__icon .icon,
+.btn-chip--dropdown .btn-chip__chevron .icon {
+  color: var(--muted);
+}
+
+.btn-chip--dropdown.is-open {
+  background: var(--panel);
+  box-shadow: 0 0 0 1px var(--brand);
+}
+
+.btn-chip--dropdown.is-open .btn-chip__chevron .icon {
+  transform: rotate(180deg);
 }
 
 /* Hover-подсветка */
@@ -541,21 +563,21 @@ html[data-theme="dark"] .btn-chip:hover {
 .table-search__input {
   background: transparent;
   border: none;
-  color: inherit;
+  color: var(--text);
   font: inherit;
   width: 100%;
   outline: none;
 }
 
 .table-search__input::placeholder {
-  color: var(--text-muted);
+  color: var(--muted);
 }
 
 .table-search__clear {
   display: none;
   background: transparent;
   border: none;
-  color: var(--text-muted);
+  color: var(--muted);
   padding: 0;
   cursor: pointer;
 }

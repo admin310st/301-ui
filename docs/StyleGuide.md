@@ -319,23 +319,32 @@ Use `.h1` for page titles in the member area and auth hero, `.h2` for section ti
 
 Chip buttons (`.btn-chip`) sit inside a `.btn-chip-group` container for tab navigation and segmented controls.
 
-##### Dropdown chips (filters)
+#### Filter / dropdown chips
 
-Use `.btn-chip btn-chip--dropdown` for pill-style filters and dropdown triggers.
+Use `.btn-chip--dropdown` for filter controls in tables.
 
-Structure:
+- Left icon: `mono/filter`
+- Right icon: `mono/chevron-down`
+- Icons inherit `currentColor`; the chip sets color for text and icons.
+- Active/open state is indicated by `.is-open` modifier.
 
-- Optional left icon: `filter`
-- Label text
-- Right chevron icon: `chevron-down`
-
-Example:
-
+```html
 <button class="btn-chip btn-chip--dropdown">
-  <span class="btn-chip__icon"><i class="icon icon-mono icon-filter"></i></span>
+  <span class="btn-chip__icon">
+    <span class="icon" data-icon="mono/filter"></span>
+  </span>
   <span class="btn-chip__label">Status: Active</span>
-  <span class="btn-chip__chevron"><i class="icon icon-mono icon-chevron-down"></i></span>
+  <span class="btn-chip__chevron">
+    <span class="icon" data-icon="mono/chevron-down"></span>
+  </span>
 </button>
+```
+
+#### Icon usage inside chips
+
+- Mono icons are always used via `<span class="icon" data-icon="mono/...">`.
+- Brand icons via `<span class="icon icon-brand" data-icon="brand/...">`.
+- Do not hardcode SVGs or custom `<i>` tags in components.
 
 ### 4.2. Form controls
 
