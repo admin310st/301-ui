@@ -359,6 +359,17 @@ Use `.h1` for page titles in the member area and auth hero, `.h2` for section ti
 
 Chip buttons (`.btn-chip`) sit inside a `.btn-chip-group` container for tab navigation and segmented controls.
 
+#### Chip primary / secondary
+
+`btn-chip--primary` and `btn-chip--secondary` reuse the same color tokens as regular buttons:
+
+- `btn-chip--primary` → `btn--primary` (bg, hover bg, text color)
+- `btn-chip--secondary` → `btn--secondary` (border, text, hover bg)
+
+Text and icon colors inside chips do not change on hover:
+only the background and/or border colors follow the button states.
+Icons are rendered via `<span class="icon" data-icon="mono/...">` and use `currentColor`.
+
 #### Chip buttons with icons
 
 Use `.btn-chip` with inner `.icon` elements from the sprite:

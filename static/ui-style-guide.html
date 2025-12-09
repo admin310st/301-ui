@@ -273,14 +273,15 @@
         white-space: nowrap;
       }
 
-      .btn-chip--dropdown {
+      .btn-chip--dropdown,
+      .btn-chip--secondary {
         display: inline-flex;
         align-items: center;
         gap: 0.35rem;
         padding-inline: 0.75rem;
         border-color: var(--border-subtle);
-        background: var(--bg-elevated);
-        color: var(--text);
+        background: transparent;
+        color: var(--text-main);
       }
 
       .btn-chip--input {
@@ -303,17 +304,25 @@
       }
 
       .btn-chip--primary {
-        background: var(--brand);
-        border-color: color-mix(in srgb, var(--primary) 45%, transparent);
-        color: var(--bg);
+        background: var(--primary);
+        border-color: transparent;
+        color: var(--btn-text-on-dark);
       }
 
       .btn-chip--primary:hover {
         background: var(--primary-hover);
+        color: var(--btn-text-on-dark);
       }
 
       .btn-chip--primary .icon {
         color: currentColor;
+      }
+
+      .btn-chip--dropdown:hover,
+      .btn-chip--secondary:hover,
+      .btn-chip:hover {
+        background: var(--primary-soft);
+        border-color: color-mix(in srgb, var(--primary) 40%, transparent);
       }
 
       .btn-chip--dropdown .btn-chip__chevron .icon {
