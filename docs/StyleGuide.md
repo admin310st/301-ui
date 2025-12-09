@@ -176,7 +176,47 @@ We use CSS custom properties (`--token`) and a theme switch via
 }
 ```
 
-### 1.4. Theme switch
+### 1.4. Elevation & Shadows
+
+We use a simple, consistent elevation system for floating UI elements.
+
+| Token         | Usage                         | Light mode                     | Dark mode                      |
+| ------------- | ----------------------------- | ------------------------------ | ------------------------------ |
+| `--shadow-sm` | chips, small popups           | `0 2px 8px rgba(0,0,0,0.08)`   | `0 2px 8px rgba(0,0,0,0.35)`   |
+| `--shadow-md` | dropdown menus, context menus | `0 6px 18px rgba(0,0,0,0.12)`  | `0 6px 18px rgba(0,0,0,0.45)`  |
+| `--shadow-lg` | modals                        | `0 18px 45px rgba(0,0,0,0.25)` | `0 18px 45px rgba(0,0,0,0.65)` |
+
+CSS variables:
+
+```css
+:root {
+  --shadow-sm-light: 0 2px 8px rgba(0,0,0,0.08);
+  --shadow-md-light: 0 6px 18px rgba(0,0,0,0.12);
+  --shadow-lg-light: 0 18px 45px rgba(0,0,0,0.25);
+
+  --shadow-sm-dark: 0 2px 8px rgba(0,0,0,0.35);
+  --shadow-md-dark: 0 6px 18px rgba(0,0,0,0.45);
+  --shadow-lg-dark: 0 18px 45px rgba(0,0,0,0.65);
+}
+```
+
+Theme-aware aliasing:
+
+```css
+:root {
+  --shadow-sm: var(--shadow-sm-light);
+  --shadow-md: var(--shadow-md-light);
+  --shadow-lg: var(--shadow-lg-light);
+}
+
+:root[data-theme="dark"] {
+  --shadow-sm: var(--shadow-sm-dark);
+  --shadow-md: var(--shadow-md-dark);
+  --shadow-lg: var(--shadow-lg-dark);
+}
+```
+
+### 1.5. Theme switch
 
 ```js
 const root = document.documentElement;
@@ -448,11 +488,27 @@ Primary use: domains list, Cloudflare zones, rulesets, logs.
 .dropdown { position: relative; display: inline-block; }
 .dropdown__menu { position: absolute; top: calc(100% + 0.35rem); right: 0; min-width: 220px; background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: var(--r); padding: var(--space-2) 0; display: none; box-shadow: var(--shadow-soft); }
 .dropdown--open .dropdown__menu { display: block; }
-.table-filter__menu { position: absolute; top: calc(100% + 0.25rem); left: 0; z-index: 20; min-width: 11rem; padding: 0.25rem 0; border-radius: var(--r-lg); background: var(--panel); border: 1px solid rgba(0, 0, 0, 0.12); box-shadow: 0 18px 45px rgba(0, 0, 0, 0.4); }
+.table-filter__menu { position: absolute; top: calc(100% + 0.25rem); left: 0; z-index: 20; min-width: 11rem; padding: 0.25rem 0; border-radius: var(--r-lg); background: var(--panel); border: 1px solid rgba(0, 0, 0, 0.08); box-shadow: var(--shadow-md); }
 .dropdown__item { display: flex; align-items: center; gap: var(--space-2); width: 100%; padding: var(--space-2) var(--space-3); background: transparent; border: none; color: var(--text); font-size: var(--fs-sm); text-align: left; }
 .dropdown__item--danger { color: var(--danger); }
 .link-button { display: inline-flex; gap: var(--space-2); align-items: center; background: transparent; border: none; color: var(--primary); font-size: var(--fs-sm); }
 .link-button--sm { font-size: var(--fs-xs); }
+```
+
+#### Dropdown elevation
+
+Dropdown menus use `--shadow-md` elevation:
+
+```html
+<div class="btn-chip btn-chip--dropdown is-open">
+  <span class="icon" data-icon="mono/filter"></span>
+  <span>Status: Active</span>
+  <span class="icon" data-icon="mono/chevron-up"></span>
+</div>
+
+<div class="table-filter__menu">
+  ...
+</div>
 ```
 
 #### Table controls as chips

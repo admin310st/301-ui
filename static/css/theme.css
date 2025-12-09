@@ -91,6 +91,18 @@
   --radius-lg: 0.75rem;
   --radius-xl: 1rem;
 
+  --shadow-sm-light: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-md-light: 0 6px 18px rgba(0, 0, 0, 0.12);
+  --shadow-lg-light: 0 18px 45px rgba(0, 0, 0, 0.25);
+
+  --shadow-sm-dark: 0 2px 8px rgba(0, 0, 0, 0.35);
+  --shadow-md-dark: 0 6px 18px rgba(0, 0, 0, 0.45);
+  --shadow-lg-dark: 0 18px 45px rgba(0, 0, 0, 0.65);
+
+  --shadow-sm: var(--shadow-sm-light);
+  --shadow-md: var(--shadow-md-light);
+  --shadow-lg: var(--shadow-lg-light);
+
   --shadow-soft:   0 1px 3px  color-mix(in srgb, var(--gray-900) 18%, transparent),
                    0 1px 2px  color-mix(in srgb, var(--gray-900) 22%, transparent);
   --shadow-subtle: 0 3px 6px  color-mix(in srgb, var(--gray-900) 16%, transparent),
@@ -127,6 +139,9 @@
 
   --border-subtle: rgba(255, 255, 255, 0.06);
   --border-strong: rgba(255, 255, 255, 0.14);
+  --shadow-sm: var(--shadow-sm-dark);
+  --shadow-md: var(--shadow-md-dark);
+  --shadow-lg: var(--shadow-lg-dark);
   --shadow-soft:   0 1px 3px  color-mix(in srgb, var(--gray-700) 14%, var(--blue-900) 8%),
                    0 1px 2px  color-mix(in srgb, var(--gray-700) 18%, var(--blue-900) 6%);
 
@@ -193,6 +208,9 @@
 
   --border-subtle: rgba(15, 23, 42, 0.06);
   --border-strong: rgba(15, 23, 42, 0.16);
+  --shadow-sm: var(--shadow-sm-light);
+  --shadow-md: var(--shadow-md-light);
+  --shadow-lg: var(--shadow-lg-light);
 
   /*
     Primary uses blue-700:
