@@ -4,6 +4,11 @@ const NOTICE_ROOT_SELECTOR = '#GlobalNotice';
 const NOTICE_TEXT_SELECTOR = '#GlobalNoticeText';
 const STORAGE_KEY = 'auth_notice';
 const AUTOHIDE_DELAY_MS = 8000;
+const TYPE_CLASSNAME: Record<NoticeType, string> = {
+  success: 'app-alert--success',
+  error: 'app-alert--error',
+  info: 'app-alert--info',
+};
 
 export interface NoticePayload {
   type: NoticeType;
@@ -22,7 +27,10 @@ export function showNotice(type: NoticeType, message: string): void {
   if (!root || !text) return;
 
   root.dataset.notice = 'visible';
+  root.dataset.state = 'visible';
   root.dataset.type = type;
+  Object.values(TYPE_CLASSNAME).forEach((className) => root.classList.remove(className));
+  root.classList.add(TYPE_CLASSNAME[type]);
   text.textContent = message;
 }
 
@@ -31,7 +39,9 @@ export function hideNotice(): void {
   if (!root || !text) return;
 
   root.dataset.notice = 'hidden';
+  root.dataset.state = 'hidden';
   delete root.dataset.type;
+  Object.values(TYPE_CLASSNAME).forEach((className) => root.classList.remove(className));
   text.textContent = '';
 }
 

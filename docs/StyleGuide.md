@@ -844,7 +844,7 @@ Header (`.site-header`) uses a blurred background with a thin border. Primary na
 * Tabs (`.auth-tabs`) reuse the chip group; keep the active item fully filled.
 * Forms live inside `.auth-card` with `gap: var(--space-4)`.
 * Social buttons use `.auth-social-btn` with brand-specific skins for Google/GitHub.
-* `.global-notice` is the top sticky status banner. Use `data-type="success" | "error" | "info"` to color it.
+* `.app-alert` is the global status banner. Align with `.page-shell` gutters via `.app-alert__inner`, keep `padding-block: var(--space-3)` and `margin-bottom: var(--block-gap)`; color via modifiers `.app-alert--success | .app-alert--error | .app-alert--info`.
 
 ---
 
