@@ -1199,6 +1199,8 @@
             <code class="code-inline">table-search</code> markup for specific screens — update the component and reuse it.
           </p>
 
+          <p class="text-body">Inside header cells use chips only; primary actions live in the toolbar above the table.</p>
+
           <div class="table-scroll">
             <table class="table" style="min-width: 620px;">
               <thead>
@@ -1342,7 +1344,20 @@
                     <tr>
                       <th>Domain</th>
                       <th>Project</th>
-                      <th>Status / Expiry</th>
+                      <th class="th th--controls">
+                        <div class="th-controls row">
+                          <button class="btn-chip btn-chip--dropdown" aria-expanded="false" type="button">
+                            <span class="icon" data-icon="mono/filter"></span>
+                            Status: Active
+                            <span class="icon" data-icon="mono/chevron-down"></span>
+                          </button>
+
+                          <button class="btn-chip btn-chip--cf" type="button">
+                            <span class="icon" data-icon="brand/cloudflare"></span>
+                            Cloudflare
+                          </button>
+                        </div>
+                      </th>
                       <th>Provider</th>
                       <th class="table__th-actions"></th>
                     </tr>

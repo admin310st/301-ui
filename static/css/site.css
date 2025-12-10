@@ -669,6 +669,29 @@ html[data-theme="light"] .btn--ghost:hover {
   flex: 0 0 auto;
 }
 
+/* Header controls layout */
+.th--controls .th-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--inline-gap);
+  align-items: center;
+}
+
+/* Chips only inside header — inherit pill radius */
+th .btn-chip {
+  border-radius: var(--r-pill);
+}
+
+/* Prevent header growth from custom padding */
+th .btn,
+th .btn-chip {
+  margin: 0;
+}
+
+th {
+  white-space: nowrap;
+}
+
 .table-filter {
   position: relative;
 }
