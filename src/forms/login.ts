@@ -44,7 +44,7 @@ function bindAvatarPreview(form: HTMLFormElement): void {
   const update = (value: string): void => {
     const trimmed = value.trim();
     if (label) label.textContent = trimmed || t('auth.login.avatarPlaceholder');
-    if (img) img.src = trimmed ? '/img/anonymous-avatar.svg' : '/img/anonymous-avatar.svg';
+    if (img) img.src = '/static/img/anonymous-avatar.svg';
   };
 
   update(input.value || '');
