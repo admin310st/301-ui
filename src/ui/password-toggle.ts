@@ -10,6 +10,7 @@ export function initPasswordToggles(): void {
     const updateState = (): void => {
       const isHidden = input.type === 'password';
       toggle.setAttribute('aria-label', isHidden ? 'Show password' : 'Hide password');
+      toggle.setAttribute('aria-pressed', String(!isHidden));
       toggle.dataset.state = isHidden ? 'hidden' : 'visible';
     };
 

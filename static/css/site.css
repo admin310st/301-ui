@@ -451,6 +451,11 @@ body {
   cursor: not-allowed;
 }
 
+.btn:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
 .btn--sm,
 .btn-sm {
   font-size: calc(var(--fs-control) * var(--control-scale-sm));
@@ -638,6 +643,12 @@ html[data-theme="light"] .btn--ghost:hover {
 .btn-chip.is-active {
   color: var(--text);
   border-color: color-mix(in srgb, var(--primary) 55%, transparent);
+}
+
+.btn-chip:focus-visible,
+.tabs__trigger:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
 }
 
 
