@@ -705,7 +705,7 @@ html[data-theme="light"] .btn--ghost:hover {
 }
 
 .table-controls .table-search {
-  flex: 1 1 100%;
+  flex: 1 1 auto;
   min-width: 0;
 }
 
@@ -714,23 +714,37 @@ html[data-theme="light"] .btn--ghost:hover {
   flex: 0 0 auto;
 }
 
-/* Header controls layout */
-.th--controls .th-controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--inline-gap);
+/* Desktop: keep all controls in one line */
+@media (min-width: 1024px) {
+  .table-controls {
+    flex-wrap: nowrap;
+  }
+}
+
+/* Sortable table headers */
+.th-sort {
+  display: inline-flex;
   align-items: center;
-}
-
-/* Chips only inside header — inherit pill radius */
-th .btn-chip {
-  border-radius: var(--r-pill);
-}
-
-/* Prevent header growth from custom padding */
-th .btn,
-th .btn-chip {
+  gap: 0.35em;
+  padding: 0;
   margin: 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  color: inherit;
+  line-height: 1;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.th-sort .icon {
+  width: 1em;
+  height: 1em;
+  flex: 0 0 1em;
+}
+
+.th-sort:hover {
+  color: var(--brand);
 }
 
 th {

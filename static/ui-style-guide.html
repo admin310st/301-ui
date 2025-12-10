@@ -1340,27 +1340,24 @@
                 <table class="table table--domains">
                   <thead>
                     <tr>
-                      <th scope="col">Domain</th>
-                      <th scope="col" class="th--controls">
-                        <div class="th-controls">
-                          <span>Project</span>
-                          <button class="btn-chip btn-chip--dropdown" type="button" aria-expanded="false">
-                            <span class="btn-chip__icon" data-icon="mono/arrow-up-down"></span>
-                            <span class="btn-chip__label">Sort</span>
-                            <span class="btn-chip__chevron" data-icon="mono/chevron-down"></span>
-                          </button>
-                        </div>
+                      <th scope="col">
+                        <button class="th-sort" type="button" aria-sort="none">
+                          Domain
+                          <span class="icon" data-icon="mono/arrow-up-down"></span>
+                        </button>
+                      </th>
+                      <th scope="col">
+                        <button class="th-sort" type="button" aria-sort="none">
+                          Project
+                          <span class="icon" data-icon="mono/arrow-up-down"></span>
+                        </button>
                       </th>
                       <th scope="col">Status / Expiry</th>
-                      <th scope="col" class="th--controls">
-                        <div class="th-controls">
-                          <span>Provider</span>
-                          <button class="btn-chip btn-chip--dropdown" type="button" aria-expanded="false">
-                            <span class="btn-chip__icon" data-icon="mono/filter"></span>
-                            <span class="btn-chip__label">Filter</span>
-                            <span class="btn-chip__chevron" data-icon="mono/chevron-down"></span>
-                          </button>
-                        </div>
+                      <th scope="col">
+                        <button class="th-sort" type="button" aria-sort="none">
+                          Provider
+                          <span class="icon" data-icon="mono/arrow-up-down"></span>
+                        </button>
                       </th>
                       <th scope="col" class="table__th-actions"></th>
                     </tr>
