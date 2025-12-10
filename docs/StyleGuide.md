@@ -346,6 +346,8 @@ function toggleTheme() {
 }
 ```
 
+Table Search Bar и дефолтные фильтры располагаются в панели controls-row **над таблицей**. Внутри заголовков таблицы остаются только компактные чипы для сортировок и локальных действий — поисковый инпут в `<th>` не допускается.
+
 **Stack list**
 
 ```css
@@ -613,6 +615,12 @@ Toolbar example combining the real components (search bar + dropdown chip + Clou
   </button>
 </div>
 ```
+
+#### Header controls (chips only)
+
+Внутри заголовков таблицы (`<th>`) элементы управления оформляются **только** как чипы (`.btn-chip…`). Кнопки `.btn…` и отдельные инпуты в `<th>` запрещены. Поиск в таблицах — это компонент `.table-search` и расположен в верхней панели (controls-row) **над таблицей**.
+
+Чипы в `<th>` используют общий рецепт размеров и выглядят одной высоты с кнопками и поиском (см. Unified Control System). Для группировки внутри ячейки используйте контейнер `.th-controls` внутри `<th class="th--controls">…</th>` — стили уже готовы.
 
 Variant table for the toolbar row:
 
