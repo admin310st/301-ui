@@ -689,16 +689,16 @@ Domains tables stay in a single row layout even on mobile; wrap the table in a h
 .table-filter { position: relative; }
 .btn-chip__icon, .btn-chip__chevron { display: inline-flex; align-items: center; justify-content: center; }
 .btn-chip__label { white-space: nowrap; }
-.table-search { flex: 1 1 16rem; min-width: 0; display: inline-flex; align-items: center; gap: 0.4em; font-size: var(--fs-control); line-height: var(--lh-control); padding-inline: var(--control-pad-x); padding-block: var(--control-pad-y); min-height: calc(1em * var(--lh-control) + 2 * var(--control-pad-y)); border-radius: var(--control-radius); border: 1px solid var(--border-subtle); background: var(--panel); color: var(--text); }
+.table-search { flex: 1 1 16rem; min-width: 0; display: inline-flex; align-items: center; gap: 0.4em; font-size: var(--fs-control); line-height: var(--lh-control); padding-inline: var(--control-pad-x); padding-block: var(--control-pad-y); min-height: var(--control-min-height); border-radius: var(--control-radius); border: 1px solid var(--border-subtle); background: var(--panel); color: var(--text); }
 .table-search__input { flex: 1 1 auto; background: transparent; border: none; color: var(--text); font: inherit; width: 100%; outline: none; }
 .table-search__input::placeholder { color: var(--muted); }
 .table-search__clear { display: none; background: transparent; border: none; padding: 0; align-items: center; justify-content: center; }
 .table-search__clear .icon { color: var(--muted); }
 .table-search--active .table-search__clear { display: inline-flex; }
 .dropdown { position: relative; display: inline-block; }
-.dropdown__menu { position: absolute; top: calc(100% + 0.35rem); right: 0; min-width: 220px; background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: var(--r); padding: var(--space-2) 0; display: none; box-shadow: var(--shadow-soft); }
+.dropdown__menu { position: absolute; top: calc(100% + 0.35rem); right: 0; min-width: 220px; background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: var(--radius); padding: var(--space-2) 0; display: none; box-shadow: var(--shadow-soft); }
 .dropdown--open .dropdown__menu { display: block; }
-.table-filter__menu { position: absolute; top: calc(100% + 0.25rem); left: 0; z-index: 20; min-width: 11rem; padding: 0.25rem 0; border-radius: var(--r-lg); background: var(--panel); border: 1px solid var(--border-subtle); box-shadow: var(--shadow-md); }
+.table-filter__menu { position: absolute; top: calc(100% + 0.25rem); left: 0; z-index: var(--z-dropdown); min-width: 11rem; padding: 0.25rem 0; border-radius: var(--radius-lg); background: var(--panel); border: 1px solid var(--border-subtle); box-shadow: var(--shadow-md); }
 .dropdown__item { display: flex; align-items: center; gap: var(--space-2); width: 100%; padding: var(--space-2) var(--space-3); background: transparent; border: none; color: var(--text); font-size: var(--fs-sm); text-align: left; }
 .dropdown__item--danger { color: var(--danger); }
 .link-button { display: inline-flex; gap: var(--space-2); align-items: center; background: transparent; border: none; color: var(--primary); font-size: var(--fs-sm); }
@@ -890,7 +890,7 @@ Header (`.site-header`) uses a blurred background with a thin border. Primary na
 
 ## 8. UI System 1.0 migration map
 
-* Tokens: `--s-*`, `--r`, `--r-lg` → `--space-*`, `--control-radius`, unified control tokens (`--fs-control`, `--lh-control`, `--control-pad-*`).
+* Tokens: use `--space-*`, `--radius`, `--radius-lg`, `--control-radius`, and unified control tokens (`--fs-control`, `--lh-control`, `--control-pad-*`). Legacy aliases are removed.
 * Classes: `.btn-ghost` / `.btn-danger` → `.btn.btn--ghost` / `.btn.btn--danger`.
 * Controls: table toolbars reuse the exact Table Search Bar markup (search + clear button). No forks per page.
 * Demos: any change to tokens/components requires rebuilding all demo pages in the same PR.

@@ -32,7 +32,7 @@
 
       .guide-nav a {
         padding: 0.5rem 0.9rem;
-        border-radius: var(--r);
+        border-radius: var(--radius);
         border: 1px solid var(--border-subtle);
         text-decoration: none;
         color: var(--text);
@@ -85,7 +85,7 @@
       .guide-demo--dashboard .layout-shell {
         min-height: 240px;
         border: 1px solid var(--border-subtle);
-        border-radius: var(--r);
+        border-radius: var(--radius);
         overflow: hidden;
       }
 
@@ -115,7 +115,7 @@
         padding-block: var(--space-2);
         padding-inline: var(--space-3);
         border-bottom: 1px solid var(--border-subtle);
-        border-radius: var(--r);
+        border-radius: var(--radius);
         background: var(--bg-soft);
       }
 
@@ -134,7 +134,7 @@
       .token-swatch {
         padding: var(--space-3);
         background: var(--bg-soft);
-        border-radius: var(--r);
+        border-radius: var(--radius);
         border: 1px solid var(--border-subtle);
         display: flex;
         flex-direction: column;
@@ -143,7 +143,7 @@
 
       .token-color {
         height: 80px;
-        border-radius: var(--r);
+        border-radius: var(--radius);
         border: 1px solid var(--border-subtle);
         background: var(--token-var);
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
@@ -173,7 +173,7 @@
       .spacing-card {
         padding: var(--space-3);
         background: var(--bg-soft);
-        border-radius: var(--r);
+        border-radius: var(--radius);
         border: 1px solid var(--border-subtle);
         display: flex;
         flex-direction: column;
@@ -251,7 +251,7 @@
 
       .code-inline {
         background: color-mix(in srgb, var(--bg) 70%, var(--bg-elevated));
-        border-radius: var(--r);
+        border-radius: var(--radius);
         padding: 0.15rem 0.35rem;
         font-family: "SFMono-Regular", ui-monospace, SFMono-Regular, Menlo, Monaco,
           Consolas, "Liberation Mono", "Courier New", monospace;
@@ -266,7 +266,7 @@
 
       .example-card {
         padding: var(--space-4);
-        border-radius: var(--r);
+        border-radius: var(--radius);
         border: 1px solid var(--border-subtle);
         background: var(--bg-soft);
       }
@@ -346,11 +346,11 @@
         position: absolute;
         top: calc(100% + 0.25rem);
         left: 0;
-        z-index: 20;
+        z-index: var(--z-dropdown);
 
         min-width: 11rem;
         padding: 0.25rem 0;
-        border-radius: var(--r-lg);
+        border-radius: var(--radius-lg);
         background: var(--panel);
         border: 1px solid var(--border-subtle);
         box-shadow: var(--shadow-md);
@@ -415,7 +415,7 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        border-radius: var(--r);
+        border-radius: var(--radius);
         border: 0;
         background: transparent;
         cursor: pointer;
@@ -449,11 +449,11 @@
         min-width: 220px;
         background: var(--bg-elevated);
         border: 1px solid var(--border-subtle);
-        border-radius: var(--r);
+        border-radius: var(--radius);
         box-shadow: var(--shadow-soft);
         padding: var(--space-2) 0;
         display: none;
-        z-index: 4;
+        z-index: var(--z-dropdown);
       }
 
       .dropdown__menu--align-right {
@@ -542,7 +542,7 @@
         font-size: var(--fs-sm);
         cursor: pointer;
         padding: 0.2rem 0.35rem;
-        border-radius: var(--r);
+        border-radius: var(--radius);
       }
 
       .link-button:hover {
@@ -654,7 +654,7 @@
         font-size: var(--fs-sm);
         background: color-mix(in srgb, var(--bg) 80%, var(--bg-elevated));
         border: 1px solid var(--border-subtle);
-        border-radius: var(--r);
+        border-radius: var(--radius);
         padding: var(--space-3);
         overflow-x: auto;
       }
@@ -914,10 +914,10 @@
             </div>
           </div>
         </div>
-        <p class="label-inline">Aliases: <span class="code-inline">--s-1</span> → <span class="code-inline">--space-2</span>, <span class="code-inline">--s-2</span> → <span class="code-inline">--space-3</span>, <span class="code-inline">--s-3</span> → <span class="code-inline">--space-4</span>.</p>
+        <p class="label-inline">Spacing tokens are standardized as <span class="code-inline">--space-*</span>; legacy aliases have been removed.</p>
         <div class="example-card stack-sm" style="margin-top: var(--space-2);">
           <h3 class="text-title">Stack helper</h3>
-          <div class="stack stack-md" style="background: var(--bg-soft); padding: var(--space-3); border-radius: var(--r);">
+          <div class="stack stack-md" style="background: var(--bg-soft); padding: var(--space-3); border-radius: var(--radius);">
             <div class="card-section">Item 1</div>
             <div class="card-section">Item 2</div>
           </div>
@@ -1865,8 +1865,8 @@
 &nbsp;&nbsp;--r-pill: 999px; /* inline controls */<br />
 &nbsp;&nbsp;--r-field: .75rem; /* form fields */<br />
 }<br />
-.btn, .btn-chip, .table-search, .tabs__trigger { border-radius: var(--r-pill); }<br />
-.input, .select, .textarea { border-radius: var(--r-field); }
+.btn, .btn-chip, .table-search, .tabs__trigger { border-radius: var(--control-radius); }<br />
+.input, .select, .select--control, .textarea { border-radius: var(--r-field); }
           </div>
         </div>
 
@@ -1876,7 +1876,7 @@
             <div class="field" data-status="default">
               <label class="field-label" for="guide-email">Email</label>
               <input
-                class="input input--control"
+                class="input"
                 id="guide-email"
                 type="email"
                 placeholder="user@example.com"
@@ -1886,7 +1886,7 @@
             <div class="code-block">
               &lt;div class="field" data-status=&quot;default&quot;&gt;<br />
               &nbsp;&nbsp;&lt;label class=&quot;field-label&quot; for=&quot;email&quot;&gt;Email&lt;/label&gt;<br />
-              &nbsp;&nbsp;&lt;input class=&quot;input input--control&quot; id=&quot;email&quot; type=&quot;email&quot; placeholder=&quot;user@example.com&quot; /&gt;<br />
+              &nbsp;&nbsp;&lt;input class=&quot;input&quot; id=&quot;email&quot; type=&quot;email&quot; placeholder=&quot;user@example.com&quot; /&gt;<br />
               &nbsp;&nbsp;&lt;p class=&quot;field-hint&quot;&gt;We’ll never share your email.&lt;/p&gt;<br />
               &lt;/div&gt;
             </div>
@@ -1897,7 +1897,7 @@
               <label class="field-label" for="guide-password">Password</label>
               <div class="password-field">
                 <input
-                  class="input input--control is-error"
+                  class="input is-error"
                   id="guide-password"
                   type="password"
                   placeholder="••••••••"
@@ -1912,7 +1912,7 @@
               &lt;div class=&quot;field&quot; data-status=&quot;error&quot;&gt;<br />
               &nbsp;&nbsp;&lt;label class=&quot;field-label&quot; for=&quot;password&quot;&gt;Password&lt;/label&gt;<br />
               &nbsp;&nbsp;&lt;div class=&quot;password-field&quot;&gt;<br />
-              &nbsp;&nbsp;&nbsp;&nbsp;&lt;input class=&quot;input input--control is-error&quot; id=&quot;password&quot; type=&quot;password&quot; placeholder=&quot;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&quot; /&gt;<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&lt;input class=&quot;input is-error&quot; id=&quot;password&quot; type=&quot;password&quot; placeholder=&quot;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&quot; /&gt;<br />
               &nbsp;&nbsp;&nbsp;&nbsp;&lt;button class=&quot;password-toggle&quot; type=&quot;button&quot; aria-label=&quot;Show password&quot;&gt;<br />
               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/eye&quot;&gt;&lt;/span&gt;<br />
               &nbsp;&nbsp;&nbsp;&nbsp;&lt;/button&gt;<br />
@@ -1925,13 +1925,13 @@
             <h3 class="text-title">Success state</h3>
             <div class="field" data-status="success">
               <label class="field-label" for="guide-success">OTP code</label>
-              <input class="input input--control" id="guide-success" type="text" value="123456" />
+              <input class="input" id="guide-success" type="text" value="123456" />
               <p class="field-success">Looks good. Code accepted.</p>
             </div>
             <div class="code-block">
               &lt;div class=&quot;field&quot; data-status=&quot;success&quot;&gt;<br />
               &nbsp;&nbsp;&lt;label class=&quot;field-label&quot; for=&quot;otp&quot;&gt;OTP code&lt;/label&gt;<br />
-              &nbsp;&nbsp;&lt;input class=&quot;input input--control&quot; id=&quot;otp&quot; type=&quot;text&quot; value=&quot;123456&quot; /&gt;<br />
+              &nbsp;&nbsp;&lt;input class=&quot;input&quot; id=&quot;otp&quot; type=&quot;text&quot; value=&quot;123456&quot; /&gt;<br />
               &nbsp;&nbsp;&lt;p class=&quot;field-success&quot;&gt;Looks good. Code accepted.&lt;/p&gt;<br />
               &lt;/div&gt;
             </div>
