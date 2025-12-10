@@ -551,13 +551,20 @@ Tabs, filters and table chips reuse the same `.btn-chip` component and the share
 
 Toolbar with chips **должен** переиспользовать разметку Table Search Bar целиком (search + clear button) — форы и «альтернативные» инпуты запрещены. Любые новые состояния добавляем в компонент и копируем в демо.
 
+> Toolbar uses exact classes:
+> • Search = `.table-search`
+> • Dropdown filter = `.btn-chip.btn-chip--dropdown`
+> • Provider/action chip = `.btn-chip…` (brand variant allowed)
+> • Primary action = `.btn.btn--primary`
+> **Do not** use `.btn` for chips, and do not fork the search markup.
+
 Dropdown chip pattern:
 
 ```html
-<button class="btn-chip btn-chip--dropdown">
-  <span class="btn-chip__icon" data-icon="mono/filter"></span>
-  <span class="btn-chip__label">Status: Active</span>
-  <span class="btn-chip__chevron" data-icon="mono/chevron-down"></span>
+<button class="btn-chip btn-chip--dropdown" type="button">
+  <span class="icon" data-icon="mono/filter"></span>
+  Status: Active
+  <span class="icon" data-icon="mono/chevron-down"></span>
 </button>
 
 <div class="table-filter__menu">
@@ -574,17 +581,17 @@ Toolbar example combining the real components (search bar + dropdown chip + Clou
 <div class="controls-row table-controls">
   <div class="table-search" data-table-search>
     <span class="icon" data-icon="mono/search"></span>
-    <input type="text" class="table-search__input" placeholder="Search by domain, project or account..." />
-    <button class="table-search__clear" type="button" aria-label="Clear search">
+    <input type="text" class="table-search__input" placeholder="Search by domain, project or account…" />
+    <button class="table-search__clear" type="button" aria-label="Clear">
       <span class="icon" data-icon="mono/close"></span>
     </button>
   </div>
 
   <div class="table-filter" data-demo="status-filter">
     <button class="btn-chip btn-chip--dropdown" type="button" aria-expanded="false">
-      <span class="btn-chip__icon" data-icon="mono/filter"></span>
-      <span class="btn-chip__label">Status: Active</span>
-      <span class="btn-chip__chevron" data-icon="mono/chevron-down"></span>
+      <span class="icon" data-icon="mono/filter"></span>
+      Status: Active
+      <span class="icon" data-icon="mono/chevron-down"></span>
     </button>
 
     <div class="table-filter__menu" hidden>
@@ -596,13 +603,13 @@ Toolbar example combining the real components (search bar + dropdown chip + Clou
   </div>
 
   <button class="btn-chip btn-chip--cf" type="button">
-    <span class="btn-chip__icon" data-icon="brand/cloudflare"></span>
-    <span class="btn-chip__label">Cloudflare</span>
+    <span class="icon" data-icon="brand/cloudflare"></span>
+    Cloudflare
   </button>
 
   <button class="btn btn--primary" type="button">
     <span class="icon" data-icon="mono/plus"></span>
-    <span>Add domain</span>
+    Add domain
   </button>
 </div>
 ```
@@ -742,19 +749,17 @@ Example toolbar + table markup:
   <div class="controls-row table-controls">
     <div class="table-search" data-table-search>
       <span class="icon" data-icon="mono/search"></span>
-      <input type="text" class="table-search__input" placeholder="Search by domain, project or account..." />
-      <button class="table-search__clear" type="button" aria-label="Clear search">
+      <input type="text" class="table-search__input" placeholder="Search by domain, project or account…" />
+      <button class="table-search__clear" type="button" aria-label="Clear">
         <span class="icon" data-icon="mono/close"></span>
       </button>
     </div>
 
     <div class="table-filter" data-demo="status-filter">
       <button class="btn-chip btn-chip--dropdown" type="button" aria-expanded="false">
-        <span class="btn-chip__icon icon" data-icon="mono/filter"></span>
-        <span class="btn-chip__label">Status: Active</span>
-        <span class="btn-chip__chevron" aria-hidden="true">
-          <span class="icon" data-icon="mono/chevron-down"></span>
-        </span>
+        <span class="icon" data-icon="mono/filter"></span>
+        Status: Active
+        <span class="icon" data-icon="mono/chevron-down"></span>
       </button>
       <div class="table-filter__menu" hidden>
         <button class="dropdown__item is-active" type="button">All statuses</button>
@@ -766,12 +771,12 @@ Example toolbar + table markup:
 
     <button class="btn-chip btn-chip--cf" type="button">
       <span class="icon" data-icon="brand/cloudflare"></span>
-      <span>Cloudflare</span>
+      Cloudflare
     </button>
 
-    <button class="btn btn--primary">
+    <button class="btn btn--primary" type="button">
       <span class="icon" data-icon="mono/plus"></span>
-      <span>Add domain</span>
+      Add domain
     </button>
   </div>
 
