@@ -643,13 +643,14 @@ html[data-theme="light"] .btn--ghost:hover {
 
 .table-controls {
   display: flex;
+  align-items: center;
   flex-wrap: wrap;
   gap: var(--inline-gap);
 }
 
 .table-controls .table-search {
-  flex: 1 1 100%;
-  min-width: 0;
+  flex: 1 1 auto;
+  min-width: 240px;
 }
 
 .table-controls .btn,
