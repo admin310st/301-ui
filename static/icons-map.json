@@ -25,7 +25,8 @@
     "staging",
     "success",
     "sync",
-    "theme-light-dark"
+    "theme-light-dark",
+    "web-sync"
   ],
   "brand": [
     "301",
