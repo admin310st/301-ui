@@ -182,7 +182,7 @@
                       </div>
                     </div>
 
-                    <div class="auth-status" id="login-status" data-type="pending" data-form-status="login" data-i18n="auth.login.statusDefault">
+                    <div class="auth-status" id="login-status" data-type="pending" data-form-status="login" data-i18n="auth.login.statusDefault" role="status" aria-live="polite">
                       Enter your email and password to sign in.
                     </div>
 
@@ -286,6 +286,8 @@
                       data-form-status="register"
                       id="register-status"
                       data-i18n="auth.register.passwordHint"
+                      role="status"
+                      aria-live="polite"
                     >
                       Must contain upper & lower case letters and at least one digit.
                     </div>
@@ -332,8 +334,10 @@
                         data-form-status="reset-request"
                         id="reset-status"
                         data-i18n="auth.reset.statusDefault"
+                        role="status"
+                        aria-live="polite"
                       >
-                        We’ll send you a link to set a new password.
+                        We'll send you a link to set a new password.
                       </div>
 
                       <div class="auth-actions">
@@ -466,7 +470,7 @@
                 </section>
               </div>
 
-              <div class="auth-status" data-type="pending" data-turnstile-status>
+              <div class="auth-status" data-type="pending" data-turnstile-status role="status" aria-live="polite">
                 <div class="turnstile-widget" role="img" aria-describedby="turnstile-help"></div>
                 <p class="text-muted" id="turnstile-help" data-i18n="auth.turnstile.hint">
                   Turnstile protects authorisation forms from bots.
@@ -553,7 +557,7 @@
                   </button>
                 </div>
 
-                <div class="auth-status" data-type="pending" data-form-status="cf-bootstrap" id="cf-status" data-i18n="cf.wizard.statusStub">
+                <div class="auth-status" data-type="pending" data-form-status="cf-bootstrap" id="cf-status" data-i18n="cf.wizard.statusStub" role="status" aria-live="polite">
                   This will hit <code>/auth/integrations/cloudflare/bootstrap</code> once wired.
                 </div>
               </form>

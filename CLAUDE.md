@@ -198,11 +198,16 @@ This repository includes a specialized UI code review agent to enforce design sy
 ### UI Code Reviewer Agent
 
 **Name:** `301-ui-reviewer`
-**Trigger:** `/uix`
 **Location:** `.claude/agents/ui-code-reviewer.md`
+**Slash command:** `/uix` (defined in `.claude/commands/uix.md`)
 **Model:** Sonnet
 
 **Purpose:** Automated style guide compliance checker that reviews code changes and ensures adherence to the 301.st UI design system.
+
+**How to invoke:**
+- **Via slash command:** `/uix` (quickest method)
+- **Explicitly:** "Use the 301-ui-reviewer agent to check my changes"
+- **Automatically:** Claude may invoke it proactively when detecting UI-related changes
 
 **What it checks:**
 - **Unified control recipe** - Ensures buttons, chips, search bars, and tabs use consistent sizing (no fixed heights)
@@ -215,13 +220,7 @@ This repository includes a specialized UI code review agent to enforce design sy
 - **i18n coverage** - Flags visible text missing translation keys
 - **Build artifacts** - Checks that `build/` and `build/purge-report/` aren't committed
 
-**How to use:**
-```bash
-# In Claude Code CLI
-/uix
-```
-
-The agent will:
+**What the agent does:**
 1. Scan recent diffs or traverse `src/` and `static/`
 2. Compare against canonical sources (`docs/StyleGuide.md`, `static/ui-style-guide.html`)
 3. Report violations in three severity levels: Critical → Major → Minor
@@ -235,11 +234,12 @@ The agent will:
 - Praise (when everything is correct)
 - GitHub Issue draft template (in English, ready to copy)
 
-**When to run `/uix`:**
+**When to use this agent:**
 - After implementing new UI components
 - Before committing CSS/HTML changes
 - When updating demo pages or style guide
 - As part of PR review process
+- When you suspect design system violations
 
 ## Known API Contract Gaps
 
