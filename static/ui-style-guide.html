@@ -1311,7 +1311,7 @@
 
           <div class="card stack">
             <div class="card-section stack" style="border-top: none; padding-top: 0;">
-              <div class="row table-controls">
+              <div class="controls-row table-controls">
                 <div class="table-search" data-table-search>
                   <span class="icon" data-icon="mono/search"></span>
                   <input
@@ -1354,20 +1354,28 @@
                 <table class="table table--domains">
                   <thead>
                     <tr>
-                      <th scope="col">
-                        <button class="th-sort" aria-sort="none">
-                          Domain
-                          <span class="icon" data-icon="mono/arrow-up-down"></span>
-                        </button>
-                      </th>
-                      <th scope="col">
-                        <button class="th-sort" aria-sort="ascending">
-                          Project
-                          <span class="icon" data-icon="mono/chevron-up"></span>
-                        </button>
+                      <th scope="col">Domain</th>
+                      <th scope="col" class="th--controls">
+                        <div class="th-controls">
+                          <span>Project</span>
+                          <button class="btn-chip btn-chip--dropdown" type="button" aria-expanded="false">
+                            <span class="btn-chip__icon" data-icon="mono/arrow-up-down"></span>
+                            <span class="btn-chip__label">Sort</span>
+                            <span class="btn-chip__chevron" data-icon="mono/chevron-down"></span>
+                          </button>
+                        </div>
                       </th>
                       <th scope="col">Status / Expiry</th>
-                      <th scope="col">Provider</th>
+                      <th scope="col" class="th--controls">
+                        <div class="th-controls">
+                          <span>Provider</span>
+                          <button class="btn-chip btn-chip--dropdown" type="button" aria-expanded="false">
+                            <span class="btn-chip__icon" data-icon="mono/filter"></span>
+                            <span class="btn-chip__label">Filter</span>
+                            <span class="btn-chip__chevron" data-icon="mono/chevron-down"></span>
+                          </button>
+                        </div>
+                      </th>
                       <th scope="col" class="table__th-actions"></th>
                     </tr>
                   </thead>
@@ -1620,8 +1628,72 @@
             </div>
           </div>
 
+          <div class="card stack">
+            <div class="card-section stack" style="border-top: none; padding-top: 0;">
+              <p class="text-title" style="margin: 0;">Headers with chips</p>
+              <p class="text-muted" style="margin: 0;">
+                Controls in table headers use the same chip recipe — no `.btn` buttons or raw inputs inside `<th>`.
+              </p>
+
+              <div class="table-scroll">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th scope="col" class="th--controls">
+                        <div class="th-controls">
+                          <span>Status / Expiry</span>
+                          <button class="btn-chip btn-chip--dropdown" type="button" aria-expanded="false">
+                            <span class="btn-chip__icon" data-icon="mono/filter"></span>
+                            <span class="btn-chip__label">Active</span>
+                            <span class="btn-chip__chevron" data-icon="mono/chevron-down"></span>
+                          </button>
+                        </div>
+                      </th>
+                      <th scope="col" class="th--controls">
+                        <div class="th-controls">
+                          <span>Provider</span>
+                          <button class="btn-chip btn-chip--dropdown" type="button" aria-expanded="false">
+                            <span class="btn-chip__icon" data-icon="mono/filter"></span>
+                            <span class="btn-chip__label">Filter</span>
+                            <span class="btn-chip__chevron" data-icon="mono/chevron-down"></span>
+                          </button>
+                        </div>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <span class="badge badge--success">Active</span>
+                        <div class="text-muted text-xs">Exp: 2026-04-18</div>
+                      </td>
+                      <td>
+                        <span class="provider-label">
+                          <span class="icon icon-brand" data-icon="brand/cloudflare"></span>
+                          <span>Cloudflare</span>
+                        </span>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <span class="badge badge--neutral">Paused</span>
+                        <div class="text-muted text-xs">Exp: 2025-09-02</div>
+                      </td>
+                      <td>
+                        <span class="provider-label">
+                          <span class="icon icon-brand" data-icon="brand/namecheap"></span>
+                          <span>Namecheap</span>
+                        </span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
           <div class="code-block">
-  &lt;div class=&quot;row table-controls&quot;&gt;<br />
+  &lt;div class=&quot;controls-row table-controls&quot;&gt;<br />
 &nbsp;&nbsp;&lt;div class=&quot;table-search&quot; data-table-search&gt;<br />
   &nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/search&quot;&gt;&lt;/span&gt;<br />
   &nbsp;&nbsp;&nbsp;&nbsp;&lt;input class=&quot;table-search__input&quot; type=&quot;text&quot; placeholder=&quot;Search by domain, project or account…&quot; /&gt;<br />
@@ -1689,9 +1761,9 @@
           </div>
 
           <p class="text-body">
-            Use inside table headers or toolbars. Background inherits <code class="code-inline">--panel</code>, border matches
-            chip filters. The clear button only appears when the input has a value; on mobile the search chip stays first in
-            the controls row and wraps naturally.
+            Table Search Bar размещается в controls-row над таблицей. Background inherits <code class="code-inline">--panel</code>,
+            border matches chip filters. The clear button only appears when the input has a value; on mobile the search chip
+            stays first in the controls row and wraps naturally.
           </p>
 
           <p class="text-body">
