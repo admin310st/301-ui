@@ -285,10 +285,10 @@ Admin (самый конец)
    * Цвета, радиусы, отступы, типографика.
    * Переменные:
 
-     * `--bg`, `--panel`, `--brand`, `--danger`, `--ok`, `--muted`, `--text`
-     * `--r`, `--r-lg`, `--s-1…--s-4`
-     * `--border-subtle`, `--border-strong`, `--shadow-soft`
-     * `--input-bg`, `--input-border`, `--input-focus`.
+    * `--bg`, `--panel`, `--brand`, `--danger`, `--ok`, `--muted`, `--text`
+    * `--radius`, `--radius-lg`, `--space-1…--space-6`, `--control-radius`
+    * `--border-subtle`, `--border-strong`, `--shadow-soft`
+    * `--input-bg`, `--input-border`, `--input-focus`.
 
 2. **Компоненты-примитивы (классы)**
 

@@ -1,10 +1,6 @@
-:root {
-  font-family: var(--font-sans);
-  --border-width-thin: 1px;
-  --border-width-strong: 1px;
-}
-
-* {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
@@ -12,6 +8,7 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--text-main);
+  font-family: var(--font-sans);
 }
 
 .icon {
@@ -112,7 +109,7 @@ body {
 .app-alert {
   position: sticky;
   top: 0;
-  z-index: 40;
+  z-index: var(--z-sticky);
   background: var(--panel);
   border-bottom: 1px solid var(--border-subtle);
   transform: translateY(-100%);
@@ -191,7 +188,7 @@ body {
 }
 
 .app-alert--error {
-  border-bottom-color: var(--danger-border, #ff6b6b);
+  border-bottom-color: var(--danger-border, var(--danger));
 }
 
 .app-alert--success {
@@ -218,29 +215,23 @@ body {
 .stack {
   display: flex;
   flex-direction: column;
+  gap: var(--stack-gap, 0.75rem);
 }
 
 .stack > * + * {
-  margin-top: var(--stack-gap);
+  margin-top: 0;
 }
 
-.stack-sm,
-.stack-md,
+.stack-sm {
+  --stack-gap: var(--space-2);
+}
+
+.stack-md {
+  --stack-gap: var(--space-4);
+}
+
 .stack-lg {
-  display: flex;
-  flex-direction: column;
-}
-
-.stack-sm > * + * {
-  margin-top: calc(var(--stack-gap) * 0.66);
-}
-
-.stack-md > * + * {
-  margin-top: calc(var(--stack-gap) * 1.5);
-}
-
-.stack-lg > * + * {
-  margin-top: calc(var(--stack-gap) * 2);
+  --stack-gap: var(--space-6);
 }
 
 .row {
@@ -260,7 +251,7 @@ body {
 .card,
 .panel {
   background: var(--panel, var(--bg-elevated));
-  border-radius: var(--r-lg, var(--radius-lg));
+  border-radius: var(--radius-lg);
   border: var(--border-width) var(--border-style) var(--panel-border);
   padding: var(--space-5);
   box-shadow: var(--shadow-soft);
@@ -385,24 +376,20 @@ body {
   */
 /* Unified control recipe — SINGLE SOURCE OF TRUTH */
 .control,
-.input--control,
 .select--control,
 .table-search,
-.btn,
 .btn-chip,
 .tabs__trigger {
   font-size: var(--fs-control);
   line-height: var(--lh-control);
   padding-block: var(--control-pad-y);
   padding-inline: var(--control-pad-x);
-  min-height: calc(1em * var(--lh-control) + 2 * var(--control-pad-y) + 2 * var(--border-1));
-  box-sizing: border-box;
+  min-height: var(--control-min-height);
 }
 
 .control,
 .select--control,
 .table-search,
-.btn,
 .btn-chip,
 .tabs__trigger {
   display: inline-flex;
@@ -412,13 +399,8 @@ body {
   white-space: nowrap;
 }
 
-.icon,
-.btn .icon,
-.btn-chip .icon,
 .table-search .icon {
-  width: 1em;
-  height: 1em;
-  flex: 0 0 1em;
+  color: currentColor;
 }
 
 /* Radius: pill vs field */
@@ -426,11 +408,10 @@ body {
 .btn-chip,
 .table-search,
 .tabs__trigger {
-  border-radius: var(--r-pill);
+  border-radius: var(--control-radius);
 }
 
 .input,
-.input--control,
 .select,
 .select--control,
 .textarea {
@@ -438,8 +419,8 @@ body {
 }
 
 /* @migration
-   Legacy tokens: --s-*, --r, --r-lg → use --space-*, --control-radius,
-   unified control tokens.
+   Legacy spacing and radius aliases have been removed; use --space-* and
+   --control-radius with the unified control tokens.
    Legacy classes: .btn-ghost/.btn-danger → .btn.btn--ghost/.btn.btn--danger.
 */
 
@@ -447,19 +428,22 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.4em;
+  gap: 0.5em;
+  white-space: nowrap;
+
+  font-size: var(--fs-control);
+  line-height: var(--lh-control);
+  padding: var(--control-pad-y) var(--control-pad-x);
+  min-height: var(--control-min-height);
   border-radius: var(--control-radius);
+
   border: 1px solid transparent;
   font-weight: var(--fw-medium);
   text-decoration: none;
   color: inherit;
+  background: transparent;
   cursor: pointer;
-  box-shadow: none;
-  transition:
-    background var(--transition-md),
-    border-color var(--transition-md),
-    color var(--transition-md),
-    box-shadow var(--transition-md);
+  transition: all var(--transition-md);
 }
 
 .btn:disabled {
@@ -472,22 +456,14 @@ body {
   font-size: calc(var(--fs-control) * var(--control-scale-sm));
   padding-block: calc(var(--control-pad-y) * var(--control-scale-sm));
   padding-inline: calc(var(--control-pad-x) * var(--control-scale-sm));
-  min-height: calc(
-    1em * var(--lh-control) +
-    2 * calc(var(--control-pad-y) * var(--control-scale-sm)) +
-    2 * var(--border-1)
-  );
+  min-height: calc(var(--control-min-height) * var(--control-scale-sm));
 }
 
 .btn--lg {
   font-size: calc(var(--fs-control) * 1.05);
   padding-block: calc(var(--control-pad-y) * var(--control-scale-lg));
   padding-inline: calc(var(--control-pad-x) * var(--control-scale-lg));
-  min-height: calc(
-    1em * var(--lh-control) +
-    2 * calc(var(--control-pad-y) * var(--control-scale-lg)) +
-    2 * var(--border-1)
-  );
+  min-height: calc(var(--control-min-height) * var(--control-scale-lg));
 }
 
 .btn--primary {
@@ -689,11 +665,11 @@ html[data-theme="light"] .btn--ghost:hover {
   position: absolute;
   top: calc(100% + 0.25rem);
   left: 0;
-  z-index: 20;
+  z-index: var(--z-dropdown);
 
   min-width: 11rem;
   padding: 0.25rem 0;
-  border-radius: var(--r-lg);
+  border-radius: var(--radius-lg);
   background: var(--panel);
   border: 1px solid var(--border-subtle);
   box-shadow: var(--shadow-md);
@@ -723,10 +699,10 @@ html[data-theme="light"] .btn--ghost:hover {
   width: 100%;
   font: inherit;
   color: var(--text);
+  padding: 0;
 }
 
-.table-search input,
-.input--control {
+.table-search__input {
   -webkit-appearance: none;
   appearance: none;
   font: inherit;
@@ -734,8 +710,7 @@ html[data-theme="light"] .btn--ghost:hover {
 }
 
 @supports (-webkit-touch-callout: none) {
-  .table-search input,
-  .input--control {
+  .table-search__input {
     font-size: 1rem;
   }
 }
@@ -772,7 +747,7 @@ input[type="search"]::-webkit-search-cancel-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--r);
+  border-radius: var(--radius);
   border: 0;
   background: transparent;
   cursor: pointer;
@@ -891,17 +866,15 @@ input[type="search"]::-webkit-search-cancel-button {
   margin: -0.25rem 0 0;
 }
 
-.input,
-.input--control {
+.input {
   font-size: var(--fs-control);
   line-height: var(--lh-control);
   padding-block: var(--control-pad-y);
   padding-inline: var(--control-pad-x);
-  min-height: calc(1em * var(--lh-control) + 2 * var(--control-pad-y) + 2 * var(--border-1));
+  min-height: var(--control-min-height);
   border: var(--border-1) solid var(--border-subtle);
   background: var(--panel);
   color: var(--text);
-  box-sizing: border-box;
   -webkit-appearance: none;
   appearance: none;
   transition:
@@ -945,7 +918,6 @@ input[type="search"]::-webkit-search-cancel-button {
   border: var(--border-1) solid var(--border-subtle);
   background: var(--panel);
   color: var(--text);
-  box-sizing: border-box;
   -webkit-appearance: none;
   appearance: none;
   resize: vertical;

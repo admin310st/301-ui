@@ -75,6 +75,11 @@
   --control-pad-y: 0.35em;
   --control-pad-x: 0.90em;
   --border-1: 1px;
+  --control-min-height: calc(
+    1em * var(--lh-control) +
+    2 * var(--control-pad-y) +
+    2 * var(--border-1)
+  );
 
   /* Radius & layout spacing */
   --r-pill: 999px;
@@ -108,29 +113,15 @@
   --control-scale-md: 1;
   --control-scale-lg: 1.1;
 
-  /* @deprecated (UI System 1.0)
-     These aliases belong to the old layout and will be removed after the
-     migration to unified spacing tokens. Migrate to --space-* and
-     --control-radius instead. Target: 2025-Q1. Owner: UI System. */
-  /* Aliases used across legacy/static pages */
-  --s-1: var(--space-2);
-  --s-2: var(--space-3);
-  --s-3: var(--space-4);
-  --s-4: var(--space-5);
-  --s-5: var(--space-6);
-
-  /* @deprecated (UI System 1.0)
-     Legacy radii preserved for compatibility. Prefer --control-radius and
-     --radius tokens. Target: 2025-Q1. Owner: UI System. */
-  --r: var(--radius);
-  --r-lg: var(--radius-lg);
-
   --radius-md: var(--radius);
 
   --radius-xs: 0.25rem;
   --radius: 0.5rem;
   --radius-lg: 0.75rem;
   --radius-xl: 1rem;
+
+  --border-width-thin: 1px;
+  --border-width-strong: 1px;
 
   --shadow-sm-light: 0 2px 8px rgba(0, 0, 0, 0.08);
   --shadow-md-light: 0 6px 18px rgba(0, 0, 0, 0.12);
@@ -154,6 +145,11 @@
 
   --transition-fast: 120ms ease-out;
   --transition-md: 160ms ease-out;
+
+  --z-dropdown: 20;
+  --z-sticky: 30;
+  --z-modal: 40;
+  --z-toast: 50;
 
   /* High-contrast text for buttons / chips on dark backgrounds */
   --btn-text-on-dark: #FFFFFF;
@@ -290,10 +286,6 @@
 }
 
 /* Глобальные мелочи */
-
-* {
-  box-sizing: border-box;
-}
 
 a {
   color: inherit;
