@@ -291,6 +291,26 @@
         font-weight: var(--fw-medium);
         color: var(--text-muted);
         border-bottom: 1px solid var(--border-strong);
+        white-space: nowrap;
+      }
+
+      .th-sort {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35em;
+        font: inherit;
+        color: inherit;
+        background: transparent;
+        border: 0;
+        padding: 0;
+        margin: 0;
+        line-height: 1;
+        cursor: pointer;
+      }
+
+      .th-sort .icon {
+        width: 1em;
+        height: 1em;
       }
 
       .table tbody tr {
@@ -323,19 +343,17 @@
       .table-controls {
         display: flex;
         flex-wrap: wrap;
-        align-items: stretch;
         gap: var(--inline-gap);
       }
 
-      @media (max-width: 768px) {
-        .table-controls {
-          flex-direction: column;
-          align-items: stretch;
-        }
+      .table-controls .table-search {
+        flex: 1 1 100%;
+        min-width: 0;
+      }
 
-        .table-controls > * {
-          width: 100%;
-        }
+      .table-controls .btn,
+      .table-controls .btn-chip {
+        flex: 0 0 auto;
       }
 
       .table-filter {
@@ -1342,24 +1360,21 @@
                 <table class="table table--domains">
                   <thead>
                     <tr>
-                      <th>Domain</th>
-                      <th>Project</th>
-                      <th class="th th--controls">
-                        <div class="th-controls row">
-                          <button class="btn-chip btn-chip--dropdown" aria-expanded="false" type="button">
-                            <span class="icon" data-icon="mono/filter"></span>
-                            Status: Active
-                            <span class="icon" data-icon="mono/chevron-down"></span>
-                          </button>
-
-                          <button class="btn-chip btn-chip--cf" type="button">
-                            <span class="icon" data-icon="brand/cloudflare"></span>
-                            Cloudflare
-                          </button>
-                        </div>
+                      <th scope="col">
+                        <button class="th-sort" aria-sort="none">
+                          Domain
+                          <span class="icon" data-icon="mono/arrow-up-down"></span>
+                        </button>
                       </th>
-                      <th>Provider</th>
-                      <th class="table__th-actions"></th>
+                      <th scope="col">
+                        <button class="th-sort" aria-sort="ascending">
+                          Project
+                          <span class="icon" data-icon="mono/chevron-up"></span>
+                        </button>
+                      </th>
+                      <th scope="col">Status / Expiry</th>
+                      <th scope="col">Provider</th>
+                      <th scope="col" class="table__th-actions"></th>
                     </tr>
                   </thead>
                   <tbody>
