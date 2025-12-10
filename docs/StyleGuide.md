@@ -704,10 +704,10 @@ Domains tables stay in a single row layout even on mobile; wrap the table in a h
 .table-filter { position: relative; }
 .btn-chip__icon, .btn-chip__chevron { display: inline-flex; align-items: center; justify-content: center; }
 .btn-chip__label { white-space: nowrap; }
-.table-search { flex: 1 1 16rem; min-width: 0; display: inline-flex; align-items: center; gap: 0.4em; font-size: var(--fs-control); line-height: var(--lh-control); padding-inline: var(--control-pad-x); padding-block: var(--control-pad-y); min-height: var(--control-min-height); border-radius: var(--control-radius); border: 1px solid var(--border-subtle); background: var(--panel); color: var(--text); }
-.table-search__input { flex: 1 1 auto; background: transparent; border: none; color: var(--text); font: inherit; width: 100%; outline: none; }
+.table-search { flex: 1 1 16rem; min-width: 0; background: var(--panel); color: var(--text); border-color: var(--border-subtle); }
+.table-search__input { flex: 1 1 auto; -webkit-appearance: none; appearance: none; font: inherit; line-height: inherit; background: transparent; border: none; color: var(--text); width: 100%; outline: none; padding: 0; }
 .table-search__input::placeholder { color: var(--muted); }
-.table-search__clear { display: none; background: transparent; border: none; padding: 0; align-items: center; justify-content: center; }
+.table-search__clear { display: none; background: transparent; border: none; padding: 0; align-items: center; justify-content: center; width: 1em; height: 1em; flex: 0 0 1em; }
 .table-search__clear .icon { color: var(--muted); }
 .table-search--active .table-search__clear { display: inline-flex; }
 .dropdown { position: relative; display: inline-block; }

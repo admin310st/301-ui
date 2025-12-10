@@ -381,28 +381,23 @@
       .table-search {
         flex: 1 1 16rem;
         min-width: 0;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.4em;
-        font-size: var(--fs-control);
-        line-height: var(--lh-control);
-        padding-inline: var(--control-pad-x);
-        padding-block: var(--control-pad-y);
-        min-height: calc(1em * var(--lh-control) + 2 * var(--control-pad-y));
-        border-radius: var(--control-radius);
-        border: 1px solid var(--border-subtle);
         background: var(--panel);
         color: var(--text);
+        border-color: var(--border-subtle);
       }
 
       .table-search__input {
         flex: 1 1 auto;
-        border: 0;
+        -webkit-appearance: none;
+        appearance: none;
+        font: inherit;
+        line-height: inherit;
         background: transparent;
+        border: 0;
         outline: none;
         width: 100%;
-        font: inherit;
         color: var(--text);
+        padding: 0;
       }
 
       .table-search__input::placeholder {
@@ -417,6 +412,9 @@
         align-items: center;
         justify-content: center;
         cursor: pointer;
+        width: 1em;
+        height: 1em;
+        flex: 0 0 1em;
       }
 
       .table-search--active .table-search__clear {
