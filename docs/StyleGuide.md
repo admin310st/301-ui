@@ -673,6 +673,19 @@ Used in dashboard stats, domain groups, Cloudflare status blocks.
 
 Domains tables stay in a single row layout even on mobile; wrap the table in a horizontal scroller and keep action menus inside dropdowns so the row stays compact. Above the table you can place a search bar, one or more dropdown filter chips, provider action chips and a primary button. The example shows a table search bar, a status dropdown chip, a Cloudflare action chip and a primary “Add domain” button — all sharing the unified control recipe.
 
+#### Header Controls (Chips-only)
+
+* Any interactive element inside `<th>` **must be a chip** (`.btn-chip`), or the shared **Table Search** component.
+* **Never** place full buttons (`.btn`) inside header cells. Primary/danger actions go to the toolbar above the table.
+* Dropdowns in headers use `.btn-chip.btn-chip--dropdown` (with caret).
+* Header controls follow the unified control recipe (font-driven size, identical height to other chips) and the Pill radius (`--r-pill`).
+* On small screens header controls may wrap to multiple lines; spacing uses `gap: var(--inline-gap)`.
+* Keep header height tight; chips do not alter header vertical paddings.
+
+**Do:** chips for “Status”, provider filter, compact toggles; search stays in the table toolbar.
+
+**Don’t:** primary “Add…” button in `<th>`; naked ghost/danger buttons in `<th>`.
+
 ```css
 .table { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); }
 .table thead { background: var(--bg-soft); }
