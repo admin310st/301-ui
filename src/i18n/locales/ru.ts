@@ -24,8 +24,8 @@ export const ru: Translation = {
   },
   auth: {
     hero: {
-      eyebrow: 'Боевой вход',
-      title: 'Доступ к 301.st',
+      eyebrow: 'Вход в систему',
+      title: 'Добро пожаловать! Войдите в аккаунт',
       subtitle: 'Используйте email и пароль или запросите восстановление.',
     },
     login: {
@@ -75,7 +75,7 @@ export const ru: Translation = {
     },
     reset: {
       title: 'Восстановление пароля',
-      requestButton: 'Отправить ссылку для восстановления',
+      requestButton: 'Отправить ссылку',
       requestAria: 'Запросить ссылку для восстановления пароля',
       statusDefault: 'Мы отправим ссылку для установки нового пароля.',
       linkToLogin: 'Вернуться к входу',

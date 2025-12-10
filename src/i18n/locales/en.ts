@@ -22,8 +22,8 @@ export const en = {
   },
   auth: {
     hero: {
-      eyebrow: 'Production login',
-      title: 'Access 301.st',
+      eyebrow: 'Welcome Back',
+      title: 'Your account awaits',
       subtitle: 'Use email and password to access your account or request a reset.',
     },
     login: {
