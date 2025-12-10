@@ -707,7 +707,7 @@ Domains tables stay in a single row layout even on mobile; wrap the table in a h
 .table--domains { min-width: 720px; }
 .table__th-actions, .table__cell-actions { width: 1%; white-space: nowrap; text-align: right; }
 .table-controls { display: flex; flex-wrap: wrap; gap: var(--inline-gap); }
-.table-controls .table-search { flex: 1 1 auto; min-width: 0; }
+.table-controls .table-search { flex: 1 1 0; min-width: 14rem; /* Keeps chips inline on mobile */ }
 .table-controls .btn, .table-controls .btn-chip { flex: 0 0 auto; }
 @media (min-width: 1024px) { .table-controls { flex-wrap: nowrap; } /* Desktop: one line */ }
 .table-filter { position: relative; }

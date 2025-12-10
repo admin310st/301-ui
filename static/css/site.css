@@ -705,8 +705,8 @@ html[data-theme="light"] .btn--ghost:hover {
 }
 
 .table-controls .table-search {
-  flex: 1 1 auto;
-  min-width: 0;
+  flex: 1 1 0;      /* Stretches but not greedy - keeps chips inline on mobile */
+  min-width: 14rem; /* ~224px - leaves room for 2-3 chips on modern phones */
 }
 
 .table-controls .btn,
