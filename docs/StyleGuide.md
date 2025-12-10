@@ -673,32 +673,27 @@ Used in dashboard stats, domain groups, Cloudflare status blocks.
 
 Domains tables stay in a single row layout even on mobile; wrap the table in a horizontal scroller and keep action menus inside dropdowns so the row stays compact. Above the table you can place a search bar, one or more dropdown filter chips, provider action chips and a primary button. The example shows a table search bar, a status dropdown chip, a Cloudflare action chip and a primary “Add domain” button — all sharing the unified control recipe.
 
-#### Header Controls (Chips-only)
+#### Headers
 
-* Any interactive element inside `<th>` **must be a chip** (`.btn-chip`), or the shared **Table Search** component.
-* **Never** place full buttons (`.btn`) inside header cells. Primary/danger actions go to the toolbar above the table.
-* Dropdowns in headers use `.btn-chip.btn-chip--dropdown` (with caret).
-* Header controls follow the unified control recipe (font-driven size, identical height to other chips) and the Pill radius (`--r-pill`).
-* On small screens header controls may wrap to multiple lines; spacing uses `gap: var(--inline-gap)`.
-* Keep header height tight; chips do not alter header vertical paddings.
-
-**Do:** chips for “Status”, provider filter, compact toggles; search stays in the table toolbar.
-
-**Don’t:** primary “Add…” button in `<th>`; naked ghost/danger buttons in `<th>`.
+**Header cells contain only sortable titles.** Place search, filters (chips), provider chips, and primary actions in the **table toolbar** above the table. Do not put chips or buttons inside `<th>`.
 
 ```css
 .table { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); }
 .table thead { background: var(--bg-soft); }
 .table th,
 .table td { padding: 0.6rem 0.75rem; text-align: left; }
-.table th { font-weight: var(--fw-medium); color: var(--text-muted); border-bottom: 1px solid var(--border-strong); }
+.table th { font-weight: var(--fw-medium); color: var(--text-muted); border-bottom: 1px solid var(--border-strong); white-space: nowrap; }
+.th-sort { display: inline-flex; align-items: center; gap: 0.35em; font: inherit; color: inherit; background: transparent; border: 0; padding: 0; margin: 0; line-height: 1; cursor: pointer; }
+.th-sort .icon { width: 1em; height: 1em; }
 .table tbody tr { border-bottom: 1px solid var(--border-subtle); }
 .table tbody tr:hover { background: rgba(255, 255, 255, 0.02); }
 
 .table-wrapper { overflow-x: auto; width: 100%; }
 .table--domains { min-width: 720px; }
 .table__th-actions, .table__cell-actions { width: 1%; white-space: nowrap; text-align: right; }
-.table-controls { display: flex; align-items: stretch; gap: var(--inline-gap); flex-wrap: wrap; }
+.table-controls { display: flex; flex-wrap: wrap; gap: var(--inline-gap); }
+.table-controls .table-search { flex: 1 1 100%; min-width: 0; }
+.table-controls .btn, .table-controls .btn-chip { flex: 0 0 auto; }
 .table-filter { position: relative; }
 .btn-chip__icon, .btn-chip__chevron { display: inline-flex; align-items: center; justify-content: center; }
 .btn-chip__label { white-space: nowrap; }
