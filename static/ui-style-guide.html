@@ -1252,7 +1252,7 @@
           </div>
 
           <div class="card stack" style="padding: var(--space-4);">
-            <div class="row table-controls">
+            <div class="controls-row table-controls">
               <div class="table-search" data-table-search>
                 <span class="icon" data-icon="mono/search"></span>
                 <input
@@ -1352,7 +1352,12 @@
                           <span class="icon" data-icon="mono/arrow-up-down"></span>
                         </button>
                       </th>
-                      <th scope="col">Status / Expiry</th>
+                      <th scope="col">
+                        <button class="th-sort" type="button" aria-sort="none">
+                          Status / Expiry
+                          <span class="icon" data-icon="mono/arrow-up-down"></span>
+                        </button>
+                      </th>
                       <th scope="col">
                         <button class="th-sort" type="button" aria-sort="none">
                           Provider
@@ -1613,31 +1618,42 @@
 
           <div class="code-block">
   &lt;div class=&quot;controls-row table-controls&quot;&gt;<br />
-&nbsp;&nbsp;&lt;div class=&quot;table-search&quot; data-table-search&gt;<br />
+  &nbsp;&nbsp;&lt;div class=&quot;table-search&quot; data-table-search&gt;<br />
   &nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/search&quot;&gt;&lt;/span&gt;<br />
   &nbsp;&nbsp;&nbsp;&nbsp;&lt;input class=&quot;table-search__input&quot; type=&quot;text&quot; placeholder=&quot;Search by domain, project or account…&quot; /&gt;<br />
   &nbsp;&nbsp;&nbsp;&nbsp;&lt;button class=&quot;table-search__clear&quot; type=&quot;button&quot; aria-label=&quot;Clear&quot;&gt;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/close&quot;&gt;&lt;/span&gt;&lt;/button&gt;<br />
   &nbsp;&nbsp;&lt;/div&gt;<br />
   &nbsp;&nbsp;&lt;div class=&quot;table-filter&quot; data-demo=&quot;status-filter&quot;&gt;<br />
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;button class=&quot;btn-chip btn-chip--dropdown&quot; type=&quot;button&quot; aria-expanded=&quot;false&quot;&gt;<br />
-  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/filter&quot;&gt;&lt;/span&gt;<br />
-  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Status: Active<br />
-  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/chevron-down&quot;&gt;&lt;/span&gt;<br />
-&nbsp;&nbsp;&nbsp;&nbsp;&lt;/button&gt;<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&lt;button class=&quot;btn-chip btn-chip--dropdown&quot; type=&quot;button&quot; aria-expanded=&quot;false&quot;&gt;<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;btn-chip__icon&quot; data-icon=&quot;mono/filter&quot;&gt;&lt;/span&gt;<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;btn-chip__label&quot;&gt;Status: Active&lt;/span&gt;<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;btn-chip__chevron&quot; data-icon=&quot;mono/chevron-down&quot;&gt;&lt;/span&gt;<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&lt;/button&gt;<br />
   &nbsp;&nbsp;&nbsp;&nbsp;&lt;div class=&quot;table-filter__menu&quot; hidden&gt;...filter menu...&lt;/div&gt;<br />
   &nbsp;&nbsp;&lt;/div&gt;<br />
   &nbsp;&nbsp;&lt;button class=&quot;btn-chip btn-chip--cf&quot; type=&quot;button&quot;&gt;<br />
-  &nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;icon&quot; data-icon=&quot;brand/cloudflare&quot;&gt;&lt;/span&gt;<br />
-  &nbsp;&nbsp;&nbsp;&nbsp;Cloudflare<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;btn-chip__icon&quot; data-icon=&quot;brand/cloudflare&quot;&gt;&lt;/span&gt;<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;btn-chip__label&quot;&gt;Cloudflare&lt;/span&gt;<br />
   &nbsp;&nbsp;&lt;/button&gt;<br />
-&nbsp;&nbsp;&lt;button class=&quot;btn btn--primary&quot; type=&quot;button&quot;&gt;<br />
+  &nbsp;&nbsp;&lt;button class=&quot;btn btn--primary&quot; type=&quot;button&quot;&gt;<br />
   &nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/plus&quot;&gt;&lt;/span&gt;<br />
   &nbsp;&nbsp;&nbsp;&nbsp;Add domain<br />
   &nbsp;&nbsp;&lt;/button&gt;<br />
   &lt;/div&gt;<br />
   &lt;div class=&quot;table-scroll&quot;&gt;<br />
-  &nbsp;&nbsp;&lt;table class=&quot;table table--domains&quot;&gt;...domains rows with dropdown actions...&lt;/table&gt;<br />
-  &lt;/div&gt;
+  &nbsp;&nbsp;&lt;table class=&quot;table table--domains&quot;&gt;<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&lt;thead&gt;<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;tr&gt;<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;th scope=&quot;col&quot;&gt;&lt;button class=&quot;th-sort&quot; aria-sort=&quot;none&quot;&gt;Domain &lt;span class=&quot;icon&quot; data-icon=&quot;mono/arrow-up-down&quot;&gt;&lt;/span&gt;&lt;/button&gt;&lt;/th&gt;<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;th scope=&quot;col&quot;&gt;&lt;button class=&quot;th-sort&quot; aria-sort=&quot;none&quot;&gt;Project &lt;span class=&quot;icon&quot; data-icon=&quot;mono/arrow-up-down&quot;&gt;&lt;/span&gt;&lt;/button&gt;&lt;/th&gt;<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;th scope=&quot;col&quot;&gt;&lt;button class=&quot;th-sort&quot; aria-sort=&quot;none&quot;&gt;Status / Expiry &lt;span class=&quot;icon&quot; data-icon=&quot;mono/arrow-up-down&quot;&gt;&lt;/span&gt;&lt;/button&gt;&lt;/th&gt;<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;th scope=&quot;col&quot;&gt;&lt;button class=&quot;th-sort&quot; aria-sort=&quot;none&quot;&gt;Provider &lt;span class=&quot;icon&quot; data-icon=&quot;mono/arrow-up-down&quot;&gt;&lt;/span&gt;&lt;/button&gt;&lt;/th&gt;<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;th scope=&quot;col&quot; class=&quot;table__th-actions&quot;&gt;&lt;/th&gt;<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/tr&gt;<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/thead&gt;<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;tbody&gt;...domains rows with dropdown actions...&lt;/tbody&gt;<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&lt;/table&gt;<br />
+  &nbsp;&nbsp;&lt;/div&gt;
           </div>
 
           <p class="text-muted">
