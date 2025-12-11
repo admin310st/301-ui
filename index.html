@@ -16,11 +16,11 @@
         <a class="brand" href="/" aria-label="Бренд 301.st">
           <img
             class="brand__logo"
-            src="/static/img/icons-src/brand/301.svg"
-            alt=""
-            aria-hidden="true"
+            src="/img/301-full.svg"
+            alt="301.st"
+            width="120"
+            height="48"
           />
-          <span class="brand__text">301.st</span>
         </a>
         <nav class="nav-links" data-onlogout data-i18n-aria="layout.nav.aria" aria-label="Authentication navigation">
           <a href="#login" data-route-link="login" data-i18n="layout.nav.login">Login</a>
@@ -601,12 +601,9 @@
       <div class="page-shell footer-grid">
         <div>
           <div class="brand" aria-label="Бренд 301.st">
-            <img
-              class="brand__logo"
-              src="/static/img/icons-src/brand/301.svg"
-              alt=""
-              aria-hidden="true"
-            />
+            <svg class="brand__logo" aria-hidden="true">
+              <use href="#i-brand-301"></use>
+            </svg>
             <span class="brand__text">301.st</span>
           </div>
           <p class="muted" data-i18n="layout.footer.description">Redirects and analytics.</p>
