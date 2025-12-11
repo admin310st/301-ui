@@ -46,6 +46,29 @@ async function injectIconSprite() {
   if (svg) document.body.prepend(svg);
 }
 
+/**
+ * Process all [data-icon] attributes and inject SVG <use> elements.
+ * Example: data-icon="mono/home" → <svg><use href="/icons-sprite.svg#i-mono-home"></use></svg>
+ */
+function processDataIconAttributes() {
+  document.querySelectorAll('[data-icon]').forEach((el) => {
+    const iconName = el.getAttribute('data-icon');
+    if (!iconName) return;
+
+    // Convert "mono/home" to "i-mono-home"
+    const symbolId = `i-${iconName.replace('/', '-')}`;
+
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('aria-hidden', 'true');
+
+    const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+    use.setAttribute('href', `/icons-sprite.svg#${symbolId}`);
+
+    svg.appendChild(use);
+    el.appendChild(svg);
+  });
+}
+
 
 function bindLogoutButtons(): void {
   document.addEventListener('click', async (event) => {
@@ -65,6 +88,7 @@ function bindLogoutButtons(): void {
 
 document.addEventListener('DOMContentLoaded', async () => {
   await injectIconSprite();
+  processDataIconAttributes();
 
   initTheme();
   applyTranslations();
