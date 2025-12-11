@@ -74,38 +74,69 @@
       </div>
     </header>
 
-    <main class="page-shell">
-      <header class="page-header">
-        <h1 class="h3">Dashboard</h1>
-        <p class="text-muted">Сводка и быстрые действия.</p>
-      </header>
+    <main class="page-shell app-shell">
+      <aside class="sidebar" id="app-sidebar">
+        <div class="sidebar__head">
+          <button class="btn-icon btn-icon--compact" type="button" aria-label="Collapse" data-sidebar-toggle>
+            <span class="icon" data-icon="mono/chevrons-left"></span>
+          </button>
+        </div>
 
-      <section class="grid-2" style="gap: var(--space-4)">
-        <aside class="card card--panel">
-          <header class="card__header">
-            <h3 class="h5">Текущий сетап</h3>
-          </header>
-          <div class="card__body">
-            <p class="text-sm text-muted">Статус: требуется добавить Bootstrap API token.</p>
-            <a class="btn btn--primary" href="/#/integrations/cloudflare">Настроить</a>
-          </div>
-        </aside>
+        <nav class="sidebar__nav">
+          <a class="navitem is-active" href="/dashboard.html">
+            <span class="icon" data-icon="mono/home"></span>
+            <span class="label">Overview</span>
+          </a>
 
-        <aside class="card card--panel">
-          <header class="card__header">
-            <h3 class="h5">Как работать с этим экраном</h3>
-          </header>
-          <div class="card__body">
-            <ol class="list--ruled">
-              <li>Завершите Cloudflare bootstrap: Account ID + Bootstrap API token.</li>
-              <li>Подключите домены: проверка статусов и SSL.</li>
-              <li>Включите защиту и кэш: правила WAF/Cache из пресетов.</li>
-            </ol>
-          </div>
-          <footer class="card__footer">
-            <a class="btn btn--ghost" href="#help">Открыть справку</a>
-          </footer>
-        </aside>
+          <div class="navgroup">Management</div>
+          <a class="navitem" href="#domains">
+            <span class="icon" data-icon="mono/globe"></span>
+            <span class="label">Domains</span>
+          </a>
+          <a class="navitem" href="#security">
+            <span class="icon" data-icon="mono/shield"></span>
+            <span class="label">Security</span>
+          </a>
+          <a class="navitem" href="#caching">
+            <span class="icon" data-icon="mono/rocket"></span>
+            <span class="label">Caching</span>
+          </a>
+
+          <div class="sidebar__spacer"></div>
+
+          <a class="navitem" href="#settings">
+            <span class="icon" data-icon="mono/settings"></span>
+            <span class="label">Settings</span>
+          </a>
+        </nav>
+      </aside>
+
+      <section class="content">
+        <header class="page-header">
+          <h1 class="h3">Dashboard</h1>
+          <p class="text-muted">Сводка и быстрые действия.</p>
+        </header>
+
+        <section class="grid-2" style="gap: var(--space-4)">
+          <aside class="card card--panel">
+            <header class="card__header"><h3 class="h5">Текущий сетап</h3></header>
+            <div class="card__body">
+              <p class="text-sm text-muted">Статус: требуется добавить Bootstrap API token.</p>
+              <a class="btn btn--primary" href="/#/integrations/cloudflare">Настроить</a>
+            </div>
+          </aside>
+
+          <aside class="card card--panel">
+            <header class="card__header"><h3 class="h5">Как работать с экраном</h3></header>
+            <div class="card__body">
+              <ol class="list--ruled">
+                <li>Завершите Cloudflare bootstrap.</li>
+                <li>Подключите домены и включите мониторинг.</li>
+                <li>Активируйте правила WAF/Cache из пресетов.</li>
+              </ol>
+            </div>
+          </aside>
+        </section>
       </section>
     </main>
 

@@ -1728,3 +1728,111 @@ html[data-theme="light"] .btn--social-github {
   flex-wrap: wrap;
   gap: var(--inline-gap);
 }
+
+:root {
+  --aside-w: 280px;
+  --aside-w-collapsed: 72px;
+  /* Высота шапки + utility, под корректную «липкость» */
+  --shell-top: 96px;
+}
+
+/* Контейнер страницы с сайдбаром */
+.app-shell {
+  display: grid;
+  grid-template-columns: var(--aside-w) 1fr;
+  gap: var(--space-4);
+  align-items: start;
+}
+
+/* Сайдбар */
+.sidebar {
+  position: sticky;
+  top: var(--shell-top);
+  height: calc(100dvh - var(--shell-top));
+  background: var(--panel);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-lg);
+  padding: var(--space-2);
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.sidebar.is-collapsed {
+  width: var(--aside-w-collapsed);
+}
+
+/* Верхняя зона сайдбара */
+.sidebar__head {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: var(--space-2);
+}
+
+/* Навигация */
+.sidebar__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.sidebar .navgroup {
+  margin: var(--space-3) var(--space-2) var(--space-1);
+  color: var(--muted);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.sidebar .navitem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  border-radius: var(--r);
+  padding: var(--space-2) var(--space-3);
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.sidebar .navitem .icon {
+  color: currentColor;
+  flex: 0 0 1.25em;
+  width: 1.25em;
+  height: 1.25em;
+}
+
+.sidebar .navitem:hover,
+.sidebar .navitem.is-active {
+  background: var(--bg-soft);
+  color: var(--text);
+}
+
+.sidebar__spacer {
+  flex: 1 1 auto;
+}
+
+/* Сворачивание — скрываем подписи, оставляем иконки */
+.sidebar.is-collapsed .label {
+  display: none;
+}
+
+/* Контент */
+.content {
+  min-width: 0;
+}
+
+/* Адаптив: на мобильном сайдбар сверху «простынёй» (без оверлея) */
+@media (max-width: 1024px) {
+  .app-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    position: static;
+    height: auto;
+    order: -1; /* сайдбар уедет над контентом */
+  }
+}

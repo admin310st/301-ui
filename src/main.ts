@@ -70,6 +70,29 @@ function processDataIconAttributes() {
   });
 }
 
+function initSidebarToggle(): void {
+  const LS_KEY = 'ui.sidebar.collapsed';
+  const aside = document.getElementById('app-sidebar');
+  const btn = document.querySelector('[data-sidebar-toggle]');
+  if (!aside || !btn) return;
+
+  const apply = () => {
+    const collapsed = localStorage.getItem(LS_KEY) === '1';
+    aside.classList.toggle('is-collapsed', collapsed);
+    btn
+      .querySelector('.icon')
+      ?.setAttribute('data-icon', collapsed ? 'mono/chevrons-right' : 'mono/chevrons-left');
+  };
+
+  btn.addEventListener('click', () => {
+    const next = localStorage.getItem(LS_KEY) === '1' ? '0' : '1';
+    localStorage.setItem(LS_KEY, next);
+    apply();
+  });
+
+  apply();
+}
+
 
 function bindLogoutButtons(): void {
   document.addEventListener('click', async (event) => {
@@ -114,4 +137,5 @@ document.addEventListener('DOMContentLoaded', async () => {
   initThemeToggle();
   initPasswordToggles();
   initUtilityBarScroll();
+  initSidebarToggle();
 });
