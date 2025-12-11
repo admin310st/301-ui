@@ -2,6 +2,14 @@ import type { AuthState } from '@state/auth-state';
 import { onAuthChange } from '@state/auth-state';
 import { qsa } from './dom';
 
+// safe default on first paint
+document.querySelectorAll('[data-onlogin]').forEach((node) => {
+  (node as HTMLElement).hidden = true;
+});
+document.querySelectorAll('[data-onlogout]').forEach((node) => {
+  (node as HTMLElement).hidden = false;
+});
+
 function applyAuthDom(state: AuthState): void {
   const loggedIn = Boolean(state?.user);
   const email = state?.user?.email || '';
