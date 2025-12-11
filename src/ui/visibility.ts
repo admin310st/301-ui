@@ -1,5 +1,5 @@
 import type { AuthState } from '@state/auth-state';
-import { onAuthChange } from '@state/auth-state';
+import { getAuthState, onAuthChange } from '@state/auth-state';
 import { qsa } from './dom';
 
 // safe default on first paint
@@ -40,6 +40,7 @@ function applyAuthDom(state: AuthState): void {
 }
 
 export function initVisibilityController(): void {
+  applyAuthDom(getAuthState());
   onAuthChange((state) => {
     applyAuthDom(state);
   });

@@ -11,6 +11,10 @@ body {
   font-family: var(--font-sans);
 }
 
+[hidden] {
+  display: none !important;
+}
+
 .icon {
   width: 1em;
   height: 1em;
