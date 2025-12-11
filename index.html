@@ -59,20 +59,7 @@
           </div>
 
           <div class="utility-right">
-            <a class="btn btn--ghost" href="/ui-style-guide.html#components" aria-label="Help" data-i18n="layout.nav.help">Help</a>
-
-            <button
-              class="btn-chip btn-chip--dropdown"
-              type="button"
-              aria-expanded="false"
-              aria-label="Switch organization or project"
-              data-onlogin
-              hidden
-            >
-              <span class="btn-chip__icon" data-icon="mono/briefcase"></span>
-              <span class="btn-chip__label">Blue Team</span>
-              <span class="btn-chip__chevron" data-icon="mono/chevron-down"></span>
-            </button>
+            <a class="btn btn--ghost" href="#help" aria-label="Help" data-i18n="layout.nav.help">Help</a>
 
             <button class="btn-icon btn-icon--compact" type="button" aria-label="Notifications" data-onlogin hidden>
               <span class="icon" data-icon="mono/bell"></span>
@@ -546,72 +533,96 @@
               </div>
             </section>
 
-            <aside class="side-card">
-              <h3 class="h2" data-i18n="cf.wizard.title">Cloudflare account bootstrap</h3>
-              <p class="text-muted" data-i18n="cf.wizard.subtitle">
-                Step 1 · Paste your Account ID and Bootstrap API token.
-              </p>
-
-              <div class="avatar-preview">
-                <div class="avatar-ring avatar-ring--cloudflare">
-                  <svg class="avatar-icon" aria-hidden="true" focusable="false">
-                    <use href="#i-brand-cloudflare"></use>
-                  </svg>
-                  <span class="sr-only">Cloudflare</span>
+            <section class="stack" style="gap: var(--space-3)">
+              <aside class="card card--panel" data-onlogout hidden id="promo-card">
+                <header class="card__header">
+                  <h3 class="h5">Что вы получите после входа</h3>
+                </header>
+                <div class="card__body">
+                  <ul class="list--spaced">
+                    <li><span class="icon" data-icon="mono/shield"></span> Быстрый Cloudflare bootstrap</li>
+                    <li><span class="icon" data-icon="mono/cpu"></span> Готовые правила безопасности/кэша</li>
+                    <li><span class="icon" data-icon="mono/chart"></span> Мониторинг доменов и позиций</li>
+                  </ul>
                 </div>
-                <p class="avatar-meta" data-i18n="cf.wizard.avatarMeta">
-                  Orange actions below are reserved for Cloudflare-level changes.
-                </p>
-              </div>
-
-              <form data-form="cf-bootstrap">
-                <div class="field">
-                  <label class="field-label" data-i18n="cf.wizard.accountIdLabel">Cloudflare Account ID</label>
-                  <input
-                    class="input"
-                    type="text"
-                    name="cf_account_id"
-                    autocomplete="off"
-                    data-i18n-placeholder="cf.wizard.accountIdPlaceholder"
-                    placeholder="e.g. 1234567890abcdef1234567890abcdef"
-                    required
-                    aria-describedby="cf-status"
-                  />
-                </div>
-
-                <div class="field">
-                  <label class="field-label" data-i18n="cf.wizard.tokenLabel">Bootstrap API token</label>
-                  <textarea
-                    class="textarea"
-                    name="cf_bootstrap_token"
-                    rows="4"
-                    data-i18n-placeholder="cf.wizard.tokenPlaceholder"
-                    placeholder="Paste token with 'Account API Tokens: Edit' scope…"
-                    required
-                    aria-describedby="cf-token-hint cf-status"
-                  ></textarea>
-                  <p class="field-help text-muted" id="cf-token-hint" data-i18n="cf.wizard.tokenHint">
-                    Created as <code>301st Bootstrap</code> with <em>Account API Tokens: Edit</em> permission.
-                  </p>
-                </div>
-
-                <div class="auth-actions">
-                  <button
-                    type="submit"
-                    class="btn btn--cf"
-                    data-i18n="cf.wizard.submit"
-                    data-i18n-aria="cf.wizard.submitAria"
-                    aria-label="Save and verify Cloudflare token"
-                  >
-                    Save &amp; verify token
+                <footer class="card__footer stack" style="gap: var(--space-2)">
+                  <a class="btn btn--primary" href="#register">Создать аккаунт</a>
+                  <button class="btn btn--ghost" type="button" data-action="oauth-google">
+                    <span class="icon" data-icon="brand/google"></span> Continue with Google
                   </button>
-                </div>
+                </footer>
+              </aside>
 
-                <div class="auth-status" data-type="pending" data-form-status="cf-bootstrap" id="cf-status" data-i18n="cf.wizard.statusStub" role="status" aria-live="polite">
-                  This will hit <code>/auth/integrations/cloudflare/bootstrap</code> once wired.
+              <aside class="card card--panel" data-onlogin hidden id="setup-card">
+                <header class="card__header">
+                  <h3 class="h5" data-i18n="cf.wizard.title">Cloudflare account bootstrap</h3>
+                  <p class="text-muted" data-i18n="cf.wizard.subtitle">
+                    Step 1 · Paste your Account ID and Bootstrap API token.
+                  </p>
+                </header>
+                <div class="card__body stack" style="gap: var(--space-3)">
+                  <div class="avatar-preview">
+                    <div class="avatar-ring avatar-ring--cloudflare">
+                      <svg class="avatar-icon" aria-hidden="true" focusable="false">
+                        <use href="#i-brand-cloudflare"></use>
+                      </svg>
+                      <span class="sr-only">Cloudflare</span>
+                    </div>
+                    <p class="avatar-meta" data-i18n="cf.wizard.avatarMeta">
+                      Orange actions below are reserved for Cloudflare-level changes.
+                    </p>
+                  </div>
+
+                  <form data-form="cf-bootstrap">
+                    <div class="field">
+                      <label class="field-label" data-i18n="cf.wizard.accountIdLabel">Cloudflare Account ID</label>
+                      <input
+                        class="input"
+                        type="text"
+                        name="cf_account_id"
+                        autocomplete="off"
+                        data-i18n-placeholder="cf.wizard.accountIdPlaceholder"
+                        placeholder="e.g. 1234567890abcdef1234567890abcdef"
+                        required
+                        aria-describedby="cf-status"
+                      />
+                    </div>
+
+                    <div class="field">
+                      <label class="field-label" data-i18n="cf.wizard.tokenLabel">Bootstrap API token</label>
+                      <textarea
+                        class="textarea"
+                        name="cf_bootstrap_token"
+                        rows="4"
+                        data-i18n-placeholder="cf.wizard.tokenPlaceholder"
+                        placeholder="Paste token with 'Account API Tokens: Edit' scope…"
+                        required
+                        aria-describedby="cf-token-hint cf-status"
+                      ></textarea>
+                      <p class="field-help text-muted" id="cf-token-hint" data-i18n="cf.wizard.tokenHint">
+                        Created as <code>301st Bootstrap</code> with <em>Account API Tokens: Edit</em> permission.
+                      </p>
+                    </div>
+
+                    <div class="auth-actions">
+                      <button
+                        type="submit"
+                        class="btn btn--cf"
+                        data-i18n="cf.wizard.submit"
+                        data-i18n-aria="cf.wizard.submitAria"
+                        aria-label="Save and verify Cloudflare token"
+                      >
+                        Save &amp; verify token
+                      </button>
+                    </div>
+
+                    <div class="auth-status" data-type="pending" data-form-status="cf-bootstrap" id="cf-status" data-i18n="cf.wizard.statusStub" role="status" aria-live="polite">
+                      This will hit <code>/auth/integrations/cloudflare/bootstrap</code> once wired.
+                    </div>
+                  </form>
                 </div>
-              </form>
-            </aside>
+              </aside>
+            </section>
           </div>
         </div>
       </section>

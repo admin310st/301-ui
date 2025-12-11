@@ -2,6 +2,16 @@ import type { AuthState } from '@state/auth-state';
 import { getAuthState, onAuthChange } from '@state/auth-state';
 import { qsa } from './dom';
 
+function goToDashboard(): void {
+  const DASH = '/dashboard.html';
+  const isLoginPage =
+    /(^|\/)(index\.html)?$/.test(location.pathname) ||
+    location.pathname.endsWith('/login') ||
+    Boolean(location.hash.match(/^#(login|register|reset)/));
+
+  if (isLoginPage) location.assign(DASH);
+}
+
 // safe default on first paint
 document.querySelectorAll('[data-onlogin]').forEach((node) => {
   (node as HTMLElement).hidden = true;
@@ -37,6 +47,8 @@ function applyAuthDom(state: AuthState): void {
   qsa<HTMLElement>('[data-user-role]').forEach((node) => {
     node.textContent = role;
   });
+
+  if (loggedIn) goToDashboard();
 }
 
 export function initVisibilityController(): void {
