@@ -952,3 +952,10 @@ Header (`.site-header`) uses a blurred background with a thin border. Primary na
 * Classes: `.btn-ghost` / `.btn-danger` → `.btn.btn--ghost` / `.btn.btn--danger`.
 * Controls: table toolbars reuse the exact Table Search Bar markup (search + clear button). No forks per page.
 * Demos: any change to tokens/components requires rebuilding all demo pages in the same PR.
+
+## Pre-/Post-login layout
+
+- **Login page**: слева форма, справа `promo-card` (`data-onlogout`) → после входа `setup-card` (`data-onlogin`).
+- **Dashboard**: двухколоночная сетка — «Текущий сетап» + «Помощь по экрану».
+- Управление видимостью только через `hidden` на `[data-onlogin]/[data-onlogout]` + инициализация в JS.
+- Кнопки/чипы и иконки в шапке наследуют `currentColor` для поддержки dark/light.
