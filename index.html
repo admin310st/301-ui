@@ -11,22 +11,59 @@
     <link rel="stylesheet" href="/css/site.css" />
   </head>
   <body>
-    <header class="site-header">
-      <div class="page-shell">
-        <div class="page-header">
-          <a class="brand" href="/" aria-label="301.st">
-            <img src="/img/301-full.svg" alt="301.st" width="90" height="36" />
-          </a>
-          <nav class="nav-links" data-onlogout data-i18n-aria="layout.nav.aria" aria-label="Authentication navigation">
-            <a href="#login" data-route-link="login" data-i18n="layout.nav.login">Login</a>
-            <a href="#register" data-route-link="register" data-i18n="layout.nav.register">Register</a>
-            <a href="#reset" data-route-link="reset" data-i18n="layout.nav.reset">Forgot password?</a>
-          </nav>
-          <div class="nav-links" data-onlogin hidden>
-            <span data-user-email></span>
-            <button class="btn btn--ghost" data-action="logout" data-i18n="layout.nav.logout" aria-label="Log out">
-              Log out
+    <header class="site-header" role="banner">
+      <div class="page-shell site-header__inner">
+        <a class="brand" href="/">301.st</a>
+
+        <nav class="primary-nav" aria-label="Primary">
+          <a href="/">Home</a>
+          <a href="/static/ui-style-guide.html">UI style guide</a>
+        </nav>
+
+        <div class="header-actions">
+          <button class="btn-icon lang" aria-label="Language">EN</button>
+          <button class="btn-icon theme" aria-label="Toggle theme" data-theme-toggle>
+            <span class="icon" data-icon="mono/sun"></span>
+          </button>
+        </div>
+      </div>
+
+      <div class="utility-bar">
+        <div class="page-shell utility-bar__inner">
+          <div class="utility-left">
+            <nav class="breadcrumbs" aria-label="Breadcrumb">
+              <a href="/" class="crumb"><span class="icon" data-icon="mono/home"></span> Home</a>
+              <span class="sep" aria-hidden="true">›</span>
+              <span class="crumb is-current">Login</span>
+            </nav>
+
+            <span class="badge env"><span class="icon" data-icon="mono/layers"></span> Demo</span>
+          </div>
+
+          <div class="utility-right">
+            <button class="btn-chip btn-chip--dropdown" type="button" aria-expanded="false" aria-label="Switch organization or project">
+              <span class="btn-chip__icon" data-icon="mono/briefcase"></span>
+              <span class="btn-chip__label">Blue Team</span>
+              <span class="btn-chip__chevron" data-icon="mono/chevron-down"></span>
             </button>
+
+            <button class="btn-chip btn-chip--input" type="button" aria-label="User account">
+              <span class="btn-chip__icon" data-icon="mono/user"></span>
+              <span class="btn-chip__label">Guest</span>
+            </button>
+
+            <button class="btn-icon" aria-label="Notifications">
+              <span class="icon" data-icon="mono/bell"></span>
+              <span class="dot" aria-hidden="true"></span>
+            </button>
+
+            <a class="btn btn--ghost" href="/static/ui-style-guide.html#components" aria-label="Help">
+              <span class="icon" data-icon="mono/help-circle"></span> Help
+            </a>
+
+            <a class="btn btn--ghost" href="/?logout=1">
+              <span class="icon" data-icon="mono/log-out"></span> Log out
+            </a>
           </div>
         </div>
       </div>
@@ -73,39 +110,6 @@
             <p class="auth-subtitle" data-i18n="auth.hero.subtitle">
               Use email and password to access your account or request a reset.
             </p>
-          </div>
-          <div class="controls-row" aria-label="Quick actions">
-            <nav
-              class="btn-chip-group lang-switcher"
-              aria-label="Language selection"
-              data-i18n-aria="layout.langSwitcher.label"
-            >
-              <button
-                type="button"
-                class="btn-chip is-active"
-                data-lang="en"
-                data-i18n="layout.langSwitcher.en"
-                data-i18n-aria="layout.langSwitcher.label"
-              >
-                EN
-              </button>
-              <button
-                type="button"
-                class="btn-chip"
-                data-lang="ru"
-                data-i18n="layout.langSwitcher.ru"
-                data-i18n-aria="layout.langSwitcher.label"
-              >
-                RU
-              </button>
-            </nav>
-            <button type="button" class="btn btn--ghost btn--sm theme-toggle" data-theme-toggle>
-              <svg class="icon" aria-hidden="true">
-                <use href="#i-mono-theme-light-dark"></use>
-              </svg>
-              <span class="sr-only" data-theme-icon="dark">Switch to light theme</span>
-              <span class="sr-only" data-theme-icon="light" hidden>Switch to dark theme</span>
-            </button>
           </div>
         </header>
         <section data-route="auth" id="auth">
