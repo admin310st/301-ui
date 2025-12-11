@@ -183,13 +183,23 @@ function updateGravatar(email: string, img: HTMLImageElement | null): void {
   if (!img) return;
 
   const normalized = email.toLowerCase().trim();
+  const fallbackSrc = '/static/img/shield-account-avatar.svg';
+
   if (!normalized) {
-    img.src = '/static/img/anonymous-avatar.svg';
+    img.src = fallbackSrc;
     return;
   }
 
   const hash = md5(normalized);
-  img.src = `https://www.gravatar.com/avatar/${hash}?d=mp&s=200`;
+  const gravatarUrl = `https://www.gravatar.com/avatar/${hash}?d=404&s=200`;
+
+  // Try to load Gravatar, fallback to shield-account on error
+  img.onerror = () => {
+    img.onerror = null; // Prevent infinite loop
+    img.src = fallbackSrc;
+  };
+
+  img.src = gravatarUrl;
 }
 
 function bindAvatarPreview(form: HTMLFormElement): void {
