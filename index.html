@@ -121,6 +121,36 @@
             </p>
           </div>
         </header>
+
+        <section class="stack" style="gap: var(--space-2); margin-bottom: var(--space-3)" data-onlogout>
+          <div class="chips-row" style="display: flex; flex-wrap: wrap; gap: var(--space-2)">
+            <span class="btn-chip" aria-hidden="true">
+              <span class="icon" data-icon="brand/cloudflare"></span>
+              <span class="btn-chip__label">Cloudflare-native</span>
+            </span>
+            <span class="btn-chip" aria-hidden="true">
+              <span class="icon" data-icon="mono/sync"></span>
+              <span class="btn-chip__label">1-Click Bootstrap</span>
+            </span>
+            <span class="btn-chip" aria-hidden="true">
+              <span class="icon" data-icon="mono/shield-account"></span>
+              <span class="btn-chip__label">WAF/Rate-limit пресеты</span>
+            </span>
+            <span class="btn-chip" aria-hidden="true">
+              <span class="icon" data-icon="mono/layers"></span>
+              <span class="btn-chip__label">Tiered Cache / Early Hints</span>
+            </span>
+            <span class="btn-chip" aria-hidden="true">
+              <span class="icon" data-icon="mono/web-sync"></span>
+              <span class="btn-chip__label">Edge-редиректы &amp; TDS</span>
+            </span>
+            <span class="btn-chip" aria-hidden="true">
+              <span class="icon" data-icon="mono/briefcase"></span>
+              <span class="btn-chip__label">Мульти-аккаунт / батчи</span>
+            </span>
+          </div>
+        </section>
+
         <section data-route="auth" id="auth">
           <div class="auth-shell">
             <div class="auth-grid">
@@ -534,15 +564,17 @@
             </section>
 
             <section class="stack" style="gap: var(--space-3)">
-              <aside class="card card--panel" data-onlogout hidden id="promo-card">
+              <aside class="card card--panel" data-onlogout id="promo-card">
                 <header class="card__header">
-                  <h3 class="h5">Что вы получите после входа</h3>
+                  <h3 class="h5">301.st — быстрый старт на edge</h3>
+                  <p class="text-sm text-muted">Привяжите Cloudflare и включите защиту, кэш и редиректы за минуты.</p>
                 </header>
                 <div class="card__body">
                   <ul class="list--spaced">
-                    <li><span class="icon" data-icon="mono/shield"></span> Быстрый Cloudflare bootstrap</li>
-                    <li><span class="icon" data-icon="mono/cpu"></span> Готовые правила безопасности/кэша</li>
-                    <li><span class="icon" data-icon="mono/chart"></span> Мониторинг доменов и позиций</li>
+                    <li><span class="icon" data-icon="mono/sync"></span> 1-Click Bootstrap аккаунта Cloudflare</li>
+                    <li><span class="icon" data-icon="mono/shield-account"></span> Пресеты WAF/Rate Limit/Cache по лучшим практикам</li>
+                    <li><span class="icon" data-icon="mono/web-sync"></span> Edge-редиректы и TDS с A/B и гео-таргетом</li>
+                    <li><span class="icon" data-icon="mono/briefcase"></span> Мульти-аккаунт, массовые операции по зонам</li>
                   </ul>
                 </div>
                 <footer class="card__footer stack" style="gap: var(--space-2)">
@@ -553,6 +585,16 @@
                 </footer>
               </aside>
 
+              <section class="card card--panel" data-onlogout>
+                <header class="card__header"><h3 class="h6">Как это работает</h3></header>
+                <div class="card__body">
+                  <ol class="list--ruled">
+                    <li>Подключите Cloudflare (Account ID + Bootstrap API Token).</li>
+                    <li>Импортируйте зоны и примените пресеты защиты и кэша.</li>
+                    <li>Запустите редиректы/TDS и мониторинг доменов.</li>
+                  </ol>
+                </div>
+              </section>
             </section>
           </div>
         </div>
