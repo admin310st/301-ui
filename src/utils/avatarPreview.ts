@@ -150,8 +150,9 @@ function updateAvatar(email: string, container: HTMLElement | null): void {
   const normalized = email.toLowerCase().trim();
 
   // Empty email → show anonymous (img)
+  // Note: publicDir:'static' in vite.config.ts → static/img maps to /img in prod
   if (!normalized) {
-    container.innerHTML = `<img class="avatar-icon" src="/static/img/anonymous-avatar.svg" alt="" aria-hidden="true" />`;
+    container.innerHTML = `<img class="avatar-icon" src="/img/anonymous-avatar.svg" alt="" aria-hidden="true" />`;
     return;
   }
 
