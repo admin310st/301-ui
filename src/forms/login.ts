@@ -183,17 +183,20 @@ function updateGravatar(email: string, img: HTMLImageElement | null): void {
   if (!img) return;
 
   const normalized = email.toLowerCase().trim();
+  const anonymousSrc = '/static/img/anonymous-avatar.svg';
   const fallbackSrc = '/static/img/shield-account-avatar.svg';
 
+  // Empty email → show anonymous
   if (!normalized) {
-    img.src = fallbackSrc;
+    img.onerror = null;
+    img.src = anonymousSrc;
     return;
   }
 
+  // Email entered → try Gravatar, fallback to shield-account
   const hash = md5(normalized);
   const gravatarUrl = `https://www.gravatar.com/avatar/${hash}?d=404&s=200`;
 
-  // Try to load Gravatar, fallback to shield-account on error
   img.onerror = () => {
     img.onerror = null; // Prevent infinite loop
     img.src = fallbackSrc;
