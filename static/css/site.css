@@ -288,6 +288,9 @@ body {
   align-items: center;
   gap: var(--inline-gap);
   padding-block: var(--space-2);
+  position: relative;
+  z-index: 2;
+  background: var(--bg);
 }
 
 .primary-nav {
