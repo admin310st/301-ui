@@ -544,10 +544,16 @@ Headings and helpers:
 .h1 { font-size: var(--fs-2xl); font-weight: var(--fw-semibold); letter-spacing: -0.02em; }
 .h2 { font-size: var(--fs-xl); font-weight: var(--fw-semibold); }
 .text-muted { color: var(--text-muted); font-size: var(--fs-sm); }
-.eyebrow { text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-subtle); font-weight: var(--fw-semibold); font-size: 0.85rem; }
+.eyebrow { /* Deprecated: use .badge in breadcrumbs instead */ }
 ```
 
 Use `.h1` for page titles in the member area and auth hero, `.h2` for section titles. Prefer `.stack-*` utilities instead of ad-hoc margins.
+
+**Page status indicators:** Use `.badge` in breadcrumbs instead of `.eyebrow` in page header. Available variants:
+- `badge--success` for Production
+- `badge--brand` for Beta/Preview
+- `badge--neutral` for Demo/Staging
+- `badge--danger` for Deprecated/Warning
 
 ---
 
