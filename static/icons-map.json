@@ -2,6 +2,8 @@
   "mono": [
     "alert",
     "arrow-up-down",
+    "bell",
+    "briefcase",
     "check-status",
     "chevron-down",
     "chevron-up",
@@ -14,7 +16,11 @@
     "dots-vertical",
     "eye",
     "filter",
+    "help-circle",
+    "home",
     "info",
+    "layers",
+    "log-out",
     "logs",
     "pause",
     "pencil-circle",
@@ -26,8 +32,10 @@
     "shield-account",
     "staging",
     "success",
+    "sun",
     "sync",
     "theme-light-dark",
+    "user",
     "web-sync"
   ],
   "brand": [
