@@ -383,7 +383,6 @@ body {
   background: var(--panel);
   border-bottom: 1px solid var(--border-subtle);
   position: relative;
-  z-index: 1;
   transition: transform 0.3s ease;
   transform: translateY(0);
 }
