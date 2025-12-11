@@ -6,6 +6,7 @@ import { setFormState } from '@ui/dom';
 import { showGlobalMessage } from '@ui/notifications';
 import type { ApiError } from '@utils/errors';
 import { validatePasswordStrength } from '@utils/password';
+import { bindAvatarPreview } from '@utils/avatarPreview';
 
 function extractError(error: unknown): string {
   const apiError = error as ApiError<CommonErrorResponse>;
@@ -82,5 +83,6 @@ export function initRegisterForm(): void {
     if (form.dataset.bound === 'true') return;
     form.dataset.bound = 'true';
     form.addEventListener('submit', handleRegisterSubmit);
+    bindAvatarPreview(form);
   });
 }

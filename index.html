@@ -260,9 +260,18 @@
 
                 <section class="auth-view" data-auth-view="register" hidden aria-hidden="true">
                   <form data-form="register" class="auth-form">
+                    <div class="avatar-preview">
+                      <div class="avatar-ring" data-avatar-container>
+                        <img class="avatar-icon" src="/static/img/anonymous-avatar.svg" alt="" aria-hidden="true" />
+                      </div>
+                      <p class="avatar-meta" data-avatar-label data-i18n="auth.login.avatarPlaceholder">
+                        Enter email
+                      </p>
+                    </div>
+
                     <div class="field">
                       <label class="field-label" for="register-email" data-i18n="auth.login.emailLabel">Email</label>
-                      <input class="input" id="register-email" name="email" type="email" autocomplete="email" required aria-describedby="register-status" />
+                      <input class="input" id="register-email" name="email" type="email" autocomplete="email" required aria-describedby="register-status" data-avatar-source />
                     </div>
                     <div class="field">
                       <label class="field-label" for="register-password" data-i18n="auth.login.passwordLabel">Password</label>
@@ -322,6 +331,15 @@
                 <section class="auth-view" data-auth-view="reset" hidden aria-hidden="true">
                   <div data-reset-mode="request">
                     <form data-form="reset-request" class="auth-form">
+                      <div class="avatar-preview">
+                        <div class="avatar-ring" data-avatar-container>
+                          <img class="avatar-icon" src="/static/img/anonymous-avatar.svg" alt="" aria-hidden="true" />
+                        </div>
+                        <p class="avatar-meta" data-avatar-label data-i18n="auth.login.avatarPlaceholder">
+                          Enter email
+                        </p>
+                      </div>
+
                       <div class="field">
                         <label class="field-label" for="reset-email" data-i18n="auth.login.emailLabel">Email</label>
                         <input
@@ -332,6 +350,7 @@
                           autocomplete="email"
                           required
                           aria-describedby="reset-status"
+                          data-avatar-source
                         />
                       </div>
 

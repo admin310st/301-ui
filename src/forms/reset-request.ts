@@ -5,6 +5,7 @@ import { requireTurnstileToken, resetTurnstile } from '../turnstile';
 import { setFormState } from '@ui/dom';
 import { showGlobalMessage } from '@ui/notifications';
 import type { ApiError } from '@utils/errors';
+import { bindAvatarPreview } from '@utils/avatarPreview';
 
 const PROVIDER_LABELS: Record<string, string> = {
   google: 'Google',
@@ -96,5 +97,6 @@ export function initResetRequestForm(): void {
     if (form.dataset.bound === 'true') return;
     form.dataset.bound = 'true';
     form.addEventListener('submit', handleResetRequest);
+    bindAvatarPreview(form);
   });
 }
