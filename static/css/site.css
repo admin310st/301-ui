@@ -1621,3 +1621,89 @@ html[data-theme="light"] .btn--social-github {
   gap: var(--space-2);
   color: var(--text-muted);
 }
+
+/* =========================
+   Tables
+   ========================= */
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-sm);
+}
+
+.table thead {
+  background: var(--bg-soft);
+}
+
+.table th,
+.table td {
+  padding: 0.6rem 0.75rem;
+  text-align: left;
+}
+
+.table th {
+  font-weight: var(--fw-medium);
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-strong);
+  white-space: nowrap;
+}
+
+.th-sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+.th-sort:hover {
+  color: var(--text);
+}
+
+.th-sort .icon {
+  width: 1em;
+  height: 1em;
+}
+
+.table tbody tr {
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.table-scroll {
+  overflow-x: auto;
+  width: 100%;
+}
+
+.table--domains {
+  min-width: 720px;
+}
+
+.table__th-actions,
+.table__cell-actions {
+  width: 1%;
+  white-space: nowrap;
+}
+
+.table__cell-actions {
+  text-align: right;
+}
+
+.table-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--inline-gap);
+}
+
+.table-controls .table-search {
+  flex: 1 1 100%;
+  min-width: 0;
+}
