@@ -179,42 +179,46 @@ function md5(str: string): string {
   return rhex(n[0]) + rhex(n[1]) + rhex(n[2]) + rhex(n[3]);
 }
 
-function updateGravatar(email: string, img: HTMLImageElement | null): void {
-  if (!img) return;
+function updateAvatar(email: string, container: HTMLElement | null): void {
+  if (!container) return;
 
   const normalized = email.toLowerCase().trim();
-  const anonymousSrc = '/static/img/anonymous-avatar.svg';
-  const fallbackSrc = '/static/img/shield-account-avatar.svg';
 
-  // Empty email → show anonymous
+  // Empty email → show anonymous (img)
   if (!normalized) {
-    img.onerror = null;
-    img.src = anonymousSrc;
+    container.innerHTML = `<img class="avatar-icon" src="/static/img/anonymous-avatar.svg" alt="" aria-hidden="true" />`;
     return;
   }
 
-  // Email entered → try Gravatar, fallback to shield-account
+  // Email entered → try Gravatar
   const hash = md5(normalized);
   const gravatarUrl = `https://www.gravatar.com/avatar/${hash}?d=404&s=200`;
 
+  const img = document.createElement('img');
+  img.className = 'avatar-icon';
+  img.alt = '';
+  img.setAttribute('aria-hidden', 'true');
+
+  // Fallback to shield-account icon (from sprite) on error
   img.onerror = () => {
-    img.onerror = null; // Prevent infinite loop
-    img.src = fallbackSrc;
+    container.innerHTML = `<svg class="avatar-icon" aria-hidden="true"><use href="#i-mono-shield-account"></use></svg>`;
   };
 
   img.src = gravatarUrl;
+  container.innerHTML = '';
+  container.appendChild(img);
 }
 
 function bindAvatarPreview(form: HTMLFormElement): void {
   const input = form.querySelector<HTMLInputElement>('[data-avatar-source]');
   const label = qs<HTMLElement>('[data-avatar-label]');
-  const img = qs<HTMLImageElement>('[data-avatar-img]');
+  const container = qs<HTMLElement>('[data-avatar-container]');
   if (!input) return;
 
   const update = (value: string): void => {
     const trimmed = value.trim();
     if (label) label.textContent = trimmed || t('auth.login.avatarPlaceholder');
-    updateGravatar(trimmed, img);
+    updateAvatar(trimmed, container);
   };
 
   update(input.value || '');
