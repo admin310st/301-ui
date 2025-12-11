@@ -811,6 +811,8 @@ html[data-theme="light"] .btn--ghost:hover {
   padding-block: var(--control-pad-y);
   padding-inline: var(--control-pad-x);
 
+  text-decoration: none;
+
   border-width: var(--border-1);
   border-style: solid;
   box-sizing: border-box;
