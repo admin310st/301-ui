@@ -12,20 +12,22 @@
   </head>
   <body>
     <header class="site-header">
-      <div class="page-shell header-bar">
-        <a class="brand" href="/" aria-label="301.st">
-          <img src="/img/301-full.svg" alt="301.st" width="90" height="36" />
-        </a>
-        <nav class="nav-links" data-onlogout data-i18n-aria="layout.nav.aria" aria-label="Authentication navigation">
-          <a href="#login" data-route-link="login" data-i18n="layout.nav.login">Login</a>
-          <a href="#register" data-route-link="register" data-i18n="layout.nav.register">Register</a>
-          <a href="#reset" data-route-link="reset" data-i18n="layout.nav.reset">Forgot password?</a>
-        </nav>
-        <div class="nav-links" data-onlogin hidden>
-          <span data-user-email></span>
-          <button class="btn btn--ghost" data-action="logout" data-i18n="layout.nav.logout" aria-label="Log out">
-            Log out
-          </button>
+      <div class="page-shell">
+        <div class="page-header">
+          <a class="brand" href="/" aria-label="301.st">
+            <img src="/img/301-full.svg" alt="301.st" width="90" height="36" />
+          </a>
+          <nav class="nav-links" data-onlogout data-i18n-aria="layout.nav.aria" aria-label="Authentication navigation">
+            <a href="#login" data-route-link="login" data-i18n="layout.nav.login">Login</a>
+            <a href="#register" data-route-link="register" data-i18n="layout.nav.register">Register</a>
+            <a href="#reset" data-route-link="reset" data-i18n="layout.nav.reset">Forgot password?</a>
+          </nav>
+          <div class="nav-links" data-onlogin hidden>
+            <span data-user-email></span>
+            <button class="btn btn--ghost" data-action="logout" data-i18n="layout.nav.logout" aria-label="Log out">
+              Log out
+            </button>
+          </div>
         </div>
       </div>
     </header>

@@ -284,6 +284,8 @@ function toggleTheme() {
 * `--stack-gap`
 * `--inline-gap`
 
+Header content must use the same page container: wrap header rows with `.page-shell` (and `.page-header` for the top row). Background may be full-bleed, inner content aligns to the page grid.
+
 ### 2.2. Page Shell
 
 ```css
@@ -690,7 +692,7 @@ Domains tables stay in a single row layout even on mobile; wrap the table in a h
 
 #### Headers
 
-**Header cells contain only sortable titles.** Place search, filters (chips), provider chips, and primary actions in the **table toolbar** above the table. Do not put chips or buttons inside `<th>`.
+**Header cells contain only sortable titles.** Toolbar (search + chips + primary) lives above the table; header cells hold sort controls only with the icon next to the label. No chips or buttons inside `<th>`.
 
 ```css
 .table { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); }
