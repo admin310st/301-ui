@@ -2,10 +2,10 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
   root: '.',
-  // IMPORTANT: publicDir:'static' means files are served from root in both dev and prod
-  // static/img/foo.svg → /img/foo.svg (NOT /static/img/foo.svg)
-  // Build copies static/ → public/, Cloudflare Workers serves from public/
+  // IMPORTANT: publicDir: 'static' => files are served from **root** in dev & prod.
+  // Example: static/img/foo.svg -> /img/foo.svg  (NOT /static/img/foo.svg)
   publicDir: 'static',
+  base: '/',
   build: {
     outDir: 'public',
     emptyOutDir: true,

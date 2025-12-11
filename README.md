@@ -9,6 +9,18 @@
 
 Текущая кодовая база — это **“Layer 0 / Stage 2”** из дорожной карты, описанной в `docs/ui-roadmap.ru.md`: фундамент для будущего кабинета, работы с доменами, потоками (TDS), сайтами, редиректами и админ-инструментами.
 
+⚠️ IMPORTANT — static assets path
+
+We use Vite with `publicDir: "static"` and deploy from `public/`.
+At runtime all assets are served from the **site root**:
+
+- `static/img/foo.svg` → `/img/foo.svg`
+- `static/icons/sprite.svg` → `/icons/sprite.svg`
+
+Do NOT reference `/static/...` in HTML/CSS/JS. Always use absolute root paths (`/img/...`, `/css/...`, `/js/...`).
+
+Cloudflare Workers serves `public/` as the origin root.
+
 ---
 
 ## Архитектура и стек
@@ -50,7 +62,7 @@
 **Важно:**
 При добавлении новых компонентов/поправок сначала обновляется Style Guide, затем этот паттерн переиспользуется в боевых страницах (а не наоборот).
 
-- Компоненты в `static/ui-style-guide.html` считаются эталоном.
+- Компоненты в `/ui-style-guide.html` считаются эталоном.
 - Если на демо-страницах используются те же компоненты (например, Table Search Bar в таблицах), верстка должна копироваться из эталонного блока 1:1.
 - Нельзя создавать вторые версии одного и того же компонента с отличающейся разметкой.
 
@@ -64,7 +76,7 @@
 
 > Все компоненты должны повторять структуры, описанные в `docs/StyleGuide.md`.
 >
-> Демки (`/static/ui-style-guide.html`, `/static/icons-preview.html`) являются эталонным отображением и должны всегда совпадать с документацией.
+> Демки (`/ui-style-guide.html`, `/icons-preview.html`) являются эталонным отображением и должны всегда совпадать с документацией.
 >
 > Все изменения в UI требуют:
 >
