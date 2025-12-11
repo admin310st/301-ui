@@ -547,11 +547,17 @@
                     <li><span class="icon" data-icon="mono/briefcase"></span> Мульти-аккаунт, массовые операции по зонам</li>
                   </ul>
                 </div>
-                <footer class="card__footer stack" style="gap: var(--space-2)">
-                  <a class="btn btn--primary" href="#register">Создать аккаунт</a>
-                  <button class="btn btn--ghost" type="button" data-action="oauth-google">
-                    <span class="icon" data-icon="brand/google"></span> Continue with Google
-                  </button>
+                <footer class="card__footer">
+                  <div style="display: flex; gap: var(--space-2); flex-wrap: wrap">
+                    <a class="btn-chip" href="#register">
+                      <span class="icon" data-icon="mono/user"></span>
+                      <span class="btn-chip__label">Создать аккаунт</span>
+                    </a>
+                    <button class="btn-chip" type="button" data-action="oauth-google">
+                      <span class="icon" data-icon="brand/google"></span>
+                      <span class="btn-chip__label">Google</span>
+                    </button>
+                  </div>
                 </footer>
               </aside>
 
