@@ -134,7 +134,7 @@ body {
   max-width: 1200px;
   margin-inline: auto;
   padding-inline: var(--page-gutter-desktop);
-  padding-block: var(--space-3);
+  padding-block: var(--space-2);
   display: flex;
   align-items: flex-start;
   gap: var(--inline-gap);
@@ -188,14 +188,17 @@ body {
 }
 
 .app-alert--error {
+  border-bottom-width: 2px;
   border-bottom-color: var(--danger-border, var(--danger));
 }
 
 .app-alert--success {
+  border-bottom-width: 2px;
   border-bottom-color: var(--ok);
 }
 
 .app-alert--info {
+  border-bottom-width: 2px;
   border-bottom-color: var(--brand);
 }
 
@@ -394,7 +397,7 @@ body {
   display: flex;
   align-items: center;
   gap: var(--inline-gap);
-  padding-block: var(--space-1);
+  padding-block: var(--space-2);
 }
 
 .utility-left {
