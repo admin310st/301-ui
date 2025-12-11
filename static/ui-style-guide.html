@@ -1482,40 +1482,127 @@
             <p class="eyebrow">Containers</p>
             <h2 class="text-title">Cards / panels</h2>
           </div>
-          <p class="text-muted">Use <span class="code-inline">--panel</span> background and shared radii.</p>
+          <p class="text-muted">
+            Unified recipe with panel / soft / ghost backgrounds and compact, accent or interactive modifiers.
+          </p>
         </div>
 
-        <div class="example-grid">
-          <div class="example-card stack-sm">
-            <h3 class="text-title">Standard Card with Header</h3>
-            <div class="card card--panel">
-              <header class="card__header">
-                <h3 class="h5">Card Title</h3>
-                <p class="text-sm text-muted">Optional subtitle or description</p>
-              </header>
-              <div class="card__body">
-                <p class="text-body">Card body content goes here. Use <code class="code-inline">.card--panel</code> for all cards.</p>
-                <p class="text-muted">Border radius is <code class="code-inline">var(--radius-lg)</code> (0.75rem).</p>
+        <div class="stack">
+          <p class="text-body">
+            Base structure: <span class="code-inline">.card</span> → optional <span class="code-inline">.card__media</span> →
+            <span class="code-inline">.card__header</span> → <span class="code-inline">.card__body</span> →
+            <span class="code-inline">.card__footer</span>. Apply a background type and, if needed, compact spacing,
+            accent stripe or interactive hover.
+          </p>
+
+          <div class="example-grid">
+            <div class="example-card stack-sm">
+              <h3 class="text-title">Panel (default)</h3>
+              <div class="card card--panel">
+                <header class="card__header">
+                  <p class="card__meta"><span class="icon" data-icon="mono/info"></span> System update</p>
+                  <h3 class="card__title">Edge configuration</h3>
+                  <p class="text-muted">Use panels for functional blocks and dashboard content.</p>
+                </header>
+                <div class="card__body">
+                  <p class="text-body">
+                    Panel cards keep a subtle border and shadow. All padding and radii are tokenized via <code class="code-inline">--card-*</code>
+                    variables.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="example-card stack-sm">
+              <h3 class="text-title">Soft background</h3>
+              <div class="card card--soft">
+                <header class="card__header">
+                  <p class="card__meta"><span class="icon" data-icon="mono/sparkles"></span> Onboarding</p>
+                  <h3 class="card__title">Welcome back</h3>
+                </header>
+                <div class="card__body">
+                  <ul class="list--spaced">
+                    <li>Use <code class="code-inline">.card--soft</code> for promos or hints.</li>
+                    <li>Background pulls from <code class="code-inline">--bg-soft</code> for both themes.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="example-card stack-sm">
+              <h3 class="text-title">Compact panel</h3>
+              <div class="card card--panel card--compact">
+                <header class="card__header">
+                  <h3 class="card__title">Checklist</h3>
+                </header>
+                <div class="card__body">
+                  <ol class="list--ruled">
+                    <li>Connect Cloudflare account.</li>
+                    <li>Import zones and apply presets.</li>
+                    <li>Launch redirects or TDS.</li>
+                  </ol>
+                </div>
+              </div>
+            </div>
+
+            <div class="example-card stack-sm">
+              <h3 class="text-title">Accent promo</h3>
+              <div class="card card--soft card--accent">
+                <header class="card__header">
+                  <h3 class="card__title">Upgrade to Pro</h3>
+                  <p class="text-muted">Colored stripe uses <code class="code-inline">--accent</code> (defaults to brand).</p>
+                </header>
+                <div class="card__body">
+                  <div class="card__actions">
+                    <button class="btn btn--primary" type="button">
+                      <span class="icon" data-icon="mono/bolt"></span>
+                      Enable add-ons
+                    </button>
+                    <button class="btn btn--ghost" type="button">
+                      <span class="icon" data-icon="mono/external"></span>
+                      View roadmap
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="example-card stack-sm">
+              <h3 class="text-title">Interactive panel</h3>
+              <div class="card card--panel card--interactive">
+                <header class="card__header">
+                  <h3 class="card__title">Hoverable card</h3>
+                  <p class="text-muted">Use for clickable tiles, ensure focus styles stay visible.</p>
+                </header>
+                <div class="card__body">
+                  <p class="text-body">Adds subtle hover/active feedback; pair with <code class="code-inline">tabindex="0"</code> when needed.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="example-card stack-sm">
+              <h3 class="text-title">Media + body</h3>
+              <div class="card card--panel">
+                <div class="card__media">
+                  <img src="/img/anonymous-avatar.svg" alt="Edge network preview" loading="lazy" />
+                </div>
+                <div class="card__body">
+                  <h3 class="card__title">Card with media</h3>
+                  <p class="text-body">Use <code class="code-inline">.card__media</code> on the first child to keep radii aligned.</p>
+                </div>
               </div>
             </div>
           </div>
 
-          <div class="example-card stack-sm">
-            <h3 class="text-title">Card with Footer</h3>
-            <div class="card card--panel">
-              <header class="card__header">
-                <h3 class="h5">Promo Card</h3>
-              </header>
-              <div class="card__body">
-                <ul class="list--spaced">
-                  <li><span class="icon" data-icon="mono/sync"></span> Feature with icon</li>
-                  <li><span class="icon" data-icon="mono/shield-account"></span> Another feature</li>
-                </ul>
-              </div>
-              <footer class="card__footer">
-                <a class="btn btn--primary" href="#action">Primary Action</a>
-              </footer>
-            </div>
+          <div class="code-block">
+            &lt;article class=&quot;card card--panel card--interactive&quot;&gt;<br />
+            &nbsp;&nbsp;&lt;header class=&quot;card__header&quot;&gt;<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&lt;p class=&quot;card__meta&quot;&gt;Meta&lt;/p&gt;<br />
+            &nbsp;&nbsp;&nbsp;&nbsp;&lt;h3 class=&quot;card__title&quot;&gt;Title&lt;/h3&gt;<br />
+            &nbsp;&nbsp;&lt;/header&gt;<br />
+            &nbsp;&nbsp;&lt;div class=&quot;card__body&quot;&gt;Content&lt;/div&gt;<br />
+            &nbsp;&nbsp;&lt;footer class=&quot;card__footer&quot;&gt;Actions&lt;/footer&gt;<br />
+            &lt;/article&gt;
           </div>
         </div>
       </section>

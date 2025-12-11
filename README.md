@@ -46,6 +46,13 @@ Cloudflare Workers serves `public/` as the origin root.
 
 ---
 
+## Build & Serve
+
+- **IMPORTANT:** `vite.config.ts` uses `publicDir: 'static'`, so assets are emitted from the site root. Examples: `static/img/foo.svg` → `/img/foo.svg` (not `/static/img/foo.svg`). During build `static/` is copied to `public/`, and Cloudflare Workers serve files from `public/`.
+- PurgeCSS reports (`build/purge-report/**`) are for local inspection only and must not be committed.
+
+---
+
 ## UI Style Guide (Layer 0)
 
 Файл `docs/StyleGuide.md` и страница `/ui-style-guide` на `app.301.st` — это:
