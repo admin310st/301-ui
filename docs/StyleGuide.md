@@ -731,16 +731,34 @@ Password toggles: wrap input + toggle button in `.password-field` (flex row) wit
 
 Used in dashboard stats, domain groups, Cloudflare status blocks.
 
+**Structure:**
+- `.card--panel` - Main card wrapper with `border-radius: var(--radius-lg)`
+- `.card__header` - Header section with padding and bottom border
+- `.card__body` - Body section with padding
+- `.card__footer` - Footer section with padding and top border
+
+**Best Practice:** First child in `.card__header`, `.card__body`, `.card__footer` has `margin-top: 0` to prevent double spacing.
+
 ```css
-.card,
-.panel { background: var(--bg-elevated); border-radius: var(--radius-lg); border: 1px solid var(--border-subtle); padding: var(--space-4); box-shadow: var(--shadow-subtle); }
-.card-header { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); margin-bottom: var(--space-3); }
-.card-title { font-size: var(--fs-md); font-weight: var(--fw-semibold); }
-.card-subtitle { font-size: var(--fs-sm); color: var(--text-muted); }
-.card-footer { margin-top: var(--space-4); display: flex; justify-content: flex-end; gap: var(--space-2); }
-.card-section { padding: var(--space-4) 0 0; border-top: 1px solid var(--border-subtle); margin-top: var(--space-4); }
-.card-section:first-child { border-top: none; margin-top: 0; padding-top: 0; }
-.card--emphasis { border-color: color-mix(in srgb, var(--primary) 35%, transparent); background: color-mix(in srgb, var(--bg-elevated) 70%, var(--primary-soft)); }
+.card--panel {
+  background: var(--panel);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-subtle);
+}
+.card__header {
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--border-subtle);
+}
+.card__header > *:first-child { margin-top: 0; }
+.card__body {
+  padding: var(--space-4);
+}
+.card__body > *:first-child { margin-top: 0; }
+.card__footer {
+  padding: var(--space-4);
+  border-top: 1px solid var(--border-subtle);
+}
+.card__footer > *:first-child { margin-top: 0; }
 ```
 
 ### 4.5. Tables

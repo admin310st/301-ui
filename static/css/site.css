@@ -1857,6 +1857,10 @@ html[data-theme="light"] .btn--social-github {
   border-bottom: 1px solid var(--border-subtle);
 }
 
+.card__header > *:first-child {
+  margin-top: 0;
+}
+
 .card__header h3 {
   margin-bottom: var(--space-1);
 }
@@ -1869,9 +1873,17 @@ html[data-theme="light"] .btn--social-github {
   padding: var(--space-4);
 }
 
+.card__body > *:first-child {
+  margin-top: 0;
+}
+
 .card__footer {
   padding: var(--space-4);
   border-top: 1px solid var(--border-subtle);
+}
+
+.card__footer > *:first-child {
+  margin-top: 0;
 }
 
 /* Lists */
