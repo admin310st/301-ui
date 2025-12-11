@@ -40,6 +40,10 @@ export function onAuthChange(listener: Listener): () => void {
   return () => listeners.delete(listener);
 }
 
+export function getAuthState(): AuthState {
+  return { ...currentState };
+}
+
 export function getAuthToken(): string | null {
   return currentState.token;
 }

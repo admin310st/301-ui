@@ -61,22 +61,31 @@
           <div class="utility-right">
             <a class="btn btn--ghost" href="/ui-style-guide.html#components" aria-label="Help" data-i18n="layout.nav.help">Help</a>
 
-            <button class="btn-chip btn-chip--dropdown" type="button" aria-expanded="false" aria-label="Switch organization or project" data-onlogin>
+            <button
+              class="btn-chip btn-chip--dropdown"
+              type="button"
+              aria-expanded="false"
+              aria-label="Switch organization or project"
+              data-onlogin
+              hidden
+            >
               <span class="btn-chip__icon" data-icon="mono/briefcase"></span>
               <span class="btn-chip__label">Blue Team</span>
               <span class="btn-chip__chevron" data-icon="mono/chevron-down"></span>
             </button>
 
-            <button class="btn-icon btn-icon--compact" type="button" aria-label="Notifications" data-onlogin>
+            <button class="btn-icon btn-icon--compact" type="button" aria-label="Notifications" data-onlogin hidden>
               <span class="icon" data-icon="mono/bell"></span>
             </button>
 
-            <button class="btn-chip btn-chip--input" type="button" data-onlogin aria-label="User">
+            <button class="btn-chip btn-chip--input" type="button" data-onlogin aria-label="User" hidden>
               <span class="btn-chip__icon" data-icon="mono/user"></span>
               <span class="btn-chip__label" data-user-name data-i18n="layout.nav.guest">Guest</span>
             </button>
 
-            <button class="btn btn--ghost" type="button" data-onlogin data-action="logout" data-i18n="auth.logout">Log out</button>
+            <button class="btn btn--ghost" type="button" data-onlogin data-action="logout" data-i18n="auth.logout" hidden>
+              Log out
+            </button>
           </div>
         </div>
       </div>
