@@ -589,6 +589,27 @@
             <code class="code-inline">WAF only</code>, <code class="code-inline">WAF + Cache</code>), mini sync statuses (<code class="code-inline">3 min ago</code>,
             <code class="code-inline">Queued</code>, <code class="code-inline">Syncing…</code>) and environments (<code class="code-inline">Dev / Staging / Prod</code>).
           </p>
+
+          <div class="stack-sm" style="margin-top: var(--space-4);">
+            <h4 class="h6">Badge in breadcrumbs</h4>
+            <p class="text-muted">Use badges in breadcrumbs to indicate page context or environment. Replaces deprecated <code class="code-inline">.eyebrow</code> pattern.</p>
+            <nav class="breadcrumbs" style="background: var(--bg-soft); padding: var(--space-2); border-radius: var(--radius);">
+              <a href="#" class="crumb">Home</a>
+              <span class="sep" aria-hidden="true">›</span>
+              <span class="crumb is-current">Dashboard</span>
+              <span class="badges">
+                <span class="badge badge--success">Production</span>
+              </span>
+            </nav>
+            <nav class="breadcrumbs" style="background: var(--bg-soft); padding: var(--space-2); border-radius: var(--radius); margin-top: var(--space-2);">
+              <a href="#" class="crumb">Dashboard</a>
+              <span class="sep" aria-hidden="true">›</span>
+              <span class="crumb is-current">Cloudflare Setup</span>
+              <span class="badges">
+                <span class="badge badge--cf">Cloudflare</span>
+              </span>
+            </nav>
+          </div>
         </div>
       </section>
 
