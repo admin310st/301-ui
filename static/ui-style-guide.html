@@ -1467,21 +1467,34 @@
 
         <div class="example-grid">
           <div class="example-card stack-sm">
-            <h3 class="text-title">Neutral panel</h3>
-            <div class="card">
-              <p class="text-body">Wrap auth sections and wizard steps in <span class="code-inline">.panel</span>.</p>
-              <div class="card-section">
-                <p class="text-muted">Panel sections use <span class="code-inline">.card-section</span> to separate rows.</p>
+            <h3 class="text-title">Standard Card with Header</h3>
+            <div class="card card--panel">
+              <header class="card__header">
+                <h3 class="h5">Card Title</h3>
+                <p class="text-sm text-muted">Optional subtitle or description</p>
+              </header>
+              <div class="card__body">
+                <p class="text-body">Card body content goes here. Use <code class="code-inline">.card--panel</code> for all cards.</p>
+                <p class="text-muted">Border radius is <code class="code-inline">var(--radius-lg)</code> (0.75rem).</p>
               </div>
             </div>
           </div>
+
           <div class="example-card stack-sm">
-            <h3 class="text-title">Emphasized</h3>
-            <div class="card card--emphasis">
-              <p class="text-body">For highlighted flows (e.g., Cloudflare wizard).</p>
-              <div class="card-section">
-                <p class="text-muted">Same radii and padding; only border/background change.</p>
+            <h3 class="text-title">Card with Footer</h3>
+            <div class="card card--panel">
+              <header class="card__header">
+                <h3 class="h5">Promo Card</h3>
+              </header>
+              <div class="card__body">
+                <ul class="list--spaced">
+                  <li><span class="icon" data-icon="mono/sync"></span> Feature with icon</li>
+                  <li><span class="icon" data-icon="mono/shield-account"></span> Another feature</li>
+                </ul>
               </div>
+              <footer class="card__footer">
+                <a class="btn btn--primary" href="#action">Primary Action</a>
+              </footer>
             </div>
           </div>
         </div>

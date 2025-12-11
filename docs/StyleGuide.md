@@ -87,6 +87,10 @@ We use CSS custom properties (`--token`) and a theme switch via
   --radius-lg: 0.75rem;
   --radius-xl: 1rem;
 
+  /* Unified control system radii */
+  --r-pill: 999px;        /* For buttons, chips, toggles */
+  --r-field: 0.75rem;     /* For inputs, textareas */
+
   --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.35);
   --shadow-subtle: 0 12px 30px rgba(15, 23, 42, 0.16);
 
@@ -98,6 +102,25 @@ We use CSS custom properties (`--token`) and a theme switch via
   --btn-text-on-bright: #111111;
 }
 ```
+
+#### Border Radius Guidelines
+
+Use consistent border-radius tokens across all components:
+
+| Token | Value | Usage |
+|-------|-------|-------|
+| `--radius-xs` | 0.25rem | Small badges, tiny UI elements |
+| `--radius` | 0.5rem | Dropdown menus, tooltips, modals |
+| `--radius-lg` | 0.75rem | **Cards, panels, large containers** |
+| `--radius-xl` | 1rem | Hero sections, featured blocks |
+| `--r-pill` | 999px | **Buttons, chips, toggles** (unified control system) |
+| `--r-field` | 0.75rem | **Inputs, textareas** (unified control system) |
+
+**Key Rules:**
+- All `.card--panel` elements → `border-radius: var(--radius-lg)`
+- All `.btn`, `.btn-chip` → `border-radius: var(--r-pill)`
+- All `.input`, `.textarea` → `border-radius: var(--r-field)`
+- Dropdowns and menus → `border-radius: var(--radius)`
 
 ### 1.2. Dark theme (default)
 

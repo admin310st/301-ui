@@ -1847,7 +1847,7 @@ html[data-theme="light"] .btn--social-github {
 .card--panel {
   background: var(--panel);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--r-lg);
+  border-radius: var(--radius-lg);
 }
 
 .card__header {
@@ -1865,6 +1865,11 @@ html[data-theme="light"] .btn--social-github {
 
 .card__body {
   padding: var(--space-4);
+}
+
+.card__footer {
+  padding: var(--space-4);
+  border-top: 1px solid var(--border-subtle);
 }
 
 /* Lists */
