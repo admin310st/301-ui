@@ -523,14 +523,14 @@
                     </button>
                   </div>
                 </div>
-                <div data-onlogout>
+                <div data-onlogout hidden>
                   <p class="muted" data-i18n="auth.messages.notAuthenticated">You are not authenticated yet.</p>
                 </div>
               </div>
             </section>
 
             <section class="stack" style="gap: var(--space-3)">
-              <aside class="card card--panel" data-onlogout id="promo-card">
+              <aside class="card card--soft card--accent" data-onlogout hidden id="promo-card">
                 <header class="card__header">
                   <h3 class="h5">301.st — быстрый старт на edge</h3>
                   <p class="text-sm text-muted">Привяжите Cloudflare и включите защиту, кэш и редиректы за минуты.</p>
@@ -561,7 +561,7 @@
                 </footer>
               </aside>
 
-              <section class="card card--panel" data-onlogout>
+              <section class="card card--panel card--compact" data-onlogout hidden>
                 <header class="card__header"><h3 class="h6">Как это работает</h3></header>
                 <div class="card__body">
                   <ol class="list--ruled">

@@ -2,7 +2,7 @@
 public/
 dist/
 /build/
-/build/purge-report/
+build/purge-report/**
 
 ### Node
 node_modules/

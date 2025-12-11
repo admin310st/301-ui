@@ -51,26 +51,30 @@
 
 Цель: рабочий login/registration/reset-флоу и сборка через Vite+Workers.
 
-Сделано / планируется:
+Сделано:
 
-- Страница авторизации:
-  - регистрация, логин, logout;
-  - подтверждение email (verify).
-- Восстановление пароля:
-  - запрос ссылки (reset),
-  - переход по `/auth/verify?type=reset&token=...`,
-  - форма ввода нового пароля,
-  - защита через CSRF и reset-сессию.
+- Единый рецепт контролов: кнопки, чипы и поиск совпадают по высоте.
+- Табличные контролы вынесены над таблицей; в заголовке остаются только сортировки.
+- Utility-bar: гейтинг до/после логина, колокольчик читаем в dark-теме.
+- Экран входа: промо-карта справа + блок «Как это работает».
+- Введены Cards v2 (panel / soft / ghost + compact / accent / interactive).
+- Иконки: моно-набор наследует `currentColor`, нет артефактов в тёмной теме.
+
+Базовые auth-флоу и инфраструктура в этом слое:
+
+- Страница авторизации: регистрация, логин, logout; подтверждение email (verify).
+- Восстановление пароля: запрос ссылки (reset) → `/auth/verify?type=reset&token=...` → ввод нового пароля с CSRF/reset-сессией.
 - Интеграция Turnstile.
 - Cloudflare Wizard (подключение аккаунта CF).
-- Стек:
-  - `npm run dev` — Vite dev server;
-  - `npm run build` → `public/`;
-  - deploy через Wrangler;
-  - `/env` выдаёт публичные параметры (sitekey и т.п.).
-- Иконки:
-  - исходники в `static/img/icons-src/`,
-  - сборка спрайта `icons-sprite.svg`, `icons-map.json`, `icons-preview.html`.
+- Стек: `npm run dev` → dev server, `npm run build` → `public/`, deploy через Wrangler, `/env` выдаёт публичные параметры.
+- Иконки: исходники `static/img/icons-src/`, сборка `icons-sprite.svg`, `icons-map.json`, `icons-preview.html`.
+
+Next:
+
+- Sidebar drawer (mobile).
+- Stat-cards с метриками.
+- Состояния карт success/warn/info через `--accent`.
+- Паттерн «шаги со статусом».
 
 Это «нулевой» слой, на котором строится кабинет.
 

@@ -733,38 +733,72 @@ Variant table for the toolbar row:
 
 Password toggles: wrap input + toggle button in `.password-field` (flex row) with `data-password-field` hook.
 
-### 4.3. Cards / panels
+### 4.3. Cards v2
 
-Used in dashboard stats, domain groups, Cloudflare status blocks.
+Unified recipe for all cards/panels: tokenized paddings, backgrounds and accent options that stay consistent in light/dark themes.
 
-**Structure:**
-- `.card--panel` - Main card wrapper with `border-radius: var(--radius-lg)`
-- `.card__header` - Header section with padding and bottom border
-- `.card__body` - Body section with padding
-- `.card__footer` - Footer section with padding and top border
+**Types**
 
-**Best Practice:** First child in `.card__header`, `.card__body`, `.card__footer` has `margin-top: 0` to prevent double spacing.
+- `card card--panel` — primary functional cards (forms, dashboards, data blocks) with subtle border/shadow.
+- `card card--soft` — promo/onboarding hints with softer background (`--bg-soft`).
+- `card card--ghost` — transparent wrapper when a borderless container is needed.
 
-```css
-.card--panel {
-  background: var(--panel);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--border-subtle);
-}
-.card__header {
-  padding: var(--space-4);
-  border-bottom: 1px solid var(--border-subtle);
-}
-.card__header > *:first-child { margin-top: 0; }
-.card__body {
-  padding: var(--space-4);
-}
-.card__body > *:first-child { margin-top: 0; }
-.card__footer {
-  padding: var(--space-4);
-  border-top: 1px solid var(--border-subtle);
-}
-.card__footer > *:first-child { margin-top: 0; }
+**Modifiers**
+
+- `card--compact` — reduced vertical/horizontal padding for dense layouts.
+- `card--accent` — left stripe colored via `--accent` (defaults to brand).
+- `card--interactive` — hover/focus feedback for clickable tiles; keep focus ring visible.
+
+**Anatomy**
+
+`card` → optional `card__media` → `card__header` → `card__body` → optional `card__footer`. Use `card__title`, `card__meta` and `card__actions` inside header/body/footers as needed.
+
+**Rules**
+
+- On the same screen, avoid mixing `panel` and `soft` without a clear reason: promo/onboarding → `soft`, functional blocks → `panel`.
+- Lists inside cards use helpers: `list--spaced` for relaxed bullet items; `list--ruled` for ordered steps with separators.
+- Accessibility: keep contrast ≥ 4.5:1; never remove focus outline on interactive cards.
+- Monochrome icons inherit `currentColor`, so they stay legible in dark mode.
+
+**Code samples** (light/dark ready):
+
+```html
+<!-- Panel card with header/body -->
+<article class="card card--panel">
+  <header class="card__header">
+    <p class="card__meta">System update</p>
+    <h3 class="card__title">Edge configuration</h3>
+  </header>
+  <div class="card__body">
+    Panel cards rely on tokenized padding and radii.
+  </div>
+</article>
+
+<!-- Soft accent promo -->
+<aside class="card card--soft card--accent">
+  <header class="card__header">
+    <h3 class="card__title">Upgrade to Pro</h3>
+    <p class="text-muted">Stripe color comes from --accent.</p>
+  </header>
+  <div class="card__body card__actions">
+    <button class="btn btn--primary" type="button">Enable add-ons</button>
+    <button class="btn btn--ghost" type="button">View roadmap</button>
+  </div>
+</aside>
+
+<!-- Compact checklist -->
+<section class="card card--panel card--compact">
+  <header class="card__header">
+    <h3 class="card__title">Checklist</h3>
+  </header>
+  <div class="card__body">
+    <ol class="list--ruled">
+      <li>Connect Cloudflare account.</li>
+      <li>Import zones and apply presets.</li>
+      <li>Launch redirects or TDS.</li>
+    </ol>
+  </div>
+</section>
 ```
 
 ### 4.5. Tables
