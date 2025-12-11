@@ -118,24 +118,70 @@
         </header>
 
         <section class="grid-2" style="gap: var(--space-4)">
-          <aside class="card card--panel">
-            <header class="card__header"><h3 class="h5">Текущий сетап</h3></header>
-            <div class="card__body">
-              <p class="text-sm text-muted">Статус: требуется добавить Bootstrap API token.</p>
-              <a class="btn btn--primary" href="/#/integrations/cloudflare">Настроить</a>
-            </div>
-          </aside>
+          <article class="card card--panel">
+            <header class="card__header">
+              <h3 class="h5">Помощь по первому шагу: Cloudflare bootstrap</h3>
+              <p class="text-muted">Подготовьте данные для формы «Аккаунт Cloudflare».</p>
+            </header>
 
-          <aside class="card card--panel">
-            <header class="card__header"><h3 class="h5">Как работать с экраном</h3></header>
-            <div class="card__body">
-              <ol class="list--ruled">
-                <li>Завершите Cloudflare bootstrap.</li>
-                <li>Подключите домены и включите мониторинг.</li>
-                <li>Активируйте правила WAF/Cache из пресетов.</li>
-              </ol>
+            <div class="card__body stack" style="gap: var(--space-3)">
+              <div class="stack" style="gap: var(--space-2)">
+                <p class="text-sm">
+                  301.st начинает работу с Cloudflare с первой формы: Account ID + Bootstrap API token. Заполните её один
+                  раз, чтобы мы могли подтянуть список зон и применить базовые пресеты.
+                </p>
+
+                <ol class="list--ruled">
+                  <li>В Cloudflare на странице <strong>Account Home → Overview</strong> скопируйте <em>Account ID</em>.</li>
+                  <li>
+                    Создайте токен с шаблоном <code>301st Bootstrap</code> и правами
+                    <em>Account API Tokens: Edit</em>, затем вставьте его в поле «Bootstrap API token».
+                  </li>
+                  <li>
+                    Нажмите «Save &amp; verify token» — мы проверим права и сохраним данные для последующих шагов
+                    (подключение доменов, мониторинг, пресеты WAF/Cache).
+                  </li>
+                </ol>
+              </div>
+
+              <div class="panel stack" style="gap: var(--space-2)">
+                <p class="text-sm">
+                  Ссылку на форму можно открыть прямо из дашборда. После сохранения токена сайдбар разблокирует разделы
+                  «Domains» и «Security».
+                </p>
+                <div class="cluster">
+                  <a class="btn btn--primary" href="/#/integrations/cloudflare">Открыть форму</a>
+                  <span class="text-muted text-sm">Проверка токена занимает пару секунд.</span>
+                </div>
+              </div>
             </div>
-          </aside>
+          </article>
+
+          <div class="stack" style="gap: var(--space-3)">
+            <aside class="card card--panel">
+              <header class="card__header"><h3 class="h5">Текущий сетап</h3></header>
+              <div class="card__body stack" style="gap: var(--space-3)">
+                <div class="stack" style="gap: var(--space-1)">
+                  <p class="text-sm text-muted">Статус: требуется добавить Bootstrap API token.</p>
+                  <p class="text-sm">
+                    После валидации токена мы сможем показать активные зоны и предложить быстрые пресеты для WAF и кэша.
+                  </p>
+                </div>
+                <a class="btn btn--primary" href="/#/integrations/cloudflare">Перейти к форме</a>
+              </div>
+            </aside>
+
+            <aside class="card card--panel">
+              <header class="card__header"><h3 class="h5">Как работать с экраном</h3></header>
+              <div class="card__body">
+                <ol class="list--ruled">
+                  <li>Завершите Cloudflare bootstrap и вернитесь к обзору.</li>
+                  <li>Подключите домены и включите мониторинг.</li>
+                  <li>Активируйте правила WAF/Cache из пресетов.</li>
+                </ol>
+              </div>
+            </aside>
+          </div>
         </section>
       </section>
     </main>
