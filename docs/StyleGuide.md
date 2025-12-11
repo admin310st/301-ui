@@ -306,8 +306,11 @@ Header content must use the same page container: wrap header rows with `.page-sh
 
 * любой экран не должен иметь собственных левых/правых паддингов;
 * все страницы (гайд, index, будущий кабинет) стартуют с `.page-shell`.
+*Header content uses the same page container.* Wrap header rows with `.page-shell` (and `.page-header` for section headers). Background may be full-bleed; inner content aligns to the page grid.
 
 ### 2.3. Common Patterns
+
+**Header stack.** Primary header (brand, nav, language/theme). Utility bar (user context, secondary actions). Utility bar may be hidden for anonymous users.
 
 **Page header**
 
@@ -692,7 +695,7 @@ Domains tables stay in a single row layout even on mobile; wrap the table in a h
 
 #### Headers
 
-**Header cells contain only sortable titles.** Toolbar (search + chips + primary) lives above the table; header cells hold sort controls only with the icon next to the label. No chips or buttons inside `<th>`.
+**Header cells contain only sortable titles.** Toolbar (search + chips + primary) lives above the table. Header cells contain sort-only controls (icon next to label). No `.btn` / chips inside `<th>`.
 
 ```css
 .table { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); }
