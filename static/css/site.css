@@ -427,15 +427,10 @@ body {
   opacity: 0.6;
 }
 
-.badge.env {
+.badges {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  padding: 0.2rem 0.55rem;
-  border: 1px solid var(--border-subtle);
-  border-radius: 999px;
-  background: var(--panel);
-  color: var(--text-muted);
+  gap: 0.5rem;
   margin-left: 0.75rem;
 }
 
