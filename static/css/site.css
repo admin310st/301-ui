@@ -714,10 +714,7 @@ html[data-theme="light"] .btn--ghost:hover {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-}
-
-.btn-chip__chevron .icon {
-  color: var(--muted);
+  color: inherit; /* Inherit from .btn-chip for proper currentColor flow */
 }
 
 .btn-chip__label {
@@ -735,10 +732,6 @@ html[data-theme="light"] .btn--ghost:hover {
   background: var(--panel);
   border-color: var(--border-subtle);
   color: var(--text);
-}
-
-.btn-chip--input .icon[data-icon^="mono/"] {
-  color: var(--muted);
 }
 
 .btn-chip--input:focus-within {
