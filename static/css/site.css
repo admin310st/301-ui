@@ -1824,6 +1824,80 @@ html[data-theme="light"] .btn--social-github {
   min-width: 0;
 }
 
+.page-header {
+  margin-bottom: var(--space-4);
+}
+
+.page-header h1 {
+  margin-bottom: var(--space-1);
+}
+
+.page-header .text-muted {
+  margin: 0;
+}
+
+/* Grid layouts */
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr));
+  gap: var(--space-4);
+}
+
+/* Card variants */
+.card--panel {
+  background: var(--panel);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-lg);
+}
+
+.card__header {
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.card__header h3 {
+  margin-bottom: var(--space-1);
+}
+
+.card__header .text-muted {
+  margin: 0;
+}
+
+.card__body {
+  padding: var(--space-4);
+}
+
+/* Lists */
+.list--ruled {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.list--ruled li {
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.list--ruled li:last-child {
+  border-bottom: none;
+}
+
+/* Utility classes */
+.panel {
+  background: var(--bg-soft);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r);
+  padding: var(--space-3);
+}
+
+.cluster {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
 /* Адаптив: на мобильном сайдбар сверху «простынёй» (без оверлея) */
 @media (max-width: 1024px) {
   .app-shell {

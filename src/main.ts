@@ -79,9 +79,18 @@ function initSidebarToggle(): void {
   const apply = () => {
     const collapsed = localStorage.getItem(LS_KEY) === '1';
     aside.classList.toggle('is-collapsed', collapsed);
-    btn
-      .querySelector('.icon')
-      ?.setAttribute('data-icon', collapsed ? 'mono/chevrons-right' : 'mono/chevrons-left');
+
+    const iconName = collapsed ? 'mono/chevron-down' : 'mono/chevron-up';
+    const symbolId = `i-${iconName.replace('/', '-')}`;
+    const iconEl = btn.querySelector('.icon');
+
+    if (iconEl) {
+      iconEl.setAttribute('data-icon', iconName);
+      const use = iconEl.querySelector('use');
+      if (use) {
+        use.setAttribute('href', `/icons-sprite.svg#${symbolId}`);
+      }
+    }
   };
 
   btn.addEventListener('click', () => {
