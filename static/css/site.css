@@ -1702,8 +1702,3 @@ html[data-theme="light"] .btn--social-github {
   flex-wrap: wrap;
   gap: var(--inline-gap);
 }
-
-.table-controls .table-search {
-  flex: 1 1 100%;
-  min-width: 0;
-}
