@@ -4,6 +4,12 @@ export const en = {
   },
   layout: {
     nav: {
+      home: 'Home',
+      guide: 'UI style guide',
+      demo: 'Demo',
+      guest: 'Guest',
+      help: 'Help',
+      theme: 'Toggle theme',
       login: 'Login',
       register: 'Register',
       reset: 'Forgot password?',
@@ -14,13 +20,14 @@ export const en = {
     footer: {
       description: 'Redirects and analytics.',
     },
-    langSwitcher: {
+    lang: {
       label: 'Switch language',
       en: 'EN',
       ru: 'RU',
     },
   },
   auth: {
+    logout: 'Log out',
     hero: {
       eyebrow: 'Welcome Back',
       title: 'Your account awaits',
@@ -33,6 +40,7 @@ export const en = {
       passwordLabel: 'Password',
       submit: 'Sign in',
       submitAria: 'Sign in to 301.st',
+      link: 'Login',
       linkToRegister: 'Create account',
       linkToReset: 'Forgot password?',
       statusDefault: 'Enter your email and password to sign in.',
@@ -55,6 +63,7 @@ export const en = {
       submitAria: 'Create your 301.st account',
       statusDefault: 'You’ll receive a verification email (OmniFlow).',
       passwordHint: 'Must contain upper & lower case letters and at least one digit.',
+      link: 'Register',
       statusMissing: 'Email and password are required',
       statusPending: 'Creating account...',
       statusSuccess: 'We sent a verification email to {{email}}. Follow the link to finish registration.',
@@ -75,6 +84,7 @@ export const en = {
       title: 'Reset password',
       requestButton: 'Request reset link',
       requestAria: 'Request password reset link',
+      link: 'Forgot password?',
       statusDefault: 'We’ll send you a link to set a new password.',
       linkToLogin: 'Back to login',
       statusMissing: 'Enter an email to reset',

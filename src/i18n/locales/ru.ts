@@ -6,6 +6,12 @@ export const ru: Translation = {
   },
   layout: {
     nav: {
+      home: 'Главная',
+      guide: 'UI гид',
+      demo: 'Демо',
+      guest: 'Гость',
+      help: 'Помощь',
+      theme: 'Переключить тему',
       login: 'Вход',
       register: 'Регистрация',
       reset: 'Забыли пароль?',
@@ -16,13 +22,14 @@ export const ru: Translation = {
     footer: {
       description: 'Редиректы и аналитика.',
     },
-    langSwitcher: {
+    lang: {
       label: 'Переключить язык',
       en: 'EN',
       ru: 'RU',
     },
   },
   auth: {
+    logout: 'Выйти',
     hero: {
       eyebrow: 'Вход в систему',
       title: 'Добро пожаловать! Войдите в аккаунт',
@@ -35,6 +42,7 @@ export const ru: Translation = {
       passwordLabel: 'Пароль',
       submit: 'Войти',
       submitAria: 'Войти в 301.st',
+      link: 'Вход',
       linkToRegister: 'Создать аккаунт',
       linkToReset: 'Забыли пароль?',
       statusDefault: 'Введите email и пароль, чтобы войти в аккаунт.',
@@ -57,6 +65,7 @@ export const ru: Translation = {
       submitAria: 'Создать аккаунт 301.st',
       statusDefault: 'Вы получите письмо для подтверждения (OmniFlow).',
       passwordHint: 'Пароль должен содержать заглавные и строчные буквы и хотя бы одну цифру.',
+      link: 'Регистрация',
       statusMissing: 'Нужны email и пароль',
       statusPending: 'Создаём аккаунт...',
       statusSuccess: 'Мы отправили письмо на {{email}}. Перейдите по ссылке, чтобы завершить регистрацию.',
@@ -77,6 +86,7 @@ export const ru: Translation = {
       title: 'Восстановление пароля',
       requestButton: 'Отправить ссылку',
       requestAria: 'Запросить ссылку для восстановления пароля',
+      link: 'Забыли пароль?',
       statusDefault: 'Мы отправим ссылку для установки нового пароля.',
       linkToLogin: 'Вернуться к входу',
       statusMissing: 'Укажите email для восстановления',

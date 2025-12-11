@@ -336,6 +336,7 @@ body {
   font-size: 0.95rem;
 }
 
+.primary-nav a,
 .nav-links a {
   color: var(--text-main);
   text-decoration: none;
@@ -345,22 +346,8 @@ body {
   transition: color var(--transition-fast), background var(--transition-fast), border-color var(--transition-fast);
 }
 
+.primary-nav a:hover,
 .nav-links a:hover {
-  color: var(--primary);
-  border-color: var(--border-subtle);
-  background: var(--bg-soft);
-}
-
-.primary-nav a {
-  color: var(--text-main);
-  text-decoration: none;
-  padding: 0.35rem 0.75rem;
-  border-radius: var(--radius);
-  border: 1px solid transparent;
-  transition: color var(--transition-fast), background var(--transition-fast), border-color var(--transition-fast);
-}
-
-.primary-nav a:hover {
   color: var(--primary);
   border-color: var(--border-subtle);
   background: var(--bg-soft);
@@ -379,6 +366,11 @@ body {
   background: var(--panel);
   color: var(--text);
   cursor: pointer;
+}
+
+.btn-icon--compact {
+  width: calc(1em + 1.25rem);
+  height: calc(1em + 1.25rem);
 }
 
 .btn-icon .icon {
@@ -414,6 +406,9 @@ body {
   align-items: center;
   gap: 0.5rem;
   color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .breadcrumbs .crumb {
@@ -452,6 +447,11 @@ body {
   height: 0.4rem;
   border-radius: 50%;
   background: var(--primary);
+}
+
+.lang-switcher .btn-chip.is-active {
+  border-color: color-mix(in srgb, var(--primary) 55%, transparent);
+  color: var(--text);
 }
 
 @media (min-width: 1024px) {
