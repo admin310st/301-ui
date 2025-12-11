@@ -657,7 +657,31 @@
                 </button>
               </div>
 
-              <button class="btn-chip btn-chip--dropdown" type="button" aria-expanded="false"><span class="btn-chip__icon" data-icon="mono/filter"></span><span class="btn-chip__label">Status: Active</span><span class="btn-chip__chevron" data-icon="mono/chevron-down"></span></button>
+              <div class="dropdown" data-dropdown>
+                <button class="btn-chip btn-chip--dropdown dropdown__trigger" type="button" aria-haspopup="menu" aria-expanded="false">
+                  <span class="btn-chip__icon" data-icon="mono/filter"></span>
+                  <span class="btn-chip__label">Status: Active</span>
+                  <span class="btn-chip__chevron" data-icon="mono/chevron-down"></span>
+                </button>
+                <div class="dropdown__menu" role="menu">
+                  <button class="dropdown__item" type="button">
+                    <span class="icon" data-icon="mono/check-circle"></span>
+                    <span>Active</span>
+                  </button>
+                  <button class="dropdown__item" type="button">
+                    <span class="icon" data-icon="mono/clock"></span>
+                    <span>Pending</span>
+                  </button>
+                  <button class="dropdown__item" type="button">
+                    <span class="icon" data-icon="mono/alert-circle"></span>
+                    <span>Expired</span>
+                  </button>
+                  <button class="dropdown__item" type="button">
+                    <span class="icon" data-icon="mono/filter"></span>
+                    <span>All statuses</span>
+                  </button>
+                </div>
+              </div>
 
               <button class="btn-chip btn-chip--cf" type="button"><span class="btn-chip__icon" data-icon="brand/cloudflare"></span><span class="btn-chip__label">Cloudflare</span></button>
 
@@ -705,11 +729,31 @@
                   </button>
                 </div>
 
-                <button class="btn-chip btn-chip--dropdown" type="button" aria-expanded="false">
-                  <span class="btn-chip__icon" data-icon="mono/filter"></span>
-                  <span class="btn-chip__label">Status: Active</span>
-                  <span class="btn-chip__chevron" data-icon="mono/chevron-down"></span>
-                </button>
+                <div class="dropdown" data-dropdown>
+                  <button class="btn-chip btn-chip--dropdown dropdown__trigger" type="button" aria-haspopup="menu" aria-expanded="false">
+                    <span class="btn-chip__icon" data-icon="mono/filter"></span>
+                    <span class="btn-chip__label">Status: Active</span>
+                    <span class="btn-chip__chevron" data-icon="mono/chevron-down"></span>
+                  </button>
+                  <div class="dropdown__menu" role="menu">
+                    <button class="dropdown__item" type="button">
+                      <span class="icon" data-icon="mono/check-circle"></span>
+                      <span>Active</span>
+                    </button>
+                    <button class="dropdown__item" type="button">
+                      <span class="icon" data-icon="mono/clock"></span>
+                      <span>Pending</span>
+                    </button>
+                    <button class="dropdown__item" type="button">
+                      <span class="icon" data-icon="mono/alert-circle"></span>
+                      <span>Expired</span>
+                    </button>
+                    <button class="dropdown__item" type="button">
+                      <span class="icon" data-icon="mono/filter"></span>
+                      <span>All statuses</span>
+                    </button>
+                  </div>
+                </div>
 
                 <button class="btn-chip btn-chip--cf" type="button">
                   <span class="btn-chip__icon" data-icon="brand/cloudflare"></span>
@@ -1008,11 +1052,16 @@
   &nbsp;&nbsp;&nbsp;&nbsp;&lt;input class=&quot;table-search__input&quot; type=&quot;text&quot; placeholder=&quot;Search by domain, project or account…&quot; /&gt;<br />
   &nbsp;&nbsp;&nbsp;&nbsp;&lt;button class=&quot;table-search__clear&quot; type=&quot;button&quot; aria-label=&quot;Clear&quot;&gt;&lt;span class=&quot;icon&quot; data-icon=&quot;mono/close&quot;&gt;&lt;/span&gt;&lt;/button&gt;<br />
   &nbsp;&nbsp;&lt;/div&gt;<br />
-  &nbsp;&nbsp;&lt;button class=&quot;btn-chip btn-chip--dropdown&quot; type=&quot;button&quot; aria-expanded=&quot;false&quot;&gt;<br />
-  &nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;btn-chip__icon&quot; data-icon=&quot;mono/filter&quot;&gt;&lt;/span&gt;<br />
-  &nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;btn-chip__label&quot;&gt;Status: Active&lt;/span&gt;<br />
-  &nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;btn-chip__chevron&quot; data-icon=&quot;mono/chevron-down&quot;&gt;&lt;/span&gt;<br />
-  &nbsp;&nbsp;&lt;/button&gt;<br />
+  &nbsp;&nbsp;&lt;div class=&quot;dropdown&quot; data-dropdown&gt;<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&lt;button class=&quot;btn-chip btn-chip--dropdown dropdown__trigger&quot; aria-haspopup=&quot;menu&quot; aria-expanded=&quot;false&quot;&gt;<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;btn-chip__icon&quot; data-icon=&quot;mono/filter&quot;&gt;&lt;/span&gt;<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;btn-chip__label&quot;&gt;Status: Active&lt;/span&gt;<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;btn-chip__chevron&quot; data-icon=&quot;mono/chevron-down&quot;&gt;&lt;/span&gt;<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&lt;/button&gt;<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&lt;div class=&quot;dropdown__menu&quot; role=&quot;menu&quot;&gt;<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;button class=&quot;dropdown__item&quot;&gt;...filter options...&lt;/button&gt;<br />
+  &nbsp;&nbsp;&nbsp;&nbsp;&lt;/div&gt;<br />
+  &nbsp;&nbsp;&lt;/div&gt;<br />
   &nbsp;&nbsp;&lt;button class=&quot;btn-chip btn-chip--cf&quot; type=&quot;button&quot;&gt;<br />
   &nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;btn-chip__icon&quot; data-icon=&quot;brand/cloudflare&quot;&gt;&lt;/span&gt;<br />
   &nbsp;&nbsp;&nbsp;&nbsp;&lt;span class=&quot;btn-chip__label&quot;&gt;Cloudflare&lt;/span&gt;<br />
