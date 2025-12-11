@@ -1175,6 +1175,7 @@ html[data-theme="light"] .btn--social-github {
 .auth-form {
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
 .auth-form > .auth-status:first-child {
@@ -1225,6 +1226,57 @@ html[data-theme="light"] .btn--social-github {
 .avatar-meta {
   color: var(--text-muted);
   margin: 0;
+}
+
+/* Avatar preview in auth forms - positioned in top-right corner */
+.auth-form .avatar-preview {
+  position: absolute;
+  top: 0;
+  right: 0;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: center;
+  z-index: 1;
+}
+
+.auth-form .avatar-ring {
+  width: 3.5rem;
+  height: 3.5rem;
+}
+
+.auth-form .avatar-icon {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+}
+
+.auth-form .avatar-meta {
+  font-size: var(--fs-xs);
+  max-width: 4rem;
+  text-align: center;
+  word-break: break-word;
+}
+
+@media (max-width: 640px) {
+  .auth-form .avatar-preview {
+    top: -0.5rem;
+    right: -0.5rem;
+  }
+
+  .auth-form .avatar-ring {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+
+  .auth-form .avatar-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  .auth-form .avatar-meta {
+    font-size: 0.625rem;
+    max-width: 3rem;
+  }
 }
 
 @media (max-width: 640px) {
