@@ -1288,3 +1288,226 @@ html[data-theme="light"] .btn--social-github {
     align-items: stretch;
   }
 }
+
+/* ========================================
+   SHARED COMPONENTS (moved from ui-guide)
+   ======================================== */
+
+/* Text utilities */
+.text-xs {
+  font-size: var(--fs-xs);
+}
+
+/* Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding-inline: 0.75em;
+  padding-block: 0.15em;
+  border-radius: 999px;
+  border: 1px solid transparent;
+
+  font-size: 0.75rem;
+  line-height: 1.6;
+  font-weight: 500;
+
+  background-color: rgba(255, 255, 255, 0.03);
+  color: var(--text);
+}
+
+.badge--pill {
+  border-radius: 999px;
+}
+
+.badge + .badge {
+  margin-left: 0.25rem;
+}
+
+.badge--neutral {
+  background-color: rgba(255, 255, 255, 0.02);
+  border-color: rgba(255, 255, 255, 0.08);
+  color: var(--muted);
+}
+
+.badge--success {
+  background-color: rgba(37, 208, 164, 0.12);
+  border-color: rgba(37, 208, 164, 0.5);
+  color: var(--ok);
+}
+
+.badge--danger {
+  background-color: rgba(255, 107, 107, 0.12);
+  border-color: rgba(255, 107, 107, 0.5);
+  color: var(--danger);
+}
+
+.badge--brand {
+  background-color: rgba(94, 139, 255, 0.16);
+  border-color: rgba(94, 139, 255, 0.55);
+  color: var(--brand);
+}
+
+.badge--cf {
+  background-color: rgba(246, 130, 31, 0.16);
+  border-color: rgba(246, 130, 31, 0.55);
+  color: #f6821f;
+}
+
+:root[data-theme='light'] .badge {
+  background-color: color-mix(in srgb, var(--text) 5%, #ffffff);
+  border-color: color-mix(in srgb, var(--text) 18%, transparent);
+  color: var(--text);
+}
+
+:root[data-theme='light'] .badge--neutral {
+  background-color: color-mix(in srgb, var(--text) 5%, var(--bg));
+  border-color: color-mix(in srgb, var(--text) 22%, transparent);
+  color: var(--muted);
+}
+
+:root[data-theme='light'] .badge--success {
+  background-color: color-mix(in srgb, var(--ok) 16%, #ffffff);
+  border-color: color-mix(in srgb, var(--ok) 42%, transparent);
+  color: var(--ok);
+}
+
+:root[data-theme='light'] .badge--danger {
+  background-color: color-mix(in srgb, var(--danger) 16%, #ffffff);
+  border-color: color-mix(in srgb, var(--danger) 44%, transparent);
+  color: var(--danger);
+}
+
+:root[data-theme='light'] .badge--brand {
+  background-color: color-mix(in srgb, var(--brand) 14%, #ffffff);
+  border-color: color-mix(in srgb, var(--brand) 40%, transparent);
+  color: var(--brand);
+}
+
+:root[data-theme='light'] .badge--cf {
+  background-color: color-mix(in srgb, var(--accent-cf-bg) 14%, #ffffff);
+  border-color: color-mix(in srgb, var(--accent-cf-bg) 40%, transparent);
+  color: var(--accent-cf-bg);
+}
+
+/* Dropdown menus */
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown__trigger {
+  color: var(--text-muted);
+}
+
+.dropdown__menu {
+  position: absolute;
+  top: calc(100% + 0.35rem);
+  right: 0;
+  min-width: 220px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-soft);
+  padding: var(--space-2) 0;
+  display: none;
+  z-index: var(--z-dropdown, 20);
+}
+
+.dropdown__menu--align-right {
+  right: 0;
+}
+
+.dropdown__item {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-size: var(--fs-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  cursor: pointer;
+  text-align: left;
+  transition: background var(--transition-md), color var(--transition-md);
+}
+
+.dropdown__item:hover {
+  background: color-mix(in srgb, var(--primary) 8%, transparent);
+  color: var(--text);
+}
+
+.dropdown__item--danger {
+  color: var(--danger);
+}
+
+.dropdown__item--danger:hover {
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+}
+
+.dropdown--open .dropdown__menu {
+  display: block;
+}
+
+.dropdown__menu .icon {
+  width: 1rem;
+  height: 1rem;
+  color: currentColor;
+}
+
+/* Link buttons */
+.link-button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: transparent;
+  border: none;
+  color: var(--primary);
+  font-size: var(--fs-sm);
+  cursor: pointer;
+  padding: 0.2rem 0.35rem;
+  border-radius: var(--radius);
+}
+
+.link-button:hover {
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
+}
+
+.link-button--sm {
+  font-size: var(--fs-xs);
+}
+
+/* Domain cells (for domain tables) */
+.domain-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.domain-cell__name {
+  font-weight: var(--fw-semibold);
+  color: var(--text);
+}
+
+.domain-cell__meta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+}
+
+.domain-cell__meta .badge {
+  font-size: var(--fs-xs);
+  padding-inline: 0.6em;
+}
+
+/* Provider labels */
+.provider-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text-muted);
+}
