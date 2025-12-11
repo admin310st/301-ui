@@ -48,17 +48,18 @@ async function injectIconSprite() {
 
 
 function bindLogoutButtons(): void {
-  document.querySelectorAll<HTMLElement>('[data-action="logout"]').forEach((btn) => {
-    if (btn.dataset.bound === 'true') return;
-    btn.dataset.bound = 'true';
-    btn.addEventListener('click', async (event) => {
-      event.preventDefault();
-      await logout();
-      handleLogoutDom();
-      showGlobalMessage('success', t('auth.messages.logoutSuccess'));
-      window.location.hash = '#login';
-      applyRouteFromHash();
-    });
+  document.addEventListener('click', async (event) => {
+    const trigger = (event.target as HTMLElement | null)?.closest<HTMLElement>(
+      '[data-action="logout"], [data-action="logout-utility"]'
+    );
+    if (!trigger) return;
+
+    event.preventDefault();
+    await logout();
+    handleLogoutDom();
+    showGlobalMessage('success', t('auth.messages.logoutSuccess'));
+    window.location.hash = '#login';
+    applyRouteFromHash();
   });
 }
 
