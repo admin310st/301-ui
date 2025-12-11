@@ -26,6 +26,13 @@ body {
   display: block;
 }
 
+/* Mono-иконки наследуют цвет текста — работает и в dark */
+.icon[data-icon^="mono/"] svg,
+.icon[data-icon^="mono/"] use {
+  fill: currentColor;
+  stroke: none;
+}
+
 .sr-only {
   position: absolute;
   width: 1px;
@@ -377,12 +384,22 @@ body {
 .btn-icon--compact {
   width: calc(1em + 1.25rem);
   height: calc(1em + 1.25rem);
+  display: inline-grid;
+  place-items: center;
 }
 
 .btn-icon .icon {
   width: 1rem;
   height: 1rem;
   color: currentColor;
+}
+
+.utility-bar .btn-icon .icon {
+  color: var(--text);
+}
+
+.utility-bar .btn-icon:hover .icon {
+  color: var(--primary);
 }
 
 .utility-bar {
@@ -441,16 +458,6 @@ body {
   align-items: center;
   gap: 0.5rem;
   margin-left: 0.75rem;
-}
-
-.btn-icon .dot {
-  position: absolute;
-  right: 0.35rem;
-  top: 0.35rem;
-  width: 0.4rem;
-  height: 0.4rem;
-  border-radius: 50%;
-  background: var(--primary);
 }
 
 .lang-switcher .btn-chip.is-active {

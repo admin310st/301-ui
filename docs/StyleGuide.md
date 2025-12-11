@@ -314,6 +314,35 @@ Header content must use the same page container: wrap header rows with `.page-sh
 
 **Header stack.** Primary header (brand, nav, language/theme). Utility bar (user context, secondary actions). Utility bar may be hidden for anonymous users.
 
+**Utility-bar: visibility rules.**
+
+* Before login show only **Help** on the right side.
+* After login show **Notifications**, **User chip**, **Log out**.
+* Use `data-onlogin` / `data-onlogout` attributes to control visibility; bind them to your auth state.
+* Notification button is a **plain icon only** (no popovers/counters in the demo).
+* Mono icons in the header must rely on `currentColor` to support dark/light themes.
+
+Пример разметки:
+
+```html
+<div class="utility-right">
+  <!-- Всегда доступно (до/после логина) -->
+  <a class="btn btn--ghost" href="#help" data-i18n="nav.help">Help</a>
+
+  <!-- Только после логина -->
+  <button class="btn-icon btn-icon--compact" type="button" aria-label="Notifications" data-onlogin>
+    <span class="icon" data-icon="mono/bell"></span>
+  </button>
+
+  <button class="btn-chip btn-chip--input" type="button" data-onlogin aria-label="User">
+    <span class="btn-chip__icon" data-icon="mono/user"></span>
+    <span class="btn-chip__label" data-user-name>Guest</span>
+  </button>
+
+  <button class="btn btn--ghost" data-onlogin data-action="logout" data-i18n="auth.logout">Log out</button>
+</div>
+```
+
 **Page header**
 
 ```css

@@ -59,29 +59,24 @@
           </div>
 
           <div class="utility-right">
-            <button class="btn-chip btn-chip--dropdown" type="button" aria-expanded="false" aria-label="Switch organization or project">
+            <button class="btn-chip btn-chip--dropdown" type="button" aria-expanded="false" aria-label="Switch organization or project" data-onlogin hidden>
               <span class="btn-chip__icon" data-icon="mono/briefcase"></span>
               <span class="btn-chip__label">Blue Team</span>
               <span class="btn-chip__chevron" data-icon="mono/chevron-down"></span>
             </button>
 
-            <button class="btn-chip btn-chip--input" type="button" data-onlogin hidden aria-label="User account">
+            <a class="btn btn--ghost" href="/ui-style-guide.html#components" aria-label="Help" data-i18n="layout.nav.help">Help</a>
+
+            <button class="btn-icon btn-icon--compact" type="button" aria-label="Notifications" data-onlogin hidden>
+              <span class="icon" data-icon="mono/bell"></span>
+            </button>
+
+            <button class="btn-chip btn-chip--input" type="button" data-onlogin hidden aria-label="User">
               <span class="btn-chip__icon" data-icon="mono/user"></span>
               <span class="btn-chip__label" data-user-name data-i18n="layout.nav.guest">Guest</span>
             </button>
 
-            <button class="btn-icon btn-icon--compact" aria-label="Notifications">
-              <span class="icon" data-icon="mono/bell"></span>
-              <span class="dot" aria-hidden="true"></span>
-            </button>
-
-            <a class="btn btn--ghost" href="/ui-style-guide.html#components" aria-label="Help">
-              <span class="icon" data-icon="mono/help-circle"></span> <span data-i18n="layout.nav.help">Help</span>
-            </a>
-
-            <a class="btn btn--ghost" data-onlogin hidden data-action="logout-utility">
-              <span class="icon" data-icon="mono/log-out"></span> <span data-i18n="auth.logout">Log out</span>
-            </a>
+            <button class="btn btn--ghost" type="button" data-onlogin hidden data-action="logout" data-i18n="auth.logout">Log out</button>
           </div>
         </div>
       </div>
