@@ -30,12 +30,14 @@ Cloudflare Workers serves `public/` as the origin root.
 - **TypeScript + Vite** — сборка фронтенда, модульный код, HMR.
 - **Cloudflare Worker + Wrangler** — деплой и хостинг статики и скриптов.
 - **Vanilla DOM-JS** — без React/Vue; тонкие модули для форм и состояния.
+- **HTML Partials System** — кастомный Vite-плагин для переиспользования компонентов (header, footer, sidebar) без дублирования кода.
 - **Cloudflare Turnstile** — защита форм логина/регистрации/ресета.
 - **Webstudio интеграция** — вспомогательный модуль `utils/webstudio.ts` для проброса токена и состояния в макеты Webstudio.
 
 **Логическая структура**
 
-- `index.html` — разметка форм, хуки через `data-*` атрибуты.
+- `index.html`, `dashboard.html`, `wizard.html`, `ui-style-guide.html` — HTML-страницы с использованием partials.
+- `partials/` — переиспользуемые компоненты (header-top, header-utility, footer, sidebar).
 - `src/api` — типизированный клиент для `/auth`-эндпоинтов.
 - `src/forms` — инициализация и обработчики форм (логин/регистрация/ресет/верификация).
 - `src/state` — хранение токена, вызовы `/auth/me` и `/auth/refresh`, обновление UI.
@@ -43,6 +45,7 @@ Cloudflare Workers serves `public/` as the origin root.
 - `src/utils` — общие утилиты (обработка JSON-ошибок, логгер, Webstudio).
 - `src/turnstile.ts` — загрузка и перерендер Turnstile, reset для повторных отправок.
 - `docs/` — UI Style Guide и roadmap по дальнейшему развитию интерфейса.
+- `CHANGELOG.md` — история изменений проекта.
 
 ---
 
@@ -201,7 +204,15 @@ Cloudflare Workers serves `public/` as the origin root.
 
 ```text
 301-ui/
-├── index.html            # Входная разметка, формы, data-* hooks
+├── index.html            # Главная страница (auth forms)
+├── dashboard.html        # Дашборд (с сайдбаром)
+├── wizard.html           # Cloudflare Setup Wizard
+├── ui-style-guide.html   # UI Style Guide (демо компонентов)
+├── partials/             # Переиспользуемые компоненты
+│   ├── header-top.hbs    # Лого, навигация, язык, тема
+│   ├── header-utility.hbs# Помощь, уведомления, user menu
+│   ├── footer.hbs        # Футер с брендом
+│   └── sidebar.hbs       # Сайдбар навигации
 ├── public/               # Скомпилированные ассеты (output Vite)
 ├── src/
 │   ├── api/              # Клиент и типы для /auth
@@ -214,10 +225,54 @@ Cloudflare Workers serves `public/` as the origin root.
 │   └── main.ts           # Точка входа Vite, bootstrap всех форм
 ├── static/               # Локальные статические файлы
 ├── docs/                 # Style Guide и UI roadmap
-├── vite.config.ts        # Конфиг Vite (сборка в public/)
+├── .claude/              # Claude Code agents и команды
+│   ├── agents/           # Кастомные агенты (ui-code-reviewer, pr-review-bot)
+│   └── commands/         # Slash-команды (/uix, /pr)
+├── vite.config.ts        # Конфиг Vite (сборка в public/, partials plugin)
 ├── tsconfig.json         # Strict TS, алиасы
-└── wrangler.toml         # Cloudflare Worker deploy config
+├── wrangler.toml         # Cloudflare Worker deploy config
+├── CHANGELOG.md          # История изменений
+└── CLAUDE.md             # Инструкции для Claude Code
 ```
+
+---
+
+## HTML Partials System
+
+Для устранения дублирования кода header/footer/sidebar используется кастомный Vite-плагин с поддержкой partials:
+
+**Использование в HTML:**
+```html
+<header class="site-header" role="banner">
+{{> header-top}}
+
+  <div class="utility-bar">
+    <!-- Page-specific breadcrumbs -->
+{{> header-utility}}
+  </div>
+</header>
+
+<main class="page-shell app-shell">
+{{> sidebar activePage="dashboard"}}
+  <!-- Content -->
+</main>
+
+{{> footer}}
+```
+
+**Преимущества:**
+- Изменение header требует правки только 1 файла вместо 4+
+- Автоматическое применение изменений ко всем страницам
+- Подготовка к 20+ страницам из roadmap (Layers 1-7)
+- Нет внешних зависимостей, работает через кастомный Vite-плагин
+
+**Partials:**
+- `header-top.hbs` — Лого, навигация, переключатель языка, тема
+- `header-utility.hbs` — Help, уведомления, меню пользователя, logout
+- `footer.hbs` — Футер с брендом и ссылками
+- `sidebar.hbs` — Навигация с динамическим `is-active` состоянием
+
+Подробности в коммите `0a4f8e8` и `CHANGELOG.md`.
 
 ---
 

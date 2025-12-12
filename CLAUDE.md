@@ -12,7 +12,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Cloudflare account connection wizard
 - Foundation for future user cabinet, domain management, and TDS/streams functionality
 
-**Stack:** TypeScript + Vite + Vanilla DOM-JS (no frameworks) + Cloudflare Workers + Cloudflare Turnstile
+**Stack:** TypeScript + Vite + Vanilla DOM-JS (no frameworks) + Cloudflare Workers + Cloudflare Turnstile + HTML Partials System
 
 ## API Reference Documentation
 
@@ -71,6 +71,37 @@ Icons are built from SVG sources in `static/img/icons-src/` into:
 npm run purge:report     # Analyze unused CSS (output to build/purge-report, not committed)
 ```
 
+## HTML Partials System
+
+To eliminate code duplication across pages, the project uses a custom Vite plugin for HTML partials:
+
+**Syntax:**
+```html
+{{> partial-name}}                    <!-- Simple include -->
+{{> sidebar activePage="dashboard"}}  <!-- Parameterized include -->
+```
+
+**Available Partials:**
+- `partials/header-top.hbs` - Logo, primary navigation, language switcher, theme toggle
+- `partials/header-utility.hbs` - Help button, notifications, user menu, logout button
+- `partials/footer.hbs` - Footer with brand and links
+- `partials/sidebar.hbs` - Sidebar navigation with dynamic `is-active` state
+
+**Implementation:**
+The custom Vite plugin (`vite.config.ts`) uses regex-based string replacement during the `transformIndexHtml` hook. It supports:
+- Simple partial includes: `{{> partial-name}}`
+- Parameterized partials: `{{> sidebar activePage="value"}}`
+- Handlebars-style conditionals in partials (resolved at build time)
+
+**Benefits:**
+- Header/footer changes require editing only 1 file instead of 4+
+- Consistent layout across all pages automatically
+- Prepared for 20+ pages from roadmap (Layers 1-7)
+- No external dependencies (custom plugin, ~40 lines of code)
+
+**When creating new pages:**
+Always use partials for header/footer/sidebar. Page-specific content (breadcrumbs, badges) stays inline. See existing pages (index.html, dashboard.html, wizard.html) for examples.
+
 ## Architecture
 
 ### Module Structure
@@ -78,6 +109,12 @@ npm run purge:report     # Analyze unused CSS (output to build/purge-report, not
 The codebase uses path aliases defined in both `tsconfig.json` and `vite.config.ts`:
 
 ```
+partials/
+├── header-top.hbs    # Logo, nav, lang, theme
+├── header-utility.hbs# Help, notifications, user menu
+├── footer.hbs        # Footer with brand
+└── sidebar.hbs       # Sidebar navigation (dynamic active state)
+
 src/
 ├── api/              # Backend API client (@api/*)
 │   ├── client.ts     # Base fetch wrapper with auth headers
@@ -396,6 +433,12 @@ Deployment configuration in `wrangler.toml`:
 - Assets directory: `./public`
 - SPA mode: All 404s serve `index.html`
 - Environment variables: `TURNSTILE_SITEKEY` (set in Cloudflare dashboard)
+
+## History and Changelog
+
+See `CHANGELOG.md` for detailed version history and changes. Notable milestones:
+- **v0.2.0** (2025-12-12): Cards v2, unified controls, partials system, PR review bot
+- **v0.1.0** (2025-12-11): Initial auth pages, Style Guide foundation, Turnstile integration
 
 ## Future Development Roadmap
 

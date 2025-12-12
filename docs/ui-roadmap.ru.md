@@ -27,10 +27,12 @@
 
 Текущий фронтенд-стек:
 
-- Vite + TypeScript + ESM-модули
-- Cloudflare Workers (app.301.st) + статика (`public/`)
-- Свои CSS-токены и дизайн-система (без Tailwind)
-- SVG-иконки через спрайт (`icons-sprite.svg`)
+- **Vite + TypeScript** + ESM-модули
+- **Cloudflare Workers** (app.301.st) + статика (`public/`)
+- **HTML Partials System** (custom Vite plugin, no external deps)
+- **Свои CSS-токены** и дизайн-система (без Tailwind)
+- **SVG-иконки** через спрайт (`icons-sprite.svg`)
+- **Custom Claude agents** (ui-code-reviewer, pr-review-bot)
 
 Бэкенд-структура (упрощённо):
 
@@ -53,12 +55,16 @@
 
 Сделано:
 
-- Единый рецепт контролов: кнопки, чипы и поиск совпадают по высоте.
-- Табличные контролы вынесены над таблицей; в заголовке остаются только сортировки.
-- Utility-bar: гейтинг до/после логина, колокольчик читаем в dark-теме.
-- Экран входа: промо-карта справа + блок «Как это работает».
-- Введены Cards v2 (panel / soft / ghost + compact / accent / interactive).
-- Иконки: моно-набор наследует `currentColor`, нет артефактов в тёмной теме.
+- **Единый рецепт контролов**: кнопки, чипы и поиск совпадают по высоте.
+- **Табличные контролы** вынесены над таблицей; в заголовке остаются только сортировки.
+- **Utility-bar**: гейтинг до/после логина, колокольчик читаем в dark-теме, Help-кнопка как иконка.
+- **Экран входа**: промо-карта справа + блок «Как это работает».
+- **Cards v2** (panel / soft / ghost + compact / accent / interactive).
+- **Иконки**: моно-набор наследует `currentColor`, нет артефактов в тёмной теме.
+- **HTML Partials System**: header, footer, sidebar вынесены в переиспользуемые компоненты (eliminates duplication for 20+ future pages).
+- **Badge в breadcrumbs**: eyebrow pattern deprecated, статусы теперь в breadcrumb badges.
+- **Ruled/Spaced Lists**: helpers для step-by-step инструкций и списков с иконками.
+- **Cloudflare Wizard**: bootstrap page для подключения CF-аккаунта.
 
 Базовые auth-флоу и инфраструктура в этом слое:
 
@@ -71,10 +77,13 @@
 
 Next:
 
-- Sidebar drawer (mobile).
-- Stat-cards с метриками.
-- Состояния карт success/warn/info через `--accent`.
-- Паттерн «шаги со статусом».
+- **Sidebar drawer** (mobile).
+- **Stat-cards** с метриками.
+- **Состояния карт** success/warn/info через `--accent`.
+- **Паттерн «шаги со статусом»** (step wizard, progress indicator).
+- **Empty states** для пустых таблиц и списков.
+- **Loading states** (skeleton screens, spinners).
+- **Error states** (404, 500, network error pages).
 
 Это «нулевой» слой, на котором строится кабинет.
 

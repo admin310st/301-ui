@@ -1,0 +1,116 @@
+# Changelog
+
+All notable changes to the 301-ui project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+### Added
+- HTML partials system to eliminate code duplication across pages
+- Custom Vite plugin for partial includes (no external dependencies)
+- Reusable components: header-top, header-utility, footer, sidebar
+- PR Review Bot agent for automated PR workflow (`/pr` command)
+- Custom Claude agents: `pr-review-bot`, `ui-code-reviewer`
+
+### Changed
+- Moved `ui-style-guide.html` from `static/` to root for Vite processing
+- Refactored all pages to use partials (index, dashboard, wizard, ui-style-guide)
+- Header/footer changes now require editing only 1 file instead of 4+
+
+## [0.2.0] - 2025-12-12
+
+### Added
+- **Cards v2 system** with CSS variable-based architecture
+  - Card types: `panel`, `soft`, `ghost`
+  - Modifiers: `compact`, `accent`, `interactive`
+  - Comprehensive documentation in StyleGuide.md
+- **Unified control recipe** across buttons, chips, search bars, tabs
+  - Consistent height formula: `font-size × line-height + padding × 2`
+  - No fixed heights, all controls use CSS variables
+- **Pill vs Field** border-radius system
+  - Buttons/chips use `--r-pill` (999px)
+  - Form inputs use `--r-field` (0.75rem)
+- **Table Search Bar** canonical pattern
+  - Single markup standard across all tables
+  - Unified height with buttons and chips
+  - Flexible layout with gap tokens
+- **Ruled and Spaced Lists** helpers
+  - `.list--ruled` for step-by-step instructions
+  - `.list--spaced` with icon support
+- **Badge system enhancements**
+  - Moved eyebrow pattern to breadcrumb badges
+  - Variants: `badge--success`, `badge--brand`, `badge--cf`, `badge--neutral`
+- **Icon system improvements**
+  - Mono icons inherit `currentColor` automatically
+  - Consistent 1em sizing inside controls
+  - help-circle icon for Help buttons
+- **Cloudflare Setup Wizard** (bootstrap page)
+  - Migrated to unified auth shell layout
+  - Card anatomy with header/body/footer structure
+  - Form validation and API integration ready
+
+### Changed
+- **Button styles normalized** between `<a>` and `<button>` elements
+  - Added `text-decoration: none` and `line-height: 1` to `.btn-icon`
+  - Visual consistency across all icon buttons
+- **Help button** converted from large ghost button to compact icon button
+  - Uses help-circle icon
+  - Consistent sizing with notifications button
+- **Badge alignment** in utility-bar breadcrumbs
+  - Changed from `inline-flex` to `flex` for proper vertical centering
+
+### Fixed
+- Textarea semantic class in wizard.html (`input` → `textarea`)
+- Card spacing issues with first/last child margin resets
+- OAuth button functionality with correct `data-social` attributes
+
+### Documentation
+- Updated StyleGuide.md with Cards v2 system
+- Added border-radius guidelines and usage table
+- Documented panel vs soft card usage patterns
+- Added code examples for all card variants
+- Deprecated `.eyebrow` in favor of breadcrumb badges
+
+## [0.1.0] - 2025-12-11
+
+### Added
+- Initial authentication pages (login, register, password reset)
+- UI Style Guide foundation (`/ui-style-guide`)
+- Cloudflare Turnstile integration
+- OAuth starts (Google, GitHub)
+- State management with auth-state.ts
+- i18n system (English, Russian)
+- Icon sprite system (mono/ and brand/ categories)
+- Theme switcher (dark/light mode)
+- Responsive layouts and components
+- Form validation and error handling
+- API client for `/auth` endpoints
+
+### Infrastructure
+- Vite + TypeScript build system
+- Cloudflare Workers deployment setup
+- Path aliases (@api, @forms, @ui, @state, @utils, @social, @i18n)
+- PurgeCSS reports for CSS optimization
+- Icon build system from SVG sources
+
+### Documentation
+- README.md with architecture overview
+- CLAUDE.md with project instructions for AI assistants
+- StyleGuide.md with design system tokens
+- ui-roadmap.ru.md with long-term roadmap
+- API contract documentation
+
+---
+
+## Legend
+
+- **Added** for new features
+- **Changed** for changes in existing functionality
+- **Deprecated** for soon-to-be removed features
+- **Removed** for now removed features
+- **Fixed** for any bug fixes
+- **Security** for vulnerability fixes
+- **Documentation** for documentation-only changes
+- **Infrastructure** for build/deploy/tooling changes
