@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Refactored all pages to use partials (index, dashboard, wizard, ui-style-guide)
 - Header/footer changes now require editing only 1 file instead of 4+
 - `worker.ts` now checks session cookies and redirects authenticated users away from login page
+- **ui-style-guide.html** updated to use header-utility and footer partials for consistency
 
 ## [0.2.0] - 2025-12-12
 
