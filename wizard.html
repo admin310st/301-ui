@@ -47,7 +47,7 @@
               <header class="auth-section__header">
                 <h1 class="h2 auth-title" data-i18n="cf.wizard.title">Cloudflare Account Bootstrap</h1>
                 <p class="auth-subtitle" data-i18n="cf.wizard.subtitle">
-                  Step 1 · Paste your Account ID and Bootstrap API token.
+                  Connect your Cloudflare account to 301.st
                 </p>
               </header>
 
@@ -66,84 +66,246 @@
                   </div>
                 </div>
 
-                <form class="auth-form stack" data-form="cf-bootstrap">
-                  <div class="field">
-                    <label class="field-label" data-i18n="cf.wizard.accountIdLabel">Cloudflare Account ID</label>
-                    <input
-                      class="input"
-                      type="text"
-                      name="cf_account_id"
-                      autocomplete="off"
-                      data-i18n-placeholder="cf.wizard.accountIdPlaceholder"
-                      placeholder="e.g. 1234567890abcdef1234567890abcdef"
-                      required
-                      aria-describedby="cf-status"
-                    />
-                  </div>
-
-                  <div class="field">
-                    <label class="field-label" data-i18n="cf.wizard.tokenLabel">Bootstrap API token</label>
-                    <textarea
-                      class="textarea"
-                      name="cf_bootstrap_token"
-                      rows="4"
-                      data-i18n-placeholder="cf.wizard.tokenPlaceholder"
-                      placeholder="Paste token with 'Account API Tokens: Edit' scope…"
-                      required
-                      aria-describedby="cf-token-hint cf-status"
-                    ></textarea>
-                    <p class="field-hint text-muted" id="cf-token-hint" data-i18n="cf.wizard.tokenHint">
-                      Created as <code>301st Bootstrap</code> with <em>Account API Tokens: Edit</em> permission.
-                    </p>
-                  </div>
-
-                  <div class="auth-actions">
-                    <button
-                      type="submit"
-                      class="btn btn--cf"
-                      data-i18n="cf.wizard.submit"
-                      data-i18n-aria="cf.wizard.submitAria"
-                      aria-label="Save and verify Cloudflare token"
-                    >
-                      Save &amp; verify token
-                    </button>
-                  </div>
-
-                  <div
-                    class="auth-status"
-                    data-type="pending"
-                    data-form-status="cf-bootstrap"
-                    id="cf-status"
-                    data-i18n="cf.wizard.statusStub"
-                    role="status"
-                    aria-live="polite"
+                <!-- Method selection -->
+                <nav class="btn-chip-group" role="tablist" aria-label="Setup method">
+                  <button
+                    type="button"
+                    class="btn-chip is-active"
+                    role="tab"
+                    aria-selected="true"
+                    aria-controls="panel-manual"
+                    data-cf-method="manual"
                   >
-                    This will hit <code>/auth/integrations/cloudflare/bootstrap</code> once wired.
+                    <span class="icon" data-icon="mono/shield-account"></span>
+                    Manual Token (Recommended)
+                  </button>
+                  <button
+                    type="button"
+                    class="btn-chip"
+                    role="tab"
+                    aria-selected="false"
+                    aria-controls="panel-global"
+                    data-cf-method="global"
+                  >
+                    <span class="icon" data-icon="mono/zap"></span>
+                    Quick Setup (Global API Key)
+                  </button>
+                </nav>
+
+                <!-- Manual Token Method (Recommended) -->
+                <div id="panel-manual" role="tabpanel" data-cf-panel="manual">
+                  <form class="auth-form stack" data-form="cf-bootstrap-manual">
+                    <div class="field">
+                      <label class="field-label" data-i18n="cf.wizard.accountIdLabel">Cloudflare Account ID</label>
+                      <input
+                        class="input"
+                        type="text"
+                        name="cf_account_id"
+                        autocomplete="off"
+                        data-i18n-placeholder="cf.wizard.accountIdPlaceholder"
+                        placeholder="e.g. 1234567890abcdef1234567890abcdef"
+                        required
+                        aria-describedby="cf-status-manual"
+                      />
+                    </div>
+
+                    <div class="field">
+                      <label class="field-label" data-i18n="cf.wizard.tokenLabel">Bootstrap API Token</label>
+                      <textarea
+                        class="textarea"
+                        name="cf_bootstrap_token"
+                        rows="4"
+                        data-i18n-placeholder="cf.wizard.tokenPlaceholder"
+                        placeholder="Paste token with 'Account API Tokens: Edit' scope…"
+                        required
+                        aria-describedby="cf-token-hint cf-status-manual"
+                      ></textarea>
+                      <p class="field-hint text-muted" id="cf-token-hint" data-i18n="cf.wizard.tokenHint">
+                        Created as <code>301st Bootstrap</code> with <em>Account API Tokens: Edit</em> permission.
+                      </p>
+                    </div>
+
+                    <div class="panel panel--success">
+                      <div class="stack" style="gap: var(--space-1);">
+                        <p class="text-sm"><strong>✓ Recommended approach:</strong> Scoped tokens limit what 301.st can access.</p>
+                        <p class="text-sm text-muted">We'll never see your Cloudflare password or Global API Key.</p>
+                      </div>
+                    </div>
+
+                    <div class="auth-actions">
+                      <button
+                        type="submit"
+                        class="btn btn--cf"
+                        data-i18n="cf.wizard.submit"
+                        data-i18n-aria="cf.wizard.submitAria"
+                        aria-label="Save and verify Cloudflare token"
+                      >
+                        Save &amp; verify token
+                      </button>
+                    </div>
+
+                    <div
+                      class="auth-status"
+                      data-type="pending"
+                      data-form-status="cf-bootstrap-manual"
+                      id="cf-status-manual"
+                      role="status"
+                      aria-live="polite"
+                    >
+                      Enter your credentials above to begin validation.
+                    </div>
+                  </form>
+                </div>
+
+                <!-- Global API Key Method (Quick but risky) -->
+                <div id="panel-global" role="tabpanel" data-cf-panel="global" hidden>
+                  <!-- Warning card -->
+                  <div class="card card--panel card--accent" style="--accent: var(--danger); margin-bottom: var(--space-4);">
+                    <header class="card__header">
+                      <h3 class="h5"><span class="icon" data-icon="mono/alert-triangle"></span> Security Warning</h3>
+                    </header>
+                    <div class="card__body stack">
+                      <p class="text-sm">
+                        <strong>Global API Key gives full access to your Cloudflare account.</strong> This method is convenient but risky.
+                      </p>
+                      <div class="panel panel--warn">
+                        <ul class="list--spaced text-sm">
+                          <li><strong>What we do:</strong> Create a scoped token for you with minimum required permissions</li>
+                          <li><strong>What we DON'T do:</strong> Store or log your Global API Key (discarded immediately after use)</li>
+                          <li><strong>Risk:</strong> If our connection is compromised during this process, your Global API Key could be exposed</li>
+                        </ul>
+                      </div>
+                      <p class="text-sm text-muted">
+                        <strong>We strongly recommend using Manual Token method instead.</strong> It takes 2 extra minutes but is much safer.
+                      </p>
+                    </div>
                   </div>
-                </form>
+
+                  <form class="auth-form stack" data-form="cf-bootstrap-global">
+                    <div class="field">
+                      <label class="field-label">Cloudflare Account Email</label>
+                      <input
+                        class="input"
+                        type="email"
+                        name="cf_account_email"
+                        autocomplete="email"
+                        placeholder="your-email@example.com"
+                        required
+                        aria-describedby="cf-status-global"
+                      />
+                      <p class="field-hint text-muted">
+                        The email address associated with your Cloudflare account.
+                      </p>
+                    </div>
+
+                    <div class="field">
+                      <label class="field-label">Global API Key</label>
+                      <textarea
+                        class="textarea"
+                        name="cf_global_key"
+                        rows="3"
+                        placeholder="Paste your Global API Key…"
+                        required
+                        aria-describedby="cf-global-hint cf-status-global"
+                      ></textarea>
+                      <p class="field-hint text-muted" id="cf-global-hint">
+                        Found in Cloudflare dashboard: <strong>My Profile → API Tokens → Global API Key → View</strong>
+                      </p>
+                    </div>
+
+                    <div class="panel panel--info">
+                      <div class="stack" style="gap: var(--space-2);">
+                        <p class="text-sm"><strong>How it works:</strong></p>
+                        <ol class="list--ruled text-sm">
+                          <li>You submit your Global API Key</li>
+                          <li>We immediately create a scoped token with minimum permissions</li>
+                          <li>We save the scoped token and <strong>discard your Global API Key</strong></li>
+                          <li>You can verify in Cloudflare dashboard that a new API token was created</li>
+                        </ol>
+                        <p class="text-sm text-muted">
+                          After setup, you can revoke your Global API Key and rotate it. We'll only use the scoped token going forward.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div class="auth-actions">
+                      <button
+                        type="submit"
+                        class="btn btn--danger"
+                        aria-label="Create scoped token from Global API Key"
+                      >
+                        <span class="icon" data-icon="mono/zap"></span>
+                        Create scoped token
+                      </button>
+                      <button
+                        type="button"
+                        class="btn btn--ghost"
+                        data-switch-method="manual"
+                      >
+                        Switch to Manual Token
+                      </button>
+                    </div>
+
+                    <div
+                      class="auth-status"
+                      data-type="pending"
+                      data-form-status="cf-bootstrap-global"
+                      id="cf-status-global"
+                      role="status"
+                      aria-live="polite"
+                    >
+                      Enter your credentials above. We'll create a scoped token and immediately discard the Global API Key.
+                    </div>
+                  </form>
+                </div>
               </div>
             </article>
 
             <aside class="card card--panel card--compact" data-auth="guest">
               <header class="card__header">
-                <h3 class="card__title">How to get your credentials</h3>
+                <h3 class="card__title" data-cf-help="manual">How to get your credentials (Manual)</h3>
+                <h3 class="card__title" data-cf-help="global" hidden>How to get Global API Key</h3>
               </header>
               <div class="card__body">
-                <ol class="list--ruled">
+                <!-- Manual method help -->
+                <ol class="list--ruled" data-cf-help="manual">
                   <li>
                     <strong>Account ID:</strong> In Cloudflare dashboard, go to <strong>Account Home → Overview</strong> and copy your Account ID.
                   </li>
                   <li>
-                    <strong>Bootstrap API Token:</strong> Create a new token with the <code>301st Bootstrap</code> template and <em>Account API Tokens: Edit</em> permission.
+                    <strong>Bootstrap API Token:</strong> Go to <strong>My Profile → API Tokens → Create Token</strong>. Use template <code>301st Bootstrap</code> with <em>Account API Tokens: Edit</em> permission.
                   </li>
                   <li>
                     <strong>Verify:</strong> Click "Save &amp; verify token" to validate credentials and enable domain management features.
                   </li>
                 </ol>
+
+                <!-- Global method help -->
+                <div data-cf-help="global" hidden>
+                  <ol class="list--ruled">
+                    <li>
+                      <strong>Account Email:</strong> The email you use to log in to Cloudflare.
+                    </li>
+                    <li>
+                      <strong>Global API Key:</strong> Go to <strong>My Profile → API Tokens → Global API Key → View</strong>. Enter your password to reveal it.
+                    </li>
+                    <li>
+                      <strong>Security tip:</strong> After we create the scoped token, consider rotating your Global API Key in Cloudflare settings.
+                    </li>
+                  </ol>
+
+                  <div class="panel panel--warn" style="margin-top: var(--space-3);">
+                    <p class="text-sm">
+                      <strong>Still recommend Manual Token?</strong> Yes. It's safer and takes only 2 more minutes.
+                    </p>
+                  </div>
+                </div>
               </div>
               <footer class="card__footer auth-actions">
-                <button class="btn btn--primary" type="button">Create account</button>
-                <button class="btn btn--cf" type="button">Open Cloudflare</button>
+                <a class="btn btn--cf" href="https://dash.cloudflare.com" target="_blank" rel="noopener">
+                  <span class="icon" data-icon="brand/cloudflare"></span>
+                  Open Cloudflare
+                </a>
               </footer>
             </aside>
           </div>
@@ -154,5 +316,44 @@
 {{> footer}}
 
     <script type="module" src="/src/main.ts"></script>
+    <script>
+      // Simple tab switching logic (until we wire up proper form handlers)
+      document.addEventListener('DOMContentLoaded', () => {
+        const tabs = document.querySelectorAll('[data-cf-method]');
+        const panels = document.querySelectorAll('[data-cf-panel]');
+        const helpSections = document.querySelectorAll('[data-cf-help]');
+        const switchBtn = document.querySelector('[data-switch-method]');
+
+        function switchMethod(method) {
+          tabs.forEach(tab => {
+            const isActive = tab.dataset.cfMethod === method;
+            tab.classList.toggle('is-active', isActive);
+            tab.setAttribute('aria-selected', isActive);
+          });
+
+          panels.forEach(panel => {
+            const isVisible = panel.dataset.cfPanel === method;
+            panel.hidden = !isVisible;
+          });
+
+          helpSections.forEach(section => {
+            const isVisible = section.dataset.cfHelp === method;
+            section.hidden = !isVisible;
+          });
+        }
+
+        tabs.forEach(tab => {
+          tab.addEventListener('click', () => {
+            switchMethod(tab.dataset.cfMethod);
+          });
+        });
+
+        if (switchBtn) {
+          switchBtn.addEventListener('click', () => {
+            switchMethod('manual');
+          });
+        }
+      });
+    </script>
   </body>
 </html>

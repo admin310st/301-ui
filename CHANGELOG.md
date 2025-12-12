@@ -29,6 +29,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - security.html - Security practices and responsible disclosure
   - docs.html - Documentation index and quick start guide
   - All pages added to Vite build input for proper deployment
+- **Cloudflare wizard dual-path setup**:
+  - Manual Token method (recommended, secure) - user creates scoped token themselves
+  - Global API Key method (quick, risky) - we create scoped token and discard Global Key
+  - Clear security warnings and explanations of risks for Global API Key path
+  - Tab-based UI with dynamic help sections for each method
 
 ### Changed
 - Moved `ui-style-guide.html` from `static/` to root for Vite processing
