@@ -541,6 +541,8 @@ body {
   background: var(--panel);
   color: var(--text);
   cursor: pointer;
+  text-decoration: none;
+  line-height: 1;
 }
 
 .btn-icon--compact {
