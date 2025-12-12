@@ -183,8 +183,15 @@ src/
 - **API specification**: `docs/301-wiki/API.md` (local reference, always up-to-date)
 - All endpoint contracts, schemas, and auth flows documented in the wiki
 
-**4. Cloudflare Worker**
+**4. Cloudflare Worker & Auth Redirect Strategy**
 - `src/worker.ts` handles routing and serves static assets
+- **Early redirect for authenticated users**: Worker checks session cookies and redirects `/` → `/dashboard.html` before HTML loads (HTTP 307)
+  - Cookie patterns checked: `refresh_token`, `session`, `auth_session`, `_301st_session`
+  - This runs on Cloudflare Workers edge for optimal performance
+- **Client-side fallback**: `index.html` includes inline script in `<head>` that checks `/auth/refresh` and redirects if session is valid
+  - Ensures portability: works on any hosting platform (Vercel, Netlify, static hosting)
+  - Body hidden with `opacity: 0` during check to prevent "flash" of login page
+  - 3-second timeout to avoid blocking page load on slow networks
 - `/env` endpoint exposes `TURNSTILE_SITEKEY` for client use
 - Requests to `/auth/*` routes are rewritten to serve `index.html` (SPA mode)
 - Static assets served from `public/` directory via Wrangler's asset binding

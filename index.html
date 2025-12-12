@@ -9,6 +9,38 @@
     <link rel="stylesheet" href="/css/theme.css" />
     <link rel="stylesheet" href="/css/layout.css" />
     <link rel="stylesheet" href="/css/site.css" />
+
+    <!-- Early auth check: redirect authenticated users to dashboard
+         This serves as a fallback for non-Cloudflare deployments.
+         On CF Workers, the redirect happens at worker.ts before this runs. -->
+    <style>
+      body { opacity: 0; transition: opacity 0.15s ease-in; }
+      body.auth-checked { opacity: 1; }
+    </style>
+    <script>
+      (async function() {
+        try {
+          // Quick session check via refresh endpoint
+          const res = await fetch('https://api.301.st/auth/refresh', {
+            method: 'POST',
+            credentials: 'include',
+            signal: AbortSignal.timeout(3000) // 3s timeout
+          });
+
+          if (res.ok) {
+            // Valid session - redirect to dashboard
+            window.location.replace('/dashboard.html');
+            return; // Don't show login page
+          }
+        } catch (err) {
+          // No session or network error - continue to login page
+          console.debug('Auth check:', err.message || 'No active session');
+        }
+
+        // No valid session - show login page
+        document.body.classList.add('auth-checked');
+      })();
+    </script>
   </head>
   <body>
     <header class="site-header" role="banner">

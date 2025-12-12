@@ -44,8 +44,18 @@ Cloudflare Workers serves `public/` as the origin root.
 - `src/ui` — хелперы для работы с DOM, отображения ошибок/уведомлений, скрытия/показа блоков по атрибутам (`data-onlogin`, `data-onlogout`, `data-auth-email`).
 - `src/utils` — общие утилиты (обработка JSON-ошибок, логгер, Webstudio).
 - `src/turnstile.ts` — загрузка и перерендер Turnstile, reset для повторных отправок.
+- `src/worker.ts` — Cloudflare Worker с логикой роутинга и ранним редиректом для залогиненных пользователей.
 - `docs/` — UI Style Guide и roadmap по дальнейшему развитию интерфейса.
 - `CHANGELOG.md` — история изменений проекта.
+
+**Auth Redirect Strategy**
+
+Приложение использует двухуровневую стратегию редиректа залогиненных пользователей с `/` на `/dashboard.html`:
+
+1. **Worker-level redirect (Cloudflare)** — `worker.ts` проверяет session cookie и делает HTTP 307 redirect до загрузки HTML. Самый быстрый вариант, работает на Edge.
+2. **Client-side fallback** — inline скрипт в `<head>` index.html проверяет `/auth/refresh` и делает redirect через `location.replace()`. Обеспечивает портируемость на любой хостинг (Vercel, Netlify, статика).
+
+Оба механизма работают независимо: на CF Workers срабатывает первый уровень, на других платформах — второй. Body страницы скрыт (`opacity: 0`) до завершения проверки, чтобы избежать "flash" формы логина.
 
 ---
 

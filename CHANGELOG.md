@@ -13,11 +13,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Reusable components: header-top, header-utility, footer, sidebar
 - PR Review Bot agent for automated PR workflow (`/pr` command)
 - Custom Claude agents: `pr-review-bot`, `ui-code-reviewer`
+- **Auth redirect strategy** with two-level protection:
+  - Worker-level: Cookie-based redirect on Cloudflare Workers edge (HTTP 307)
+  - Client-side fallback: Early `<head>` script for portability to any hosting platform
+  - Body opacity fade-in to prevent "flash" of login page during auth check
 
 ### Changed
 - Moved `ui-style-guide.html` from `static/` to root for Vite processing
 - Refactored all pages to use partials (index, dashboard, wizard, ui-style-guide)
 - Header/footer changes now require editing only 1 file instead of 4+
+- `worker.ts` now checks session cookies and redirects authenticated users away from login page
 
 ## [0.2.0] - 2025-12-12
 
