@@ -28,7 +28,16 @@
           });
 
           if (res.ok) {
-            // Valid session - redirect to dashboard
+            // Valid session - set welcome message for dashboard
+            try {
+              const notice = {
+                type: 'success',
+                message: 'Welcome back! You\'re already logged in.'
+              };
+              window.sessionStorage.setItem('globalNotice', JSON.stringify(notice));
+            } catch {}
+
+            // Redirect to dashboard
             window.location.replace('/dashboard.html');
             return; // Don't show login page
           }
@@ -67,37 +76,7 @@
       </div>
     </header>
 
-    <div
-      id="GlobalNotice"
-      class="app-alert app-alert--info"
-      data-state="hidden"
-      data-type="info"
-      role="status"
-      aria-live="polite"
-    >
-      <div class="app-alert__inner">
-        <span class="icon app-alert__icon" aria-hidden="true">
-          <svg>
-            <use href="#i-mono-info"></use>
-          </svg>
-        </span>
-        <div class="app-alert__content">
-          <p id="GlobalNoticeText" class="app-alert__text"></p>
-        </div>
-        <button
-          type="button"
-          class="app-alert__close"
-          aria-label="Close notification"
-          data-i18n-aria="notice.close"
-        >
-          <span class="icon" aria-hidden="true">
-            <svg>
-              <use href="#i-mono-close"></use>
-            </svg>
-          </span>
-        </button>
-      </div>
-    </div>
+{{> global-notice}}
 
     <main class="page">
       <div class="page-shell">

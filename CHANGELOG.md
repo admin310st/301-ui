@@ -17,6 +17,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Worker-level: Cookie-based redirect on Cloudflare Workers edge (HTTP 307)
   - Client-side fallback: Early `<head>` script for portability to any hosting platform
   - Body opacity fade-in to prevent "flash" of login page during auth check
+  - Welcome message via sessionStorage when redirecting authenticated users
+- **GlobalNotice partial component** for consistent notification banners across all pages
+  - Extracted from index.html into reusable `partials/global-notice.hbs`
+  - Added to dashboard.html, wizard.html, and ui-style-guide.html
+  - Notifications now seamlessly transfer between pages via sessionStorage
 
 ### Changed
 - Moved `ui-style-guide.html` from `static/` to root for Vite processing
