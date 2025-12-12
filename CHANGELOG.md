@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - terms.html - Terms of Service (clear responsibility model)
   - security.html - Security practices and responsible disclosure
   - docs.html - Documentation index and quick start guide
+  - All pages added to Vite build input for proper deployment
 
 ### Changed
 - Moved `ui-style-guide.html` from `static/` to root for Vite processing
