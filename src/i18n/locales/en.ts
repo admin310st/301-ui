@@ -15,6 +15,12 @@ export const en = {
       reset: 'Forgot password?',
       logout: 'Log out',
       aria: 'Authentication navigation',
+      integrations: 'Integrations',
+      domains: 'Domains',
+      projects: 'Projects',
+      sites: 'Sites',
+      streams: 'Streams',
+      redirects: 'Redirects',
     },
     headerTabsLabel: 'Authentication actions',
     footer: {

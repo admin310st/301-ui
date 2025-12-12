@@ -17,6 +17,12 @@ export const ru: Translation = {
       reset: 'Забыли пароль?',
       logout: 'Выйти',
       aria: 'Навигация по аутентификации',
+      integrations: 'Интеграции',
+      domains: 'Домены',
+      projects: 'Проекты',
+      sites: 'Сайты',
+      streams: 'Потоки',
+      redirects: 'Редиректы',
     },
     headerTabsLabel: 'Тип операции',
     footer: {
