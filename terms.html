@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Terms of Service — 301.st</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" href="/css/theme.css" />
+    <link rel="stylesheet" href="/css/layout.css" />
+    <link rel="stylesheet" href="/css/site.css" />
+  </head>
+  <body>
+    <header class="site-header" role="banner">
+{{> header-top}}
+
+      <div class="utility-bar">
+        <div class="page-shell utility-bar__inner">
+          <div class="utility-left">
+            <nav class="breadcrumbs" aria-label="Breadcrumb">
+              <a href="/" class="crumb"
+                ><span class="icon" data-icon="mono/home"></span> <span data-i18n="layout.nav.home">Home</span></a
+              >
+              <span class="sep" aria-hidden="true">›</span>
+              <span class="crumb is-current">Terms of Service</span>
+            </nav>
+          </div>
+
+{{> header-utility}}
+        </div>
+      </div>
+    </header>
+
+{{> global-notice}}
+
+    <main class="page-shell stack-list">
+      <header class="page-header">
+        <h1 class="text-display">Terms of Service</h1>
+        <p class="text-lead">The rules governing use of 301.st — clear, fair, and focused on shared responsibility.</p>
+        <p class="text-muted">Last updated: December 12, 2025</p>
+      </header>
+
+      <div class="stack-list">
+        <section class="card card--panel">
+          <header class="card__header">
+            <h2 class="card__title">1. Acceptance of Terms</h2>
+          </header>
+          <div class="card__body stack">
+            <p class="text-body">
+              By creating an account or using 301.st ("the Service"), you agree to these Terms of Service ("Terms"). If you don't
+              agree, please don't use the Service.
+            </p>
+            <p class="text-body">
+              We may update these Terms from time to time. Material changes will be announced via email or in-app notification.
+              Continued use after changes means you accept the updated Terms.
+            </p>
+          </div>
+        </section>
+
+        <section class="card card--soft">
+          <header class="card__header">
+            <h2 class="card__title">2. What 301.st Is (and Isn't)</h2>
+          </header>
+          <div class="card__body stack">
+            <p class="text-body">
+              301.st is an <strong>orchestration platform</strong> for managing integrations with Cloudflare, domain registrars,
+              and related services. We are:
+            </p>
+            <ul class="list--spaced">
+              <li><strong>✅ A management layer:</strong> We help you configure and monitor resources in your Cloudflare accounts.</li>
+              <li><strong>✅ An integration hub:</strong> We connect your domain registrars, analytics tools, and other APIs.</li>
+              <li><strong>✅ A workflow automation tool:</strong> We execute API calls on your behalf based on rules you configure.</li>
+            </ul>
+            <p class="text-body">
+              We are <strong>not</strong>:
+            </p>
+            <ul class="list--ruled">
+              <li><strong>❌ A hosting provider:</strong> Your domains, zones, and workers live in <em>your</em> Cloudflare account.</li>
+              <li><strong>❌ A domain registrar:</strong> We sync with your existing registrars (Namecheap, NameSilo, etc.) but don't register domains.</li>
+              <li><strong>❌ Responsible for your infrastructure:</strong> If your Cloudflare API token is revoked or your account suspended, we can't bypass that.</li>
+            </ul>
+          </div>
+        </section>
+
+        <section class="card card--panel">
+          <header class="card__header">
+            <h2 class="card__title">3. Your Responsibilities</h2>
+          </header>
+          <div class="card__body">
+            <ul class="list--spaced">
+              <li><strong>Accurate Information:</strong> Provide valid email and keep your account details up to date.</li>
+              <li><strong>Secure Credentials:</strong> Protect your 301.st password and API tokens. Don't share accounts.</li>
+              <li><strong>Compliance:</strong> Follow all applicable laws when using the Service (GDPR, DMCA, etc.).</li>
+              <li><strong>Resource Ownership:</strong> Ensure you have permission to manage the Cloudflare accounts/domains you connect.</li>
+              <li><strong>No Abuse:</strong> Don't use 301.st for DDoS, spam, phishing, malware distribution, or other harmful activities.</li>
+              <li><strong>API Limits:</strong> Respect rate limits of third-party APIs (Cloudflare, registrars). Excessive automated requests may be throttled.</li>
+            </ul>
+          </div>
+        </section>
+
+        <section class="card card--soft">
+          <header class="card__header">
+            <h2 class="card__title">4. Our Responsibilities</h2>
+          </header>
+          <div class="card__body">
+            <ul class="list--spaced">
+              <li><strong>Service Availability:</strong> We aim for 99.9% uptime but can't guarantee it. Scheduled maintenance will be announced in advance.</li>
+              <li><strong>Data Security:</strong> We encrypt API tokens at rest and use HTTPS for all traffic. See <a href="/security">Security page</a> for details.</li>
+              <li><strong>Privacy:</strong> We handle your data according to our <a href="/privacy">Privacy Policy</a>.</li>
+              <li><strong>Support:</strong> We provide documentation and best-effort support. Enterprise SLA agreements available upon request.</li>
+            </ul>
+          </div>
+        </section>
+
+        <section class="card card--panel">
+          <header class="card__header">
+            <h2 class="card__title">5. Limitation of Liability</h2>
+          </header>
+          <div class="card__body stack">
+            <p class="text-body">
+              <strong>Critical Disclaimer:</strong> 301.st acts on your behalf using API tokens you provide. We are <strong>not liable</strong> for:
+            </p>
+            <ul class="list--ruled">
+              <li>Unintended DNS changes caused by misconfigured redirect rules or TDS logic</li>
+              <li>Downtime in your Cloudflare account due to their service issues</li>
+              <li>Domain suspension/deletion by your registrar</li>
+              <li>Data loss if you delete projects/sites without backups</li>
+              <li>Third-party API failures (Cloudflare rate limits, registrar API outages)</li>
+            </ul>
+            <p class="text-body">
+              <strong>To the maximum extent permitted by law, 301.st is provided "as is" without warranties of any kind.</strong>
+              Total liability for any claim related to the Service is limited to the amount you paid us in the 12 months before the claim
+              (currently $0, since the service is free during beta).
+            </p>
+            <p class="text-body">
+              Some jurisdictions don't allow liability limitations, so these may not apply to you.
+            </p>
+          </div>
+        </section>
+
+        <section class="card card--soft">
+          <header class="card__header">
+            <h2 class="card__title">6. Account Suspension & Termination</h2>
+          </header>
+          <div class="card__body stack">
+            <p class="text-body">
+              We reserve the right to suspend or terminate accounts that:
+            </p>
+            <ul class="list--spaced">
+              <li>Violate these Terms (abuse, illegal activity, etc.)</li>
+              <li>Generate excessive API requests that impact service stability</li>
+              <li>Use the Service for phishing, malware distribution, or other harmful purposes</li>
+              <li>Fail to pay invoices (when billing is introduced)</li>
+            </ul>
+            <p class="text-body">
+              <strong>Your termination rights:</strong> You can delete your account at any time via account settings. We'll delete your
+              data per our <a href="/privacy">Privacy Policy</a> (30-day retention for audit logs, immediate deletion of configurations).
+            </p>
+            <p class="text-body">
+              <strong>After termination:</strong> You must manually revoke API tokens in Cloudflare/registrar dashboards if we can't
+              revoke them programmatically.
+            </p>
+          </div>
+        </section>
+
+        <section class="card card--panel">
+          <header class="card__header">
+            <h2 class="card__title">7. Intellectual Property</h2>
+          </header>
+          <div class="card__body stack">
+            <p class="text-body">
+              <strong>Our IP:</strong> The 301.st brand, logo, codebase (where not open source), and UI design are owned by 301.st.
+              You can't use our branding without permission.
+            </p>
+            <p class="text-body">
+              <strong>Your IP:</strong> You retain full ownership of your domain names, project configurations, redirect rules, and
+              any content you create using the Service.
+            </p>
+            <p class="text-body">
+              <strong>Open Source:</strong> Parts of our frontend and tooling may be released under open source licenses (MIT, Apache 2.0).
+              Check the GitHub repository for specifics.
+            </p>
+          </div>
+        </section>
+
+        <section class="card card--soft">
+          <header class="card__header">
+            <h2 class="card__title">8. Dispute Resolution</h2>
+          </header>
+          <div class="card__body stack">
+            <p class="text-body">
+              <strong>Governing Law:</strong> These Terms are governed by the laws of [Your Jurisdiction] without regard to conflict
+              of law provisions.
+            </p>
+            <p class="text-body">
+              <strong>Informal Resolution:</strong> If you have a dispute, please contact support@301.st first. Most issues can be
+              resolved through discussion.
+            </p>
+            <p class="text-body">
+              <strong>Arbitration (if required):</strong> Unresolved disputes will be settled through binding arbitration rather than
+              court litigation. Each party bears their own costs.
+            </p>
+          </div>
+        </section>
+
+        <section class="card card--panel card--accent">
+          <header class="card__header">
+            <h2 class="card__title">9. Billing & Payment (Future)</h2>
+          </header>
+          <div class="card__body stack">
+            <p class="text-body">
+              301.st is currently <strong>free during beta</strong>. When we introduce paid plans:
+            </p>
+            <ul class="list--ruled">
+              <li>We'll announce pricing at least 30 days in advance</li>
+              <li>Existing users will be grandfathered into a free tier (details TBD)</li>
+              <li>Payments will be processed via Stripe (we won't store credit card info)</li>
+              <li>Subscriptions can be canceled at any time with no penalty</li>
+            </ul>
+            <p class="text-body">
+              No surprise charges. Ever.
+            </p>
+          </div>
+        </section>
+
+        <section class="card card--soft">
+          <header class="card__header">
+            <h2 class="card__title">10. Contact & Questions</h2>
+          </header>
+          <div class="card__body stack">
+            <p class="text-body">
+              Questions about these Terms? Email <strong>legal@301.st</strong> or see our <a href="/docs">Documentation</a>.
+            </p>
+            <p class="text-body">
+              For privacy-related questions, see <a href="/privacy">Privacy Policy</a>. For security issues, see <a href="/security">Security page</a>.
+            </p>
+          </div>
+        </section>
+      </div>
+    </main>
+
+{{> footer}}
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

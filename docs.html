@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Documentation — 301.st</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" href="/css/theme.css" />
+    <link rel="stylesheet" href="/css/layout.css" />
+    <link rel="stylesheet" href="/css/site.css" />
+  </head>
+  <body>
+    <header class="site-header" role="banner">
+{{> header-top}}
+
+      <div class="utility-bar">
+        <div class="page-shell utility-bar__inner">
+          <div class="utility-left">
+            <nav class="breadcrumbs" aria-label="Breadcrumb">
+              <a href="/" class="crumb"
+                ><span class="icon" data-icon="mono/home"></span> <span data-i18n="layout.nav.home">Home</span></a
+              >
+              <span class="sep" aria-hidden="true">›</span>
+              <span class="crumb is-current">Documentation</span>
+            </nav>
+          </div>
+
+{{> header-utility}}
+        </div>
+      </div>
+    </header>
+
+{{> global-notice}}
+
+    <main class="page-shell stack-list">
+      <header class="page-header">
+        <h1 class="text-display">Documentation</h1>
+        <p class="text-lead">Learn how to manage your Cloudflare infrastructure with 301.st.</p>
+      </header>
+
+      <div class="stack-list">
+        <section class="card card--panel card--accent">
+          <header class="card__header">
+            <p class="card__meta"><span class="icon" data-icon="mono/sparkles"></span> Quick Start</p>
+            <h2 class="card__title">Get Started in 5 Minutes</h2>
+          </header>
+          <div class="card__body">
+            <ol class="list--ruled">
+              <li><strong>Create an account:</strong> Sign up with email or use OAuth (Google, GitHub).</li>
+              <li><strong>Connect Cloudflare:</strong> Add your Cloudflare account via API token (we'll guide you through scopes).</li>
+              <li><strong>Sync domains:</strong> Import zones from Cloudflare or connect domain registrars for unified view.</li>
+              <li><strong>Create a project:</strong> Group related domains, sites, and streams for easier management.</li>
+              <li><strong>Set up redirects or TDS:</strong> Configure traffic distribution rules and launch.</li>
+            </ol>
+          </div>
+        </section>
+
+        <div class="grid-2" style="gap: var(--space-4);">
+          <section class="card card--soft">
+            <header class="card__header">
+              <h2 class="card__title">Core Concepts</h2>
+            </header>
+            <div class="card__body">
+              <ul class="list--spaced">
+                <li>
+                  <strong>Integrations:</strong> Connect Cloudflare accounts, domain registrars, analytics providers. The foundation
+                  layer that gives 301.st access to your resources.
+                </li>
+                <li>
+                  <strong>Domains:</strong> Synced from integrations. We track status, expiry, DNS config. Changes you make in 301.st
+                  update <em>your</em> Cloudflare zones via API.
+                </li>
+                <li>
+                  <strong>Projects:</strong> Logical groupings for organizing domains, sites, and traffic streams. Like folders in a
+                  file system.
+                </li>
+                <li>
+                  <strong>Sites:</strong> Landing pages, whitepages, or destination URLs where traffic lands. Can be hosted anywhere
+                  (Cloudflare Pages, external servers, etc.).
+                </li>
+                <li>
+                  <strong>Streams (TDS):</strong> Traffic distribution systems that route visitors based on rules (geo, device, time).
+                  Runs on your Cloudflare Workers.
+                </li>
+                <li>
+                  <strong>Redirects:</strong> Simple domain-to-URL mappings without complex TDS logic. Great for mass redirects.
+                </li>
+              </ul>
+            </div>
+          </section>
+
+          <section class="card card--panel">
+            <header class="card__header">
+              <h2 class="card__title">Guides by Topic</h2>
+            </header>
+            <div class="card__body">
+              <ul class="list--spaced">
+                <li><strong>Integrations:</strong> <a href="#integrations">How to connect Cloudflare accounts</a>, <a href="#registrars">Connect domain registrars</a></li>
+                <li><strong>Domains:</strong> <a href="#sync-domains">Sync zones from Cloudflare</a>, <a href="#dns">Update DNS records</a>, <a href="#domain-status">Monitor domain status</a></li>
+                <li><strong>Projects:</strong> <a href="#projects">Create and organize projects</a>, <a href="#project-permissions">Manage team permissions</a></li>
+                <li><strong>Sites:</strong> <a href="#sites">Add landing pages</a>, <a href="#whitepages">Configure whitepages</a></li>
+                <li><strong>TDS/Streams:</strong> <a href="#tds-basics">TDS basics</a>, <a href="#geo-routing">Geo-based routing</a>, <a href="#cloaking">Cloaking rules</a></li>
+                <li><strong>Redirects:</strong> <a href="#mass-redirects">Mass redirect setup</a>, <a href="#redirect-rules">Redirect rule syntax</a></li>
+              </ul>
+            </div>
+          </section>
+        </div>
+
+        <section class="card card--panel">
+          <header class="card__header">
+            <h2 class="card__title">API Reference</h2>
+          </header>
+          <div class="card__body stack">
+            <p class="text-body">
+              301.st provides a REST API for programmatic access to all features. Authentication uses JWT tokens (same as web UI).
+            </p>
+            <ul class="list--spaced">
+              <li><strong>Base URL:</strong> <code class="code-inline">https://api.301.st</code></li>
+              <li><strong>Authentication:</strong> Bearer token in <code class="code-inline">Authorization</code> header</li>
+              <li><strong>Rate limits:</strong> 100 requests/min for standard users, 500/min for enterprise</li>
+              <li><strong>Endpoints:</strong> <a href="#api-auth">Auth</a>, <a href="#api-integrations">Integrations</a>, <a href="#api-domains">Domains</a>, <a href="#api-projects">Projects</a>, <a href="#api-sites">Sites</a>, <a href="#api-streams">Streams</a>, <a href="#api-redirects">Redirects</a></li>
+            </ul>
+            <p class="text-body">
+              <strong>OpenAPI spec:</strong> <a href="/api/openapi.json">Download OpenAPI 3.0 JSON</a> for use with Postman, Insomnia, or code generators.
+            </p>
+          </div>
+        </section>
+
+        <section class="card card--soft">
+          <header class="card__header">
+            <h2 class="card__title">Troubleshooting & FAQ</h2>
+          </header>
+          <div class="card__body">
+            <ul class="list--spaced">
+              <li>
+                <strong>Q: Why can't 301.st access my Cloudflare zones?</strong><br />
+                A: Check that your API token has the correct scopes (<code class="code-inline">Zone:Read</code> at minimum). Tokens must not be expired or revoked.
+              </li>
+              <li>
+                <strong>Q: My domains aren't syncing from the registrar.</strong><br />
+                A: Ensure the registrar API key is valid and has permissions to list domains. Some registrars (GoDaddy) have limited API access.
+              </li>
+              <li>
+                <strong>Q: TDS/Stream isn't routing traffic correctly.</strong><br />
+                A: Verify Cloudflare Workers are deployed to the correct zones. Check route patterns in Cloudflare dashboard. Enable debug mode in stream settings.
+              </li>
+              <li>
+                <strong>Q: Can I export my project configurations?</strong><br />
+                A: Yes. Go to <strong>Account Settings → Data Export</strong> to download JSON backups of all projects, sites, and redirect rules.
+              </li>
+              <li>
+                <strong>Q: Does 301.st work with Cloudflare Teams/Zero Trust?</strong><br />
+                A: Partially. Standard zones work fine. Cloudflare Access-protected sites require additional CORS config (see guide).
+              </li>
+            </ul>
+          </div>
+        </section>
+
+        <section class="card card--panel">
+          <header class="card__header">
+            <h2 class="card__title">UI Style Guide & Component Library</h2>
+          </header>
+          <div class="card__body stack">
+            <p class="text-body">
+              For developers building custom integrations or contributing to the frontend, we maintain a comprehensive UI style guide:
+            </p>
+            <ul class="list--ruled">
+              <li><a href="/ui-style-guide">UI Style Guide</a> — Tokens, colors, typography, components</li>
+              <li><a href="/icons-preview.html">Icon Catalog</a> — All available mono and brand icons</li>
+              <li><strong>Design System Rules:</strong> Unified control recipe, pill vs field radius, cards v2 system</li>
+            </ul>
+            <p class="text-body">
+              The style guide is the single source of truth for all UI components. Any new features must follow established patterns.
+            </p>
+          </div>
+        </section>
+
+        <section class="card card--panel card--accent">
+          <header class="card__header">
+            <h2 class="card__title">Support & Community</h2>
+          </header>
+          <div class="card__body stack">
+            <p class="text-body">
+              Need help? Here's how to get support:
+            </p>
+            <ul class="list--spaced">
+              <li><strong>Email:</strong> support@301.st (response within 24 hours)</li>
+              <li><strong>GitHub:</strong> <a href="https://github.com/301st/docs">Documentation repo</a> for issues and feature requests</li>
+              <li><strong>Security:</strong> security@301.st for responsible disclosure (see <a href="/security">Security page</a>)</li>
+              <li><strong>Legal/Privacy:</strong> legal@301.st or privacy@301.st</li>
+            </ul>
+            <p class="text-body">
+              <strong>Enterprise support:</strong> SLA agreements available with guaranteed response times and dedicated Slack/Discord channels.
+            </p>
+          </div>
+        </section>
+      </div>
+    </main>
+
+{{> footer}}
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

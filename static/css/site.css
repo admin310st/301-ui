@@ -685,6 +685,29 @@ body {
   color: var(--primary);
 }
 
+.footer-legal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1rem 0 0.5rem;
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+
+.footer-legal a {
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.footer-legal a:hover {
+  color: var(--text-main);
+}
+
+.footer-legal .separator {
+  opacity: 0.5;
+}
+
 /*!
   * UI System 1.0 — Unified control recipe
   * Single source of truth for sizing across buttons, chips, tabs, inputs and the

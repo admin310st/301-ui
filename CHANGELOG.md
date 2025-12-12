@@ -22,6 +22,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Extracted from index.html into reusable `partials/global-notice.hbs`
   - Added to dashboard.html, wizard.html, and ui-style-guide.html
   - Notifications now seamlessly transfer between pages via sessionStorage
+- **Legal and info pages** with comprehensive content:
+  - about.html - Project philosophy ("conductor of integrations")
+  - privacy.html - Privacy Policy (GDPR/CCPA compliant)
+  - terms.html - Terms of Service (clear responsibility model)
+  - security.html - Security practices and responsible disclosure
+  - docs.html - Documentation index and quick start guide
 
 ### Changed
 - Moved `ui-style-guide.html` from `static/` to root for Vite processing
@@ -29,7 +35,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Header/footer changes now require editing only 1 file instead of 4+
 - `worker.ts` now checks session cookies and redirects authenticated users away from login page
 - **ui-style-guide.html** updated to use header-utility and footer partials for consistency
-- **Footer navigation** updated to show main app sections from roadmap (Integrations, Domains, Projects, Sites, Streams, Redirects) instead of auth-only links
+- **Footer navigation** restructured with two-level hierarchy:
+  - Main navigation: Integrations, Domains, Projects, Sites, Streams, Redirects
+  - Legal/info links (secondary): About, Docs, Privacy, Terms, Security
+  - Clean URLs without .html extensions (handled by worker routing)
 
 ## [0.2.0] - 2025-12-12
 

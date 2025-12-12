@@ -27,6 +27,11 @@ export const ru: Translation = {
     headerTabsLabel: 'Тип операции',
     footer: {
       description: 'Редиректы и аналитика.',
+      about: 'О проекте',
+      docs: 'Документация',
+      privacy: 'Конфиденциальность',
+      terms: 'Условия',
+      security: 'Безопасность',
     },
     lang: {
       label: 'Переключить язык',

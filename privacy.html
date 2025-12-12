@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Privacy Policy — 301.st</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" href="/css/theme.css" />
+    <link rel="stylesheet" href="/css/layout.css" />
+    <link rel="stylesheet" href="/css/site.css" />
+  </head>
+  <body>
+    <header class="site-header" role="banner">
+{{> header-top}}
+
+      <div class="utility-bar">
+        <div class="page-shell utility-bar__inner">
+          <div class="utility-left">
+            <nav class="breadcrumbs" aria-label="Breadcrumb">
+              <a href="/" class="crumb"
+                ><span class="icon" data-icon="mono/home"></span> <span data-i18n="layout.nav.home">Home</span></a
+              >
+              <span class="sep" aria-hidden="true">›</span>
+              <span class="crumb is-current">Privacy Policy</span>
+            </nav>
+          </div>
+
+{{> header-utility}}
+        </div>
+      </div>
+    </header>
+
+{{> global-notice}}
+
+    <main class="page-shell stack-list">
+      <header class="page-header">
+        <h1 class="text-display">Privacy Policy</h1>
+        <p class="text-lead">How we handle your data — transparency first.</p>
+        <p class="text-muted">Last updated: December 12, 2025</p>
+      </header>
+
+      <div class="stack-list">
+        <section class="card card--panel">
+          <header class="card__header">
+            <h2 class="card__title">Core Principle: You Own Your Data</h2>
+          </header>
+          <div class="card__body stack">
+            <p class="text-body">
+              301.st operates as an orchestration layer for <em>your</em> infrastructure. We don't own your domains, zones, or traffic.
+              Our job is to help you manage integrations, not to become a data silo.
+            </p>
+            <p class="text-body">
+              This policy explains what minimal data we must collect to provide the service, how we protect it, and your rights to
+              access, modify, or delete it at any time.
+            </p>
+          </div>
+        </section>
+
+        <section class="card card--soft">
+          <header class="card__header">
+            <h2 class="card__title">1. Data We Collect</h2>
+          </header>
+          <div class="card__body">
+            <div class="stack">
+              <div>
+                <h3 class="h5">Account Information</h3>
+                <ul class="list--spaced">
+                  <li><strong>Email address:</strong> Used for authentication, account recovery, and service notifications.</li>
+                  <li><strong>Password:</strong> Hashed using bcrypt/Argon2. We never store plaintext passwords.</li>
+                  <li><strong>Session tokens:</strong> Refresh tokens stored server-side (encrypted), access tokens client-side (short-lived).</li>
+                </ul>
+              </div>
+
+              <div>
+                <h3 class="h5">Integration Credentials (Encrypted)</h3>
+                <ul class="list--spaced">
+                  <li><strong>Cloudflare API Tokens:</strong> Scoped tokens (read zones, edit DNS, etc.). Encrypted at rest using AES-256-GCM.</li>
+                  <li><strong>Domain Registrar API Keys:</strong> For syncing domain status (Namecheap, NameSilo, etc.). Also encrypted at rest.</li>
+                  <li><strong>Third-party OAuth Tokens:</strong> If you connect GitHub, Google, or similar (future feature).</li>
+                </ul>
+              </div>
+
+              <div>
+                <h3 class="h5">Configuration Data</h3>
+                <ul class="list--spaced">
+                  <li><strong>Projects, Sites, Streams:</strong> Names, descriptions, associations between domains and logical groups.</li>
+                  <li><strong>Redirect Rules & TDS Logic:</strong> Your traffic distribution configurations.</li>
+                  <li><strong>Domain Metadata:</strong> Domain names, sync timestamps, status flags (active/paused/error).</li>
+                </ul>
+              </div>
+
+              <div>
+                <h3 class="h5">Usage & Diagnostic Data (Minimal)</h3>
+                <ul class="list--spaced">
+                  <li><strong>Login timestamps:</strong> For security monitoring (unusual login patterns).</li>
+                  <li><strong>API request logs:</strong> Stored for 30 days for debugging. Includes endpoint, timestamp, HTTP status. No request bodies.</li>
+                  <li><strong>Error reports:</strong> Stack traces (sanitized to remove sensitive values) for bug fixes.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card card--panel">
+          <header class="card__header">
+            <h2 class="card__title">2. Data We Don't Collect</h2>
+          </header>
+          <div class="card__body">
+            <ul class="list--ruled">
+              <li><strong>Traffic Analytics:</strong> Visitor IPs, user agents, analytics stay in your Cloudflare account. We don't proxy or log end-user traffic.</li>
+              <li><strong>DNS Zone Contents:</strong> We read DNS records via API when you trigger a sync, but don't permanently cache them.</li>
+              <li><strong>Cloudflare Passwords:</strong> You authenticate to Cloudflare separately. We only store API tokens with limited scope.</li>
+              <li><strong>Payment Info:</strong> If/when we add billing, we'll use Stripe. Credit card data never touches our servers.</li>
+              <li><strong>Behavioral Tracking:</strong> No third-party analytics (Google Analytics, Facebook Pixel, etc.). No cross-site tracking cookies.</li>
+            </ul>
+          </div>
+        </section>
+
+        <section class="card card--soft">
+          <header class="card__header">
+            <h2 class="card__title">3. How We Protect Your Data</h2>
+          </header>
+          <div class="card__body">
+            <ul class="list--spaced">
+              <li><strong>Encryption:</strong> API tokens encrypted at rest (AES-256-GCM). HTTPS/TLS 1.3 for all traffic.</li>
+              <li><strong>Access Control:</strong> Database credentials use principle of least privilege. Application servers can't access encryption keys directly.</li>
+              <li><strong>Token Scoping:</strong> We request minimum required Cloudflare permissions (e.g., "Zone:Read, DNS:Edit" for specific zones, not "Account:Edit").</li>
+              <li><strong>Audit Logs:</strong> Critical operations (token creation, domain sync, user permission changes) logged for security review.</li>
+              <li><strong>Regular Security Audits:</strong> Penetration testing, dependency scanning, code reviews. See <a href="/security">Security page</a> for details.</li>
+            </ul>
+          </div>
+        </section>
+
+        <section class="card card--panel">
+          <header class="card__header">
+            <h2 class="card__title">4. Data Retention & Deletion</h2>
+          </header>
+          <div class="card__body stack">
+            <p class="text-body">
+              <strong>Active accounts:</strong> We retain your configuration data for as long as your account is active.
+            </p>
+            <p class="text-body">
+              <strong>Account deletion:</strong> When you delete your account, we immediately:
+            </p>
+            <ul class="list--ruled">
+              <li>Revoke all API tokens (if possible via API; otherwise, you must manually revoke in Cloudflare/registrar dashboards)</li>
+              <li>Delete all projects, sites, streams, and redirect rules</li>
+              <li>Anonymize or delete your email and authentication credentials within 30 days</li>
+              <li>Purge API request logs older than 30 days</li>
+            </ul>
+            <p class="text-body">
+              <strong>Legal retention:</strong> We may retain anonymized logs for up to 90 days if required by law enforcement or fraud investigation.
+            </p>
+          </div>
+        </section>
+
+        <section class="card card--soft">
+          <header class="card__header">
+            <h2 class="card__title">5. Your Rights (GDPR, CCPA Compliance)</h2>
+          </header>
+          <div class="card__body">
+            <ul class="list--spaced">
+              <li><strong>Access:</strong> Request a copy of all data we store about you (JSON export available in account settings).</li>
+              <li><strong>Rectification:</strong> Correct inaccurate data via account settings or by contacting support.</li>
+              <li><strong>Erasure ("Right to be Forgotten"):</strong> Delete your account and all associated data at any time.</li>
+              <li><strong>Portability:</strong> Export your project/site/domain configurations in JSON format.</li>
+              <li><strong>Objection:</strong> Opt out of non-essential data processing (currently, we don't have any).</li>
+            </ul>
+            <p class="text-body">
+              To exercise these rights, email <strong>privacy@301.st</strong> or use the account settings page.
+            </p>
+          </div>
+        </section>
+
+        <section class="card card--panel">
+          <header class="card__header">
+            <h2 class="card__title">6. Third-Party Services</h2>
+          </header>
+          <div class="card__body stack">
+            <p class="text-body">
+              We use the following third-party services (each has its own privacy policy):
+            </p>
+            <ul class="list--ruled">
+              <li><strong>Cloudflare Workers:</strong> Hosts our frontend and API. Cloudflare may log request metadata (IPs, timestamps) per their privacy policy.</li>
+              <li><strong>Cloudflare Turnstile:</strong> CAPTCHA alternative for bot protection. Does not track users across sites.</li>
+              <li><strong>PostgreSQL (hosted):</strong> Database provider (e.g., Neon, Supabase). Data encrypted at rest.</li>
+            </ul>
+            <p class="text-body">
+              We do <strong>not</strong> share your API tokens, project configurations, or account details with third parties for marketing or advertising purposes.
+            </p>
+          </div>
+        </section>
+
+        <section class="card card--panel card--accent">
+          <header class="card__header">
+            <h2 class="card__title">7. Changes to This Policy</h2>
+          </header>
+          <div class="card__body stack">
+            <p class="text-body">
+              We may update this policy to reflect new features or legal requirements. When we make material changes, we'll:
+            </p>
+            <ul class="list--ruled">
+              <li>Update the "Last updated" date at the top</li>
+              <li>Send an email notification if the change affects data handling practices</li>
+              <li>Maintain a changelog of policy updates (available on request)</li>
+            </ul>
+            <p class="text-body">
+              Continued use of 301.st after policy updates constitutes acceptance. If you disagree, you can delete your account before changes take effect.
+            </p>
+          </div>
+        </section>
+
+        <section class="card card--soft">
+          <header class="card__header">
+            <h2 class="card__title">8. Contact & Questions</h2>
+          </header>
+          <div class="card__body stack">
+            <p class="text-body">
+              If you have questions about this privacy policy or how we handle your data:
+            </p>
+            <ul class="list--spaced">
+              <li><strong>Email:</strong> privacy@301.st</li>
+              <li><strong>Security issues:</strong> See <a href="/security">Security page</a> for responsible disclosure</li>
+              <li><strong>General support:</strong> See <a href="/docs">Documentation</a></li>
+            </ul>
+          </div>
+        </section>
+      </div>
+    </main>
+
+{{> footer}}
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

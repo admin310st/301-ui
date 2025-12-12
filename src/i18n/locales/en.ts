@@ -25,6 +25,11 @@ export const en = {
     headerTabsLabel: 'Authentication actions',
     footer: {
       description: 'Redirects and analytics.',
+      about: 'About',
+      docs: 'Docs',
+      privacy: 'Privacy',
+      terms: 'Terms',
+      security: 'Security',
     },
     lang: {
       label: 'Switch language',

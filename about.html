@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>About 301.st — Orchestrating Your Cloudflare Infrastructure</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" href="/css/theme.css" />
+    <link rel="stylesheet" href="/css/layout.css" />
+    <link rel="stylesheet" href="/css/site.css" />
+  </head>
+  <body>
+    <header class="site-header" role="banner">
+{{> header-top}}
+
+      <div class="utility-bar">
+        <div class="page-shell utility-bar__inner">
+          <div class="utility-left">
+            <nav class="breadcrumbs" aria-label="Breadcrumb">
+              <a href="/" class="crumb"
+                ><span class="icon" data-icon="mono/home"></span> <span data-i18n="layout.nav.home">Home</span></a
+              >
+              <span class="sep" aria-hidden="true">›</span>
+              <span class="crumb is-current">About</span>
+            </nav>
+          </div>
+
+{{> header-utility}}
+        </div>
+      </div>
+    </header>
+
+{{> global-notice}}
+
+    <main class="page-shell stack-list">
+      <header class="page-header">
+        <h1 class="text-display">About 301.st</h1>
+        <p class="text-lead">We're the conductor for your Cloudflare infrastructure — orchestrating integrations, not owning resources.</p>
+      </header>
+
+      <div class="stack-list">
+        <section class="card card--panel">
+          <header class="card__header">
+            <p class="card__meta"><span class="icon" data-icon="mono/sparkles"></span> Our Philosophy</p>
+            <h2 class="card__title">You Own the Orchestra, We Conduct</h2>
+          </header>
+          <div class="card__body stack">
+            <p class="text-body">
+              301.st is built on a fundamental principle: <strong>your resources belong to you</strong>. We don't host your domains,
+              store your traffic data, or control your infrastructure. Instead, we help you manage the complex symphony of
+              integrations that power modern web infrastructure.
+            </p>
+            <p class="text-body">
+              Think of us as a conductor standing before an orchestra. The musicians (your Cloudflare accounts, domain registrars,
+              analytics providers) are yours. The instruments (domains, zones, workers, streams) are yours. We simply help them
+              play together in harmony.
+            </p>
+          </div>
+        </section>
+
+        <section class="card card--soft">
+          <header class="card__header">
+            <h2 class="card__title">How 301.st Works</h2>
+          </header>
+          <div class="card__body stack">
+            <p class="text-body">
+              Instead of building yet another hosting platform, we connect to the tools you already use and trust:
+            </p>
+            <ul class="list--spaced">
+              <li><strong>Cloudflare Accounts:</strong> You maintain full ownership. We use API tokens (encrypted, scoped) to manage zones, DNS, workers, and caching on your behalf.</li>
+              <li><strong>Domain Registrars:</strong> Your domains stay with your chosen registrar (Namecheap, NameSilo, etc.). We sync status and help automate DNS updates.</li>
+              <li><strong>Projects & Sites:</strong> Logical groupings that help you organize domains, traffic streams, and redirect rules across multiple accounts.</li>
+              <li><strong>TDS & Streams:</strong> Traffic distribution systems that route visitors based on your rules — all running on <em>your</em> Cloudflare infrastructure.</li>
+            </ul>
+            <p class="text-body">
+              Every action 301.st takes happens through <strong>your API credentials</strong>, stored encrypted and scoped to minimum
+              required permissions. If you revoke a token, we immediately lose access. No backdoors, no hidden access.
+            </p>
+          </div>
+        </section>
+
+        <section class="card card--panel">
+          <header class="card__header">
+            <h2 class="card__title">What We Store (and What We Don't)</h2>
+          </header>
+          <div class="card__body">
+            <div class="stack">
+              <div>
+                <h3 class="h5">✅ What We Store:</h3>
+                <ul class="list--ruled">
+                  <li>Account email and authentication credentials (hashed passwords)</li>
+                  <li>Encrypted API tokens for your integrations (Cloudflare, registrars)</li>
+                  <li>Project, site, and stream configurations you create</li>
+                  <li>Metadata about your domains (names, status, sync timestamps)</li>
+                  <li>Redirect rules and TDS logic you configure</li>
+                </ul>
+              </div>
+              <div>
+                <h3 class="h5">❌ What We Don't Store:</h3>
+                <ul class="list--ruled">
+                  <li>Your Cloudflare account passwords or master keys</li>
+                  <li>Traffic logs or visitor analytics (those stay in your Cloudflare account)</li>
+                  <li>DNS zone files (we read via API, never cache permanently)</li>
+                  <li>Payment information (if/when we monetize, we'll use Stripe)</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card card--panel card--accent">
+          <header class="card__header">
+            <h2 class="card__title">Open Source & Transparency</h2>
+          </header>
+          <div class="card__body stack">
+            <p class="text-body">
+              We believe infrastructure management tools should be transparent. Our frontend is built with vanilla TypeScript,
+              Vite, and Cloudflare Workers — no black-box frameworks hiding critical logic.
+            </p>
+            <p class="text-body">
+              Security reports, feature requests, and architecture questions are welcome. We're building this in the open
+              because trust is earned through transparency, not marketing promises.
+            </p>
+          </div>
+        </section>
+
+        <section class="card card--soft">
+          <header class="card__header">
+            <h2 class="card__title">Who Built This?</h2>
+          </header>
+          <div class="card__body stack">
+            <p class="text-body">
+              301.st was created by infrastructure engineers who got tired of juggling dozens of Cloudflare accounts,
+              domain registrars, and manual DNS updates. We wanted a single control plane that respected ownership
+              boundaries instead of trying to replace the tools we already trusted.
+            </p>
+            <p class="text-body">
+              If you have questions, suggestions, or just want to chat about infrastructure orchestration, reach out via
+              our <a href="/docs">documentation</a> or check the <a href="/security">security page</a> for responsible
+              disclosure guidelines.
+            </p>
+          </div>
+        </section>
+      </div>
+    </main>
+
+{{> footer}}
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
