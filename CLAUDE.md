@@ -64,7 +64,18 @@ Icons are built from SVG sources in `static/img/icons-src/` into:
 - `static/icons-map.json` - Icon metadata
 - `static/icons-preview.html` - Visual preview page
 
-**Always run `npm run build:icons` after adding/modifying icons.**
+**IMPORTANT: Icon Usage Rules**
+1. **Before using an icon**, ALWAYS verify it exists in the catalog:
+   - Check `static/img/icons-src/mono/` for monochrome icons
+   - Check `static/img/icons-src/brand/` for brand logos
+   - OR view the full catalog at `/icons-preview.html` (generated file)
+2. **If icon doesn't exist**:
+   - Request the user to add it to `static/img/icons-src/`
+   - OR suggest an alternative icon from existing catalog
+   - NEVER reference icons that don't exist in the project
+3. **After adding/modifying icons**, run `npm run build:icons` to regenerate sprite
+
+**Icon naming convention:** Use `data-icon="mono/icon-name"` or `data-icon="brand/provider"` in HTML.
 
 ### Testing Utilities
 ```bash
