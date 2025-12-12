@@ -1,0 +1,35 @@
+      <aside class="sidebar" id="app-sidebar">
+        <div class="sidebar__head">
+          <button class="btn-icon btn-icon--compact" type="button" aria-label="Collapse" data-sidebar-toggle>
+            <span class="icon" data-icon="mono/chevron-up"></span>
+          </button>
+        </div>
+
+        <nav class="sidebar__nav">
+          <a class="navitem{{#if (eq activePage 'dashboard')}} is-active{{/if}}" href="/dashboard.html">
+            <span class="icon" data-icon="mono/home"></span>
+            <span class="label">Overview</span>
+          </a>
+
+          <div class="navgroup">Management</div>
+          <a class="navitem{{#if (eq activePage 'domains')}} is-active{{/if}}" href="#domains">
+            <span class="icon" data-icon="mono/dns"></span>
+            <span class="label">Domains</span>
+          </a>
+          <a class="navitem{{#if (eq activePage 'security')}} is-active{{/if}}" href="#security">
+            <span class="icon" data-icon="mono/shield-account"></span>
+            <span class="label">Security</span>
+          </a>
+          <a class="navitem{{#if (eq activePage 'caching')}} is-active{{/if}}" href="#caching">
+            <span class="icon" data-icon="mono/layers"></span>
+            <span class="label">Caching</span>
+          </a>
+
+          <div class="sidebar__spacer"></div>
+
+          <a class="navitem{{#if (eq activePage 'settings')}} is-active{{/if}}" href="#settings">
+            <span class="icon" data-icon="mono/project"></span>
+            <span class="label">Settings</span>
+          </a>
+        </nav>
+      </aside>
