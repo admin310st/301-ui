@@ -45,6 +45,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Main navigation: Integrations, Domains, Projects, Sites, Streams, Redirects
   - Legal/info links (secondary): About, Docs, Privacy, Terms, Security
   - Clean URLs without .html extensions (handled by worker routing)
+- **Page layout alignment fix**: Reduced `--page-gutter-desktop` from 2rem to 1.5rem
+  - All content (header, footer, main) now aligns on same vertical axis
+  - More compact layout while maintaining readability
 
 ## [0.2.0] - 2025-12-12
 

@@ -1,5 +1,5 @@
 :root {
-  --page-gutter-desktop: var(--space-6);
+  --page-gutter-desktop: var(--space-5);  /* Reduced from space-6 (2rem) to space-5 (1.5rem) for tighter alignment */
   --page-gutter-mobile: var(--space-4);
 
   --section-gap: var(--space-5);
