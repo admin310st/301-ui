@@ -759,6 +759,7 @@ Unified recipe for all cards/panels: tokenized paddings, backgrounds and accent 
 - Lists inside cards use helpers: `list--spaced` for relaxed bullet items; `list--ruled` for ordered steps with separators.
 - Accessibility: keep contrast ≥ 4.5:1; never remove focus outline on interactive cards.
 - Monochrome icons inherit `currentColor`, so they stay legible in dark mode.
+- Panel cards carry primary actions and inputs; soft cards host helper copy, onboarding hints or contextual promos. Keep buttons and fields on the unified control recipe (see §4.2 Form controls) to align heights across both types.
 
 **Code samples** (light/dark ready):
 
@@ -772,6 +773,10 @@ Unified recipe for all cards/panels: tokenized paddings, backgrounds and accent 
   <div class="card__body">
     Panel cards rely on tokenized padding and radii.
   </div>
+  <footer class="card__footer card__actions">
+    <button class="btn btn--primary" type="button">Apply changes</button>
+    <button class="btn btn--ghost" type="button">Cancel</button>
+  </footer>
 </article>
 
 <!-- Soft accent promo -->
@@ -799,6 +804,18 @@ Unified recipe for all cards/panels: tokenized paddings, backgrounds and accent 
     </ol>
   </div>
 </section>
+```
+
+**Ruled lists (`.list--ruled`)**
+
+Use ruled lists for step-by-step onboarding or configuration checklists. Separators and spacing are baked in; avoid manual margins.
+
+```html
+<ol class="list--ruled">
+  <li>Paste Account ID from Cloudflare → Account Home → Overview.</li>
+  <li>Create a Bootstrap API token with Account API Tokens: Edit scope.</li>
+  <li>Save &amp; verify to unlock zone management.</li>
+</ol>
 ```
 
 ### 4.5. Tables
