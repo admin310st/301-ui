@@ -63,6 +63,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Stronger security and transparency messaging
   - Pain points in "Who Built This" section more relatable
   - Better formatting with descriptive paragraphs
+  - **Psychology fix**: Removed negative framing (three "don't" statements) from Orchestra section
+  - Lead with relatable problem (chaos of scattered platforms) → solution (single control plane)
+  - Positive, conversion-focused narrative throughout
 - **Legal and info pages cleanup**:
   - Moved "Last updated" date from header to bottom footer on Terms and Privacy pages
   - Doesn't clutter page title, consistent layout across all legal pages
