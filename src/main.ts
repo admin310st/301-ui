@@ -56,6 +56,9 @@ function processDataIconAttributes() {
     const iconName = el.getAttribute('data-icon');
     if (!iconName) return;
 
+    // Skip if already processed (has SVG child)
+    if (el.querySelector('svg')) return;
+
     // Convert "mono/home" to "i-mono-home"
     const symbolId = `i-${iconName.replace('/', '-')}`;
 
