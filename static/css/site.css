@@ -1563,8 +1563,14 @@ html[data-theme="light"] .btn--social-github {
 }
 
 .auth-status[data-turnstile-status] .turnstile-widget {
+  border: 1px solid var(--border-subtle);
   border-radius: var(--r-field);
   overflow: hidden;
+}
+
+/* Remove Cloudflare's default border from iframe */
+.auth-status[data-turnstile-status] .turnstile-widget iframe {
+  border: none !important;
 }
 
 /* Turnstile iframe wrapper - apply design system radius */
