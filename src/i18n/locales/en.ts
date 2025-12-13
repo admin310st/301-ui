@@ -24,7 +24,8 @@ export const en = {
     },
     headerTabsLabel: 'Authentication actions',
     footer: {
-      description: 'Redirects and analytics.',
+      description: 'The Traffic Control Plane',
+      copyright: '© 301.st',
       about: 'About',
       docs: 'Docs',
       privacy: 'Privacy',

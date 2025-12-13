@@ -26,7 +26,8 @@ export const ru: Translation = {
     },
     headerTabsLabel: 'Тип операции',
     footer: {
-      description: 'Редиректы и аналитика.',
+      description: 'Система управления трафиком',
+      copyright: '© 301.st',
       about: 'О проекте',
       docs: 'Документация',
       privacy: 'Конфиденциальность',
