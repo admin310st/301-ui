@@ -1,6 +1,11 @@
 # robots.txt for app.301.st
-# Allow indexing of homepage only
+# Allow indexing of homepage and public pages
 
 User-agent: *
 Allow: /$
+Allow: /about
+Allow: /docs
+Allow: /privacy
+Allow: /terms
+Allow: /security
 Disallow: /
