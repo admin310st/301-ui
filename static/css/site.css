@@ -869,6 +869,36 @@ a.btn-chip {
   cursor: not-allowed;
 }
 
+/* Turnstile loading state - animated shimmer effect */
+.btn[data-turnstile-pending]:disabled {
+  position: relative;
+  overflow: hidden;
+  opacity: 1;
+  cursor: wait;
+}
+
+.btn[data-turnstile-pending]:disabled::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.15) 50%,
+    transparent 100%
+  );
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
 .btn:focus-visible {
   outline: 2px solid var(--brand);
   outline-offset: 2px;

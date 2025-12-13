@@ -113,7 +113,10 @@ export function renderTurnstileWidgets(root: ParentNode = document): void {
       callback: (token: string) => {
         storeToken(form, token);
         const submit = form?.querySelector<HTMLButtonElement>('button[type="submit"]');
-        if (submit) submit.disabled = false;
+        if (submit) {
+          submit.disabled = false;
+          submit.removeAttribute('data-turnstile-pending');
+        }
         // Hide widget after successful completion (desktop only, prevent layout shift on mobile)
         if (statusContainer && !mobile) {
           setTimeout(() => {
@@ -157,6 +160,7 @@ export function renderTurnstileWidgets(root: ParentNode = document): void {
       if (submit && !submit.dataset.turnstileInit) {
         submit.disabled = true;
         submit.dataset.turnstileInit = '1';
+        submit.dataset.turnstilePending = 'true';
       }
     });
 }
