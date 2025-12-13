@@ -84,6 +84,10 @@ function storeToken(form: HTMLFormElement | null, token: string | null): void {
   globalTokenIssuedAt = token ? Date.now() : 0;
 }
 
+function isMobile(): boolean {
+  return typeof window !== 'undefined' && window.innerWidth < 1024;
+}
+
 export function renderTurnstileWidgets(root: ParentNode = document): void {
   const api = window.turnstile;
   if (!api || typeof api.render !== 'function') return;
@@ -94,6 +98,7 @@ export function renderTurnstileWidgets(root: ParentNode = document): void {
 
     const form = container.closest('form');
     const statusContainer = container.closest('[data-turnstile-status]');
+    const mobile = isMobile();
 
     const widgetId = api.render(container, {
       sitekey: siteKey,
@@ -104,8 +109,8 @@ export function renderTurnstileWidgets(root: ParentNode = document): void {
         storeToken(form, token);
         const submit = form?.querySelector<HTMLButtonElement>('button[type="submit"]');
         if (submit) submit.disabled = false;
-        // Hide widget after successful completion (managed mode auto-validates)
-        if (statusContainer) {
+        // Hide widget after successful completion (desktop only, prevent layout shift on mobile)
+        if (statusContainer && !mobile) {
           setTimeout(() => {
             statusContainer.hidden = true;
           }, 500);
