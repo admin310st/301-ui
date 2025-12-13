@@ -172,9 +172,6 @@ export const en = {
       toLogin: 'Back to login',
       toRegister: 'Create account',
     },
-    turnstile: {
-      hint: 'Turnstile protects authorisation forms from bots.',
-    },
     password: {
       minLength: 'Password must be at least 8 characters long.',
       requirements: 'Password must include upper & lower case letters and at least one digit.',

@@ -1557,10 +1557,20 @@ html[data-theme="light"] .btn--social-github {
   margin-top: var(--space-5);
   padding: var(--space-4);
   gap: var(--space-2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .auth-status[data-turnstile-status] .turnstile-widget {
-  margin-bottom: var(--space-2);
+  border-radius: var(--r-field);
+  overflow: hidden;
+}
+
+/* Turnstile iframe wrapper - apply design system radius */
+.auth-status[data-turnstile-status] .turnstile-widget > div {
+  border-radius: var(--r-field);
+  overflow: hidden;
 }
 
 .auth-status[data-type='error'] {
