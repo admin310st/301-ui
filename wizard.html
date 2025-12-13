@@ -159,28 +159,6 @@
 
                 <!-- Global API Key Method (Quick but risky) -->
                 <div id="panel-global" role="tabpanel" data-cf-panel="global" hidden>
-                  <!-- Warning card -->
-                  <div class="card card--panel card--accent" style="--accent: var(--danger); margin-bottom: var(--space-4);">
-                    <header class="card__header">
-                      <h3 class="h5"><span class="icon" data-icon="mono/alert-triangle"></span> Security Warning</h3>
-                    </header>
-                    <div class="card__body stack">
-                      <p class="text-sm">
-                        <strong>Global API Key gives full access to your Cloudflare account.</strong> This method is convenient but risky.
-                      </p>
-                      <div class="panel panel--warn">
-                        <ul class="list--spaced text-sm">
-                          <li><strong>What we do:</strong> Create a scoped token for you with minimum required permissions</li>
-                          <li><strong>What we DON'T do:</strong> Store or log your Global API Key (discarded immediately after use)</li>
-                          <li><strong>Risk:</strong> If our connection is compromised during this process, your Global API Key could be exposed</li>
-                        </ul>
-                      </div>
-                      <p class="text-sm text-muted">
-                        <strong>We strongly recommend using Manual Token method instead.</strong> It takes 2 extra minutes but is much safer.
-                      </p>
-                    </div>
-                  </div>
-
                   <form class="auth-form stack" data-form="cf-bootstrap-global">
                     <div class="field">
                       <label class="field-label">Cloudflare Account Email</label>
@@ -268,6 +246,23 @@
                 <!-- Global method help -->
                 <div data-cf-help="global" hidden>
                   <div class="stack" style="gap: var(--space-3);">
+                    <!-- Security Warning -->
+                    <div class="panel panel--danger">
+                      <div class="stack" style="gap: var(--space-2);">
+                        <p class="text-sm">
+                          <strong><span class="icon" data-icon="mono/alert-triangle"></span> Global API Key gives full access to your Cloudflare account.</strong> This method is convenient but risky.
+                        </p>
+                        <ul class="list--spaced text-sm">
+                          <li><strong>What we do:</strong> Create a scoped token for you with minimum required permissions</li>
+                          <li><strong>What we DON'T do:</strong> Store or log your Global API Key (discarded immediately after use)</li>
+                          <li><strong>Risk:</strong> If our connection is compromised during this process, your Global API Key could be exposed</li>
+                        </ul>
+                        <p class="text-sm text-muted">
+                          <strong>We strongly recommend using Manual Token method instead.</strong> It takes 2 extra minutes but is much safer.
+                        </p>
+                      </div>
+                    </div>
+
                     <div>
                       <p class="text-sm" style="margin-bottom: var(--space-2);"><strong>How it works:</strong></p>
                       <ol class="list--ruled text-sm">

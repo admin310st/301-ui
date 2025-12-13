@@ -2036,6 +2036,26 @@ html[data-theme="light"] .btn--social-github {
   padding: var(--space-3);
 }
 
+.panel--success {
+  background: color-mix(in srgb, var(--success) 10%, var(--bg-soft));
+  border-color: color-mix(in srgb, var(--success) 30%, transparent);
+}
+
+.panel--info {
+  background: color-mix(in srgb, var(--primary) 10%, var(--bg-soft));
+  border-color: color-mix(in srgb, var(--primary) 30%, transparent);
+}
+
+.panel--warn {
+  background: color-mix(in srgb, var(--warning) 10%, var(--bg-soft));
+  border-color: color-mix(in srgb, var(--warning) 30%, transparent);
+}
+
+.panel--danger {
+  background: color-mix(in srgb, var(--danger) 10%, var(--bg-soft));
+  border-color: color-mix(in srgb, var(--danger) 30%, transparent);
+}
+
 .cluster {
   display: flex;
   align-items: center;
