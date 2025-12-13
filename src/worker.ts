@@ -14,6 +14,32 @@ const jsonResponse = (data: unknown, init: ResponseInit = {}) =>
     statusText: init.statusText,
   });
 
+/**
+ * Add Content Security Policy headers for Turnstile compatibility
+ */
+function addSecurityHeaders(response: Response): Response {
+  const headers = new Headers(response.headers);
+
+  // CSP for Turnstile widget
+  headers.set(
+    'Content-Security-Policy',
+    [
+      "default-src 'self'",
+      "script-src 'self' https://challenges.cloudflare.com",
+      "frame-src https://challenges.cloudflare.com",
+      "style-src 'self' 'unsafe-inline'",
+      "connect-src 'self' https://api.301.st",
+      "img-src 'self' data:",
+    ].join('; ')
+  );
+
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
+}
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
@@ -40,9 +66,17 @@ export default {
     } else if (request.method === 'GET' && url.pathname.startsWith('/auth')) {
       const indexUrl = new URL('/', request.url);
       const indexReq = new Request(indexUrl.toString(), request);
-      return env.ASSETS.fetch(indexReq);
+      const response = await env.ASSETS.fetch(indexReq);
+      return addSecurityHeaders(response);
     }
 
-    return env.ASSETS.fetch(request);
+    const response = await env.ASSETS.fetch(request);
+    // Add CSP headers to HTML pages
+    const contentType = response.headers.get('content-type') || '';
+    if (contentType.includes('text/html')) {
+      return addSecurityHeaders(response);
+    }
+
+    return response;
   },
 };
