@@ -115,12 +115,12 @@ export function renderTurnstileWidgets(root: ParentNode = document): void {
 
         storeToken(form, token);
 
-        // Find submit button - try form first, then search document
-        let submit = form?.querySelector<HTMLButtonElement>('button[type="submit"]');
+        // Find submit button by data-auth-submit attribute
+        let submit = form?.querySelector<HTMLButtonElement>('[data-auth-submit]');
         if (!submit) {
           // Fallback: find button in the same section as turnstile widget
           const section = container.closest('section');
-          submit = section?.querySelector<HTMLButtonElement>('button[type="submit"]') || null;
+          submit = section?.querySelector<HTMLButtonElement>('[data-auth-submit]') || null;
         }
 
         if (submit) {
@@ -146,7 +146,7 @@ export function renderTurnstileWidgets(root: ParentNode = document): void {
       'error-callback': () => {
         logDebug('Turnstile error');
         storeToken(form, null);
-        const submit = form?.querySelector<HTMLButtonElement>('button[type="submit"]');
+        const submit = form?.querySelector<HTMLButtonElement>('[data-auth-submit]');
         if (submit) {
           submit.disabled = true;
           submit.dataset.turnstilePending = 'true';
@@ -174,7 +174,7 @@ export function renderTurnstileWidgets(root: ParentNode = document): void {
       }
 
       // Disable submit button until Turnstile validation completes
-      const submit = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+      const submit = form.querySelector<HTMLButtonElement>('[data-auth-submit]');
       if (submit && !submit.dataset.turnstileInit) {
         submit.disabled = true;
         submit.dataset.turnstileInit = '1';
