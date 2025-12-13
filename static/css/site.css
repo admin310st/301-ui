@@ -502,6 +502,8 @@ h5 .icon[data-icon*="close"] {
 .primary-nav {
   display: flex;
   gap: var(--inline-gap);
+  justify-content: center;
+  flex: 1;
 }
 
 .header-actions {
