@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `.panel--info` (blue tint) for informational notices
   - `.panel--warn` (yellow tint) for warnings and cautions
   - `.panel--danger` (red tint) for critical security warnings
+- **New icon**: `mono/check-circle` for positive/confirmed items (replaces ✅ emoji)
 - **Legal and info pages** with comprehensive content:
   - about.html - Project philosophy ("conductor of integrations")
   - privacy.html - Privacy Policy (GDPR/CCPA compliant)
@@ -43,6 +44,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Improved UX flow: users read warnings while filling out form
 
 ### Changed
+- **Terms page cleanup**:
+  - Moved "Last updated" date from header to bottom footer (doesn't clutter page title)
+  - Replaced emoji icons (✅❌) with design system icons (check-circle, close)
+  - Icons now consistent with site aesthetic
 - Moved `ui-style-guide.html` from `static/` to root for Vite processing
 - Refactored all pages to use partials (index, dashboard, wizard, ui-style-guide)
 - Header/footer changes now require editing only 1 file instead of 4+
