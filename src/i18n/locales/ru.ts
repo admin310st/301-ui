@@ -23,6 +23,7 @@ export const ru: Translation = {
       sites: 'Сайты',
       streams: 'Потоки',
       redirects: 'Редиректы',
+      analytics: 'Аналитика',
     },
     headerTabsLabel: 'Тип операции',
     footer: {

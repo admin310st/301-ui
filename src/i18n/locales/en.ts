@@ -21,6 +21,7 @@ export const en = {
       sites: 'Sites',
       streams: 'Streams',
       redirects: 'Redirects',
+      analytics: 'Analytics',
     },
     headerTabsLabel: 'Authentication actions',
     footer: {
