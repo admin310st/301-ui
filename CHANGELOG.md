@@ -22,6 +22,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Extracted from index.html into reusable `partials/global-notice.hbs`
   - Added to dashboard.html, wizard.html, and ui-style-guide.html
   - Notifications now seamlessly transfer between pages via sessionStorage
+- **Panel modifiers** for semantic color-coded information boxes
+  - `.panel--success` (green tint) for positive confirmations
+  - `.panel--info` (blue tint) for informational notices
+  - `.panel--warn` (yellow tint) for warnings and cautions
+  - `.panel--danger` (red tint) for critical security warnings
 - **Legal and info pages** with comprehensive content:
   - about.html - Project philosophy ("conductor of integrations")
   - privacy.html - Privacy Policy (GDPR/CCPA compliant)
@@ -34,7 +39,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Global API Key method (quick, risky) - we create scoped token and discard Global Key
   - Clear security warnings and explanations of risks for Global API Key path
   - Tab-based UI with dynamic help sections for each method
-  - Balanced layout: educational "How it works" content in right sidebar, form in left card
+  - Balanced layout: Security Warning + educational content in right sidebar, clean form in left card
+  - Improved UX flow: users read warnings while filling out form
 
 ### Changed
 - Moved `ui-style-guide.html` from `static/` to root for Vite processing
