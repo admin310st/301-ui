@@ -100,6 +100,11 @@ export function renderTurnstileWidgets(root: ParentNode = document): void {
     const statusContainer = container.closest('[data-turnstile-status]');
     const mobile = isMobile();
 
+    // Show container before rendering so widget can calculate dimensions
+    if (statusContainer) {
+      statusContainer.hidden = false;
+    }
+
     const widgetId = api.render(container, {
       sitekey: siteKey,
       theme: 'auto',
@@ -132,11 +137,6 @@ export function renderTurnstileWidgets(root: ParentNode = document): void {
 
     if (typeof widgetId === 'string') {
       container.dataset.widgetId = widgetId;
-    }
-
-    // Show container after widget renders (for managed mode auto-validation)
-    if (statusContainer) {
-      statusContainer.hidden = false;
     }
   });
 
