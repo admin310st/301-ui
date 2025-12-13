@@ -344,9 +344,11 @@ body {
   margin-top: var(--space-2);
 }
 
-/* Icons in lists */
+/* Icons in lists and headings */
 .list--spaced .icon,
-.list--ruled .icon {
+.list--ruled .icon,
+.h5 .icon,
+h5 .icon {
   display: inline-block;
   width: 1em;
   height: 1em;
@@ -355,12 +357,16 @@ body {
 }
 
 .list--spaced .icon[data-icon*="check"],
-.list--ruled .icon[data-icon*="check"] {
+.list--ruled .icon[data-icon*="check"],
+.h5 .icon[data-icon*="check"],
+h5 .icon[data-icon*="check"] {
   color: var(--success);
 }
 
 .list--spaced .icon[data-icon*="close"],
-.list--ruled .icon[data-icon*="close"] {
+.list--ruled .icon[data-icon*="close"],
+.h5 .icon[data-icon*="close"],
+h5 .icon[data-icon*="close"] {
   color: var(--danger);
 }
 
