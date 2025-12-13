@@ -151,6 +151,13 @@ export function renderTurnstileWidgets(root: ParentNode = document): void {
         hidden.name = 'turnstile_token';
         form.appendChild(hidden);
       }
+
+      // Disable submit button until Turnstile validation completes
+      const submit = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+      if (submit && !submit.dataset.turnstileInit) {
+        submit.disabled = true;
+        submit.dataset.turnstileInit = '1';
+      }
     });
 }
 
