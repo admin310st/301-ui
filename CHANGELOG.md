@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Mobile menu & navigation plan** (`.claude/mobile-menu-todo.md`)
+  - Comprehensive roadmap for mobile menu implementation
+  - Icon requirements and checklist
+  - Architectural decisions documentation
+  - Step-by-step implementation guide
 - HTML partials system to eliminate code duplication across pages
 - Custom Vite plugin for partial includes (no external dependencies)
 - Reusable components: header-top, header-utility, footer, sidebar
