@@ -52,7 +52,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Main navigation: Integrations, Domains, Projects, Sites, Streams, Redirects (hidden on mobile)
   - Legal/info links (secondary): About, Docs, Privacy, Terms, Security (always visible)
   - Clean URLs without .html extensions (handled by worker routing)
-  - Vertical layout on desktop (no more space-between spreading)
+  - Horizontal layout with chip buttons: brand left, navigation right
+  - Better use of horizontal space, balanced visual weight
 - **Page layout alignment fix**: Reduced `--page-gutter-desktop` from 2rem to 1.5rem
   - All content (header, footer, main) now aligns on same vertical axis
   - More compact layout while maintaining readability
