@@ -2177,6 +2177,11 @@ html[data-theme="light"] .btn--social-github {
   flex-shrink: 0;
 }
 
+.step-number--cf {
+  background: var(--cf);
+  color: var(--bg);
+}
+
 .step-text {
   color: var(--text);
   white-space: nowrap;
