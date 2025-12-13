@@ -155,12 +155,6 @@ export const en = {
       proceed: 'Moving to password creation',
       successFallback: 'Password updated. You can now sign in.',
     },
-    session: {
-      active: 'Session is active.',
-      signedInAs: 'You are signed in as <strong data-auth-email data-user-email></strong>. Current role: <span data-user-role>client:owner</span>.',
-      logout: 'Log out',
-      notAuthenticated: 'You are not authenticated yet.',
-    },
     messages: {
       notAuthenticated: 'You are not authenticated yet.',
       authenticatedAs: 'You are signed in as',

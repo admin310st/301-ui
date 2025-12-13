@@ -157,13 +157,6 @@ export const ru: Translation = {
       proceed: 'Переходим к установке нового пароля',
       successFallback: 'Пароль обновлён. Теперь вы можете войти.',
     },
-    session: {
-      active: 'Сессия активна.',
-      signedInAs:
-        'Вы вошли как <strong data-auth-email data-user-email></strong>. Текущая роль: <span data-user-role>client:owner</span>.',
-      logout: 'Выйти',
-      notAuthenticated: 'Вы ещё не авторизованы.',
-    },
     messages: {
       notAuthenticated: 'Вы ещё не авторизованы.',
       authenticatedAs: 'Вы вошли как',
