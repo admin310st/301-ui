@@ -1677,20 +1677,10 @@ html[data-theme="light"] .btn--social-github {
   display: none; /* Hide text label - email is visible in input */
 }
 
-@media (max-width: 640px) {
+/* Hide avatar on tablets and mobile to prevent layout issues */
+@media (max-width: 1024px) {
   .auth-form .avatar-preview {
-    top: 1.25rem;
-    right: 1.25rem;
-  }
-
-  .auth-form .avatar-ring {
-    width: 3rem;
-    height: 3rem;
-  }
-
-  .auth-form .avatar-icon {
-    width: 2.25rem;
-    height: 2.25rem;
+    display: none;
   }
 }
 
