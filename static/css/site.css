@@ -559,7 +559,7 @@ h5 .icon[data-icon*="close"] {
 
 .primary-nav a:hover,
 .nav-links a:hover {
-  color: var(--primary);
+  color: var(--brand);
   border-color: var(--border-subtle);
   background: var(--bg-soft);
 }
