@@ -344,6 +344,26 @@ body {
   margin-top: var(--space-2);
 }
 
+/* Icons in lists */
+.list--spaced .icon,
+.list--ruled .icon {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.125em;
+  margin-right: 0.375em;
+}
+
+.list--spaced .icon[data-icon*="check"],
+.list--ruled .icon[data-icon*="check"] {
+  color: var(--success);
+}
+
+.list--spaced .icon[data-icon*="close"],
+.list--ruled .icon[data-icon*="close"] {
+  color: var(--danger);
+}
+
 .list--ruled {
   list-style: decimal;
   padding-left: 1.25rem;
