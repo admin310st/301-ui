@@ -43,8 +43,8 @@ export const en = {
     logout: 'Log out',
     hero: {
       eyebrow: 'Welcome Back',
-      title: 'Your account awaits',
-      subtitle: 'Use email and password to access your account or request a reset.',
+      title: 'The Traffic Control Plane',
+      subtitle: 'Redirects, routing and Cloudflare-edge automation — all in one dashboard.',
     },
     login: {
       title: 'Sign in to 301.st',
