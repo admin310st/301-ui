@@ -93,27 +93,45 @@ export function renderTurnstileWidgets(root: ParentNode = document): void {
     container.dataset.tsRendered = '1';
 
     const form = container.closest('form');
+    const statusContainer = container.closest('[data-turnstile-status]');
+
     const widgetId = api.render(container, {
       sitekey: siteKey,
       theme: 'auto',
       size: 'flexible',
+      appearance: 'interaction-only',
       callback: (token: string) => {
         storeToken(form, token);
         const submit = form?.querySelector<HTMLButtonElement>('button[type="submit"]');
         if (submit) submit.disabled = false;
+        // Hide widget after successful completion (managed mode auto-validates)
+        if (statusContainer) {
+          setTimeout(() => {
+            statusContainer.hidden = true;
+          }, 500);
+        }
       },
       'expired-callback': () => {
         storeToken(form, null);
+        // Show widget when token expires
+        if (statusContainer) statusContainer.hidden = false;
       },
       'error-callback': () => {
         storeToken(form, null);
         const submit = form?.querySelector<HTMLButtonElement>('button[type="submit"]');
         if (submit) submit.disabled = true;
+        // Keep widget visible on error
+        if (statusContainer) statusContainer.hidden = false;
       },
     });
 
     if (typeof widgetId === 'string') {
       container.dataset.widgetId = widgetId;
+    }
+
+    // Show container after widget renders (for managed mode auto-validation)
+    if (statusContainer) {
+      statusContainer.hidden = false;
     }
   });
 
