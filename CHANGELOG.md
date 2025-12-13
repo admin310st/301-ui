@@ -8,11 +8,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **i18n conventions guide** (`.claude/i18n-conventions.md`)
+  - Two-layer translation system: UI interface vs Content pages
+  - Key naming conventions and best practices
+  - Usage patterns: data-i18n, data-i18n-html, data-i18n-aria
+  - Content pages intentionally NOT using i18n (About, Privacy, Terms)
+  - Future roadmap for multilingual content
 - **Mobile menu & navigation plan** (`.claude/mobile-menu-todo.md`)
   - Comprehensive roadmap for mobile menu implementation
   - Icon requirements and checklist
   - Architectural decisions documentation
   - Step-by-step implementation guide
+  - i18n requirements integrated
 - HTML partials system to eliminate code duplication across pages
 - Custom Vite plugin for partial includes (no external dependencies)
 - Reusable components: header-top, header-utility, footer, sidebar
