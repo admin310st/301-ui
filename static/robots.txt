@@ -1,0 +1,6 @@
+# robots.txt for app.301.st
+# Allow indexing of homepage only
+
+User-agent: *
+Allow: /$
+Disallow: /
