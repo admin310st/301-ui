@@ -8,11 +8,20 @@ function getViewFromHash(hash: string): AuthView {
   return (AUTH_VIEWS as readonly string[]).includes(normalized) ? normalized : 'login';
 }
 
+function isMobile(): boolean {
+  return typeof window !== 'undefined' && window.innerWidth <= 1024;
+}
+
 export function showAuthView(view: AuthView): void {
+  let activeView: HTMLElement | null = null;
+
   document.querySelectorAll<HTMLElement>('[data-auth-view]').forEach((el) => {
     const isActive = el.dataset.authView === view;
     el.hidden = !isActive;
     el.setAttribute('aria-hidden', isActive ? 'false' : 'true');
+    if (isActive) {
+      activeView = el;
+    }
   });
 
   document.querySelectorAll<HTMLElement>('[data-auth-tab]').forEach((tab) => {
@@ -21,6 +30,14 @@ export function showAuthView(view: AuthView): void {
     tab.toggleAttribute('aria-current', isActive);
     tab.setAttribute('aria-pressed', String(isActive));
   });
+
+  // Scroll to active view on mobile/tablet after tab switch
+  if (isMobile() && activeView) {
+    // Small delay to allow tab switch animation to start
+    setTimeout(() => {
+      activeView?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+  }
 }
 
 export function setResetMode(mode: ResetMode): void {
