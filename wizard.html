@@ -213,21 +213,6 @@
                       </p>
                     </div>
 
-                    <div class="panel panel--info">
-                      <div class="stack" style="gap: var(--space-2);">
-                        <p class="text-sm"><strong>How it works:</strong></p>
-                        <ol class="list--ruled text-sm">
-                          <li>You submit your Global API Key</li>
-                          <li>We immediately create a scoped token with minimum permissions</li>
-                          <li>We save the scoped token and <strong>discard your Global API Key</strong></li>
-                          <li>You can verify in Cloudflare dashboard that a new API token was created</li>
-                        </ol>
-                        <p class="text-sm text-muted">
-                          After setup, you can revoke your Global API Key and rotate it. We'll only use the scoped token going forward.
-                        </p>
-                      </div>
-                    </div>
-
                     <div class="auth-actions">
                       <button
                         type="submit"
@@ -263,8 +248,8 @@
 
             <aside class="card card--panel card--compact" data-auth="guest">
               <header class="card__header">
-                <h3 class="card__title" data-cf-help="manual">How to get your credentials (Manual)</h3>
-                <h3 class="card__title" data-cf-help="global" hidden>How to get Global API Key</h3>
+                <h3 class="card__title" data-cf-help="manual">How to get your credentials</h3>
+                <h3 class="card__title" data-cf-help="global" hidden>Quick Setup Guide</h3>
               </header>
               <div class="card__body">
                 <!-- Manual method help -->
@@ -282,21 +267,37 @@
 
                 <!-- Global method help -->
                 <div data-cf-help="global" hidden>
-                  <ol class="list--ruled">
-                    <li>
-                      <strong>Account Email:</strong> The email you use to log in to Cloudflare.
-                    </li>
-                    <li>
-                      <strong>Global API Key:</strong> Go to <strong>My Profile → API Tokens → Global API Key → View</strong>. Enter your password to reveal it.
-                    </li>
-                    <li>
-                      <strong>Security tip:</strong> After we create the scoped token, consider rotating your Global API Key in Cloudflare settings.
-                    </li>
-                  </ol>
+                  <div class="stack" style="gap: var(--space-3);">
+                    <div>
+                      <p class="text-sm" style="margin-bottom: var(--space-2);"><strong>How it works:</strong></p>
+                      <ol class="list--ruled text-sm">
+                        <li>You submit your Global API Key</li>
+                        <li>We immediately create a scoped token with minimum permissions</li>
+                        <li>We save the scoped token and <strong>discard your Global API Key</strong></li>
+                        <li>You can verify in Cloudflare dashboard that a new API token was created</li>
+                      </ol>
+                    </div>
 
-                  <div class="panel panel--warn" style="margin-top: var(--space-3);">
-                    <p class="text-sm">
-                      <strong>Still recommend Manual Token?</strong> Yes. It's safer and takes only 2 more minutes.
+                    <div>
+                      <p class="text-sm" style="margin-bottom: var(--space-2);"><strong>Where to find credentials:</strong></p>
+                      <ol class="list--ruled text-sm">
+                        <li>
+                          <strong>Account Email:</strong> The email you use to log in to Cloudflare.
+                        </li>
+                        <li>
+                          <strong>Global API Key:</strong> Go to <strong>My Profile → API Tokens → Global API Key → View</strong>. Enter your password to reveal it.
+                        </li>
+                      </ol>
+                    </div>
+
+                    <div class="panel panel--warn">
+                      <p class="text-sm">
+                        <strong>Still recommend Manual Token?</strong> Yes. It's safer and takes only 2 more minutes.
+                      </p>
+                    </div>
+
+                    <p class="text-sm text-muted">
+                      <strong>Security tip:</strong> After setup, you can revoke your Global API Key and rotate it. We'll only use the scoped token going forward.
                     </p>
                   </div>
                 </div>
