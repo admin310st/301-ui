@@ -111,12 +111,26 @@ export function renderTurnstileWidgets(root: ParentNode = document): void {
       size: 'flexible',
       appearance: mobile ? 'always' : 'execute',
       callback: (token: string) => {
+        logDebug('Turnstile validation success', { token: token.substring(0, 20) + '...' });
+
         storeToken(form, token);
-        const submit = form?.querySelector<HTMLButtonElement>('button[type="submit"]');
+
+        // Find submit button - try form first, then search document
+        let submit = form?.querySelector<HTMLButtonElement>('button[type="submit"]');
+        if (!submit) {
+          // Fallback: find button in the same section as turnstile widget
+          const section = container.closest('section');
+          submit = section?.querySelector<HTMLButtonElement>('button[type="submit"]') || null;
+        }
+
         if (submit) {
+          logDebug('Enabling submit button');
           submit.disabled = false;
           submit.removeAttribute('data-turnstile-pending');
+        } else {
+          logDebug('Submit button not found!', { form, container });
         }
+
         // Hide widget after successful completion (desktop only, prevent layout shift on mobile)
         if (statusContainer && !mobile) {
           setTimeout(() => {
@@ -130,9 +144,13 @@ export function renderTurnstileWidgets(root: ParentNode = document): void {
         if (statusContainer) statusContainer.hidden = false;
       },
       'error-callback': () => {
+        logDebug('Turnstile error');
         storeToken(form, null);
         const submit = form?.querySelector<HTMLButtonElement>('button[type="submit"]');
-        if (submit) submit.disabled = true;
+        if (submit) {
+          submit.disabled = true;
+          submit.dataset.turnstilePending = 'true';
+        }
         // Keep widget visible on error
         if (statusContainer) statusContainer.hidden = false;
       },
