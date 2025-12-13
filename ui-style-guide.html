@@ -62,6 +62,7 @@
           <a href="#typography">Typography</a>
           <a href="#layout">Layout helpers</a>
           <a href="#badges">Badges</a>
+          <a href="#step-indicators">Step Indicators</a>
           <a href="#table-control-chips">Table control chips</a>
           <a href="#tables">Tables</a>
           <a href="#table-search">Table search</a>
@@ -555,6 +556,92 @@
               </span>
             </nav>
           </div>
+        </div>
+      </section>
+
+      <section id="step-indicators" class="card guide-section guide-stack">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">Components</p>
+            <h2 class="text-title">Step Indicators</h2>
+          </div>
+          <p class="text-muted">Compact progress indicators for wizards, setup flows, and instructional content.</p>
+        </div>
+
+        <div class="stack-sm">
+          <h4 class="h6">Horizontal Step Flow</h4>
+          <p class="text-muted">Use for wizards, setup flows, and progress indicators. Shows sequential steps with arrows.</p>
+
+          <div class="card card--soft">
+            <div class="step-flow">
+              <div class="step-pill">
+                <span class="step-number">1</span>
+                <span class="step-text">Connect Cloudflare</span>
+              </div>
+              <span class="step-separator">→</span>
+              <div class="step-pill">
+                <span class="step-number">2</span>
+                <span class="step-text">Import & configure</span>
+              </div>
+              <span class="step-separator">→</span>
+              <div class="step-pill">
+                <span class="step-number">3</span>
+                <span class="step-text">Launch</span>
+              </div>
+            </div>
+          </div>
+
+          <pre class="code-block"><code>&lt;div class="step-flow"&gt;
+  &lt;div class="step-pill"&gt;
+    &lt;span class="step-number"&gt;1&lt;/span&gt;
+    &lt;span class="step-text"&gt;Connect Cloudflare&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;span class="step-separator"&gt;→&lt;/span&gt;
+  &lt;div class="step-pill"&gt;
+    &lt;span class="step-number"&gt;2&lt;/span&gt;
+    &lt;span class="step-text"&gt;Import &amp; configure&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;span class="step-separator"&gt;→&lt;/span&gt;
+  &lt;div class="step-pill"&gt;
+    &lt;span class="step-number"&gt;3&lt;/span&gt;
+    &lt;span class="step-text"&gt;Launch&lt;/span&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+
+          <h4 class="h6" style="margin-top: var(--space-4);">Vertical Step List</h4>
+          <p class="text-muted">Use for compact instructions and checklists. More space-efficient for narrow containers.</p>
+
+          <div class="card card--soft">
+            <div class="step-list">
+              <div class="step-item">
+                <span class="badge badge--neutral">1</span>
+                <span class="text-sm">Connect your Cloudflare account</span>
+              </div>
+              <div class="step-item">
+                <span class="badge badge--neutral">2</span>
+                <span class="text-sm">Import zones and apply security/cache presets</span>
+              </div>
+              <div class="step-item">
+                <span class="badge badge--neutral">3</span>
+                <span class="text-sm">Launch redirects, streams, and domain monitoring</span>
+              </div>
+            </div>
+          </div>
+
+          <pre class="code-block"><code>&lt;div class="step-list"&gt;
+  &lt;div class="step-item"&gt;
+    &lt;span class="badge badge--neutral"&gt;1&lt;/span&gt;
+    &lt;span class="text-sm"&gt;Connect your Cloudflare account&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;div class="step-item"&gt;
+    &lt;span class="badge badge--neutral"&gt;2&lt;/span&gt;
+    &lt;span class="text-sm"&gt;Import zones and apply presets&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;div class="step-item"&gt;
+    &lt;span class="badge badge--neutral"&gt;3&lt;/span&gt;
+    &lt;span class="text-sm"&gt;Launch redirects and monitoring&lt;/span&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
         </div>
       </section>
 
