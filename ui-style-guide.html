@@ -1645,17 +1645,7 @@
         setTheme(next);
       });
 
-      document.querySelectorAll('[data-icon]').forEach((el) => {
-        const iconName = el.getAttribute('data-icon');
-        if (!iconName) return;
-        const symbolId = `i-${iconName.replace('/', '-')}`;
-        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        svg.setAttribute('aria-hidden', 'true');
-        const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
-        use.setAttribute('href', `/icons-sprite.svg#${symbolId}`);
-        svg.appendChild(use);
-        el.appendChild(svg);
-      });
+      // Icon processing removed - now handled by main.ts
 
       // Table search clear toggle
       const searchBars = document.querySelectorAll('[data-table-search]');
