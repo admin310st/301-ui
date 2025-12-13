@@ -49,11 +49,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Improved UX flow: users read warnings while filling out form
 
 ### Changed
-- **Legal pages cleanup**:
+- **Legal and info pages cleanup**:
   - Moved "Last updated" date from header to bottom footer on Terms and Privacy pages
   - Doesn't clutter page title, consistent layout across all legal pages
-  - Replaced emoji icons (✅❌) with design system icons (check-circle, close) on Terms page
-  - Icons now consistent with site aesthetic
+  - Replaced emoji icons (✅❌) with design system icons (check-circle, close) on Terms and About pages
+  - Icons now consistent with site aesthetic and work in headings (h5) and lists
 - Moved `ui-style-guide.html` from `static/` to root for Vite processing
 - Refactored all pages to use partials (index, dashboard, wizard, ui-style-guide)
 - Header/footer changes now require editing only 1 file instead of 4+
