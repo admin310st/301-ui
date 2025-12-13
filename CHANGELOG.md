@@ -34,6 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Global API Key method (quick, risky) - we create scoped token and discard Global Key
   - Clear security warnings and explanations of risks for Global API Key path
   - Tab-based UI with dynamic help sections for each method
+  - Balanced layout: educational "How it works" content in right sidebar, form in left card
 
 ### Changed
 - Moved `ui-style-guide.html` from `static/` to root for Vite processing
