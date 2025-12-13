@@ -56,6 +56,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Improved UX flow: users read warnings while filling out form
 
 ### Changed
+- **About page content rewrite**:
+  - More professional and compelling copy
+  - Clearer value proposition: Cloudflare-native control plane
+  - Structured "How it Works" with h5 subheadings
+  - Stronger security and transparency messaging
+  - Pain points in "Who Built This" section more relatable
+  - Better formatting with descriptive paragraphs
 - **Legal and info pages cleanup**:
   - Moved "Last updated" date from header to bottom footer on Terms and Privacy pages
   - Doesn't clutter page title, consistent layout across all legal pages
