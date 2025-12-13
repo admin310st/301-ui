@@ -35,7 +35,18 @@ export function showAuthView(view: AuthView): void {
   if (isMobile() && activeView) {
     // Small delay to allow tab switch animation to start
     setTimeout(() => {
-      activeView?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (!activeView) return;
+
+      // Calculate position accounting for sticky header
+      const header = document.querySelector('.site-header');
+      const headerHeight = header?.getBoundingClientRect().height || 120;
+      const elementTop = activeView.getBoundingClientRect().top + window.scrollY;
+      const offset = headerHeight + 16; // header + small gap
+
+      window.scrollTo({
+        top: elementTop - offset,
+        behavior: 'smooth',
+      });
     }, 100);
   }
 }
