@@ -115,20 +115,16 @@ export function renderTurnstileWidgets(root: ParentNode = document): void {
 
         storeToken(form, token);
 
-        // Find submit button by data-auth-submit attribute
-        let submit = form?.querySelector<HTMLButtonElement>('[data-auth-submit]');
-        if (!submit) {
-          // Fallback: find button in the same section as turnstile widget
-          const section = container.closest('section');
-          submit = section?.querySelector<HTMLButtonElement>('[data-auth-submit]') || null;
-        }
-
-        if (submit) {
-          logDebug('Enabling submit button');
-          submit.disabled = false;
-          submit.removeAttribute('data-turnstile-pending');
+        // Enable ALL auth form submit buttons (one Turnstile for all forms)
+        const allAuthButtons = document.querySelectorAll<HTMLButtonElement>('[data-auth-submit]');
+        if (allAuthButtons.length > 0) {
+          logDebug(`Enabling ${allAuthButtons.length} auth submit buttons`);
+          allAuthButtons.forEach((btn) => {
+            btn.disabled = false;
+            btn.removeAttribute('data-turnstile-pending');
+          });
         } else {
-          logDebug('Submit button not found!', { form, container });
+          logDebug('No auth submit buttons found!');
         }
 
         // Hide widget after successful completion (desktop only, prevent layout shift on mobile)
@@ -146,11 +142,11 @@ export function renderTurnstileWidgets(root: ParentNode = document): void {
       'error-callback': () => {
         logDebug('Turnstile error');
         storeToken(form, null);
-        const submit = form?.querySelector<HTMLButtonElement>('[data-auth-submit]');
-        if (submit) {
-          submit.disabled = true;
-          submit.dataset.turnstilePending = 'true';
-        }
+        // Disable ALL auth buttons on error
+        document.querySelectorAll<HTMLButtonElement>('[data-auth-submit]').forEach((btn) => {
+          btn.disabled = true;
+          btn.dataset.turnstilePending = 'true';
+        });
         // Keep widget visible on error
         if (statusContainer) statusContainer.hidden = false;
       },
