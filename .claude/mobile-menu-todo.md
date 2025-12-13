@@ -211,11 +211,13 @@ src/main.ts                      # Инициализация mobile-menu и sid
 
 ### Этап 4: Mobile Menu (30-40 мин)
 - [ ] Создать `partials/mobile-menu.hbs` - HTML структура
+- [ ] Добавить i18n ключи для всех navigation items (см. `.claude/i18n-conventions.md`)
+- [ ] Использовать `data-i18n` для текстов в меню
 - [ ] Создать `static/css/mobile-menu.css` - стили (slide-in, overlay, animations)
 - [ ] Создать `src/ui/mobile-menu.ts` - toggle, overlay click, close on link
 - [ ] Обновить `partials/header-top.hbs` - добавить burger button
 - [ ] Обновить `src/main.ts` - инициализация mobile-menu
-- [ ] Тестирование: открытие, закрытие, overlay, навигация
+- [ ] Тестирование: открытие, закрытие, overlay, навигация, смена языка
 - [ ] Commit: "Implement mobile menu with slide-in navigation"
 
 ### Этап 5: Полировка (10-15 мин)
