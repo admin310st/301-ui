@@ -26,19 +26,13 @@ export function initUtilityBarScroll(): void {
     const globalNotice = document.querySelector<HTMLElement>('#GlobalNotice');
     if (!header || !globalNotice) return;
 
-    // Calculate the bottom position of the header including visible utility bar
-    const headerBottom = header.offsetHeight;
-    const utilityBarTransform = window.getComputedStyle(utilityBar).transform;
+    // Get the visual height of header (includes transformed utility-bar)
+    // getBoundingClientRect() automatically accounts for all transforms and gives us the actual rendered height
+    const headerRect = header.getBoundingClientRect();
 
-    // If utility bar is hidden (translateY(-100%)), subtract its height
-    if (utilityBarTransform.includes('matrix')) {
-      const matrix = new DOMMatrix(utilityBarTransform);
-      const translateY = matrix.m42; // Y translation
-      const visibleHeight = utilityBar.offsetHeight + translateY;
-      globalNotice.style.top = `${headerBottom - utilityBar.offsetHeight + visibleHeight}px`;
-    } else {
-      globalNotice.style.top = `${headerBottom}px`;
-    }
+    // Set top to match the visual height of the header
+    // Since both header and notice are position:sticky, top is relative to viewport
+    globalNotice.style.top = `${headerRect.height}px`;
   }
 
   function hideUtilityBar(): void {
