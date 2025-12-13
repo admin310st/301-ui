@@ -49,12 +49,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `worker.ts` now checks session cookies and redirects authenticated users away from login page
 - **ui-style-guide.html** updated to use header-utility and footer partials for consistency
 - **Footer navigation** restructured with two-level hierarchy:
-  - Main navigation: Integrations, Domains, Projects, Sites, Streams, Redirects
-  - Legal/info links (secondary): About, Docs, Privacy, Terms, Security
+  - Main navigation: Integrations, Domains, Projects, Sites, Streams, Redirects (hidden on mobile)
+  - Legal/info links (secondary): About, Docs, Privacy, Terms, Security (always visible)
   - Clean URLs without .html extensions (handled by worker routing)
+  - Vertical layout on desktop (no more space-between spreading)
 - **Page layout alignment fix**: Reduced `--page-gutter-desktop` from 2rem to 1.5rem
   - All content (header, footer, main) now aligns on same vertical axis
   - More compact layout while maintaining readability
+- **Utility-bar positioning** changed from relative to absolute
+  - Slides out as separate overlay layer without affecting header height
+  - Header becomes narrower when utility-bar collapses
+  - Added 60px margin compensation for content below header
 
 ## [0.2.0] - 2025-12-12
 
