@@ -95,6 +95,8 @@ export function renderTurnstileWidgets(root: ParentNode = document): void {
     const form = container.closest('form');
     const widgetId = api.render(container, {
       sitekey: siteKey,
+      theme: 'auto',
+      size: 'flexible',
       callback: (token: string) => {
         storeToken(form, token);
         const submit = form?.querySelector<HTMLButtonElement>('button[type="submit"]');
