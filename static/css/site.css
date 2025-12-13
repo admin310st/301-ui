@@ -2178,8 +2178,8 @@ html[data-theme="light"] .btn--social-github {
 }
 
 .step-number--cf {
-  background: #f6821f;
-  color: #fff;
+  background: var(--accent-cf);
+  color: var(--btn-text-on-dark);
 }
 
 .step-text {
