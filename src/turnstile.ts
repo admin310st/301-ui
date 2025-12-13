@@ -109,7 +109,7 @@ export function renderTurnstileWidgets(root: ParentNode = document): void {
       sitekey: siteKey,
       theme: 'auto',
       size: 'flexible',
-      appearance: 'always',
+      appearance: mobile ? 'always' : 'execute',
       callback: (token: string) => {
         storeToken(form, token);
         const submit = form?.querySelector<HTMLButtonElement>('button[type="submit"]');

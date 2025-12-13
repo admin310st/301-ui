@@ -1562,22 +1562,7 @@ html[data-theme="light"] .btn--social-github {
   align-items: center;
 }
 
-.auth-status[data-turnstile-status] .turnstile-widget {
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--r-field);
-  overflow: hidden;
-}
-
-/* Remove Cloudflare's default border from iframe */
-.auth-status[data-turnstile-status] .turnstile-widget iframe {
-  border: none !important;
-}
-
-/* Turnstile iframe wrapper - apply design system radius */
-.auth-status[data-turnstile-status] .turnstile-widget > div {
-  border-radius: var(--r-field);
-  overflow: hidden;
-}
+/* Turnstile widget container - no custom styling, let CF handle it */
 
 .auth-status[data-type='error'] {
   border-color: color-mix(in srgb, var(--danger) 60%, transparent);
