@@ -21,15 +21,37 @@ export function initUtilityBarScroll(): void {
     return isAtTop;
   }
 
+  function updateGlobalNoticePosition(): void {
+    const header = document.querySelector<HTMLElement>('.site-header');
+    const globalNotice = document.querySelector<HTMLElement>('#GlobalNotice');
+    if (!header || !globalNotice) return;
+
+    // Calculate the bottom position of the header including visible utility bar
+    const headerBottom = header.offsetHeight;
+    const utilityBarTransform = window.getComputedStyle(utilityBar).transform;
+
+    // If utility bar is hidden (translateY(-100%)), subtract its height
+    if (utilityBarTransform.includes('matrix')) {
+      const matrix = new DOMMatrix(utilityBarTransform);
+      const translateY = matrix.m42; // Y translation
+      const visibleHeight = utilityBar.offsetHeight + translateY;
+      globalNotice.style.top = `${headerBottom - utilityBar.offsetHeight + visibleHeight}px`;
+    } else {
+      globalNotice.style.top = `${headerBottom}px`;
+    }
+  }
+
   function hideUtilityBar(): void {
     if (isAtTop) return; // Не скрываем если мы вверху
     utilityBar.style.transition = 'transform 0.3s ease';
     utilityBar.style.transform = 'translateY(-100%)';
+    updateGlobalNoticePosition();
   }
 
   function showUtilityBar(): void {
     utilityBar.style.transition = 'transform 0.3s ease';
     utilityBar.style.transform = 'translateY(0)';
+    updateGlobalNoticePosition();
   }
 
   // Обработчик прокрутки
@@ -60,5 +82,9 @@ export function initUtilityBarScroll(): void {
     if (checkIfAtTop()) {
       showUtilityBar();
     }
+    updateGlobalNoticePosition();
   });
+
+  // Update on resize
+  window.addEventListener('resize', updateGlobalNoticePosition);
 }

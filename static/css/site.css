@@ -122,7 +122,7 @@ body {
 
 .app-alert {
   position: sticky;
-  top: 0;
+  top: 60px; /* Default: header-top height, updated dynamically by JS */
   z-index: var(--z-sticky);
   background: var(--panel);
   border-bottom: 1px solid var(--border-subtle);
@@ -132,7 +132,7 @@ body {
   overflow: hidden;
   pointer-events: none;
   transition: opacity 150ms ease, transform 150ms ease, max-height var(--transition-md),
-    padding var(--transition-md), margin var(--transition-md);
+    padding var(--transition-md), margin var(--transition-md), top 0.3s ease;
 }
 
 .app-alert[data-state='visible'],
