@@ -32,7 +32,7 @@
       }
 
       .formula .f-result {
-        font-weight: 600;
+        font-weight: var(--fw-semibold);
       }
     }
 </style>
@@ -85,13 +85,18 @@
 
                   <div class="formula">
                     <div class="f-row">301</div>
+                    <div class="f-row">− Location</div>
+                    <div class="f-row f-line">──────────</div>
+                    <div class="f-row">103</div>
+                    <div class="f-row f-spacer"></div>
                     <div class="f-row">+103</div>
-                    <div class="f-row f-line">────</div>
+                    <div class="f-row f-line">──────────</div>
                     <div class="f-row f-result">404</div>
                   </div>
 
+
                   <p class="text-muted" data-i18n="notFound.formulaExplanation">
-                    When redirects and Early Hints collide — sometimes the path simply doesn't exist.
+                    A redirect without a destination is just a hint. Two hints without a route lead nowhere.
                   </p>
                 </div>
 
