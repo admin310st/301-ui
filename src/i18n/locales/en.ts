@@ -208,7 +208,7 @@ export const en = {
     cardTitle: '404 — Wrong Redirect Math',
     cardSubtitle: "We calculated 301 and added a 103 Early Hint. The result… wasn't where you expected.",
     formulaTitle: 'The Formula',
-    formulaExplanation: "When redirects and Early Hints collide — sometimes the path simply doesn't exist.",
+    formulaExplanation: 'A redirect without a destination is just a hint. Two hints without a route lead nowhere.',
     status301Title: '301 — Moved Permanently (Our Pride and Joy)',
     status301Description: "The backbone of clean routing. Stable, reliable, SEO-friendly — the very reason 301.st exists. For us, 301 is more than a status code: it's the foundation of the Traffic Control Plane.",
     status103Title: '103 — Early Hints',
