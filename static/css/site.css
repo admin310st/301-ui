@@ -718,6 +718,10 @@ h5 .icon[data-icon*="close"] {
   .utility-right {
     margin-left: auto;
   }
+
+  .breadcrumbs .crumb:first-child [data-i18n="layout.nav.home"] {
+    display: none;
+  }
 }
 
 .eyebrow {
