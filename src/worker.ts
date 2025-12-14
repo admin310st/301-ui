@@ -116,10 +116,17 @@ export default {
     const notFoundUrl = new URL('/404.html', request.url);
     const notFoundRequest = new Request(notFoundUrl.toString(), request);
     const notFoundAsset = await env.ASSETS.fetch(notFoundRequest);
-    const notFoundHtml = await notFoundAsset.text();
+
+    if (notFoundAsset.status === 404) {
+      // Fallback to plain text if 404.html is missing
+      return new Response('404 Not Found', {
+        status: 404,
+        headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+      });
+    }
 
     return addSecurityHeaders(
-      new Response(notFoundHtml, {
+      new Response(notFoundAsset.body, {
         status: 404,
         headers: {
           'Content-Type': 'text/html; charset=utf-8',
