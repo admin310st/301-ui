@@ -8,10 +8,6 @@ function getViewFromHash(hash: string): AuthView {
   return (AUTH_VIEWS as readonly string[]).includes(normalized) ? normalized : 'login';
 }
 
-function isMobile(): boolean {
-  return typeof window !== 'undefined' && window.innerWidth <= 1024;
-}
-
 let scrollRequest: AuthView | null = null;
 
 export function requestAuthScroll(view: AuthView): void {
@@ -37,31 +33,40 @@ export function showAuthView(view: AuthView): void {
     tab.setAttribute('aria-pressed', String(isActive));
   });
 
-  const shouldScroll = isMobile() && activeView && scrollRequest === view;
+  const shouldScroll = activeView && scrollRequest === view;
 
-  // Scroll to active view on mobile/tablet after explicit request
+  const focusEmail = () => {
+    if (view !== 'register') return;
+    const emailInput = document.querySelector<HTMLInputElement>('#register-email');
+    emailInput?.focus({ preventScroll: true });
+  };
+
+  const scrollToActiveView = () => {
+    if (!activeView) return;
+
+    const scrollTarget = activeView.querySelector<HTMLElement>('form') ?? activeView;
+
+    const header = document.querySelector('.site-header');
+    const headerHeight = header?.getBoundingClientRect().height || 96;
+    const elementTop = scrollTarget.getBoundingClientRect().top + window.scrollY;
+    const offset = headerHeight + 8; // header + small gap
+
+    window.scrollTo({
+      top: Math.max(elementTop - offset, 0),
+      behavior: 'smooth',
+    });
+  };
+
   if (shouldScroll) {
     // Small delay to allow tab switch animation to start
     setTimeout(() => {
-      if (!activeView) return;
-
-      const scrollTarget = activeView.querySelector<HTMLElement>('form') ?? activeView;
-
-      // Calculate position accounting for sticky header
-      const header = document.querySelector('.site-header');
-      const headerHeight = header?.getBoundingClientRect().height || 96;
-      const elementTop = scrollTarget.getBoundingClientRect().top + window.scrollY;
-      const offset = headerHeight + 8; // header + small gap
-
-      window.scrollTo({
-        top: Math.max(elementTop - offset, 0),
-        behavior: 'smooth',
-      });
-
+      scrollToActiveView();
+      focusEmail();
       scrollRequest = null;
     }, 100);
   } else {
     scrollRequest = null;
+    focusEmail();
   }
 }
 
