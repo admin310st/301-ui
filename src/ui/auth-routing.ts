@@ -45,14 +45,16 @@ export function showAuthView(view: AuthView): void {
     setTimeout(() => {
       if (!activeView) return;
 
+      const scrollTarget = activeView.querySelector<HTMLElement>('form') ?? activeView;
+
       // Calculate position accounting for sticky header
       const header = document.querySelector('.site-header');
-      const headerHeight = header?.getBoundingClientRect().height || 120;
-      const elementTop = activeView.getBoundingClientRect().top + window.scrollY;
-      const offset = headerHeight + 16; // header + small gap
+      const headerHeight = header?.getBoundingClientRect().height || 96;
+      const elementTop = scrollTarget.getBoundingClientRect().top + window.scrollY;
+      const offset = headerHeight + 8; // header + small gap
 
       window.scrollTo({
-        top: elementTop - offset,
+        top: Math.max(elementTop - offset, 0),
         behavior: 'smooth',
       });
 
