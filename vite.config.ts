@@ -61,6 +61,7 @@ export default defineConfig({
         terms: resolve(__dirname, 'terms.html'),
         security: resolve(__dirname, 'security.html'),
         docs: resolve(__dirname, 'docs.html'),
+        notFound: resolve(__dirname, '404.html'),
       },
     },
   },

@@ -200,6 +200,24 @@ export const en = {
       resetDone: 'Password updated. You can now sign in.',
     },
   },
+  notFound: {
+    pageTitle: '404 — Wrong Redirect Math',
+    pageSubtitle: "301 + 103 Early Hints = 404. The route you wanted isn't here.",
+    breadcrumbHome: 'Home',
+    breadcrumbCurrent: 'Not Found',
+    cardTitle: '404 — Wrong Redirect Math',
+    cardSubtitle: "We calculated 301 and added a 103 Early Hint. The result… wasn't where you expected.",
+    formulaTitle: 'The Formula',
+    formulaExplanation: "When redirects and Early Hints collide — sometimes the path simply doesn't exist.",
+    status301Title: '301 — Moved Permanently (Our Pride and Joy)',
+    status301Description: "The backbone of clean routing. Stable, reliable, SEO-friendly — the very reason 301.st exists. For us, 301 is more than a status code: it's the foundation of the Traffic Control Plane.",
+    status103Title: '103 — Early Hints',
+    status103Description: 'A lightweight pre-response that speeds up loading. It tells the browser: "Here are some hints — the real answer is coming soon." Great for performance, terrible for fixing broken routes.',
+    status404Title: '404 — Not Found',
+    status404Description: 'Add a redirect and an early whisper from the edge, and sometimes you end up with nothing but an empty path: no matching rule, no target, just a void in the routing table.',
+    backToDashboard: 'Back to Dashboard',
+    returnToSite: 'Return to 301.st',
+  },
 };
 
 export type Translation = typeof en;

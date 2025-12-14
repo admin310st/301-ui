@@ -432,6 +432,27 @@ h5 .icon[data-icon*="close"] {
   --stack-gap: var(--space-6);
 }
 
+.stack--xs {
+  --stack-gap: var(--space-1);
+}
+
+.stack--sm {
+  --stack-gap: var(--space-2);
+}
+
+.stack--md {
+  --stack-gap: var(--space-4);
+}
+
+.stack--lg {
+  --stack-gap: var(--space-6);
+}
+
+.stack--centered {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
 .row {
   display: flex;
   flex-wrap: wrap;
@@ -443,6 +464,10 @@ h5 .icon[data-icon*="close"] {
   display: flex;
   align-items: center;
   gap: var(--inline-gap);
+  flex-wrap: wrap;
+}
+
+.cluster--wrap {
   flex-wrap: wrap;
 }
 

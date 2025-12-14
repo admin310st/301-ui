@@ -43,6 +43,30 @@ function addSecurityHeaders(response: Response): Response {
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
+    const normalizedPath = url.pathname.endsWith('/') && url.pathname !== '/' ? url.pathname.slice(0, -1) : url.pathname;
+
+    const htmlRoutes = new Map<string, string>([
+      ['/', '/index.html'],
+      ['/index.html', '/index.html'],
+      ['/dashboard', '/dashboard.html'],
+      ['/dashboard.html', '/dashboard.html'],
+      ['/wizard', '/wizard.html'],
+      ['/wizard.html', '/wizard.html'],
+      ['/ui-style-guide', '/ui-style-guide.html'],
+      ['/ui-style-guide.html', '/ui-style-guide.html'],
+      ['/about', '/about.html'],
+      ['/about.html', '/about.html'],
+      ['/privacy', '/privacy.html'],
+      ['/privacy.html', '/privacy.html'],
+      ['/terms', '/terms.html'],
+      ['/terms.html', '/terms.html'],
+      ['/security', '/security.html'],
+      ['/security.html', '/security.html'],
+      ['/docs', '/docs.html'],
+      ['/docs.html', '/docs.html'],
+      ['/404', '/404.html'],
+      ['/404.html', '/404.html'],
+    ]);
 
     // Early redirect: authenticated users should skip login page
     // This runs on Cloudflare Workers edge. For non-CF deployments,
@@ -70,13 +94,44 @@ export default {
       return addSecurityHeaders(response);
     }
 
+    if (request.method === 'GET' && htmlRoutes.has(normalizedPath)) {
+      const target = htmlRoutes.get(normalizedPath)!;
+      const assetUrl = new URL(target, request.url);
+      const assetRequest = new Request(assetUrl.toString(), request);
+      const assetResponse = await env.ASSETS.fetch(assetRequest);
+      return addSecurityHeaders(assetResponse);
+    }
+
     const response = await env.ASSETS.fetch(request);
     // Add CSP headers to HTML pages
     const contentType = response.headers.get('content-type') || '';
-    if (contentType.includes('text/html')) {
+    if (response.status !== 404 && contentType.includes('text/html')) {
       return addSecurityHeaders(response);
     }
 
-    return response;
+    if (response.status !== 404) {
+      return response;
+    }
+
+    const notFoundUrl = new URL('/404.html', request.url);
+    const notFoundRequest = new Request(notFoundUrl.toString(), request);
+    const notFoundAsset = await env.ASSETS.fetch(notFoundRequest);
+
+    if (notFoundAsset.status === 404) {
+      // Fallback to plain text if 404.html is missing
+      return new Response('404 Not Found', {
+        status: 404,
+        headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+      });
+    }
+
+    return addSecurityHeaders(
+      new Response(notFoundAsset.body, {
+        status: 404,
+        headers: {
+          'Content-Type': 'text/html; charset=utf-8',
+        },
+      })
+    );
   },
 };
