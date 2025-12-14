@@ -59,7 +59,7 @@ export function showAuthView(view: AuthView): void {
       });
 
       scrollRequest = null;
-    }, 120);
+    }, 100);
   } else {
     scrollRequest = null;
   }
