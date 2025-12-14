@@ -46,6 +46,7 @@ export default defineConfig({
   // Example: static/img/foo.svg -> /img/foo.svg  (NOT /static/img/foo.svg)
   publicDir: 'static',
   base: '/',
+  appType: 'mpa',
   plugins: [partialsPlugin()],
   build: {
     outDir: 'public',
