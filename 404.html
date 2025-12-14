@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>301.st — 404 Not Found | The Traffic Control Plane</title>
+    <meta
+      name="description"
+      content="404 Not Found. Wrong redirect math: 301 + 103 (Early Hints) = 404. The requested route does not exist on the Traffic Control Plane."
+    />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" href="/css/theme.css" />
+    <link rel="stylesheet" href="/css/layout.css" />
+    <link rel="stylesheet" href="/css/site.css" />
+  </head>
+  <body>
+    <header class="site-header" role="banner">
+{{> header-top}}
+
+      <div class="utility-bar">
+        <div class="page-shell utility-bar__inner">
+          <div class="utility-left">
+            <nav class="breadcrumbs" aria-label="Breadcrumb">
+              <a href="/" class="crumb"><span class="icon" data-icon="mono/home"></span> Home</a>
+              <span class="sep" aria-hidden="true">›</span>
+              <span class="crumb is-current">Not Found</span>
+            </nav>
+          </div>
+
+{{> header-utility}}
+        </div>
+      </div>
+    </header>
+
+{{> global-notice}}
+
+    <main class="page-shell app-shell">
+{{> sidebar activePage="none"}}
+
+      <section class="content">
+        <header class="page-header">
+          <h1 class="h3">404 — Wrong Redirect Math</h1>
+          <p class="text-muted">301 + 103 Early Hints = 404. The route you wanted isn&apos;t here.</p>
+        </header>
+
+        <div class="stack" style="gap: var(--space-4); max-width: 960px; margin: 0 auto">
+          <section class="card card--panel card--accent">
+            <header class="card__header">
+              <h1 class="card__title">404 — Wrong Redirect Math</h1>
+              <p class="card__subtitle">
+                We calculated 301 and added a 103 Early Hint. The result… wasn&apos;t where you expected.
+              </p>
+            </header>
+
+            <div class="card__body stack stack--lg">
+              <div class="panel stack stack--sm">
+                <h2 class="h4">The Formula</h2>
+                <pre class="code-block code-block--inline">301
++103
+----
+ 404</pre>
+                <p class="text-muted">
+                  When redirects and Early Hints collide — sometimes the path simply doesn&apos;t exist.
+                </p>
+              </div>
+
+              <section class="stack stack--lg">
+                <div class="stack stack--xs">
+                  <h3 class="h5">301 — Moved Permanently (Our Pride and Joy)</h3>
+                  <p>
+                    The backbone of clean routing. Stable, reliable, SEO-friendly — the very reason 301.st exists. For us,
+                    301 is more than a status code: it&apos;s the foundation of the Traffic Control Plane.
+                  </p>
+                </div>
+
+                <div class="stack stack--xs">
+                  <h3 class="h5">103 — Early Hints</h3>
+                  <p>
+                    A lightweight pre-response that speeds up loading. It tells the browser: “Here are some hints — the real
+                    answer is coming soon.” Great for performance, terrible for fixing broken routes.
+                  </p>
+                </div>
+
+                <div class="stack stack--xs">
+                  <h3 class="h5">404 — Not Found</h3>
+                  <p>
+                    Add a redirect and an early whisper from the edge, and sometimes you end up with nothing but an empty
+                    path: no matching rule, no target, just a void in the routing table.
+                  </p>
+                </div>
+              </section>
+
+              <div class="cluster" style="flex-wrap: wrap; gap: var(--space-2); align-items: center">
+                <a href="/dashboard.html" class="btn-chip btn-chip--primary">Back to Dashboard</a>
+                <a href="https://301.st" class="btn-chip">Return to 301.st</a>
+              </div>
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
+
+{{> footer}}
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
