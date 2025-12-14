@@ -12,6 +12,12 @@ function isMobile(): boolean {
   return typeof window !== 'undefined' && window.innerWidth <= 1024;
 }
 
+let scrollRequest: AuthView | null = null;
+
+export function requestAuthScroll(view: AuthView): void {
+  scrollRequest = view;
+}
+
 export function showAuthView(view: AuthView): void {
   let activeView: HTMLElement | null = null;
 
@@ -31,8 +37,10 @@ export function showAuthView(view: AuthView): void {
     tab.setAttribute('aria-pressed', String(isActive));
   });
 
-  // Scroll to active view on mobile/tablet after tab switch
-  if (isMobile() && activeView) {
+  const shouldScroll = isMobile() && activeView && scrollRequest === view;
+
+  // Scroll to active view on mobile/tablet after explicit request
+  if (shouldScroll) {
     // Small delay to allow tab switch animation to start
     setTimeout(() => {
       if (!activeView) return;
@@ -47,7 +55,11 @@ export function showAuthView(view: AuthView): void {
         top: elementTop - offset,
         behavior: 'smooth',
       });
+
+      scrollRequest = null;
     }, 100);
+  } else {
+    scrollRequest = null;
   }
 }
 
@@ -117,6 +129,18 @@ export function initAuthTabs(): void {
 }
 
 export function initAuthRouting(): void {
+  document.querySelectorAll<HTMLElement>('[data-auth-scroll]').forEach((trigger) => {
+    if (trigger.dataset.bound === 'true') return;
+    trigger.dataset.bound = 'true';
+
+    trigger.addEventListener('click', () => {
+      const target = trigger.dataset.authScroll as AuthView | undefined;
+      if (!target || !(AUTH_VIEWS as readonly string[]).includes(target)) return;
+
+      requestAuthScroll(target);
+    });
+  });
+
   window.addEventListener('hashchange', applyRouteFromHash);
   applyRouteFromHash();
 }
