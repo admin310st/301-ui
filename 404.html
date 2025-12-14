@@ -35,74 +35,74 @@
 
 {{> global-notice}}
 
-    <main class="page-shell app-shell">
-{{> sidebar activePage="none"}}
-
-      <section class="content">
+    <main class="page">
+      <div class="page-shell">
         <header class="page-header">
-          <h1 class="h3" data-i18n="notFound.pageTitle">404 — Wrong Redirect Math</h1>
+          <h1 class="h1" data-i18n="notFound.pageTitle">404 — Wrong Redirect Math</h1>
           <p class="text-muted" data-i18n="notFound.pageSubtitle">301 + 103 Early Hints = 404. The route you wanted isn&apos;t here.</p>
         </header>
 
-        <div class="stack stack--centered" style="gap: var(--space-4)">
-          <section class="card card--panel card--accent">
-            <header class="card__header">
-              <h1 class="card__title" data-i18n="notFound.cardTitle">404 — Wrong Redirect Math</h1>
-              <p class="card__subtitle" data-i18n="notFound.cardSubtitle">
-                We calculated 301 and added a 103 Early Hint. The result… wasn&apos;t where you expected.
-              </p>
-            </header>
+        <section class="auth-shell">
+          <div class="auth-grid">
+            <section class="card card--panel card--accent">
+              <header class="card__header">
+                <h2 class="card__title" data-i18n="notFound.cardTitle">404 — Wrong Redirect Math</h2>
+                <p class="text-muted" data-i18n="notFound.cardSubtitle">
+                  We calculated 301 and added a 103 Early Hint. The result… wasn&apos;t where you expected.
+                </p>
+              </header>
 
-            <div class="card__body stack stack--lg">
-              <div class="panel stack stack--sm">
-                <h2 class="h4" data-i18n="notFound.formulaTitle">The Formula</h2>
-                <pre class="code-block" style="max-width: 200px; margin: 0 auto">301
+              <div class="card__body stack stack--lg">
+                <div class="panel stack stack--sm">
+                  <h3 class="h4" data-i18n="notFound.formulaTitle">The Formula</h3>
+                  <pre class="code-block" style="max-width: 200px; margin: 0 auto">301
 +103
 ----
  404</pre>
-                <p class="text-muted" data-i18n="notFound.formulaExplanation">
-                  When redirects and Early Hints collide — sometimes the path simply doesn&apos;t exist.
-                </p>
+                  <p class="text-muted" data-i18n="notFound.formulaExplanation">
+                    When redirects and Early Hints collide — sometimes the path simply doesn&apos;t exist.
+                  </p>
+                </div>
+
+                <section class="stack stack--lg">
+                  <div class="stack stack--xs">
+                    <h4 class="h5" data-i18n="notFound.status301Title">301 — Moved Permanently (Our Pride and Joy)</h4>
+                    <p data-i18n="notFound.status301Description">
+                      The backbone of clean routing. Stable, reliable, SEO-friendly — the very reason 301.st exists. For us,
+                      301 is more than a status code: it&apos;s the foundation of the Traffic Control Plane.
+                    </p>
+                  </div>
+
+                  <div class="stack stack--xs">
+                    <h4 class="h5" data-i18n="notFound.status103Title">103 — Early Hints</h4>
+                    <p data-i18n="notFound.status103Description">
+                      A lightweight pre-response that speeds up loading. It tells the browser: "Here are some hints — the real
+                      answer is coming soon." Great for performance, terrible for fixing broken routes.
+                    </p>
+                  </div>
+
+                  <div class="stack stack--xs">
+                    <h4 class="h5" data-i18n="notFound.status404Title">404 — Not Found</h4>
+                    <p data-i18n="notFound.status404Description">
+                      Add a redirect and an early whisper from the edge, and sometimes you end up with nothing but an empty
+                      path: no matching rule, no target, just a void in the routing table.
+                    </p>
+                  </div>
+                </section>
+
+                <div class="cluster cluster--wrap" style="gap: var(--space-2)">
+                  <a href="/" class="btn-chip btn-chip--primary">
+                    <span class="btn-chip__label" data-i18n="notFound.backToDashboard">Back to Home</span>
+                  </a>
+                  <a href="https://301.st" class="btn-chip">
+                    <span class="btn-chip__label" data-i18n="notFound.returnToSite">Return to 301.st</span>
+                  </a>
+                </div>
               </div>
-
-              <section class="stack stack--lg">
-                <div class="stack stack--xs">
-                  <h3 class="h5" data-i18n="notFound.status301Title">301 — Moved Permanently (Our Pride and Joy)</h3>
-                  <p data-i18n="notFound.status301Description">
-                    The backbone of clean routing. Stable, reliable, SEO-friendly — the very reason 301.st exists. For us,
-                    301 is more than a status code: it&apos;s the foundation of the Traffic Control Plane.
-                  </p>
-                </div>
-
-                <div class="stack stack--xs">
-                  <h3 class="h5" data-i18n="notFound.status103Title">103 — Early Hints</h3>
-                  <p data-i18n="notFound.status103Description">
-                    A lightweight pre-response that speeds up loading. It tells the browser: "Here are some hints — the real
-                    answer is coming soon." Great for performance, terrible for fixing broken routes.
-                  </p>
-                </div>
-
-                <div class="stack stack--xs">
-                  <h3 class="h5" data-i18n="notFound.status404Title">404 — Not Found</h3>
-                  <p data-i18n="notFound.status404Description">
-                    Add a redirect and an early whisper from the edge, and sometimes you end up with nothing but an empty
-                    path: no matching rule, no target, just a void in the routing table.
-                  </p>
-                </div>
-              </section>
-
-              <div class="cluster cluster--wrap" style="gap: var(--space-2)">
-                <a href="/dashboard.html" class="btn-chip btn-chip--primary">
-                  <span class="btn-chip__label" data-i18n="notFound.backToDashboard">Back to Dashboard</span>
-                </a>
-                <a href="https://301.st" class="btn-chip">
-                  <span class="btn-chip__label" data-i18n="notFound.returnToSite">Return to 301.st</span>
-                </a>
-              </div>
-            </div>
-          </section>
-        </div>
-      </section>
+            </section>
+          </div>
+        </section>
+      </div>
     </main>
 
 {{> footer}}

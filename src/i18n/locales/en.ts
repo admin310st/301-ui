@@ -215,7 +215,7 @@ export const en = {
     status103Description: 'A lightweight pre-response that speeds up loading. It tells the browser: "Here are some hints — the real answer is coming soon." Great for performance, terrible for fixing broken routes.',
     status404Title: '404 — Not Found',
     status404Description: 'Add a redirect and an early whisper from the edge, and sometimes you end up with nothing but an empty path: no matching rule, no target, just a void in the routing table.',
-    backToDashboard: 'Back to Dashboard',
+    backToDashboard: 'Back to Home',
     returnToSite: 'Return to 301.st',
   },
 };
