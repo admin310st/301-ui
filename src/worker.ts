@@ -44,6 +44,7 @@ export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
     const normalizedPath = url.pathname.endsWith('/') && url.pathname !== '/' ? url.pathname.slice(0, -1) : url.pathname;
+    const wantsHtml = (request.headers.get('accept') || '').includes('text/html');
 
     const htmlRoutes = new Map<string, string>([
       ['/', '/index.html'],
@@ -109,12 +110,15 @@ export default {
       return addSecurityHeaders(response);
     }
 
-    if (response.status !== 404) {
+    if (response.status !== 404 || !wantsHtml) {
       return response;
     }
 
     const notFoundUrl = new URL('/404.html', request.url);
-    const notFoundRequest = new Request(notFoundUrl.toString(), request);
+    const notFoundRequest = new Request(notFoundUrl.toString(), {
+      method: 'GET',
+      headers: request.headers,
+    });
     const notFoundAsset = await env.ASSETS.fetch(notFoundRequest);
 
     if (notFoundAsset.status === 404) {
@@ -125,12 +129,13 @@ export default {
       });
     }
 
+    const notFoundHeaders = new Headers(notFoundAsset.headers);
+    notFoundHeaders.set('Content-Type', 'text/html; charset=utf-8');
+
     return addSecurityHeaders(
       new Response(notFoundAsset.body, {
         status: 404,
-        headers: {
-          'Content-Type': 'text/html; charset=utf-8',
-        },
+        headers: notFoundHeaders,
       })
     );
   },
