@@ -13,6 +13,29 @@
     <link rel="stylesheet" href="/css/theme.css" />
     <link rel="stylesheet" href="/css/layout.css" />
     <link rel="stylesheet" href="/css/site.css" />
+    <style>
+      .formula {
+        font-family: var(--font-mono, "Segoe UI Mono", "Menlo", "Consolas", monospace);
+        font-size: var(--text-lg);
+        line-height: 1.2;
+        text-align: center;
+        margin: 0 auto;
+        width: max-content;
+      }
+
+      .formula .f-row {
+        white-space: pre;
+      }
+
+      .formula .f-line {
+        letter-spacing: 0.15em;
+      }
+
+      .formula .f-result {
+        font-weight: 600;
+      }
+    }
+</style>
   </head>
   <body>
     <header class="site-header" role="banner">
@@ -44,7 +67,7 @@
 
         <section class="auth-shell">
           <div class="auth-grid">
-            <section class="card card--panel card--accent">
+            <section class="card card--panel card--accent card--accent-danger">
               <header class="card__header">
                 <h2 class="card__title" data-i18n="notFound.cardTitle">404 — Wrong Redirect Math</h2>
                 <p class="text-muted" data-i18n="notFound.cardSubtitle">
@@ -55,13 +78,19 @@
               <div class="card__body stack stack--lg">
                 <div class="panel stack stack--sm">
                   <h3 class="h4" data-i18n="notFound.formulaTitle">The Formula</h3>
-                  <pre class="code-block" style="max-width: 200px; margin: 0 auto">301
-+103
-----
- 404</pre>
+
+                  <div class="formula">
+                    <div class="f-row">301</div>
+                    <div class="f-row">+103</div>
+                    <div class="f-row f-line">────</div>
+                    <div class="f-row f-result">404</div>
+                  </div>
+
                   <p class="text-muted" data-i18n="notFound.formulaExplanation">
-                    When redirects and Early Hints collide — sometimes the path simply doesn&apos;t exist.
+                    When redirects and Early Hints collide — sometimes the path simply doesn't exist.
                   </p>
+                </div>
+
                 </div>
 
                 <section class="stack stack--lg">

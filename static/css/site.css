@@ -311,6 +311,11 @@ body {
   pointer-events: none;
 }
 
+/* Accent card, but with error color for 404 */
+.card--accent-danger {
+  --accent: var(--danger);
+}
+
 .card--interactive {
   transition: border-color var(--transition-md), box-shadow var(--transition-md), background-color var(--transition-md);
 }
