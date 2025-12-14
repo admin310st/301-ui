@@ -205,12 +205,13 @@ export const ru: Translation = {
   notFound: {
     pageTitle: '404 — Неправильная арифметика редиректов',
     pageSubtitle: "301 + 103 Early Hints = 404. The route you wanted isn't here.",
-    breadcrumbHome: 'Главная',
-    breadcrumbCurrent: 'Не найдено',
+    breadcrumbHome: 'Home',
+    breadcrumbCurrent: 'Not Found',
     cardTitle: '404 — Неправильная арифметика редиректов',
     cardSubtitle: "We calculated 301 and added a 103 Early Hint. The result… wasn't where you expected.",
     formulaTitle: 'Формула',
-    formulaExplanation: "When redirects and Early Hints collide — sometimes the path simply doesn't exist.",
+    formulaExplanation:
+      'A redirect without a destination is just a hint. Two hints without a route lead nowhere.',
     status301Title: '301 — Перемещено навсегда (наша гордость)',
     status301Description:
       "The backbone of clean routing. Stable, reliable, SEO-friendly — the very reason 301.st exists. For us, 301 is more than a status code: it's the foundation of the Traffic Control Plane.",
