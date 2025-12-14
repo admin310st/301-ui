@@ -204,20 +204,23 @@ export const ru: Translation = {
   },
   notFound: {
     pageTitle: '404 — Неправильная арифметика редиректов',
-    pageSubtitle: '301 + 103 Early Hints = 404. Маршрут, который вы искали, не существует.',
+    pageSubtitle: "301 + 103 Early Hints = 404. The route you wanted isn't here.",
     breadcrumbHome: 'Главная',
     breadcrumbCurrent: 'Не найдено',
     cardTitle: '404 — Неправильная арифметика редиректов',
-    cardSubtitle: 'Мы посчитали 301 и добавили 103 Early Hint. Результат… оказался не там, где вы ожидали.',
+    cardSubtitle: "We calculated 301 and added a 103 Early Hint. The result… wasn't where you expected.",
     formulaTitle: 'Формула',
-    formulaExplanation: 'Когда редиректы и Early Hints сталкиваются — иногда путь просто не существует.',
+    formulaExplanation: "When redirects and Early Hints collide — sometimes the path simply doesn't exist.",
     status301Title: '301 — Перемещено навсегда (наша гордость)',
-    status301Description: 'Основа чистой маршрутизации. Стабильный, надёжный, дружелюбный к SEO — сама причина существования 301.st. Для нас 301 — это больше, чем код статуса: это фундамент системы управления трафиком.',
+    status301Description:
+      "The backbone of clean routing. Stable, reliable, SEO-friendly — the very reason 301.st exists. For us, 301 is more than a status code: it's the foundation of the Traffic Control Plane.",
     status103Title: '103 — Early Hints',
-    status103Description: 'Лёгкий пре-ответ, ускоряющий загрузку. Он говорит браузеру: "Вот несколько подсказок — настоящий ответ скоро придёт." Отлично для производительности, бесполезно для исправления сломанных маршрутов.',
+    status103Description:
+      'A lightweight pre-response that speeds up loading. It tells the browser: "Here are some hints — the real answer is coming soon." Great for performance, terrible for fixing broken routes.',
     status404Title: '404 — Не найдено',
-    status404Description: 'Добавьте редирект и ранний шепот с края сети, и иногда вы получаете ничего, кроме пустого пути: нет подходящего правила, нет цели, только пустота в таблице маршрутизации.',
-    backToDashboard: 'На главную',
-    returnToSite: 'Вернуться на 301.st',
+    status404Description:
+      'Add a redirect and an early whisper from the edge, and sometimes you end up with nothing but an empty path: no matching rule, no target, just a void in the routing table.',
+    backToDashboard: 'Back to Home',
+    returnToSite: 'Return to 301.st',
   },
 };
