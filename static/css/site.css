@@ -492,8 +492,7 @@ h5 .icon[data-icon*="close"] {
   flex-wrap: wrap;
 }
 
-.card,
-.panel {
+.card {
   background: var(--panel, var(--bg-elevated));
   border-radius: var(--radius-lg);
   border: var(--border-width) var(--border-style) var(--panel-border);
@@ -1049,6 +1048,7 @@ html[data-theme="light"] .btn--ghost:hover {
   font-weight: var(--fw-medium);
   cursor: pointer;
   white-space: nowrap;
+  text-decoration: none;
   transition:
     background var(--transition-fast),
     border-color var(--transition-fast),
@@ -1071,6 +1071,9 @@ html[data-theme="light"] .btn--ghost:hover {
 
 .btn-chip__icon,
 .btn-chip__chevron {
+  width: 1em;
+  height: 1em;
+  flex: 0 0 1em;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1078,6 +1081,7 @@ html[data-theme="light"] .btn--ghost:hover {
 }
 
 .btn-chip__label {
+  line-height: inherit;
   white-space: nowrap;
 }
 
@@ -1137,61 +1141,15 @@ html[data-theme="light"] .btn--ghost:hover {
   border-color: color-mix(in srgb, var(--primary) 55%, transparent);
 }
 
+.btn-chip > * {
+  margin: 0;
+}
+
 .btn-chip:focus-visible,
 .tabs__trigger:focus-visible {
   outline: 2px solid var(--brand);
   outline-offset: 2px;
 }
-
-/* === Chips: BEM safety & height sync ==================================== */
-/* 1) Чип сам — те же метрики коробки, что и у .btn/.table-search */
-.btn-chip{
-  display: inline-flex;
-  align-items: center;
-  gap: .5em;
-
-  font-size: var(--fs-control);
-  line-height: var(--lh-control);
-
-  padding-block: var(--control-pad-y);
-  padding-inline: var(--control-pad-x);
-
-  text-decoration: none;
-
-  border-width: var(--border-1);
-  border-style: solid;
-  box-sizing: border-box;
-
-  /* одна и та же формула высоты → пиксель-в-пиксель */
-  min-height: calc(1em * var(--lh-control) + 2 * var(--control-pad-y) + 2 * var(--border-1));
-  border-radius: var(--r-pill);
-}
-
-/* 2) Элементы чипа не влияют на высоту */
-.btn-chip__icon,
-.btn-chip__chevron{
-  width: 1em; height: 1em; flex: 0 0 1em;
-  display: inline-flex; align-items: center; justify-content: center;
-}
-
-.btn-chip__label{
-  line-height: inherit;      /* без локального line-height */
-  white-space: nowrap;
-}
-
-/* 3) Иконки внутри BEM-элементов — строго 1em (без «переопределений» изнутри) */
-.btn-chip__icon > .icon,
-.btn-chip__chevron > .icon,
-.btn-chip__icon > svg,
-.btn-chip__chevron > svg{
-  width: 1em; height: 1em; flex: 0 0 1em;
-  color: currentColor;
-}
-
-/* 4) На всякий случай — убираем неожиданные внешние отступы */
-.btn-chip > * { margin: 0; }
-
-
 
 .table-controls {
   display: flex;
