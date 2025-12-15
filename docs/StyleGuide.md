@@ -746,7 +746,7 @@ Unified recipe for all cards/panels: tokenized paddings, backgrounds and accent 
 **Modifiers**
 
 - `card--compact` — reduced vertical/horizontal padding for dense layouts.
-- `card--accent` — left stripe colored via `--accent` (defaults to brand).
+- `card--accent` — left stripe colored via `--accent` (defaults to brand); add semantic hues with `card--accent-success`, `card--accent-warning`, `card--accent-danger`, `card--accent-info`.
 - `card--interactive` — hover/focus feedback for clickable tiles; keep focus ring visible.
 
 **Anatomy**
@@ -783,7 +783,7 @@ Unified recipe for all cards/panels: tokenized paddings, backgrounds and accent 
 <aside class="card card--soft card--accent">
   <header class="card__header">
     <h3 class="card__title">Upgrade to Pro</h3>
-    <p class="text-muted">Stripe color comes from --accent.</p>
+    <p class="text-muted">Stripe color comes from --accent; swap to `card--accent-success|warning|danger|info` for status stripes.</p>
   </header>
   <div class="card__body card__actions">
     <button class="btn btn--primary" type="button">Enable add-ons</button>
