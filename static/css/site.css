@@ -248,6 +248,10 @@ body {
   border-bottom: var(--card-divider);
 }
 
+.card__header {
+  padding-top: calc(var(--card-pad-y) - var(--space-1));
+}
+
 .card__footer {
   border-top: var(--card-divider);
 }
@@ -314,6 +318,18 @@ body {
 /* Accent card, but with error color for 404 */
 .card--accent-danger {
   --accent: var(--danger);
+}
+
+.card--accent-success {
+  --accent: var(--success);
+}
+
+.card--accent-warning {
+  --accent: var(--warning);
+}
+
+.card--accent-info {
+  --accent: var(--info);
 }
 
 .card--interactive {
