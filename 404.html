@@ -64,85 +64,80 @@
 
 {{> global-notice}}
 
-    <main class="page">
-      <div class="page-shell layout-main">
-        <header class="page-header">
-          <h1 class="h1" data-i18n="notFound.pageTitle">404 — Wrong Redirect Math</h1>
-          <p class="text-muted" data-i18n="notFound.pageSubtitle">301 + 103 Early Hints = 404. The route you wanted isn&apos;t here.</p>
-        </header>
+    <main class="page-shell layout-main stack-list">
+      <header class="page-header">
+        <h1 class="h1" data-i18n="notFound.pageTitle">404 — Wrong Redirect Math</h1>
+        <p class="text-muted" data-i18n="notFound.pageSubtitle">301 + 103 Early Hints = 404. The route you wanted isn&apos;t here.</p>
+      </header>
 
-        <section class="auth-shell">
-          <div class="auth-grid">
-            <section class="card card--panel card--accent card--accent-danger">
-              <header class="card__header">
-                <h2 class="card__title" data-i18n="notFound.cardTitle">404 — Wrong Redirect Math</h2>
-                <p class="text-muted" data-i18n="notFound.cardSubtitle">
-                  We calculated 301 and added a 103 Early Hint. The result… wasn&apos;t where you expected.
+      <section class="auth-shell">
+        <div class="auth-grid">
+          <section class="card card--panel card--accent card--accent-danger">
+            <header class="card__header">
+              <h2 class="card__title" data-i18n="notFound.cardTitle">404 — Wrong Redirect Math</h2>
+              <p class="text-muted" data-i18n="notFound.cardSubtitle">
+                We calculated 301 and added a 103 Early Hint. The result… wasn&apos;t where you expected.
+              </p>
+            </header>
+
+            <div class="card__body stack stack--lg">
+              <div class="panel stack stack--sm">
+                <h3 class="h4" data-i18n="notFound.formulaTitle">The Formula</h3>
+
+                <div class="formula">
+                  <div class="f-row">301</div>
+                  <div class="f-row">− Location</div>
+                  <div class="f-row f-line">──────────</div>
+                  <div class="f-row">103</div>
+                  <div class="f-row f-spacer"></div>
+                  <div class="f-row">+103</div>
+                  <div class="f-row f-line">──────────</div>
+                  <div class="f-row f-result">404</div>
+                </div>
+
+                <p class="text-muted" data-i18n="notFound.formulaExplanation">
+                  A redirect without a destination is just a hint. Two hints without a route lead nowhere.
                 </p>
-              </header>
+              </div>
 
-              <div class="card__body stack stack--lg">
-                <div class="panel stack stack--sm">
-                  <h3 class="h4" data-i18n="notFound.formulaTitle">The Formula</h3>
-
-                  <div class="formula">
-                    <div class="f-row">301</div>
-                    <div class="f-row">− Location</div>
-                    <div class="f-row f-line">──────────</div>
-                    <div class="f-row">103</div>
-                    <div class="f-row f-spacer"></div>
-                    <div class="f-row">+103</div>
-                    <div class="f-row f-line">──────────</div>
-                    <div class="f-row f-result">404</div>
-                  </div>
-
-
-                  <p class="text-muted" data-i18n="notFound.formulaExplanation">
-                    A redirect without a destination is just a hint. Two hints without a route lead nowhere.
+              <section class="stack stack--lg">
+                <div class="stack stack--xs">
+                  <h4 class="h5" data-i18n="notFound.status301Title">301 — Moved Permanently (Our Pride and Joy)</h4>
+                  <p data-i18n="notFound.status301Description">
+                    The backbone of clean routing. Stable, reliable, SEO-friendly — the very reason 301.st exists. For us,
+                    301 is more than a status code: it&apos;s the foundation of the Traffic Control Plane.
                   </p>
                 </div>
 
+                <div class="stack stack--xs">
+                  <h4 class="h5" data-i18n="notFound.status103Title">103 — Early Hints</h4>
+                  <p data-i18n="notFound.status103Description">
+                    A lightweight pre-response that speeds up loading. It tells the browser: "Here are some hints — the real
+                    answer is coming soon." Great for performance, terrible for fixing broken routes.
+                  </p>
                 </div>
 
-                <section class="stack stack--lg">
-                  <div class="stack stack--xs">
-                    <h4 class="h5" data-i18n="notFound.status301Title">301 — Moved Permanently (Our Pride and Joy)</h4>
-                    <p data-i18n="notFound.status301Description">
-                      The backbone of clean routing. Stable, reliable, SEO-friendly — the very reason 301.st exists. For us,
-                      301 is more than a status code: it&apos;s the foundation of the Traffic Control Plane.
-                    </p>
-                  </div>
-
-                  <div class="stack stack--xs">
-                    <h4 class="h5" data-i18n="notFound.status103Title">103 — Early Hints</h4>
-                    <p data-i18n="notFound.status103Description">
-                      A lightweight pre-response that speeds up loading. It tells the browser: "Here are some hints — the real
-                      answer is coming soon." Great for performance, terrible for fixing broken routes.
-                    </p>
-                  </div>
-
-                  <div class="stack stack--xs">
-                    <h4 class="h5" data-i18n="notFound.status404Title">404 — Not Found</h4>
-                    <p data-i18n="notFound.status404Description">
-                      Add a redirect and an early whisper from the edge, and sometimes you end up with nothing but an empty
-                      path: no matching rule, no target, just a void in the routing table.
-                    </p>
-                  </div>
-                </section>
-
-                <div class="cluster cluster--wrap" style="gap: var(--space-2)">
-                  <a href="/" class="btn-chip btn-chip--primary">
-                    <span class="btn-chip__label" data-i18n="notFound.backToDashboard">Back to Home</span>
-                  </a>
-                  <a href="https://301.st" class="btn-chip">
-                    <span class="btn-chip__label" data-i18n="notFound.returnToSite">Return to 301.st</span>
-                  </a>
+                <div class="stack stack--xs">
+                  <h4 class="h5" data-i18n="notFound.status404Title">404 — Not Found</h4>
+                  <p data-i18n="notFound.status404Description">
+                    Add a redirect and an early whisper from the edge, and sometimes you end up with nothing but an empty
+                    path: no matching rule, no target, just a void in the routing table.
+                  </p>
                 </div>
+              </section>
+
+              <div class="cluster cluster--wrap" style="gap: var(--space-2)">
+                <a href="/" class="btn-chip btn-chip--primary">
+                  <span class="btn-chip__label" data-i18n="notFound.backToDashboard">Back to Home</span>
+                </a>
+                <a href="https://301.st" class="btn-chip">
+                  <span class="btn-chip__label" data-i18n="notFound.returnToSite">Return to 301.st</span>
+                </a>
               </div>
-            </section>
-          </div>
-        </section>
-      </div>
+            </div>
+          </section>
+        </div>
+      </section>
     </main>
 
 {{> footer}}
