@@ -80,130 +80,135 @@
         </div>
       </nav>
 
-      <section id="themes" class="card guide-section guide-stack">
-        <div class="section-header">
+      <section id="themes" class="card card--panel guide-section guide-stack">
+        <header class="card__header">
           <div class="cluster">
             <h2 class="text-title">Themes</h2>
             <span class="badge badge--neutral">Core</span>
           </div>
           <p class="text-muted">Dark-first palette with a light alternative.</p>
-        </div>
+        </header>
 
-        <p class="text-body">
-          301.st uses a <strong>dark-first</strong> palette with an optional light theme. All components must rely on CSS
-          tokens (e.g. <code class="code-inline">--bg</code>, <code class="code-inline">--panel</code>,
-          <code class="code-inline">--text</code>), never raw hex values. The theme switcher only flips token values, not
-          component-specific styles.
-        </p>
-        <ul class="text-muted">
-          <li>Dark theme: default for app.301.st, optimized for dashboard usage.</li>
-          <li>Light theme: used for previews/marketing; same tokens, different values.</li>
-          <li>Implementation: theme is controlled via <code class="code-inline">data-theme="light|dark"</code> on the
-            <code class="code-inline">&lt;html&gt;</code> element.</li>
-        </ul>
-        <p class="text-body">
-          When adding new components, <strong>never hardcode colors</strong>. Always reuse existing tokens so both themes stay
-          in sync.
-        </p>
+        <div class="card__body guide-stack">
+          <p class="text-body">
+            301.st uses a <strong>dark-first</strong> palette with an optional light theme. All components must rely on CSS
+            tokens (e.g. <code class="code-inline">--bg</code>, <code class="code-inline">--panel</code>,
+            <code class="code-inline">--text</code>), never raw hex values. The theme switcher only flips token values, not
+            component-specific styles.
+          </p>
+          <ul class="text-muted">
+            <li>Dark theme: default for app.301.st, optimized for dashboard usage.</li>
+            <li>Light theme: used for previews/marketing; same tokens, different values.</li>
+            <li>Implementation: theme is controlled via <code class="code-inline">data-theme="light|dark"</code> on the
+              <code class="code-inline">&lt;html&gt;</code> element.</li>
+          </ul>
+          <p class="text-body">
+            When adding new components, <strong>never hardcode colors</strong>. Always reuse existing tokens so both themes stay
+            in sync.
+          </p>
+        </div>
       </section>
 
-      <section id="colors" class="card guide-section guide-stack">
-        <div class="section-header">
+      <section id="colors" class="card card--panel guide-section guide-stack">
+        <header class="card__header">
           <div class="cluster">
             <h2 class="text-title">Colors &amp; tokens</h2>
             <span class="badge badge--neutral">Tokens</span>
           </div>
           <p class="text-muted">Use tokens, never raw hex codes.</p>
-        </div>
+        </header>
 
-        <div class="code-block">
-          <strong>Usage map</strong><br />
-          --bg — page background<br />
-          --panel — cards/panels background<br />
-          --brand — primary CTAs and focus<br />
-          --danger — destructive actions / error text<br />
-          --ok — positive/success states<br />
-          --muted — secondary text, captions<br />
-          --text — default text color
-        </div>
+        <div class="card__body guide-stack">
+          <div class="code-block">
+            <strong>Usage map</strong><br />
+            --bg — page background<br />
+            --panel — cards/panels background<br />
+            --brand — primary CTAs and focus<br />
+            --danger — destructive actions / error text<br />
+            --ok — positive/success states<br />
+            --muted — secondary text, captions<br />
+            --text — default text color
+          </div>
 
-        <div class="token-grid">
-          <div class="token-swatch" style="--token-var: var(--bg)">
-            <div class="token-color"></div>
-            <div class="stack-sm">
-              <div class="token-name">--bg</div>
-              <div class="token-value" data-token-value="--bg"></div>
-              <div class="token-usage text-muted">App/page background</div>
+          <div class="token-grid">
+            <div class="token-swatch" style="--token-var: var(--bg)">
+              <div class="token-color"></div>
+              <div class="stack-sm">
+                <div class="token-name">--bg</div>
+                <div class="token-value" data-token-value="--bg"></div>
+                <div class="token-usage text-muted">App/page background</div>
+              </div>
             </div>
-          </div>
-          <div class="token-swatch" style="--token-var: var(--panel)">
-            <div class="token-color"></div>
-            <div class="stack-sm">
-              <div class="token-name">--panel</div>
-              <div class="token-value" data-token-value="--panel"></div>
-              <div class="token-usage text-muted">Cards, panels, inset blocks</div>
+            <div class="token-swatch" style="--token-var: var(--panel)">
+              <div class="token-color"></div>
+              <div class="stack-sm">
+                <div class="token-name">--panel</div>
+                <div class="token-value" data-token-value="--panel"></div>
+                <div class="token-usage text-muted">Cards, panels, inset blocks</div>
+              </div>
             </div>
-          </div>
-          <div class="token-swatch" style="--token-var: var(--brand)">
-            <div class="token-color"></div>
-            <div class="stack-sm">
-              <div class="token-name">--brand</div>
-              <div class="token-value" data-token-value="--brand"></div>
-              <div class="token-usage text-muted">Primary actions, focus rings</div>
+            <div class="token-swatch" style="--token-var: var(--brand)">
+              <div class="token-color"></div>
+              <div class="stack-sm">
+                <div class="token-name">--brand</div>
+                <div class="token-value" data-token-value="--brand"></div>
+                <div class="token-usage text-muted">Primary actions, focus rings</div>
+              </div>
             </div>
-          </div>
-          <div class="token-swatch" style="--token-var: var(--danger)">
-            <div class="token-color"></div>
-            <div class="stack-sm">
-              <div class="token-name">--danger</div>
-              <div class="token-value" data-token-value="--danger"></div>
-              <div class="token-usage text-muted">Destructive actions, error text</div>
+            <div class="token-swatch" style="--token-var: var(--danger)">
+              <div class="token-color"></div>
+              <div class="stack-sm">
+                <div class="token-name">--danger</div>
+                <div class="token-value" data-token-value="--danger"></div>
+                <div class="token-usage text-muted">Destructive actions, error text</div>
+              </div>
             </div>
-          </div>
-          <div class="token-swatch" style="--token-var: var(--ok)">
-            <div class="token-color"></div>
-            <div class="stack-sm">
-              <div class="token-name">--ok</div>
-              <div class="token-value" data-token-value="--ok"></div>
-              <div class="token-usage text-muted">Success/positive states</div>
+            <div class="token-swatch" style="--token-var: var(--ok)">
+              <div class="token-color"></div>
+              <div class="stack-sm">
+                <div class="token-name">--ok</div>
+                <div class="token-value" data-token-value="--ok"></div>
+                <div class="token-usage text-muted">Success/positive states</div>
+              </div>
             </div>
-          </div>
-          <div class="token-swatch" style="--token-var: var(--muted)">
-            <div class="token-color"></div>
-            <div class="stack-sm">
-              <div class="token-name">--muted</div>
-              <div class="token-value" data-token-value="--muted"></div>
-              <div class="token-usage text-muted">Secondary/caption text</div>
+            <div class="token-swatch" style="--token-var: var(--muted)">
+              <div class="token-color"></div>
+              <div class="stack-sm">
+                <div class="token-name">--muted</div>
+                <div class="token-value" data-token-value="--muted"></div>
+                <div class="token-usage text-muted">Secondary/caption text</div>
+              </div>
             </div>
-          </div>
-          <div class="token-swatch" style="--token-var: var(--text)">
-            <div class="token-color"></div>
-            <div class="stack-sm">
-              <div class="token-name">--text</div>
-              <div class="token-value" data-token-value="--text"></div>
-              <div class="token-usage text-muted">Default text color</div>
+            <div class="token-swatch" style="--token-var: var(--text)">
+              <div class="token-color"></div>
+              <div class="stack-sm">
+                <div class="token-name">--text</div>
+                <div class="token-value" data-token-value="--text"></div>
+                <div class="token-usage text-muted">Default text color</div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      <section id="spacing" class="card guide-section guide-stack">
-        <div class="section-header">
+      <section id="spacing" class="card card--panel guide-section guide-stack">
+        <header class="card__header">
           <div class="cluster">
             <h2 class="text-title">Spacing scale</h2>
             <span class="badge badge--neutral">Spacing</span>
           </div>
           <p class="text-muted">Base rhythm for padding, gaps and margins.</p>
-        </div>
+        </header>
 
-        <p class="text-body">
-          <code class="code-inline">metric-pill</code> is a small visual meter that can be reused for any compact metrics
-          (freshness, coverage, etc.). The fill width is controlled via the CSS variable
-          <code class="code-inline">--metric-fill</code> (0–1).
-        </p>
+        <div class="card__body guide-stack">
+          <p class="text-body">
+            <code class="code-inline">metric-pill</code> is a small visual meter that can be reused for any compact metrics
+            (freshness, coverage, etc.). The fill width is controlled via the CSS variable
+            <code class="code-inline">--metric-fill</code> (0–1).
+          </p>
 
-        <div class="space-grid">
-          <div class="spacing-card">
+          <div class="space-grid">
+            <div class="spacing-card">
             <div class="metric-pill" data-value="1">
               <div class="metric-pill__track">
                 <div class="metric-pill__fill" style="--metric-fill: 0.2"></div>
@@ -289,16 +294,16 @@
         </div>
       </section>
 
-      <section id="typography" class="card guide-section guide-stack">
-        <div class="section-header">
+      <section id="typography" class="card card--panel guide-section guide-stack">
+        <header class="card__header">
           <div class="cluster">
             <h2 class="text-title">Typography</h2>
             <span class="badge badge--neutral">Type scale</span>
           </div>
           <p class="text-muted">Use text helpers for consistent sizing and leading.</p>
-        </div>
+        </header>
 
-        <div class="stack-md">
+        <div class="card__body stack-md">
           <div class="stack-sm">
             <span class="badge badge--neutral">Display</span>
             <p class="text-display">Access 301.st — display heading</p>
@@ -322,16 +327,16 @@
         </div>
       </section>
 
-      <section id="layout" class="card guide-section guide-stack">
-        <div class="section-header">
+      <section id="layout" class="card card--panel guide-section guide-stack">
+        <header class="card__header">
           <div class="cluster">
             <h2 class="text-title">Layout helpers</h2>
             <span class="badge badge--neutral">Spacing</span>
           </div>
           <p class="text-muted">Avoid ad-hoc margins; rely on shared layout tokens and patterns.</p>
-        </div>
+        </header>
 
-        <div class="guide-blocks">
+        <div class="card__body guide-blocks">
           <div class="guide-stack">
             <h3 class="text-title">Spacing tokens</h3>
             <p class="text-body">Use layout aliases instead of raw pixel values.</p>
@@ -517,16 +522,16 @@
         </div>
       </section>
 
-      <section id="badges" class="card guide-section guide-stack">
-        <div class="section-header">
+      <section id="badges" class="card card--panel guide-section guide-stack">
+        <header class="card__header">
           <div class="cluster">
             <h2 class="text-title">Badges / status pills</h2>
             <span class="badge badge--neutral">Status</span>
           </div>
           <p class="text-muted">Compact status labels for tables, logs, sync state and environments.</p>
-        </div>
+        </header>
 
-        <div class="stack-sm">
+        <div class="card__body stack-sm">
           <div class="cluster">
             <span class="badge badge--success">Active</span>
             <span class="badge badge--danger">DNS error</span>
@@ -567,16 +572,16 @@
         </div>
       </section>
 
-      <section id="step-indicators" class="card guide-section guide-stack">
-        <div class="section-header">
+      <section id="step-indicators" class="card card--panel guide-section guide-stack">
+        <header class="card__header">
           <div class="cluster">
             <h2 class="text-title">Step Indicators</h2>
             <span class="badge badge--neutral">Components</span>
           </div>
           <p class="text-muted">Compact progress indicators for wizards, setup flows, and instructional content.</p>
-        </div>
+        </header>
 
-        <div class="stack-sm">
+        <div class="card__body stack-sm">
           <h4 class="h6">Horizontal Step Flow</h4>
           <p class="text-muted">Use for wizards, setup flows, and progress indicators. Shows sequential steps with arrows.</p>
 
@@ -661,16 +666,16 @@
         </div>
       </section>
 
-      <section id="table-control-chips" class="card guide-section guide-stack">
-        <div class="section-header">
+      <section id="table-control-chips" class="card card--panel guide-section guide-stack">
+        <header class="card__header">
           <div class="cluster">
             <h2 class="text-title">Table control chips</h2>
             <span class="badge badge--neutral">Components</span>
           </div>
           <p class="text-muted">Chip buttons for table toolbars: search, dropdown filters, provider actions and the primary CTA.</p>
-        </div>
+        </header>
 
-        <div class="stack-sm">
+        <div class="card__body stack-sm">
           <p class="text-body">
             Table controls share the base control height so the search bar, chips and buttons align. Icons always inherit
             <code class="code-inline">currentColor</code>. Tone options are limited to neutral filters, the orange provider chip and the
@@ -776,8 +781,8 @@
         </div>
       </section>
 
-      <section id="tables" class="card guide-section guide-stack">
-        <div class="section-header">
+      <section id="tables" class="card card--panel guide-section guide-stack">
+        <header class="card__header">
           <div class="cluster">
             <h2 class="text-title">Tables</h2>
             <span class="badge badge--neutral">Data display</span>
@@ -785,9 +790,9 @@
           <p class="text-muted">
             Domains list reference with horizontal scroll, table search, dropdown filters, action chips and a primary action.
           </p>
-        </div>
+        </header>
 
-        <div class="stack-sm">
+        <div class="card__body stack-sm">
           <p class="text-body">
             Domains tables stay in a single row layout even on mobile; wrap the table in a horizontal scroller and keep action
             menus inside dropdowns so the row stays compact. Above the table you can place a search chip, one or more dropdown
@@ -1175,8 +1180,8 @@
 
 
 
-      <section id="table-search" class="card guide-section guide-stack">
-        <div class="section-header">
+      <section id="table-search" class="card card--panel guide-section guide-stack">
+        <header class="card__header">
           <div class="cluster">
             <h2 class="text-title">Table Search Bar</h2>
             <span class="badge badge--neutral">Components</span>
@@ -1188,9 +1193,9 @@
             <code class="code-inline">type="search"</code> — because we always show a custom clear button instead of the
             browser-provided control.
           </p>
-        </div>
+        </header>
 
-        <div class="stack-sm">
+        <div class="card__body stack-sm">
           <div class="table-search" data-table-search>
             <span class="icon" data-icon="mono/search"></span>
             <input
@@ -1227,16 +1232,16 @@
         </div>
       </section>
 
-      <section id="dropdown" class="card guide-section guide-stack">
-        <div class="section-header">
+      <section id="dropdown" class="card card--panel guide-section guide-stack">
+        <header class="card__header">
           <div class="cluster">
             <h2 class="text-title">Dropdown Menu</h2>
             <span class="badge badge--neutral">Components</span>
           </div>
           <p class="text-muted">Reusable actions menu for table rows and compact controls.</p>
-        </div>
+        </header>
 
-        <div class="stack-sm">
+        <div class="card__body stack-sm">
           <div class="dropdown" data-dropdown>
             <button class="btn-icon btn-icon--ghost dropdown__trigger" type="button" aria-haspopup="menu" aria-expanded="false">
               <span class="icon" data-icon="mono/dots-vertical"></span>
@@ -1289,14 +1294,14 @@
         </div>
       </section>
 
-      <section id="domains-example" class="card guide-section guide-stack">
-        <div class="section-header">
+      <section id="domains-example" class="card card--panel guide-section guide-stack">
+        <header class="card__header">
           <div class="cluster">
             <h2 class="text-title">Domains table</h2>
             <span class="badge badge--neutral">Examples</span>
           </div>
           <p class="text-muted">Reference layout = search + filters + add button + scrollable domains table.</p>
-        </div>
+        </header>
 
         <div class="stack-sm">
           <p class="text-body">
@@ -1311,16 +1316,16 @@
         </div>
       </section>
 
-      <section id="buttons" class="card guide-section guide-stack">
-        <div class="section-header">
+      <section id="buttons" class="card card--panel guide-section guide-stack">
+        <header class="card__header">
           <div class="cluster">
             <h2 class="text-title">Buttons</h2>
             <span class="badge badge--neutral">Controls</span>
           </div>
           <p class="text-muted">Primary = blue, ghost = quiet, danger = alerts, social = OAuth.</p>
-        </div>
+        </header>
 
-        <div class="example-grid">
+        <div class="card__body example-grid">
           <div class="example-card stack">
             <h3 class="text-title">Primary</h3>
             <div class="row">
@@ -1363,16 +1368,16 @@
         </div>
       </section>
 
-      <section id="forms" class="card guide-section guide-stack">
-        <div class="section-header">
+      <section id="forms" class="card card--panel guide-section guide-stack">
+        <header class="card__header">
           <div class="cluster">
             <h2 class="text-title">Form fields</h2>
             <span class="badge badge--neutral">Inputs</span>
           </div>
           <p class="text-muted">Default, focus, error, success states reuse auth tokens.</p>
-        </div>
+        </header>
 
-        <div class="stack-sm">
+        <div class="card__body stack-sm">
           <h3 class="text-title">Pill vs Field</h3>
           <p class="text-body">
             Inline controls (buttons, chips, table search, tabs) keep a pill radius; form fields (inputs, selects,
@@ -1498,16 +1503,16 @@
         </div>
       </section>
 
-      <section id="tabs" class="card guide-section guide-stack">
-        <div class="section-header">
+      <section id="tabs" class="card card--panel guide-section guide-stack">
+        <header class="card__header">
           <div class="cluster">
             <h2 class="text-title">Tabs &amp; chips</h2>
             <span class="badge badge--neutral">Navigation</span>
           </div>
           <p class="text-muted">Reuse auth tabs for pill navigation and filters.</p>
-        </div>
+        </header>
 
-        <div class="stack-sm">
+        <div class="card__body stack-sm">
           <div class="btn-chip-group tabs" role="tablist" aria-label="Auth tabs sample">
             <button type="button" class="btn-chip is-active" role="tab">Login</button>
             <button type="button" class="btn-chip" role="tab">Register</button>
@@ -1527,8 +1532,8 @@
         </div>
       </section>
 
-      <section id="cards" class="card guide-section guide-stack">
-        <div class="section-header">
+      <section id="cards" class="card card--panel guide-section guide-stack">
+        <header class="card__header">
           <div class="cluster">
             <h2 class="text-title">Cards / panels</h2>
             <span class="badge badge--neutral">Containers</span>
@@ -1536,9 +1541,9 @@
           <p class="text-muted">
             Unified recipe with panel / soft / ghost backgrounds and compact, accent or interactive modifiers.
           </p>
-        </div>
+        </header>
 
-        <div class="stack">
+        <div class="card__body stack">
           <p class="text-body">
             Base structure: <span class="code-inline">.card</span> → optional <span class="code-inline">.card__media</span> →
             <span class="code-inline">.card__header</span> → <span class="code-inline">.card__body</span> →
@@ -1703,16 +1708,16 @@
         </div>
       </section>
 
-      <section id="icons" class="card guide-section guide-stack">
-        <div class="section-header">
+      <section id="icons" class="card card--panel guide-section guide-stack">
+        <header class="card__header">
           <div class="cluster">
             <h2 class="text-title">Icons</h2>
             <span class="badge badge--neutral">Assets</span>
           </div>
           <p class="text-muted">Sprite consumption via <span class="code-inline">.icon</span> + <span class="code-inline">data-icon</span>.</p>
-        </div>
+        </header>
 
-        <div class="stack-sm">
+        <div class="card__body stack-sm">
           <div class="guide-icon-row">
             <span class="icon" data-icon="mono/eye"></span>
             <span class="icon" data-icon="mono/theme-light-dark"></span>
