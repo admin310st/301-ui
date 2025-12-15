@@ -11,6 +11,21 @@ body {
   font-family: var(--font-sans);
 }
 
+/* Fallback spacing for standalone pages if layout.css is missing. */
+.page-shell {
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-inline: var(--space-5);
+  padding-block: var(--space-6);
+}
+
+@media (max-width: 768px) {
+  .page-shell {
+    padding-inline: var(--space-4);
+    padding-block: var(--space-4);
+  }
+}
+
 [hidden] {
   display: none !important;
 }
