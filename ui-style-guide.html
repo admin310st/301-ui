@@ -38,51 +38,53 @@
 
 {{> global-notice}}
 
-    <header class="guide-hero">
-      <div class="page-shell layout-main stack-list">
-        <div class="guide-stack">
+    <main class="page-shell stack-list">
+      <header class="page-header">
+        <div class="stack-sm">
           <h1 class="text-display">301.st UI Style Guide</h1>
           <p class="text-lead guide-subtitle">
             Single source of truth for UI tokens & components used in 301.st app frontend. Codex and developers should pull
             colors, typography, layout helpers and component classes from here instead of raw values.
           </p>
-          <div class="guide-tools">
+        </div>
+        <div class="stack-sm">
+          <div class="controls-row">
             <button type="button" class="btn btn--ghost btn-sm guide-theme-toggle" data-theme-toggle>
               <span class="icon" data-icon="mono/theme-light-dark"></span>
               <span data-theme-label>Switch to light theme</span>
             </button>
-            <p class="text-muted">Toggle to preview both light and dark palettes.</p>
           </div>
+          <p class="text-muted">Toggle to preview both light and dark palettes.</p>
         </div>
+      </header>
 
-        <nav class="guide-nav controls-row" aria-label="On-page navigation">
-          <a href="#themes">Themes</a>
-          <a href="#colors">Colors &amp; tokens</a>
-          <a href="#spacing">Spacing scale</a>
-          <a href="#typography">Typography</a>
-          <a href="#layout">Layout helpers</a>
-          <a href="#badges">Badges</a>
-          <a href="#step-indicators">Step Indicators</a>
-          <a href="#table-control-chips">Table control chips</a>
-          <a href="#tables">Tables</a>
-          <a href="#table-search">Table search</a>
-          <a href="#dropdown">Dropdown</a>
-          <a href="#domains-example">Domains table</a>
-          <a href="#buttons">Buttons</a>
-          <a href="#forms">Form fields</a>
-          <a href="#tabs">Tabs &amp; chips</a>
-          <a href="#cards">Cards / panels</a>
-          <a href="#icons">Icons</a>
-        </nav>
-      </div>
-    </header>
+      <nav class="guide-nav" aria-label="On-page navigation">
+        <div class="btn-chip-group">
+          <a class="btn-chip" href="#themes">Themes</a>
+          <a class="btn-chip" href="#colors">Colors &amp; tokens</a>
+          <a class="btn-chip" href="#spacing">Spacing scale</a>
+          <a class="btn-chip" href="#typography">Typography</a>
+          <a class="btn-chip" href="#layout">Layout helpers</a>
+          <a class="btn-chip" href="#badges">Badges</a>
+          <a class="btn-chip" href="#step-indicators">Step Indicators</a>
+          <a class="btn-chip" href="#table-control-chips">Table control chips</a>
+          <a class="btn-chip" href="#tables">Tables</a>
+          <a class="btn-chip" href="#table-search">Table search</a>
+          <a class="btn-chip" href="#dropdown">Dropdown</a>
+          <a class="btn-chip" href="#domains-example">Domains table</a>
+          <a class="btn-chip" href="#buttons">Buttons</a>
+          <a class="btn-chip" href="#forms">Form fields</a>
+          <a class="btn-chip" href="#tabs">Tabs &amp; chips</a>
+          <a class="btn-chip" href="#cards">Cards / panels</a>
+          <a class="btn-chip" href="#icons">Icons</a>
+        </div>
+      </nav>
 
-    <main class="page-shell layout-main stack-list">
       <section id="themes" class="card guide-section guide-stack">
         <div class="section-header">
-          <div>
-            <p class="eyebrow">Core</p>
+          <div class="cluster">
             <h2 class="text-title">Themes</h2>
+            <span class="badge badge--neutral">Core</span>
           </div>
           <p class="text-muted">Dark-first palette with a light alternative.</p>
         </div>
@@ -107,9 +109,9 @@
 
       <section id="colors" class="card guide-section guide-stack">
         <div class="section-header">
-          <div>
-            <p class="eyebrow">Tokens</p>
+          <div class="cluster">
             <h2 class="text-title">Colors &amp; tokens</h2>
+            <span class="badge badge--neutral">Tokens</span>
           </div>
           <p class="text-muted">Use tokens, never raw hex codes.</p>
         </div>
@@ -187,9 +189,9 @@
 
       <section id="spacing" class="card guide-section guide-stack">
         <div class="section-header">
-          <div>
-            <p class="eyebrow">Spacing</p>
+          <div class="cluster">
             <h2 class="text-title">Spacing scale</h2>
+            <span class="badge badge--neutral">Spacing</span>
           </div>
           <p class="text-muted">Base rhythm for padding, gaps and margins.</p>
         </div>
@@ -275,11 +277,13 @@
           </div>
         </div>
         <p class="label-inline">Spacing tokens are standardized as <span class="code-inline">--space-*</span>; legacy aliases have been removed.</p>
-        <div class="example-card stack-sm" style="margin-top: var(--space-2);">
+        <div class="example-card stack-sm">
           <h3 class="text-title">Stack helper</h3>
-          <div class="stack stack-md" style="background: var(--bg-soft); padding: var(--space-3); border-radius: var(--radius);">
-            <div class="card-section">Item 1</div>
-            <div class="card-section">Item 2</div>
+          <div class="card card--soft card--compact">
+            <div class="card__body stack stack-md">
+              <div class="card-section">Item 1</div>
+              <div class="card-section">Item 2</div>
+            </div>
           </div>
           <p class="text-muted">.stack-md applies <code class="code-inline">gap: var(--space-3)</code>.</p>
         </div>
@@ -287,16 +291,16 @@
 
       <section id="typography" class="card guide-section guide-stack">
         <div class="section-header">
-          <div>
-            <p class="eyebrow">Type scale</p>
+          <div class="cluster">
             <h2 class="text-title">Typography</h2>
+            <span class="badge badge--neutral">Type scale</span>
           </div>
           <p class="text-muted">Use text helpers for consistent sizing and leading.</p>
         </div>
 
         <div class="stack-md">
           <div class="stack-sm">
-            <p class="eyebrow">Display</p>
+            <span class="badge badge--neutral">Display</span>
             <p class="text-display">Access 301.st — display heading</p>
             <p class="text-muted">Class: <span class="code-inline">.text-display</span></p>
           </div>
@@ -320,9 +324,9 @@
 
       <section id="layout" class="card guide-section guide-stack">
         <div class="section-header">
-          <div>
-            <p class="eyebrow">Spacing</p>
+          <div class="cluster">
             <h2 class="text-title">Layout helpers</h2>
+            <span class="badge badge--neutral">Spacing</span>
           </div>
           <p class="text-muted">Avoid ad-hoc margins; rely on shared layout tokens and patterns.</p>
         </div>
@@ -382,9 +386,9 @@
                 <p class="text-body">Wrap every page in <span class="code-inline">.page-shell</span>. Combine with <span class="code-inline">.page-header</span> and <span class="code-inline">.controls-row</span> for consistent chrome.</p>
                 <div class="card guide-stack">
                   <div class="page-header">
-                    <div class="guide-stack">
-                      <p class="eyebrow">Pattern</p>
+                    <div class="cluster">
                       <h4 class="text-title">Page header</h4>
+                      <span class="badge badge--neutral">Pattern</span>
                     </div>
                     <div class="controls-row">
                       <button class="btn btn--ghost btn-sm">Action</button>
@@ -503,7 +507,7 @@
                 </div>
               </div>
 
-              <ul class="text-body text-muted" style="padding-left: 1.2rem; margin: 0;">
+              <ul class="text-body text-muted list--spaced">
                 <li>Stick to <code class="code-inline">.app-alert--error</code> or <code class="code-inline">.app-alert--success</code> modifiers for state.</li>
                 <li>Icons use the mono set to match inline text color.</li>
                 <li>Padding and gutters match the main content area so banners feel attached to the page shell.</li>
@@ -515,9 +519,9 @@
 
       <section id="badges" class="card guide-section guide-stack">
         <div class="section-header">
-          <div>
-            <p class="eyebrow">Status</p>
+          <div class="cluster">
             <h2 class="text-title">Badges / status pills</h2>
+            <span class="badge badge--neutral">Status</span>
           </div>
           <p class="text-muted">Compact status labels for tables, logs, sync state and environments.</p>
         </div>
@@ -536,34 +540,38 @@
             <code class="code-inline">Queued</code>, <code class="code-inline">Syncing…</code>) and environments (<code class="code-inline">Dev / Staging / Prod</code>).
           </p>
 
-          <div class="stack-sm" style="margin-top: var(--space-4);">
+          <div class="stack-sm">
             <h4 class="h6">Badge in breadcrumbs</h4>
             <p class="text-muted">Use badges in breadcrumbs to indicate page context or environment. Replaces deprecated <code class="code-inline">.eyebrow</code> pattern.</p>
-            <nav class="breadcrumbs" style="background: var(--bg-soft); padding: var(--space-2); border-radius: var(--radius);">
-              <a href="#" class="crumb">Home</a>
-              <span class="sep" aria-hidden="true">›</span>
-              <span class="crumb is-current">Dashboard</span>
-              <span class="badges">
-                <span class="badge badge--success">Production</span>
-              </span>
-            </nav>
-            <nav class="breadcrumbs" style="background: var(--bg-soft); padding: var(--space-2); border-radius: var(--radius); margin-top: var(--space-2);">
-              <a href="#" class="crumb">Dashboard</a>
-              <span class="sep" aria-hidden="true">›</span>
-              <span class="crumb is-current">Cloudflare Setup</span>
-              <span class="badges">
-                <span class="badge badge--cf">Cloudflare</span>
-              </span>
-            </nav>
+            <div class="card card--soft card--compact">
+              <nav class="breadcrumbs">
+                <a href="#" class="crumb">Home</a>
+                <span class="sep" aria-hidden="true">›</span>
+                <span class="crumb is-current">Dashboard</span>
+                <span class="badges">
+                  <span class="badge badge--success">Production</span>
+                </span>
+              </nav>
+            </div>
+            <div class="card card--soft card--compact">
+              <nav class="breadcrumbs">
+                <a href="#" class="crumb">Dashboard</a>
+                <span class="sep" aria-hidden="true">›</span>
+                <span class="crumb is-current">Cloudflare Setup</span>
+                <span class="badges">
+                  <span class="badge badge--cf">Cloudflare</span>
+                </span>
+              </nav>
+            </div>
           </div>
         </div>
       </section>
 
       <section id="step-indicators" class="card guide-section guide-stack">
         <div class="section-header">
-          <div>
-            <p class="eyebrow">Components</p>
+          <div class="cluster">
             <h2 class="text-title">Step Indicators</h2>
+            <span class="badge badge--neutral">Components</span>
           </div>
           <p class="text-muted">Compact progress indicators for wizards, setup flows, and instructional content.</p>
         </div>
@@ -591,7 +599,7 @@
             </div>
           </div>
 
-          <p class="text-muted" style="margin-top: var(--space-2);">
+          <p class="text-muted">
             <strong>Tip:</strong> Use <code class="code-inline">.step-number--cf</code> modifier for Cloudflare-related steps to reinforce brand association.
           </p>
 
@@ -612,7 +620,7 @@
   &lt;/div&gt;
 &lt;/div&gt;</code></pre>
 
-          <h4 class="h6" style="margin-top: var(--space-4);">Vertical Step List</h4>
+          <h4 class="h6">Vertical Step List</h4>
           <p class="text-muted">Use for compact instructions and checklists. More space-efficient for narrow containers.</p>
 
           <div class="card card--soft">
@@ -632,7 +640,7 @@
             </div>
           </div>
 
-          <p class="text-muted" style="margin-top: var(--space-2);">
+          <p class="text-muted">
             <strong>Tip:</strong> Use <code class="code-inline">.badge--cf</code> for Cloudflare-related steps in vertical lists.
           </p>
 
@@ -655,9 +663,9 @@
 
       <section id="table-control-chips" class="card guide-section guide-stack">
         <div class="section-header">
-          <div>
-            <p class="eyebrow">Components</p>
+          <div class="cluster">
             <h2 class="text-title">Table control chips</h2>
+            <span class="badge badge--neutral">Components</span>
           </div>
           <p class="text-muted">Chip buttons for table toolbars: search, dropdown filters, provider actions and the primary CTA.</p>
         </div>
@@ -677,7 +685,7 @@
           <p class="text-body">Inside header cells use chips only; primary actions live in the toolbar above the table.</p>
 
           <div class="table-scroll">
-            <table class="table" style="min-width: 620px;">
+            <table class="table">
               <thead>
                 <tr>
                   <th>Variant</th>
@@ -710,67 +718,69 @@
             </table>
           </div>
 
-          <div class="card stack" style="padding: var(--space-4);">
-            <div class="controls-row table-controls">
-              <div class="table-search" data-table-search>
-                <span class="icon" data-icon="mono/search"></span>
-                <input
-                  class="table-search__input"
-                  type="text"
-                  placeholder="Search by domain, project or account…"
-                />
-                <button class="table-search__clear" type="button" aria-label="Clear">
-                  <span class="icon" data-icon="mono/close"></span>
-                </button>
-              </div>
-
-              <div class="dropdown" data-dropdown>
-                <button class="btn-chip btn-chip--dropdown dropdown__trigger" type="button" aria-haspopup="menu" aria-expanded="false">
-                  <span class="btn-chip__icon" data-icon="mono/filter"></span>
-                  <span class="btn-chip__label">Status: Active</span>
-                  <span class="btn-chip__chevron" data-icon="mono/chevron-down"></span>
-                </button>
-                <div class="dropdown__menu" role="menu">
-                  <button class="dropdown__item" type="button">
-                    <span class="icon" data-icon="mono/check-status"></span>
-                    <span>Active</span>
-                  </button>
-                  <button class="dropdown__item" type="button">
-                    <span class="icon" data-icon="mono/pause"></span>
-                    <span>Pending</span>
-                  </button>
-                  <button class="dropdown__item" type="button">
-                    <span class="icon" data-icon="mono/alert"></span>
-                    <span>Expired</span>
-                  </button>
-                  <button class="dropdown__item" type="button">
-                    <span class="icon" data-icon="mono/filter"></span>
-                    <span>All statuses</span>
+          <div class="card card--panel">
+            <div class="card__body stack">
+              <div class="controls-row table-controls">
+                <div class="table-search" data-table-search>
+                  <span class="icon" data-icon="mono/search"></span>
+                  <input
+                    class="table-search__input"
+                    type="text"
+                    placeholder="Search by domain, project or account…"
+                  />
+                  <button class="table-search__clear" type="button" aria-label="Clear">
+                    <span class="icon" data-icon="mono/close"></span>
                   </button>
                 </div>
+
+                <div class="dropdown" data-dropdown>
+                  <button class="btn-chip btn-chip--dropdown dropdown__trigger" type="button" aria-haspopup="menu" aria-expanded="false">
+                    <span class="btn-chip__icon" data-icon="mono/filter"></span>
+                    <span class="btn-chip__label">Status: Active</span>
+                    <span class="btn-chip__chevron" data-icon="mono/chevron-down"></span>
+                  </button>
+                  <div class="dropdown__menu" role="menu">
+                    <button class="dropdown__item" type="button">
+                      <span class="icon" data-icon="mono/check-status"></span>
+                      <span>Active</span>
+                    </button>
+                    <button class="dropdown__item" type="button">
+                      <span class="icon" data-icon="mono/pause"></span>
+                      <span>Pending</span>
+                    </button>
+                    <button class="dropdown__item" type="button">
+                      <span class="icon" data-icon="mono/alert"></span>
+                      <span>Expired</span>
+                    </button>
+                    <button class="dropdown__item" type="button">
+                      <span class="icon" data-icon="mono/filter"></span>
+                      <span>All statuses</span>
+                    </button>
+                  </div>
+                </div>
+
+                <button class="btn-chip btn-chip--cf" type="button"><span class="btn-chip__icon" data-icon="brand/cloudflare"></span><span class="btn-chip__label">Cloudflare</span></button>
+
+                <button class="btn btn--primary" type="button">
+                  <span class="icon" data-icon="mono/plus"></span>
+                  Add domain
+                </button>
               </div>
 
-              <button class="btn-chip btn-chip--cf" type="button"><span class="btn-chip__icon" data-icon="brand/cloudflare"></span><span class="btn-chip__label">Cloudflare</span></button>
-
-              <button class="btn btn--primary" type="button">
-                <span class="icon" data-icon="mono/plus"></span>
-                Add domain
-              </button>
+              <p class="text-muted">
+                Search, status chip, Cloudflare chip and primary action reuse the unified control recipe — identical pill height
+                and radii with no per-control padding overrides.
+              </p>
             </div>
-
-            <p class="text-muted" style="margin: 0;">
-              Search, status chip, Cloudflare chip and primary action reuse the unified control recipe — identical pill height
-              and radii with no per-control padding overrides.
-            </p>
           </div>
         </div>
       </section>
 
       <section id="tables" class="card guide-section guide-stack">
         <div class="section-header">
-          <div>
-            <p class="eyebrow">Data display</p>
+          <div class="cluster">
             <h2 class="text-title">Tables</h2>
+            <span class="badge badge--neutral">Data display</span>
           </div>
           <p class="text-muted">
             Domains list reference with horizontal scroll, table search, dropdown filters, action chips and a primary action.
@@ -785,8 +795,8 @@
             Cloudflare action chip and a primary “Add domain” button.
           </p>
 
-          <div class="card stack">
-            <div class="card-section stack" style="border-top: none; padding-top: 0;">
+          <div class="card card--panel">
+            <div class="card__body stack">
               <div class="controls-row table-controls">
                 <div class="table-search" data-table-search>
                   <span class="icon" data-icon="mono/search"></span>
@@ -1167,9 +1177,9 @@
 
       <section id="table-search" class="card guide-section guide-stack">
         <div class="section-header">
-          <div>
-            <p class="eyebrow">Components</p>
+          <div class="cluster">
             <h2 class="text-title">Table Search Bar</h2>
+            <span class="badge badge--neutral">Components</span>
           </div>
           <p class="text-muted">
             Search bar follows the shared control recipe (font size, line height and paddings) so it matches buttons and
@@ -1219,9 +1229,9 @@
 
       <section id="dropdown" class="card guide-section guide-stack">
         <div class="section-header">
-          <div>
-            <p class="eyebrow">Components</p>
+          <div class="cluster">
             <h2 class="text-title">Dropdown Menu</h2>
+            <span class="badge badge--neutral">Components</span>
           </div>
           <p class="text-muted">Reusable actions menu for table rows and compact controls.</p>
         </div>
@@ -1281,9 +1291,9 @@
 
       <section id="domains-example" class="card guide-section guide-stack">
         <div class="section-header">
-          <div>
-            <p class="eyebrow">Examples</p>
+          <div class="cluster">
             <h2 class="text-title">Domains table</h2>
+            <span class="badge badge--neutral">Examples</span>
           </div>
           <p class="text-muted">Reference layout = search + filters + add button + scrollable domains table.</p>
         </div>
@@ -1303,9 +1313,9 @@
 
       <section id="buttons" class="card guide-section guide-stack">
         <div class="section-header">
-          <div>
-            <p class="eyebrow">Controls</p>
+          <div class="cluster">
             <h2 class="text-title">Buttons</h2>
+            <span class="badge badge--neutral">Controls</span>
           </div>
           <p class="text-muted">Primary = blue, ghost = quiet, danger = alerts, social = OAuth.</p>
         </div>
@@ -1355,9 +1365,9 @@
 
       <section id="forms" class="card guide-section guide-stack">
         <div class="section-header">
-          <div>
-            <p class="eyebrow">Inputs</p>
+          <div class="cluster">
             <h2 class="text-title">Form fields</h2>
+            <span class="badge badge--neutral">Inputs</span>
           </div>
           <p class="text-muted">Default, focus, error, success states reuse auth tokens.</p>
         </div>
@@ -1490,9 +1500,9 @@
 
       <section id="tabs" class="card guide-section guide-stack">
         <div class="section-header">
-          <div>
-            <p class="eyebrow">Navigation</p>
+          <div class="cluster">
             <h2 class="text-title">Tabs &amp; chips</h2>
+            <span class="badge badge--neutral">Navigation</span>
           </div>
           <p class="text-muted">Reuse auth tabs for pill navigation and filters.</p>
         </div>
@@ -1519,9 +1529,9 @@
 
       <section id="cards" class="card guide-section guide-stack">
         <div class="section-header">
-          <div>
-            <p class="eyebrow">Containers</p>
+          <div class="cluster">
             <h2 class="text-title">Cards / panels</h2>
+            <span class="badge badge--neutral">Containers</span>
           </div>
           <p class="text-muted">
             Unified recipe with panel / soft / ghost backgrounds and compact, accent or interactive modifiers.
@@ -1695,9 +1705,9 @@
 
       <section id="icons" class="card guide-section guide-stack">
         <div class="section-header">
-          <div>
-            <p class="eyebrow">Assets</p>
+          <div class="cluster">
             <h2 class="text-title">Icons</h2>
+            <span class="badge badge--neutral">Assets</span>
           </div>
           <p class="text-muted">Sprite consumption via <span class="code-inline">.icon</span> + <span class="code-inline">data-icon</span>.</p>
         </div>
