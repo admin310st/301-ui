@@ -20,23 +20,15 @@ body {
 }
 
 .guide-nav {
-  gap: var(--inline-gap);
+  display: flex;
   flex-wrap: wrap;
+  gap: var(--inline-gap);
 }
 
-.guide-nav a {
-  padding: 0.5rem 0.9rem;
-  border-radius: var(--radius);
-  border: 1px solid var(--border-subtle);
-  text-decoration: none;
-  color: var(--text);
-  background: var(--panel);
-  font-size: var(--fs-sm);
-}
-
-.guide-nav a:hover {
-  border-color: color-mix(in srgb, var(--primary) 40%, transparent);
-  color: var(--primary);
+.guide-nav .btn-chip-group {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
 }
 
 .guide-tools {
