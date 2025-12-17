@@ -442,19 +442,140 @@ t('cf.wizard.title')
 
 ---
 
+## 📊 Dashboard Sections Namespace Structure
+
+**Обновлено:** 2025-12-17
+
+Для каждого раздела дашборда (Overview, Integrations, Projects, Domains, Sites, Streams, Redirects, Analytics) создана **единая структура namespace** с базовыми ключами.
+
+### Стандартная структура раздела:
+
+```typescript
+{section}: {
+  title: string,              // Заголовок страницы раздела
+  subtitle: string,           // Описание/подзаголовок
+  empty: {                    // Состояние пустого списка
+    title: string,
+    description: string,
+    cta: string               // Call-to-action кнопка
+  },
+  actions: {                  // Действия (кнопки)
+    create/add/connect: string,
+    edit: string,
+    delete: string,
+    // ... специфичные действия
+  },
+  table: {                    // Заголовки колонок таблиц
+    columns: {
+      name: string,
+      status: string,
+      // ... колонки таблицы
+    }
+  },
+  status: {                   // Статусы (если есть)
+    active: string,
+    inactive: string,
+    // ...
+  },
+  filters: {                  // Фильтры (если есть)
+    all: string,
+    active: string,
+    // ...
+  },
+  messages: {                 // Сообщения (успех, ошибки)
+    created: string,
+    updated: string,
+    // ...
+  }
+}
+```
+
+### Реализованные namespace:
+
+✅ **overview.*** - Главная страница дашборда
+- `title`, `subtitle`, `welcome`
+
+✅ **integrations.*** - Интеграции (Cloudflare, регистраторы)
+- `title`, `subtitle`, `empty`, `actions`, `table.columns`, `status`
+
+✅ **projects.*** - Проекты (группировка доменов)
+- `title`, `subtitle`, `empty`, `actions`, `table.columns`
+
+✅ **domains.*** - Управление доменами
+- `title`, `subtitle`, `empty`, `actions`, `table.columns`, `status`
+
+✅ **sites.*** - Лендинги и whitelist
+- `title`, `subtitle`, `empty`, `actions`, `table.columns`
+
+✅ **streams.*** - TDS потоки трафика
+- `title`, `subtitle`, `empty`, `actions`, `table.columns`
+
+✅ **redirects.*** - Правила редиректов
+- `title`, `subtitle`, `empty`, `actions`, `table.columns`
+
+✅ **analytics.*** - Аналитика и метрики
+- `title`, `subtitle`, `empty`, `filters`, `metrics`
+
+### Примеры использования:
+
+```html
+<!-- Page title -->
+<h1 data-i18n="integrations.title">Integrations</h1>
+<p data-i18n="integrations.subtitle">Connect your Cloudflare accounts...</p>
+
+<!-- Empty state -->
+<div class="empty-state">
+  <h3 data-i18n="integrations.empty.title">No integrations yet</h3>
+  <p data-i18n="integrations.empty.description">Connect your first...</p>
+  <button data-i18n="integrations.empty.cta">Connect integration</button>
+</div>
+
+<!-- Action buttons -->
+<button data-i18n="integrations.actions.connect">Connect</button>
+<button data-i18n="integrations.actions.disconnect">Disconnect</button>
+
+<!-- Table headers -->
+<th data-i18n="integrations.table.columns.provider">Provider</th>
+<th data-i18n="integrations.table.columns.status">Status</th>
+
+<!-- Status badges -->
+<span class="badge" data-i18n="integrations.status.active">Active</span>
+```
+
+### Преимущества этой структуры:
+
+1. **Масштабируемость** - легко добавлять новые ключи для каждого раздела
+2. **Изолированность** - изменения в одном разделе не влияют на другие
+3. **Консистентность** - единый паттерн для всех разделов
+4. **Читаемость** - понятно, где искать нужный ключ
+5. **TypeScript safety** - полная типизация через `Translation` type
+
+### Добавление нового раздела:
+
+1. Добавить namespace в `src/i18n/locales/en.ts`
+2. Добавить переводы в `src/i18n/locales/ru.ts`
+3. Использовать в HTML через `data-i18n="{section}.{category}.{key}"`
+4. TypeScript автоматически подхватит новые ключи
+
+---
+
 ## 🎯 Action Items
 
-### Сейчас (Mobile Menu Task):
+### ✅ Выполнено (2025-12-17):
 
-- [ ] Добавить i18n ключи для новых UI элементов (burger menu, sidebar)
-- [ ] Использовать `data-i18n` для всех navigation items
-- [ ] Проверить что language switcher работает на всех страницах
+- [x] Добавить i18n ключи для новых UI элементов (sidebar navigation)
+- [x] Использовать `data-i18n` для всех navigation items в sidebar
+- [x] Создать namespace структуру для всех разделов дашборда
+- [x] Добавить базовые ключи для: overview, integrations, projects, domains, sites, streams, redirects, analytics
+- [x] Обновить sidebar.hbs с data-i18n атрибутами
+- [x] Проверить TypeScript компиляцию и типизацию
+- [x] Обновить документацию с новой структурой
 
-### Потом (отдельный task):
+### Потом (когда будут реализовываться страницы):
 
-- [ ] Ревизия всех UI элементов на dashboard
-- [ ] Добавить недостающие переводы
-- [ ] Проверить консистентность ключей
+- [ ] Добавить специфичные ключи для форм в каждом разделе
+- [ ] Добавить messages (success/error) для каждого раздела
+- [ ] Расширить table.columns при необходимости
 
 ### Когда-нибудь (если понадобится):
 

@@ -372,11 +372,91 @@ initLoginForm(); // Called on DOMContentLoaded
 
 Current languages: English (en), Russian (ru)
 
+**📖 Full conventions:** See `.claude/i18n-conventions.md` for complete guidelines
+
+### Key Structure
+
+**UI elements use hierarchical namespace structure:**
+
+```
+common.*           // Общие элементы (pleaseWait, etc)
+layout.nav.*       // Навигация (home, integrations, projects, etc)
+layout.footer.*    // Футер (about, docs, privacy, etc)
+auth.*             // Аутентификация (login, register, reset)
+cf.wizard.*        // Cloudflare wizard
+notice.*           // Уведомления
+
+// Dashboard sections (полная структура для каждого раздела)
+overview.*         // Dashboard/Overview
+integrations.*     // Integrations page
+projects.*         // Projects page
+domains.*          // Domains page
+sites.*            // Sites page
+streams.*          // Streams page
+redirects.*        // Redirects page
+analytics.*        // Analytics page
+```
+
+**Each dashboard section has standard structure:**
+- `{section}.title`, `{section}.subtitle` - Page headers
+- `{section}.empty.*` - Empty state (title, description, cta)
+- `{section}.actions.*` - Action buttons (create, edit, delete, etc)
+- `{section}.table.columns.*` - Table headers
+- `{section}.status.*` - Status labels
+
 ### Adding Translations
+
+**For UI elements:**
 1. Add keys to `src/i18n/locales/en.ts` and `src/i18n/locales/ru.ts`
-2. Use `t('key.path')` in code to get translation
-3. Apply to DOM elements with `data-i18n` attribute
-4. Language switcher updates `localStorage` and re-renders all `data-i18n` elements
+2. Use appropriate namespace: `layout.*` for navigation, `{section}.*` for page content
+3. Apply to HTML with `data-i18n="key.path"` attribute
+4. Language switcher automatically updates all elements
+
+**For new dashboard pages:**
+```typescript
+// Add to en.ts and ru.ts
+newSection: {
+  title: 'Section Title',
+  subtitle: 'Description',
+  empty: {
+    title: 'Empty state title',
+    description: 'Empty state description',
+    cta: 'Call to action'
+  },
+  actions: {
+    create: 'Create',
+    edit: 'Edit',
+    delete: 'Delete'
+  },
+  table: {
+    columns: {
+      name: 'Name',
+      status: 'Status'
+    }
+  }
+}
+```
+
+**Examples:**
+```html
+<!-- Page headers -->
+<h1 data-i18n="integrations.title">Integrations</h1>
+<p data-i18n="integrations.subtitle">Connect your accounts...</p>
+
+<!-- Empty state -->
+<button data-i18n="integrations.empty.cta">Connect integration</button>
+
+<!-- Actions -->
+<button data-i18n="integrations.actions.connect">Connect</button>
+
+<!-- Table -->
+<th data-i18n="integrations.table.columns.provider">Provider</th>
+```
+
+**Content pages (About, Privacy, Terms, Security, Docs):**
+- Static content, NO i18n attributes
+- Separate HTML files per language if needed (future)
+- See `.claude/i18n-conventions.md` for rationale
 
 ## Webstudio Integration
 

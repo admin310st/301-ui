@@ -8,28 +8,44 @@
         <nav class="sidebar__nav">
           <a class="navitem{{#if (eq activePage 'dashboard')}} is-active{{/if}}" href="/dashboard.html">
             <span class="icon" data-icon="mono/home"></span>
-            <span class="label">Overview</span>
+            <span class="label" data-i18n="layout.nav.overview">Overview</span>
           </a>
 
-          <div class="navgroup">Management</div>
+          <a class="navitem{{#if (eq activePage 'integrations')}} is-active{{/if}}" href="#integrations">
+            <span class="icon" data-icon="mono/puzzle-outline"></span>
+            <span class="label" data-i18n="layout.nav.integrations">Integrations</span>
+          </a>
+
+          <a class="navitem{{#if (eq activePage 'projects')}} is-active{{/if}}" href="#projects">
+            <span class="icon" data-icon="mono/project"></span>
+            <span class="label" data-i18n="layout.nav.projects">Projects</span>
+          </a>
+
           <a class="navitem{{#if (eq activePage 'domains')}} is-active{{/if}}" href="#domains">
             <span class="icon" data-icon="mono/dns"></span>
-            <span class="label">Domains</span>
+            <span class="label" data-i18n="layout.nav.domains">Domains</span>
           </a>
-          <a class="navitem{{#if (eq activePage 'security')}} is-active{{/if}}" href="#security">
-            <span class="icon" data-icon="mono/shield-account"></span>
-            <span class="label">Security</span>
+
+          <a class="navitem{{#if (eq activePage 'sites')}} is-active{{/if}}" href="#sites">
+            <span class="icon" data-icon="mono/web-sync"></span>
+            <span class="label" data-i18n="layout.nav.sites">Sites</span>
           </a>
-          <a class="navitem{{#if (eq activePage 'caching')}} is-active{{/if}}" href="#caching">
-            <span class="icon" data-icon="mono/layers"></span>
-            <span class="label">Caching</span>
+
+          <a class="navitem{{#if (eq activePage 'streams')}} is-active{{/if}}" href="#streams">
+            <span class="icon" data-icon="mono/directions-fork"></span>
+            <span class="label" data-i18n="layout.nav.streams">Streams</span>
+          </a>
+
+          <a class="navitem{{#if (eq activePage 'redirects')}} is-active{{/if}}" href="#redirects">
+            <span class="icon" data-icon="mono/directions"></span>
+            <span class="label" data-i18n="layout.nav.redirects">Redirects</span>
           </a>
 
           <div class="sidebar__spacer"></div>
 
-          <a class="navitem{{#if (eq activePage 'settings')}} is-active{{/if}}" href="#settings">
-            <span class="icon" data-icon="mono/project"></span>
-            <span class="label">Settings</span>
+          <a class="navitem{{#if (eq activePage 'analytics')}} is-active{{/if}}" href="#analytics">
+            <span class="icon" data-icon="mono/analytics"></span>
+            <span class="label" data-i18n="layout.nav.analytics">Analytics</span>
           </a>
         </nav>
       </aside>

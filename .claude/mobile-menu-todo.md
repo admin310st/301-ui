@@ -3,7 +3,7 @@
 План реализации мобильного меню и улучшения навигации для 301.st
 
 **Дата создания:** 2025-12-13
-**Статус:** Ожидает подготовки иконок
+**Статус:** ✅ Иконки готовы, sidebar обновлен с i18n (2025-12-17). Mobile menu - в ожидании реализации.
 
 ---
 
@@ -14,17 +14,17 @@
 - [x] `close` (уже есть) - закрыть меню
 
 ### Иконки для разделов (entities):
-- [ ] `integrations` - для раздела Integrations (puzzle piece, plug, или connection nodes)
-- [ ] `domains` - для Domains (globe, dns символ, или domain icon)
+- [x] `puzzle-outline` (уже есть) - используется для Integrations
+- [x] `dns` (уже есть) - используется для Domains
 - [x] `project` (уже есть) - для Projects
-- [ ] `sites` - для Sites (window/browser, или webpage icon)
-- [ ] `streams` - для Streams (flow arrows, water drop, или distribution icon)
-- [ ] `redirects` - для Redirects (arrow turning, или route icon)
+- [x] `web-sync` (уже есть) - используется для Sites
+- [x] `directions-fork` (уже есть) - используется для Streams
+- [x] `directions` (уже есть) - используется для Redirects
 
 ### Дополнительные (опционально):
-- [ ] `settings` - настройки (gear icon)
-- [ ] `analytics` - аналитика (chart/graph icon)
-- [ ] `api` - API раздел (code brackets, или api icon)
+- [ ] `settings` - настройки (gear icon) - пока не требуется
+- [x] `analytics` (уже есть) - для Analytics
+- [ ] `api` - API раздел (code brackets, или api icon) - пока не требуется
 
 **Требования к иконкам:**
 - Формат: SVG
@@ -44,23 +44,23 @@
 - **Utility-bar:** Breadcrumbs, Help, Notifications, User Menu
 - **Sidebar:** Dashboard, Settings (активная страница подсвечена)
 
-**Решения для принятия:**
-- [ ] Какие разделы показывать в sidebar? (Integrations, Domains, Projects, Sites, Streams, Redirects, Settings?)
-- [ ] Оставить ли в header-top только утилиты (язык, тема) или добавить главную навигацию?
-- [ ] Показывать ли количество элементов рядом с названиями разделов? (Domains (12), Projects (3))
+**✅ Принятые решения (2025-12-17):**
+- [x] Разделы в sidebar: Overview, Integrations, Projects, Domains, Sites, Streams, Redirects, Analytics
+- [x] Header-top: оставлен для главной навигации (Integrations, Projects, Domains, etc.) + утилиты (язык, тема)
+- [x] Количество элементов: пока не показываем (добавим позже при необходимости)
+- [x] Все элементы используют data-i18n атрибуты (согласно `.claude/i18n-conventions.md`)
 
-**Предлагаемая структура sidebar:**
+**Реализованная структура sidebar:**
 ```
-Dashboard (home icon)
+Overview (home icon) - data-i18n="layout.nav.overview"
+Integrations (puzzle-outline icon) - data-i18n="layout.nav.integrations"
+Projects (project icon) - data-i18n="layout.nav.projects"
+Domains (dns icon) - data-i18n="layout.nav.domains"
+Sites (web-sync icon) - data-i18n="layout.nav.sites"
+Streams (directions-fork icon) - data-i18n="layout.nav.streams"
+Redirects (directions icon) - data-i18n="layout.nav.redirects"
 ---
-Integrations (integrations icon)
-Domains (domains icon)
-Projects (project icon)
-Sites (sites icon)
-Streams (streams icon)
-Redirects (redirects icon)
----
-Settings (settings icon)
+Analytics (analytics icon) - data-i18n="layout.nav.analytics"
 ```
 
 ### 2. Мобильное меню

@@ -15,6 +15,7 @@ export const en = {
       reset: 'Forgot password?',
       logout: 'Log out',
       aria: 'Authentication navigation',
+      overview: 'Overview',
       integrations: 'Integrations',
       domains: 'Domains',
       projects: 'Projects',
@@ -217,6 +218,191 @@ export const en = {
     status404Description: 'Add a redirect and an early whisper from the edge, and sometimes you end up with nothing but an empty path: no matching rule, no target, just a void in the routing table.',
     backToDashboard: 'Back to Home',
     returnToSite: 'Return to 301.st',
+  },
+  overview: {
+    title: 'Overview',
+    subtitle: 'Your 301.st control plane',
+    welcome: 'Welcome to 301.st',
+  },
+  integrations: {
+    title: 'Integrations',
+    subtitle: 'Connect your Cloudflare accounts and domain registrars',
+    empty: {
+      title: 'No integrations yet',
+      description: 'Connect your first Cloudflare account or domain registrar to get started.',
+      cta: 'Connect integration',
+    },
+    actions: {
+      connect: 'Connect',
+      disconnect: 'Disconnect',
+      reconnect: 'Reconnect',
+      testConnection: 'Test connection',
+    },
+    table: {
+      columns: {
+        provider: 'Provider',
+        type: 'Type',
+        status: 'Status',
+        connectedAt: 'Connected',
+        actions: 'Actions',
+      },
+    },
+    status: {
+      active: 'Active',
+      disconnected: 'Disconnected',
+      error: 'Error',
+      testing: 'Testing',
+    },
+  },
+  projects: {
+    title: 'Projects',
+    subtitle: 'Organize your domains, sites and streams into projects',
+    empty: {
+      title: 'No projects yet',
+      description: 'Create your first project to organize domains and manage traffic distribution.',
+      cta: 'Create project',
+    },
+    actions: {
+      create: 'Create project',
+      edit: 'Edit',
+      delete: 'Delete',
+      archive: 'Archive',
+    },
+    table: {
+      columns: {
+        name: 'Name',
+        domains: 'Domains',
+        sites: 'Sites',
+        streams: 'Streams',
+        status: 'Status',
+        createdAt: 'Created',
+      },
+    },
+  },
+  domains: {
+    title: 'Domains',
+    subtitle: 'Manage domains from connected registrars and Cloudflare',
+    empty: {
+      title: 'No domains found',
+      description: 'Connect an integration to sync domains, or add a domain manually.',
+      cta: 'Add domain',
+    },
+    actions: {
+      add: 'Add domain',
+      sync: 'Sync from providers',
+      edit: 'Edit',
+      delete: 'Remove',
+    },
+    table: {
+      columns: {
+        domain: 'Domain',
+        provider: 'Provider',
+        project: 'Project',
+        status: 'Status',
+        expiresAt: 'Expires',
+      },
+    },
+    status: {
+      active: 'Active',
+      expired: 'Expired',
+      pending: 'Pending',
+      error: 'Error',
+    },
+  },
+  sites: {
+    title: 'Sites',
+    subtitle: 'Landing pages and whitelists for traffic distribution',
+    empty: {
+      title: 'No sites configured',
+      description: 'Create landing pages and configure whitelists for your traffic streams.',
+      cta: 'Create site',
+    },
+    actions: {
+      create: 'Create site',
+      edit: 'Edit',
+      delete: 'Delete',
+      deploy: 'Deploy',
+    },
+    table: {
+      columns: {
+        name: 'Name',
+        type: 'Type',
+        project: 'Project',
+        status: 'Status',
+        updatedAt: 'Updated',
+      },
+    },
+  },
+  streams: {
+    title: 'Streams',
+    subtitle: 'Traffic Distribution System (TDS) stream configuration',
+    empty: {
+      title: 'No streams configured',
+      description: 'Set up traffic streams to distribute visitors across landing pages and offers.',
+      cta: 'Create stream',
+    },
+    actions: {
+      create: 'Create stream',
+      edit: 'Edit',
+      delete: 'Delete',
+      pause: 'Pause',
+      resume: 'Resume',
+    },
+    table: {
+      columns: {
+        name: 'Name',
+        project: 'Project',
+        rules: 'Rules',
+        status: 'Status',
+        traffic: 'Traffic',
+      },
+    },
+  },
+  redirects: {
+    title: 'Redirects',
+    subtitle: 'Redirect rules and routing configuration',
+    empty: {
+      title: 'No redirect rules',
+      description: 'Create redirect rules to route traffic to the right destinations.',
+      cta: 'Create rule',
+    },
+    actions: {
+      create: 'Create rule',
+      edit: 'Edit',
+      delete: 'Delete',
+      enable: 'Enable',
+      disable: 'Disable',
+    },
+    table: {
+      columns: {
+        source: 'Source',
+        destination: 'Destination',
+        type: 'Type',
+        status: 'Status',
+        hits: 'Hits',
+      },
+    },
+  },
+  analytics: {
+    title: 'Analytics',
+    subtitle: 'Traffic insights and performance metrics',
+    empty: {
+      title: 'No analytics data',
+      description: 'Analytics data will appear here once you start routing traffic.',
+      cta: 'View documentation',
+    },
+    filters: {
+      today: 'Today',
+      week: 'Last 7 days',
+      month: 'Last 30 days',
+      custom: 'Custom range',
+    },
+    metrics: {
+      visitors: 'Visitors',
+      pageviews: 'Pageviews',
+      conversions: 'Conversions',
+      bounceRate: 'Bounce rate',
+    },
   },
 };
 

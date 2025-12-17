@@ -17,6 +17,7 @@ export const ru: Translation = {
       reset: 'Забыли пароль?',
       logout: 'Выйти',
       aria: 'Навигация по аутентификации',
+      overview: 'Обзор',
       integrations: 'Интеграции',
       domains: 'Домены',
       projects: 'Проекты',
@@ -223,5 +224,190 @@ export const ru: Translation = {
       'Add a redirect and an early whisper from the edge, and sometimes you end up with nothing but an empty path: no matching rule, no target, just a void in the routing table.',
     backToDashboard: 'Back to Home',
     returnToSite: 'Return to 301.st',
+  },
+  overview: {
+    title: 'Обзор',
+    subtitle: 'Панель управления 301.st',
+    welcome: 'Добро пожаловать в 301.st',
+  },
+  integrations: {
+    title: 'Интеграции',
+    subtitle: 'Подключите аккаунты Cloudflare и регистраторов доменов',
+    empty: {
+      title: 'Нет интеграций',
+      description: 'Подключите первый аккаунт Cloudflare или регистратора доменов для начала работы.',
+      cta: 'Подключить интеграцию',
+    },
+    actions: {
+      connect: 'Подключить',
+      disconnect: 'Отключить',
+      reconnect: 'Переподключить',
+      testConnection: 'Проверить соединение',
+    },
+    table: {
+      columns: {
+        provider: 'Провайдер',
+        type: 'Тип',
+        status: 'Статус',
+        connectedAt: 'Подключено',
+        actions: 'Действия',
+      },
+    },
+    status: {
+      active: 'Активно',
+      disconnected: 'Отключено',
+      error: 'Ошибка',
+      testing: 'Проверка',
+    },
+  },
+  projects: {
+    title: 'Проекты',
+    subtitle: 'Организуйте домены, сайты и потоки в проекты',
+    empty: {
+      title: 'Нет проектов',
+      description: 'Создайте первый проект для организации доменов и управления распределением трафика.',
+      cta: 'Создать проект',
+    },
+    actions: {
+      create: 'Создать проект',
+      edit: 'Редактировать',
+      delete: 'Удалить',
+      archive: 'Архивировать',
+    },
+    table: {
+      columns: {
+        name: 'Название',
+        domains: 'Домены',
+        sites: 'Сайты',
+        streams: 'Потоки',
+        status: 'Статус',
+        createdAt: 'Создан',
+      },
+    },
+  },
+  domains: {
+    title: 'Домены',
+    subtitle: 'Управление доменами из подключённых регистраторов и Cloudflare',
+    empty: {
+      title: 'Нет доменов',
+      description: 'Подключите интеграцию для синхронизации доменов или добавьте домен вручную.',
+      cta: 'Добавить домен',
+    },
+    actions: {
+      add: 'Добавить домен',
+      sync: 'Синхронизировать с провайдерами',
+      edit: 'Редактировать',
+      delete: 'Удалить',
+    },
+    table: {
+      columns: {
+        domain: 'Домен',
+        provider: 'Провайдер',
+        project: 'Проект',
+        status: 'Статус',
+        expiresAt: 'Истекает',
+      },
+    },
+    status: {
+      active: 'Активен',
+      expired: 'Истёк',
+      pending: 'В ожидании',
+      error: 'Ошибка',
+    },
+  },
+  sites: {
+    title: 'Сайты',
+    subtitle: 'Лендинги и белые списки для распределения трафика',
+    empty: {
+      title: 'Нет настроенных сайтов',
+      description: 'Создайте лендинги и настройте белые списки для ваших потоков трафика.',
+      cta: 'Создать сайт',
+    },
+    actions: {
+      create: 'Создать сайт',
+      edit: 'Редактировать',
+      delete: 'Удалить',
+      deploy: 'Развернуть',
+    },
+    table: {
+      columns: {
+        name: 'Название',
+        type: 'Тип',
+        project: 'Проект',
+        status: 'Статус',
+        updatedAt: 'Обновлён',
+      },
+    },
+  },
+  streams: {
+    title: 'Потоки',
+    subtitle: 'Настройка потоков TDS (Traffic Distribution System)',
+    empty: {
+      title: 'Нет настроенных потоков',
+      description: 'Настройте потоки трафика для распределения посетителей по лендингам и офферам.',
+      cta: 'Создать поток',
+    },
+    actions: {
+      create: 'Создать поток',
+      edit: 'Редактировать',
+      delete: 'Удалить',
+      pause: 'Приостановить',
+      resume: 'Возобновить',
+    },
+    table: {
+      columns: {
+        name: 'Название',
+        project: 'Проект',
+        rules: 'Правила',
+        status: 'Статус',
+        traffic: 'Трафик',
+      },
+    },
+  },
+  redirects: {
+    title: 'Редиректы',
+    subtitle: 'Правила редиректов и настройка маршрутизации',
+    empty: {
+      title: 'Нет правил редиректа',
+      description: 'Создайте правила редиректов для маршрутизации трафика к нужным назначениям.',
+      cta: 'Создать правило',
+    },
+    actions: {
+      create: 'Создать правило',
+      edit: 'Редактировать',
+      delete: 'Удалить',
+      enable: 'Включить',
+      disable: 'Отключить',
+    },
+    table: {
+      columns: {
+        source: 'Источник',
+        destination: 'Назначение',
+        type: 'Тип',
+        status: 'Статус',
+        hits: 'Переходы',
+      },
+    },
+  },
+  analytics: {
+    title: 'Аналитика',
+    subtitle: 'Статистика трафика и метрики производительности',
+    empty: {
+      title: 'Нет данных аналитики',
+      description: 'Данные аналитики появятся здесь, когда вы начнёте направлять трафик.',
+      cta: 'Посмотреть документацию',
+    },
+    filters: {
+      today: 'Сегодня',
+      week: 'Последние 7 дней',
+      month: 'Последние 30 дней',
+      custom: 'Свой период',
+    },
+    metrics: {
+      visitors: 'Посетители',
+      pageviews: 'Просмотры',
+      conversions: 'Конверсии',
+      bounceRate: 'Показатель отказов',
+    },
   },
 };

@@ -30,6 +30,7 @@
 - **Vite + TypeScript** + ESM-модули
 - **Cloudflare Workers** (app.301.st) + статика (`public/`)
 - **HTML Partials System** (custom Vite plugin, no external deps)
+- **i18n система** (EN/RU) с namespace структурой для всех разделов дашборда
 - **Свои CSS-токены** и дизайн-система (без Tailwind)
 - **SVG-иконки** через спрайт (`icons-sprite.svg`)
 - **Custom Claude agents** (ui-code-reviewer, pr-review-bot)
@@ -62,6 +63,8 @@
 - **Cards v2** (panel / soft / ghost + compact / accent / interactive).
 - **Иконки**: моно-набор наследует `currentColor`, нет артефактов в тёмной теме.
 - **HTML Partials System**: header, footer, sidebar вынесены в переиспользуемые компоненты (eliminates duplication for 20+ future pages).
+- **i18n система (EN/RU)**: полная namespace структура для всех разделов (overview, integrations, projects, domains, sites, streams, redirects, analytics). Все UI элементы используют data-i18n атрибуты. Конвенции: `.claude/i18n-conventions.md`.
+- **Sidebar navigation**: обновлён с иконками и data-i18n для всех 8 разделов дашборда (Overview, Integrations, Projects, Domains, Sites, Streams, Redirects, Analytics).
 - **Badge в breadcrumbs**: eyebrow pattern deprecated, статусы теперь в breadcrumb badges.
 - **Ruled/Spaced Lists**: helpers для step-by-step инструкций и списков с иконками.
 - **Cloudflare Wizard**: bootstrap page для подключения CF-аккаунта.
@@ -234,28 +237,66 @@ Next:
 
 ## 2. Навигация кабинета
 
-Боковое меню (глобально):
+### Текущая реализация (Layer 0, 2025-12-17):
+
+**Sidebar navigation** (с иконками и i18n):
 
 ```text
-Integrations
+Overview              [home icon]           - dashboard/overview page
+Integrations          [puzzle icon]         - CF accounts, registrars
+Projects              [project icon]        - project management
+Domains               [dns icon]            - domain list and sync
+Sites                 [web-sync icon]       - landing pages, whitelists
+Streams               [directions-fork]     - TDS/traffic distribution
+Redirects             [directions icon]     - redirect rules
+---
+Analytics             [analytics icon]      - traffic insights
+```
+
+**Header navigation** (primary nav):
+- Integrations, Projects, Domains, Redirects, Sites, Streams, Analytics
+- Language switcher (EN/RU)
+- Theme toggle
+
+**Footer navigation** (chip-buttons с иконками):
+- Integrations, Projects, Domains, Redirects, Sites, Streams, Analytics
+- Legal links: About, Docs, Privacy, Terms, Security
+
+### Планируемая структура (будущие этапы):
+
+```text
+Integrations (глобально)
   - Cloudflare Accounts
   - Domain Registrars
-  - (дальше) Monitoring / Analytics
+  - Monitoring / Analytics (позже)
 
-Domains
+Domains (глобально)
+  - Список всех доменов из интеграций
+  - Фильтры по проекту, статусу, провайдеру
 
 Projects
-  - (список проектов)
-  - Внутри проекта: Streams, Sites, Project Domains
+  - Список проектов
+  - Внутри проекта:
+    - Overview (stats)
+    - Streams (project streams)
+    - Sites (project sites)
+    - Project Domains (filtered view)
 
 Traffic
   - Redirect Rules (глобальный список)
-  - Streams (глобальный список, если нужно)
+  - Streams (глобальный список)
+
+Analytics
+  - Traffic insights
+  - Performance metrics
 
 Account
+  - Profile settings
+  - API keys
+  - Billing (future)
 
 ---------------------------------------
-Admin (самый конец)
+Admin (самый конец, Layer 7)
   - System / Health
   - Jobs / Queue
   - Logs / Webhooks

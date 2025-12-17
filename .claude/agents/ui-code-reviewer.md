@@ -12,7 +12,8 @@ model: sonnet
 
 ЗОНЫ ЖЁСТКОГО КОНТРОЛЯ
 - static/css/** — только глобальные фиксы/токены/унифицированный рецепт. Локальные костыли запрещены.
-- src/i18n/** — любой видимый текст без t('key') = Critical.
+- src/i18n/** + HTML data-i18n — любой видимый UI текст без data-i18n = Critical.
+  Полные правила → `.claude/i18n-conventions.md`
 - .gitignore — в git не должны попадать build/ и build/purge-report/**.
 
 ЕДИНЫЙ РЕЦЕПТ КОНТРОЛОВ (канон)
@@ -64,8 +65,8 @@ A11Y ПАТТЕРНЫ (обязательны)
 
 ЧТО ДЕЛАЕШЬ ПО /uix
 1) Сканируешь diff последнего PR/коммита; если пусто — обход src/** и static/**.
-2) Сравниваешь с каноном (StyleGuide, demo, токены).
-3) Проверяешь: unified control recipe, Pill vs Field, `.btn btn--*`, Table Search Bar (разметка/высота/раскладка), формы index (auth + CF bootstrap), демо-страницы (Buttons/Table chips/Form fields/Index) на ритм, i18n, .gitignore.
+2) Сравниваешь с каноном (StyleGuide, demo, токены, i18n-conventions).
+3) Проверяешь: unified control recipe, Pill vs Field, `.btn btn--*`, Table Search Bar (разметка/высота/раскладка), формы index (auth + CF bootstrap), демо-страницы (Buttons/Table chips/Form fields/Index) на ритм, i18n coverage, .gitignore.
 
 ОТЧЁТ (RU)
 Заголовок: «Нашёл X критических, Y крупных, Z мелких»
@@ -91,6 +92,11 @@ A11Y ПАТТЕРНЫ (обязательны)
 * `.table-search` не имеет внешних демо-оверрайдов высоты; совпадает по высоте с `.btn`
 * textarea не использует `--r-pill`
 * build/purge-report/** отсутствует в git
+* **i18n checks:**
+  - UI элементы (buttons, labels, headings) без `data-i18n` → Critical
+  - Хардкод текста в навигации/sidebar → Critical
+  - Использование неправильного namespace (напр., `auth.*` для dashboard страниц) → Major
+  - Контентные страницы (about.html, privacy.html) с data-i18n → Minor (должны быть статичны)
 
 ТОН
 Строго, но конструктивно. Если идеально: «Всё по канону. static/ui-style-guide.html может спать спокойно».

@@ -42,10 +42,12 @@ Cloudflare Workers serves `public/` as the origin root.
 - `src/forms` — инициализация и обработчики форм (логин/регистрация/ресет/верификация).
 - `src/state` — хранение токена, вызовы `/auth/me` и `/auth/refresh`, обновление UI.
 - `src/ui` — хелперы для работы с DOM, отображения ошибок/уведомлений, скрытия/показа блоков по атрибутам (`data-onlogin`, `data-onlogout`, `data-auth-email`).
+- `src/i18n` — интернационализация (EN/RU), namespace структура для всех разделов дашборда. Полные конвенции: `.claude/i18n-conventions.md`.
 - `src/utils` — общие утилиты (обработка JSON-ошибок, логгер, Webstudio).
 - `src/turnstile.ts` — загрузка и перерендер Turnstile, reset для повторных отправок.
 - `src/worker.ts` — Cloudflare Worker с логикой роутинга и ранним редиректом для залогиненных пользователей.
 - `docs/` — UI Style Guide и roadmap по дальнейшему развитию интерфейса.
+- `.claude/` — агенты и конвенции для работы с кодом (ui-code-reviewer, i18n-conventions).
 - `CHANGELOG.md` — история изменений проекта.
 
 **Auth Redirect Strategy**
