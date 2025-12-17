@@ -42,6 +42,30 @@ export function initSidebarToggle(): void {
       const isOpen = document.body.classList.contains('sidebar-open');
       document.body.classList.toggle('sidebar-open');
       mobileToggle.setAttribute('aria-expanded', String(!isOpen));
+
+      // Update mobile burger icon
+      const icon = mobileToggle.querySelector('.icon');
+      if (icon) {
+        const iconName = !isOpen ? 'close' : 'menu';
+        icon.setAttribute('data-icon', `mono/${iconName}`);
+
+        const symbolId = `i-mono-${iconName}`;
+        let svg = icon.querySelector('svg');
+        let use = svg?.querySelector('use');
+
+        if (!svg) {
+          svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+          svg.setAttribute('aria-hidden', 'true');
+          icon.appendChild(svg);
+        }
+
+        if (!use) {
+          use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+          svg.appendChild(use);
+        }
+
+        use.setAttribute('href', `/icons-sprite.svg#${symbolId}`);
+      }
     });
   }
 
@@ -51,6 +75,17 @@ export function initSidebarToggle(): void {
       document.body.classList.remove('sidebar-open');
       if (mobileToggle) {
         mobileToggle.setAttribute('aria-expanded', 'false');
+
+        // Reset mobile burger icon to menu
+        const icon = mobileToggle.querySelector('.icon');
+        if (icon) {
+          icon.setAttribute('data-icon', 'mono/menu');
+          const svg = icon.querySelector('svg');
+          const use = svg?.querySelector('use');
+          if (use) {
+            use.setAttribute('href', '/icons-sprite.svg#i-mono-menu');
+          }
+        }
       }
     });
   }
@@ -71,6 +106,17 @@ export function initSidebarToggle(): void {
       document.body.classList.remove('sidebar-open');
       if (mobileToggle) {
         mobileToggle.setAttribute('aria-expanded', 'false');
+
+        // Reset mobile burger icon to menu
+        const icon = mobileToggle.querySelector('.icon');
+        if (icon) {
+          icon.setAttribute('data-icon', 'mono/menu');
+          const svg = icon.querySelector('svg');
+          const use = svg?.querySelector('use');
+          if (use) {
+            use.setAttribute('href', '/icons-sprite.svg#i-mono-menu');
+          }
+        }
       }
     }
   });
@@ -82,6 +128,17 @@ export function initSidebarToggle(): void {
       if (mobileToggle) {
         mobileToggle.setAttribute('aria-expanded', 'false');
         mobileToggle.focus();
+
+        // Reset mobile burger icon to menu
+        const icon = mobileToggle.querySelector('.icon');
+        if (icon) {
+          icon.setAttribute('data-icon', 'mono/menu');
+          const svg = icon.querySelector('svg');
+          const use = svg?.querySelector('use');
+          if (use) {
+            use.setAttribute('href', '/icons-sprite.svg#i-mono-menu');
+          }
+        }
       }
     }
   });
@@ -99,6 +156,17 @@ export function initSidebarToggle(): void {
       document.body.classList.remove('sidebar-open');
       if (mobileToggle) {
         mobileToggle.setAttribute('aria-expanded', 'false');
+
+        // Reset mobile burger icon to menu
+        const icon = mobileToggle.querySelector('.icon');
+        if (icon) {
+          icon.setAttribute('data-icon', 'mono/menu');
+          const svg = icon.querySelector('svg');
+          const use = svg?.querySelector('use');
+          if (use) {
+            use.setAttribute('href', '/icons-sprite.svg#i-mono-menu');
+          }
+        }
       }
     }
 
@@ -117,11 +185,24 @@ function updateToggleState(button: Element, isExpanded: boolean): void {
     const iconName = isExpanded ? 'menu-close' : 'menu-open';
     icon.setAttribute('data-icon', `mono/${iconName}`);
 
-    // Update SVG <use> element
-    const symbolId = `i-${iconName.replace('/', '-')}`;
-    const use = icon.querySelector('use');
-    if (use) {
-      use.setAttribute('href', `/icons-sprite.svg#${symbolId}`);
+    // Update or create SVG <use> element
+    const symbolId = `i-mono-${iconName}`;
+    let svg = icon.querySelector('svg');
+    let use = svg?.querySelector('use');
+
+    if (!svg) {
+      // Create SVG if it doesn't exist
+      svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('aria-hidden', 'true');
+      icon.appendChild(svg);
     }
+
+    if (!use) {
+      // Create use element if it doesn't exist
+      use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+      svg.appendChild(use);
+    }
+
+    use.setAttribute('href', `/icons-sprite.svg#${symbolId}`);
   }
 }
