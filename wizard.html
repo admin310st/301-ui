@@ -39,16 +39,20 @@
 
 {{> global-notice}}
 
-    <main>
-      <section class="auth-shell">
-        <div class="container">
+    <main class="wizard-shell">
+      <div class="wizard-container">
+        <header class="wizard-header">
+          <h1 class="h2" data-i18n="cf.wizard.title">Cloudflare Account Bootstrap</h1>
+          <p class="text-muted" data-i18n="cf.wizard.subtitle">
+            Connect your Cloudflare account to 301.st
+          </p>
+        </header>
+
+        <div class="wizard-body">
           <div class="auth-grid">
             <article class="auth-card">
-              <header class="auth-section__header">
-                <h1 class="h2 auth-title" data-i18n="cf.wizard.title">Cloudflare Account Bootstrap</h1>
-                <p class="auth-subtitle" data-i18n="cf.wizard.subtitle">
-                  Connect your Cloudflare account to 301.st
-                </p>
+              <header class="auth-section__header" style="display: none;">
+                <!-- Moved to wizard-header above -->
               </header>
 
               <div class="stack">
@@ -304,10 +308,10 @@
                 </a>
               </footer>
             </aside>
-          </div>
-        </div>
-      </section>
-    </main>
+          </div> <!-- /.auth-grid -->
+        </div> <!-- /.wizard-body -->
+      </div> <!-- /.wizard-container -->
+    </main> <!-- /.wizard-shell -->
 
 {{> footer}}
 

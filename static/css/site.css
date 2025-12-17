@@ -2039,26 +2039,61 @@ html[data-theme="light"] .btn--social-github {
   gap: var(--inline-gap);
 }
 
+/* ============================================
+   Dashboard Layout System
+   ============================================ */
 :root {
-  --aside-w: 280px;
-  --aside-w-collapsed: 72px;
-  /* Высота шапки + utility, под корректную «липкость» */
-  --shell-top: 96px;
+  /* Sidebar dimensions (reactive to collapsed state) */
+  --sidebar-width: 280px;
+  --sidebar-width-collapsed: 72px;
+  --sidebar-transition: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Layout heights */
+  --header-height: 96px;          /* site-header + utility-bar */
+  --footer-height: 120px;
+
+  /* Dashboard grid */
+  --dashboard-gap: 1.5rem;        /* --space-4 equivalent */
+  --dashboard-padding: 1.5rem;
+
+  /* Z-index layers */
+  --z-sidebar: 100;
+  --z-sidebar-overlay: 99;
+  --z-header: 200;
 }
 
-/* Контейнер страницы с сайдбаром */
+/* Dashboard Shell: Grid that reacts to sidebar state */
+.dashboard-shell {
+  display: grid;
+  grid-template-columns: var(--sidebar-width) 1fr;
+  grid-template-areas: "sidebar content";
+  gap: var(--dashboard-gap);
+  align-items: start;
+  min-height: calc(100dvh - var(--header-height) - var(--footer-height));
+}
+
+/* Legacy alias for backward compatibility */
 .app-shell {
   display: grid;
-  grid-template-columns: var(--aside-w) 1fr;
-  gap: var(--space-4);
+  grid-template-columns: var(--sidebar-width) 1fr;
+  grid-template-areas: "sidebar content";
+  gap: var(--dashboard-gap);
   align-items: start;
+  min-height: calc(100dvh - var(--header-height) - var(--footer-height));
 }
 
-/* Сайдбар */
+/* Collapsed state: Grid adjusts automatically */
+body.sidebar-collapsed .dashboard-shell,
+body.sidebar-collapsed .app-shell {
+  grid-template-columns: var(--sidebar-width-collapsed) 1fr;
+}
+
+/* Sidebar */
 .sidebar {
+  grid-area: sidebar;
   position: sticky;
-  top: var(--shell-top);
-  height: calc(100dvh - var(--shell-top));
+  top: var(--header-height);
+  height: calc(100dvh - var(--header-height));
   background: var(--panel);
   border: 1px solid var(--border-subtle);
   border-radius: var(--r-lg);
@@ -2066,10 +2101,8 @@ html[data-theme="light"] .btn--social-github {
   display: flex;
   flex-direction: column;
   min-width: 0;
-}
-
-.sidebar.is-collapsed {
-  width: var(--aside-w-collapsed);
+  overflow: hidden;
+  transition: width var(--sidebar-transition);
 }
 
 /* Верхняя зона сайдбара */
@@ -2114,22 +2147,125 @@ html[data-theme="light"] .btn--social-github {
   height: 1.25em;
 }
 
-.sidebar .navitem:hover,
+.sidebar .navitem {
+  position: relative;
+  transition:
+    background 200ms ease,
+    color 200ms ease,
+    transform 150ms ease;
+}
+
+.sidebar .navitem:hover {
+  background: var(--bg-soft);
+  color: var(--text);
+  transform: translateX(2px);
+}
+
+/* Active state with left accent bar */
 .sidebar .navitem.is-active {
   background: var(--bg-soft);
   color: var(--text);
+}
+
+.sidebar .navitem.is-active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 60%;
+  background: var(--brand);
+  border-radius: 0 2px 2px 0;
+}
+
+/* Focus visible (accessibility) */
+.sidebar .navitem:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
 }
 
 .sidebar__spacer {
   flex: 1 1 auto;
 }
 
-/* Сворачивание — скрываем подписи, оставляем иконки */
-.sidebar.is-collapsed .label {
-  display: none;
+/* Section divider */
+.sidebar-divider {
+  height: 1px;
+  background: var(--border-subtle);
+  margin: var(--space-2) var(--space-3);
+  transition: margin 200ms ease;
 }
 
-/* Контент */
+body.sidebar-collapsed .sidebar-divider {
+  margin: var(--space-2) var(--space-1);
+}
+
+/* ============================================
+   Sidebar Collapse Animations
+   ============================================ */
+
+/* Labels fade out on collapse */
+.sidebar .label {
+  opacity: 1;
+  transition: opacity 200ms ease-in-out;
+}
+
+body.sidebar-collapsed .sidebar .label {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Navitems adjust padding and center icons on collapse */
+body.sidebar-collapsed .sidebar .navitem {
+  justify-content: center;
+  padding: var(--space-2);
+}
+
+/* Toggle button icon transition */
+.sidebar [data-sidebar-toggle] .icon {
+  transition: opacity 150ms ease;
+}
+
+/* ============================================
+   Tooltips for Collapsed State
+   ============================================ */
+body.sidebar-collapsed .sidebar .navitem {
+  position: relative;
+}
+
+body.sidebar-collapsed .sidebar .navitem::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: calc(100% + 8px);
+  top: 50%;
+  transform: translateY(-50%) scale(0.95);
+  padding: var(--space-1) var(--space-2);
+  background: var(--panel);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r);
+  box-shadow: var(--shadow-md);
+  font-size: var(--fs-sm);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 200ms ease, transform 200ms ease;
+  z-index: 10;
+}
+
+body.sidebar-collapsed .sidebar .navitem:hover::after {
+  opacity: 1;
+  transform: translateY(-50%) scale(1);
+}
+
+/* Dashboard Content */
+.dashboard-content {
+  grid-area: content;
+  min-width: 0;
+  width: 100%;
+}
+
+/* Legacy .content class for backward compatibility */
 .content {
   min-width: 0;
 }
@@ -2255,15 +2391,128 @@ html[data-theme="light"] .btn--social-github {
   flex-shrink: 0;
 }
 
-/* Адаптив: на мобильном сайдбар сверху «простынёй» (без оверлея) */
-@media (max-width: 1024px) {
+/* ============================================
+   Mobile Menu Button
+   ============================================ */
+.burger-button {
+  display: none; /* Hidden by default on desktop */
+}
+
+@media (max-width: 1023px) {
+  .burger-button {
+    display: flex;
+  }
+}
+
+/* ============================================
+   Responsive Layout
+   ============================================ */
+
+/* Tablet: Reduce sidebar width */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  :root {
+    --sidebar-width: 240px;
+    --sidebar-width-collapsed: 64px;
+    --dashboard-gap: 1rem;
+  }
+}
+
+/* Mobile: Single column, sidebar as overlay drawer */
+@media (max-width: 1023px) {
+  .dashboard-shell,
   .app-shell {
     grid-template-columns: 1fr;
+    grid-template-areas: "content";
+    gap: 0;
   }
 
   .sidebar {
-    position: static;
-    height: auto;
-    order: -1; /* сайдбар уедет над контентом */
+    /* Remove from grid flow */
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100dvh;
+    width: var(--sidebar-width);
+    z-index: var(--z-sidebar);
+    border-radius: 0;
+    transform: translateX(-100%);
+    transition: transform 300ms ease-in-out;
+  }
+
+  /* Open state (mobile drawer) */
+  body.sidebar-open .sidebar {
+    transform: translateX(0);
+  }
+
+  /* Overlay backdrop */
+  body.sidebar-open::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: var(--z-sidebar-overlay);
+    animation: fadeIn 200ms ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* Body scroll lock when sidebar open */
+  body.sidebar-open {
+    overflow: hidden;
+  }
+}
+
+/* Desktop: Full layout */
+@media (min-width: 1280px) {
+  :root {
+    --sidebar-width: 280px;
+    --sidebar-width-collapsed: 72px;
+    --dashboard-gap: 1.5rem;
+  }
+}
+
+/* ============================================
+   Wizard Layout
+   ============================================ */
+.wizard-shell {
+  padding-top: var(--space-6);
+  padding-bottom: var(--space-6);
+  min-height: calc(100dvh - var(--header-height) - var(--footer-height));
+}
+
+.wizard-container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 var(--space-4);
+}
+
+.wizard-header {
+  margin-bottom: var(--space-5);
+  text-align: center;
+}
+
+.wizard-header h1 {
+  margin-bottom: var(--space-2);
+}
+
+.wizard-body {
+  /* Content area for forms, cards */
+}
+
+/* Mobile adjustments */
+@media (max-width: 767px) {
+  .wizard-shell {
+    padding-top: var(--space-4);
+    padding-bottom: var(--space-4);
+  }
+
+  .wizard-container {
+    padding: 0 var(--space-3);
   }
 }

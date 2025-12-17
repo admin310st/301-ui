@@ -281,7 +281,7 @@ function updateToggleState(button: Element, isExpanded: boolean): void {
 
   const icon = button.querySelector('.icon');
   if (icon) {
-    const iconName = isExpanded ? 'chevron-left' : 'chevron-right';
+    const iconName = isExpanded ? 'menu-close' : 'menu-open';
     icon.setAttribute('data-icon', `mono/${iconName}`);
   }
 }
@@ -322,13 +322,9 @@ body.sidebar-collapsed .sidebar .navitem {
   padding: var(--space-2);
 }
 
-/* Toggle button icon rotation */
+/* Toggle button icon transition (no rotation needed, icons are directional) */
 .sidebar [data-sidebar-toggle] .icon {
-  transition: transform 200ms ease;
-}
-
-body.sidebar-collapsed .sidebar [data-sidebar-toggle] .icon {
-  transform: rotate(180deg);
+  transition: opacity 150ms ease;
 }
 
 /* ============================================
@@ -375,7 +371,7 @@ body.sidebar-collapsed .sidebar .navitem:hover::after {
       aria-expanded="true"
       data-sidebar-toggle
     >
-      <span class="icon" data-icon="mono/chevron-left"></span>
+      <span class="icon" data-icon="mono/menu-close"></span>
     </button>
   </div>
 
@@ -665,7 +661,7 @@ body.sidebar-collapsed .sidebar-divider {
 - ✅ Плавная анимация (300ms)
 - ✅ Labels fade out, icons остаются
 - ✅ Tooltips появляются при hover (collapsed)
-- ✅ Icon rotation (chevron left/right)
+- ✅ Icon switch (menu-close ↔ menu-open)
 
 ### Wizard Layout:
 - ✅ Centered content (max 960px)

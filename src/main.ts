@@ -19,6 +19,7 @@ import { initTheme, initThemeToggle } from '@ui/theme';
 import { applyRouteFromHash, initAuthRouting, initAuthTabs } from '@ui/auth-routing';
 import { initPasswordToggles } from '@ui/password-toggle';
 import { initUtilityBarScroll } from '@ui/utility-bar-scroll';
+import { initSidebarToggle } from '@ui/sidebar-toggle';
 
 /**
  * Inject SVG sprite with icons once per page.
@@ -72,39 +73,6 @@ function processDataIconAttributes() {
     el.appendChild(svg);
   });
 }
-
-function initSidebarToggle(): void {
-  const LS_KEY = 'ui.sidebar.collapsed';
-  const aside = document.getElementById('app-sidebar');
-  const btn = document.querySelector('[data-sidebar-toggle]');
-  if (!aside || !btn) return;
-
-  const apply = () => {
-    const collapsed = localStorage.getItem(LS_KEY) === '1';
-    aside.classList.toggle('is-collapsed', collapsed);
-
-    const iconName = collapsed ? 'mono/chevron-down' : 'mono/chevron-up';
-    const symbolId = `i-${iconName.replace('/', '-')}`;
-    const iconEl = btn.querySelector('.icon');
-
-    if (iconEl) {
-      iconEl.setAttribute('data-icon', iconName);
-      const use = iconEl.querySelector('use');
-      if (use) {
-        use.setAttribute('href', `/icons-sprite.svg#${symbolId}`);
-      }
-    }
-  };
-
-  btn.addEventListener('click', () => {
-    const next = localStorage.getItem(LS_KEY) === '1' ? '0' : '1';
-    localStorage.setItem(LS_KEY, next);
-    apply();
-  });
-
-  apply();
-}
-
 
 function bindLogoutButtons(): void {
   document.addEventListener('click', async (event) => {
