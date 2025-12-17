@@ -2398,6 +2398,65 @@ body.sidebar-collapsed .sidebar .navitem:hover::after {
 }
 
 /* ============================================
+   Dashboard Search (Simplified)
+   ============================================ */
+.dashboard-search {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: var(--panel);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-pill);
+  padding: var(--control-pad-y) var(--control-pad-x);
+  max-width: 320px;
+  min-width: 200px;
+  transition: border-color 200ms ease, background 200ms ease;
+}
+
+.dashboard-search:focus-within {
+  border-color: var(--brand);
+  background: var(--bg);
+}
+
+.dashboard-search .icon {
+  color: var(--muted);
+  flex-shrink: 0;
+  width: 1em;
+  height: 1em;
+}
+
+.dashboard-search__input {
+  flex: 1 1 auto;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font-family: inherit;
+  font-size: var(--fs-control);
+  line-height: var(--lh-control);
+  outline: none;
+  min-width: 0;
+}
+
+.dashboard-search__input::placeholder {
+  color: var(--muted);
+}
+
+/* Prevent iOS zoom on focus */
+@supports (-webkit-touch-callout: none) {
+  .dashboard-search__input {
+    font-size: 1rem;
+  }
+}
+
+/* Mobile: Full width */
+@media (max-width: 767px) {
+  .dashboard-search {
+    max-width: 100%;
+    min-width: 100%;
+  }
+}
+
+/* ============================================
    Mobile Menu Button
    ============================================ */
 .burger-button {
