@@ -2509,6 +2509,11 @@ body.layout-dashboard .burger-button {
     transition: transform 300ms ease-in-out;
   }
 
+  /* Hide desktop toggle button on mobile (drawer doesn't need it) */
+  .sidebar [data-sidebar-toggle] {
+    display: none;
+  }
+
   /* Open state (mobile drawer) */
   body.sidebar-open .sidebar {
     transform: translateX(0);
