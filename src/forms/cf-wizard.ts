@@ -2,6 +2,7 @@ import { t } from '@i18n';
 import { setFormState, qs } from '@ui/dom';
 import { getTurnstileRequiredMessage, getTurnstileToken } from '../turnstile';
 import { showGlobalMessage } from '@ui/notifications';
+import { initCloudflare } from '@api/integrations';
 
 async function handleManualSubmit(event: SubmitEvent): Promise<void> {
   event.preventDefault();
@@ -23,15 +24,29 @@ async function handleManualSubmit(event: SubmitEvent): Promise<void> {
 
   setFormState(form, 'pending', t('cf.wizard.statusPending'));
 
-  const payload = {
-    cf_account_id: accountId,
-    bootstrap_token: bootstrapToken,
-    turnstile_token: tsToken,
-  };
+  try {
+    const keyId = await initCloudflare({
+      cf_account_id: accountId,
+      bootstrap_token: bootstrapToken,
+    });
 
-  // TODO: Wire up to POST /integrations/cloudflare/init
-  console.log('Stub: Cloudflare bootstrap payload (manual)', payload);
-  setFormState(form, 'success', t('cf.wizard.statusSuccess'));
+    setFormState(form, 'success', t('cf.wizard.statusSuccess'));
+    showGlobalMessage('success', `Cloudflare integration created successfully (Key ID: ${keyId})`);
+
+    // TODO: Decide on post-success behavior:
+    // Option A: Redirect to integrations page
+    // Option B: Stay on wizard, show success, allow adding another
+    // Option C: Redirect to dashboard
+
+    // For now: redirect to dashboard after 2 seconds
+    setTimeout(() => {
+      window.location.href = '/dashboard.html';
+    }, 2000);
+  } catch (error: any) {
+    const errorMessage = error.message || error.error || 'Unknown error occurred';
+    setFormState(form, 'error', errorMessage);
+    showGlobalMessage('error', `Failed to connect Cloudflare: ${errorMessage}`);
+  }
 }
 
 async function handleGlobalSubmit(event: SubmitEvent): Promise<void> {
