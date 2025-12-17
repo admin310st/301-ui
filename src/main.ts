@@ -21,6 +21,7 @@ import { initPasswordToggles } from '@ui/password-toggle';
 import { initUtilityBarScroll } from '@ui/utility-bar-scroll';
 import { initSidebarToggle } from '@ui/sidebar-toggle';
 import { initSidebarSearch } from '@ui/sidebar-search';
+import { initSidebarNav } from '@ui/sidebar-nav';
 import { initIntegrationsPage } from '@ui/integrations';
 
 /**
@@ -51,28 +52,64 @@ async function injectIconSprite() {
 }
 
 /**
- * Process all [data-icon] attributes and inject SVG <use> elements.
+ * Process a single [data-icon] element and inject SVG <use> element.
  * Example: data-icon="mono/home" → <svg><use href="/icons-sprite.svg#i-mono-home"></use></svg>
  */
+function processIconElement(el: Element): void {
+  const iconName = el.getAttribute('data-icon');
+  if (!iconName) return;
+
+  // Skip if already processed (has SVG child)
+  if (el.querySelector('svg')) return;
+
+  // Convert "mono/home" to "i-mono-home"
+  const symbolId = `i-${iconName.replace('/', '-')}`;
+
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('aria-hidden', 'true');
+
+  const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+  use.setAttribute('href', `/icons-sprite.svg#${symbolId}`);
+
+  svg.appendChild(use);
+  el.appendChild(svg);
+}
+
+/**
+ * Process all [data-icon] attributes on the page
+ */
 function processDataIconAttributes() {
-  document.querySelectorAll('[data-icon]').forEach((el) => {
-    const iconName = el.getAttribute('data-icon');
-    if (!iconName) return;
+  document.querySelectorAll('[data-icon]').forEach(processIconElement);
+}
 
-    // Skip if already processed (has SVG child)
-    if (el.querySelector('svg')) return;
+/**
+ * Set up MutationObserver to automatically process icons in dynamically added content
+ * This handles icons added via JS (sidebar nav, dynamic components, etc.)
+ */
+function initIconObserver() {
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      // Process added nodes
+      mutation.addedNodes.forEach((node) => {
+        if (node.nodeType !== Node.ELEMENT_NODE) return;
 
-    // Convert "mono/home" to "i-mono-home"
-    const symbolId = `i-${iconName.replace('/', '-')}`;
+        const element = node as Element;
 
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('aria-hidden', 'true');
+        // Process the element itself if it has data-icon
+        if (element.hasAttribute('data-icon')) {
+          processIconElement(element);
+        }
 
-    const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
-    use.setAttribute('href', `/icons-sprite.svg#${symbolId}`);
+        // Process any child elements with data-icon
+        element.querySelectorAll('[data-icon]').forEach(processIconElement);
+      });
+    });
+  });
 
-    svg.appendChild(use);
-    el.appendChild(svg);
+  // Observe the entire document body for changes
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true,
   });
 }
 
@@ -95,6 +132,7 @@ function bindLogoutButtons(): void {
 document.addEventListener('DOMContentLoaded', async () => {
   await injectIconSprite();
   processDataIconAttributes();
+  initIconObserver(); // Watch for dynamically added icons
 
   initTheme();
   applyTranslations();
@@ -121,5 +159,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   initUtilityBarScroll();
   initSidebarToggle();
   initSidebarSearch();
+  initSidebarNav();
   initIntegrationsPage();
 });

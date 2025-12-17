@@ -4,19 +4,19 @@
            - Always include CSS in order: theme.css, layout.css, site.css; ui-guide.css only on the style guide.
            - Keep header/footer partials inside the page-shell context so spacing stays consistent. -->
       <div class="page-shell site-header__inner">
+        <a class="brand" href="/" aria-label="301.st">
+          <img src="/img/301-full.svg" alt="301.st" width="80" height="32" />
+        </a>
+
         <button
-          class="btn-icon btn-icon--compact burger-button"
+          class="btn-chip burger-button"
           type="button"
           aria-label="Open menu"
           aria-expanded="false"
           data-mobile-menu-toggle
         >
-          <span class="icon" data-icon="mono/backburger"></span>
+          <span class="icon" data-icon="mono/menu"></span>
         </button>
-
-        <a class="brand" href="/" aria-label="301.st">
-          <img src="/img/301-full.svg" alt="301.st" width="80" height="32" />
-        </a>
 
         <nav class="primary-nav" aria-label="Primary">
           <a href="/integrations" data-i18n="layout.nav.integrations">Integrations</a>

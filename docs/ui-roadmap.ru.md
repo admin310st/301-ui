@@ -71,6 +71,7 @@
 - **Dashboard Layout System**: реактивная grid с collapsible sidebar, mobile drawer, unified layout для всех защищенных страниц.
 - **Integrations API**: полный CRUD для integration keys (Cloudflare, Namecheap), bootstrap flow, TypeScript types.
 - **Integrations Page**: `/integrations.html` с таблицей ключей, provider badges, delete actions, loading/empty states.
+- **Sidebar Navigation (data-driven)**: централизованный конфиг навигации (`src/ui/sidebar-nav.ts`), JS рендеринг, упрощенный partial (`partials/sidebar.hbs`).
 
 ### Layout Architecture для защищенных страниц
 
@@ -146,6 +147,38 @@ Next:
 - **Empty states** для пустых таблиц и списков.
 - **Loading states** (skeleton screens, spinners).
 - **Error states** (404, 500, network error pages).
+
+### Sidebar Navigation Evolution
+
+**Текущее состояние (2025-12-17):**
+- ✅ Data-driven конфиг (`DASHBOARD_NAV` в `src/ui/sidebar-nav.ts`)
+- ✅ JS рендеринг вместо hardcoded links
+- ✅ Динамический active state
+- ✅ Совместимость с существующим sidebar search
+- ✅ Централизованное управление ссылками
+
+**Когда понадобится полноценный компонент:**
+
+Триггеры для рефакторинга в Component:
+- 🎯 **Permissions system** — нужно скрывать пункты по ролям (owner/admin/viewer)
+- 🎯 **Badge updates** — динамические счетчики (pending tasks, notifications)
+- 🎯 **Grouped navigation** — секции с коллапсом (Projects → My Projects, Shared Projects)
+- 🎯 **Nested items** — подменю для complex разделов
+- 🎯 **Recent/Favorites** — динамические секции с историей
+- 🎯 **Multi-account switching** — выбор активного аккаунта в сайдбаре
+
+**Компонент будет включать:**
+```typescript
+// src/ui/components/Sidebar.ts (future)
+- State management (collapsed, search query, active groups)
+- Permission filtering (показывать только доступные пункты)
+- Dynamic badges (fetch counts from API)
+- Group collapsing (localStorage для сохранения состояния)
+- Keyboard navigation (arrow keys, shortcuts)
+- Drag & drop для переупорядочивания (optional)
+```
+
+**Рекомендуемый момент:** Когда начнем делать Layer 4-5 (Sites/Streams) и понадобятся permissions + badges.
 
 Это «нулевой» слой, на котором строится кабинет.
 
