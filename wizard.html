@@ -275,55 +275,34 @@
 
                 <!-- Global method help -->
                 <div data-cf-help="global" hidden>
-                  <div class="stack" style="gap: var(--space-3);">
-                    <!-- Security Warning -->
-                    <div class="panel panel--danger">
-                      <div class="stack" style="gap: var(--space-2);">
-                        <p class="text-sm">
-                          <strong><span class="icon" data-icon="mono/alert-triangle"></span> Global API Key gives full access to your Cloudflare account.</strong> This method is convenient but risky.
-                        </p>
-                        <ul class="list--spaced text-sm">
-                          <li><strong>What we do:</strong> Create a scoped token for you with minimum required permissions</li>
-                          <li><strong>What we DON'T do:</strong> Store or log your Global API Key (discarded immediately after use)</li>
-                          <li><strong>Risk:</strong> If our connection is compromised during this process, your Global API Key could be exposed</li>
-                        </ul>
+                  <div class="panel panel--danger" style="margin-bottom: var(--space-3);">
+                    <p class="text-sm">
+                      <strong><span class="icon" data-icon="mono/alert-triangle"></span> Security risk:</strong>
+                      Global API Key gives full access to your account. We'll create a scoped token and immediately discard the key,
+                      but if compromised during this process, your account could be exposed.
+                    </p>
+                  </div>
+
+                  <div class="step-list">
+                    <div class="step-item">
+                      <span class="badge badge--sm">1</span>
+                      <div class="stack stack--xs">
+                        <strong>Account Email</strong>
                         <p class="text-sm text-muted">
-                          <strong>We strongly recommend using Manual Token method instead.</strong> It takes 2 extra minutes but is much safer.
+                          The email you use to log in to Cloudflare
                         </p>
                       </div>
                     </div>
 
-                    <div>
-                      <p class="text-sm" style="margin-bottom: var(--space-2);"><strong>How it works:</strong></p>
-                      <ol class="list--ruled text-sm">
-                        <li>You submit your Global API Key</li>
-                        <li>We immediately create a scoped token with minimum permissions</li>
-                        <li>We save the scoped token and <strong>discard your Global API Key</strong></li>
-                        <li>You can verify in Cloudflare dashboard that a new API token was created</li>
-                      </ol>
+                    <div class="step-item">
+                      <span class="badge badge--sm">2</span>
+                      <div class="stack stack--xs">
+                        <strong>Global API Key</strong>
+                        <p class="text-sm text-muted">
+                          Go to <strong>My Profile → API Tokens → Global API Key → View</strong> → enter password to reveal
+                        </p>
+                      </div>
                     </div>
-
-                    <div>
-                      <p class="text-sm" style="margin-bottom: var(--space-2);"><strong>Where to find credentials:</strong></p>
-                      <ol class="list--ruled text-sm">
-                        <li>
-                          <strong>Account Email:</strong> The email you use to log in to Cloudflare.
-                        </li>
-                        <li>
-                          <strong>Global API Key:</strong> Go to <strong>My Profile → API Tokens → Global API Key → View</strong>. Enter your password to reveal it.
-                        </li>
-                      </ol>
-                    </div>
-
-                    <div class="panel panel--warn">
-                      <p class="text-sm">
-                        <strong>Still recommend Manual Token?</strong> Yes. It's safer and takes only 2 more minutes.
-                      </p>
-                    </div>
-
-                    <p class="text-sm text-muted">
-                      <strong>Security tip:</strong> After setup, you can revoke your Global API Key and rotate it. We'll only use the scoped token going forward.
-                    </p>
                   </div>
                 </div>
               </div>
