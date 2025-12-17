@@ -68,6 +68,54 @@
 - **Badge в breadcrumbs**: eyebrow pattern deprecated, статусы теперь в breadcrumb badges.
 - **Ruled/Spaced Lists**: helpers для step-by-step инструкций и списков с иконками.
 - **Cloudflare Wizard**: bootstrap page для подключения CF-аккаунта.
+- **Dashboard Layout System**: реактивная grid с collapsible sidebar, mobile drawer, unified layout для всех защищенных страниц.
+
+### Layout Architecture для защищенных страниц
+
+**Принцип типизации (2025-12-17):**
+
+Все страницы управления (dashboard, wizard, integrations, projects, domains, sites, streams, redirects, analytics) используют **единый dashboard layout** с постоянным sidebar:
+
+```
+┌─────────────────────────────────────────┐
+│ Header (logo, lang, theme, burger)      │
+├─────────┬───────────────────────────────┤
+│ Sidebar │ Dashboard Content             │
+│         │                               │
+│ [Menu]  │ - Dashboard: cards, widgets   │
+│ Search  │ - Wizard: centered form       │
+│ Nav     │ - Tables: full width          │
+│         │ - Details: article layout     │
+└─────────┴───────────────────────────────┘
+```
+
+**Все защищенные страницы имеют:**
+- `<body class="layout-dashboard">`
+- `{{> sidebar activePage="section"}}` - единая навигация
+- `.dashboard-shell` - reactive grid (280px → 72px collapsed)
+- Burger button на mobile для drawer overlay
+- Sidebar search для быстрого поиска по меню
+
+**Routing структура (поэтапно):**
+
+**Phase 1 (текущая, MVP):**
+- Плоская структура: `/dashboard.html`, `/wizard.html`, `/integrations.html`, etc.
+- Все с единым `layout-dashboard` и sidebar
+- Защита на уровне списка файлов в Worker
+- ✅ Быстрая разработка, меньше изменений
+
+**Phase 2 (рефакторинг, когда 5+ страниц):**
+- Nested структура: `/dashboard`, `/dashboard/wizard`, `/dashboard/integrations`, etc.
+- Routing через Cloudflare Worker
+- Защита всего `/dashboard/*` пути
+- Логическое группирование public/protected зон
+
+**Преимущества единого layout:**
+- ✅ Навигация всегда доступна (UX)
+- ✅ Один layout = проще поддержка
+- ✅ Burger menu работает везде одинаково
+- ✅ Проще добавление новых страниц
+- ✅ Единый роутинг и защита в будущем
 
 Базовые auth-флоу и инфраструктура в этом слое:
 
