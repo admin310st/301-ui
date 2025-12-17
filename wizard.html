@@ -238,17 +238,40 @@
               </header>
               <div class="card__body">
                 <!-- Manual method help -->
-                <ol class="list--ruled" data-cf-help="manual">
-                  <li>
-                    <strong>Account ID:</strong> In Cloudflare dashboard, go to <strong>Account Home → Overview</strong> and copy your Account ID.
-                  </li>
-                  <li>
-                    <strong>Bootstrap API Token:</strong> Go to <strong>My Profile → API Tokens → Create Token</strong>. Use template <code>301st Bootstrap</code> with <em>Account API Tokens: Edit</em> permission.
-                  </li>
-                  <li>
-                    <strong>Verify:</strong> Click "Save &amp; verify token" to validate credentials and enable domain management features.
-                  </li>
-                </ol>
+                <div class="step-list" data-cf-help="manual">
+                  <div class="step-item">
+                    <span class="badge badge--sm">1</span>
+                    <div class="stack stack--xs">
+                      <strong>Account ID</strong>
+                      <p class="text-sm text-muted">
+                        Open Cloudflare dashboard → use quick search (press <kbd>/</kbd>) → type <code>copy</code> →
+                        select <strong>"Copy account ID"</strong> command
+                      </p>
+                    </div>
+                  </div>
+
+                  <div class="step-item">
+                    <span class="badge badge--sm">2</span>
+                    <div class="stack stack--xs">
+                      <strong>Bootstrap API Token</strong>
+                      <p class="text-sm text-muted">
+                        Go to <strong>My Profile → API Tokens → Create Token</strong> →
+                        use template <strong>"Create Additional Tokens"</strong> →
+                        set permission <em>Account API Tokens: Edit</em> at account level → copy the token
+                      </p>
+                    </div>
+                  </div>
+
+                  <div class="step-item">
+                    <span class="badge badge--sm">3</span>
+                    <div class="stack stack--xs">
+                      <strong>Verify</strong>
+                      <p class="text-sm text-muted">
+                        Paste credentials above and click "Save &amp; verify token" to validate and enable domain management
+                      </p>
+                    </div>
+                  </div>
+                </div>
 
                 <!-- Global method help -->
                 <div data-cf-help="global" hidden>
