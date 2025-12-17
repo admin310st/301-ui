@@ -31,16 +31,11 @@ async function handleManualSubmit(event: SubmitEvent): Promise<void> {
     });
 
     setFormState(form, 'success', t('cf.wizard.statusSuccess'));
-    showGlobalMessage('success', `Cloudflare integration created successfully (Key ID: ${keyId})`);
+    showGlobalMessage('success', `Cloudflare integration created! (Key ID: ${keyId})`);
 
-    // TODO: Decide on post-success behavior:
-    // Option A: Redirect to integrations page
-    // Option B: Stay on wizard, show success, allow adding another
-    // Option C: Redirect to dashboard
-
-    // For now: redirect to dashboard after 2 seconds
+    // Redirect to integrations page to view the new integration
     setTimeout(() => {
-      window.location.href = '/dashboard.html';
+      window.location.href = '/integrations.html';
     }, 2000);
   } catch (error: any) {
     const errorMessage = error.message || error.error || 'Unknown error occurred';
