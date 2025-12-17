@@ -3,7 +3,7 @@ import { createApiError } from '@utils/errors';
 import { logDebug } from '@utils/logger';
 import { parseJsonSafe } from '@utils/json';
 
-const API_ROOT = 'https://api.301.st/auth';
+const API_ROOT = 'https://api.301.st';
 
 export async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
   const headers = new Headers(options.headers ?? {});
@@ -34,7 +34,7 @@ export async function apiFetch<T>(path: string, options: RequestInit = {}): Prom
 
 export async function healthcheck(): Promise<boolean> {
   try {
-    await apiFetch<unknown>('/me');
+    await apiFetch<unknown>('/auth/me');
     return true;
   } catch (error) {
     logDebug('Healthcheck failed', error);
@@ -44,7 +44,7 @@ export async function healthcheck(): Promise<boolean> {
 
 export async function authFetchBuster(): Promise<void> {
   try {
-    await apiFetch<unknown>('/me');
+    await apiFetch<unknown>('/auth/me');
   } catch (error) {
     logDebug('Auth fetch buster failed', error);
   }

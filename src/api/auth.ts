@@ -17,7 +17,7 @@ import type {
 import { clearAuthToken, setAuthToken, setUser } from '@state/auth-state';
 
 export async function login(payload: LoginRequest): Promise<LoginResponse> {
-  const res = await apiFetch<LoginResponse>('/login', {
+  const res = await apiFetch<LoginResponse>('/auth/login', {
     method: 'POST',
     body: JSON.stringify(payload),
   });
@@ -27,11 +27,11 @@ export async function login(payload: LoginRequest): Promise<LoginResponse> {
 }
 
 export async function refresh(): Promise<LoginResponse> {
-  return apiFetch<LoginResponse>('/refresh', { method: 'POST' });
+  return apiFetch<LoginResponse>('/auth/refresh', { method: 'POST' });
 }
 
 export async function register(payload: RegisterRequest): Promise<RegisterResponse> {
-  const res = await apiFetch<RegisterResponse>('/register', {
+  const res = await apiFetch<RegisterResponse>('/auth/register', {
     method: 'POST',
     body: JSON.stringify(payload),
   });
@@ -39,14 +39,14 @@ export async function register(payload: RegisterRequest): Promise<RegisterRespon
 }
 
 export async function resetPassword(payload: ResetPasswordRequest): Promise<ResetPasswordResponse> {
-  return apiFetch<ResetPasswordResponse>('/reset_password', {
+  return apiFetch<ResetPasswordResponse>('/auth/reset_password', {
     method: 'POST',
     body: JSON.stringify(payload),
   });
 }
 
 export async function verifyToken(payload: VerifyRequest): Promise<VerifyResponse> {
-  const res = await apiFetch<VerifyResponse>('/verify', {
+  const res = await apiFetch<VerifyResponse>('/auth/verify', {
     method: 'POST',
     body: JSON.stringify(payload),
   });
@@ -56,23 +56,23 @@ export async function verifyToken(payload: VerifyRequest): Promise<VerifyRespons
 }
 
 export async function confirmPassword(payload: ConfirmPasswordRequest): Promise<ConfirmPasswordResponse> {
-  return apiFetch<ConfirmPasswordResponse>('/confirm_password', {
+  return apiFetch<ConfirmPasswordResponse>('/auth/confirm_password', {
     method: 'POST',
     body: JSON.stringify(payload),
   });
 }
 
 export async function socialStartGoogle(): Promise<OAuthStartResponse> {
-  return apiFetch<OAuthStartResponse>('/oauth/google/start');
+  return apiFetch<OAuthStartResponse>('/auth/oauth/google/start');
 }
 
 export async function socialStartGithub(): Promise<OAuthStartResponse> {
-  return apiFetch<OAuthStartResponse>('/oauth/github/start');
+  return apiFetch<OAuthStartResponse>('/auth/oauth/github/start');
 }
 
 export async function logout(): Promise<void> {
   try {
-    await apiFetch<unknown>('/logout', { method: 'POST' });
+    await apiFetch<unknown>('/auth/logout', { method: 'POST' });
   } catch (error) {
     // ignore network errors to avoid blocking logout
     console.debug('Logout request failed', error);
@@ -82,5 +82,5 @@ export async function logout(): Promise<void> {
 }
 
 export async function me(): Promise<MeResponse> {
-  return apiFetch<MeResponse>('/me');
+  return apiFetch<MeResponse>('/auth/me');
 }
