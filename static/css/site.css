@@ -2142,9 +2142,14 @@ body.sidebar-collapsed .app-shell {
 
 .sidebar .navitem .icon {
   color: currentColor;
-  flex: 0 0 1.25em;
+  flex-shrink: 0;
   width: 1.25em;
   height: 1.25em;
+}
+
+.sidebar .navitem .label {
+  flex: 1;
+  min-width: 0;
 }
 
 .sidebar .navitem {
@@ -2220,6 +2225,7 @@ body.sidebar-collapsed .sidebar .label {
 body.sidebar-collapsed .sidebar .navitem {
   justify-content: center;
   padding: var(--space-2);
+  gap: 0; /* Remove gap when collapsed */
 }
 
 /* Toggle button icon transition */
@@ -2395,12 +2401,17 @@ body.sidebar-collapsed .sidebar .navitem:hover::after {
    Mobile Menu Button
    ============================================ */
 .burger-button {
-  display: none; /* Hidden by default on desktop */
+  display: none; /* Hidden by default */
+}
+
+/* Only show burger on dashboard pages with sidebar on mobile */
+body.layout-dashboard .burger-button {
+  display: none; /* Hidden on desktop */
 }
 
 @media (max-width: 1023px) {
-  .burger-button {
-    display: flex;
+  body.layout-dashboard .burger-button {
+    display: flex; /* Show only on dashboard + mobile */
   }
 }
 
