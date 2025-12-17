@@ -20,6 +20,7 @@ import { applyRouteFromHash, initAuthRouting, initAuthTabs } from '@ui/auth-rout
 import { initPasswordToggles } from '@ui/password-toggle';
 import { initUtilityBarScroll } from '@ui/utility-bar-scroll';
 import { initSidebarToggle } from '@ui/sidebar-toggle';
+import { initSidebarSearch } from '@ui/sidebar-search';
 
 /**
  * Inject SVG sprite with icons once per page.
@@ -118,4 +119,5 @@ document.addEventListener('DOMContentLoaded', async () => {
   initPasswordToggles();
   initUtilityBarScroll();
   initSidebarToggle();
+  initSidebarSearch();
 });
