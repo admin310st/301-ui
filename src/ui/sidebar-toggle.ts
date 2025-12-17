@@ -19,9 +19,11 @@ export function initSidebarToggle(): void {
 
   // Desktop sidebar collapse
   if (desktopToggle) {
-    // Load saved state from localStorage
+    // Load saved state from localStorage (only on desktop)
     const isCollapsed = localStorage.getItem(STORAGE_KEY) === 'true';
-    if (isCollapsed) {
+    const isDesktop = window.innerWidth >= 1024;
+
+    if (isCollapsed && isDesktop) {
       document.body.classList.add('sidebar-collapsed');
       updateToggleState(desktopToggle, false);
     }
@@ -46,7 +48,7 @@ export function initSidebarToggle(): void {
       // Update mobile burger icon
       const icon = mobileToggle.querySelector('.icon');
       if (icon) {
-        const iconName = !isOpen ? 'close' : 'menu';
+        const iconName = !isOpen ? 'close' : 'backburger';
         icon.setAttribute('data-icon', `mono/${iconName}`);
 
         const symbolId = `i-mono-${iconName}`;
@@ -76,14 +78,14 @@ export function initSidebarToggle(): void {
       if (mobileToggle) {
         mobileToggle.setAttribute('aria-expanded', 'false');
 
-        // Reset mobile burger icon to menu
+        // Reset mobile burger icon to backburger
         const icon = mobileToggle.querySelector('.icon');
         if (icon) {
-          icon.setAttribute('data-icon', 'mono/menu');
+          icon.setAttribute('data-icon', 'mono/backburger');
           const svg = icon.querySelector('svg');
           const use = svg?.querySelector('use');
           if (use) {
-            use.setAttribute('href', '/icons-sprite.svg#i-mono-menu');
+            use.setAttribute('href', '/icons-sprite.svg#i-mono-backburger');
           }
         }
       }
@@ -107,14 +109,14 @@ export function initSidebarToggle(): void {
       if (mobileToggle) {
         mobileToggle.setAttribute('aria-expanded', 'false');
 
-        // Reset mobile burger icon to menu
+        // Reset mobile burger icon to backburger
         const icon = mobileToggle.querySelector('.icon');
         if (icon) {
-          icon.setAttribute('data-icon', 'mono/menu');
+          icon.setAttribute('data-icon', 'mono/backburger');
           const svg = icon.querySelector('svg');
           const use = svg?.querySelector('use');
           if (use) {
-            use.setAttribute('href', '/icons-sprite.svg#i-mono-menu');
+            use.setAttribute('href', '/icons-sprite.svg#i-mono-backburger');
           }
         }
       }
@@ -129,14 +131,14 @@ export function initSidebarToggle(): void {
         mobileToggle.setAttribute('aria-expanded', 'false');
         mobileToggle.focus();
 
-        // Reset mobile burger icon to menu
+        // Reset mobile burger icon to backburger
         const icon = mobileToggle.querySelector('.icon');
         if (icon) {
-          icon.setAttribute('data-icon', 'mono/menu');
+          icon.setAttribute('data-icon', 'mono/backburger');
           const svg = icon.querySelector('svg');
           const use = svg?.querySelector('use');
           if (use) {
-            use.setAttribute('href', '/icons-sprite.svg#i-mono-menu');
+            use.setAttribute('href', '/icons-sprite.svg#i-mono-backburger');
           }
         }
       }
@@ -157,14 +159,14 @@ export function initSidebarToggle(): void {
       if (mobileToggle) {
         mobileToggle.setAttribute('aria-expanded', 'false');
 
-        // Reset mobile burger icon to menu
+        // Reset mobile burger icon to backburger
         const icon = mobileToggle.querySelector('.icon');
         if (icon) {
-          icon.setAttribute('data-icon', 'mono/menu');
+          icon.setAttribute('data-icon', 'mono/backburger');
           const svg = icon.querySelector('svg');
           const use = svg?.querySelector('use');
           if (use) {
-            use.setAttribute('href', '/icons-sprite.svg#i-mono-menu');
+            use.setAttribute('href', '/icons-sprite.svg#i-mono-backburger');
           }
         }
       }

@@ -181,13 +181,13 @@ export const ru: Translation = {
   cf: {
     wizard: {
       title: 'Привязка аккаунта Cloudflare',
-      subtitle: 'Шаг 1 · Вставьте Account ID и Bootstrap API токен, как описано в Integrations.',
+      subtitle: 'Шаг 1 · Вставьте ваш Account ID и Bootstrap API токен.',
       accountIdLabel: 'Cloudflare Account ID',
       tokenLabel: 'Bootstrap API токен',
       tokenHint: "Создайте токен с названием '301st Bootstrap' и правами 'Account API Tokens: Edit'.",
       accountIdPlaceholder: 'например, 1234567890abcdef1234567890abcdef',
       tokenPlaceholder: "Вставьте токен с правами 'Account API Tokens: Edit'…",
-      avatarMeta: 'Оранжевые действия ниже отвечают за настройки уровня Cloudflare.',
+      avatarMeta: 'Оранжевые кнопки действий указывают на глобальные операции уровня Cloudflare.',
       submit: 'Сохранить и проверить токен',
       submitAria: 'Сохранить и проверить токен Cloudflare',
       statusStub: 'Позже эта форма будет отправлять данные в /auth/integrations/cloudflare/bootstrap.',

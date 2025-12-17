@@ -45,9 +45,9 @@
       <section class="dashboard-content">
         <div class="wizard-container">
           <header class="wizard-header">
-            <h1 class="h2" data-i18n="cf.wizard.title">Cloudflare Account Bootstrap</h1>
+            <h1 class="h2" data-i18n="cf.wizard.title">Cloudflare account bootstrap</h1>
             <p class="text-muted" data-i18n="cf.wizard.subtitle">
-              Connect your Cloudflare account to 301.st
+              Step 1 · Paste your Account ID and Bootstrap API token.
             </p>
           </header>
 
@@ -117,7 +117,7 @@
                     </div>
 
                     <div class="field">
-                      <label class="field-label" data-i18n="cf.wizard.tokenLabel">Bootstrap API Token</label>
+                      <label class="field-label" data-i18n="cf.wizard.tokenLabel">Bootstrap API token</label>
                       <textarea
                         class="textarea"
                         name="cf_bootstrap_token"
@@ -133,8 +133,13 @@
                     </div>
 
                     <div class="panel panel--success">
-                      <div class="stack" style="gap: var(--space-1);">
-                        <p class="text-sm"><strong>✓ Recommended approach:</strong> Scoped tokens limit what 301.st can access.</p>
+                      <div class="stack" style="gap: var(--space-2);">
+                        <p class="text-sm">
+                          <span class="btn-icon btn-icon--compact btn--success">
+                            <span class="icon" data-icon="mono/check-circle"></span>
+                          </span>
+                          Scoped tokens limit what 301.st can access.
+                        </p>
                         <p class="text-sm text-muted">We'll never see your Cloudflare password or Global API Key.</p>
                       </div>
                     </div>
@@ -277,7 +282,9 @@
                 <div data-cf-help="global" hidden>
                   <div class="panel panel--danger" style="margin-bottom: var(--space-3);">
                     <p class="text-sm">
-                      <strong><span class="icon" data-icon="mono/alert-triangle"></span> Security risk:</strong>
+                      <span class="btn-icon btn-icon--compact btn--danger">
+                        <span class="icon" data-icon="mono/alert-triangle"></span>
+                      </span>
                       Global API Key gives full access to your account. We'll create a scoped token and immediately discard the key,
                       but if compromised during this process, your account could be exposed.
                     </p>

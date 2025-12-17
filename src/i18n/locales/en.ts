@@ -185,7 +185,7 @@ export const en = {
       tokenHint: "Created as '301st Bootstrap' with 'Account API Tokens: Edit' permission.",
       accountIdPlaceholder: 'e.g. 1234567890abcdef1234567890abcdef',
       tokenPlaceholder: "Paste token with 'Account API Tokens: Edit' scope…",
-      avatarMeta: 'Orange actions below are reserved for Cloudflare-level changes.',
+      avatarMeta: 'Orange action buttons indicate global operations at Cloudflare level.',
       submit: 'Save & verify token',
       submitAria: 'Save and verify Cloudflare token',
       statusStub: 'This will hit /auth/integrations/cloudflare/bootstrap once wired.',

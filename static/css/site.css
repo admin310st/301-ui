@@ -24,6 +24,12 @@ body {
     padding-inline: var(--space-4);
     padding-block: var(--space-4);
   }
+
+  /* Dashboard layouts handle their own spacing */
+  .page-shell.dashboard-shell {
+    padding-inline: 0;
+    padding-block: 0;
+  }
 }
 
 [hidden] {
@@ -638,6 +644,11 @@ h5 .icon[data-icon*="close"] {
   height: calc(1em + 1.25rem);
   display: inline-grid;
   place-items: center;
+}
+
+.btn-icon--compact .icon {
+  width: 1em;
+  height: 1em;
 }
 
 .btn-icon .icon {
@@ -2600,5 +2611,13 @@ body.layout-dashboard .burger-button {
 
   .wizard-container {
     padding: 0 var(--space-3);
+  }
+
+  .wizard-header h1 {
+    font-size: var(--fs-lg);
+  }
+
+  .wizard-header p {
+    font-size: var(--fs-sm);
   }
 }
