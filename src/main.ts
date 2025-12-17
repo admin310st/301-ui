@@ -158,7 +158,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initPasswordToggles();
   initUtilityBarScroll();
   initSidebarToggle();
-  initSidebarSearch();
-  initSidebarNav();
+  initSidebarNav();       // First: render nav items
+  initSidebarSearch();    // Then: attach search to rendered items
   initIntegrationsPage();
 });
