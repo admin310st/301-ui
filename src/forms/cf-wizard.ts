@@ -1,8 +1,9 @@
 import { t } from '@i18n';
 import { setFormState, qs } from '@ui/dom';
 import { getTurnstileRequiredMessage, getTurnstileToken } from '../turnstile';
+import { showGlobalMessage } from '@ui/notifications';
 
-async function handleBootstrapSubmit(event: SubmitEvent): Promise<void> {
+async function handleManualSubmit(event: SubmitEvent): Promise<void> {
   event.preventDefault();
   const form = event.currentTarget as HTMLFormElement;
 
@@ -24,18 +25,35 @@ async function handleBootstrapSubmit(event: SubmitEvent): Promise<void> {
 
   const payload = {
     cf_account_id: accountId,
-    cf_bootstrap_token: bootstrapToken,
+    bootstrap_token: bootstrapToken,
     turnstile_token: tsToken,
   };
 
-  console.log('Stub: Cloudflare bootstrap payload', payload);
-  setFormState(form, 'success', t('cf.wizard.statusLogged'));
+  // TODO: Wire up to POST /integrations/cloudflare/init
+  console.log('Stub: Cloudflare bootstrap payload (manual)', payload);
+  setFormState(form, 'success', t('cf.wizard.statusSuccess'));
+}
+
+async function handleGlobalSubmit(event: SubmitEvent): Promise<void> {
+  event.preventDefault();
+  const form = event.currentTarget as HTMLFormElement;
+
+  showGlobalMessage('info', 'Global API Key method is not yet implemented in the backend.');
+  setFormState(form, 'error', 'This method is not available yet. Please use Scoped Token method.');
 }
 
 export function initCloudflareWizard(): void {
-  document.querySelectorAll<HTMLFormElement>('form[data-form="cf-bootstrap"]').forEach((form) => {
+  // Manual token method (Scoped Token)
+  document.querySelectorAll<HTMLFormElement>('form[data-form="cf-bootstrap-manual"]').forEach((form) => {
     if (form.dataset.bound === 'true') return;
     form.dataset.bound = 'true';
-    form.addEventListener('submit', handleBootstrapSubmit);
+    form.addEventListener('submit', handleManualSubmit);
+  });
+
+  // Global API Key method (not implemented yet)
+  document.querySelectorAll<HTMLFormElement>('form[data-form="cf-bootstrap-global"]').forEach((form) => {
+    if (form.dataset.bound === 'true') return;
+    form.dataset.bound = 'true';
+    form.addEventListener('submit', handleGlobalSubmit);
   });
 }

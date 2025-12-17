@@ -191,6 +191,7 @@ export const en = {
       statusStub: 'This will hit /auth/integrations/cloudflare/bootstrap once wired.',
       statusMissing: 'Fill Account ID and Bootstrap Token.',
       statusPending: 'Validating token...',
+      statusSuccess: 'Cloudflare account connected successfully!',
       statusLogged: 'Stub: payload logged, ready to wire to /auth/integrations/cloudflare/bootstrap',
     },
   },

@@ -193,6 +193,7 @@ export const ru: Translation = {
       statusStub: 'Позже эта форма будет отправлять данные в /auth/integrations/cloudflare/bootstrap.',
       statusMissing: 'Заполните Account ID и Bootstrap Token.',
       statusPending: 'Проверяем токен...',
+      statusSuccess: 'Аккаунт Cloudflare успешно подключён!',
       statusLogged: 'Заглушка: payload залогирован, готово к отправке на /auth/integrations/cloudflare/bootstrap',
     },
   },
