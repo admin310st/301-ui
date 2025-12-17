@@ -646,14 +646,11 @@ h5 .icon[data-icon*="close"] {
   place-items: center;
 }
 
-.btn-icon--compact .icon {
-  width: 1em;
-  height: 1em;
-}
-
-.btn-icon .icon {
-  width: 1rem;
-  height: 1rem;
+.btn .icon,
+.btn-icon .icon,
+.btn-chip .icon {
+  width: 1.25em;
+  height: 1.25em;
   color: currentColor;
 }
 
@@ -1029,9 +1026,7 @@ a.btn-chip {
   background: color-mix(in srgb, var(--danger) 88%, #000 6%);
 }
 
-.btn .icon {
-  color: currentColor;
-}
+/* Icon sizing unified above */
 
 html[data-theme="light"] .btn--ghost {
   background: #ffffff;
@@ -1078,11 +1073,11 @@ html[data-theme="light"] .btn--ghost:hover {
   color: var(--text);
 }
 
-.btn-chip .icon,
+/* Icon sizing unified above */
 .btn-chip svg {
-  width: 1em;
-  height: 1em;
-  flex: 0 0 1em;
+  width: 1.25em;
+  height: 1.25em;
+  flex: 0 0 1.25em;
   color: currentColor;
 }
 
