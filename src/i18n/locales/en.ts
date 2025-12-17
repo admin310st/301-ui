@@ -230,6 +230,8 @@ export const en = {
   integrations: {
     title: 'Integrations',
     subtitle: 'Connect your Cloudflare accounts and domain registrars',
+    loading: 'Loading integrations...',
+    connectCloudflare: 'Connect Cloudflare',
     empty: {
       title: 'No integrations yet',
       description: 'Connect your first Cloudflare account or domain registrar to get started.',
@@ -255,6 +257,8 @@ export const en = {
       disconnected: 'Disconnected',
       error: 'Error',
       testing: 'Testing',
+      expired: 'Expired',
+      revoked: 'Revoked',
     },
   },
   projects: {

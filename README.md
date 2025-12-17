@@ -3,11 +3,23 @@
 Модульный фронтенд для проекта **301.st**, который отвечает за:
 
 - страницы аутентификации (логин, регистрация, восстановление пароля);
+- управление интеграциями (Cloudflare accounts, domain registrars);
 - единый **UI Style Guide** (`/ui-style-guide`), где описаны токены, компоненты и паттерны интерфейса;
-- интеграцию с backend-API (см. [API wiki](https://github.com/admin310st/301/wiki/API));
+- интеграцию с backend-API (см. `docs/301-wiki/` — локальная документация в виде git submodule);
 - развёртывание всего этого как **Cloudflare Worker** под `app.301.st`.
 
-Текущая кодовая база — это **“Layer 0 / Stage 2”** из дорожной карты, описанной в `docs/ui-roadmap.ru.md`: фундамент для будущего кабинета, работы с доменами, потоками (TDS), сайтами, редиректами и админ-инструментами.
+Текущая кодовая база — это **"Layer 0-1 / Stage 2"** из дорожной карты, описанной в `docs/ui-roadmap.ru.md`: фундамент для будущего кабинета, работы с доменами, потоками (TDS), сайтами, редиректами и админ-инструментами.
+
+> **📖 API Документация (git submodule)**
+> Полная спецификация API находится в `docs/301-wiki/` и подключена как git submodule.
+> Для получения последних обновлений документации выполните:
+> ```bash
+> git submodule update --remote docs/301-wiki
+> ```
+> Ключевые файлы:
+> - `docs/301-wiki/API_Auth.md` — authentication endpoints
+> - `docs/301-wiki/API_Integrations.md` — integrations CRUD
+> - `docs/301-wiki/Data_Model.md` — database schema
 
 ⚠️ IMPORTANT — static assets path
 
@@ -36,18 +48,24 @@ Cloudflare Workers serves `public/` as the origin root.
 
 **Логическая структура**
 
-- `index.html`, `dashboard.html`, `wizard.html`, `ui-style-guide.html` — HTML-страницы с использованием partials.
+- `index.html`, `dashboard.html`, `wizard.html`, `integrations.html`, `ui-style-guide.html` — HTML-страницы с использованием partials.
 - `partials/` — переиспользуемые компоненты (header-top, header-utility, footer, sidebar).
-- `src/api` — типизированный клиент для `/auth`-эндпоинтов.
-- `src/forms` — инициализация и обработчики форм (логин/регистрация/ресет/верификация).
+- `src/api` — типизированный клиент для `/auth` и `/integrations` эндпоинтов:
+  - `auth.ts` — login, register, reset, verify, me, refresh
+  - `integrations.ts` — CRUD для integration keys (Cloudflare, Namecheap)
+  - `types.ts` — TypeScript типы для всех API контрактов
+- `src/forms` — инициализация и обработчики форм (логин/регистрация/ресет/верификация/cloudflare-wizard).
 - `src/state` — хранение токена, вызовы `/auth/me` и `/auth/refresh`, обновление UI.
-- `src/ui` — хелперы для работы с DOM, отображения ошибок/уведомлений, скрытия/показа блоков по атрибутам (`data-onlogin`, `data-onlogout`, `data-auth-email`).
+- `src/ui` — хелперы для работы с DOM:
+  - отображение ошибок/уведомлений
+  - скрытие/показ блоков по атрибутам (`data-onlogin`, `data-onlogout`, `data-auth-email`)
+  - `integrations.ts` — загрузка и рендеринг таблицы integration keys
 - `src/i18n` — интернационализация (EN/RU), namespace структура для всех разделов дашборда. Полные конвенции: `.claude/i18n-conventions.md`.
 - `src/utils` — общие утилиты (обработка JSON-ошибок, логгер, Webstudio).
 - `src/turnstile.ts` — загрузка и перерендер Turnstile, reset для повторных отправок.
 - `src/worker.ts` — Cloudflare Worker с логикой роутинга и ранним редиректом для залогиненных пользователей.
-- `docs/` — UI Style Guide и roadmap по дальнейшему развитию интерфейса.
-- `.claude/` — агенты и конвенции для работы с кодом (ui-code-reviewer, i18n-conventions).
+- `docs/` — UI Style Guide, roadmap, и git submodule с API документацией (`docs/301-wiki/`).
+- `.claude/` — агенты и конвенции для работы с кодом (ui-code-reviewer, pr-review-bot, i18n-conventions).
 - `CHANGELOG.md` — история изменений проекта.
 
 **Auth Redirect Strategy**
@@ -179,9 +197,62 @@ Cloudflare Workers serves `public/` as the origin root.
 
 ---
 
+## Текущее покрытие по интеграциям
+
+Репозиторий реализует полный CRUD для управления интеграциями с внешними сервисами, следуя спецификации из `docs/301-wiki/API_Integrations.md`.
+
+### Реализовано
+
+- **Cloudflare Bootstrap Flow**
+  - Wizard страница (`/wizard.html`) для подключения CF-аккаунта
+  - Bootstrap token → Working token flow через `/integrations/cloudflare/init`
+  - Автоматический редирект на `/integrations.html` после успешного подключения
+  - Код:
+    - `src/forms/cf-wizard.ts`
+    - `src/api/integrations.ts → initCloudflare()`
+    - `src/api/types.ts → InitCloudflareRequest/Response`
+
+- **Integrations Management**
+  - Страница `/integrations.html` с таблицей всех подключенных интеграций
+  - Колонки: Provider, Alias, External ID, Status, Connected Date, Actions
+  - Provider badges с иконками (Cloudflare, Namecheap, NameSilo, HostTracker, Google Analytics, Yandex Metrica)
+  - Status badges (active/expired/revoked) с цветовой индикацией
+  - Код:
+    - `src/ui/integrations.ts`
+    - `src/api/integrations.ts → getIntegrationKeys()`
+
+- **CRUD Operations**
+  - `GET /integrations/keys` — список всех integration keys
+  - `GET /integrations/keys/:id` — детали конкретной интеграции
+  - `POST /integrations/cloudflare/init` — создание Cloudflare интеграции
+  - `POST /integrations/namecheap/init` — создание Namecheap интеграции (UI готов, backend pending)
+  - `PATCH /integrations/keys/:id` — обновление alias/status
+  - `DELETE /integrations/keys/:id` — удаление интеграции с confirmation dialog
+  - Код:
+    - `src/api/integrations.ts`
+    - `src/api/types.ts → IntegrationKey, UpdateKeyRequest`
+
+- **Page States**
+  - Loading state (spinner/skeleton)
+  - Empty state с CTA кнопкой "Connect Cloudflare"
+  - Table state с полным функционалом CRUD
+
+- **i18n Coverage**
+  - Полная поддержка EN/RU для integrations раздела
+  - Namespace `integrations.*` в `src/i18n/locales/en.ts` и `ru.ts`
+
+### Планируется
+
+- **Namecheap Integration** — UI готов, ожидается backend реализация
+- **NameSilo Integration** — запланировано в roadmap
+- **HostTracker Integration** — мониторинг доменов и сервисов
+- **Analytics Integrations** — Google Analytics, Yandex Metrica
+
+---
+
 ## Известные расхождения с API (backlog для доработки)
 
-По результатам сверки с [API wiki](https://github.com/admin310st/301/wiki/API):
+По результатам сверки с `docs/301-wiki/API_Auth.md`:
 
 1. **Форма /auth/verify (Omni-токен)**  
    - API ожидает `{"token": "..."}` (тип зашит в токен).  
@@ -219,6 +290,7 @@ Cloudflare Workers serves `public/` as the origin root.
 ├── index.html            # Главная страница (auth forms)
 ├── dashboard.html        # Дашборд (с сайдбаром)
 ├── wizard.html           # Cloudflare Setup Wizard
+├── integrations.html     # Integrations Management
 ├── ui-style-guide.html   # UI Style Guide (демо компонентов)
 ├── partials/             # Переиспользуемые компоненты
 │   ├── header-top.hbs    # Лого, навигация, язык, тема
@@ -227,16 +299,36 @@ Cloudflare Workers serves `public/` as the origin root.
 │   └── sidebar.hbs       # Сайдбар навигации
 ├── public/               # Скомпилированные ассеты (output Vite)
 ├── src/
-│   ├── api/              # Клиент и типы для /auth
+│   ├── api/              # Клиент и типы для API
+│   │   ├── auth.ts       # /auth endpoints
+│   │   ├── integrations.ts # /integrations endpoints
+│   │   ├── client.ts     # Base fetch wrapper
+│   │   └── types.ts      # TypeScript types for all API contracts
 │   ├── forms/            # Инициализация и логика форм
+│   │   ├── login.ts
+│   │   ├── register.ts
+│   │   ├── reset-*.ts
+│   │   ├── verify.ts
+│   │   └── cf-wizard.ts  # Cloudflare bootstrap form
 │   ├── social/           # OAuth (Google, GitHub)
 │   ├── state/            # Состояние аутентификации
 │   ├── ui/               # DOM-утилиты, нотификации, видимость блоков
+│   │   ├── integrations.ts # Integrations page logic
+│   │   └── ...           # Other UI helpers
+│   ├── i18n/             # Internationalization (EN/RU)
+│   │   └── locales/      # Translation files
 │   ├── utils/            # Общие хелперы + Webstudio интеграция
 │   ├── turnstile.ts      # Cloudflare Turnstile
-│   └── main.ts           # Точка входа Vite, bootstrap всех форм
+│   ├── worker.ts         # Cloudflare Worker entry point
+│   └── main.ts           # Client-side entry point, bootstrap всех форм
 ├── static/               # Локальные статические файлы
-├── docs/                 # Style Guide и UI roadmap
+├── docs/                 # Documentation
+│   ├── StyleGuide.md     # UI Style Guide documentation
+│   ├── ui-roadmap.ru.md  # UI Roadmap
+│   └── 301-wiki/         # API docs (git submodule)
+│       ├── API_Auth.md
+│       ├── API_Integrations.md
+│       └── Data_Model.md
 ├── .claude/              # Claude Code agents и команды
 │   ├── agents/           # Кастомные агенты (ui-code-reviewer, pr-review-bot)
 │   └── commands/         # Slash-команды (/uix, /pr)
@@ -244,7 +336,8 @@ Cloudflare Workers serves `public/` as the origin root.
 ├── tsconfig.json         # Strict TS, алиасы
 ├── wrangler.toml         # Cloudflare Worker deploy config
 ├── CHANGELOG.md          # История изменений
-└── CLAUDE.md             # Инструкции для Claude Code
+├── CLAUDE.md             # Инструкции для Claude Code
+└── README.md             # Этот файл
 ```
 
 ---
@@ -292,8 +385,22 @@ Cloudflare Workers serves `public/` as the origin root.
 
 For non-Russian readers:
 
-> 301 UI Worker is a modular frontend for 301.st authentication pages and the shared UI style guide.
+> 301 UI Worker is a modular frontend for 301.st authentication pages, integrations management, and the shared UI style guide.
 > It is built with TypeScript + Vite and deployed as a Cloudflare Worker under `app.301.st`.
-> The repo implements login/register/reset flows with Turnstile, Omni-token verification and OAuth starts, and exposes a UI style guide that should be reused across the future user cabinet, domains, TDS/streams, sites and admin tools.
-> See `docs/ui-roadmap.ru.md` for the long-term UI roadmap and the [API wiki](https://github.com/admin310st/301/wiki/API) for backend contracts.
+>
+> **Current features:**
+> - Login/register/reset flows with Turnstile
+> - Omni-token verification and OAuth starts
+> - Integrations management (Cloudflare accounts, domain registrars)
+> - Full CRUD for integration keys
+> - Cloudflare bootstrap wizard
+> - UI style guide for consistent design across future features
+>
+> **Documentation:**
+> - API specification: `docs/301-wiki/` (git submodule)
+>   - Update with: `git submodule update --remote docs/301-wiki`
+> - UI Roadmap: `docs/ui-roadmap.ru.md`
+> - Style Guide: `docs/StyleGuide.md`
+>
+> The repo is currently at **Layer 0-1 / Stage 2** of the roadmap: foundation for the future user cabinet, domains, TDS/streams, sites and admin tools.
 

@@ -8,6 +8,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Integrations API implementation** (2025-12-17)
+  - Full CRUD for integration keys management (`src/api/integrations.ts`)
+  - TypeScript types for all integrations endpoints (`src/api/types.ts`)
+  - Integrations page (`/integrations.html`) with unified dashboard layout
+  - Integrations UI module (`src/ui/integrations.ts`) for table rendering and CRUD actions
+  - Provider badges with icons (Cloudflare, Namecheap, NameSilo, HostTracker, etc.)
+  - Status badges (active/expired/revoked) with color coding
+  - Page states: loading, empty (with CTA), table (with full CRUD)
+  - Delete action with confirmation dialog
+  - i18n coverage (EN/RU) for integrations namespace
+- **Cloudflare wizard backend integration**
+  - Connected `/wizard.html` to real API (`POST /integrations/cloudflare/init`)
+  - Automatic redirect to `/integrations.html` after successful bootstrap
+  - Success message with Key ID display
+  - Error handling with user-friendly messages
+- **API documentation as git submodule** (`docs/301-wiki/`)
+  - API_Auth.md - authentication endpoints specification
+  - API_Integrations.md - integrations CRUD specification
+  - Data_Model.md - database schema and entity relationships
+  - Update command documented in README.md
+- **Documentation updates**
+  - CLAUDE.md: API_Integrations.md references, new module structure
+  - README.md: Integrations section, git submodule instructions, updated project structure
+  - ui-roadmap.ru.md: Layer 1 implementation status for integrations
 - **i18n conventions guide** (`.claude/i18n-conventions.md`)
   - Two-layer translation system: UI interface vs Content pages
   - Key naming conventions and best practices

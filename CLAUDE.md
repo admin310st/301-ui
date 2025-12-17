@@ -29,7 +29,8 @@ The `docs/301-wiki/` directory contains the complete 301.st platform specificati
 
 | File | Purpose |
 |------|---------|
-| `docs/301-wiki/API.md` | **Primary reference** - Complete API specification for `/auth` endpoints, OmniFlow, Turnstile integration, token lifecycle |
+| `docs/301-wiki/API_Auth.md` | **Primary auth reference** - Authentication API specification for `/auth` endpoints, OmniFlow, Turnstile integration, token lifecycle, OAuth flows |
+| `docs/301-wiki/API_Integrations.md` | **Integrations API reference** - Complete CRUD specification for `/integrations` endpoints: Cloudflare bootstrap, Namecheap, API key management |
 | `docs/301-wiki/Data_Model.md` | Database schema, entity relationships, multi-tenant isolation |
 | `docs/301-wiki/Architecture.md` | System architecture, Cloudflare Workers structure, deployment topology |
 | `docs/301-wiki/Frontend.md` | Frontend architecture, Webstudio integration, routing patterns |
@@ -40,7 +41,7 @@ The `docs/301-wiki/` directory contains the complete 301.st platform specificati
 
 ### When Working with API Code
 
-1. **Before implementing**: Check `docs/301-wiki/API.md` for the authoritative endpoint spec
+1. **Before implementing**: Check `docs/301-wiki/API_Auth.md` or `docs/301-wiki/API_Integrations.md` for the authoritative endpoint spec
 2. **TypeScript types** in `src/api/types.ts` should match the schemas documented in the wiki
 3. **Known discrepancies** are tracked in README.md under "Известные расхождения с API"
 4. **When in doubt**: The wiki specification overrides current code implementation
@@ -130,6 +131,7 @@ src/
 ├── api/              # Backend API client (@api/*)
 │   ├── client.ts     # Base fetch wrapper with auth headers
 │   ├── auth.ts       # Auth endpoints (login, register, reset, verify, me, refresh)
+│   ├── integrations.ts # Integrations endpoints (Cloudflare, Namecheap, key management)
 │   └── types.ts      # TypeScript interfaces for API contracts
 ├── forms/            # Form initialization and handlers (@forms/*)
 │   ├── login.ts
@@ -152,6 +154,7 @@ src/
 │   ├── dom.ts              # General DOM helpers
 │   ├── notifications.ts    # Toast/alert messages
 │   ├── globalNotice.ts     # Global banner alerts
+│   ├── integrations.ts     # Integrations page: table rendering, CRUD actions
 │   ├── theme.ts            # Dark/light theme switching
 │   └── password-toggle.ts  # Password visibility toggle
 ├── utils/            # General utilities (@utils/*)
@@ -188,10 +191,10 @@ src/
 - State updates trigger UI updates via `auth-dom.ts`
 
 **3. API Communication**
-- Base API URL: `https://api.301.st/auth`
+- Base API URL: `https://api.301.st/auth` (auth endpoints), `https://api.301.st/integrations` (integrations endpoints)
 - `apiFetch()` in `client.ts` automatically adds Bearer token from auth state
 - All responses parsed as JSON; errors thrown with structured `ApiError`
-- **API specification**: `docs/301-wiki/API.md` (local reference, always up-to-date)
+- **API specification**: `docs/301-wiki/API_Auth.md` and `docs/301-wiki/API_Integrations.md` (local references, always up-to-date)
 - All endpoint contracts, schemas, and auth flows documented in the wiki
 
 **4. Cloudflare Worker & Auth Redirect Strategy**
@@ -298,7 +301,7 @@ This repository includes a specialized UI code review agent to enforce design sy
 
 ## Known API Contract Gaps
 
-The following discrepancies exist between the current UI implementation and the authoritative specification in `docs/301-wiki/API.md`:
+The following discrepancies exist between the current UI implementation and the authoritative specification in `docs/301-wiki/API_Auth.md`:
 
 1. **Verification endpoint** - UI sends `{type, token}` but API expects only `{token}` (type is embedded)
 2. **Login form** - API supports `phone` OR `email`, but UI only supports `email`
@@ -308,7 +311,7 @@ The following discrepancies exist between the current UI implementation and the 
 **These gaps are documented in README.md under "Известные расхождения с API" and represent technical debt to be addressed.**
 
 When fixing these gaps:
-- Consult `docs/301-wiki/API.md` for correct schemas
+- Consult `docs/301-wiki/API_Auth.md` for correct schemas
 - Update TypeScript types in `src/api/types.ts` to match
 - Modify form handlers in `src/forms/` accordingly
 - Test against actual backend at `https://api.301.st/auth`

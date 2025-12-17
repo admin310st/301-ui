@@ -236,6 +236,8 @@ export const ru: Translation = {
   integrations: {
     title: 'Интеграции',
     subtitle: 'Подключите аккаунты Cloudflare и регистраторов доменов',
+    loading: 'Загрузка интеграций...',
+    connectCloudflare: 'Подключить Cloudflare',
     empty: {
       title: 'Нет интеграций',
       description: 'Подключите первый аккаунт Cloudflare или регистратора доменов для начала работы.',
@@ -261,6 +263,8 @@ export const ru: Translation = {
       disconnected: 'Отключено',
       error: 'Ошибка',
       testing: 'Проверка',
+      expired: 'Истекло',
+      revoked: 'Отозвано',
     },
   },
   projects: {

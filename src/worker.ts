@@ -53,6 +53,8 @@ export default {
       ['/dashboard.html', '/dashboard.html'],
       ['/wizard', '/wizard.html'],
       ['/wizard.html', '/wizard.html'],
+      ['/integrations', '/integrations.html'],
+      ['/integrations.html', '/integrations.html'],
       ['/ui-style-guide', '/ui-style-guide.html'],
       ['/ui-style-guide.html', '/ui-style-guide.html'],
       ['/about', '/about.html'],

@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>301.st · Integrations</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" href="/css/theme.css" />
+    <link rel="stylesheet" href="/css/layout.css" />
+    <link rel="stylesheet" href="/css/site.css" />
+  </head>
+  <body class="layout-dashboard">
+    <header class="site-header" role="banner">
+{{> header-top}}
+
+      <div class="utility-bar">
+        <div class="page-shell utility-bar__inner">
+          <div class="utility-left">
+            <nav class="breadcrumbs" aria-label="Breadcrumb">
+              <a href="/" class="crumb"
+                ><span class="icon" data-icon="mono/home"></span> <span data-i18n="layout.nav.home">Home</span></a
+              >
+              <span class="sep" aria-hidden="true">›</span>
+              <a href="/dashboard.html" class="crumb">Dashboard</a>
+              <span class="sep" aria-hidden="true">›</span>
+              <span class="crumb is-current" data-i18n="layout.nav.integrations">Integrations</span>
+            </nav>
+          </div>
+
+{{> header-utility}}
+        </div>
+      </div>
+    </header>
+
+{{> global-notice}}
+
+    <main class="page-shell dashboard-shell">
+{{> sidebar activePage="integrations"}}
+
+      <section class="dashboard-content">
+        <header class="page-header">
+          <div class="page-header__title">
+            <h1 class="h3" data-i18n="integrations.title">Integrations</h1>
+            <p class="text-muted" data-i18n="integrations.subtitle">
+              Connect external services and manage API keys
+            </p>
+          </div>
+          <div class="page-header__actions">
+            <a href="/wizard.html" class="btn btn--primary">
+              <span class="icon" data-icon="brand/cloudflare"></span>
+              <span data-i18n="integrations.connectCloudflare">Connect Cloudflare</span>
+            </a>
+          </div>
+        </header>
+
+        <!-- Loading state -->
+        <div class="loading-state" data-integrations-loading hidden>
+          <p data-i18n="integrations.loading">Loading integrations...</p>
+        </div>
+
+        <!-- Empty state -->
+        <div class="card card--panel" data-integrations-empty hidden>
+          <div class="card__body">
+            <div class="empty-state">
+              <p class="text-lg" data-i18n="integrations.empty.title">No integrations yet</p>
+              <p class="text-muted" data-i18n="integrations.empty.description">
+                Connect your first Cloudflare account or domain registrar to get started.
+              </p>
+              <a href="/wizard.html" class="btn btn--primary">
+                <span class="icon" data-icon="brand/cloudflare"></span>
+                <span data-i18n="integrations.empty.cta">Connect integration</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Keys table -->
+        <div class="table-container" data-integrations-table hidden>
+          <table class="table">
+            <thead>
+              <tr>
+                <th data-i18n="integrations.table.columns.provider">Provider</th>
+                <th data-i18n="integrations.table.columns.type">Alias</th>
+                <th>External ID</th>
+                <th data-i18n="integrations.table.columns.status">Status</th>
+                <th data-i18n="integrations.table.columns.connectedAt">Connected</th>
+                <th data-i18n="integrations.table.columns.actions">Actions</th>
+              </tr>
+            </thead>
+            <tbody data-integrations-tbody>
+              <!-- Filled by JavaScript -->
+            </tbody>
+          </table>
+        </div>
+      </section> <!-- /.dashboard-content -->
+    </main> <!-- /.dashboard-shell -->
+
+{{> footer}}
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

@@ -21,6 +21,7 @@ import { initPasswordToggles } from '@ui/password-toggle';
 import { initUtilityBarScroll } from '@ui/utility-bar-scroll';
 import { initSidebarToggle } from '@ui/sidebar-toggle';
 import { initSidebarSearch } from '@ui/sidebar-search';
+import { initIntegrationsPage } from '@ui/integrations';
 
 /**
  * Inject SVG sprite with icons once per page.
@@ -120,4 +121,5 @@ document.addEventListener('DOMContentLoaded', async () => {
   initUtilityBarScroll();
   initSidebarToggle();
   initSidebarSearch();
+  initIntegrationsPage();
 });

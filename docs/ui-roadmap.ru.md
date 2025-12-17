@@ -67,8 +67,10 @@
 - **Sidebar navigation**: обновлён с иконками и data-i18n для всех 8 разделов дашборда (Overview, Integrations, Projects, Domains, Sites, Streams, Redirects, Analytics).
 - **Badge в breadcrumbs**: eyebrow pattern deprecated, статусы теперь в breadcrumb badges.
 - **Ruled/Spaced Lists**: helpers для step-by-step инструкций и списков с иконками.
-- **Cloudflare Wizard**: bootstrap page для подключения CF-аккаунта.
+- **Cloudflare Wizard**: bootstrap page для подключения CF-аккаунта, подключен к реальному API.
 - **Dashboard Layout System**: реактивная grid с collapsible sidebar, mobile drawer, unified layout для всех защищенных страниц.
+- **Integrations API**: полный CRUD для integration keys (Cloudflare, Namecheap), bootstrap flow, TypeScript types.
+- **Integrations Page**: `/integrations.html` с таблицей ключей, provider badges, delete actions, loading/empty states.
 
 ### Layout Architecture для защищенных страниц
 
@@ -106,9 +108,18 @@
 
 **Phase 2 (рефакторинг, когда 5+ страниц):**
 - Nested структура: `/dashboard`, `/dashboard/wizard`, `/dashboard/integrations`, etc.
-- Routing через Cloudflare Worker
-- Защита всего `/dashboard/*` пути
+- Routing через Cloudflare Worker с pattern matching
+- Защита всего `/dashboard/*` пути через единую проверку auth
 - Логическое группирование public/protected зон
+- Для незалогиненных на защищенных страницах показывать публичную документацию (ссылки на `/docs`, `/about`)
+
+**Триггер для миграции:**
+- ✅ 3+ защищенные страницы: dashboard, wizard, integrations (текущее состояние)
+- 🎯 **Рекомендуется при добавлении 4-5 страницы** (projects или domains)
+
+**Подход к миграции:**
+1. **Гибридный (рекомендуется):** Переименовать файлы (`dashboard-wizard.html`, `dashboard-integrations.html`), обновить Worker rewriting
+2. **SPA (для 10+ страниц):** Единый `dashboard.html` + client-side router + динамическая загрузка модулей
 
 **Преимущества единого layout:**
 - ✅ Навигация всегда доступна (UX)
@@ -445,7 +456,21 @@ Admin (самый конец, Layer 7)
 - **UI style guide:** `/ui-style-guide.html` (only on app.301.st) — эталонный набор токенов и классов, который должны брать Codex и разработчики.
 - Унифицировать размеры всех контролов (inputs, buttons, chips, table search) через общий набор токенов и классов (`control-md`, `.btn--md`, `.btn-chip`). Любые новые экраны должны ссылаться на существующие паттерны, а не вводить свои размеры.
 
-#### 2.1. Экран “Integrations”
+#### 2.1. Экран "Integrations"
+
+**Реализовано (2025-12-17):**
+
+- ✅ **Страница `/integrations.html`** с unified dashboard layout
+- ✅ **API client** (`src/api/integrations.ts`): `getIntegrationKeys()`, `initCloudflare()`, `initNamecheap()`, `deleteIntegrationKey()`, `updateIntegrationKey()`
+- ✅ **TypeScript types** для integrations API в `src/api/types.ts`
+- ✅ **UI module** (`src/ui/integrations.ts`): загрузка таблицы, рендеринг строк, CRUD действия
+- ✅ **Cloudflare Wizard** (`/wizard.html`) подключен к реальному API `/integrations/cloudflare/init`
+- ✅ **i18n translations** (EN/RU) для integrations раздела
+- ✅ **Page states**: loading, empty, table с provider badges
+- ✅ **Delete action** с confirmation dialog
+- ✅ **Redirect flow**: wizard → integrations page после успешного подключения
+
+**Планируется:**
 
 Вкладки или группы:
 
