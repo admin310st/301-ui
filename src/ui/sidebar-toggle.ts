@@ -74,6 +74,25 @@ export function initSidebarToggle(): void {
       }
     }
   });
+
+  // Track window resize to reset mobile drawer state when crossing breakpoints
+  let lastWidth = window.innerWidth;
+
+  window.addEventListener('resize', () => {
+    const currentWidth = window.innerWidth;
+    const wasMobile = lastWidth < 1024;
+    const isDesktop = currentWidth >= 1024;
+
+    // Crossing from mobile to desktop: close drawer
+    if (wasMobile && isDesktop) {
+      document.body.classList.remove('sidebar-open');
+      if (mobileToggle) {
+        mobileToggle.setAttribute('aria-expanded', 'false');
+      }
+    }
+
+    lastWidth = currentWidth;
+  });
 }
 
 /**
