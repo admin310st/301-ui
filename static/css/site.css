@@ -57,9 +57,7 @@ body {
   fill: currentColor;
   stroke: none;
 }
-.icon[data-icon^="mono/"] {
-  color: currentColor;
-}
+/* Mono icons inherit color automatically via SVG fill="currentColor" */
 
 .sr-only {
   position: absolute;
@@ -189,9 +187,7 @@ body {
   line-height: 1.4;
 }
 
-.app-alert__icon {
-  color: currentColor;
-}
+/* Icons inherit color from parent automatically */
 
 .app-alert__icon svg {
   width: 1.1em;
@@ -651,7 +647,6 @@ h5 .icon[data-icon*="close"] {
 .btn-chip .icon {
   width: 1.25em;
   height: 1.25em;
-  color: currentColor;
 }
 
 .utility-bar .btn-icon .icon {
@@ -1078,7 +1073,6 @@ html[data-theme="light"] .btn--ghost:hover {
   width: 1.25em;
   height: 1.25em;
   flex: 0 0 1.25em;
-  color: currentColor;
 }
 
 .btn-chip__icon,
@@ -1247,9 +1241,7 @@ th {
   color: var(--text);
 }
 
-.table-search .icon {
-  color: currentColor;
-}
+/* Icons inherit color from parent automatically */
 
 .table-search__input {
   flex: 1 1 auto;
@@ -1905,7 +1897,6 @@ html[data-theme="light"] .btn--social-github {
 .dropdown__menu .icon {
   width: 1rem;
   height: 1rem;
-  color: currentColor;
 }
 
 /* Link buttons */
@@ -2154,7 +2145,6 @@ body.sidebar-collapsed .app-shell {
 }
 
 .sidebar .navitem .icon {
-  color: currentColor;
   flex-shrink: 0;
   width: 1.25em;
   height: 1.25em;
