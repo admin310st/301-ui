@@ -19,6 +19,14 @@
           >
             <span class="icon" data-icon="mono/menu-close"></span>
           </button>
+          <button
+            class="btn-icon btn-icon--compact sidebar-close"
+            type="button"
+            aria-label="Close menu"
+            data-sidebar-close
+          >
+            <span class="icon" data-icon="mono/close"></span>
+          </button>
         </div>
 
         <nav class="sidebar__nav">
@@ -94,6 +102,26 @@
           >
             <span class="icon" data-icon="mono/analytics"></span>
             <span class="label" data-i18n="layout.nav.analytics">Analytics</span>
+          </a>
+
+          <div class="sidebar__spacer"></div>
+
+          <a
+            class="navitem{{#if (eq activePage 'settings')}} is-active{{/if}}"
+            href="#settings"
+            data-tooltip="Settings"
+          >
+            <span class="icon" data-icon="mono/cog"></span>
+            <span class="label" data-i18n="layout.nav.settings">Settings</span>
+          </a>
+
+          <a
+            class="navitem{{#if (eq activePage 'account')}} is-active{{/if}}"
+            href="#account"
+            data-tooltip="Account"
+          >
+            <span class="icon" data-icon="mono/user"></span>
+            <span class="label" data-i18n="layout.nav.account">Account</span>
           </a>
         </nav>
       </aside>

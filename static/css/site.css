@@ -2114,6 +2114,11 @@ body.sidebar-collapsed .app-shell {
   flex-wrap: wrap;
 }
 
+/* Mobile close button (hidden on desktop) */
+.sidebar-close {
+  display: none;
+}
+
 /* Навигация */
 .sidebar__nav {
   display: flex;
@@ -2512,6 +2517,12 @@ body.layout-dashboard .burger-button {
   /* Hide desktop toggle button on mobile (drawer doesn't need it) */
   .sidebar [data-sidebar-toggle] {
     display: none;
+  }
+
+  /* Show mobile close button */
+  .sidebar-close {
+    display: flex;
+    margin-left: auto;
   }
 
   /* Open state (mobile drawer) */

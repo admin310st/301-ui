@@ -11,6 +11,7 @@ export function initSidebarToggle(): void {
   const sidebar = document.querySelector('[data-sidebar]');
   const desktopToggle = document.querySelector('[data-sidebar-toggle]');
   const mobileToggle = document.querySelector('[data-mobile-menu-toggle]');
+  const mobileClose = document.querySelector('[data-sidebar-close]');
 
   if (!sidebar) {
     return;
@@ -41,6 +42,16 @@ export function initSidebarToggle(): void {
       const isOpen = document.body.classList.contains('sidebar-open');
       document.body.classList.toggle('sidebar-open');
       mobileToggle.setAttribute('aria-expanded', String(!isOpen));
+    });
+  }
+
+  // Mobile close button
+  if (mobileClose) {
+    mobileClose.addEventListener('click', () => {
+      document.body.classList.remove('sidebar-open');
+      if (mobileToggle) {
+        mobileToggle.setAttribute('aria-expanded', 'false');
+      }
     });
   }
 

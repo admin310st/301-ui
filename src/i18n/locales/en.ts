@@ -23,6 +23,8 @@ export const en = {
       streams: 'Streams',
       redirects: 'Redirects',
       analytics: 'Analytics',
+      settings: 'Settings',
+      account: 'Account',
     },
     headerTabsLabel: 'Authentication actions',
     footer: {

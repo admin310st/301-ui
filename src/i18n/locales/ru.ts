@@ -25,6 +25,8 @@ export const ru: Translation = {
       streams: 'Потоки',
       redirects: 'Редиректы',
       analytics: 'Аналитика',
+      settings: 'Настройки',
+      account: 'Аккаунт',
     },
     headerTabsLabel: 'Тип операции',
     footer: {
