@@ -110,3 +110,65 @@ export interface CommonErrorResponse {
   message?: string;
   code?: string;
 }
+
+// =============================================================================
+// Integrations API Types
+// =============================================================================
+
+export type IntegrationProvider =
+  | 'cloudflare'
+  | 'namecheap'
+  | 'namesilo'
+  | 'hosttracker'
+  | 'google_analytics'
+  | 'yandex_metrica';
+
+export type KeyStatus = 'active' | 'expired' | 'revoked';
+
+export interface IntegrationKey {
+  id: number;
+  account_id: number;
+  provider: IntegrationProvider;
+  key_alias: string;
+  external_account_id: string;
+  status: KeyStatus;
+  expires_at: string | null;
+  last_used: string | null;
+  created_at: string;
+  provider_scope?: {
+    cf_token_id?: string;
+    cf_token_name?: string;
+  };
+}
+
+export interface InitCloudflareRequest {
+  cf_account_id: string;
+  bootstrap_token: string;
+  key_alias?: string;
+}
+
+export interface InitNamecheapRequest {
+  username: string;
+  api_key: string;
+  key_alias?: string;
+}
+
+export interface UpdateKeyRequest {
+  key_alias?: string;
+  status?: KeyStatus;
+}
+
+export interface InitIntegrationResponse {
+  ok: true;
+  key_id: number;
+}
+
+export interface GetKeysResponse {
+  ok: true;
+  keys: IntegrationKey[];
+}
+
+export interface GetKeyResponse {
+  ok: true;
+  key: IntegrationKey;
+}
