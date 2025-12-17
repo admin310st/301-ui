@@ -1,6 +1,5 @@
 import { t } from '@i18n';
 import { setFormState, qs } from '@ui/dom';
-import { getTurnstileRequiredMessage, getTurnstileToken } from '../turnstile';
 import { showGlobalMessage } from '@ui/notifications';
 import { initCloudflare } from '@api/integrations';
 
@@ -13,12 +12,6 @@ async function handleManualSubmit(event: SubmitEvent): Promise<void> {
 
   if (!accountId || !bootstrapToken) {
     setFormState(form, 'error', t('cf.wizard.statusMissing'));
-    return;
-  }
-
-  const tsToken = getTurnstileToken(form);
-  if (!tsToken) {
-    setFormState(form, 'error', getTurnstileRequiredMessage());
     return;
   }
 
