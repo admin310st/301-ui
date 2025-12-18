@@ -15,9 +15,69 @@ const TYPE_CLASSNAME: Record<NoticeType, string> = {
 };
 
 let hideTimer: number | null = null;
+let scrollListenerAttached = false;
 
 function getRoot(): HTMLElement | null {
   return document.getElementById('GlobalNotice');
+}
+
+/**
+ * Check if utility-bar is visible in viewport
+ */
+function isUtilityBarVisible(): boolean {
+  const utilityBar = document.querySelector('.utility-bar');
+  if (!utilityBar) return false;
+
+  const rect = utilityBar.getBoundingClientRect();
+  // Consider visible if at least part of utility-bar is in viewport
+  return rect.top < window.innerHeight && rect.bottom > 0;
+}
+
+/**
+ * Update alert position based on utility-bar visibility
+ * - If utility-bar is visible: overlay it (default position)
+ * - If utility-bar is not visible: slide down from top
+ */
+function updateAlertPosition(root: HTMLElement): void {
+  const isVisible = isUtilityBarVisible();
+
+  if (isVisible) {
+    // utility-bar visible - show alert overlaying it
+    root.removeAttribute('data-position');
+  } else {
+    // utility-bar not visible - slide down from top of viewport
+    root.dataset.position = 'top';
+  }
+}
+
+/**
+ * Global scroll handler to update alert position dynamically
+ */
+function handleScroll(): void {
+  const root = getRoot();
+  if (!root || root.dataset.state !== 'visible') return;
+
+  updateAlertPosition(root);
+}
+
+/**
+ * Attach scroll listener if not already attached
+ */
+function ensureScrollListener(): void {
+  if (scrollListenerAttached) return;
+
+  window.addEventListener('scroll', handleScroll, { passive: true });
+  scrollListenerAttached = true;
+}
+
+/**
+ * Remove scroll listener
+ */
+function removeScrollListener(): void {
+  if (!scrollListenerAttached) return;
+
+  window.removeEventListener('scroll', handleScroll);
+  scrollListenerAttached = false;
 }
 
 function getTextNode(): HTMLElement | null {
@@ -63,8 +123,15 @@ export function showGlobalNotice(
     iconUse.setAttribute('href', ICON_BY_TYPE[type]);
   }
   textNode.textContent = message;
+
+  // Update position based on utility-bar visibility BEFORE showing
+  updateAlertPosition(root);
+
   root.dataset.state = 'visible';
   root.dataset.notice = 'visible';
+
+  // Enable scroll listener to update position dynamically
+  ensureScrollListener();
 
   if (autoHideMs > 0) {
     hideTimer = window.setTimeout(() => {

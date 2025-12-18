@@ -140,9 +140,11 @@ body {
 }
 
 .app-alert {
-  position: sticky;
+  position: fixed;
   top: 60px; /* Default: header-top height, updated dynamically by JS */
-  z-index: var(--z-sticky);
+  left: 0;
+  right: 0;
+  z-index: 25; /* Above utility-bar (z-index: 20) */
   background: var(--panel);
   border-bottom: 1px solid var(--border-subtle);
   transform: translateY(-100%);
@@ -150,8 +152,8 @@ body {
   max-height: 0;
   overflow: hidden;
   pointer-events: none;
-  transition: opacity 150ms ease, transform 150ms ease, max-height var(--transition-md),
-    padding var(--transition-md), margin var(--transition-md), top 0.3s ease;
+  transition: opacity 200ms ease, transform 300ms ease, max-height var(--transition-md),
+    padding var(--transition-md), top 0.3s ease;
 }
 
 .app-alert[data-state='visible'],
@@ -159,8 +161,12 @@ body {
   transform: translateY(0);
   opacity: 1;
   max-height: 260px;
-  margin-bottom: var(--block-gap);
   pointer-events: auto;
+}
+
+/* Slide-down mode when utility-bar is not visible */
+.app-alert[data-position='top'] {
+  top: 0;
 }
 
 .app-alert__inner {
