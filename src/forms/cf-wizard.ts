@@ -1,6 +1,7 @@
 import { t } from '@i18n';
 import { setFormState, qs } from '@ui/dom';
 import { showGlobalMessage } from '@ui/notifications';
+import { setNextPageNotice } from '@ui/globalNotice';
 import { initCloudflare } from '@api/integrations';
 
 async function handleManualSubmit(event: SubmitEvent): Promise<void> {
@@ -24,7 +25,7 @@ async function handleManualSubmit(event: SubmitEvent): Promise<void> {
     });
 
     setFormState(form, 'success', t('cf.wizard.statusSuccess'));
-    showGlobalMessage('success', `Cloudflare integration created! (Key ID: ${keyId})`);
+    setNextPageNotice('success', 'cf.wizard.statusSuccess');
 
     // Redirect to integrations page to view the new integration
     setTimeout(() => {
