@@ -10,10 +10,60 @@
     <link rel="stylesheet" href="/css/layout.css" />
     <link rel="stylesheet" href="/css/site.css" />
     <link rel="stylesheet" href="/css/ui-guide.css" />
+    <script type="module" crossorigin src="/assets/main-DU10Zb16.js"></script>
   </head>
   <body>
     <header class="site-header" role="banner">
-{{> header-top}}
+      <!-- Canonical page shell guidance:
+           - Static content pages: wrap main content with class="page-shell" (often with stack-list) to keep gutters aligned.
+           - App-shell pages: use layout-shell/layout-main wrappers inside a page-shell when needed.
+           - Always include CSS in order: theme.css, layout.css, site.css; ui-guide.css only on the style guide.
+           - Keep header/footer partials inside the page-shell context so spacing stays consistent. -->
+      <div class="page-shell site-header__inner">
+        <a class="brand" href="/" aria-label="301.st">
+          <img src="/img/301-full.svg" alt="301.st" width="80" height="32" />
+        </a>
+
+        <button
+          class="btn-chip burger-button"
+          type="button"
+          aria-label="Open menu"
+          aria-expanded="false"
+          data-mobile-menu-toggle
+        >
+          <span class="icon" data-icon="mono/backburger"></span>
+        </button>
+
+        <nav class="primary-nav" aria-label="Primary">
+          <a href="/integrations" data-i18n="layout.nav.integrations">Integrations</a>
+          <a href="/projects" data-i18n="layout.nav.projects">Projects</a>
+          <a href="/domains" data-i18n="layout.nav.domains">Domains</a>
+          <a href="/redirects" data-i18n="layout.nav.redirects">Redirects</a>
+          <a href="/sites" data-i18n="layout.nav.sites">Sites</a>
+          <a href="/streams" data-i18n="layout.nav.streams">Streams</a>
+          <a href="/analytics" data-i18n="layout.nav.analytics">Analytics</a>
+        </nav>
+
+        <div class="header-actions">
+          <nav class="btn-chip-group lang-switcher" aria-label="Language selection" data-i18n-aria="layout.lang.label">
+            <button
+              type="button"
+              class="btn-chip is-active"
+              data-lang="en"
+              data-i18n="layout.lang.en"
+              aria-pressed="true"
+            >
+              EN
+            </button>
+            <button type="button" class="btn-chip" data-lang="ru" data-i18n="layout.lang.ru" aria-pressed="false">RU</button>
+          </nav>
+
+          <button class="btn-icon btn-icon--compact theme" aria-label="Toggle theme" data-theme-toggle data-i18n-aria="layout.nav.theme">
+            <span class="icon" data-icon="mono/sun"></span>
+          </button>
+        </div>
+      </div>
+
 
       <div class="utility-bar">
         <div class="page-shell utility-bar__inner">
@@ -31,10 +81,59 @@
             </nav>
           </div>
 
-{{> header-utility}}
+          <div class="utility-right">
+            <a class="btn-icon btn-icon--compact" href="/docs" aria-label="Help" data-i18n-aria="layout.nav.help">
+              <span class="icon" data-icon="mono/help-circle"></span>
+            </a>
+
+            <button class="btn-icon btn-icon--compact" type="button" aria-label="Notifications" data-onlogin hidden>
+              <span class="icon" data-icon="mono/bell"></span>
+            </button>
+
+            <button class="btn-chip btn-chip--input" type="button" data-onlogin aria-label="User" hidden>
+              <span class="btn-chip__icon" data-icon="mono/user"></span>
+              <span class="btn-chip__label" data-user-name data-i18n="layout.nav.guest">Guest</span>
+            </button>
+
+            <button class="btn btn--ghost" type="button" data-onlogin data-action="logout" data-i18n="auth.logout" hidden>
+              Log out
+            </button>
+          </div>
+
         </div>
 
-{{> global-notice}}
+<div
+  id="GlobalNotice"
+  class="app-alert app-alert--info"
+  data-state="hidden"
+  data-type="info"
+  role="status"
+  aria-live="polite"
+>
+  <div class="app-alert__inner">
+    <span class="icon app-alert__icon" aria-hidden="true">
+      <svg>
+        <use href="#i-mono-info"></use>
+      </svg>
+    </span>
+    <div class="app-alert__content">
+      <p id="GlobalNoticeText" class="app-alert__text"></p>
+    </div>
+    <button
+      type="button"
+      class="app-alert__close"
+      aria-label="Close notification"
+      data-i18n-aria="notice.close"
+    >
+      <span class="icon" aria-hidden="true">
+        <svg>
+          <use href="#i-mono-close"></use>
+        </svg>
+      </span>
+    </button>
+  </div>
+</div>
+
       </div>
     </header>
 
@@ -315,6 +414,30 @@
             &lt;p class="text-body"&gt;Default body text — uses .text-body for forms and descriptive copy.&lt;/p&gt;<br />
             &lt;p class="text-muted"&gt;Helper text, subtitles and validation messages use .text-muted.&lt;/p&gt;
           </div>
+
+          <div class="stack-sm">
+            <span class="badge badge--neutral">Heading utilities</span>
+            <div class="stack-sm">
+              <h1 class="h1">Heading 1 — Largest</h1>
+              <p class="text-muted">Class: <span class="code-inline">.h1</span> — Font size: <span class="code-inline">var(--fs-2xl)</span> (28px)</p>
+            </div>
+            <div class="stack-sm">
+              <h2 class="h2">Heading 2 — Section titles</h2>
+              <p class="text-muted">Class: <span class="code-inline">.h2</span> — Font size: <span class="code-inline">var(--fs-xl)</span> (22px)</p>
+            </div>
+            <div class="stack-sm">
+              <h3 class="h3">Heading 3 — Subsections</h3>
+              <p class="text-muted">Class: <span class="code-inline">.h3</span> — Font size: <span class="code-inline">var(--fs-lg)</span> (18px)</p>
+            </div>
+            <div class="stack-sm">
+              <h4 class="h4">Heading 4 — Card titles</h4>
+              <p class="text-muted">Class: <span class="code-inline">.h4</span> — Font size: <span class="code-inline">var(--fs-md)</span> (16px)</p>
+            </div>
+            <div class="stack-sm">
+              <h5 class="h5">Heading 5 — Small labels</h5>
+              <p class="text-muted">Class: <span class="code-inline">.h5</span> — Font size: <span class="code-inline">var(--fs-sm)</span> (14px)</p>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -526,7 +649,7 @@
           </p>
 
           <div class="stack-sm">
-            <h4 class="h6">Badge in breadcrumbs</h4>
+            <h4 class="h5">Badge in breadcrumbs</h4>
             <p class="text-muted">Use badges in breadcrumbs to indicate page context or environment. Replaces deprecated <code class="code-inline">.eyebrow</code> pattern.</p>
             <div class="card card--soft card--compact">
               <nav class="breadcrumbs">
@@ -562,7 +685,7 @@
         </header>
 
         <div class="card__body stack-sm">
-          <h4 class="h6">Horizontal Step Flow</h4>
+          <h4 class="h5">Horizontal Step Flow</h4>
           <p class="text-muted">Use for wizards, setup flows, and progress indicators. Shows sequential steps with arrows.</p>
 
           <div class="card card--soft">
@@ -605,7 +728,7 @@
   &lt;/div&gt;
 &lt;/div&gt;</code></pre>
 
-          <h4 class="h6">Vertical Step List</h4>
+          <h4 class="h5">Vertical Step List</h4>
           <p class="text-muted">Use for compact instructions and checklists. More space-efficient for narrow containers.</p>
 
           <div class="card card--soft">
@@ -1645,6 +1768,16 @@
                     <p class="text-body">Keep non-blocking notices lightweight.</p>
                   </div>
                 </div>
+
+                <div class="card card--panel card--compact card--accent card--accent-cf">
+                  <header class="card__header">
+                    <p class="card__meta">Cloudflare</p>
+                    <h3 class="card__title">Connect Cloudflare</h3>
+                  </header>
+                  <div class="card__body">
+                    <p class="text-body">Use for Cloudflare-specific actions and setup flows.</p>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -1757,7 +1890,63 @@
       </section>
     </main>
 
-{{> footer}}
+    <footer class="site-footer">
+      <div class="page-shell footer-grid" data-onlogout>
+        <div class="footer-brand">
+          <div class="brand" aria-label="Бренд 301.st">
+            <svg class="brand__logo" aria-hidden="true">
+              <use href="#i-brand-301"></use>
+            </svg>
+            <span class="brand__text">301.st</span>
+          </div>
+          <p class="muted" data-i18n="layout.footer.description">Redirects and analytics.</p>
+        </div>
+        <nav class="footer-nav" aria-label="Footer navigation">
+          <a href="/integrations" class="btn-chip">
+            <span class="icon" data-icon="mono/puzzle-outline"></span>
+            <span class="btn-chip__label" data-i18n="layout.nav.integrations">Integrations</span>
+          </a>
+          <a href="/projects" class="btn-chip">
+            <span class="icon" data-icon="mono/project"></span>
+            <span class="btn-chip__label" data-i18n="layout.nav.projects">Projects</span>
+          </a>
+          <a href="/domains" class="btn-chip">
+            <span class="icon" data-icon="mono/dns"></span>
+            <span class="btn-chip__label" data-i18n="layout.nav.domains">Domains</span>
+          </a>
+          <a href="/redirects" class="btn-chip">
+            <span class="icon" data-icon="mono/directions"></span>
+            <span class="btn-chip__label" data-i18n="layout.nav.redirects">Redirects</span>
+          </a>
+          <a href="/sites" class="btn-chip">
+            <span class="icon" data-icon="mono/web-sync"></span>
+            <span class="btn-chip__label" data-i18n="layout.nav.sites">Sites</span>
+          </a>
+          <a href="/streams" class="btn-chip">
+            <span class="icon" data-icon="mono/directions-fork"></span>
+            <span class="btn-chip__label" data-i18n="layout.nav.streams">Streams</span>
+          </a>
+          <a href="/analytics" class="btn-chip">
+            <span class="icon" data-icon="mono/analytics"></span>
+            <span class="btn-chip__label" data-i18n="layout.nav.analytics">Analytics</span>
+          </a>
+        </nav>
+      </div>
+      <div class="page-shell footer-legal">
+        <span data-i18n="layout.footer.copyright">© 301.st</span>
+        <span class="separator" aria-hidden="true">•</span>
+        <a href="/about" data-i18n="layout.footer.about">About</a>
+        <span class="separator" aria-hidden="true">•</span>
+        <a href="/docs" data-i18n="layout.footer.docs">Docs</a>
+        <span class="separator" aria-hidden="true">•</span>
+        <a href="/privacy" data-i18n="layout.footer.privacy">Privacy</a>
+        <span class="separator" aria-hidden="true">•</span>
+        <a href="/terms" data-i18n="layout.footer.terms">Terms</a>
+        <span class="separator" aria-hidden="true">•</span>
+        <a href="/security" data-i18n="layout.footer.security">Security</a>
+      </div>
+    </footer>
+
 
     <script>
       const root = document.documentElement;
@@ -1932,6 +2121,5 @@
       });
     </script>
 
-    <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
