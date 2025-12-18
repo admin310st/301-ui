@@ -216,6 +216,24 @@ src/
 - Icons use `currentColor` for automatic theme compatibility
 - Injected as SVG sprite on page load via `injectIconSprite()` in `main.ts`
 
+**6. Dashboard Layout**
+- **Desktop (≥1024px)**: Two-column CSS Grid with sticky sidebar
+  - `.dashboard-shell` creates grid: `grid-template-columns: var(--sidebar-width) 1fr`
+  - `.sidebar` sticky positioned at `top: var(--header-height)`, spans full viewport height
+  - `.dashboard-content` contains page content (tables, cards, forms)
+  - Collapsible sidebar: `body.sidebar-collapsed` reduces width from 280px to 64px
+- **Mobile (≤1023px)**: Single column with overlay drawer
+  - Sidebar becomes `position: fixed` drawer, hidden by default (`transform: translateX(-100%)`)
+  - Burger button (`.burger-button`) triggers `body.sidebar-open` class
+  - Dark overlay backdrop (`body.sidebar-open::before`) blocks interaction with content
+  - `.dashboard-content` gets `padding-inline: var(--space-3)` (12px) to prevent edge sticking
+- **Key variables**:
+  - `--sidebar-width: 280px` (desktop default)
+  - `--sidebar-width-collapsed: 64px` (collapsed state)
+  - `--dashboard-gap: 1.5rem` (space between sidebar and content)
+- **Sidebar partial**: `{{> sidebar}}` in `partials/sidebar.hbs` - global component used across all dashboard pages
+- **Important**: `.page-shell.dashboard-shell` removes default page padding on desktop (grid handles spacing), but mobile requires explicit padding on `.dashboard-content`
+
 ## UI Style Guide - Critical Rules
 
 **The UI Style Guide (`docs/StyleGuide.md` and `/ui-style-guide` page) is the single source of truth for all design decisions.**

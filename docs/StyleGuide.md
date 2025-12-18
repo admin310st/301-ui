@@ -434,58 +434,119 @@ Table Search Bar и дефолтные фильтры располагаются
 
 ### 2.5. Dashboard Shell
 
-```css
-.layout-shell {
-  min-height: 100vh;
-  background: var(--bg);
-}
+Dashboard layout uses a responsive grid system with collapsible sidebar navigation.
 
-@media (min-width: 1024px) {
-  .layout-shell {
-    display: grid;
-    grid-template-columns: 260px minmax(0, 1fr);
-  }
-
-  .layout-sidebar {
-    background: var(--sidebar-bg);
-    border-right: 1px solid var(--border-subtle);
-    padding: var(--space-5) var(--space-4);
-  }
-
-  .layout-main {
-    max-width: 1200px;
-    margin-inline: auto;
-    padding-inline: var(--page-gutter-desktop);
-    padding-block: var(--space-6);
-  }
-}
-
-@media (max-width: 1023px) {
-  .layout-shell {
-    display: block;
-  }
-
-  .layout-sidebar {
-    display: none;
-  }
-
-  .layout-main {
-    padding-inline: var(--page-gutter-mobile);
-    padding-block: var(--space-4);
-  }
-}
-```
+**Desktop (≥1024px):** Two-column grid with sticky sidebar
+**Mobile (≤1023px):** Single column with drawer overlay sidebar
 
 ```html
-<div class="layout-shell">
-  <aside class="layout-sidebar">…</aside>
-  <main class="layout-main">
+<main class="page-shell dashboard-shell">
+  {{> sidebar}}
+  <section class="dashboard-content">
     <header class="page-header">…</header>
-    <section class="controls-row">…</section>
-    <section class="stack-list">…</section>
-  </main>
-</div>
+    <!-- Page content -->
+  </section>
+</main>
 ```
+
+#### Desktop Layout
+
+```css
+.dashboard-shell {
+  display: grid;
+  grid-template-columns: var(--sidebar-width) 1fr;  /* 280px default */
+  grid-template-areas: "sidebar content";
+  gap: var(--dashboard-gap);  /* 1.5rem default */
+  min-height: calc(100dvh - var(--header-height) - var(--footer-height));
+}
+
+.sidebar {
+  grid-area: sidebar;
+  position: sticky;
+  top: var(--header-height);
+  height: calc(100dvh - var(--header-height));
+  background: var(--panel);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.dashboard-content {
+  grid-area: content;
+  min-width: 0;  /* Prevent grid blowout */
+  width: 100%;
+}
+
+/* Collapsed state */
+body.sidebar-collapsed .dashboard-shell {
+  grid-template-columns: var(--sidebar-width-collapsed) 1fr;  /* 64px */
+}
+```
+
+#### Mobile Layout
+
+On mobile (≤1023px), sidebar becomes an overlay drawer:
+
+```css
+@media (max-width: 1023px) {
+  .dashboard-shell {
+    grid-template-columns: 1fr;
+    grid-template-areas: "content";
+    gap: 0;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100dvh;
+    width: var(--sidebar-width);
+    z-index: var(--z-sidebar);
+    transform: translateX(-100%);  /* Hidden by default */
+    transition: transform 300ms ease-in-out;
+  }
+
+  /* Open state triggered by burger button */
+  body.sidebar-open .sidebar {
+    transform: translateX(0);
+  }
+
+  /* Dark overlay when sidebar is open */
+  body.sidebar-open::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: var(--z-sidebar-overlay);
+  }
+
+  /* Add horizontal padding to content on mobile */
+  .dashboard-content {
+    padding-inline: var(--space-3);  /* 12px */
+  }
+}
+```
+
+**Key CSS Variables:**
+
+- `--sidebar-width: 280px` (default desktop)
+- `--sidebar-width-collapsed: 64px` (collapsed state)
+- `--dashboard-gap: 1.5rem` (space between sidebar and content)
+- `--z-sidebar: 1000` (sidebar z-index)
+- `--z-sidebar-overlay: 999` (backdrop overlay)
+
+**Responsive Breakpoints:**
+
+- **1280px+**: Full layout, `--sidebar-width: 280px`
+- **1024-1279px**: Compact, `--sidebar-width: 240px`, `--dashboard-gap: 1rem`
+- **≤1023px**: Mobile drawer mode
+
+#### Notes
+
+- `.page-shell.dashboard-shell` removes default page padding (grid handles spacing)
+- `.dashboard-content` has no padding on desktop (content manages its own spacing)
+- On mobile, `.dashboard-content` gets `padding-inline: var(--space-3)` to prevent edge sticking
+- Sidebar partial: `{{> sidebar}}` (defined in `partials/sidebar.hbs`)
+- Burger menu button (`.burger-button`) only visible on dashboard pages at mobile breakpoint
 
 ### 2.6. Breakpoints
 
