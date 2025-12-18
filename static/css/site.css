@@ -141,7 +141,7 @@ body {
 
 .app-alert {
   position: fixed;
-  top: 60px; /* Default: header-top height, updated dynamically by JS */
+  top: 160px; /* Default fallback, updated dynamically by JS to match utility-bar position */
   left: 0;
   right: 0;
   z-index: 25; /* Above utility-bar (z-index: 20) */
@@ -153,7 +153,7 @@ body {
   overflow: hidden;
   pointer-events: none;
   transition: opacity 200ms ease, transform 300ms ease, max-height var(--transition-md),
-    padding var(--transition-md), top 0.3s ease;
+    padding var(--transition-md), top 0.2s ease;
 }
 
 .app-alert[data-state='visible'],
