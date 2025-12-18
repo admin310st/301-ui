@@ -2518,9 +2518,6 @@ body.layout-dashboard .burger-button {
   /* Show mobile close button */
   .sidebar-close {
     display: flex;
-    margin-left: auto;
-    position: relative;
-    z-index: 10;
   }
 
   /* Open state (mobile drawer) */
