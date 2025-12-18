@@ -43,8 +43,8 @@
       <section class="dashboard-content">
         <header class="page-header">
           <div class="stack-sm">
-            <h1 class="h3">Добро пожаловать в 301.st</h1>
-            <p class="text-lead">Настройка не займет много времени. Для начала добавьте интеграции.</p>
+            <h1 class="h3">Welcome to Traffic Control Plane</h1>
+            <p class="text-lead">Setup takes just a few minutes. Start by connecting your integrations.</p>
           </div>
         </header>
 
@@ -54,17 +54,17 @@
             <div class="step-flow">
               <div class="step-pill">
                 <span class="step-number step-number--cf">1</span>
-                <span class="step-text">Cloudflare аккаунт</span>
+                <span class="step-text">Connect Cloudflare</span>
               </div>
               <span class="step-separator">→</span>
               <div class="step-pill">
                 <span class="step-number">2</span>
-                <span class="step-text">Добавить домены</span>
+                <span class="step-text">Add domains</span>
               </div>
               <span class="step-separator">→</span>
               <div class="step-pill">
                 <span class="step-number">3</span>
-                <span class="step-text">Управление трафиком</span>
+                <span class="step-text">Control traffic</span>
               </div>
             </div>
           </div>
@@ -75,16 +75,16 @@
               <div class="cluster">
                 <h2 class="h4">
                   <span class="badge badge--cf" style="margin-right: var(--space-2);">1</span>
-                  Подключите Cloudflare аккаунт
+                  Connect your Cloudflare account
                 </h2>
               </div>
-              <p class="text-muted">Первый шаг — привязать ваш аккаунт Cloudflare к 301.st.</p>
+              <p class="text-muted">Link your Cloudflare account to enable zone sync and traffic management.</p>
             </header>
 
             <div class="card__body stack" style="gap: var(--space-3);">
               <p class="text-body">
-                Мы создадим API-токен с ограниченными правами для синхронизации зон и применения базовых пресетов.
-                Вы сохраняете полный контроль — токен имеет доступ только к необходимым функциям.
+                We'll create a scoped API token with limited permissions for syncing zones and applying security presets.
+                You maintain full control — the token only accesses necessary functions.
               </p>
 
               <div class="panel panel--success">
@@ -92,16 +92,16 @@
                   <span class="btn-icon btn-icon--compact btn--success">
                     <span class="icon" data-icon="mono/check-circle"></span>
                   </span>
-                  Scoped-токены ограничивают доступ 301.st к вашему аккаунту. Мы никогда не увидим ваш пароль или Global API Key.
+                  Scoped tokens limit what 301.st can access. We'll never see your password or Global API Key.
                 </p>
               </div>
 
               <div class="cluster">
                 <a class="btn btn--cf" href="/wizard.html">
                   <span class="icon" data-icon="brand/cloudflare"></span>
-                  Подключить аккаунт
+                  Connect account
                 </a>
-                <span class="text-muted text-sm">Займет 1-2 минуты</span>
+                <span class="text-muted text-sm">Takes 1-2 minutes</span>
               </div>
             </div>
           </article>
@@ -112,15 +112,15 @@
               <div class="cluster">
                 <h2 class="h4">
                   <span class="badge badge--neutral" style="margin-right: var(--space-2);">2</span>
-                  Добавьте домены
+                  Add your domains
                 </h2>
               </div>
-              <p class="text-muted">Загрузите домены оптом или импортируйте их от провайдера.</p>
+              <p class="text-muted">Import domains in bulk or sync from your registrar.</p>
             </header>
 
             <div class="card__body stack" style="gap: var(--space-3);">
               <p class="text-body">
-                После подключения аккаунта вы сможете добавить домены в панель. Мы предоставим два способа:
+                Once your account is connected, add domains to the control panel. We provide two methods:
               </p>
 
               <div class="stack" style="gap: var(--space-2);">
@@ -130,8 +130,8 @@
                       <span class="icon" data-icon="mono/plus"></span>
                     </span>
                     <div class="stack" style="gap: var(--space-1);">
-                      <p class="text-sm"><strong>Загрузка списком</strong></p>
-                      <p class="text-sm text-muted">Вставьте или импортируйте список доменов (TXT, CSV)</p>
+                      <p class="text-sm"><strong>Bulk upload</strong></p>
+                      <p class="text-sm text-muted">Paste or import a list of domains (TXT, CSV)</p>
                     </div>
                   </div>
                 </div>
@@ -142,8 +142,8 @@
                       <span class="icon" data-icon="mono/web-sync"></span>
                     </span>
                     <div class="stack" style="gap: var(--space-1);">
-                      <p class="text-sm"><strong>Импорт от провайдера</strong></p>
-                      <p class="text-sm text-muted">Автоматическая синхронизация с GoDaddy, Namecheap, Cloudflare Registrar и другими</p>
+                      <p class="text-sm"><strong>Import from registrar</strong></p>
+                      <p class="text-sm text-muted">Auto-sync with GoDaddy, Namecheap, Cloudflare Registrar and others</p>
                     </div>
                   </div>
                 </div>
@@ -152,40 +152,42 @@
               <div class="panel panel--info">
                 <p class="text-sm">
                   <span class="icon" data-icon="mono/info"></span>
-                  Этот раздел станет доступен после подключения Cloudflare аккаунта.
+                  This section becomes available after connecting your Cloudflare account.
                 </p>
               </div>
             </div>
           </article>
 
-          <!-- Step 3: Manage Traffic -->
+          <!-- Step 3: Control Traffic -->
           <article class="card card--panel">
             <header class="card__header">
               <div class="cluster">
                 <h2 class="h4">
                   <span class="badge badge--neutral" style="margin-right: var(--space-2);">3</span>
-                  Управляйте трафиком
+                  Control your traffic
                 </h2>
               </div>
-              <p class="text-muted">Когда домены активируются на Cloudflare — система готова к работе.</p>
+              <p class="text-muted">Once domains are active on Cloudflare, start managing traffic flows.</p>
             </header>
 
             <div class="card__body stack" style="gap: var(--space-3);">
               <p class="text-body">
-                После активации доменов на Cloudflare вы получите доступ ко всем возможностям 301.st:
+                After domain activation, unlock the full traffic control capabilities:
               </p>
 
               <ul class="list--ruled">
-                <li>Настройка редиректов и правил маршрутизации</li>
-                <li>Создание лендингов и whitelist-страниц</li>
-                <li>Управление TDS (Traffic Distribution System)</li>
-                <li>Мониторинг статистики и аналитики</li>
+                <li>Configure redirects and routing rules</li>
+                <li>Set up Cloudflare security presets (WAF, Cache, DDoS)</li>
+                <li>Route traffic by GEO, device, or custom filters</li>
+                <li>Implement cloaking for moderators and bots</li>
+                <li>Manage TDS (Traffic Distribution System)</li>
+                <li>Monitor analytics and traffic statistics</li>
               </ul>
 
               <div class="panel panel--info">
                 <p class="text-sm">
                   <span class="icon" data-icon="mono/info"></span>
-                  Функции управления трафиком станут доступны после добавления и активации доменов.
+                  Traffic control features become available after adding and activating domains.
                 </p>
               </div>
             </div>
