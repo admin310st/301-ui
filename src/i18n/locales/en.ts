@@ -240,8 +240,8 @@ export const en = {
     step1: {
       title: 'Connect your Cloudflare account',
       subtitle: 'Link your Cloudflare account to enable zone sync and traffic management.',
-      description: 'We'll create a scoped API token with limited permissions for syncing zones and applying security presets. You maintain full control — the token only accesses necessary functions.',
-      securityNote: 'Scoped tokens limit what 301.st can access. We'll never see your password or Global API Key.',
+      description: 'We\'ll create a scoped API token with limited permissions for syncing zones and applying security presets. You maintain full control — the token only accesses necessary functions.',
+      securityNote: 'Scoped tokens limit what 301.st can access. We\'ll never see your password or Global API Key.',
       button: 'Connect account',
       timeEstimate: 'Takes 1-2 minutes',
     },
