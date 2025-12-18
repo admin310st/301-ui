@@ -1220,6 +1220,27 @@ html[data-theme="light"] .btn--ghost:hover {
   }
 }
 
+/* Mobile: search first, then filters/actions wrap below */
+@media (max-width: 640px) {
+  .table-controls .table-search {
+    flex: 1 1 100%;     /* Full width on small screens */
+    min-width: 0;       /* Allow shrinking if needed */
+    order: -1;          /* Search always first */
+  }
+
+  .table-controls .btn-chip--dropdown {
+    order: 0;           /* Filters second */
+  }
+
+  .table-controls .btn-chip--cf {
+    order: 1;           /* Provider actions third */
+  }
+
+  .table-controls .btn--primary {
+    order: 2;           /* Primary action last */
+  }
+}
+
 /* Sortable table headers */
 .th-sort {
   display: inline-flex;
@@ -2067,12 +2088,6 @@ html[data-theme="light"] .btn--social-github {
 
 .table__cell-actions {
   text-align: right;
-}
-
-.table-controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--inline-gap);
 }
 
 /* ============================================

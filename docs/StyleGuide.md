@@ -947,6 +947,16 @@ Dropdown menus use `--shadow-md` elevation:
 * Status/expiry stays in one column, SSL mode and Zone ID surface through the dropdown actions only.
 * Toolbar demo pairs search with a single status dropdown filter, a Cloudflare action chip and a primary button in the same controls row.
 
+**Mobile behavior (≤640px):**
+- Search bar takes full width (100%) and appears first (`order: -1`)
+- Filters, provider chips, and primary button wrap below search in priority order:
+  1. Search (full width, first)
+  2. Dropdown filters (e.g., Status: Active)
+  3. Provider action chips (e.g., Cloudflare)
+  4. Primary button (e.g., + Add domain)
+- All controls maintain unified height from control recipe
+- Gap remains consistent (`--inline-gap`) for touch targets
+
 Example toolbar + table markup:
 
 ```html
