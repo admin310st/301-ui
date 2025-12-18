@@ -43,8 +43,8 @@
       <section class="dashboard-content">
         <header class="page-header">
           <div class="stack-sm">
-            <h1 class="h3">Welcome to Traffic Control Plane</h1>
-            <p class="text-lead">Setup takes just a few minutes. Start by connecting your integrations.</p>
+            <h1 class="h3" data-i18n="dashboard.welcome.title">Welcome to Traffic Control Plane</h1>
+            <p class="text-lead" data-i18n="dashboard.welcome.subtitle">Setup takes just a few minutes. Start by connecting your integrations.</p>
           </div>
         </header>
 
@@ -54,17 +54,17 @@
             <div class="step-flow">
               <div class="step-pill">
                 <span class="step-number step-number--cf">1</span>
-                <span class="step-text">Connect Cloudflare</span>
+                <span class="step-text" data-i18n="dashboard.steps.connectCf">Connect Cloudflare</span>
               </div>
               <span class="step-separator">→</span>
               <div class="step-pill">
                 <span class="step-number">2</span>
-                <span class="step-text">Add domains</span>
+                <span class="step-text" data-i18n="dashboard.steps.addDomains">Add domains</span>
               </div>
               <span class="step-separator">→</span>
               <div class="step-pill">
                 <span class="step-number">3</span>
-                <span class="step-text">Control traffic</span>
+                <span class="step-text" data-i18n="dashboard.steps.controlTraffic">Control traffic</span>
               </div>
             </div>
           </div>
@@ -75,14 +75,14 @@
               <div class="cluster">
                 <h2 class="h4">
                   <span class="badge badge--cf" style="margin-right: var(--space-2);">1</span>
-                  Connect your Cloudflare account
+                  <span data-i18n="dashboard.step1.title">Connect your Cloudflare account</span>
                 </h2>
               </div>
-              <p class="text-muted">Link your Cloudflare account to enable zone sync and traffic management.</p>
+              <p class="text-muted" data-i18n="dashboard.step1.subtitle">Link your Cloudflare account to enable zone sync and traffic management.</p>
             </header>
 
             <div class="card__body stack" style="gap: var(--space-3);">
-              <p class="text-body">
+              <p class="text-body" data-i18n="dashboard.step1.description">
                 We'll create a scoped API token with limited permissions for syncing zones and applying security presets.
                 You maintain full control — the token only accesses necessary functions.
               </p>
@@ -92,16 +92,16 @@
                   <span class="btn-icon btn-icon--compact btn--success">
                     <span class="icon" data-icon="mono/check-circle"></span>
                   </span>
-                  Scoped tokens limit what 301.st can access. We'll never see your password or Global API Key.
+                  <span data-i18n="dashboard.step1.securityNote">Scoped tokens limit what 301.st can access. We'll never see your password or Global API Key.</span>
                 </p>
               </div>
 
               <div class="cluster">
                 <a class="btn btn--cf" href="/wizard.html">
                   <span class="icon" data-icon="brand/cloudflare"></span>
-                  Connect account
+                  <span data-i18n="dashboard.step1.button">Connect account</span>
                 </a>
-                <span class="text-muted text-sm">Takes 1-2 minutes</span>
+                <span class="text-muted text-sm" data-i18n="dashboard.step1.timeEstimate">Takes 1-2 minutes</span>
               </div>
             </div>
           </article>
@@ -112,14 +112,14 @@
               <div class="cluster">
                 <h2 class="h4">
                   <span class="badge badge--neutral" style="margin-right: var(--space-2);">2</span>
-                  Add your domains
+                  <span data-i18n="dashboard.step2.title">Add your domains</span>
                 </h2>
               </div>
-              <p class="text-muted">Import domains in bulk or sync from your registrar.</p>
+              <p class="text-muted" data-i18n="dashboard.step2.subtitle">Import domains in bulk or sync from your registrar.</p>
             </header>
 
             <div class="card__body stack" style="gap: var(--space-3);">
-              <p class="text-body">
+              <p class="text-body" data-i18n="dashboard.step2.description">
                 Once your account is connected, add domains to the control panel. We provide two methods:
               </p>
 
@@ -130,8 +130,8 @@
                       <span class="icon" data-icon="mono/plus"></span>
                     </span>
                     <div class="stack" style="gap: var(--space-1);">
-                      <p class="text-sm"><strong>Bulk upload</strong></p>
-                      <p class="text-sm text-muted">Paste or import a list of domains (TXT, CSV)</p>
+                      <p class="text-sm"><strong data-i18n="dashboard.step2.bulkTitle">Bulk upload</strong></p>
+                      <p class="text-sm text-muted" data-i18n="dashboard.step2.bulkDescription">Paste or import a list of domains (TXT, CSV)</p>
                     </div>
                   </div>
                 </div>
@@ -142,8 +142,8 @@
                       <span class="icon" data-icon="mono/web-sync"></span>
                     </span>
                     <div class="stack" style="gap: var(--space-1);">
-                      <p class="text-sm"><strong>Import from registrar</strong></p>
-                      <p class="text-sm text-muted">Auto-sync with GoDaddy, Namecheap, Cloudflare Registrar and others</p>
+                      <p class="text-sm"><strong data-i18n="dashboard.step2.registrarTitle">Import from registrar</strong></p>
+                      <p class="text-sm text-muted" data-i18n="dashboard.step2.registrarDescription">Auto-sync with GoDaddy, Namecheap, Cloudflare Registrar and others</p>
                     </div>
                   </div>
                 </div>
@@ -152,7 +152,7 @@
               <div class="panel panel--info">
                 <p class="text-sm">
                   <span class="icon" data-icon="mono/info"></span>
-                  This section becomes available after connecting your Cloudflare account.
+                  <span data-i18n="dashboard.step2.notice">This section becomes available after connecting your Cloudflare account.</span>
                 </p>
               </div>
             </div>
@@ -164,30 +164,30 @@
               <div class="cluster">
                 <h2 class="h4">
                   <span class="badge badge--neutral" style="margin-right: var(--space-2);">3</span>
-                  Control your traffic
+                  <span data-i18n="dashboard.step3.title">Control your traffic</span>
                 </h2>
               </div>
-              <p class="text-muted">Once domains are active on Cloudflare, start managing traffic flows.</p>
+              <p class="text-muted" data-i18n="dashboard.step3.subtitle">Once domains are active on Cloudflare, start managing traffic flows.</p>
             </header>
 
             <div class="card__body stack" style="gap: var(--space-3);">
-              <p class="text-body">
+              <p class="text-body" data-i18n="dashboard.step3.description">
                 After domain activation, unlock the full traffic control capabilities:
               </p>
 
               <ul class="list--ruled">
-                <li>Configure redirects and routing rules</li>
-                <li>Set up Cloudflare security presets (WAF, Cache, DDoS)</li>
-                <li>Route traffic by GEO, device, or custom filters</li>
-                <li>Implement cloaking for moderators and bots</li>
-                <li>Manage TDS (Traffic Distribution System)</li>
-                <li>Monitor analytics and traffic statistics</li>
+                <li data-i18n="dashboard.step3.features.redirects">Configure redirects and routing rules</li>
+                <li data-i18n="dashboard.step3.features.security">Set up Cloudflare security presets (WAF, Cache, DDoS)</li>
+                <li data-i18n="dashboard.step3.features.routing">Route traffic by GEO, device, or custom filters</li>
+                <li data-i18n="dashboard.step3.features.cloaking">Implement cloaking for moderators and bots</li>
+                <li data-i18n="dashboard.step3.features.tds">Manage TDS (Traffic Distribution System)</li>
+                <li data-i18n="dashboard.step3.features.analytics">Monitor analytics and traffic statistics</li>
               </ul>
 
               <div class="panel panel--info">
                 <p class="text-sm">
                   <span class="icon" data-icon="mono/info"></span>
-                  Traffic control features become available after adding and activating domains.
+                  <span data-i18n="dashboard.step3.notice">Traffic control features become available after adding and activating domains.</span>
                 </p>
               </div>
             </div>
