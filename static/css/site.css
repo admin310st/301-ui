@@ -1435,8 +1435,8 @@ input[type="search"]::-webkit-search-cancel-button {
   padding-block: var(--control-pad-y);
   padding-inline: var(--control-pad-x);
   min-height: var(--control-min-height);
-  border: var(--border-1) solid var(--border-strong);
-  background: var(--panel);
+  border: var(--border-1) solid var(--input-border);
+  background: var(--input-bg);
   color: var(--text);
   -webkit-appearance: none;
   appearance: none;
@@ -1478,8 +1478,8 @@ input[type="search"]::-webkit-search-cancel-button {
   line-height: var(--lh-control);
   padding-block: var(--control-pad-y);
   padding-inline: var(--control-pad-x);
-  border: var(--border-1) solid var(--border-strong);
-  background: var(--panel);
+  border: var(--border-1) solid var(--input-border);
+  background: var(--input-bg);
   color: var(--text);
   -webkit-appearance: none;
   appearance: none;
