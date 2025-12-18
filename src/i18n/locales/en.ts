@@ -26,6 +26,12 @@ export const en = {
       settings: 'Settings',
       account: 'Account',
     },
+    sidebar: {
+      searchPlaceholder: 'Search menu...',
+      searchLabel: 'Search menu',
+      closeMenu: 'Close menu',
+      toggleSidebar: 'Toggle sidebar',
+    },
     headerTabsLabel: 'Authentication actions',
     footer: {
       description: 'The Traffic Control Plane',

@@ -28,6 +28,12 @@ export const ru: Translation = {
       settings: 'Настройки',
       account: 'Аккаунт',
     },
+    sidebar: {
+      searchPlaceholder: 'Поиск в меню...',
+      searchLabel: 'Поиск в меню',
+      closeMenu: 'Закрыть меню',
+      toggleSidebar: 'Переключить боковую панель',
+    },
     headerTabsLabel: 'Тип операции',
     footer: {
       description: 'Система управления трафиком',
