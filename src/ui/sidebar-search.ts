@@ -19,8 +19,12 @@ export function initSidebarSearch(): void {
       const label = item.querySelector('.label');
       if (!label) return;
 
-      const text = label.textContent?.toLowerCase() || '';
-      const matches = text.includes(query);
+      // Get all searchable text: current translation + English fallback
+      const currentText = label.textContent?.toLowerCase() || '';
+      const englishLabel = item.dataset.labelEn?.toLowerCase() || '';
+
+      // Match if query is found in either current translation or English label
+      const matches = currentText.includes(query) || englishLabel.includes(query);
 
       // Show/hide based on match
       if (query === '' || matches) {
