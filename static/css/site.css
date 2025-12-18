@@ -2582,6 +2582,11 @@ body.layout-dashboard .burger-button {
   body.sidebar-open {
     overflow: hidden;
   }
+
+  /* Add horizontal padding to dashboard content on mobile */
+  .dashboard-content {
+    padding-inline: var(--space-3);
+  }
 }
 
 /* Desktop: Full layout */
