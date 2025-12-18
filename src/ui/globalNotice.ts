@@ -32,13 +32,16 @@ function calculateUtilityBarPosition(): number {
     const header = document.querySelector<HTMLElement>('.site-header');
     if (header) {
       const headerRect = header.getBoundingClientRect();
+      console.log('[Alert] No utility-bar, using header.bottom:', headerRect.bottom);
       return Math.max(0, headerRect.bottom);
     }
+    console.log('[Alert] No header found, using fallback 160px');
     return 160; // Approximate fallback
   }
 
   // Get position in viewport (for position:fixed)
   const rect = utilityBar.getBoundingClientRect();
+  console.log('[Alert] utility-bar rect:', { top: rect.top, bottom: rect.bottom, height: rect.height });
   return Math.max(0, rect.top);
 }
 
@@ -61,6 +64,7 @@ function isUtilityBarVisible(): boolean {
  */
 function updateAlertTop(root: HTMLElement): void {
   const utilityBarTop = calculateUtilityBarPosition();
+  console.log('[Alert] Setting top to:', utilityBarTop);
   root.style.top = `${utilityBarTop}px`;
 }
 
@@ -71,6 +75,7 @@ function updateAlertTop(root: HTMLElement): void {
  */
 function updateAlertPosition(root: HTMLElement): void {
   const isVisible = isUtilityBarVisible();
+  console.log('[Alert] updateAlertPosition - utility-bar visible:', isVisible);
 
   if (isVisible) {
     // utility-bar visible - show alert overlaying it
@@ -78,6 +83,7 @@ function updateAlertPosition(root: HTMLElement): void {
     root.removeAttribute('data-position');
   } else {
     // utility-bar not visible - slide down from top of viewport
+    console.log('[Alert] Setting top to 0 (slide from top)');
     root.style.top = '0';
     root.dataset.position = 'top';
   }
