@@ -288,7 +288,6 @@ export const ru: Translation = {
     loading: 'Загрузка интеграций...',
     connectCloudflare: 'Подключить Cloudflare',
     empty: {
-      actionRequired: 'Действие рекомендовано',
       title: 'Нет интеграций',
       description: 'Подключите первый аккаунт Cloudflare или регистратора доменов для начала работы.',
       cta: 'Подключить интеграцию',

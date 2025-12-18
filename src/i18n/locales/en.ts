@@ -282,7 +282,6 @@ export const en = {
     loading: 'Loading integrations...',
     connectCloudflare: 'Connect Cloudflare',
     empty: {
-      actionRequired: 'Action recommended',
       title: 'No integrations yet',
       description: 'Connect your first Cloudflare account or domain registrar to get started.',
       cta: 'Connect integration',
