@@ -389,6 +389,10 @@ body {
   --accent: var(--info);
 }
 
+.card--accent-cf {
+  --accent: var(--accent-cf);
+}
+
 .card--interactive {
   transition: border-color var(--transition-md), box-shadow var(--transition-md), background-color var(--transition-md);
 }

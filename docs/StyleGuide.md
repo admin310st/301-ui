@@ -807,7 +807,7 @@ Unified recipe for all cards/panels: tokenized paddings, backgrounds and accent 
 **Modifiers**
 
 - `card--compact` — reduced vertical/horizontal padding for dense layouts.
-- `card--accent` — left stripe colored via `--accent` (defaults to brand); add semantic hues with `card--accent-success`, `card--accent-warning`, `card--accent-danger`, `card--accent-info`.
+- `card--accent` — left stripe colored via `--accent` (defaults to brand); add semantic hues with `card--accent-success`, `card--accent-warning`, `card--accent-danger`, `card--accent-info`, `card--accent-cf`.
 - `card--interactive` — hover/focus feedback for clickable tiles; keep focus ring visible.
 
 **Anatomy**
