@@ -140,33 +140,29 @@ body {
 }
 
 .app-alert {
-  position: fixed;
-  top: 160px; /* Default fallback, updated dynamically by JS to match utility-bar position */
+  position: absolute; /* Positioned within .utility-bar */
+  top: 0;
   left: 0;
   right: 0;
-  z-index: 25; /* Above utility-bar (z-index: 20) */
+  bottom: 0;
+  z-index: 10; /* Above breadcrumbs and buttons */
   background: var(--panel);
   border-bottom: 1px solid var(--border-subtle);
   transform: translateY(-100%);
   opacity: 0;
-  max-height: 0;
   overflow: hidden;
   pointer-events: none;
-  transition: opacity 200ms ease, transform 300ms ease, max-height var(--transition-md),
-    padding var(--transition-md), top 0.2s ease;
+  transition: opacity 200ms ease, transform 300ms ease;
+  /* Match utility-bar inner padding for visual consistency */
+  display: flex;
+  align-items: center;
 }
 
 .app-alert[data-state='visible'],
 .app-alert[data-notice='visible'] {
   transform: translateY(0);
   opacity: 1;
-  max-height: 260px;
   pointer-events: auto;
-}
-
-/* Slide-down mode when utility-bar is not visible */
-.app-alert[data-position='top'] {
-  top: 0;
 }
 
 .app-alert__inner {

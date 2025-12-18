@@ -15,118 +15,9 @@ const TYPE_CLASSNAME: Record<NoticeType, string> = {
 };
 
 let hideTimer: number | null = null;
-let scrollListenerAttached = false;
 
 function getRoot(): HTMLElement | null {
   return document.getElementById('GlobalNotice');
-}
-
-/**
- * Calculate the Y position of utility-bar in viewport
- * For position:fixed elements, we need viewport coordinates
- */
-function calculateUtilityBarPosition(): number {
-  const utilityBar = document.querySelector<HTMLElement>('.utility-bar');
-  if (!utilityBar) {
-    // Fallback: calculate based on header height
-    const header = document.querySelector<HTMLElement>('.site-header');
-    if (header) {
-      const headerRect = header.getBoundingClientRect();
-      console.log('[Alert] No utility-bar, using header.bottom:', headerRect.bottom);
-      return Math.max(0, headerRect.bottom);
-    }
-    console.log('[Alert] No header found, using fallback 160px');
-    return 160; // Approximate fallback
-  }
-
-  // Get position in viewport (for position:fixed)
-  const rect = utilityBar.getBoundingClientRect();
-  console.log('[Alert] utility-bar rect:', { top: rect.top, bottom: rect.bottom, height: rect.height });
-  return Math.max(0, rect.top);
-}
-
-/**
- * Check if utility-bar is visible in viewport
- * We consider it visible if it hasn't scrolled past the top of the viewport
- */
-function isUtilityBarVisible(): boolean {
-  const utilityBar = document.querySelector('.utility-bar');
-  if (!utilityBar) return false;
-
-  const rect = utilityBar.getBoundingClientRect();
-  // Visible if top edge is still in viewport (not scrolled past top)
-  // Allow small negative values for smooth transition
-  return rect.top >= -10;
-}
-
-/**
- * Update alert CSS top position to match utility-bar
- */
-function updateAlertTop(root: HTMLElement): void {
-  const utilityBarTop = calculateUtilityBarPosition();
-  console.log('[Alert] Setting top to:', utilityBarTop);
-  root.style.top = `${utilityBarTop}px`;
-}
-
-/**
- * Update alert position based on utility-bar visibility
- * - If utility-bar is visible: overlay it (match its position)
- * - If utility-bar is not visible: slide down from top
- */
-function updateAlertPosition(root: HTMLElement): void {
-  const isVisible = isUtilityBarVisible();
-  console.log('[Alert] updateAlertPosition - utility-bar visible:', isVisible);
-
-  if (isVisible) {
-    // utility-bar visible - show alert overlaying it
-    updateAlertTop(root);
-    root.removeAttribute('data-position');
-  } else {
-    // utility-bar not visible - slide down from top of viewport
-    console.log('[Alert] Setting top to 0 (slide from top)');
-    root.style.top = '0';
-    root.dataset.position = 'top';
-  }
-}
-
-/**
- * Global scroll handler to update alert position dynamically
- */
-function handleScroll(): void {
-  const root = getRoot();
-  if (!root || root.dataset.state !== 'visible') return;
-
-  updateAlertPosition(root);
-}
-
-/**
- * Attach scroll listener if not already attached
- */
-function ensureScrollListener(): void {
-  if (scrollListenerAttached) return;
-
-  window.addEventListener('scroll', handleScroll, { passive: true });
-  scrollListenerAttached = true;
-}
-
-/**
- * Remove scroll listener
- */
-function removeScrollListener(): void {
-  if (!scrollListenerAttached) return;
-
-  window.removeEventListener('scroll', handleScroll);
-  scrollListenerAttached = false;
-}
-
-/**
- * Handle window resize - update alert position
- */
-function handleResize(): void {
-  const root = getRoot();
-  if (!root || root.dataset.state !== 'visible') return;
-
-  updateAlertPosition(root);
 }
 
 function getTextNode(): HTMLElement | null {
@@ -173,14 +64,8 @@ export function showGlobalNotice(
   }
   textNode.textContent = message;
 
-  // Update position based on utility-bar visibility BEFORE showing
-  updateAlertPosition(root);
-
   root.dataset.state = 'visible';
   root.dataset.notice = 'visible';
-
-  // Enable scroll listener to update position dynamically
-  ensureScrollListener();
 
   if (autoHideMs > 0) {
     hideTimer = window.setTimeout(() => {
@@ -210,9 +95,6 @@ export function initGlobalNotice(): void {
   if (closeBtn) {
     closeBtn.addEventListener('click', () => hideGlobalNotice());
   }
-
-  // Add resize listener to update alert position
-  window.addEventListener('resize', handleResize, { passive: true });
 
   // 1) Query: ?status=success&msg=...
   const url = new URL(window.location.href);
