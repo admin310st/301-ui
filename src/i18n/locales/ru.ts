@@ -184,7 +184,7 @@ export const ru: Translation = {
       subtitle: 'Шаг 1 · Вставьте ваш Account ID и Bootstrap API токен.',
       accountIdLabel: 'Cloudflare Account ID',
       tokenLabel: 'Bootstrap API токен',
-      tokenHint: "Создайте токен с названием '301st Bootstrap' и правами 'Account API Tokens: Edit'.",
+      tokenHint: "Создайте токен с названием '301st Bootstrap' и правами Account Settings: Edit и API Tokens: Edit.",
       accountIdPlaceholder: 'например, 1234567890abcdef1234567890abcdef',
       tokenPlaceholder: "Вставьте токен с правами 'Account API Tokens: Edit'…",
       avatarMeta: 'Оранжевые кнопки действий указывают на глобальные операции уровня Cloudflare.',

@@ -182,7 +182,7 @@ export const en = {
       subtitle: 'Step 1 · Paste your Account ID and Bootstrap API token.',
       accountIdLabel: 'Cloudflare Account ID',
       tokenLabel: 'Bootstrap API token',
-      tokenHint: "Created as '301st Bootstrap' with 'Account API Tokens: Edit' permission.",
+      tokenHint: "Created as '301st Bootstrap' with Account Settings: Edit and API Tokens: Edit permissions.",
       accountIdPlaceholder: 'e.g. 1234567890abcdef1234567890abcdef',
       tokenPlaceholder: "Paste token with 'Account API Tokens: Edit' scope…",
       avatarMeta: 'Orange action buttons indicate global operations at Cloudflare level.',

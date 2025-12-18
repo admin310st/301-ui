@@ -128,7 +128,7 @@
                         aria-describedby="cf-token-hint cf-status-manual"
                       ></textarea>
                       <p class="field-hint text-muted" id="cf-token-hint" data-i18n="cf.wizard.tokenHint">
-                        Created as <code>301st Bootstrap</code> with <em>Account API Tokens: Edit</em> permission.
+                        Created as <code>301st Bootstrap</code> with <strong>Account Settings: Edit</strong> and <strong>API Tokens: Edit</strong> permissions.
                       </p>
                     </div>
 
@@ -260,10 +260,14 @@
                     <div class="stack stack--xs">
                       <strong>Bootstrap API Token</strong>
                       <p class="text-sm text-muted">
-                        Go to <strong>My Profile → API Tokens → Create Token</strong> →
-                        use template <strong>"Create Additional Tokens"</strong> →
-                        set permission <em>Account API Tokens: Edit</em> at account level → copy the token
+                        Go to <strong>Manage Account → Account API Tokens → Create Custom Token</strong>.
+                        Set token name to <code>301st Bootstrap</code>.
+                        Add two permissions:
                       </p>
+                      <ul class="text-sm text-muted" style="margin: var(--space-1) 0 0 var(--space-4); padding: 0;">
+                        <li><strong>Account Settings</strong>: Edit (Resource: Account)</li>
+                        <li><strong>API Tokens</strong>: Edit (Resource: Account)</li>
+                      </ul>
                     </div>
                   </div>
 
