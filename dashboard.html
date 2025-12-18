@@ -42,76 +42,155 @@
 
       <section class="dashboard-content">
         <header class="page-header">
-          <h1 class="h3">Dashboard</h1>
-          <p class="text-muted">Сводка и быстрые действия.</p>
+          <div class="stack-sm">
+            <h1 class="h3">Добро пожаловать в 301.st</h1>
+            <p class="text-lead">Настройка не займет много времени. Для начала добавьте интеграции.</p>
+          </div>
         </header>
 
-        <section class="grid-2" style="gap: var(--space-4)">
-          <article class="card card--panel">
+        <div class="stack" style="gap: var(--space-5)">
+          <!-- Step Flow Indicator -->
+          <div class="card card--soft">
+            <div class="step-flow">
+              <div class="step-pill">
+                <span class="step-number step-number--cf">1</span>
+                <span class="step-text">Cloudflare аккаунт</span>
+              </div>
+              <span class="step-separator">→</span>
+              <div class="step-pill">
+                <span class="step-number">2</span>
+                <span class="step-text">Добавить домены</span>
+              </div>
+              <span class="step-separator">→</span>
+              <div class="step-pill">
+                <span class="step-number">3</span>
+                <span class="step-text">Управление трафиком</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 1: Cloudflare Account -->
+          <article class="card card--panel card--accent-cf">
             <header class="card__header">
-              <h3 class="h5">Помощь по первому шагу: Cloudflare bootstrap</h3>
-              <p class="text-muted">Подготовьте данные для формы «Аккаунт Cloudflare».</p>
+              <div class="cluster">
+                <h2 class="h4">
+                  <span class="badge badge--cf" style="margin-right: var(--space-2);">1</span>
+                  Подключите Cloudflare аккаунт
+                </h2>
+              </div>
+              <p class="text-muted">Первый шаг — привязать ваш аккаунт Cloudflare к 301.st.</p>
             </header>
 
-            <div class="card__body stack" style="gap: var(--space-3)">
-              <div class="stack" style="gap: var(--space-2)">
-                <p class="text-sm">
-                  301.st начинает работу с Cloudflare с первой формы: Account ID + Bootstrap API token. Заполните её один
-                  раз, чтобы мы могли подтянуть список зон и применить базовые пресеты.
-                </p>
+            <div class="card__body stack" style="gap: var(--space-3);">
+              <p class="text-body">
+                Мы создадим API-токен с ограниченными правами для синхронизации зон и применения базовых пресетов.
+                Вы сохраняете полный контроль — токен имеет доступ только к необходимым функциям.
+              </p>
 
-                <ol class="list--ruled">
-                  <li>В Cloudflare на странице <strong>Account Home → Overview</strong> скопируйте <em>Account ID</em>.</li>
-                  <li>
-                    Создайте токен с шаблоном <code>301st Bootstrap</code> и правами
-                    <em>Account API Tokens: Edit</em>, затем вставьте его в поле «Bootstrap API token».
-                  </li>
-                  <li>
-                    Нажмите «Save &amp; verify token» — мы проверим права и сохраним данные для последующих шагов
-                    (подключение доменов, мониторинг, пресеты WAF/Cache).
-                  </li>
-                </ol>
+              <div class="panel panel--success">
+                <p class="text-sm">
+                  <span class="btn-icon btn-icon--compact btn--success">
+                    <span class="icon" data-icon="mono/check-circle"></span>
+                  </span>
+                  Scoped-токены ограничивают доступ 301.st к вашему аккаунту. Мы никогда не увидим ваш пароль или Global API Key.
+                </p>
               </div>
 
-              <div class="panel stack" style="gap: var(--space-2)">
-                <p class="text-sm">
-                  Ссылку на форму можно открыть прямо из дашборда. После сохранения токена сайдбар разблокирует разделы
-                  «Domains» и «Security».
-                </p>
-                <div class="cluster">
-                  <a class="btn btn--primary" href="/wizard.html">Открыть форму</a>
-                  <span class="text-muted text-sm">Проверка токена занимает пару секунд.</span>
-                </div>
+              <div class="cluster">
+                <a class="btn btn--cf" href="/wizard.html">
+                  <span class="icon" data-icon="brand/cloudflare"></span>
+                  Подключить аккаунт
+                </a>
+                <span class="text-muted text-sm">Займет 1-2 минуты</span>
               </div>
             </div>
           </article>
 
-          <div class="stack" style="gap: var(--space-3)">
-            <aside class="card card--panel">
-              <header class="card__header"><h3 class="h5">Текущий сетап</h3></header>
-              <div class="card__body stack" style="gap: var(--space-3)">
-                <div class="stack" style="gap: var(--space-1)">
-                  <p class="text-sm text-muted">Статус: требуется добавить Bootstrap API token.</p>
-                  <p class="text-sm">
-                    После валидации токена мы сможем показать активные зоны и предложить быстрые пресеты для WAF и кэша.
-                  </p>
-                </div>
-                <a class="btn btn--primary" href="/wizard.html">Перейти к форме</a>
+          <!-- Step 2: Add Domains -->
+          <article class="card card--panel">
+            <header class="card__header">
+              <div class="cluster">
+                <h2 class="h4">
+                  <span class="badge badge--neutral" style="margin-right: var(--space-2);">2</span>
+                  Добавьте домены
+                </h2>
               </div>
-            </aside>
+              <p class="text-muted">Загрузите домены оптом или импортируйте их от провайдера.</p>
+            </header>
 
-            <aside class="card card--panel">
-              <header class="card__header"><h3 class="h5">Как работать с экраном</h3></header>
-              <div class="card__body">
-                <ol class="list--ruled">
-                  <li>Завершите Cloudflare bootstrap и вернитесь к обзору.</li>
-                  <li>Подключите домены и включите мониторинг.</li>
-                  <li>Активируйте правила WAF/Cache из пресетов.</li>
-                </ol>
+            <div class="card__body stack" style="gap: var(--space-3);">
+              <p class="text-body">
+                После подключения аккаунта вы сможете добавить домены в панель. Мы предоставим два способа:
+              </p>
+
+              <div class="stack" style="gap: var(--space-2);">
+                <div class="panel">
+                  <div class="cluster">
+                    <span class="btn-icon btn-icon--compact">
+                      <span class="icon" data-icon="mono/plus"></span>
+                    </span>
+                    <div class="stack" style="gap: var(--space-1);">
+                      <p class="text-sm"><strong>Загрузка списком</strong></p>
+                      <p class="text-sm text-muted">Вставьте или импортируйте список доменов (TXT, CSV)</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="panel">
+                  <div class="cluster">
+                    <span class="btn-icon btn-icon--compact">
+                      <span class="icon" data-icon="mono/web-sync"></span>
+                    </span>
+                    <div class="stack" style="gap: var(--space-1);">
+                      <p class="text-sm"><strong>Импорт от провайдера</strong></p>
+                      <p class="text-sm text-muted">Автоматическая синхронизация с GoDaddy, Namecheap, Cloudflare Registrar и другими</p>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </aside>
-          </div>
-        </section>
+
+              <div class="panel panel--info">
+                <p class="text-sm">
+                  <span class="icon" data-icon="mono/info"></span>
+                  Этот раздел станет доступен после подключения Cloudflare аккаунта.
+                </p>
+              </div>
+            </div>
+          </article>
+
+          <!-- Step 3: Manage Traffic -->
+          <article class="card card--panel">
+            <header class="card__header">
+              <div class="cluster">
+                <h2 class="h4">
+                  <span class="badge badge--neutral" style="margin-right: var(--space-2);">3</span>
+                  Управляйте трафиком
+                </h2>
+              </div>
+              <p class="text-muted">Когда домены активируются на Cloudflare — система готова к работе.</p>
+            </header>
+
+            <div class="card__body stack" style="gap: var(--space-3);">
+              <p class="text-body">
+                После активации доменов на Cloudflare вы получите доступ ко всем возможностям 301.st:
+              </p>
+
+              <ul class="list--ruled">
+                <li>Настройка редиректов и правил маршрутизации</li>
+                <li>Создание лендингов и whitelist-страниц</li>
+                <li>Управление TDS (Traffic Distribution System)</li>
+                <li>Мониторинг статистики и аналитики</li>
+              </ul>
+
+              <div class="panel panel--info">
+                <p class="text-sm">
+                  <span class="icon" data-icon="mono/info"></span>
+                  Функции управления трафиком станут доступны после добавления и активации доменов.
+                </p>
+              </div>
+            </div>
+          </article>
+        </div>
       </section>
     </main>
 
