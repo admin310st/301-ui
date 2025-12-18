@@ -50,8 +50,8 @@ export function toggleTheme(): void {
 }
 
 export function initThemeToggle(root: ParentNode = document): void {
-  const btn = root.querySelector<HTMLButtonElement>('[data-theme-toggle]');
-  if (!btn) return;
+  const buttons = root.querySelectorAll<HTMLButtonElement>('[data-theme-toggle]');
+  if (buttons.length === 0) return;
 
   const updateIcon = () => {
     const theme = getTheme();
@@ -63,9 +63,11 @@ export function initThemeToggle(root: ParentNode = document): void {
       });
   };
 
-  btn.addEventListener('click', () => {
-    toggleTheme();
-    updateIcon();
+  buttons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      toggleTheme();
+      updateIcon();
+    });
   });
 
   updateIcon();

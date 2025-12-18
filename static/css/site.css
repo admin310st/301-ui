@@ -241,9 +241,10 @@ body {
 
 .card__media {
   display: block;
-  border-radius: var(--card-radius) var(--card-radius) 0 0;
+  border-radius: calc(var(--card-radius) - 1px) calc(var(--card-radius) - 1px) 0 0;
   overflow: hidden;
   line-height: 0;
+  margin: -1px -1px 0 -1px;
 }
 
 .card__media img,

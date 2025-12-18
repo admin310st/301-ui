@@ -47,15 +47,6 @@
             colors, typography, layout helpers and component classes from here instead of raw values.
           </p>
         </div>
-        <div class="stack-sm">
-          <div class="controls-row">
-            <button type="button" class="btn btn--ghost btn-sm guide-theme-toggle" data-theme-toggle>
-              <span class="icon" data-icon="mono/theme-light-dark"></span>
-              <span data-theme-label>Switch to light theme</span>
-            </button>
-          </div>
-          <p class="text-muted">Toggle to preview both light and dark palettes.</p>
-        </div>
       </header>
 
       <nav class="guide-nav" aria-label="On-page navigation">
@@ -443,6 +434,22 @@
               <h3 class="text-title">Dashboard shell</h3>
               <p class="text-body">Desktop: sidebar + main. Mobile: sidebar hidden, content uses page gutters.</p>
             </header>
+            <div class="panel panel--success" style="margin-bottom: var(--space-4);">
+              <div class="stack" style="gap: var(--space-2);">
+                <p class="text-sm">
+                  <strong>Grid structure:</strong> Use <code class="code-inline">.dashboard-shell</code> on <code class="code-inline">&lt;main&gt;</code> with sidebar partial.
+                </p>
+                <ul class="text-sm text-muted" style="margin: 0; padding-left: var(--space-4);">
+                  <li>Desktop (≥1024px): CSS Grid with <code class="code-inline">grid-template-columns: var(--sidebar-width) 1fr</code></li>
+                  <li>Mobile (&lt;1024px): Single column, sidebar becomes overlay drawer (<code class="code-inline">position: fixed</code>)</li>
+                  <li>Content area: <code class="code-inline">.dashboard-content</code> with <code class="code-inline">grid-area: content</code></li>
+                  <li>Collapsed state: <code class="code-inline">body.sidebar-collapsed</code> adjusts grid to <code class="code-inline">var(--sidebar-width-collapsed)</code></li>
+                </ul>
+                <p class="text-sm text-muted">
+                  See <code class="code-inline">static/css/site.css</code> lines ~2070-2540 for full implementation.
+                </p>
+              </div>
+            </div>
             <div class="guide-demo guide-demo--dashboard">
               <div class="layout-shell">
                 <aside class="layout-sidebar">Sidebar</aside>
@@ -1666,6 +1673,45 @@
                   </div>
                 </div>
               </div>
+            </div>
+
+            <div class="example-card stack-sm">
+              <h3 class="text-title">Status panels (inline hints)</h3>
+              <div class="stack stack--sm">
+                <div class="panel panel--success">
+                  <div class="stack" style="gap: var(--space-2);">
+                    <p class="text-sm">
+                      <span class="btn-icon btn-icon--compact btn--success">
+                        <span class="icon" data-icon="mono/check-circle"></span>
+                      </span>
+                      Scoped tokens limit what 301.st can access.
+                    </p>
+                    <p class="text-sm text-muted">We'll never see your Cloudflare password or Global API Key.</p>
+                  </div>
+                </div>
+
+                <div class="panel panel--danger">
+                  <p class="text-sm">
+                    <span class="btn-icon btn-icon--compact btn--danger">
+                      <span class="icon" data-icon="mono/alert-triangle"></span>
+                    </span>
+                    Global API Key gives full access to your account.
+                  </p>
+                </div>
+
+                <div class="panel panel--warning">
+                  <p class="text-sm">
+                    <span class="btn-icon btn-icon--compact" style="color: var(--warning-600);">
+                      <span class="icon" data-icon="mono/info"></span>
+                    </span>
+                    Domain verification may take up to 24 hours.
+                  </p>
+                </div>
+              </div>
+              <p class="text-muted text-sm" style="margin-top: var(--space-2);">
+                Use <code class="code-inline">.panel--success|danger|warning</code> with
+                <code class="code-inline">.btn-icon--compact</code> for inline status hints in forms and wizards.
+              </p>
             </div>
 
             <div class="example-card stack-sm">
