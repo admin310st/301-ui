@@ -169,6 +169,15 @@
         </div>
       </nav>
 
+      <div class="card card--soft" style="margin-bottom: var(--section-gap);">
+        <div class="card__body">
+          <p class="text-sm text-muted">
+            <strong>Navigation chips above use card-style radius:</strong> <code class="code-inline">border-radius: var(--r-field)</code> instead of pill.
+            On mobile (≤768px), gap reduces to <code class="code-inline">var(--space-2)</code> for better wrapping.
+          </p>
+        </div>
+      </div>
+
       <section id="themes" class="card card--panel guide-section guide-stack">
         <header class="card__header">
           <div class="cluster">
@@ -872,6 +881,24 @@
                   <span class="icon" data-icon="mono/plus"></span>
                   Add domain
                 </button>
+              </div>
+
+              <div class="panel panel--info">
+                <div class="stack" style="gap: var(--space-2);">
+                  <p class="text-sm">
+                    <strong>Desktop (≥1024px):</strong> All controls stay in one line with <code class="code-inline">flex-wrap: nowrap</code>
+                  </p>
+                  <p class="text-sm">
+                    <strong>Tablet (641-1023px):</strong> Controls wrap when needed, search stretches with <code class="code-inline">flex: 1 1 0; min-width: 14rem</code>
+                  </p>
+                  <p class="text-sm">
+                    <strong>Mobile (≤640px):</strong> Search takes full width first, then filters/actions wrap below in priority order:
+                    <br/>1. Search (full width, <code class="code-inline">order: -1</code>)
+                    <br/>2. Dropdown filters (<code class="code-inline">order: 0</code>)
+                    <br/>3. Provider chips (<code class="code-inline">order: 1</code>)
+                    <br/>4. Primary button (<code class="code-inline">order: 2</code>)
+                  </p>
+                </div>
               </div>
 
               <p class="text-muted">
