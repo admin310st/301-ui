@@ -100,6 +100,13 @@ body {
   margin: 0 0 var(--space-3);
 }
 
+.text-lg {
+  font-size: var(--fs-lg);
+  line-height: 1.4;
+  font-weight: var(--fw-semibold);
+  margin: 0;
+}
+
 .h1 {
   font-size: var(--fs-2xl);
   font-weight: var(--fw-semibold);
@@ -109,6 +116,24 @@ body {
 
 .h2 {
   font-size: var(--fs-xl);
+  font-weight: var(--fw-semibold);
+  margin: 0;
+}
+
+.h3 {
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-semibold);
+  margin: 0;
+}
+
+.h4 {
+  font-size: var(--fs-md);
+  font-weight: var(--fw-semibold);
+  margin: 0;
+}
+
+.h5 {
+  font-size: var(--fs-sm);
   font-weight: var(--fw-semibold);
   margin: 0;
 }
