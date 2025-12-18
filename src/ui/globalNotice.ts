@@ -56,6 +56,14 @@ export function showGlobalNotice(
     hideTimer = null;
   }
 
+  // Force hide first to reset transition state
+  // This ensures CSS transition works even on repeated calls
+  root.dataset.state = 'hidden';
+  root.dataset.notice = 'hidden';
+
+  // Force reflow to ensure hide is applied before show
+  void root.offsetHeight;
+
   applyType(root, type);
   root.setAttribute('role', type === 'error' ? 'alert' : 'status');
   root.setAttribute('aria-live', 'polite');
@@ -64,8 +72,11 @@ export function showGlobalNotice(
   }
   textNode.textContent = message;
 
-  root.dataset.state = 'visible';
-  root.dataset.notice = 'visible';
+  // Small delay to ensure hide transition completes
+  requestAnimationFrame(() => {
+    root.dataset.state = 'visible';
+    root.dataset.notice = 'visible';
+  });
 
   if (autoHideMs > 0) {
     hideTimer = window.setTimeout(() => {

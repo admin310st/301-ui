@@ -145,7 +145,7 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 10; /* Above breadcrumbs and buttons */
+  z-index: 100; /* High z-index to ensure it's above all utility-bar content (buttons have position:relative) */
   background: var(--panel);
   border-bottom: 1px solid var(--border-subtle);
   transform: translateY(-100%);
