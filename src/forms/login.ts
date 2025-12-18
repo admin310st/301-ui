@@ -4,6 +4,7 @@ import { t } from '@i18n';
 import { requireTurnstileToken, resetTurnstile } from '../turnstile';
 import { setFormState, qs } from '@ui/dom';
 import { clearGlobalMessage, showGlobalMessage } from '@ui/notifications';
+import { setNextPageNotice } from '@ui/globalNotice';
 import { loadUser } from '@state/auth-state';
 import type { ApiError } from '@utils/errors';
 import { bindAvatarPreview } from '@utils/avatarPreview';
@@ -58,7 +59,7 @@ async function handleLoginSubmit(event: SubmitEvent): Promise<void> {
     await loadUser();
     const successMessage = res.message || t('auth.login.statusSuccess');
     setFormState(form, 'success', successMessage);
-    showGlobalMessage('success', successMessage);
+    setNextPageNotice('success', 'auth.login.statusSuccess');
     form.reset();
     window.location.hash = '#login';
   } catch (error) {
