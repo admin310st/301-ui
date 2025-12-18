@@ -468,61 +468,34 @@
 
           <section class="guide-section">
             <header class="guide-section__header">
-              <h3 class="text-title">Feedback / Global alerts</h3>
+              <h3 class="text-title">Global Notices</h3>
               <p class="text-body">
-                Global banners align to the same gutters as <span class="code-inline">.page-shell</span> content. Use a
-                comfortable padding block and separate them from the page body with <code class="code-inline">margin-bottom:
-                var(--block-gap)</code>.
+                Global notices render inside <code class="code-inline">.utility-bar</code> and overlay breadcrumbs/buttons.
+                They auto-dismiss after 6 seconds with a fade-out effect. Test them with the buttons below.
               </p>
             </header>
 
             <div class="guide-stack">
-              <div class="app-alert app-alert--error" data-state="visible" role="alert" aria-live="polite">
-                <div class="app-alert__inner">
-                  <span class="icon app-alert__icon" aria-hidden="true">
-                    <svg>
-                      <use href="#i-mono-alert"></use>
-                    </svg>
-                  </span>
-                  <div class="app-alert__content">
-                    <strong>Something went wrong</strong>
-                    <p class="app-alert__text">Short description of the error or action the user should take.</p>
-                  </div>
-                  <button class="app-alert__close" type="button" aria-label="Close alert">
-                    <span class="icon" aria-hidden="true">
-                      <svg>
-                        <use href="#i-mono-close"></use>
-                      </svg>
-                    </span>
-                  </button>
-                </div>
-              </div>
-
-              <div class="app-alert app-alert--success" data-state="visible" role="status" aria-live="polite">
-                <div class="app-alert__inner">
-                  <span class="icon app-alert__icon" aria-hidden="true">
-                    <svg>
-                      <use href="#i-mono-success"></use>
-                    </svg>
-                  </span>
-                  <div class="app-alert__content">
-                    <strong>Everything saved</strong>
-                    <p class="app-alert__text">Records updated. Users will see the new settings within a few minutes.</p>
-                  </div>
-                  <button class="app-alert__close" type="button" aria-label="Close alert">
-                    <span class="icon" aria-hidden="true">
-                      <svg>
-                        <use href="#i-mono-close"></use>
-                      </svg>
-                    </span>
-                  </button>
-                </div>
+              <div class="cluster">
+                <button class="btn btn--primary" onclick="window.showGlobalNotice?.('success', 'Changes saved successfully!')">
+                  <span class="icon" data-icon="mono/check-circle"></span>
+                  Test Success
+                </button>
+                <button class="btn btn--danger" onclick="window.showGlobalNotice?.('error', 'Something went wrong. Please try again.')">
+                  <span class="icon" data-icon="mono/alert-triangle"></span>
+                  Test Error
+                </button>
+                <button class="btn" onclick="window.showGlobalNotice?.('info', 'This is an informational message.')">
+                  <span class="icon" data-icon="mono/info"></span>
+                  Test Info
+                </button>
               </div>
 
               <ul class="text-body text-muted list--spaced">
-                <li>Stick to <code class="code-inline">.app-alert--error</code> or <code class="code-inline">.app-alert--success</code> modifiers for state.</li>
-                <li>Icons use the mono set to match inline text color.</li>
-                <li>Padding and gutters match the main content area so banners feel attached to the page shell.</li>
+                <li>Global notices overlay the utility-bar content with high z-index</li>
+                <li>Auto-hide after 6 seconds with fade-out + slide-up animation</li>
+                <li>User can manually close via close button</li>
+                <li>Positioned absolutely within utility-bar container</li>
               </ul>
             </div>
           </section>

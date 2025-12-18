@@ -9,7 +9,7 @@ import { initCloudflareWizard } from '@forms/cf-wizard';
 import { initGithubOAuth } from '@social/github';
 import { initGoogleOAuth } from '@social/google';
 import { applyInitialAuthState, handleLogoutDom } from '@ui/auth-dom';
-import { initGlobalNotice } from '@ui/globalNotice';
+import { initGlobalNotice, showGlobalNotice } from '@ui/globalNotice';
 import { initTurnstile } from './turnstile';
 import { showGlobalMessage } from '@ui/notifications';
 import { initVisibilityController } from '@ui/visibility';
@@ -161,4 +161,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initSidebarNav();       // First: render nav items
   initSidebarSearch();    // Then: attach search to rendered items
   initIntegrationsPage();
+
+  // Expose showGlobalNotice for testing in Style Guide
+  (window as any).showGlobalNotice = showGlobalNotice;
 });

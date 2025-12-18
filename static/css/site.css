@@ -152,7 +152,10 @@ body {
   opacity: 0;
   overflow: hidden;
   pointer-events: none;
-  transition: opacity 200ms ease, transform 300ms ease;
+  /* Fade out first, then slide up */
+  transition:
+    opacity 200ms ease,
+    transform 300ms ease 200ms;
   /* Match utility-bar inner padding for visual consistency */
   display: flex;
   align-items: center;
@@ -163,6 +166,10 @@ body {
   transform: translateY(0);
   opacity: 1;
   pointer-events: auto;
+  /* Fade in, then slide down */
+  transition:
+    opacity 200ms ease,
+    transform 300ms ease;
 }
 
 .app-alert__inner {
