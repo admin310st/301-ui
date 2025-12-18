@@ -47,7 +47,7 @@
             </p>
           </div>
           <div class="page-header__actions">
-            <a href="/wizard.html" class="btn btn--primary">
+            <a href="/wizard.html" class="btn btn--cf">
               <span class="icon" data-icon="brand/cloudflare"></span>
               <span data-i18n="integrations.connectCloudflare">Connect Cloudflare</span>
             </a>
@@ -60,7 +60,10 @@
         </div>
 
         <!-- Empty state -->
-        <div class="card card--panel" data-integrations-empty hidden>
+        <div class="card card--panel card--accent" data-integrations-empty hidden>
+          <div class="card__header">
+            <h3 class="card__title" data-i18n="integrations.empty.actionRequired">Action recommended</h3>
+          </div>
           <div class="card__body">
             <div class="empty-state">
               <p class="text-lg" data-i18n="integrations.empty.title">No integrations yet</p>
@@ -68,7 +71,7 @@
                 Connect your first Cloudflare account or domain registrar to get started.
               </p>
               <a href="/wizard.html" class="btn btn--primary">
-                <span class="icon" data-icon="brand/cloudflare"></span>
+                <span class="icon" data-icon="mono/plus"></span>
                 <span data-i18n="integrations.empty.cta">Connect integration</span>
               </a>
             </div>
