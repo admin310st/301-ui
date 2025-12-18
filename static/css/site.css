@@ -1425,7 +1425,7 @@ input[type="search"]::-webkit-search-cancel-button {
   padding-block: var(--control-pad-y);
   padding-inline: var(--control-pad-x);
   min-height: var(--control-min-height);
-  border: var(--border-1) solid var(--border-subtle);
+  border: var(--border-1) solid var(--border-strong);
   background: var(--panel);
   color: var(--text);
   -webkit-appearance: none;
@@ -1468,7 +1468,7 @@ input[type="search"]::-webkit-search-cancel-button {
   line-height: var(--lh-control);
   padding-block: var(--control-pad-y);
   padding-inline: var(--control-pad-x);
-  border: var(--border-1) solid var(--border-subtle);
+  border: var(--border-1) solid var(--border-strong);
   background: var(--panel);
   color: var(--text);
   -webkit-appearance: none;
@@ -2519,6 +2519,8 @@ body.layout-dashboard .burger-button {
   .sidebar-close {
     display: flex;
     margin-left: auto;
+    position: relative;
+    z-index: 10;
   }
 
   /* Open state (mobile drawer) */
