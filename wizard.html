@@ -125,11 +125,17 @@
                         data-i18n-placeholder="cf.wizard.tokenPlaceholder"
                         placeholder="Paste token with 'Account API Tokens: Edit' scope…"
                         required
-                        aria-describedby="cf-token-hint cf-status-manual"
+                        aria-describedby="cf-token-hint cf-curl-hint cf-status-manual"
                       ></textarea>
                       <p class="field-hint text-muted" id="cf-token-hint" data-i18n="cf.wizard.tokenHint">
                         Created as <code>301st Bootstrap</code> with <strong>Account Settings: Edit</strong> and <strong>API Tokens: Edit</strong> permissions.
                       </p>
+                      <div class="panel panel--info" id="cf-curl-hint" style="margin-top: var(--space-2);">
+                        <p class="text-sm">
+                          <span class="icon" data-icon="mono/zap"></span>
+                          <strong>Quick tip:</strong> You can paste the entire <code>curl</code> test command from Cloudflare here, and we'll extract both Account ID and token automatically.
+                        </p>
+                      </div>
                     </div>
 
                     <div class="panel panel--success">

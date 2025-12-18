@@ -45,12 +45,68 @@ async function handleGlobalSubmit(event: SubmitEvent): Promise<void> {
   setFormState(form, 'error', 'This method is not available yet. Please use Scoped Token method.');
 }
 
+/**
+ * Parse Cloudflare test curl command and extract account ID and token
+ * Example input:
+ * curl "https://api.cloudflare.com/client/v4/accounts/6b1cc51fa359c59384677a156ad32c10/tokens/verify" \
+ * -H "Authorization: Bearer y3DesLcDCtEfgz54jIBb0a2xDnPa_HtoMKrHZPGK"
+ */
+function parseCurlCommand(curlText: string): { accountId: string; token: string } | null {
+  try {
+    // Extract account ID from URL
+    const accountIdMatch = curlText.match(/accounts\/([a-f0-9]{32})/i);
+    // Extract token from Authorization header
+    const tokenMatch = curlText.match(/Bearer\s+([A-Za-z0-9_-]+)/);
+
+    if (accountIdMatch && tokenMatch) {
+      return {
+        accountId: accountIdMatch[1],
+        token: tokenMatch[1],
+      };
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 export function initCloudflareWizard(): void {
   // Manual token method (Scoped Token)
   document.querySelectorAll<HTMLFormElement>('form[data-form="cf-bootstrap-manual"]').forEach((form) => {
     if (form.dataset.bound === 'true') return;
     form.dataset.bound = 'true';
     form.addEventListener('submit', handleManualSubmit);
+
+    // Auto-parse curl command when pasted into token field
+    const accountIdInput = qs<HTMLInputElement>('[name="cf_account_id"]', form);
+    const tokenTextarea = qs<HTMLTextAreaElement>('[name="cf_bootstrap_token"]', form);
+
+    if (tokenTextarea && accountIdInput) {
+      tokenTextarea.addEventListener('paste', (event) => {
+        // Give the paste event time to complete
+        setTimeout(() => {
+          const pastedText = tokenTextarea.value;
+
+          // Check if it looks like a curl command
+          if (pastedText.includes('curl') && pastedText.includes('accounts/') && pastedText.includes('Bearer')) {
+            const parsed = parseCurlCommand(pastedText);
+
+            if (parsed) {
+              // Auto-fill the fields
+              accountIdInput.value = parsed.accountId;
+              tokenTextarea.value = parsed.token;
+
+              // Show success message
+              showGlobalMessage('success', 'Curl command parsed! Account ID and token extracted automatically.');
+
+              // Trigger validation/visual feedback
+              accountIdInput.dispatchEvent(new Event('input', { bubbles: true }));
+              tokenTextarea.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+          }
+        }, 10);
+      });
+    }
   });
 
   // Global API Key method (not implemented yet)
