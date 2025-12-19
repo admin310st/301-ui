@@ -1,0 +1,10 @@
+    <script>
+      // Load sidebar state before page renders to prevent flash
+      (function() {
+        const STORAGE_KEY = 'ui.sidebar.collapsed';
+        const isCollapsed = localStorage.getItem(STORAGE_KEY) === 'true';
+        if (isCollapsed && window.innerWidth >= 1024) {
+          document.body.classList.add('sidebar-collapsed');
+        }
+      })();
+    </script>
