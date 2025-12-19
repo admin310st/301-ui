@@ -210,7 +210,7 @@ function renderDomainsTable(domains: Domain[]): void {
 
   tbody.innerHTML = domains
     .map((domain) => {
-      const statusChip = getStatusChip(domain.status);
+      const providerIcon = getProviderIcon(domain);
       const healthIcons = getHealthIcons(domain);
       const expiresText = getExpiresText(domain);
 
@@ -229,7 +229,7 @@ function renderDomainsTable(domains: Domain[]): void {
               </div>
             </div>
           </td>
-          <td>${statusChip}</td>
+          <td>${providerIcon}</td>
           <td>${healthIcons}</td>
           <td>${expiresText}</td>
           <td>
@@ -308,22 +308,36 @@ function renderDomainsTable(domains: Domain[]): void {
   });
 }
 
-function getStatusChip(status: Domain['status']): string {
-  const variants: Record<string, string> = {
-    active: 'badge--ok',
-    expired: 'badge--danger',
-    expiring: 'badge--warning',
-    blocked: 'badge--danger',
-    pending: 'badge--neutral',
+function getProviderIcon(domain: Domain): string {
+  const registrarIcons: Record<Domain['registrar'], string> = {
+    cloudflare: 'brand/cloudflare',
+    namecheap: 'brand/namecheap',
+    namesilo: 'brand/namesilo',
+    google: 'brand/google',
+    manual: 'mono/dns', // Fallback for manual entries
   };
-  const labels: Record<string, string> = {
-    active: 'Active',
-    expired: 'Expired',
-    expiring: 'Expiring',
-    blocked: 'Blocked',
-    pending: 'Pending',
+
+  const cfStatusLabels: Record<Domain['cf_status'], string> = {
+    active: 'Active on Cloudflare',
+    pending: 'Pending activation',
+    inactive: 'Inactive on Cloudflare',
   };
-  return `<span class="badge ${variants[status]}">${labels[status]}</span>`;
+
+  const registrarLabels: Record<Domain['registrar'], string> = {
+    cloudflare: 'Cloudflare Registrar',
+    namecheap: 'Namecheap',
+    namesilo: 'NameSilo',
+    google: 'Google Domains',
+    manual: 'Manually added',
+  };
+
+  const icon = registrarIcons[domain.registrar];
+  const cfStatus = domain.cf_status;
+  const tooltip = `${registrarLabels[domain.registrar]} · ${cfStatusLabels[cfStatus]}`;
+
+  return `<span class="provider-icon provider-icon--${cfStatus}" title="${tooltip}">
+    <span class="icon" data-icon="${icon}"></span>
+  </span>`;
 }
 
 function getHealthIcons(domain: Domain): string {
@@ -357,13 +371,20 @@ function getExpiresText(domain: Domain): string {
   const today = new Date();
   const daysUntil = Math.ceil((expiresDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 
-  if (daysUntil < 0) {
-    return `<span class="badge badge--danger">${domain.expires_at}</span>`;
-  } else if (daysUntil <= 30) {
-    return `<span class="badge badge--warning">${domain.expires_at}</span>`;
+  // Show provider status badge
+  if (domain.provider_status === 'expired') {
+    return `<span class="badge badge--danger">Expired</span>`;
+  } else if (domain.provider_status === 'grace') {
+    const daysAgo = Math.abs(daysUntil);
+    return `<span class="badge badge--danger">Grace: ${daysAgo}d ago</span>`;
+  } else if (domain.provider_status === 'redemption') {
+    const daysAgo = Math.abs(daysUntil);
+    return `<span class="badge badge--danger">Redemption: ${daysAgo}d</span>`;
+  } else if (domain.provider_status === 'expiring' || daysUntil <= 30) {
+    return `<span class="badge badge--warning">${daysUntil} days</span>`;
   }
 
-  return domain.expires_at;
+  return `${daysUntil} days`;
 }
 
 function filterDomains(query: string): void {
@@ -460,11 +481,12 @@ function openInspector(domainId: number): void {
 
   if (domainEl) domainEl.textContent = domain.domain;
   if (statusEl) {
-    statusEl.textContent = domain.status.charAt(0).toUpperCase() + domain.status.slice(1);
-    statusEl.className = `badge ${getStatusChip(domain.status).match(/badge--\w+/)?.[0]}`;
+    statusEl.textContent = domain.cf_status.charAt(0).toUpperCase() + domain.cf_status.slice(1);
+    const statusClass = domain.cf_status === 'active' ? 'badge--success' : domain.cf_status === 'pending' ? 'badge--warning' : 'badge--danger';
+    statusEl.className = `badge ${statusClass}`;
   }
   if (projectEl) projectEl.textContent = `${domain.project_name}${domain.project_lang ? ` (${domain.project_lang})` : ''}`;
-  if (providerEl) providerEl.textContent = domain.provider.charAt(0).toUpperCase() + domain.provider.slice(1);
+  if (providerEl) providerEl.textContent = domain.registrar.charAt(0).toUpperCase() + domain.registrar.slice(1);
   if (sslEl) sslEl.textContent = `${domain.ssl_status.charAt(0).toUpperCase() + domain.ssl_status.slice(1)}${domain.ssl_valid_to ? ` (until ${domain.ssl_valid_to})` : ''}`;
   if (abuseEl) abuseEl.textContent = domain.abuse_status.charAt(0).toUpperCase() + domain.abuse_status.slice(1);
   if (monitoringEl) monitoringEl.textContent = domain.monitoring_enabled ? 'Enabled' : 'Disabled';

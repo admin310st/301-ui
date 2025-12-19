@@ -2964,6 +2964,35 @@ body.layout-dashboard .burger-button {
 /* ============================================
    Domains Page Specific
    ============================================ */
+.provider-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--r-sm);
+  border: 2px solid transparent;
+  background: var(--panel);
+  transition: border-color 200ms ease;
+}
+
+.provider-icon .icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.provider-icon--active {
+  border-color: var(--success);
+}
+
+.provider-icon--pending {
+  border-color: var(--warning);
+}
+
+.provider-icon--inactive {
+  border-color: var(--danger);
+}
+
 .health-icons {
   display: flex;
   gap: var(--space-2);
