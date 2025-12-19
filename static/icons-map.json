@@ -1,5 +1,6 @@
 {
   "mono": [
+    "2fa",
     "account-arrow",
     "alert-triangle",
     "alert",
@@ -29,6 +30,7 @@
     "home",
     "info",
     "layers",
+    "lock",
     "log-out",
     "logs",
     "magnify",
