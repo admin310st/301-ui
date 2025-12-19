@@ -319,21 +319,13 @@ function getExpiresText(domain: Domain): string {
   const today = new Date();
   const daysUntil = Math.ceil((expiresDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 
-  let text = domain.expires_at;
-  let badge = '';
-
   if (daysUntil < 0) {
-    badge = '<span class="badge badge--danger badge--sm">Expired</span>';
+    return `<span class="badge badge--danger">${domain.expires_at}</span>`;
   } else if (daysUntil <= 30) {
-    badge = '<span class="badge badge--warning badge--sm">Soon</span>';
+    return `<span class="badge badge--warning">${domain.expires_at}</span>`;
   }
 
-  return `
-    <div>
-      <div>${text}</div>
-      ${badge ? `<div class="mt-1">${badge}</div>` : ''}
-    </div>
-  `;
+  return domain.expires_at;
 }
 
 function filterDomains(query: string): void {
