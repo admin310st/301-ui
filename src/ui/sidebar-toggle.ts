@@ -152,8 +152,9 @@ export function initSidebarToggle(): void {
     const currentWidth = window.innerWidth;
     const wasMobile = lastWidth < 1024;
     const isDesktop = currentWidth >= 1024;
+    const isMobile = currentWidth < 1024;
 
-    // Crossing from mobile to desktop: close drawer
+    // Crossing from mobile to desktop: close drawer and restore saved collapse state
     if (wasMobile && isDesktop) {
       document.body.classList.remove('sidebar-open');
       if (mobileToggle) {
@@ -170,6 +171,25 @@ export function initSidebarToggle(): void {
           }
         }
       }
+
+      // Restore saved collapse state from localStorage
+      const isCollapsed = localStorage.getItem(STORAGE_KEY) === 'true';
+      if (isCollapsed) {
+        document.body.classList.add('sidebar-collapsed');
+        if (desktopToggle) {
+          updateToggleState(desktopToggle, false);
+        }
+      } else {
+        document.body.classList.remove('sidebar-collapsed');
+        if (desktopToggle) {
+          updateToggleState(desktopToggle, true);
+        }
+      }
+    }
+
+    // Crossing from desktop to mobile: remove collapsed state
+    if (!wasMobile && isMobile) {
+      document.body.classList.remove('sidebar-collapsed');
     }
 
     lastWidth = currentWidth;
