@@ -113,21 +113,28 @@ export function initDomainsPage(): void {
     if (!domain) return;
 
     switch (action) {
-      case 'manage-redirects':
-        alert(`Manage redirects for ${domain.domain}\n(Coming soon)`);
-        break;
-      case 'dns-settings':
-        alert(`DNS / Zone settings for ${domain.domain}\n(Coming soon)`);
-        break;
       case 'recheck-health':
-        alert(`Re-checking health for ${domain.domain}...`);
+        alert(`Re-checking health for ${domain.domain}...\n(API integration coming soon)`);
+        break;
+      case 'recheck-abuse':
+        alert(`Re-checking abuse status for ${domain.domain}...\n(API integration coming soon)`);
+        break;
+      case 'sync-registrar':
+        alert(`Syncing expiration data with registrar for ${domain.domain}...\n(API integration coming soon)`);
         break;
       case 'toggle-monitoring':
-        alert(`Toggle monitoring ${domain.monitoring_enabled ? 'OFF' : 'ON'} for ${domain.domain}\n(Coming soon)`);
+        alert(`${domain.monitoring_enabled ? 'Disabling' : 'Enabling'} monitoring for ${domain.domain}\n(API integration coming soon)`);
+        break;
+      case 'apply-security-preset':
+        alert(`Apply security preset for ${domain.domain}\n(Will open drawer→Security tab or apply default preset)`);
+        break;
+      case 'view-analytics':
+        alert(`Redirecting to /analytics?domain=${domain.domain}\n(Analytics page coming soon)`);
+        // Future: window.location.href = `/analytics?domain=${encodeURIComponent(domain.domain)}`;
         break;
       case 'delete-domain':
         if (confirm(`Delete ${domain.domain}?\nThis action cannot be undone.`)) {
-          alert(`Delete ${domain.domain}\n(Coming soon)`);
+          alert(`Delete ${domain.domain}\n(API integration coming soon)`);
         }
         break;
     }
@@ -225,21 +232,30 @@ function renderDomainsTable(domains: Domain[]): void {
                   <span class="icon" data-icon="mono/dots-vertical"></span>
                 </button>
                 <div class="dropdown__menu dropdown__menu--align-right" role="menu">
-                  <button class="dropdown__item" type="button" data-action="manage-redirects" data-domain-id="${domain.id}">
-                    <span class="icon" data-icon="mono/directions"></span>
-                    <span>Manage redirects</span>
-                  </button>
-                  <button class="dropdown__item" type="button" data-action="dns-settings" data-domain-id="${domain.id}">
-                    <span class="icon" data-icon="mono/dns"></span>
-                    <span>DNS / Zone settings</span>
-                  </button>
                   <button class="dropdown__item" type="button" data-action="recheck-health" data-domain-id="${domain.id}">
                     <span class="icon" data-icon="mono/refresh"></span>
                     <span>Re-check health</span>
                   </button>
+                  <button class="dropdown__item" type="button" data-action="recheck-abuse" data-domain-id="${domain.id}">
+                    <span class="icon" data-icon="mono/alert-triangle"></span>
+                    <span>Re-check abuse status</span>
+                  </button>
+                  <button class="dropdown__item" type="button" data-action="sync-registrar" data-domain-id="${domain.id}">
+                    <span class="icon" data-icon="mono/sync"></span>
+                    <span>Sync with registrar</span>
+                  </button>
                   <button class="dropdown__item" type="button" data-action="toggle-monitoring" data-domain-id="${domain.id}">
-                    <span class="icon" data-icon="${domain.monitoring_enabled ? 'mono/pause' : 'mono/zap'}"></span>
-                    <span>Monitoring ${domain.monitoring_enabled ? 'OFF' : 'ON'}</span>
+                    <span class="icon" data-icon="mono/bell"></span>
+                    <span>${domain.monitoring_enabled ? 'Disable' : 'Enable'} monitoring</span>
+                  </button>
+                  <button class="dropdown__item" type="button" data-action="apply-security-preset" data-domain-id="${domain.id}">
+                    <span class="icon" data-icon="mono/shield-account"></span>
+                    <span>Apply security preset</span>
+                  </button>
+                  <hr class="dropdown__divider" />
+                  <button class="dropdown__item" type="button" data-action="view-analytics" data-domain-id="${domain.id}">
+                    <span class="icon" data-icon="mono/analytics"></span>
+                    <span>View analytics</span>
                   </button>
                   <hr class="dropdown__divider" />
                   <button class="dropdown__item dropdown__item--danger" type="button" data-action="delete-domain" data-domain-id="${domain.id}">
