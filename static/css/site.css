@@ -2345,6 +2345,13 @@ body.sidebar-collapsed .sidebar .navitem:hover::after {
   margin-bottom: var(--space-4);
 }
 
+/* Add padding on mobile when dashboard-content has no inline padding */
+@media (max-width: 1023px) {
+  .dashboard-content .page-header {
+    padding-inline: var(--space-3);
+  }
+}
+
 .page-header h1 {
   margin-bottom: var(--space-1);
 }
