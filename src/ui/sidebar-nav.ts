@@ -11,6 +11,8 @@ export interface NavItem {
   href: string;         // Link URL
   badge?: string | number;
   notificationIcon?: string; // Notification icon (e.g., 'mono/circle-alert')
+  notificationColor?: 'warning' | 'danger'; // Notification icon color
+  notificationTitle?: string; // Tooltip for notification icon
   isActive?: (path: string) => boolean;
 }
 
@@ -49,7 +51,10 @@ export const DASHBOARD_NAV: NavItem[] = [
     labelKey: 'layout.nav.domains',
     icon: 'mono/dns',
     href: '/domains.html',
+    badge: 35,
     notificationIcon: 'mono/circle-alert',
+    notificationColor: 'danger',
+    notificationTitle: '2do',
     isActive: (path) => path.includes('/domains'),
   },
   {
@@ -117,12 +122,15 @@ function renderNavItem(item: NavItem, currentPath: string): string {
   const activeClass = isActive ? ' is-active' : '';
   const label = t(item.labelKey as any) || item.label;
 
+  const notificationColorClass = item.notificationColor === 'danger' ? ' notification-icon--danger' : '';
+  const notificationTitle = item.notificationTitle ? ` title="${item.notificationTitle}"` : '';
+
   return `
     <a href="${item.href}" class="navitem${activeClass}" data-nav-id="${item.id}" data-label-en="${item.label}" data-label-key="${item.labelKey}" data-tooltip="${item.label}">
       <span class="icon" data-icon="${item.icon}"></span>
       <span class="label" data-i18n="${item.labelKey}">${label}</span>
       ${item.badge ? `<span class="badge badge--sm">${item.badge}</span>` : ''}
-      ${item.notificationIcon ? `<span class="notification-icon"><span class="icon" data-icon="${item.notificationIcon}"></span></span>` : ''}
+      ${item.notificationIcon ? `<span class="notification-icon${notificationColorClass}"${notificationTitle}><span class="icon" data-icon="${item.notificationIcon}"></span></span>` : ''}
     </a>
   `;
 }

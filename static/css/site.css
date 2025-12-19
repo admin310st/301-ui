@@ -2273,10 +2273,15 @@ body.sidebar-collapsed .sidebar .label {
   pointer-events: none;
 }
 
-/* Show badges in collapsed state */
-body.sidebar-collapsed .sidebar .navitem .badge {
+/* Badges visible in expanded state */
+.sidebar .navitem .badge {
   opacity: 1;
   pointer-events: auto;
+}
+
+/* Hide badges in collapsed state (only notification icons shown) */
+body.sidebar-collapsed .sidebar .navitem .badge {
+  display: none;
 }
 
 /* Notification icon (alert dot) */
@@ -2284,11 +2289,17 @@ body.sidebar-collapsed .sidebar .navitem .badge {
   flex-shrink: 0;
   margin-left: auto;
   color: var(--warning);
+  display: flex;
+  align-items: center;
 }
 
 .sidebar .navitem .notification-icon .icon {
-  width: 12px;
-  height: 12px;
+  width: 0.5rem;
+  height: 0.5rem;
+}
+
+.sidebar .navitem .notification-icon--danger {
+  color: var(--danger);
 }
 
 /* Show notification icon in collapsed state */
@@ -2296,8 +2307,7 @@ body.sidebar-collapsed .sidebar .navitem .notification-icon {
   opacity: 1;
   pointer-events: auto;
   position: absolute;
-  top: 0.25rem;
-  right: 0.25rem;
+  right: var(--space-2);
 }
 
 /* Navitems adjust padding and center icons on collapse */
