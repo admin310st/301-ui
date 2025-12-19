@@ -226,11 +226,11 @@ function renderDomainsTable(domains: Domain[]): void {
                 </button>
                 <div class="dropdown__menu dropdown__menu--align-right" role="menu">
                   <button class="dropdown__item" type="button" data-action="manage-redirects" data-domain-id="${domain.id}">
-                    <span class="icon" data-icon="mono/arrow-right"></span>
+                    <span class="icon" data-icon="mono/directions"></span>
                     <span>Manage redirects</span>
                   </button>
                   <button class="dropdown__item" type="button" data-action="dns-settings" data-domain-id="${domain.id}">
-                    <span class="icon" data-icon="mono/server"></span>
+                    <span class="icon" data-icon="mono/dns"></span>
                     <span>DNS / Zone settings</span>
                   </button>
                   <button class="dropdown__item" type="button" data-action="recheck-health" data-domain-id="${domain.id}">
@@ -238,7 +238,7 @@ function renderDomainsTable(domains: Domain[]): void {
                     <span>Re-check health</span>
                   </button>
                   <button class="dropdown__item" type="button" data-action="toggle-monitoring" data-domain-id="${domain.id}">
-                    <span class="icon" data-icon="${domain.monitoring_enabled ? 'mono/pause' : 'mono/play'}"></span>
+                    <span class="icon" data-icon="${domain.monitoring_enabled ? 'mono/pause' : 'mono/zap'}"></span>
                     <span>Monitoring ${domain.monitoring_enabled ? 'OFF' : 'ON'}</span>
                   </button>
                   <hr class="dropdown__divider" />
@@ -304,11 +304,11 @@ function getHealthIcons(domain: Domain): string {
 
   // Abuse icon
   if (domain.abuse_status === 'clean') {
-    icons.push('<span class="icon text-ok" data-icon="mono/shield" title="Clean"></span>');
+    icons.push('<span class="icon text-ok" data-icon="mono/shield-account" title="Clean"></span>');
   } else if (domain.abuse_status === 'warning') {
-    icons.push('<span class="icon text-warning" data-icon="mono/shield" title="Warning"></span>');
+    icons.push('<span class="icon text-warning" data-icon="mono/shield-account" title="Warning"></span>');
   } else {
-    icons.push('<span class="icon text-danger" data-icon="mono/shield" title="Blocked"></span>');
+    icons.push('<span class="icon text-danger" data-icon="mono/shield-account" title="Blocked"></span>');
   }
 
   return `<div class="health-icons">${icons.join(' ')}</div>`;
