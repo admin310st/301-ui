@@ -69,27 +69,31 @@ export function initDomainsPage(): void {
       const dropdown = trigger.closest('.dropdown');
       if (!dropdown) return;
 
-      const menu = dropdown.querySelector('.dropdown__menu');
-      const isOpen = trigger.getAttribute('aria-expanded') === 'true';
+      const isOpen = dropdown.classList.contains('dropdown--open');
 
       // Close all other dropdowns
-      document.querySelectorAll('.dropdown__trigger[aria-expanded="true"]').forEach((other) => {
-        if (other !== trigger) {
-          other.setAttribute('aria-expanded', 'false');
-          const otherMenu = other.closest('.dropdown')?.querySelector('.dropdown__menu');
-          if (otherMenu) (otherMenu as HTMLElement).hidden = true;
+      document.querySelectorAll('.dropdown--open').forEach((other) => {
+        if (other !== dropdown) {
+          other.classList.remove('dropdown--open');
+          const otherTrigger = other.querySelector('.dropdown__trigger');
+          if (otherTrigger) otherTrigger.setAttribute('aria-expanded', 'false');
         }
       });
 
       // Toggle current
-      trigger.setAttribute('aria-expanded', String(!isOpen));
-      if (menu) (menu as HTMLElement).hidden = isOpen;
+      if (isOpen) {
+        dropdown.classList.remove('dropdown--open');
+        trigger.setAttribute('aria-expanded', 'false');
+      } else {
+        dropdown.classList.add('dropdown--open');
+        trigger.setAttribute('aria-expanded', 'true');
+      }
     } else {
       // Close all dropdowns when clicking outside
-      document.querySelectorAll('.dropdown__trigger[aria-expanded="true"]').forEach((trigger) => {
-        trigger.setAttribute('aria-expanded', 'false');
-        const menu = trigger.closest('.dropdown')?.querySelector('.dropdown__menu');
-        if (menu) (menu as HTMLElement).hidden = true;
+      document.querySelectorAll('.dropdown--open').forEach((dropdown) => {
+        dropdown.classList.remove('dropdown--open');
+        const trigger = dropdown.querySelector('.dropdown__trigger');
+        if (trigger) trigger.setAttribute('aria-expanded', 'false');
       });
     }
   });

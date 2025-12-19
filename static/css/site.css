@@ -1960,6 +1960,13 @@ html[data-theme="light"] .btn--social-github {
   height: 1rem;
 }
 
+.dropdown__divider {
+  height: 1px;
+  margin: var(--space-2) 0;
+  background: var(--border-subtle);
+  border: none;
+}
+
 /* Link buttons */
 .link-button {
   display: inline-flex;
