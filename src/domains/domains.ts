@@ -28,10 +28,32 @@ export function initDomainsPage(): void {
 
   // Search input
   const searchInput = document.querySelector<HTMLInputElement>('[data-search-input]');
+  const searchClear = document.querySelector<HTMLButtonElement>('[data-search-clear]');
+  const tableSearch = document.querySelector<HTMLElement>('[data-table-search]');
+
   if (searchInput) {
     searchInput.addEventListener('input', (e) => {
       const query = (e.target as HTMLInputElement).value.toLowerCase();
       filterDomains(query);
+
+      // Toggle clear button visibility
+      if (tableSearch) {
+        if (query.length > 0) {
+          tableSearch.classList.add('table-search--active');
+        } else {
+          tableSearch.classList.remove('table-search--active');
+        }
+      }
+    });
+  }
+
+  // Clear button
+  if (searchClear && searchInput && tableSearch) {
+    searchClear.addEventListener('click', () => {
+      searchInput.value = '';
+      filterDomains('');
+      tableSearch.classList.remove('table-search--active');
+      searchInput.focus();
     });
   }
 
