@@ -479,6 +479,7 @@ export const ru: Translation = {
       plan: 'Тарифный план',
       telegram: 'Telegram ID',
       edit: 'Редактировать профиль',
+      upgrade: 'Повысить тариф',
     },
     security: {
       title: 'Безопасность',

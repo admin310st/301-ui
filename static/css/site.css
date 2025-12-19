@@ -319,6 +319,7 @@ body {
   align-items: center;
   gap: var(--inline-gap);
   flex-wrap: wrap;
+  margin-top: var(--space-4);
 }
 
 .card__meta {

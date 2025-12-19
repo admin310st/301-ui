@@ -473,6 +473,7 @@ export const en = {
       plan: 'Plan',
       telegram: 'Telegram ID',
       edit: 'Edit Profile',
+      upgrade: 'Upgrade Plan',
     },
     security: {
       title: 'Security',
