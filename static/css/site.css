@@ -2974,14 +2974,12 @@ body.layout-dashboard .burger-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1.25rem;
-  height: 1.25rem;
   flex-shrink: 0;
 }
 
 .provider-icon-sm .icon {
-  width: 1rem;
-  height: 1rem;
+  width: 20px;
+  height: 20px;
 }
 
 .health-icons {
