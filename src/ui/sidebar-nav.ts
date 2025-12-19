@@ -118,7 +118,7 @@ function renderNavItem(item: NavItem, currentPath: string): string {
   return `
     <a href="${item.href}" class="navitem${activeClass}" data-nav-id="${item.id}" data-label-en="${item.label}" data-label-key="${item.labelKey}" data-tooltip="${item.label}">
       <span class="icon" data-icon="${item.icon}"></span>
-      <span class="label">${label}</span>
+      <span class="label" data-i18n="${item.labelKey}">${label}</span>
       ${item.badge ? `<span class="badge badge--sm">${item.badge}</span>` : ''}
     </a>
   `;
