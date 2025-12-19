@@ -2622,7 +2622,7 @@ body.layout-dashboard .burger-button {
    ============================================ */
 .account-profile {
   display: flex;
-  gap: var(--space-5);
+  gap: var(--space-3);
   align-items: flex-start;
 }
 
@@ -2631,10 +2631,10 @@ body.layout-dashboard .burger-button {
 }
 
 .account-avatar img {
-  width: 120px;
-  height: 120px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  border: 2px solid var(--border-subtle);
+  border: 1px solid var(--border-subtle);
   background: var(--bg-soft);
   object-fit: cover;
 }
@@ -2680,15 +2680,6 @@ body.layout-dashboard .burger-button {
 
 /* Mobile adjustments */
 @media (max-width: 768px) {
-  .account-profile {
-    flex-direction: column;
-    gap: var(--space-4);
-  }
-
-  .account-avatar {
-    align-self: center;
-  }
-
   .detail-row {
     grid-template-columns: 1fr;
     gap: var(--space-1);
