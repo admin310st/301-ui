@@ -534,11 +534,46 @@ Admin (самый конец, Layer 7)
 * `Test connection`
 * `Resync` (для CF — зоны, для регистраторов — домены).
 
-#### 2.2. Экран “Domains (глобальный)”
+#### 2.2. Экран "Domains (глобальный)"
+
+**Реализовано (2025-12-19) — Этап 1: MVP/Скелет страницы:**
+
+- ✅ **Страница `/domains.html`** с unified dashboard layout
+- ✅ **Таблица доменов** с 6 колонками:
+  - Select (checkbox для bulk actions)
+  - Domain (название + project info)
+  - Status (badge: active/expired/expiring/blocked/pending)
+  - Health (SSL + Abuse combined: lock + shield icons)
+  - Expires (дата с цветовым кодированием через badges)
+  - Actions (inspect button + dropdown menu)
+- ✅ **Mock data** (`src/domains/mock-data.ts`): 35 доменов с реалистичным распределением
+- ✅ **Search functionality**: поиск по домену/проекту
+- ✅ **Domain inspector drawer**: slide-in панель с overview секцией
+- ✅ **Add domains modal**: bulk ввод доменов (textarea, одна строка = один домен)
+- ✅ **Dropdown action menu** для каждого домена:
+  - Manage redirects
+  - DNS / Zone settings
+  - Re-check health
+  - Toggle monitoring ON/OFF
+  - Delete domain
+- ✅ **Select all / bulk selection**: готовность для массовых операций
+- ✅ **Empty/loading/error states**
+- ✅ **Pagination footer** (заглушка, готова к реализации)
+- ✅ **Mobile-responsive**: drawer с overlay, адаптивная таблица
+- ✅ **Icon system**: использованы только существующие иконки из sprite
+- ✅ **Routing**: интеграция в vite.config.ts и worker.ts
+
+**Файлы:**
+- `domains.html` - главная страница
+- `src/domains/domains.ts` - UI логика
+- `src/domains/mock-data.ts` - моковые данные
+- `TODO-domains.md` - roadmap по доработке
+
+**Планируется (следующие этапы):**
 
 Список доменов (из всех интеграций):
 
-Колонки:
+Колонки (расширенная версия):
 
 * Domain
 * Cloudflare account / zone (кратко)
@@ -572,6 +607,16 @@ Admin (самый конец, Layer 7)
 
   * открыть деталку домена,
   * перейти на проект/стрим/сайт, который его использует.
+
+**Next steps (см. TODO-domains.md):**
+- Этап 2: Фильтры и расширенный поиск
+- Этап 3: Bulk actions (массовые операции)
+- Этап 4: Статистика в header (stat-cards с метриками)
+- Этап 5: Сортировка таблицы
+- Этап 6: Работающая пагинация
+- Этап 7: Real API integration
+- Этап 8: Inspector drawer enhancements (tabs, history, DNS records)
+- Этап 9: i18n coverage (EN/RU)
 
 ---
 

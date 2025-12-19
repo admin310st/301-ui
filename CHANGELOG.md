@@ -8,6 +8,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Domains management page** (2025-12-19)
+  - Full-featured domains table with 6 columns: Select, Domain, Status, Health, Expires, Actions
+  - Domain inspector drawer (slide-in panel) with overview section
+  - "Add domains" modal for bulk domain input
+  - Dropdown action menus for individual domain operations:
+    - Manage redirects, DNS settings, Re-check health, Toggle monitoring, Delete
+  - Search functionality (filter by domain name or project)
+  - Select all / bulk selection (ready for bulk actions)
+  - Mock data generation (35 domains with realistic distribution)
+  - Status badges (active/expired/expiring/blocked/pending) with correct design system classes
+  - Health icons (SSL + Abuse combined in one column)
+  - Expires column with badge-colored dates (danger for expired, warning for expiring soon)
+  - Empty/loading/error states
+  - Pagination footer (ready for implementation)
+  - Mobile-responsive drawer with overlay
+  - Routing integration (`/domains.html`)
+  - Path alias `@domains` for TypeScript imports
 - **Integrations API implementation** (2025-12-17)
   - Full CRUD for integration keys management (`src/api/integrations.ts`)
   - TypeScript types for all integrations endpoints (`src/api/types.ts`)
