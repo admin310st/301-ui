@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>301.st · Domains</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" href="/css/theme.css" />
+    <link rel="stylesheet" href="/css/layout.css" />
+    <link rel="stylesheet" href="/css/site.css" />
+  </head>
+  <body class="layout-dashboard">
+    <header class="site-header" role="banner">
+{{> header-top}}
+
+      <div class="utility-bar">
+        <div class="page-shell utility-bar__inner">
+          <div class="utility-left">
+            <nav class="breadcrumbs" aria-label="Breadcrumb">
+              <a href="/" class="crumb">
+                <span class="icon" data-icon="mono/home"></span>
+                <span>Home</span>
+              </a>
+              <span class="sep" aria-hidden="true">›</span>
+              <span class="crumb is-current">Domains</span>
+
+              <span class="badges">
+                <span class="badge badge--neutral">Core</span>
+              </span>
+            </nav>
+          </div>
+
+{{> header-utility}}
+        </div>
+
+{{> global-notice}}
+      </div>
+    </header>
+
+    <main class="page-shell dashboard-shell">
+{{> sidebar activePage="domains"}}
+
+      <section class="dashboard-content">
+        <!-- Page Header -->
+        <header class="page-header">
+          <div class="stack-sm">
+            <h1 class="h3">Domains</h1>
+            <p class="text-muted">Manage all domains connected to your Traffic Control Plane.</p>
+          </div>
+          <div class="controls-row">
+            <button class="btn btn--primary" type="button" data-action="add-domains">
+              <span class="icon" data-icon="mono/plus"></span>
+              <span>Add domains</span>
+            </button>
+          </div>
+        </header>
+
+        <!-- Domains Table Card -->
+        <div class="card card--panel" data-domains-card>
+          <header class="card__header">
+            <h2 class="h4">All Domains</h2>
+            <div class="card__actions">
+              <div class="table-search">
+                <span class="icon" data-icon="mono/search"></span>
+                <input
+                  type="search"
+                  class="table-search__input"
+                  placeholder="Search domains or projects..."
+                  data-search-input
+                />
+              </div>
+            </div>
+          </header>
+
+          <div class="card__body">
+            <!-- Loading State -->
+            <div class="loading-state" data-loading-state hidden>
+              <div class="spinner"></div>
+              <p class="text-muted">Loading domains...</p>
+            </div>
+
+            <!-- Empty State -->
+            <div class="empty-state" data-empty-state hidden>
+              <div class="stack-md">
+                <span class="icon icon--lg" data-icon="mono/globe"></span>
+                <h3 class="h4">No domains connected yet</h3>
+                <p class="text-muted">
+                  Connect your registrars or add domains manually to start managing redirects and monitoring.
+                </p>
+                <div class="btn-group">
+                  <button class="btn btn--primary" type="button" data-action="add-domains">
+                    <span class="icon" data-icon="mono/plus"></span>
+                    <span>Add domains</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Error State -->
+            <div class="alert alert--danger" data-error-state hidden>
+              <p>We couldn't load domains. Please retry or check your API configuration.</p>
+              <button class="btn btn--sm btn--ghost" type="button" data-action="retry">Retry</button>
+            </div>
+
+            <!-- Domains Table -->
+            <div class="table-shell" data-table-shell hidden>
+              <div class="table-scroll">
+                <table class="table table--domains">
+                  <thead>
+                    <tr>
+                      <th style="width: 40px;">
+                        <input type="checkbox" data-select-all aria-label="Select all domains" />
+                      </th>
+                      <th>Domain</th>
+                      <th>Status</th>
+                      <th>Health</th>
+                      <th>Expires</th>
+                      <th style="width: 120px;">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody data-domains-tbody>
+                    <!-- Rows injected by JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <footer class="card__footer" data-table-footer hidden>
+            <div class="pagination">
+              <span class="pagination__info">Showing <strong>1-25</strong> of <strong data-total-count>0</strong></span>
+              <div class="pagination__controls">
+                <button class="btn btn--sm btn--ghost" disabled>Previous</button>
+                <button class="btn btn--sm btn--ghost" disabled>Next</button>
+              </div>
+            </div>
+          </footer>
+        </div>
+      </section>
+    </main>
+
+{{> footer}}
+
+    <!-- Add Domains Modal -->
+    <dialog class="modal" data-modal="add-domains">
+      <div class="modal__content">
+        <header class="modal__header">
+          <h2 class="h3">Add domains</h2>
+          <button class="btn-close" type="button" data-modal-close aria-label="Close">
+            <span class="icon" data-icon="mono/x"></span>
+          </button>
+        </header>
+        <div class="modal__body">
+          <div class="field">
+            <label class="field__label" for="domains-input">Domains (one per line)</label>
+            <textarea
+              id="domains-input"
+              class="input"
+              rows="8"
+              placeholder="example.com&#10;another-domain.com&#10;third-domain.net"
+              data-domains-input
+            ></textarea>
+          </div>
+        </div>
+        <footer class="modal__footer">
+          <button class="btn btn--primary" type="button" data-action="confirm-add-domains">
+            <span class="icon" data-icon="mono/plus"></span>
+            <span>Add domains</span>
+          </button>
+          <button class="btn btn--ghost" type="button" data-modal-close>Cancel</button>
+        </footer>
+      </div>
+    </dialog>
+
+    <!-- Domain Inspector Drawer -->
+    <aside class="drawer" data-drawer="domain-inspector" hidden>
+      <div class="drawer__overlay" data-drawer-close></div>
+      <div class="drawer__panel">
+        <header class="drawer__header">
+          <div class="drawer__title">
+            <h2 class="h4" data-inspector-domain>example.com</h2>
+            <span class="badge" data-inspector-status>Active</span>
+          </div>
+          <button class="btn-close" type="button" data-drawer-close aria-label="Close">
+            <span class="icon" data-icon="mono/x"></span>
+          </button>
+        </header>
+        <div class="drawer__body">
+          <div class="stack-list">
+            <!-- Overview -->
+            <section class="card card--panel">
+              <header class="card__header">
+                <h3 class="h5">Overview</h3>
+              </header>
+              <div class="card__body">
+                <dl class="detail-list">
+                  <div class="detail-row">
+                    <dt class="detail-label">Project</dt>
+                    <dd class="detail-value" data-inspector-project>—</dd>
+                  </div>
+                  <div class="detail-row">
+                    <dt class="detail-label">Provider</dt>
+                    <dd class="detail-value" data-inspector-provider>—</dd>
+                  </div>
+                  <div class="detail-row">
+                    <dt class="detail-label">SSL</dt>
+                    <dd class="detail-value" data-inspector-ssl>—</dd>
+                  </div>
+                  <div class="detail-row">
+                    <dt class="detail-label">Abuse Status</dt>
+                    <dd class="detail-value" data-inspector-abuse>—</dd>
+                  </div>
+                  <div class="detail-row">
+                    <dt class="detail-label">Monitoring</dt>
+                    <dd class="detail-value" data-inspector-monitoring>—</dd>
+                  </div>
+                </dl>
+              </div>
+            </section>
+
+            <!-- Placeholder for future sections -->
+            <section class="card card--panel">
+              <header class="card__header">
+                <h3 class="h5">Routing & Redirects</h3>
+              </header>
+              <div class="card__body">
+                <p class="text-muted">Coming soon...</p>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

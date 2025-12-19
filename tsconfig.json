@@ -9,6 +9,7 @@
       "@api/*": ["api/*"],
       "@forms/*": ["forms/*"],
       "@ui/*": ["ui/*"],
+      "@domains/*": ["domains/*"],
       "@utils/*": ["utils/*"],
       "@state/*": ["state/*"],
       "@social/*": ["social/*"],

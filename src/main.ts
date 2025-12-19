@@ -25,6 +25,7 @@ import { initSidebarNav } from '@ui/sidebar-nav';
 import { initIntegrationsPage } from '@ui/integrations';
 import { initAccountPage } from '@forms/account';
 import { initAccountEdit } from '@forms/account-edit';
+import { initDomainsPage } from '@domains/domains';
 
 /**
  * Inject SVG sprite with icons once per page.
@@ -165,6 +166,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initIntegrationsPage();
   initAccountPage();
   initAccountEdit();
+  initDomainsPage();
 
   // Expose showGlobalNotice for testing in Style Guide
   (window as any).showGlobalNotice = showGlobalNotice;
