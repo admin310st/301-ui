@@ -163,7 +163,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initSidebarNav();       // First: render nav items
   initSidebarSearch();    // Then: attach search to rendered items
   initIntegrationsPage();
-  initAccountPage();
+  initAccountPage().catch(console.error);
   initAccountEdit();
 
   // Expose showGlobalNotice for testing in Style Guide

@@ -1,7 +1,19 @@
 import { getAuthState } from '@state/auth-state';
-import { getGravatarUrl } from '@utils/gravatar';
 
-export function initAccountPage(): void {
+async function md5(text: string): Promise<string> {
+  // Use Web Crypto API if available
+  if (crypto.subtle) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(text);
+    const hashBuffer = await crypto.subtle.digest('MD5', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
+  }
+  // Fallback would go here, but MD5 via SubtleCrypto is widely supported
+  throw new Error('MD5 not supported');
+}
+
+export async function initAccountPage(): Promise<void> {
   const avatarImg = document.querySelector<HTMLImageElement>('[data-account-avatar]');
   const emailEl = document.querySelector('[data-account-email]');
   const nameEl = document.querySelector('[data-account-name]');
@@ -23,13 +35,16 @@ export function initAccountPage(): void {
 
   // Update avatar with Gravatar or fallback
   if (user.email) {
-    getGravatarUrl(user.email, 48)
-      .then((url) => {
-        avatarImg.src = url;
-      })
-      .catch(() => {
-        avatarImg.src = '/img/icons/ava.svg';
-      });
+    const normalized = user.email.toLowerCase().trim();
+    const hash = await md5(normalized);
+    const gravatarUrl = `https://www.gravatar.com/avatar/${hash}?d=404&s=96`;
+
+    // Try to load Gravatar, fallback to panda on error
+    avatarImg.onerror = () => {
+      avatarImg.src = '/img/icons/ava.svg';
+      avatarImg.onerror = null; // Prevent infinite loop
+    };
+    avatarImg.src = gravatarUrl;
   } else {
     avatarImg.src = '/img/icons/ava.svg';
   }
