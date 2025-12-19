@@ -2610,9 +2610,10 @@ body.layout-dashboard .burger-button {
     overflow: hidden;
   }
 
-  /* Add horizontal padding to dashboard content on mobile */
+  /* Remove extra padding from dashboard-content on mobile */
+  /* .page-shell already provides sufficient padding */
   .dashboard-content {
-    padding-inline: var(--space-3);
+    padding-inline: 0;
   }
 }
 
