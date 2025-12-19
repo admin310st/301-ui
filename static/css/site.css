@@ -2632,7 +2632,7 @@ body.layout-dashboard .burger-button {
   height: 48px;
   border-radius: 50%;
   border: 2px solid var(--border-subtle);
-  background: var(--bg-soft);
+  background: var(--gray-50);
   object-fit: cover;
   flex-shrink: 0;
 }
