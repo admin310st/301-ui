@@ -2620,11 +2620,10 @@ body.layout-dashboard .burger-button {
 /* ============================================
    Account Page
    ============================================ */
-.account-avatar-card {
+.card__header--with-avatar {
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding: var(--space-4);
+  gap: var(--space-3);
 }
 
 .account-avatar {
@@ -2634,6 +2633,7 @@ body.layout-dashboard .burger-button {
   border: 2px solid var(--border-subtle);
   background: var(--bg-soft);
   object-fit: cover;
+  flex-shrink: 0;
 }
 
 .detail-list {
