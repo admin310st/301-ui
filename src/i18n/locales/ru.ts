@@ -3,6 +3,14 @@ import type { Translation } from './en';
 export const ru: Translation = {
   common: {
     pleaseWait: 'Пожалуйста, подождите...',
+    save: 'Сохранить',
+    cancel: 'Отмена',
+    validation: {
+      required: 'Это поле обязательно',
+    },
+    messages: {
+      saved: 'Изменения успешно сохранены',
+    },
   },
   layout: {
     nav: {
@@ -486,6 +494,11 @@ export const ru: Translation = {
       description: 'Управление паролем, двухфакторной аутентификацией и подключенными аккаунтами.',
       changePassword: 'Изменить пароль',
       twoFactor: 'Двухфакторная аутентификация',
+      currentPassword: 'Текущий пароль',
+      newPassword: 'Новый пароль',
+      confirmPassword: 'Подтвердите пароль',
+      passwordMismatch: 'Пароли не совпадают',
+      passwordChanged: 'Пароль успешно изменен',
     },
   },
 };

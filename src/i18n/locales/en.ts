@@ -1,6 +1,14 @@
 export const en = {
   common: {
     pleaseWait: 'Please wait...',
+    save: 'Save',
+    cancel: 'Cancel',
+    validation: {
+      required: 'This field is required',
+    },
+    messages: {
+      saved: 'Changes saved successfully',
+    },
   },
   layout: {
     nav: {
@@ -480,6 +488,11 @@ export const en = {
       description: 'Manage your password, two-factor authentication, and connected accounts.',
       changePassword: 'Change Password',
       twoFactor: 'Two-Factor Auth',
+      currentPassword: 'Current Password',
+      newPassword: 'New Password',
+      confirmPassword: 'Confirm Password',
+      passwordMismatch: 'Passwords do not match',
+      passwordChanged: 'Password changed successfully',
     },
   },
 };

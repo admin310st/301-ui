@@ -66,31 +66,69 @@
               </header>
               <div class="card__body">
                 <dl class="detail-list">
-                  <div class="detail-row">
+                  <!-- Email (editable) -->
+                  <div class="detail-row" data-edit-field="email">
                     <dt class="detail-label" data-i18n="account.profile.email">Email</dt>
-                    <dd class="detail-value" data-account-email>—</dd>
+                    <dd class="detail-value" data-view-mode>
+                      <span data-account-email>—</span>
+                      <button class="btn-inline" type="button" data-edit-trigger>
+                        <span class="icon" data-icon="mono/pencil-circle"></span>
+                      </button>
+                    </dd>
+                    <dd class="detail-edit" data-edit-mode hidden>
+                      <input type="email" class="input" data-edit-input placeholder="user@example.com" />
+                      <div class="btn-group">
+                        <button class="btn btn--sm btn--primary" type="button" data-save-btn>
+                          <span data-i18n="common.save">Save</span>
+                        </button>
+                        <button class="btn btn--sm btn--ghost" type="button" data-cancel-btn>
+                          <span data-i18n="common.cancel">Cancel</span>
+                        </button>
+                      </div>
+                    </dd>
                   </div>
 
-                  <div class="detail-row">
+                  <!-- Name (editable) -->
+                  <div class="detail-row" data-edit-field="name">
                     <dt class="detail-label" data-i18n="account.profile.name">Name</dt>
-                    <dd class="detail-value" data-account-name>—</dd>
+                    <dd class="detail-value" data-view-mode>
+                      <span data-account-name>—</span>
+                      <button class="btn-inline" type="button" data-edit-trigger>
+                        <span class="icon" data-icon="mono/pencil-circle"></span>
+                      </button>
+                    </dd>
+                    <dd class="detail-edit" data-edit-mode hidden>
+                      <input type="text" class="input" data-edit-input placeholder="John Doe" />
+                      <div class="btn-group">
+                        <button class="btn btn--sm btn--primary" type="button" data-save-btn>
+                          <span data-i18n="common.save">Save</span>
+                        </button>
+                        <button class="btn btn--sm btn--ghost" type="button" data-cancel-btn>
+                          <span data-i18n="common.cancel">Cancel</span>
+                        </button>
+                      </div>
+                    </dd>
                   </div>
 
+                  <!-- User ID (read-only) -->
                   <div class="detail-row">
                     <dt class="detail-label" data-i18n="account.profile.id">User ID</dt>
                     <dd class="detail-value detail-value--mono" data-account-id>—</dd>
                   </div>
 
+                  <!-- Role (read-only) -->
                   <div class="detail-row">
                     <dt class="detail-label" data-i18n="account.profile.role">Role</dt>
                     <dd class="detail-value" data-account-role>—</dd>
                   </div>
 
+                  <!-- Plan (read-only) -->
                   <div class="detail-row">
                     <dt class="detail-label" data-i18n="account.profile.plan">Plan</dt>
                     <dd class="detail-value" data-account-plan>—</dd>
                   </div>
 
+                  <!-- Telegram ID (read-only) -->
                   <div class="detail-row" data-account-tg-row hidden>
                     <dt class="detail-label" data-i18n="account.profile.telegram">Telegram ID</dt>
                     <dd class="detail-value detail-value--mono" data-account-tg-id>—</dd>
@@ -98,13 +136,13 @@
                 </dl>
 
                 <div class="card__actions">
-                  <button class="btn-chip" disabled>
+                  <button class="btn btn--primary" type="button" data-edit-profile>
                     <span class="icon" data-icon="mono/pencil-circle"></span>
-                    <span class="btn-chip__label" data-i18n="account.profile.edit">Edit Profile</span>
+                    <span data-i18n="account.profile.edit">Edit Profile</span>
                   </button>
-                  <button class="btn-chip" disabled>
+                  <button class="btn btn--secondary" type="button">
                     <span class="icon" data-icon="mono/arrow-up"></span>
-                    <span class="btn-chip__label" data-i18n="account.profile.upgrade">Upgrade Plan</span>
+                    <span data-i18n="account.profile.upgrade">Upgrade Plan</span>
                   </button>
                 </div>
               </div>
@@ -112,25 +150,55 @@
 
             <!-- Security Card -->
             <div class="card card--panel">
-            <header class="card__header">
-              <h2 class="h4" data-i18n="account.security.title">Security</h2>
-            </header>
-            <div class="card__body">
-              <p class="text-muted" data-i18n="account.security.description">
-                Manage your password, two-factor authentication, and connected accounts.
-              </p>
-              <div class="card__actions">
-                <button class="btn-chip" disabled>
-                  <span class="icon" data-icon="mono/lock"></span>
-                  <span class="btn-chip__label" data-i18n="account.security.changePassword">Change Password</span>
-                </button>
-                <button class="btn-chip" disabled>
-                  <span class="icon" data-icon="mono/2fa"></span>
-                  <span class="btn-chip__label" data-i18n="account.security.twoFactor">Two-Factor Auth</span>
-                </button>
+              <header class="card__header">
+                <h2 class="h4" data-i18n="account.security.title">Security</h2>
+              </header>
+              <div class="card__body">
+                <p class="text-muted" data-i18n="account.security.description">
+                  Manage your password, two-factor authentication, and connected accounts.
+                </p>
+
+                <!-- Change Password Form (hidden by default) -->
+                <form class="password-change-form" data-password-form hidden>
+                  <div class="stack" style="gap: var(--space-3);">
+                    <div class="field">
+                      <label class="field__label" data-i18n="account.security.currentPassword">Current Password</label>
+                      <input type="password" class="input" data-password-field data-current-password required />
+                    </div>
+
+                    <div class="field">
+                      <label class="field__label" data-i18n="account.security.newPassword">New Password</label>
+                      <input type="password" class="input" data-password-field data-new-password required />
+                    </div>
+
+                    <div class="field">
+                      <label class="field__label" data-i18n="account.security.confirmPassword">Confirm Password</label>
+                      <input type="password" class="input" data-password-field data-confirm-password required />
+                    </div>
+
+                    <div class="btn-group">
+                      <button class="btn btn--primary" type="submit">
+                        <span data-i18n="common.save">Save</span>
+                      </button>
+                      <button class="btn btn--ghost" type="button" data-cancel-password>
+                        <span data-i18n="common.cancel">Cancel</span>
+                      </button>
+                    </div>
+                  </div>
+                </form>
+
+                <div class="card__actions">
+                  <button class="btn-chip" type="button" data-toggle-password>
+                    <span class="icon" data-icon="mono/lock"></span>
+                    <span class="btn-chip__label" data-i18n="account.security.changePassword">Change Password</span>
+                  </button>
+                  <button class="btn-chip" disabled>
+                    <span class="icon" data-icon="mono/2fa"></span>
+                    <span class="btn-chip__label" data-i18n="account.security.twoFactor">Two-Factor Auth</span>
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
         </div>
       </section>
     </main>
