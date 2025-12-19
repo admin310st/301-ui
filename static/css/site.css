@@ -2638,12 +2638,6 @@ body.layout-dashboard .burger-button {
 }
 
 /* Inline edit */
-.detail-value {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-}
-
 .btn-inline {
   display: inline-flex;
   align-items: center;
@@ -2673,6 +2667,8 @@ body.layout-dashboard .burger-button {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
+  align-self: start;
+  width: 100%;
 }
 
 .password-change-form {
@@ -2700,7 +2696,11 @@ body.layout-dashboard .burger-button {
   display: grid;
   grid-template-columns: 140px 1fr;
   gap: var(--space-3);
-  align-items: baseline;
+  align-items: start;
+}
+
+.detail-row dd {
+  margin: 0;
 }
 
 .detail-label {
@@ -2711,6 +2711,9 @@ body.layout-dashboard .burger-button {
 }
 
 .detail-value {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
   font-size: var(--fs-md);
   color: var(--text);
   margin: 0;
