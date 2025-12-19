@@ -2964,6 +2964,26 @@ body.layout-dashboard .burger-button {
 /* ============================================
    Domains Page Specific
    ============================================ */
+.expires-cell {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.provider-icon-sm {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  flex-shrink: 0;
+}
+
+.provider-icon-sm .icon {
+  width: 1rem;
+  height: 1rem;
+}
+
 .health-icons {
   display: flex;
   gap: var(--space-2);

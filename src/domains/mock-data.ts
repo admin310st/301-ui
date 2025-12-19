@@ -4,7 +4,7 @@ export interface Domain {
   project_name: string;
   project_lang?: string;
   status: 'active' | 'expired' | 'expiring' | 'blocked' | 'pending';
-  provider: 'cloudflare' | 'namecheap' | 'namesilo' | 'manual';
+  provider: 'cloudflare' | 'namecheap' | 'namesilo' | 'google' | 'manual';
   registrar?: string;
   cf_zone_id?: string;
   ssl_status: 'valid' | 'expiring' | 'invalid' | 'off';
@@ -29,7 +29,7 @@ const projects = [
 
 const tlds = ['.com', '.net', '.org', '.io', '.dev', '.app', '.xyz', '.co', '.ru', '.es'];
 const langs = ['EN', 'RU', 'ES', 'DE', 'FR'];
-const providers: Domain['provider'][] = ['cloudflare', 'namecheap', 'namesilo', 'manual'];
+const providers: Domain['provider'][] = ['cloudflare', 'namecheap', 'namesilo', 'google', 'manual'];
 
 function randomItem<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];

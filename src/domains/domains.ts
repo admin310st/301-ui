@@ -357,13 +357,34 @@ function getExpiresText(domain: Domain): string {
   const today = new Date();
   const daysUntil = Math.ceil((expiresDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 
+  const providerIcons: Record<Domain['provider'], string> = {
+    cloudflare: 'brand/cloudflare',
+    namecheap: 'brand/namecheap',
+    namesilo: 'brand/namesilo',
+    google: 'brand/google',
+    manual: 'mono/dns',
+  };
+
+  const providerLabels: Record<Domain['provider'], string> = {
+    cloudflare: 'Cloudflare Registrar',
+    namecheap: 'Namecheap',
+    namesilo: 'NameSilo',
+    google: 'Google Domains',
+    manual: 'Manually added',
+  };
+
+  const icon = `<span class="provider-icon-sm" title="${providerLabels[domain.provider]}"><span class="icon" data-icon="${providerIcons[domain.provider]}"></span></span>`;
+
+  let dateText: string;
   if (daysUntil < 0) {
-    return `<span class="badge badge--danger">${domain.expires_at}</span>`;
+    dateText = `<span class="badge badge--danger">${domain.expires_at}</span>`;
   } else if (daysUntil <= 30) {
-    return `<span class="badge badge--warning">${domain.expires_at}</span>`;
+    dateText = `<span class="badge badge--warning">${domain.expires_at}</span>`;
+  } else {
+    dateText = domain.expires_at;
   }
 
-  return domain.expires_at;
+  return `<div class="expires-cell">${icon}${dateText}</div>`;
 }
 
 function filterDomains(query: string): void {
