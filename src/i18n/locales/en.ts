@@ -460,6 +460,27 @@ export const en = {
       bounceRate: 'Bounce rate',
     },
   },
+  account: {
+    breadcrumb: 'Account',
+    title: 'Account Settings',
+    subtitle: 'Manage your profile information and preferences',
+    profile: {
+      title: 'Profile Information',
+      email: 'Email',
+      name: 'Name',
+      id: 'User ID',
+      role: 'Role',
+      plan: 'Plan',
+      telegram: 'Telegram ID',
+      edit: 'Edit Profile',
+    },
+    security: {
+      title: 'Security',
+      description: 'Manage your password, two-factor authentication, and connected accounts.',
+      changePassword: 'Change Password',
+      twoFactor: 'Two-Factor Auth',
+    },
+  },
 };
 
 export type Translation = typeof en;

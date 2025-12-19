@@ -466,4 +466,25 @@ export const ru: Translation = {
       bounceRate: 'Показатель отказов',
     },
   },
+  account: {
+    breadcrumb: 'Аккаунт',
+    title: 'Настройки аккаунта',
+    subtitle: 'Управление информацией профиля и настройками',
+    profile: {
+      title: 'Информация профиля',
+      email: 'Email',
+      name: 'Имя',
+      id: 'ID пользователя',
+      role: 'Роль',
+      plan: 'Тарифный план',
+      telegram: 'Telegram ID',
+      edit: 'Редактировать профиль',
+    },
+    security: {
+      title: 'Безопасность',
+      description: 'Управление паролем, двухфакторной аутентификацией и подключенными аккаунтами.',
+      changePassword: 'Изменить пароль',
+      twoFactor: 'Двухфакторная аутентификация',
+    },
+  },
 };

@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>301.st · Account</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" href="/css/theme.css" />
+    <link rel="stylesheet" href="/css/layout.css" />
+    <link rel="stylesheet" href="/css/site.css" />
+  </head>
+  <body class="layout-dashboard">
+    <header class="site-header" role="banner">
+{{> header-top}}
+
+      <div class="utility-bar">
+        <div class="page-shell utility-bar__inner">
+          <div class="utility-left">
+            <nav class="breadcrumbs" aria-label="Breadcrumb">
+              <a href="/" class="crumb"
+                ><span class="icon" data-icon="mono/home"></span> <span data-i18n="layout.nav.home">Home</span></a
+              >
+              <span class="sep" aria-hidden="true">›</span>
+              <span class="crumb is-current" data-i18n="account.breadcrumb">Account</span>
+
+              <span class="badges">
+                <span class="badge badge--neutral">Profile</span>
+              </span>
+            </nav>
+          </div>
+
+{{> header-utility}}
+        </div>
+
+{{> global-notice}}
+      </div>
+    </header>
+
+    <main class="page-shell dashboard-shell">
+{{> sidebar activePage="account"}}
+
+      <section class="dashboard-content">
+        <header class="page-header">
+          <div class="stack-sm">
+            <h1 class="h3" data-i18n="account.title">Account Settings</h1>
+            <p class="text-muted" data-i18n="account.subtitle">Manage your profile information and preferences</p>
+          </div>
+        </header>
+
+        <div class="stack-list">
+          <!-- Profile Card -->
+          <div class="card card--panel">
+            <header class="card__header">
+              <h2 class="h4" data-i18n="account.profile.title">Profile Information</h2>
+            </header>
+            <div class="card__body">
+              <div class="account-profile">
+                <!-- Avatar -->
+                <div class="account-avatar">
+                  <img
+                    src="/img/icons/ava.svg"
+                    alt="User avatar"
+                    width="120"
+                    height="120"
+                    data-account-avatar
+                  />
+                </div>
+
+                <!-- Profile Details -->
+                <div class="account-details">
+                  <dl class="detail-list">
+                    <div class="detail-row">
+                      <dt class="detail-label" data-i18n="account.profile.email">Email</dt>
+                      <dd class="detail-value" data-account-email>—</dd>
+                    </div>
+
+                    <div class="detail-row">
+                      <dt class="detail-label" data-i18n="account.profile.name">Name</dt>
+                      <dd class="detail-value" data-account-name>—</dd>
+                    </div>
+
+                    <div class="detail-row">
+                      <dt class="detail-label" data-i18n="account.profile.id">User ID</dt>
+                      <dd class="detail-value detail-value--mono" data-account-id>—</dd>
+                    </div>
+
+                    <div class="detail-row">
+                      <dt class="detail-label" data-i18n="account.profile.role">Role</dt>
+                      <dd class="detail-value" data-account-role>—</dd>
+                    </div>
+
+                    <div class="detail-row">
+                      <dt class="detail-label" data-i18n="account.profile.plan">Plan</dt>
+                      <dd class="detail-value" data-account-plan>—</dd>
+                    </div>
+
+                    <div class="detail-row" data-account-tg-row hidden>
+                      <dt class="detail-label" data-i18n="account.profile.telegram">Telegram ID</dt>
+                      <dd class="detail-value detail-value--mono" data-account-tg-id>—</dd>
+                    </div>
+                  </dl>
+
+                  <div class="card__actions">
+                    <button class="btn btn--primary" disabled>
+                      <span class="icon" data-icon="mono/pencil-circle"></span>
+                      <span data-i18n="account.profile.edit">Edit Profile</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Security Card (placeholder for future) -->
+          <div class="card card--panel">
+            <header class="card__header">
+              <h2 class="h4" data-i18n="account.security.title">Security</h2>
+            </header>
+            <div class="card__body">
+              <p class="text-muted" data-i18n="account.security.description">
+                Manage your password, two-factor authentication, and connected accounts.
+              </p>
+              <div class="card__actions">
+                <button class="btn btn--ghost" disabled>
+                  <span class="icon" data-icon="mono/lock"></span>
+                  <span data-i18n="account.security.changePassword">Change Password</span>
+                </button>
+                <button class="btn btn--ghost" disabled>
+                  <span class="icon" data-icon="mono/shield"></span>
+                  <span data-i18n="account.security.twoFactor">Two-Factor Auth</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+{{> footer}}
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

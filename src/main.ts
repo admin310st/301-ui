@@ -23,6 +23,7 @@ import { initSidebarToggle } from '@ui/sidebar-toggle';
 import { initSidebarSearch } from '@ui/sidebar-search';
 import { initSidebarNav } from '@ui/sidebar-nav';
 import { initIntegrationsPage } from '@ui/integrations';
+import { initAccountPage } from '@forms/account';
 
 /**
  * Inject SVG sprite with icons once per page.
@@ -161,6 +162,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initSidebarNav();       // First: render nav items
   initSidebarSearch();    // Then: attach search to rendered items
   initIntegrationsPage();
+  initAccountPage();
 
   // Expose showGlobalNotice for testing in Style Guide
   (window as any).showGlobalNotice = showGlobalNotice;
