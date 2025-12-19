@@ -23,7 +23,7 @@ export function initAccountPage(): void {
 
   // Update avatar with Gravatar or fallback
   if (user.email) {
-    getGravatarUrl(user.email, 40)
+    getGravatarUrl(user.email, 48)
       .then((url) => {
         avatarImg.src = url;
       })

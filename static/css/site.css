@@ -2620,28 +2620,20 @@ body.layout-dashboard .burger-button {
 /* ============================================
    Account Page
    ============================================ */
-.account-profile {
+.account-avatar-card {
   display: flex;
-  gap: var(--space-3);
-  align-items: flex-start;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
 }
 
 .account-avatar {
-  flex-shrink: 0;
-}
-
-.account-avatar img {
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
-  border: 1px solid var(--border-subtle);
+  border: 2px solid var(--border-subtle);
   background: var(--bg-soft);
   object-fit: cover;
-}
-
-.account-details {
-  flex: 1;
-  min-width: 0;
 }
 
 .detail-list {

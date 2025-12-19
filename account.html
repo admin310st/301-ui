@@ -49,64 +49,65 @@
         </header>
 
         <div class="stack-list">
-          <!-- Profile Card -->
-          <div class="card card--panel">
-            <header class="card__header">
-              <h2 class="h4" data-i18n="account.profile.title">Profile Information</h2>
-            </header>
-            <div class="card__body">
-              <div class="account-profile">
-                <!-- Avatar -->
-                <div class="account-avatar">
-                  <img
-                    src="/img/icons/ava.svg"
-                    alt="User avatar"
-                    width="40"
-                    height="40"
-                    data-account-avatar
-                  />
-                </div>
+          <!-- Profile Section: Avatar + Details -->
+          <div class="grid-2">
+            <!-- Avatar Card -->
+            <div class="card card--panel">
+              <div class="card__body account-avatar-card">
+                <img
+                  src="/img/icons/ava.svg"
+                  alt="User avatar"
+                  width="48"
+                  height="48"
+                  data-account-avatar
+                  class="account-avatar"
+                />
+              </div>
+            </div>
 
-                <!-- Profile Details -->
-                <div class="account-details">
-                  <dl class="detail-list">
-                    <div class="detail-row">
-                      <dt class="detail-label" data-i18n="account.profile.email">Email</dt>
-                      <dd class="detail-value" data-account-email>—</dd>
-                    </div>
-
-                    <div class="detail-row">
-                      <dt class="detail-label" data-i18n="account.profile.name">Name</dt>
-                      <dd class="detail-value" data-account-name>—</dd>
-                    </div>
-
-                    <div class="detail-row">
-                      <dt class="detail-label" data-i18n="account.profile.id">User ID</dt>
-                      <dd class="detail-value detail-value--mono" data-account-id>—</dd>
-                    </div>
-
-                    <div class="detail-row">
-                      <dt class="detail-label" data-i18n="account.profile.role">Role</dt>
-                      <dd class="detail-value" data-account-role>—</dd>
-                    </div>
-
-                    <div class="detail-row">
-                      <dt class="detail-label" data-i18n="account.profile.plan">Plan</dt>
-                      <dd class="detail-value" data-account-plan>—</dd>
-                    </div>
-
-                    <div class="detail-row" data-account-tg-row hidden>
-                      <dt class="detail-label" data-i18n="account.profile.telegram">Telegram ID</dt>
-                      <dd class="detail-value detail-value--mono" data-account-tg-id>—</dd>
-                    </div>
-                  </dl>
-
-                  <div class="card__actions">
-                    <button class="btn-chip" disabled>
-                      <span class="icon" data-icon="mono/pencil-circle"></span>
-                      <span class="btn-chip__label" data-i18n="account.profile.edit">Edit Profile</span>
-                    </button>
+            <!-- Profile Details Card -->
+            <div class="card card--panel">
+              <header class="card__header">
+                <h2 class="h4" data-i18n="account.profile.title">Profile Information</h2>
+              </header>
+              <div class="card__body">
+                <dl class="detail-list">
+                  <div class="detail-row">
+                    <dt class="detail-label" data-i18n="account.profile.email">Email</dt>
+                    <dd class="detail-value" data-account-email>—</dd>
                   </div>
+
+                  <div class="detail-row">
+                    <dt class="detail-label" data-i18n="account.profile.name">Name</dt>
+                    <dd class="detail-value" data-account-name>—</dd>
+                  </div>
+
+                  <div class="detail-row">
+                    <dt class="detail-label" data-i18n="account.profile.id">User ID</dt>
+                    <dd class="detail-value detail-value--mono" data-account-id>—</dd>
+                  </div>
+
+                  <div class="detail-row">
+                    <dt class="detail-label" data-i18n="account.profile.role">Role</dt>
+                    <dd class="detail-value" data-account-role>—</dd>
+                  </div>
+
+                  <div class="detail-row">
+                    <dt class="detail-label" data-i18n="account.profile.plan">Plan</dt>
+                    <dd class="detail-value" data-account-plan>—</dd>
+                  </div>
+
+                  <div class="detail-row" data-account-tg-row hidden>
+                    <dt class="detail-label" data-i18n="account.profile.telegram">Telegram ID</dt>
+                    <dd class="detail-value detail-value--mono" data-account-tg-id>—</dd>
+                  </div>
+                </dl>
+
+                <div class="card__actions">
+                  <button class="btn-chip" disabled>
+                    <span class="icon" data-icon="mono/pencil-circle"></span>
+                    <span class="btn-chip__label" data-i18n="account.profile.edit">Edit Profile</span>
+                  </button>
                 </div>
               </div>
             </div>
