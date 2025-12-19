@@ -58,6 +58,76 @@ export function initDomainsPage(): void {
   document.querySelectorAll('[data-drawer-close]').forEach((btn) => {
     btn.addEventListener('click', () => closeDrawer());
   });
+
+  // Dropdown toggles (delegated)
+  document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    const trigger = target.closest('.dropdown__trigger');
+
+    if (trigger) {
+      e.stopPropagation();
+      const dropdown = trigger.closest('.dropdown');
+      if (!dropdown) return;
+
+      const menu = dropdown.querySelector('.dropdown__menu');
+      const isOpen = trigger.getAttribute('aria-expanded') === 'true';
+
+      // Close all other dropdowns
+      document.querySelectorAll('.dropdown__trigger[aria-expanded="true"]').forEach((other) => {
+        if (other !== trigger) {
+          other.setAttribute('aria-expanded', 'false');
+          const otherMenu = other.closest('.dropdown')?.querySelector('.dropdown__menu');
+          if (otherMenu) (otherMenu as HTMLElement).hidden = true;
+        }
+      });
+
+      // Toggle current
+      trigger.setAttribute('aria-expanded', String(!isOpen));
+      if (menu) (menu as HTMLElement).hidden = isOpen;
+    } else {
+      // Close all dropdowns when clicking outside
+      document.querySelectorAll('.dropdown__trigger[aria-expanded="true"]').forEach((trigger) => {
+        trigger.setAttribute('aria-expanded', 'false');
+        const menu = trigger.closest('.dropdown')?.querySelector('.dropdown__menu');
+        if (menu) (menu as HTMLElement).hidden = true;
+      });
+    }
+  });
+
+  // Dropdown actions (delegated, placeholder handlers)
+  document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    const actionBtn = target.closest('[data-action]');
+    if (!actionBtn) return;
+
+    const action = actionBtn.getAttribute('data-action');
+    const domainId = actionBtn.getAttribute('data-domain-id');
+
+    if (action === 'inspect') return; // Already handled above
+
+    const domain = currentDomains.find((d) => d.id === parseInt(domainId || '0'));
+    if (!domain) return;
+
+    switch (action) {
+      case 'manage-redirects':
+        alert(`Manage redirects for ${domain.domain}\n(Coming soon)`);
+        break;
+      case 'dns-settings':
+        alert(`DNS / Zone settings for ${domain.domain}\n(Coming soon)`);
+        break;
+      case 'recheck-health':
+        alert(`Re-checking health for ${domain.domain}...`);
+        break;
+      case 'toggle-monitoring':
+        alert(`Toggle monitoring ${domain.monitoring_enabled ? 'OFF' : 'ON'} for ${domain.domain}\n(Coming soon)`);
+        break;
+      case 'delete-domain':
+        if (confirm(`Delete ${domain.domain}?\nThis action cannot be undone.`)) {
+          alert(`Delete ${domain.domain}\n(Coming soon)`);
+        }
+        break;
+    }
+  });
 }
 
 function showLoadingState(): void {
@@ -138,8 +208,42 @@ function renderDomainsTable(domains: Domain[]): void {
                 data-domain-id="${domain.id}"
                 aria-label="Inspect ${domain.domain}"
               >
-                <span class="icon" data-icon="mono/info"></span>
+                <span class="icon" data-icon="mono/pencil-circle"></span>
               </button>
+              <div class="dropdown" data-dropdown>
+                <button
+                  class="btn-icon btn-icon--ghost dropdown__trigger"
+                  type="button"
+                  aria-haspopup="menu"
+                  aria-expanded="false"
+                  aria-label="More actions for ${domain.domain}"
+                >
+                  <span class="icon" data-icon="mono/dots-vertical"></span>
+                </button>
+                <div class="dropdown__menu dropdown__menu--align-right" role="menu">
+                  <button class="dropdown__item" type="button" data-action="manage-redirects" data-domain-id="${domain.id}">
+                    <span class="icon" data-icon="mono/arrow-right"></span>
+                    <span>Manage redirects</span>
+                  </button>
+                  <button class="dropdown__item" type="button" data-action="dns-settings" data-domain-id="${domain.id}">
+                    <span class="icon" data-icon="mono/server"></span>
+                    <span>DNS / Zone settings</span>
+                  </button>
+                  <button class="dropdown__item" type="button" data-action="recheck-health" data-domain-id="${domain.id}">
+                    <span class="icon" data-icon="mono/refresh"></span>
+                    <span>Re-check health</span>
+                  </button>
+                  <button class="dropdown__item" type="button" data-action="toggle-monitoring" data-domain-id="${domain.id}">
+                    <span class="icon" data-icon="${domain.monitoring_enabled ? 'mono/pause' : 'mono/play'}"></span>
+                    <span>Monitoring ${domain.monitoring_enabled ? 'OFF' : 'ON'}</span>
+                  </button>
+                  <hr class="dropdown__divider" />
+                  <button class="dropdown__item dropdown__item--danger" type="button" data-action="delete-domain" data-domain-id="${domain.id}">
+                    <span class="icon" data-icon="mono/delete"></span>
+                    <span>Delete domain</span>
+                  </button>
+                </div>
+              </div>
             </div>
           </td>
         </tr>

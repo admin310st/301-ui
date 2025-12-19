@@ -2861,6 +2861,25 @@ body.layout-dashboard .burger-button {
   .drawer__panel {
     max-width: 100%;
   }
+
+  .drawer__header {
+    padding: var(--space-3);
+  }
+
+  .drawer__body {
+    padding: var(--space-3);
+  }
+
+  .btn-close {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+  }
+
+  .btn-close .icon {
+    width: 24px;
+    height: 24px;
+  }
 }
 
 /* ============================================
