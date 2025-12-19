@@ -1297,9 +1297,9 @@ th {
 .table-search {
   flex: 1 1 16rem;
   min-width: 0;
-  border-color: var(--border-subtle);
-  background: var(--panel);
-  color: var(--text);
+  border-color: var(--input-border);
+  background: var(--input-bg);
+  color: var(--text-main);
 }
 
 /* Icons inherit color from parent automatically */

@@ -908,7 +908,7 @@ Domains tables stay in a single row layout even on mobile; wrap the table in a h
 .table-filter { position: relative; }
 .btn-chip__icon, .btn-chip__chevron { display: inline-flex; align-items: center; justify-content: center; }
 .btn-chip__label { white-space: nowrap; }
-.table-search { flex: 1 1 16rem; min-width: 0; background: var(--panel); color: var(--text); border-color: var(--border-subtle); }
+.table-search { flex: 1 1 16rem; min-width: 0; background: var(--input-bg); color: var(--text-main); border-color: var(--input-border); }
 .table-search__input { flex: 1 1 auto; -webkit-appearance: none; appearance: none; font: inherit; line-height: inherit; background: transparent; border: none; color: var(--text); width: 100%; outline: none; padding: 0; }
 .table-search__input::placeholder { color: var(--muted); }
 .table-search__clear { display: none; background: transparent; border: none; padding: 0; align-items: center; justify-content: center; width: 1em; height: 1em; flex: 0 0 1em; }
