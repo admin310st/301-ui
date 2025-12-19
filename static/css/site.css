@@ -1258,12 +1258,6 @@ html[data-theme="light"] .btn--ghost:hover {
   white-space: nowrap;
 }
 
-.th-sort .icon {
-  width: 1em;
-  height: 1em;
-  flex: 0 0 1em;
-}
-
 .th-sort:hover {
   color: var(--brand);
 }
@@ -2066,11 +2060,6 @@ html[data-theme="light"] .btn--social-github {
   color: var(--text);
 }
 
-.th-sort .icon {
-  width: 1em;
-  height: 1em;
-}
-
 .table tbody tr {
   border-bottom: 1px solid var(--border-subtle);
 }
@@ -2208,8 +2197,6 @@ body.sidebar-collapsed .app-shell {
 
 .sidebar .navitem .icon {
   flex-shrink: 0;
-  width: 1.25em;
-  height: 1.25em;
 }
 
 .sidebar .navitem .label {
@@ -2290,15 +2277,27 @@ body.sidebar-collapsed .sidebar .label {
 body.sidebar-collapsed .sidebar .navitem .badge {
   opacity: 1;
   pointer-events: auto;
+}
+
+/* Notification icon (alert dot) */
+.sidebar .navitem .notification-icon {
+  flex-shrink: 0;
+  margin-left: auto;
+  color: var(--warning);
+}
+
+.sidebar .navitem .notification-icon .icon {
+  width: 12px;
+  height: 12px;
+}
+
+/* Show notification icon in collapsed state */
+body.sidebar-collapsed .sidebar .navitem .notification-icon {
+  opacity: 1;
+  pointer-events: auto;
   position: absolute;
   top: 0.25rem;
   right: 0.25rem;
-  min-width: 1rem;
-  height: 1rem;
-  padding: 0 0.25rem;
-  font-size: 0.625rem;
-  line-height: 1rem;
-  border-radius: var(--r-pill);
 }
 
 /* Navitems adjust padding and center icons on collapse */
@@ -3009,11 +3008,6 @@ body.layout-dashboard .burger-button {
   display: flex;
   gap: var(--space-2);
   align-items: center;
-}
-
-.health-icons .icon {
-  width: 18px;
-  height: 18px;
 }
 
 .text-ok {

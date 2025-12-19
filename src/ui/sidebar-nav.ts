@@ -10,6 +10,7 @@ export interface NavItem {
   icon: string;         // Icon name (e.g., 'mono/home')
   href: string;         // Link URL
   badge?: string | number;
+  notificationIcon?: string; // Notification icon (e.g., 'mono/circle-alert')
   isActive?: (path: string) => boolean;
 }
 
@@ -48,6 +49,7 @@ export const DASHBOARD_NAV: NavItem[] = [
     labelKey: 'layout.nav.domains',
     icon: 'mono/dns',
     href: '/domains.html',
+    notificationIcon: 'mono/circle-alert',
     isActive: (path) => path.includes('/domains'),
   },
   {
@@ -120,6 +122,7 @@ function renderNavItem(item: NavItem, currentPath: string): string {
       <span class="icon" data-icon="${item.icon}"></span>
       <span class="label" data-i18n="${item.labelKey}">${label}</span>
       ${item.badge ? `<span class="badge badge--sm">${item.badge}</span>` : ''}
+      ${item.notificationIcon ? `<span class="notification-icon"><span class="icon" data-icon="${item.notificationIcon}"></span></span>` : ''}
     </a>
   `;
 }
