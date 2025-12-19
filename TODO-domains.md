@@ -35,6 +35,296 @@ Roadmap for `/domains.html` implementation and enhancement.
 
 ---
 
+## 📐 Этап 1.5: Архитектурное решение - Drawer-first approach
+
+**Status:** 📋 Architectural guideline (approved 2025-12-19)
+
+### **Философия: Drawer = единая точка управления доменом**
+
+**Принцип:** Все операции над одним доменом идут через единый Drawer с вкладками, а не через модалки или отдельные страницы.
+
+**Почему это правильно:**
+
+**UX причины:**
+- Пользователь не теряет контекст (таблица остается видимой)
+- Drawer = идеальный формат для объектной модели (Domain = объект)
+- Скорость работы выше (переключение вкладок мгновенное, без перерисовки)
+- Консистентный паттерн для всего приложения (domains/projects/integrations)
+
+**Технические причины:**
+- Один компонент → меньше багов (вместо 10 модалок = 1 drawer + 7 вкладок)
+- Один API call `/domains/:id` загружается 1 раз, данные шарятся между вкладками
+- Расширяемость через добавление новых секций (webhooks, analytics, etc.)
+
+---
+
+### **1. Индивидуальные действия (dropdown ⋯)**
+
+Dropdown menu содержит только **quick actions** и **destructive** операции. Все настройки и просмотр данных — через Drawer.
+
+```
+Quick actions (выполняются сразу, без UI):
+├─ Re-check health          [refresh]          → API + toast
+├─ Re-check abuse status    [alert-triangle]   → API + toast
+├─ Sync with registrar      [sync]             → API + toast
+├─ Toggle monitoring        [bell]             → API + state update
+└─ Apply security preset    [shield-account]   → Default preset OR open drawer→Security
+
+Navigate to other features:
+└─ View analytics           [analytics]        → /analytics?domain=example.com
+
+Destructive:
+└─ Delete domain            [delete]           → Confirmation modal
+```
+
+**Логика "Apply security preset":**
+- Если у проекта есть дефолтный пресет → применяет сразу (API + toast)
+- Если нет дефолта → открывает drawer на вкладке "Security" для выбора
+
+**Что НЕ в dropdown:**
+- ❌ "Manage redirects" → это в drawer tab "Routing"
+- ❌ "DNS / Zone settings" → это в drawer tab "DNS"
+- ❌ "SSL settings" → это в drawer tab "SSL"
+- ❌ "Security settings" → это в drawer tab "Security"
+
+---
+
+### **2. Действие по умолчанию (кнопка в строке таблицы)**
+
+```
+Open inspector  [pencil-circle]  → Opens drawer on "Overview" tab
+```
+
+Одна кнопка в каждой строке таблицы. Открывает drawer для детального просмотра и управления доменом.
+
+---
+
+### **3. Drawer tabs (структура инспектора)**
+
+Drawer загружает `/domains/:id` **один раз** при открытии. Данные шарятся между всеми вкладками.
+
+#### **Overview** [details]
+
+**Секции:**
+- **Summary:** Expires, Status, Health (SSL + Abuse)
+- **Quick actions:** Sync, Re-check health, Toggle monitoring (кнопки)
+- **Languages block:** Set as primary domain for language
+
+**Languages example:**
+```html
+<section class="card card--panel">
+  <header class="card__header">
+    <h3 class="h5">Languages</h3>
+  </header>
+  <div class="card__body">
+    <div class="language-list">
+      <div class="language-item">
+        <span class="flag-emoji">🇷🇺</span>
+        <span>RU</span>
+        <strong>example.ru</strong>
+        <span class="badge badge--ok badge--sm">Primary</span>
+      </div>
+      <div class="language-item">
+        <span class="flag-emoji">🇬🇧</span>
+        <span>EN</span>
+        <strong>en.example.com</strong>
+      </div>
+    </div>
+  </div>
+</section>
+```
+
+**Flag rendering strategy:**
+- **Now (MVP):** Unicode emoji (🇷🇺 🇺🇸 🇬🇧) для Languages
+- **Future (TDS):** `flag-icons` library для GEO-таргетинга (200+ стран)
+
+**CSS for emoji flags:**
+```css
+.flag-emoji {
+  font-family: "Segoe UI Emoji", "Noto Color Emoji", "Apple Color Emoji", sans-serif;
+  font-size: 1.25em;
+  line-height: 1;
+  display: inline-block;
+  vertical-align: middle;
+}
+```
+
+#### **Routing** [directions-fork]
+
+- Redirect rules for this domain
+- Add/Edit/Delete rules
+- Rule priorities and conditions
+
+#### **DNS** [dns]
+
+- Zone records (A, CNAME, TXT, MX, etc.)
+- Nameservers
+- Cloudflare proxy status (orange cloud on/off)
+- DNSSEC status
+
+#### **SSL** [lock]
+
+- Certificate details (issuer, validity, fingerprint)
+- Expiry date and auto-renewal settings
+- Force HTTPS toggle
+- SSL/TLS mode (Flexible, Full, Full Strict)
+
+#### **Security** [shield-account]
+
+- Abuse status & history
+- Blocklist checks (Google Safe Browsing, Spamhaus, etc.)
+- **Security presets:** Select & apply presets
+- Security events log (blocked requests, rate limits, etc.)
+
+#### **Monitoring** [web-sync]
+
+- Uptime status (online/offline)
+- Response times graph (last 24h/7d/30d)
+- Alert settings (email/telegram notifications)
+- Monitoring history and incidents
+
+#### **Logs** [logs]
+
+- Sync history (registrar sync, Cloudflare sync)
+- Configuration changes (who changed what and when)
+- Webhook events (incoming webhooks from external services)
+- Error logs (failed syncs, API errors, etc.)
+
+---
+
+### **4. Bulk Actions (при выборе ≥1 домена)**
+
+Bulk actions появляются в sticky panel внизу экрана при выборе хотя бы одного домена.
+
+```
+Enable monitoring          [bell]             → API + toast
+Disable monitoring         [bell] (muted)     → API + toast
+Re-check health            [refresh]          → API + toast
+Re-check abuse status      [alert-triangle]   → API + toast
+Sync expiration            [sync]             → API + toast
+Apply security preset      [shield-account]   → Modal with preset selection
+Delete selected            [delete]           → Confirmation modal
+```
+
+**Принцип:** Bulk actions = копии quick actions из dropdown, но для N доменов.
+
+---
+
+### **5. Search & Filters (верх таблицы)**
+
+```
+Search domains/projects    [magnify]          → Фильтрует таблицу
+Open filters panel         [filter]           → Dropdown с фильтрами по status/provider/project
+```
+
+---
+
+### **Drawer Header enhancements (будущее)**
+
+```html
+<header class="drawer__header">
+  <div class="drawer__title">
+    <h2 class="h4">example.com</h2>
+    <span class="badge badge--ok">Active</span>
+  </div>
+
+  <div class="drawer__actions">
+    <!-- Quick actions bar -->
+    <button class="btn-icon" title="Sync now" data-action="sync-domain">
+      <span class="icon" data-icon="mono/refresh"></span>
+    </button>
+
+    <button class="btn-icon" title="Open domain" data-action="open-domain">
+      <span class="icon" data-icon="mono/open-in-new"></span>
+    </button>
+
+    <!-- Navigation arrows (prev/next domain in filtered table) -->
+    <div class="btn-group">
+      <button class="btn-icon" title="Previous domain">
+        <span class="icon" data-icon="mono/chevron-up"></span>
+      </button>
+      <button class="btn-icon" title="Next domain">
+        <span class="icon" data-icon="mono/chevron-down"></span>
+      </button>
+    </div>
+
+    <button class="btn-close" data-drawer-close>
+      <span class="icon" data-icon="mono/close"></span>
+    </button>
+  </div>
+</header>
+```
+
+**Navigation arrows:** Позволяют быстро переключаться между доменами, не закрывая drawer. Берут домены из текущей отфильтрованной таблицы.
+
+---
+
+### **Принципы консистентности**
+
+| Тип действия              | Где находится    | Поведение                              |
+|---------------------------|------------------|----------------------------------------|
+| Quick actions (no UI)     | Dropdown + Bulk  | API call + toast, drawer не открывается |
+| View/Configure (has UI)   | Drawer tabs      | Open drawer, load data once            |
+| Navigate to other page    | Dropdown         | Redirect (например, Analytics)         |
+| Destructive               | Dropdown + Bulk  | Confirmation modal                     |
+| Per-domain settings       | Drawer Overview  | Inline controls (Languages, monitoring) |
+
+---
+
+### **Flag-icons integration roadmap**
+
+**Phase 1 (Domains page, Languages block):**
+- Use **Unicode emoji** (🇷🇺 🇺🇸 🇬🇧 🇩🇪 🇫🇷)
+- Lightweight, native support, good enough for 5-10 languages
+- CSS class `.flag-emoji` for consistent size
+
+**Phase 2 (TDS/Streams, GEO-таргетинг):**
+- Install `flag-icons` library: `npm install flag-icons`
+- Import in `vite.config.ts`: `import 'flag-icons/css/flag-icons.min.css'`
+- Use `<span class="fi fi-ru fis"></span>` for country flags (square variant)
+- Covers all 200+ countries (ISO 3166-1)
+- Consistent rendering across all platforms (SVG-based)
+- Size: ~100KB minified CSS (can be tree-shaked if needed)
+
+**Why two-phase approach:**
+- Unicode emoji = fast MVP for Languages (no dependencies)
+- flag-icons = production-ready for TDS when we need all countries
+
+---
+
+### **Mobile behavior**
+
+- Drawer занимает 100% экрана (fullscreen overlay)
+- Tabs превращаются в вертикальный список или accordion
+- Navigation arrows скрываются (swipe gestures для prev/next)
+
+---
+
+### **Keyboard shortcuts (future)**
+
+```
+Esc       → Close drawer
+Arrow ↑↓  → Navigate between domains
+Tab       → Switch between tabs
+Cmd+K     → Quick search in drawer
+```
+
+---
+
+### **Задачи для реализации:**
+
+- [ ] Обновить drawer HTML структуру (добавить tabs navigation)
+- [ ] Создать tab switching logic (vanilla JS)
+- [ ] Реализовать 7 вкладок (Overview, Routing, DNS, SSL, Security, Monitoring, Logs)
+- [ ] Добавить Languages block в Overview с emoji флагами
+- [ ] Обновить dropdown menu (убрать дублирующие пункты)
+- [ ] Добавить navigation arrows в drawer header
+- [ ] Реализовать prev/next domain navigation
+- [ ] CSS для `.flag-emoji` класса
+- [ ] Документировать flag-icons для будущего TDS
+
+---
+
 ## 🎯 Этап 2: Фильтры и поиск
 
 **Status:** 📋 Planned
