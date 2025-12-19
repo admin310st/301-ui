@@ -2350,6 +2350,23 @@ body.sidebar-collapsed .sidebar .navitem:hover::after {
   .dashboard-content .page-header {
     padding-inline: var(--space-3);
   }
+
+  /* Hide page-header controls on mobile, show action button in utility-bar instead */
+  .page-header .controls-row {
+    display: none;
+  }
+}
+
+/* Mobile action button in utility-bar */
+.utility-action-mobile {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  .utility-action-mobile {
+    display: flex;
+    margin-left: auto;
+  }
 }
 
 .page-header h1 {
