@@ -2254,12 +2254,23 @@ html[data-theme="light"] .btn--social-github {
   overflow-wrap: break-word;
 }
 
-/* Center-align Status and Health columns */
+/* Center-align Status, Health, and checkbox columns */
 .table--domains th:nth-child(2),
 .table--domains td:nth-child(2),
 .table--domains th:nth-child(3),
-.table--domains td:nth-child(3) {
+.table--domains td:nth-child(3),
+.table--domains th:nth-child(6),
+.table--domains td:nth-child(6) {
   text-align: center;
+}
+
+/* Reduce padding for Actions and checkbox columns for consistent icon spacing */
+.table--domains th:nth-child(5),
+.table--domains td:nth-child(5),
+.table--domains th:nth-child(6),
+.table--domains td:nth-child(6) {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
 }
 
 .table__th-actions,
