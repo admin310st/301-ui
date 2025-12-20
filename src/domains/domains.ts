@@ -217,9 +217,6 @@ function renderDomainsTable(domains: Domain[]): void {
       return `
         <tr>
           <td>
-            <input type="checkbox" data-domain-id="${domain.id}" aria-label="Select ${domain.domain}" />
-          </td>
-          <td>
             <div>
               <div class="domain-cell">
                 <strong>${domain.domain}</strong>
@@ -287,6 +284,9 @@ function renderDomainsTable(domains: Domain[]): void {
                 </div>
               </div>
             </div>
+          </td>
+          <td>
+            <input type="checkbox" data-domain-id="${domain.id}" aria-label="Select ${domain.domain}" />
           </td>
         </tr>
       `;
@@ -377,9 +377,9 @@ function getExpiresText(domain: Domain): string {
 
   let dateText: string;
   if (daysUntil < 0) {
-    dateText = `<span class="badge badge--danger">${domain.expires_at}</span>`;
+    dateText = `<span class="text-danger">${domain.expires_at}</span>`;
   } else if (daysUntil <= 30) {
-    dateText = `<span class="badge badge--warning">${domain.expires_at}</span>`;
+    dateText = `<span class="text-warning">${domain.expires_at}</span>`;
   } else {
     dateText = domain.expires_at;
   }

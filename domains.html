@@ -18,18 +18,9 @@
       <div class="utility-bar">
         <div class="page-shell utility-bar__inner">
           <div class="utility-left">
-            <nav class="breadcrumbs" aria-label="Breadcrumb">
-              <a href="/" class="crumb">
-                <span class="icon" data-icon="mono/home"></span>
-                <span>Home</span>
-              </a>
-              <span class="sep" aria-hidden="true">›</span>
-              <span class="crumb is-current">Domains</span>
-
-              <span class="badges">
-                <span class="badge badge--neutral">Core</span>
-              </span>
-            </nav>
+            <span class="badges">
+              <span class="badge badge--neutral">Core</span>
+            </span>
           </div>
 
 {{> header-utility}}
@@ -112,14 +103,14 @@
                 <table class="table table--domains">
                   <thead>
                     <tr>
-                      <th style="width: 40px;">
-                        <input type="checkbox" data-select-all aria-label="Select all domains" />
-                      </th>
                       <th>Domain</th>
                       <th>Status</th>
                       <th>Health</th>
                       <th>Expires</th>
                       <th style="width: 120px;">Actions</th>
+                      <th style="width: 40px;">
+                        <input type="checkbox" data-select-all aria-label="Select all domains" />
+                      </th>
                     </tr>
                   </thead>
                   <tbody data-domains-tbody>

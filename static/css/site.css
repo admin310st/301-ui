@@ -2077,6 +2077,14 @@ html[data-theme="light"] .btn--social-github {
   min-width: 720px;
 }
 
+/* Prevent long domain names from breaking table layout */
+.table--domains td:first-child {
+  max-width: 280px;
+  min-width: 180px;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
 .table__th-actions,
 .table__cell-actions {
   width: 1%;
@@ -2359,6 +2367,20 @@ body.sidebar-collapsed .sidebar .navitem:hover::after {
   grid-area: content;
   min-width: 0;
   width: 100%;
+  min-height: calc(100dvh - var(--header-height));
+}
+
+/* Mobile: adjust min-height for smaller header/footer */
+@media (max-width: 1023px) {
+  .dashboard-content {
+    min-height: calc(100dvh - 180px);
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-content {
+    min-height: calc(100dvh - 160px);
+  }
 }
 
 /* Legacy .content class for backward compatibility */
