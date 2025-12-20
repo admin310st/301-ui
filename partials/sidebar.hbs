@@ -12,8 +12,19 @@
               data-sidebar-search
             />
           </label>
+          <!-- Mobile close button -->
           <button
-            class="btn-icon btn-icon--compact"
+            class="btn-icon btn-icon--compact sidebar__close-mobile"
+            type="button"
+            aria-label="Close menu"
+            data-i18n-aria="layout.sidebar.closeMenu"
+            data-sidebar-close
+          >
+            <span class="icon" data-icon="mono/close"></span>
+          </button>
+          <!-- Desktop toggle button -->
+          <button
+            class="btn-icon btn-icon--compact sidebar__toggle-desktop"
             type="button"
             aria-label="Toggle sidebar"
             aria-expanded="true"

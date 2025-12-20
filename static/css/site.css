@@ -2176,7 +2176,26 @@ body.sidebar-collapsed .app-shell {
   flex-wrap: wrap;
 }
 
-/* Mobile close button (hidden on desktop) */
+/* Mobile close button (visible on mobile, hidden on desktop) */
+.sidebar__close-mobile {
+  display: inline-grid;
+}
+
+.sidebar__toggle-desktop {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .sidebar__close-mobile {
+    display: none;
+  }
+
+  .sidebar__toggle-desktop {
+    display: inline-grid;
+  }
+}
+
+/* Legacy mobile close button (deprecated) */
 .sidebar-close {
   display: none;
 }
