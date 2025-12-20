@@ -488,10 +488,8 @@ function openInspector(domainId: number): void {
     };
     roleIconEl.setAttribute('data-role', domain.role);
     roleIconEl.setAttribute('title', roleLabels[domain.role]);
-    const iconEl = roleIconEl.querySelector('.icon');
-    if (iconEl) {
-      iconEl.setAttribute('data-icon', roleIcons[domain.role]);
-    }
+    // Replace icon HTML to trigger re-rendering
+    roleIconEl.innerHTML = `<span class="icon" data-icon="${roleIcons[domain.role]}"></span>`;
   }
 
   if (providerEl) providerEl.textContent = domain.registrar.charAt(0).toUpperCase() + domain.registrar.slice(1);
