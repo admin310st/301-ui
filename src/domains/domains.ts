@@ -1,4 +1,5 @@
 import { mockDomains, type Domain } from './mock-data';
+import { initAddDomainsDrawer } from './add-domains-drawer';
 
 let currentDomains: Domain[] = [];
 let selectedDomains = new Set<number>();
@@ -7,6 +8,9 @@ export function initDomainsPage(): void {
   const card = document.querySelector('[data-domains-card]');
   if (!card) return;
 
+  // Initialize Add Domains Drawer
+  initAddDomainsDrawer();
+
   // Load mock data after short delay (simulate API)
   setTimeout(() => {
     loadDomains(mockDomains);
@@ -14,7 +18,7 @@ export function initDomainsPage(): void {
 
   // Add domains button
   document.querySelectorAll('[data-action="add-domains"]').forEach((btn) => {
-    btn.addEventListener('click', () => openAddDomainsModal());
+    btn.addEventListener('click', () => openAddDomainsDrawer());
   });
 
   // Retry button
@@ -426,41 +430,11 @@ function updateSelectAllCheckbox(): void {
   selectAllCheckbox.indeterminate = selectedCount > 0 && selectedCount < totalVisible;
 }
 
-function openAddDomainsModal(): void {
-  const modal = document.querySelector<HTMLDialogElement>('[data-modal="add-domains"]');
-  if (!modal) return;
+function openAddDomainsDrawer(): void {
+  const drawer = document.querySelector<HTMLElement>('[data-drawer="add-domains"]');
+  if (!drawer) return;
 
-  modal.showModal();
-
-  // Close on backdrop click
-  modal.addEventListener('click', (e) => {
-    if (e.target === modal) {
-      modal.close();
-    }
-  });
-
-  // Close buttons
-  modal.querySelectorAll('[data-modal-close]').forEach((btn) => {
-    btn.addEventListener('click', () => modal.close());
-  });
-
-  // Confirm button
-  const confirmBtn = modal.querySelector('[data-action="confirm-add-domains"]');
-  const input = modal.querySelector<HTMLTextAreaElement>('[data-domains-input]');
-
-  if (confirmBtn && input) {
-    confirmBtn.addEventListener('click', () => {
-      const domains = input.value
-        .split('\n')
-        .map((d) => d.trim())
-        .filter((d) => d);
-      if (domains.length > 0) {
-        alert(`Would add ${domains.length} domain(s):\n${domains.join('\n')}`);
-        modal.close();
-        input.value = '';
-      }
-    });
-  }
+  drawer.removeAttribute('hidden');
 }
 
 function openInspector(domainId: number): void {
