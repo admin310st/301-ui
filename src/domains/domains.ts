@@ -1,6 +1,7 @@
 import { mockDomains, type Domain } from './mock-data';
 import { initAddDomainsDrawer } from './add-domains-drawer';
 import { formatDomainDisplay } from '@utils/idn';
+import { showDialog } from '@ui/dialog';
 
 let currentDomains: Domain[] = [];
 let selectedDomains = new Set<number>();
@@ -160,12 +161,44 @@ export function initDomainsPage(): void {
         // Future: window.location.href = `/analytics?domain=${encodeURIComponent(domain.domain_name)}`;
         break;
       case 'delete-domain':
-        if (confirm(`Delete ${domain.domain_name}?\nThis action cannot be undone.`)) {
-          alert(`Delete ${domain.domain_name}\n(API integration coming soon)`);
+        // Update dialog with domain name
+        const deleteDomainNameEl = document.querySelector('[data-delete-domain-name]');
+        if (deleteDomainNameEl) {
+          deleteDomainNameEl.textContent = domain.domain_name;
         }
+
+        // Store domain ID for confirmation handler
+        const deleteDialog = document.querySelector('[data-dialog="delete-domain"]');
+        if (deleteDialog) {
+          deleteDialog.setAttribute('data-domain-id', domain.id.toString());
+        }
+
+        // Show confirmation dialog
+        showDialog('delete-domain');
         break;
     }
   });
+
+  // Delete domain confirmation handler
+  const confirmDeleteBtn = document.querySelector('[data-confirm-delete]');
+  if (confirmDeleteBtn) {
+    confirmDeleteBtn.addEventListener('click', () => {
+      const deleteDialog = document.querySelector('[data-dialog="delete-domain"]');
+      const domainId = deleteDialog?.getAttribute('data-domain-id');
+
+      if (domainId) {
+        const domain = currentDomains.find((d) => d.id === parseInt(domainId));
+        if (domain) {
+          alert(`Delete ${domain.domain_name}\n(API integration coming soon)`);
+
+          // Hide dialog
+          if (deleteDialog) {
+            deleteDialog.setAttribute('hidden', '');
+          }
+        }
+      }
+    });
+  }
 }
 
 function showLoadingState(): void {
