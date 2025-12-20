@@ -1,16 +1,17 @@
 export interface Domain {
   id: number;
-  domain: string;
-  project_name: string;
-  project_lang?: string;
-  status: 'active' | 'expired' | 'expiring' | 'blocked' | 'pending';
-  provider: 'cloudflare' | 'namecheap' | 'namesilo' | 'google' | 'manual';
-  registrar?: string;
-  cf_zone_id?: string;
+  domain_name: string; // было: domain (приведено к API-формату)
+  project_name: string; // UI: денормализация project.name
+  project_lang?: string; // UI: денормализация site.lang_code
+  status: 'active' | 'expired' | 'expiring' | 'blocked' | 'pending'; // расширенный набор статусов для UI
+  registrar: 'cloudflare' | 'namecheap' | 'namesilo' | 'google' | 'manual'; // было: provider
+  cf_zone_id?: string; // Cloudflare Zone ID (опционально)
+
+  // UI-специфичные поля (не в базовой схеме API):
   ssl_status: 'valid' | 'expiring' | 'invalid' | 'off';
   ssl_valid_to?: string;
   abuse_status: 'clean' | 'warning' | 'blocked';
-  expires_at: string;
+  expires_at: string; // дата истечения регистрации
   monitoring_enabled: boolean;
   last_check_at?: string;
   has_errors: boolean;
@@ -97,12 +98,11 @@ function generateDomain(id: number): Domain {
 
   return {
     id,
-    domain,
+    domain_name: domain,
     project_name: project,
     project_lang: Math.random() > 0.3 ? randomItem(langs) : undefined,
     status,
-    provider,
-    registrar: provider !== 'cloudflare' ? provider : undefined,
+    registrar: provider,
     cf_zone_id: provider === 'cloudflare' ? `zone_${id}` : undefined,
     ssl_status,
     ssl_valid_to,
@@ -120,11 +120,10 @@ export const mockDomains: Domain[] = [
   // Add IDN test domains
   {
     id: 100,
-    domain: 'xn--c1ad6a.xn--p1ai', // домен.рф
+    domain_name: 'xn--c1ad6a.xn--p1ai', // домен.рф
     project_name: 'RussianProject',
     project_lang: 'RU',
     status: 'active',
-    provider: 'namecheap',
     registrar: 'namecheap',
     ssl_status: 'valid',
     ssl_valid_to: randomDate(90),
@@ -136,11 +135,11 @@ export const mockDomains: Domain[] = [
   },
   {
     id: 101,
-    domain: 'xn--80aswg.xn--p1ai', // сайт.рф
+    domain_name: 'xn--80aswg.xn--p1ai', // сайт.рф
     project_name: 'RussianProject',
     project_lang: 'RU',
     status: 'expiring',
-    provider: 'cloudflare',
+    registrar: 'cloudflare',
     cf_zone_id: 'zone_101',
     ssl_status: 'valid',
     ssl_valid_to: randomDate(60),
@@ -152,11 +151,10 @@ export const mockDomains: Domain[] = [
   },
   {
     id: 102,
-    domain: 'xn--9krt00a.xn--fiqs8s', // 电子商务.中国 (e-commerce.china)
+    domain_name: 'xn--9krt00a.xn--fiqs8s', // 电子商务.中国 (e-commerce.china)
     project_name: 'ChineseMarket',
     project_lang: 'CN',
     status: 'active',
-    provider: 'namecheap',
     registrar: 'namecheap',
     ssl_status: 'valid',
     ssl_valid_to: randomDate(120),

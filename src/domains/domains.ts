@@ -141,27 +141,27 @@ export function initDomainsPage(): void {
 
     switch (action) {
       case 'recheck-health':
-        alert(`Re-checking health for ${domain.domain}...\n(API integration coming soon)`);
+        alert(`Re-checking health for ${domain.domain_name}...\n(API integration coming soon)`);
         break;
       case 'recheck-abuse':
-        alert(`Re-checking abuse status for ${domain.domain}...\n(API integration coming soon)`);
+        alert(`Re-checking abuse status for ${domain.domain_name}...\n(API integration coming soon)`);
         break;
       case 'sync-registrar':
-        alert(`Syncing expiration data with registrar for ${domain.domain}...\n(API integration coming soon)`);
+        alert(`Syncing expiration data with registrar for ${domain.domain_name}...\n(API integration coming soon)`);
         break;
       case 'toggle-monitoring':
-        alert(`${domain.monitoring_enabled ? 'Disabling' : 'Enabling'} monitoring for ${domain.domain}\n(API integration coming soon)`);
+        alert(`${domain.monitoring_enabled ? 'Disabling' : 'Enabling'} monitoring for ${domain.domain_name}\n(API integration coming soon)`);
         break;
       case 'apply-security-preset':
-        alert(`Apply security preset for ${domain.domain}\n(Will open drawer→Security tab or apply default preset)`);
+        alert(`Apply security preset for ${domain.domain_name}\n(Will open drawer→Security tab or apply default preset)`);
         break;
       case 'view-analytics':
-        alert(`Redirecting to /analytics?domain=${domain.domain}\n(Analytics page coming soon)`);
-        // Future: window.location.href = `/analytics?domain=${encodeURIComponent(domain.domain)}`;
+        alert(`Redirecting to /analytics?domain=${domain.domain_name}\n(Analytics page coming soon)`);
+        // Future: window.location.href = `/analytics?domain=${encodeURIComponent(domain.domain_name)}`;
         break;
       case 'delete-domain':
-        if (confirm(`Delete ${domain.domain}?\nThis action cannot be undone.`)) {
-          alert(`Delete ${domain.domain}\n(API integration coming soon)`);
+        if (confirm(`Delete ${domain.domain_name}?\nThis action cannot be undone.`)) {
+          alert(`Delete ${domain.domain_name}\n(API integration coming soon)`);
         }
         break;
     }
@@ -224,7 +224,7 @@ function renderDomainsTable(domains: Domain[]): void {
           <td>
             <div>
               <div class="domain-cell">
-                <strong>${formatDomainDisplay(domain.domain, 'compact')}</strong>
+                <strong>${formatDomainDisplay(domain.domain_name, 'compact')}</strong>
               </div>
               <div class="text-muted text-sm">
                 ${domain.project_name}${domain.project_lang ? ` (${domain.project_lang})` : ''}
@@ -241,7 +241,7 @@ function renderDomainsTable(domains: Domain[]): void {
                 type="button"
                 data-action="inspect"
                 data-domain-id="${domain.id}"
-                aria-label="Inspect ${domain.domain}"
+                aria-label="Inspect ${domain.domain_name}"
               >
                 <span class="icon" data-icon="mono/pencil-circle"></span>
               </button>
@@ -251,7 +251,7 @@ function renderDomainsTable(domains: Domain[]): void {
                   type="button"
                   aria-haspopup="menu"
                   aria-expanded="false"
-                  aria-label="More actions for ${domain.domain}"
+                  aria-label="More actions for ${domain.domain_name}"
                 >
                   <span class="icon" data-icon="mono/dots-vertical"></span>
                 </button>
@@ -291,7 +291,7 @@ function renderDomainsTable(domains: Domain[]): void {
             </div>
           </td>
           <td>
-            <input type="checkbox" data-domain-id="${domain.id}" aria-label="Select ${domain.domain}" />
+            <input type="checkbox" data-domain-id="${domain.id}" aria-label="Select ${domain.domain_name}" />
           </td>
         </tr>
       `;
@@ -378,7 +378,7 @@ function getExpiresText(domain: Domain): string {
     manual: 'Manually added',
   };
 
-  const icon = `<span class="provider-icon-sm" title="${providerLabels[domain.provider]}"><span class="icon" data-icon="${providerIcons[domain.provider]}"></span></span>`;
+  const icon = `<span class="provider-icon-sm" title="${providerLabels[domain.registrar]}"><span class="icon" data-icon="${providerIcons[domain.registrar]}"></span></span>`;
 
   let dateText: string;
   if (daysUntil < 0) {
@@ -400,7 +400,7 @@ function filterDomains(query: string): void {
 
   const filtered = currentDomains.filter(
     (d) =>
-      d.domain.toLowerCase().includes(query) ||
+      d.domain_name.toLowerCase().includes(query) ||
       d.project_name.toLowerCase().includes(query) ||
       (d.project_lang && d.project_lang.toLowerCase().includes(query))
   );
@@ -454,13 +454,13 @@ function openInspector(domainId: number): void {
   const abuseEl = drawer.querySelector('[data-inspector-abuse]');
   const monitoringEl = drawer.querySelector('[data-inspector-monitoring]');
 
-  if (domainEl) domainEl.textContent = domain.domain;
+  if (domainEl) domainEl.textContent = domain.domain_name;
   if (statusEl) {
     statusEl.textContent = domain.status.charAt(0).toUpperCase() + domain.status.slice(1);
     statusEl.className = `badge ${getStatusChip(domain.status).match(/badge--\w+/)?.[0]}`;
   }
   if (projectEl) projectEl.textContent = `${domain.project_name}${domain.project_lang ? ` (${domain.project_lang})` : ''}`;
-  if (providerEl) providerEl.textContent = domain.provider.charAt(0).toUpperCase() + domain.provider.slice(1);
+  if (providerEl) providerEl.textContent = domain.registrar.charAt(0).toUpperCase() + domain.registrar.slice(1);
   if (sslEl) sslEl.textContent = `${domain.ssl_status.charAt(0).toUpperCase() + domain.ssl_status.slice(1)}${domain.ssl_valid_to ? ` (until ${domain.ssl_valid_to})` : ''}`;
   if (abuseEl) abuseEl.textContent = domain.abuse_status.charAt(0).toUpperCase() + domain.abuse_status.slice(1);
   if (monitoringEl) monitoringEl.textContent = domain.monitoring_enabled ? 'Enabled' : 'Disabled';
