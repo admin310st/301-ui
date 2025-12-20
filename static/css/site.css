@@ -1531,7 +1531,7 @@ input[type="search"]::-webkit-search-cancel-button {
   padding-block: var(--control-pad-y);
   padding-inline: var(--control-pad-x);
   border: var(--border-1) solid var(--input-border);
-  background: var(--input-bg);
+  background: var(--bg-elevated);
   color: var(--text-main);
   -webkit-appearance: none;
   appearance: none;
