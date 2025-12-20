@@ -61,7 +61,7 @@ export const en = {
     hero: {
       eyebrow: 'Welcome Back',
       title: 'The Traffic Control Plane',
-      subtitle: 'Redirects, routing and Cloudflare-edge automation — all in one dashboard.',
+      subtitle: 'Redirects, routing and Cloudflare-edge automation — all in one dashboard',
     },
     promo: {
       title: "What's Inside Your Dashboard",

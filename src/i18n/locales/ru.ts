@@ -63,7 +63,7 @@ export const ru: Translation = {
     hero: {
       eyebrow: 'Вход в систему',
       title: 'Система управления трафиком',
-      subtitle: 'Редиректы, маршрутизация и автоматизация на Cloudflare Edge — всё в одной панели.',
+      subtitle: 'Редиректы, маршрутизация и автоматизация на Cloudflare Edge — всё в одной панели',
     },
     promo: {
       title: 'Что внутри вашей панели',
