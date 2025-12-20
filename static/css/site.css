@@ -2643,7 +2643,7 @@ body.layout-dashboard .burger-button {
     position: fixed;
     top: 0;
     left: 0;
-    max-height: 100dvh;
+    height: 100dvh;
     width: var(--sidebar-width);
     z-index: var(--z-sidebar);
     border-radius: 0;
@@ -2651,11 +2651,9 @@ body.layout-dashboard .burger-button {
     transition: transform 300ms ease-in-out;
   }
 
-  /* Scrollable navigation area (header stays fixed) */
-  .sidebar__nav {
-    flex: 1;
-    overflow-y: auto;
-    min-height: 0;
+  /* Hide search on mobile to prevent keyboard issues */
+  .sidebar-search {
+    display: none;
   }
 
   /* Hide desktop toggle button on mobile (drawer doesn't need it) */
