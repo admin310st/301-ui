@@ -2073,11 +2073,23 @@ html[data-theme="light"] .btn--social-github {
   width: 100%;
 }
 
-/* Compensate for card padding on mobile to prevent body overflow */
+/* Compensate for card padding on mobile to prevent overflow */
 @media (max-width: 1023px) {
   .card__body .table-scroll {
     margin-inline: calc(var(--card-pad-x) * -1);
     width: calc(100% + var(--card-pad-x) * 2);
+  }
+
+  /* Allow header actions to use full width */
+  .card__header .card__actions {
+    margin-inline: calc(var(--card-pad-x) * -1);
+    padding-inline: var(--card-pad-x);
+  }
+
+  /* Allow footer pagination to use full width */
+  .card__footer .pagination {
+    margin-inline: calc(var(--card-pad-x) * -1);
+    padding-inline: var(--card-pad-x);
   }
 }
 
