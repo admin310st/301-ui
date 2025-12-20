@@ -11,6 +11,13 @@ body {
   font-family: var(--font-sans);
 }
 
+/* Prevent horizontal scroll on mobile */
+@media (max-width: 1023px) {
+  body {
+    overflow-x: clip;
+  }
+}
+
 /* Fallback spacing for standalone pages if layout.css is missing. */
 .page-shell {
   max-width: 1200px;
@@ -2717,6 +2724,7 @@ body.layout-dashboard .burger-button {
   /* .page-shell already provides sufficient padding */
   .dashboard-content {
     padding-inline: 0;
+    width: auto; /* Override desktop width: 100% - grid handles sizing */
   }
 }
 

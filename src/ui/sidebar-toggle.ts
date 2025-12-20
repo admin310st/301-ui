@@ -146,9 +146,13 @@ export function initSidebarToggle(): void {
   });
 
   // Track window resize to sync sidebar state
+  let resizeTimeout: ReturnType<typeof setTimeout>;
   window.addEventListener('resize', () => {
-    const currentWidth = window.innerWidth;
-    const isDesktop = currentWidth >= 1024;
+    // Debounce resize handler to prevent glitches during device rotation
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+      const currentWidth = window.innerWidth;
+      const isDesktop = currentWidth >= 1024;
 
     if (isDesktop) {
       // Desktop mode: close mobile drawer, restore saved collapse state
@@ -189,6 +193,7 @@ export function initSidebarToggle(): void {
         mobileToggle.setAttribute('aria-expanded', 'false');
       }
     }
+    }, 150); // 150ms debounce - enough to skip intermediate states during rotation
   });
 }
 
