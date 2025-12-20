@@ -477,8 +477,8 @@ function openInspector(domainId: number): void {
   // Update role icon in header
   if (roleIconEl) {
     const roleIcons = {
-      acceptor: 'mono/target',
-      donor: 'mono/arrow-bottom-right',
+      acceptor: 'mono/arrow-bottom-right',
+      donor: 'mono/arrow-top-right',
       reserve: 'mono/cog-pause',
     };
     const roleLabels = {
