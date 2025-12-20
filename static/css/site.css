@@ -3253,6 +3253,26 @@ body.layout-dashboard .burger-button {
   font-weight: var(--fw-medium);
 }
 
+/* Role icon (drawer header) */
+.role-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25em;
+}
+
+.role-icon[data-role="acceptor"] {
+  color: var(--ok);
+}
+
+.role-icon[data-role="donor"] {
+  color: var(--info);
+}
+
+.role-icon[data-role="reserve"] {
+  color: var(--text-muted);
+}
+
 /* IDN domain display */
 .domain-readable {
   /* Primary display: Unicode version */

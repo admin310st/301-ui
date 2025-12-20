@@ -217,6 +217,9 @@
         <header class="drawer__header">
           <div class="drawer__title">
             <div class="stack-inline stack-inline--sm">
+              <span class="role-icon" data-role="acceptor" data-inspector-role-icon title="Acceptor">
+                <span class="icon" data-icon="mono/target"></span>
+              </span>
               <h2 class="h4" data-inspector-domain>example.com</h2>
               <button
                 class="btn-icon btn-icon--ghost btn-icon--sm"
@@ -264,12 +267,7 @@
                     <dd class="detail-value" data-inspector-project data-editable="site_id">—</dd>
                   </div>
 
-                  <!-- Role: editable via API (PATCH /domains/:id { role }) -->
-                  <!-- TODO: Implement inline editing using .btn-inline pattern (see account.html) -->
-                  <div class="detail-row">
-                    <dt class="detail-label">Role</dt>
-                    <dd class="detail-value" data-inspector-role data-editable="role">—</dd>
-                  </div>
+                  <!-- Role: displayed as icon in drawer header -->
 
                   <!-- Provider: НЕ editable (нет API метода) -->
                   <div class="detail-row">
