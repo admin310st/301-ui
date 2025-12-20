@@ -150,4 +150,20 @@ export const mockDomains: Domain[] = [
     last_check_at: randomDate(-1),
     has_errors: false,
   },
+  {
+    id: 102,
+    domain: 'xn--9krt00a.xn--fiqs8s', // 电子商务.中国 (e-commerce.china)
+    project_name: 'ChineseMarket',
+    project_lang: 'CN',
+    status: 'active',
+    provider: 'namecheap',
+    registrar: 'namecheap',
+    ssl_status: 'valid',
+    ssl_valid_to: randomDate(120),
+    abuse_status: 'clean',
+    expires_at: randomDate(200),
+    monitoring_enabled: true,
+    last_check_at: randomDate(-3),
+    has_errors: false,
+  },
 ];
