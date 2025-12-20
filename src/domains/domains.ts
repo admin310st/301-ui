@@ -487,7 +487,7 @@ function openInspector(domainId: number): void {
     // Add new listener
     newCopyBtn.addEventListener('click', () => {
       navigator.clipboard.writeText(domain.domain_name).then(() => {
-        // Show success feedback (could use toast notification)
+        // Show success feedback
         const icon = newCopyBtn.querySelector('.icon');
         if (icon) {
           icon.setAttribute('data-icon', 'mono/check-circle');
@@ -498,6 +498,19 @@ function openInspector(domainId: number): void {
       }).catch(err => {
         console.error('Failed to copy domain:', err);
       });
+    });
+  }
+
+  // Add open domain button handler
+  const openBtn = drawer.querySelector('[data-action="open-domain-inspector"]');
+  if (openBtn) {
+    // Remove old listeners
+    const newOpenBtn = openBtn.cloneNode(true);
+    openBtn.parentNode?.replaceChild(newOpenBtn, openBtn);
+
+    // Add new listener
+    newOpenBtn.addEventListener('click', () => {
+      window.open(`https://${domain.domain_name}`, '_blank', 'noopener,noreferrer');
     });
   }
 
