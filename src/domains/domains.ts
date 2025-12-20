@@ -1,5 +1,6 @@
 import { mockDomains, type Domain } from './mock-data';
 import { initAddDomainsDrawer } from './add-domains-drawer';
+import { formatDomainDisplay } from '@utils/idn';
 
 let currentDomains: Domain[] = [];
 let selectedDomains = new Set<number>();
@@ -223,7 +224,7 @@ function renderDomainsTable(domains: Domain[]): void {
           <td>
             <div>
               <div class="domain-cell">
-                <strong>${domain.domain}</strong>
+                <strong>${formatDomainDisplay(domain.domain, 'compact')}</strong>
               </div>
               <div class="text-muted text-sm">
                 ${domain.project_name}${domain.project_lang ? ` (${domain.project_lang})` : ''}

@@ -6,6 +6,7 @@
  */
 
 import { showGlobalMessage } from '@ui/notifications';
+import { formatDomainDisplay } from '@utils/idn';
 
 // Domain matching regex (updated for IDN TLD support)
 // Matches: example.com, xn--domain.net, sub.domain.co.uk, домен.рф (xn--c1ad6a.xn--p1ai)
@@ -133,7 +134,7 @@ export function initAddDomainsDrawer(): void {
 
       // Render domains
       domainList.innerHTML = currentState.domains
-        .map(domain => `<div class="domain-preview-item">${domain}</div>`)
+        .map(domain => `<div class="domain-preview-item">${formatDomainDisplay(domain)}</div>`)
         .join('');
     }
   }

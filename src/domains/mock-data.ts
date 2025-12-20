@@ -115,4 +115,39 @@ function generateDomain(id: number): Domain {
 }
 
 // Generate 35 mock domains
-export const mockDomains: Domain[] = Array.from({ length: 35 }, (_, i) => generateDomain(i + 1));
+export const mockDomains: Domain[] = [
+  ...Array.from({ length: 35 }, (_, i) => generateDomain(i + 1)),
+  // Add IDN test domains
+  {
+    id: 100,
+    domain: 'xn--c1ad6a.xn--p1ai', // домен.рф
+    project_name: 'RussianProject',
+    project_lang: 'RU',
+    status: 'active',
+    provider: 'namecheap',
+    registrar: 'namecheap',
+    ssl_status: 'valid',
+    ssl_valid_to: randomDate(90),
+    abuse_status: 'clean',
+    expires_at: randomDate(180),
+    monitoring_enabled: true,
+    last_check_at: randomDate(-2),
+    has_errors: false,
+  },
+  {
+    id: 101,
+    domain: 'xn--80aswg.xn--p1ai', // сайт.рф
+    project_name: 'RussianProject',
+    project_lang: 'RU',
+    status: 'expiring',
+    provider: 'cloudflare',
+    cf_zone_id: 'zone_101',
+    ssl_status: 'valid',
+    ssl_valid_to: randomDate(60),
+    abuse_status: 'clean',
+    expires_at: randomDate(25),
+    monitoring_enabled: true,
+    last_check_at: randomDate(-1),
+    has_errors: false,
+  },
+];

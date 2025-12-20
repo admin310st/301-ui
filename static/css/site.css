@@ -3157,6 +3157,44 @@ body.layout-dashboard .burger-button {
   font-weight: var(--fw-medium);
 }
 
+/* IDN domain display */
+.domain-readable {
+  /* Primary display: Unicode version */
+}
+
+.domain-punycode {
+  /* Secondary display: punycode in parentheses (full mode) */
+  display: inline-block;
+  margin-left: 0.5ch;
+  opacity: 0.7;
+}
+
+.idn-badge {
+  /* Compact badge for IDN domains in tables */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 0.4em;
+  padding: 0.15em 0.35em;
+  background: var(--bg-muted);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  color: var(--text-muted);
+  cursor: help;
+  transition: all 0.15s ease;
+  vertical-align: middle;
+}
+
+.idn-badge .icon {
+  font-size: 0.875em; /* 14px at 16px base */
+}
+
+.idn-badge:hover {
+  background: var(--bg-subtle);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
 .btn-icon {
   display: inline-flex;
   align-items: center;
