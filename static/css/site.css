@@ -1871,6 +1871,18 @@ html[data-theme="light"] .btn--social-github {
   color: var(--danger);
 }
 
+.badge--ok {
+  background-color: rgba(37, 208, 164, 0.12);
+  border-color: rgba(37, 208, 164, 0.5);
+  color: var(--ok);
+}
+
+.badge--warning {
+  background-color: rgba(255, 179, 71, 0.12);
+  border-color: rgba(255, 179, 71, 0.5);
+  color: var(--warning);
+}
+
 .badge--brand {
   background-color: rgba(94, 139, 255, 0.16);
   border-color: rgba(94, 139, 255, 0.55);
@@ -1905,6 +1917,18 @@ html[data-theme="light"] .btn--social-github {
   background-color: color-mix(in srgb, var(--danger) 16%, #ffffff);
   border-color: color-mix(in srgb, var(--danger) 44%, transparent);
   color: var(--danger);
+}
+
+:root[data-theme='light'] .badge--ok {
+  background-color: color-mix(in srgb, var(--ok) 16%, #ffffff);
+  border-color: color-mix(in srgb, var(--ok) 42%, transparent);
+  color: var(--ok);
+}
+
+:root[data-theme='light'] .badge--warning {
+  background-color: color-mix(in srgb, var(--warning) 16%, #ffffff);
+  border-color: color-mix(in srgb, var(--warning) 42%, transparent);
+  color: var(--warning);
 }
 
 :root[data-theme='light'] .badge--brand {
