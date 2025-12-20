@@ -2655,6 +2655,13 @@ body.layout-dashboard .burger-button {
   }
 }
 
+/* Tablet: Add padding for centered content */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .page-shell.dashboard-shell {
+    padding-inline: var(--space-4);
+  }
+}
+
 /* Mobile: Single column, sidebar as overlay drawer */
 @media (max-width: 1023px) {
   .dashboard-shell,
