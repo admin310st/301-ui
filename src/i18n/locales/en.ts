@@ -63,6 +63,44 @@ export const en = {
       title: 'The Traffic Control Plane',
       subtitle: 'Redirects, routing and Cloudflare-edge automation — all in one dashboard.',
     },
+    promo: {
+      title: "What's Inside Your Dashboard",
+      subtitle: 'Production-ready infrastructure orchestration for your domains',
+      features: {
+        redirects: {
+          title: 'Edge Redirects',
+          description: 'Bulk management across domains with <50ms response times',
+        },
+        domains: {
+          title: 'Domain Management',
+          description: 'Centralized control for hundreds of domains across registrars',
+        },
+        tds: {
+          title: 'Traffic Distribution',
+          description: 'Advanced TDS with geo-targeting and A/B testing',
+        },
+        cloudflare: {
+          title: 'Cloudflare Integration',
+          description: 'Multi-account orchestration with bulk operations',
+        },
+        automation: {
+          title: 'Automation',
+          description: 'Scheduled jobs, webhooks, and automated workflows',
+        },
+        projects: {
+          title: 'Projects & Sites',
+          description: 'Organize domains into projects with landing page management',
+        },
+      },
+      cta: 'Create account',
+      quickStart: {
+        title: 'Quick Start Guide',
+        subtitle: 'Get up and running in 3 simple steps',
+        step1: 'Connect Cloudflare',
+        step2: 'Import domains',
+        step3: 'Deploy',
+      },
+    },
     login: {
       title: 'Sign in to 301.st',
       subtitle: 'Production auth flow with Turnstile and Omni token.',
