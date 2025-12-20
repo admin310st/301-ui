@@ -487,11 +487,14 @@ function openInspector(domainId: number): void {
     // Add new listener
     newCopyBtn.addEventListener('click', () => {
       navigator.clipboard.writeText(domain.domain_name).then(() => {
-        // Show success feedback with color change
-        newCopyBtn.classList.add('text-ok');
-        setTimeout(() => {
-          newCopyBtn.classList.remove('text-ok');
-        }, 2000);
+        // Show success feedback with color change on icon
+        const icon = newCopyBtn.querySelector('.icon');
+        if (icon) {
+          icon.classList.add('text-ok');
+          setTimeout(() => {
+            icon.classList.remove('text-ok');
+          }, 2000);
+        }
       }).catch(err => {
         console.error('Failed to copy domain:', err);
       });
