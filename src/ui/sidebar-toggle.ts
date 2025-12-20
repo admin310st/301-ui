@@ -145,17 +145,13 @@ export function initSidebarToggle(): void {
     }
   });
 
-  // Track window resize to reset mobile drawer state when crossing breakpoints
-  let lastWidth = window.innerWidth;
-
+  // Track window resize to sync sidebar state
   window.addEventListener('resize', () => {
     const currentWidth = window.innerWidth;
-    const wasMobile = lastWidth < 1024;
     const isDesktop = currentWidth >= 1024;
-    const isMobile = currentWidth < 1024;
 
-    // Crossing from mobile to desktop: close drawer and restore saved collapse state
-    if (wasMobile && isDesktop) {
+    if (isDesktop) {
+      // Desktop mode: close mobile drawer, restore saved collapse state
       document.body.classList.remove('sidebar-open');
       if (mobileToggle) {
         mobileToggle.setAttribute('aria-expanded', 'false');
@@ -185,14 +181,14 @@ export function initSidebarToggle(): void {
           updateToggleState(desktopToggle, true);
         }
       }
-    }
-
-    // Crossing from desktop to mobile: remove collapsed state
-    if (!wasMobile && isMobile) {
+    } else {
+      // Mobile mode: remove collapsed state, ensure drawer is closed
       document.body.classList.remove('sidebar-collapsed');
+      document.body.classList.remove('sidebar-open');
+      if (mobileToggle) {
+        mobileToggle.setAttribute('aria-expanded', 'false');
+      }
     }
-
-    lastWidth = currentWidth;
   });
 }
 

@@ -9,6 +9,7 @@ body {
   background: var(--bg);
   color: var(--text-main);
   font-family: var(--font-sans);
+  overflow-x: hidden;
 }
 
 /* Fallback spacing for standalone pages if layout.css is missing. */
@@ -2077,10 +2078,8 @@ html[data-theme="light"] .btn--social-github {
   min-width: 720px;
 }
 
-/* Prevent long domain names from breaking table layout */
+/* Allow domain names to wrap naturally */
 .table--domains td:first-child {
-  max-width: 280px;
-  min-width: 180px;
   word-break: break-word;
   overflow-wrap: break-word;
 }
