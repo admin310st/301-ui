@@ -2643,7 +2643,7 @@ body.layout-dashboard .burger-button {
     position: fixed;
     top: 0;
     left: 0;
-    height: 100dvh;
+    height: 100svh; /* Small viewport height - stable, doesn't change with keyboard */
     width: var(--sidebar-width);
     z-index: var(--z-sidebar);
     border-radius: 0;
