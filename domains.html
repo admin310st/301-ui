@@ -216,8 +216,18 @@
       <div class="drawer__panel">
         <header class="drawer__header">
           <div class="drawer__title">
-            <h2 class="h4" data-inspector-domain>example.com</h2>
-            <span class="badge" data-inspector-status>Active</span>
+            <div class="stack-inline stack-inline--sm">
+              <h2 class="h4" data-inspector-domain>example.com</h2>
+              <button
+                class="btn-icon btn-icon--ghost btn-icon--sm"
+                type="button"
+                data-action="copy-domain-inspector"
+                aria-label="Copy domain"
+                title="Copy domain"
+              >
+                <span class="icon" data-icon="mono/copy"></span>
+              </button>
+            </div>
           </div>
           <button class="btn-close" type="button" data-drawer-close aria-label="Close">
             <span class="icon" data-icon="mono/close"></span>
@@ -232,6 +242,10 @@
               </header>
               <div class="card__body">
                 <dl class="detail-list">
+                  <div class="detail-row">
+                    <dt class="detail-label">Status</dt>
+                    <dd class="detail-value" data-inspector-status>—</dd>
+                  </div>
                   <div class="detail-row">
                     <dt class="detail-label">Project</dt>
                     <dd class="detail-value" data-inspector-project>—</dd>

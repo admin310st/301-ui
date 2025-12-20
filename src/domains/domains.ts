@@ -331,6 +331,17 @@ function getStatusChip(status: Domain['status']): string {
   return `<span class="badge ${variants[status]}">${labels[status]}</span>`;
 }
 
+function getStatusColor(status: Domain['status']): string {
+  const colors: Record<string, string> = {
+    active: 'text-ok',
+    expired: 'text-danger',
+    expiring: 'text-warning',
+    blocked: 'text-danger',
+    pending: 'text-muted',
+  };
+  return colors[status] || 'text-muted';
+}
+
 function getHealthIcons(domain: Domain): string {
   const icons: string[] = [];
 
@@ -456,14 +467,39 @@ function openInspector(domainId: number): void {
 
   if (domainEl) domainEl.textContent = domain.domain_name;
   if (statusEl) {
-    statusEl.textContent = domain.status.charAt(0).toUpperCase() + domain.status.slice(1);
-    statusEl.className = `badge ${getStatusChip(domain.status).match(/badge--\w+/)?.[0]}`;
+    const statusText = domain.status.charAt(0).toUpperCase() + domain.status.slice(1);
+    const statusColor = getStatusColor(domain.status);
+    statusEl.innerHTML = `<span class="${statusColor}">${statusText}</span>`;
   }
   if (projectEl) projectEl.textContent = `${domain.project_name}${domain.project_lang ? ` (${domain.project_lang})` : ''}`;
   if (providerEl) providerEl.textContent = domain.registrar.charAt(0).toUpperCase() + domain.registrar.slice(1);
   if (sslEl) sslEl.textContent = `${domain.ssl_status.charAt(0).toUpperCase() + domain.ssl_status.slice(1)}${domain.ssl_valid_to ? ` (until ${domain.ssl_valid_to})` : ''}`;
   if (abuseEl) abuseEl.textContent = domain.abuse_status.charAt(0).toUpperCase() + domain.abuse_status.slice(1);
   if (monitoringEl) monitoringEl.textContent = domain.monitoring_enabled ? 'Enabled' : 'Disabled';
+
+  // Add copy button handler
+  const copyBtn = drawer.querySelector('[data-action="copy-domain-inspector"]');
+  if (copyBtn) {
+    // Remove old listeners
+    const newCopyBtn = copyBtn.cloneNode(true);
+    copyBtn.parentNode?.replaceChild(newCopyBtn, copyBtn);
+
+    // Add new listener
+    newCopyBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText(domain.domain_name).then(() => {
+        // Show success feedback (could use toast notification)
+        const icon = newCopyBtn.querySelector('.icon');
+        if (icon) {
+          icon.setAttribute('data-icon', 'mono/check-circle');
+          setTimeout(() => {
+            icon.setAttribute('data-icon', 'mono/copy');
+          }, 2000);
+        }
+      }).catch(err => {
+        console.error('Failed to copy domain:', err);
+      });
+    });
+  }
 
   drawer.removeAttribute('hidden');
 }
