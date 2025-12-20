@@ -3181,6 +3181,37 @@ body.layout-dashboard .burger-button {
   animation: dialogFadeIn 0.2s ease-out;
 }
 
+/* Dialog accent variants with left border
+   Uses same pattern as .card--accent for consistency */
+
+.dialog--danger .dialog__panel::before,
+.dialog--warning .dialog__panel::before,
+.dialog--cf .dialog__panel::before,
+.dialog--info .dialog__panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-left: 4px solid currentColor;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.dialog--danger .dialog__panel::before {
+  color: var(--danger);
+}
+
+.dialog--warning .dialog__panel::before {
+  color: var(--warning);
+}
+
+.dialog--cf .dialog__panel::before {
+  color: var(--accent-cf);
+}
+
+.dialog--info .dialog__panel::before {
+  color: var(--primary);
+}
+
 @keyframes dialogFadeIn {
   from {
     opacity: 0;

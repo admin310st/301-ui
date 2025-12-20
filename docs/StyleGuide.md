@@ -921,15 +921,35 @@ Centered modal dialogs for critical actions and confirmations. Unlike drawers (s
 
 #### Variants
 
-**Danger variant** (delete, disconnect):
-- Use `.btn--danger` for confirm button
-- Icon: `mono/delete`, `mono/close`, etc.
-- Example: "Delete domain?", "Disconnect account?"
+All variants use **left accent border (4px)** to visually categorize the action severity. Uses same pattern as `.card--accent`.
 
-**Cloudflare variant** (CF actions):
-- Use `.btn--cf` for confirm button (orange)
-- Icon: `brand/cloudflare`
-- Example: "Connect Cloudflare account?"
+**Danger variant** `.dialog--danger` (destructive actions):
+- **Border**: Red (`var(--danger)`)
+- **Button**: `.btn--danger`
+- **Icons**: `mono/delete`, `mono/close`, `mono/alert-triangle`
+- **Use for**: Delete domain, disconnect account, remove data
+- **Example**: "Delete domain?", "Disconnect account?"
+
+**Warning variant** `.dialog--warning` (caution required):
+- **Border**: Yellow/Orange (`var(--warning)`)
+- **Button**: `.btn--primary` or `.btn--ghost`
+- **Icons**: `mono/alert-triangle`, `mono/alert`
+- **Use for**: Actions requiring user attention, potential data loss
+- **Example**: "Unsaved changes", "Override settings?"
+
+**Cloudflare variant** `.dialog--cf` (CF-specific actions):
+- **Border**: Cloudflare orange (`var(--accent-cf)`)
+- **Button**: `.btn--cf`
+- **Icons**: `brand/cloudflare`
+- **Use for**: Cloudflare account connection, API token actions
+- **Example**: "Connect Cloudflare account?"
+
+**Info variant** `.dialog--info` (informational):
+- **Border**: Blue (`var(--primary)`)
+- **Button**: `.btn--primary`
+- **Icons**: `mono/info`, `mono/help-circle`
+- **Use for**: Confirmation of non-destructive actions, information prompts
+- **Example**: "Apply this preset?", "Start migration?"
 
 #### Design specs
 

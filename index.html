@@ -82,10 +82,12 @@
     <main class="page">
       <div class="page-shell">
         <header class="page-header">
-          <h1 class="h1" data-i18n="auth.hero.title">Access 301.st</h1>
-          <p class="auth-subtitle" data-i18n="auth.hero.subtitle">
-            Use email and password to access your account or request a reset.
-          </p>
+          <div class="stack-md">
+            <h1 class="h1" data-i18n="auth.hero.title">Access 301.st</h1>
+            <p class="text-lg text-muted" data-i18n="auth.hero.subtitle">
+              Use email and password to access your account or request a reset.
+            </p>
+          </div>
         </header>
         <section data-route="auth" id="auth">
           <div class="auth-shell">
@@ -477,40 +479,45 @@
               </div>
             </section>
 
-            <section class="stack" style="gap: var(--space-3)">
-              <aside class="card card--soft card--accent" data-onlogout hidden id="promo-card">
+            <section class="stack-list">
+              <aside class="card card--soft" data-onlogout hidden id="promo-card">
                 <header class="card__header">
-                  <h3 class="h5">What's Inside Your Dashboard</h3>
-                  <p class="text-sm text-muted">Production-ready infrastructure orchestration built for scale.</p>
+                  <h3 class="h5">The Traffic Control Plane</h3>
+                  <p class="text-sm text-muted">Enterprise infrastructure orchestration for modern web operations</p>
                 </header>
                 <div class="card__body">
                   <ul class="list--spaced">
-                    <li><span class="icon" data-icon="mono/directions"></span> Bulk redirect management across domains (edge rules, &lt;50ms)</li>
-                    <li><span class="icon" data-icon="mono/dns"></span> Manage hundreds of domains across multiple registrars</li>
-                    <li><span class="icon" data-icon="mono/directions-fork"></span> Full-featured TDS with geo-targeting and A/B testing</li>
-                    <li><span class="icon" data-icon="brand/cloudflare"></span> Multi-account Cloudflare orchestration with bulk operations</li>
+                    <li><strong>Edge Redirects</strong> — Bulk management across domains with &lt;50ms response times</li>
+                    <li><strong>Domain Management</strong> — Centralized control for hundreds of domains across registrars</li>
+                    <li><strong>Traffic Distribution</strong> — Advanced TDS with geo-targeting and A/B testing</li>
+                    <li><strong>Cloudflare Integration</strong> — Multi-account orchestration with bulk operations</li>
                   </ul>
                 </div>
                 <footer class="card__footer">
-                  <div style="display: flex; gap: var(--space-2); flex-wrap: wrap">
-                    <a class="btn-chip" href="#register" data-auth-scroll="register">
+                  <div class="controls-row">
+                    <a class="btn btn--primary" href="#register" data-auth-scroll="register">
                       <span class="icon" data-icon="mono/account-arrow"></span>
-                      <span class="btn-chip__label">Create account</span>
+                      <span>Create account</span>
                     </a>
-                    <button class="btn-chip" type="button" data-social="google">
+                    <button class="btn btn--ghost" type="button" data-social="google">
                       <span class="icon" data-icon="brand/google"></span>
-                      <span class="btn-chip__label" data-social-label>Google</span>
+                      <span data-social-label>Google</span>
                     </button>
-                    <button class="btn-chip" type="button" data-social="github">
+                    <button class="btn btn--ghost" type="button" data-social="github">
                       <span class="icon" data-icon="brand/github"></span>
-                      <span class="btn-chip__label" data-social-label>GitHub</span>
+                      <span data-social-label>GitHub</span>
                     </button>
                   </div>
                 </footer>
               </aside>
 
-              <section class="card card--panel card--compact" data-onlogout hidden>
-                <header class="card__header"><h3 class="h6">Quick Start</h3></header>
+              <section class="card card--soft" data-onlogout hidden>
+                <header class="card__header">
+                  <div class="stack-sm">
+                    <h3 class="h5">Quick Start Guide</h3>
+                    <p class="text-sm text-muted">Get up and running in 3 simple steps</p>
+                  </div>
+                </header>
                 <div class="card__body">
                   <div class="step-flow">
                     <div class="step-pill">
@@ -520,12 +527,12 @@
                     <span class="step-separator">→</span>
                     <div class="step-pill">
                       <span class="step-number">2</span>
-                      <span class="step-text">Import & configure</span>
+                      <span class="step-text">Import domains</span>
                     </div>
                     <span class="step-separator">→</span>
                     <div class="step-pill">
                       <span class="step-number">3</span>
-                      <span class="step-text">Launch</span>
+                      <span class="step-text">Deploy</span>
                     </div>
                   </div>
                 </div>

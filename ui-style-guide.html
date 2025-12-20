@@ -1904,7 +1904,7 @@
           <div class="demo-item">
             <div class="demo-label">
               <h3 class="h5">Danger variant</h3>
-              <p class="text-muted">For destructive actions like deletion. Uses <span class="code-inline">.btn--danger</span>.</p>
+              <p class="text-muted">For destructive actions like deletion. Uses <span class="code-inline">.dialog--danger</span> with left red accent border + <span class="code-inline">.btn--danger</span>.</p>
             </div>
             <div class="demo-preview">
               <button class="btn btn--sm btn--ghost" onclick="document.querySelector('[data-dialog=delete-domain]').hidden = false">
@@ -1917,7 +1917,7 @@
           <div class="demo-item">
             <div class="demo-label">
               <h3 class="h5">Cloudflare variant</h3>
-              <p class="text-muted">For Cloudflare-specific actions. Uses <span class="code-inline">.btn--cf</span> (orange).</p>
+              <p class="text-muted">For Cloudflare-specific actions. Uses <span class="code-inline">.dialog--cf</span> with left orange accent border + <span class="code-inline">.btn--cf</span>.</p>
             </div>
             <div class="demo-preview">
               <button class="btn btn--sm btn--ghost" onclick="document.querySelector('[data-dialog=cf-action]').hidden = false">
@@ -2213,7 +2213,7 @@
     </script>
 
     <!-- Confirmation Dialog: Delete Domain (danger variant) -->
-    <div class="dialog" data-dialog="delete-domain" hidden>
+    <div class="dialog dialog--danger" data-dialog="delete-domain" hidden>
       <div class="dialog__overlay" data-dialog-close></div>
       <div class="dialog__panel">
         <header class="dialog__header">
@@ -2236,7 +2236,7 @@
     </div>
 
     <!-- Confirmation Dialog: Cloudflare Action (CF variant) -->
-    <div class="dialog" data-dialog="cf-action" hidden>
+    <div class="dialog dialog--cf" data-dialog="cf-action" hidden>
       <div class="dialog__overlay" data-dialog-close></div>
       <div class="dialog__panel">
         <header class="dialog__header">
