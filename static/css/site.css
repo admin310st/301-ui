@@ -2253,6 +2253,14 @@ html[data-theme="light"] .btn--social-github {
   overflow-wrap: break-word;
 }
 
+/* Center-align Status and Health columns */
+.table--domains th:nth-child(2),
+.table--domains td:nth-child(2),
+.table--domains th:nth-child(3),
+.table--domains td:nth-child(3) {
+  text-align: center;
+}
+
 .table__th-actions,
 .table__cell-actions {
   width: 1%;
