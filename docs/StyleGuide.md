@@ -879,6 +879,78 @@ Use ruled lists for step-by-step onboarding or configuration checklists. Separat
 </ol>
 ```
 
+### 4.4. Confirmation Dialogs
+
+Centered modal dialogs for critical actions and confirmations. Unlike drawers (side panels for forms/details), dialogs are used for short, focused confirmations that require immediate user attention.
+
+**When to use:**
+- Confirming destructive actions (delete domain, disconnect account)
+- Critical Cloudflare-specific actions
+- Any action that cannot be undone
+
+**When NOT to use:**
+- Forms with multiple fields → use Drawer
+- Viewing details or data → use Drawer
+- Multi-step processes → use Drawer
+
+#### Structure
+
+```html
+<div class="dialog" data-dialog="name" hidden>
+  <div class="dialog__overlay" data-dialog-close></div>
+  <div class="dialog__panel">
+    <header class="dialog__header">
+      <h2 class="dialog__title">Delete domain?</h2>
+      <button class="btn-close" type="button" data-dialog-close aria-label="Close">
+        <span class="icon" data-icon="mono/close"></span>
+      </button>
+    </header>
+    <div class="dialog__body">
+      <p>Are you sure you want to delete <strong>example.com</strong>? This action cannot be undone.</p>
+    </div>
+    <footer class="dialog__footer">
+      <button class="btn btn--danger" type="button" data-confirm>
+        <span class="icon" data-icon="mono/delete"></span>
+        <span>Delete domain</span>
+      </button>
+      <button class="btn btn--ghost" type="button" data-dialog-close>Cancel</button>
+    </footer>
+  </div>
+</div>
+```
+
+#### Variants
+
+**Danger variant** (delete, disconnect):
+- Use `.btn--danger` for confirm button
+- Icon: `mono/delete`, `mono/close`, etc.
+- Example: "Delete domain?", "Disconnect account?"
+
+**Cloudflare variant** (CF actions):
+- Use `.btn--cf` for confirm button (orange)
+- Icon: `brand/cloudflare`
+- Example: "Connect Cloudflare account?"
+
+#### Design specs
+
+- **Max width**: 480px (vs 560px for drawers)
+- **Animation**: fade + scale (vs slide-in for drawers)
+- **z-index**: 1000 (same as drawer)
+- **Backdrop**: rgba(0, 0, 0, 0.5) + blur(4px)
+- **Padding**: var(--space-4) on all sections
+- **Border radius**: var(--radius-lg)
+
+#### Dialog vs Drawer
+
+| Feature | Dialog | Drawer |
+|---------|--------|--------|
+| Use case | Confirmations, alerts | Forms, details, editing |
+| Position | Center | Right side |
+| Width | 480px max | 560px max |
+| Animation | Fade + scale | Slide-in |
+| Content | 1-3 lines text | Multi-field forms |
+| Close | Buttons only | Click outside or button |
+
 ### 4.5. Tables
 
 Domains tables stay in a single row layout even on mobile; wrap the table in a horizontal scroller and keep action menus inside dropdowns so the row stays compact. Above the table you can place a search bar, one or more dropdown filter chips, provider action chips and a primary button. The example shows a table search bar, a status dropdown chip, a Cloudflare action chip and a primary “Add domain” button — all sharing the unified control recipe.
