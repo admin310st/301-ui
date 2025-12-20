@@ -171,6 +171,95 @@ body {
   box-shadow: var(--shadow-subtle);
 }
 
+/* =========================
+   Utility Classes
+   ========================= */
+
+/**
+ * Color utilities
+ * Use these classes to apply semantic colors to text elements.
+ * Available in all components (buttons, badges, icons, text).
+ */
+.text-ok {
+  color: var(--ok);
+}
+
+.text-warning {
+  color: var(--warning);
+}
+
+.text-danger {
+  color: var(--danger);
+}
+
+.text-info {
+  color: var(--info);
+}
+
+/**
+ * Inline editing pattern
+ *
+ * Usage example:
+ * <div class="detail-row" data-edit-field="fieldname">
+ *   <dt class="detail-label">Label</dt>
+ *   <dd>
+ *     <!-- View mode -->
+ *     <div class="detail-value" data-view-mode>
+ *       <span>Value</span>
+ *       <button class="btn-inline" type="button" data-edit-trigger>
+ *         <span class="icon" data-icon="mono/pencil-circle"></span>
+ *       </button>
+ *     </div>
+ *     <!-- Edit mode -->
+ *     <div class="detail-edit" data-edit-mode hidden>
+ *       <input type="text" class="input" data-edit-input />
+ *       <div class="btn-group">
+ *         <button class="btn btn--sm btn--primary" data-save-btn>Save</button>
+ *         <button class="btn btn--sm btn--ghost" data-cancel-btn>Cancel</button>
+ *       </div>
+ *     </div>
+ *   </dd>
+ * </div>
+ *
+ * JavaScript should toggle [hidden] attribute on data-view-mode / data-edit-mode elements.
+ */
+.btn-inline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: var(--r-field);
+  transition: all 150ms ease;
+}
+
+.btn-inline:hover {
+  background: var(--bg-soft);
+  color: var(--text);
+}
+
+.btn-inline .icon {
+  width: 16px;
+  height: 16px;
+}
+
+.detail-edit {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  align-self: start;
+  width: 100%;
+}
+
+/* =========================
+   Components
+   ========================= */
+
 .app-alert {
   position: absolute; /* Positioned within .utility-bar */
   top: 0;
@@ -2810,39 +2899,7 @@ body.layout-dashboard .burger-button {
   flex-shrink: 0;
 }
 
-/* Inline edit */
-.btn-inline {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  padding: 0;
-  border: none;
-  background: transparent;
-  color: var(--text-muted);
-  cursor: pointer;
-  border-radius: var(--r-field);
-  transition: all 150ms ease;
-}
-
-.btn-inline:hover {
-  background: var(--bg-soft);
-  color: var(--text);
-}
-
-.btn-inline .icon {
-  width: 16px;
-  height: 16px;
-}
-
-.detail-edit {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  align-self: start;
-  width: 100%;
-}
+/* Inline edit styles moved to global "Utility Classes" section */
 
 .password-change-form {
   margin-top: var(--space-4);
@@ -2876,16 +2933,7 @@ body.layout-dashboard .burger-button {
   margin: 0;
 }
 
-/* Inline editing */
-.detail-value.editable {
-  cursor: pointer;
-  border-bottom: 1px dashed transparent;
-  transition: border-color 0.2s ease;
-}
-
-.detail-value.editable:hover {
-  border-bottom-color: var(--text-muted);
-}
+/* Note: Inline editing uses .btn-inline pattern (see "Utility Classes" section) */
 
 .detail-label {
   font-size: var(--fs-sm);
@@ -3199,17 +3247,7 @@ body.layout-dashboard .burger-button {
   align-items: center;
 }
 
-.text-ok {
-  color: var(--ok);
-}
-
-.text-warning {
-  color: var(--warning);
-}
-
-.text-danger {
-  color: var(--danger);
-}
+/* Color utilities (.text-ok, .text-warning, .text-danger) moved to global "Utility Classes" section */
 
 .domain-cell {
   font-weight: var(--fw-medium);
@@ -3253,31 +3291,7 @@ body.layout-dashboard .burger-button {
   color: var(--primary);
 }
 
-.btn-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  padding: 0;
-  border: 1px solid var(--border);
-  background: transparent;
-  color: var(--text-muted);
-  cursor: pointer;
-  border-radius: var(--r-field);
-  transition: all 150ms ease;
-}
-
-.btn-icon:hover {
-  background: var(--bg-soft);
-  color: var(--text);
-  border-color: var(--border-hover);
-}
-
-.btn-icon .icon {
-  width: 16px;
-  height: 16px;
-}
+/* .btn-icon is defined globally in the Buttons section (line ~692) */
 
 .badge--sm {
   font-size: var(--fs-xs);
