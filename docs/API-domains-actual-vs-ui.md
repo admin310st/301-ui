@@ -2,7 +2,9 @@
 
 > **Дата:** 2025-12-20
 > **Статус:** Актуальное состояние бекенда
-> **Источник:** https://github.com/admin310st/301/blob/main/src/api/domains/domains.ts
+> **Источники:**
+> - Код бекенда: https://github.com/admin310st/301/blob/main/src/api/domains/domains.ts
+> - SQL схема: https://github.com/admin310st/301/blob/main/schema/301.sql
 
 ---
 
@@ -19,8 +21,8 @@ interface DomainRecord {
   parent_id: number | null;
 
   // Основные поля
-  domain_name: string;
-  role: 'acceptor' | 'donor' | 'reserve';
+  domain_name: string;               // UNIQUE
+  role: 'acceptor' | 'donor' | 'reserve';  // default: 'reserve'
 
   // Технические параметры
   ns: string | null;
@@ -29,8 +31,8 @@ interface DomainRecord {
 
   // Статус и блокировки
   blocked: boolean;
-  blocked_reason: string | null;
-  ssl_status: string | null;
+  blocked_reason: string | null;  // 'unavailable' | 'ad_network' | 'hosting_registrar' | 'government' | 'manual'
+  ssl_status: string | null;       // 'none' | 'valid' | 'expired' | 'error' (default: 'none')
 
   // Даты
   expired_at: string | null;
@@ -72,6 +74,50 @@ interface Domain {
 
 ---
 
+## Структура базы данных (SQL Schema)
+
+### Таблица `domains`
+
+```sql
+CREATE TABLE IF NOT EXISTS domains (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  account_id INTEGER NOT NULL,      -- Tenant owner
+  site_id INTEGER,                   -- Associated site reference
+  zone_id INTEGER,                   -- Cloudflare zone reference
+  key_id INTEGER,                    -- Integration key reference
+  parent_id INTEGER,                 -- Hierarchical domain parent
+  domain_name TEXT NOT NULL UNIQUE,  -- FQDN
+  role TEXT DEFAULT 'reserve',       -- acceptor|donor|reserve
+  ns TEXT,                           -- Nameserver records
+  ns_verified INTEGER DEFAULT 0,     -- Delegation confirmation flag (boolean)
+  proxied INTEGER DEFAULT 1,         -- Cloudflare proxying toggle (boolean)
+  blocked INTEGER DEFAULT 0,         -- Block status flag (boolean)
+  blocked_reason TEXT,               -- unavailable|ad_network|hosting_registrar|government|manual
+  ssl_status TEXT DEFAULT 'none',    -- none|valid|expired|error
+  expired_at TIMESTAMP,              -- Registration expiration
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+**Важно:**
+- ❌ Поле `registrar` **отсутствует** в схеме БД
+- ✅ `blocked_reason` имеет фиксированные значения (enum)
+- ✅ `ssl_status` имеет фиксированные значения (enum)
+- ✅ `domain_name` имеет UNIQUE constraint
+
+### Связанные таблицы
+
+- **`accounts`** - Tenant containers с plan tiers (free/pro/buss)
+- **`sites`** - Traffic reception units (содержат `lang_code` для `project_lang`)
+- **`projects`** - Логические группировки для кампаний
+- **`zones`** - Cloudflare DNS zone metadata
+- **`account_keys`** - Зашифрованные credentials провайдеров
+- **`redirect_rules`** - Логика редиректов доменов
+- **`tds_rules`** - Traffic Distribution System конфигурации
+
+---
+
 ## Детальное сравнение
 
 ### ✅ Совпадает (готово к использованию)
@@ -88,7 +134,7 @@ interface Domain {
 | UI поле | API поле | Маппинг |
 |---------|----------|---------|
 | `status` | `blocked` + `expired_at` | Вычислить:<br>• `blocked: true` → "blocked"<br>• `expired_at < now` → "expired"<br>• `expired_at < now+30d` → "expiring"<br>• иначе → "active" |
-| `ssl_status` | `ssl_status` | Парсинг строки:<br>• null → "off"<br>• "valid" → "valid"<br>• etc. |
+| `ssl_status` | `ssl_status` | Маппинг значений:<br>• `'none'` → "off"<br>• `'valid'` → "valid"<br>• `'expired'` → "expiring"<br>• `'error'` → "invalid"<br>• `null` → "off" |
 | `expires_at` | `expired_at` | Переименование |
 
 ### ❌ Отсутствует на бекенде (критично!)
@@ -114,7 +160,7 @@ interface Domain {
 | `parent_id` | ID родительского домена | Для иерархии поддоменов |
 | `site_name` | Название сайта | Альтернатива project_name |
 | `site_status` | Статус сайта | Дополнительная информация |
-| `blocked_reason` | Причина блокировки | Показывать при blocked=true |
+| `blocked_reason` | Причина блокировки | Показывать при blocked=true<br>Значения: unavailable, ad_network, hosting_registrar, government, manual |
 
 ---
 
@@ -163,8 +209,9 @@ interface Domain {
    has_errors: boolean =
      blocked ||
      (expired_at && new Date(expired_at) < new Date()) ||
-     ssl_status === 'invalid' ||
-     abuse_status === 'blocked'
+     ssl_status === 'error' ||    // В БД: 'error', в UI: 'invalid'
+     ssl_status === 'expired' ||
+     abuse_status === 'blocked'   // Если будет добавлено
    ```
 
 ---
@@ -206,8 +253,8 @@ Response:
       "proxied": true,
 
       // SSL
-      "ssl_status": "valid",
-      "ssl_valid_to": "2025-12-31",  // ← ДОБАВИТЬ или парсить
+      "ssl_status": "valid",            // Значения: none|valid|expired|error
+      "ssl_valid_to": "2025-12-31",     // ← ДОБАВИТЬ или парсить
 
       // Мониторинг
       "abuse_status": "clean",        // ← ДОБАВИТЬ
