@@ -803,7 +803,8 @@ h5 .icon[data-icon*="close"] {
 
 .btn .icon,
 .btn-icon .icon,
-.btn-chip .icon {
+.btn-chip .icon,
+.role-icon .icon {
   width: 1.25em;
   height: 1.25em;
 }
@@ -3266,11 +3267,6 @@ body.layout-dashboard .burger-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-}
-
-.role-icon .icon {
-  width: 20px;
-  height: 20px;
 }
 
 .role-icon[data-role="acceptor"] {
