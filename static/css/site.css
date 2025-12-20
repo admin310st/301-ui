@@ -9,7 +9,6 @@ body {
   background: var(--bg);
   color: var(--text-main);
   font-family: var(--font-sans);
-  overflow-x: hidden;
 }
 
 /* Fallback spacing for standalone pages if layout.css is missing. */
@@ -2072,6 +2071,14 @@ html[data-theme="light"] .btn--social-github {
 .table-scroll {
   overflow-x: auto;
   width: 100%;
+}
+
+/* Compensate for card padding on mobile to prevent body overflow */
+@media (max-width: 1023px) {
+  .card__body .table-scroll {
+    margin-inline: calc(var(--card-pad-x) * -1);
+    width: calc(100% + var(--card-pad-x) * 2);
+  }
 }
 
 .table--domains {
