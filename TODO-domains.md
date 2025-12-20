@@ -363,6 +363,7 @@ Cmd+K     → Quick search in drawer
 
 **Цели:**
 - Добавить фильтры по статусу домена (active, expired, expiring, blocked, pending)
+- **ПРИОРИТЕТ:** Добавить фильтр "Неиспользуемые домены" (reserve/unused status) — важно использовать трафик!
 - Добавить фильтр по провайдеру (cloudflare, namecheap, namesilo, manual)
 - Добавить фильтр по проекту (select dropdown с автокомплитом)
 - Улучшить существующий search (добавить debounce, подсветку результатов)
@@ -370,6 +371,7 @@ Cmd+K     → Quick search in drawer
 
 **Задачи:**
 - [ ] Создать компонент фильтров в card__header
+- [ ] **Реализовать quick-filter "Unused domains" (reserve status) - первый/приоритетный фильтр**
 - [ ] Реализовать multi-select для статусов (dropdown с чекбоксами)
 - [ ] Реализовать select для провайдеров
 - [ ] Добавить кнопку "Clear filters"
