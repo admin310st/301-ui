@@ -3177,6 +3177,7 @@ body.layout-dashboard .burger-button {
   box-shadow: var(--shadow-soft);
   display: flex;
   flex-direction: column;
+  overflow: hidden;
   animation: dialogFadeIn 0.2s ease-out;
 }
 
@@ -3223,6 +3224,23 @@ body.layout-dashboard .burger-button {
   padding: var(--space-4);
   border-top: 1px solid var(--border-subtle);
   background: var(--panel);
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 640px) {
+  .dialog {
+    padding: var(--space-3);
+  }
+
+  .dialog__panel {
+    max-width: 100%;
+  }
+
+  .dialog__header,
+  .dialog__body,
+  .dialog__footer {
+    padding: var(--space-3);
+  }
 }
 
 /* Domain Preview List */
