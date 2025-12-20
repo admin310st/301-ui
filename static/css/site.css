@@ -2086,6 +2086,13 @@ html[data-theme="light"] .btn--social-github {
     padding-inline: var(--card-pad-x);
   }
 
+  /* Prevent table search from causing overflow */
+  .card__actions .table-search {
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: 100%;
+  }
+
   /* Allow footer pagination to use full width */
   .card__footer .pagination {
     margin-inline: calc(var(--card-pad-x) * -1);
