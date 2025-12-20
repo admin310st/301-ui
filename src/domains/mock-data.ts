@@ -181,4 +181,22 @@ export const mockDomains: Domain[] = [
     last_check_at: randomDate(-3),
     has_errors: false,
   },
+  // Reserve domain for testing
+  {
+    id: 103,
+    domain_name: 'backup-domain.io',
+    project_name: 'BackupProject',
+    project_lang: 'EN',
+    status: 'active',
+    role: 'reserve',
+    registrar: 'cloudflare',
+    cf_zone_id: 'zone_103',
+    ssl_status: 'valid',
+    ssl_valid_to: randomDate(180),
+    abuse_status: 'clean',
+    expires_at: randomDate(365),
+    monitoring_enabled: false,
+    last_check_at: randomDate(-5),
+    has_errors: false,
+  },
 ];
