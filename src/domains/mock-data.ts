@@ -31,7 +31,7 @@ const projects = [
 
 const tlds = ['.com', '.net', '.org', '.io', '.dev', '.app', '.xyz', '.co', '.ru', '.es'];
 const langs = ['EN', 'RU', 'ES', 'DE', 'FR'];
-const providers: Domain['provider'][] = ['cloudflare', 'namecheap', 'namesilo', 'google', 'manual'];
+const registrars: Domain['registrar'][] = ['cloudflare', 'namecheap', 'namesilo', 'google', 'manual'];
 
 function randomItem<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
@@ -47,7 +47,7 @@ function generateDomain(id: number): Domain {
   const project = randomItem(projects);
   const tld = randomItem(tlds);
   const domain = `${project.toLowerCase()}${id}${tld}`;
-  const provider = randomItem(providers);
+  const registrar = randomItem(registrars);
 
   // Status distribution: 60% active, 15% expiring, 10% expired, 10% pending, 5% blocked
   const rand = Math.random();
@@ -116,8 +116,8 @@ function generateDomain(id: number): Domain {
     project_lang: Math.random() > 0.3 ? randomItem(langs) : undefined,
     status,
     role,
-    registrar: provider,
-    cf_zone_id: provider === 'cloudflare' ? `zone_${id}` : undefined,
+    registrar,
+    cf_zone_id: registrar === 'cloudflare' ? `zone_${id}` : undefined,
     ssl_status,
     ssl_valid_to,
     abuse_status,
@@ -138,6 +138,7 @@ export const mockDomains: Domain[] = [
     project_name: 'RussianProject',
     project_lang: 'RU',
     status: 'active',
+    role: 'acceptor',
     registrar: 'namecheap',
     ssl_status: 'valid',
     ssl_valid_to: randomDate(90),
@@ -153,6 +154,7 @@ export const mockDomains: Domain[] = [
     project_name: 'RussianProject',
     project_lang: 'RU',
     status: 'expiring',
+    role: 'donor',
     registrar: 'cloudflare',
     cf_zone_id: 'zone_101',
     ssl_status: 'valid',
@@ -169,6 +171,7 @@ export const mockDomains: Domain[] = [
     project_name: 'ChineseMarket',
     project_lang: 'CN',
     status: 'active',
+    role: 'acceptor',
     registrar: 'namecheap',
     ssl_status: 'valid',
     ssl_valid_to: randomDate(120),
