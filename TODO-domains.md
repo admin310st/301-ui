@@ -4,8 +4,9 @@ Roadmap for `/domains.html` implementation and enhancement.
 
 ## ✅ Этап 1: MVP / Скелет страницы (COMPLETED)
 
-**Status:** ✅ Complete (2025-12-19)
+**Status:** ✅ Complete (2025-12-19, updated 2025-12-20)
 
+### Core Features
 - [x] Create domains.html with dashboard layout
 - [x] Implement basic table structure (6 columns: Select, Domain, Status, Health, Expires, Actions)
 - [x] Add mock data (35 domains with realistic distribution)
@@ -20,18 +21,48 @@ Roadmap for `/domains.html` implementation and enhancement.
 - [x] Simplify Expires column (use badge colors for dates)
 - [x] Routing integration (vite.config.ts, worker.ts)
 
+### IDN Support (2025-12-20)
+- [x] Create `src/utils/idn.ts` with punycode encoding/decoding helpers
+- [x] Add `mono/idn.svg` icon to sprite
+- [x] Implement compact badge display for IDN domains in table
+- [x] Show full punycode in inspector drawer
+- [x] Add IDN test domains to mock data (Russian, Chinese)
+
+### Inspector Drawer Enhancements (2025-12-20)
+- [x] Add copy domain button in drawer header (copies punycode)
+- [x] Add open domain in new tab button
+- [x] Move Status badge from header to Overview section
+- [x] Add color-coded status display (.text-ok, .text-danger, .text-warning)
+- [x] Implement visual feedback for copy action (green icon for 2s)
+
+### API Alignment (2025-12-20)
+- [x] Rename `domain` → `domain_name` in mock data (matches backend)
+- [x] Rename `provider` → `registrar` in mock data (matches UI requirements)
+- [x] Create `docs/API-domains-actual-vs-ui.md` with detailed backend comparison
+- [x] Document missing fields: `registrar` (critical!), monitoring fields
+- [x] Document enum values from SQL schema (blocked_reason, ssl_status)
+- [x] Define ssl_status mapping: DB 'error'→UI 'invalid', DB 'none'→UI 'off'
+
+### CSS Improvements (2025-12-20)
+- [x] Add `.badge--ok` and `.badge--warning` variants
+- [x] Fix textarea background (use `--bg-elevated`)
+- [x] Add `.stack-inline` utilities for horizontal spacing
+
 **Файлы:**
 - `domains.html` - main page
 - `src/domains/domains.ts` - UI logic
-- `src/domains/mock-data.ts` - 35 mock domains
-- `static/css/site.css` - styles for drawer, modal, health-icons
+- `src/domains/mock-data.ts` - 35+ mock domains with IDN examples
+- `src/utils/idn.ts` - IDN helpers (new)
+- `static/css/site.css` - styles for drawer, modal, health icons, badges
+- `static/img/icons-src/mono/idn.svg` - IDN badge icon (new)
+- `docs/API-domains-actual-vs-ui.md` - backend API comparison (new)
 
-**Commit:** 5 commits pushed to main
-- Add Domains page MVP (Etap 1: Page skeleton)
-- Polish domains page UI (cosmetic fixes)
-- Fix dropdown logic to use CSS classes
-- Fix non-existent icon references
-- Polish domains table UI
+**Commits:** 10+ commits pushed to main
+- Initial MVP (5 commits, 2025-12-19)
+- IDN support (2025-12-20)
+- Inspector drawer enhancements (2025-12-20)
+- Badge variants and CSS fixes (2025-12-20)
+- API documentation and alignment (2025-12-20)
 
 ---
 
@@ -313,6 +344,7 @@ Cmd+K     → Quick search in drawer
 
 ### **Задачи для реализации:**
 
+- [x] ✅ Добавить кнопки copy/open в drawer header (2025-12-20)
 - [ ] Обновить drawer HTML структуру (добавить tabs navigation)
 - [ ] Создать tab switching logic (vanilla JS)
 - [ ] Реализовать 7 вкладок (Overview, Routing, DNS, SSL, Security, Monitoring, Logs)
@@ -550,8 +582,16 @@ Cmd+K     → Quick search in drawer
 - Подключить страницу к реальному backend API
 - Заменить mock data на live data
 - Реализовать CRUD операции
+- Создать адаптер для маппинга DomainRecord → Domain
+
+**Важно:**
+- ✅ Документация API: `docs/API-domains-actual-vs-ui.md`
+- ⚠️ Критичное: поле `registrar` отсутствует в БД (блокер интеграции)
+- ✅ Enum маппинг определён (ssl_status, blocked_reason)
 
 **Задачи:**
+
+### API Client
 - [ ] Создать `src/api/domains.ts` с методами:
   - `getDomains(filters)` - GET /domains
   - `getDomain(id)` - GET /domains/:id
@@ -560,26 +600,53 @@ Cmd+K     → Quick search in drawer
   - `deleteDomain(id)` - DELETE /domains/:id
   - `syncDomains(ids[])` - POST /domains/sync
   - `attachToProject(ids[], projectId)` - POST /domains/attach
-- [ ] Добавить TypeScript types в `src/api/types.ts`:
-  - Domain interface (из wiki)
-  - DomainFilters
-  - DomainStats
+
+### TypeScript Types
+- [ ] Добавить в `src/api/types.ts`:
+  - `DomainRecord` interface (бекенд структура)
+  - `Domain` interface (UI структура, уже есть в mock-data.ts)
+  - `DomainFilters` interface
+  - `DomainStats` interface
+
+### Data Adapter
+- [ ] Создать `src/domains/domain-adapter.ts` с функцией `adaptDomainRecord()`:
+  - Маппинг `zone_id` → `cf_zone_id`
+  - Маппинг `expired_at` → `expires_at`
+  - Вычисление `status` из `blocked` + `expired_at`
+  - Маппинг `ssl_status`: 'none'/'error' → 'off'/'invalid'
+  - Fallback для `registrar` → 'manual' (пока нет в БД)
+  - Fallback для `project_lang` → null (требует JOIN с sites)
+  - Fallback для мониторинг полей → defaults
+
+### UI Updates
 - [ ] Обновить `src/domains/domains.ts`:
   - Заменить mockDomains на API calls
+  - Использовать адаптер для конвертации данных
   - Добавить error handling
   - Добавить loading states
   - Реализовать retry logic
+- [ ] Обновить `src/domains/mock-data.ts`:
+  - Экспортировать только `Domain` interface
+  - Перенести `DomainRecord` в `src/api/types.ts`
+  - Оставить mock данные для dev/testing
+
+### Optimization
 - [ ] Подключить к WebSocket для real-time updates (опционально)
 - [ ] Добавить оптимистичные обновления UI
 - [ ] Кешировать данные (simple in-memory cache с TTL)
 
-**API endpoints (из docs/301-wiki/):**
+**API endpoints:**
 - `GET /domains` - список доменов с фильтрацией
 - `GET /domains/:id` - детали домена
 - `POST /domains/bulk` - добавление доменов
 - `PATCH /domains/:id` - обновление домена
 - `DELETE /domains/:id` - удаление домена
 - `POST /domains/sync` - синхронизация с провайдерами
+
+**Блокеры:**
+- ❌ Поле `registrar` отсутствует в SQL schema (требует миграции БД)
+- ⚠️ Поле `project_lang` требует JOIN с таблицей `sites`
+- ⚠️ Мониторинг поля (`abuse_status`, `last_check_at`) отсутствуют
 
 ---
 
@@ -694,6 +761,7 @@ export default {
 - [ ] Обновить ui-roadmap.ru.md (отметить прогресс по Layer 2.2)
 - [x] Создать TODO-domains.md (этот файл)
 - [x] Обновить CHANGELOG.md (добавить Domains page в [Unreleased])
+- [x] Создать docs/API-domains-actual-vs-ui.md (детальное сравнение API vs UI, 2025-12-20)
 
 ---
 
@@ -745,4 +813,4 @@ export default {
 
 ---
 
-**Last updated:** 2025-12-19
+**Last updated:** 2025-12-20
