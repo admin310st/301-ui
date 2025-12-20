@@ -460,6 +460,7 @@ function openInspector(domainId: number): void {
   const domainEl = drawer.querySelector('[data-inspector-domain]');
   const statusEl = drawer.querySelector('[data-inspector-status]');
   const projectEl = drawer.querySelector('[data-inspector-project]');
+  const roleEl = drawer.querySelector('[data-inspector-role]');
   const providerEl = drawer.querySelector('[data-inspector-provider]');
   const sslEl = drawer.querySelector('[data-inspector-ssl]');
   const abuseEl = drawer.querySelector('[data-inspector-abuse]');
@@ -472,6 +473,10 @@ function openInspector(domainId: number): void {
     statusEl.innerHTML = `<span class="${statusColor}">${statusText}</span>`;
   }
   if (projectEl) projectEl.textContent = `${domain.project_name}${domain.project_lang ? ` (${domain.project_lang})` : ''}`;
+  if (roleEl) {
+    const roleText = domain.role.charAt(0).toUpperCase() + domain.role.slice(1);
+    roleEl.innerHTML = `<span class="badge badge--neutral">${roleText}</span>`;
+  }
   if (providerEl) providerEl.textContent = domain.registrar.charAt(0).toUpperCase() + domain.registrar.slice(1);
   if (sslEl) sslEl.textContent = `${domain.ssl_status.charAt(0).toUpperCase() + domain.ssl_status.slice(1)}${domain.ssl_valid_to ? ` (until ${domain.ssl_valid_to})` : ''}`;
   if (abuseEl) abuseEl.textContent = domain.abuse_status.charAt(0).toUpperCase() + domain.abuse_status.slice(1);

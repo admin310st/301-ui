@@ -2876,6 +2876,17 @@ body.layout-dashboard .burger-button {
   margin: 0;
 }
 
+/* Inline editing */
+.detail-value.editable {
+  cursor: pointer;
+  border-bottom: 1px dashed transparent;
+  transition: border-color 0.2s ease;
+}
+
+.detail-value.editable:hover {
+  border-bottom-color: var(--text-muted);
+}
+
 .detail-label {
   font-size: var(--fs-sm);
   font-weight: var(--fw-medium);

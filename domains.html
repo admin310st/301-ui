@@ -251,26 +251,43 @@
               </header>
               <div class="card__body">
                 <dl class="detail-list">
+                  <!-- Status: вычисляемое (blocked + expired_at), не редактируется -->
                   <div class="detail-row">
                     <dt class="detail-label">Status</dt>
                     <dd class="detail-value" data-inspector-status>—</dd>
                   </div>
+
+                  <!-- Project: editable (PATCH /domains/:id { site_id }) -->
                   <div class="detail-row">
                     <dt class="detail-label">Project</dt>
-                    <dd class="detail-value" data-inspector-project>—</dd>
+                    <dd class="detail-value editable" data-inspector-project data-editable="site_id">—</dd>
                   </div>
+
+                  <!-- Role: editable (PATCH /domains/:id { role }) -->
+                  <div class="detail-row">
+                    <dt class="detail-label">Role</dt>
+                    <dd class="detail-value editable" data-inspector-role data-editable="role">—</dd>
+                  </div>
+
+                  <!-- Provider: НЕ editable (нет API метода) -->
                   <div class="detail-row">
                     <dt class="detail-label">Provider</dt>
                     <dd class="detail-value" data-inspector-provider>—</dd>
                   </div>
+
+                  <!-- SSL: вычисляемое, не редактируется -->
                   <div class="detail-row">
                     <dt class="detail-label">SSL</dt>
                     <dd class="detail-value" data-inspector-ssl>—</dd>
                   </div>
+
+                  <!-- Abuse Status: вычисляемое, не редактируется -->
                   <div class="detail-row">
                     <dt class="detail-label">Abuse Status</dt>
                     <dd class="detail-value" data-inspector-abuse>—</dd>
                   </div>
+
+                  <!-- Monitoring: НЕ editable (нет API метода) -->
                   <div class="detail-row">
                     <dt class="detail-label">Monitoring</dt>
                     <dd class="detail-value" data-inspector-monitoring>—</dd>

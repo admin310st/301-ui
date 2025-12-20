@@ -4,6 +4,7 @@ export interface Domain {
   project_name: string; // UI: денормализация project.name
   project_lang?: string; // UI: денормализация site.lang_code
   status: 'active' | 'expired' | 'expiring' | 'blocked' | 'pending'; // расширенный набор статусов для UI
+  role: 'acceptor' | 'donor' | 'reserve'; // роль домена в системе (editable via PATCH /domains/:id)
   registrar: 'cloudflare' | 'namecheap' | 'namesilo' | 'google' | 'manual'; // было: provider
   cf_zone_id?: string; // Cloudflare Zone ID (опционально)
 
@@ -96,12 +97,25 @@ function generateDomain(id: number): Domain {
 
   const has_errors = ssl_status === 'invalid' || abuse_status !== 'clean' || status === 'expired';
 
+  // Role: случайное распределение (acceptor более часто, т.к. это основные домены)
+  const roleWeights = [0.7, 0.2, 0.1]; // acceptor, donor, reserve
+  const roleRandom = Math.random();
+  let role: Domain['role'];
+  if (roleRandom < roleWeights[0]) {
+    role = 'acceptor';
+  } else if (roleRandom < roleWeights[0] + roleWeights[1]) {
+    role = 'donor';
+  } else {
+    role = 'reserve';
+  }
+
   return {
     id,
     domain_name: domain,
     project_name: project,
     project_lang: Math.random() > 0.3 ? randomItem(langs) : undefined,
     status,
+    role,
     registrar: provider,
     cf_zone_id: provider === 'cloudflare' ? `zone_${id}` : undefined,
     ssl_status,
