@@ -7,9 +7,9 @@
 
 import { showGlobalMessage } from '@ui/notifications';
 
-// Domain matching regex (from spec)
-// Matches: example.com, xn--domain.net, sub.domain.co.uk
-const DOMAIN_REGEX = /\b((?=[a-z0-9-]{1,63}\.)(?:xn--)?[a-z0-9]+(?:-[a-z0-9]+)*\.)+[a-z]{2,63}\b/gi;
+// Domain matching regex (updated for IDN TLD support)
+// Matches: example.com, xn--domain.net, sub.domain.co.uk, домен.рф (xn--c1ad6a.xn--p1ai)
+const DOMAIN_REGEX = /\b((?=[a-z0-9-]{1,63}\.)(?:xn--)?[a-z0-9]+(?:-[a-z0-9]+)*\.)+(?:xn--)?[a-z0-9-]{2,63}\b/gi;
 
 interface ParsedDomainsState {
   raw: string;
