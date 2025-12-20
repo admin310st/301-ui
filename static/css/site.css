@@ -526,8 +526,8 @@ body {
 }
 
 .list--spaced {
-  list-style: none;
-  padding: 0;
+  list-style: disc;
+  padding-left: 1.25rem;
   margin: 0;
 }
 
