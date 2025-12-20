@@ -488,8 +488,17 @@ function openInspector(domainId: number): void {
     };
     roleIconEl.setAttribute('data-role', domain.role);
     roleIconEl.setAttribute('title', roleLabels[domain.role]);
-    // Replace icon HTML to trigger re-rendering
-    roleIconEl.innerHTML = `<span class="icon" data-icon="${roleIcons[domain.role]}"></span>`;
+
+    // Replace icon HTML and manually process it
+    const iconName = roleIcons[domain.role];
+    const symbolId = `i-${iconName.replace('/', '-')}`;
+    roleIconEl.innerHTML = `
+      <span class="icon">
+        <svg aria-hidden="true">
+          <use href="/icons-sprite.svg#${symbolId}"></use>
+        </svg>
+      </span>
+    `.trim();
   }
 
   if (providerEl) providerEl.textContent = domain.registrar.charAt(0).toUpperCase() + domain.registrar.slice(1);
