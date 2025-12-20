@@ -2726,7 +2726,7 @@ body.sidebar-collapsed .sidebar .navitem:hover::after {
 .step-list {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: var(--space-3);
 }
 
 .step-item {
