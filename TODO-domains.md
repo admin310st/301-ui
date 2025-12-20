@@ -781,7 +781,17 @@ export default {
 - **Export:** Экспорт списка доменов в CSV/JSON
 - **Domain health monitoring:** Автоматическая проверка SSL, DNS, доступности
 - **Bulk import:** Загрузка доменов из CSV файла
-- **Domain templates:** Шаблоны для быстрого создания доменов с предустановками
+- **Configuration presets & Domain templates:** Пресеты конфигурации для быстрого применения настроек к доменам
+  - **Примеры пресетов:**
+    - **Sedo Parking:** DNS + HTML мета-теги для монетизации через Sedo (параметры общеизвестны: nameservers, verification tags)
+    - **CloudFlare Security:** WAF rules + rate limiting + bot protection
+    - **High-traffic:** CDN + cache settings + optimization
+    - **Development:** Staging environment settings
+  - **Функции:**
+    - Один клик для применения пресета к домену/группе доменов
+    - Bulk apply для массового применения
+    - Кастомные пресеты (пользователь создает свои шаблоны)
+    - Export/import пресетов между проектами
 - **Analytics integration:** Показывать статистику трафика для каждого домена
 - **Cost tracking:** Отображение стоимости регистрации/продления
 - **Expiry notifications:** Email/Telegram уведомления о скором истечении
