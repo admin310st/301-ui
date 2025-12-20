@@ -165,6 +165,7 @@
           <a class="btn-chip" href="#forms">Form fields</a>
           <a class="btn-chip" href="#tabs">Tabs &amp; chips</a>
           <a class="btn-chip" href="#cards">Cards / panels</a>
+          <a class="btn-chip" href="#dialogs">Dialogs</a>
           <a class="btn-chip" href="#icons">Icons</a>
         </div>
       </nav>
@@ -1886,6 +1887,70 @@
         </div>
       </section>
 
+      <section id="dialogs" class="card card--panel guide-section guide-stack">
+        <header class="card__header">
+          <div class="cluster">
+            <h2 class="text-title">Confirmation Dialogs</h2>
+            <span class="badge badge--accent">Interactive</span>
+          </div>
+          <p class="text-muted">
+            Centered modal dialogs for critical actions and confirmations. Unlike drawers (side panels for forms/details),
+            dialogs are used for short, focused confirmations.
+          </p>
+        </header>
+
+        <div class="card__body stack-md">
+          <!-- Danger variant (delete, disconnect) -->
+          <div class="demo-item">
+            <div class="demo-label">
+              <h3 class="h5">Danger variant</h3>
+              <p class="text-muted">For destructive actions like deletion. Uses <span class="code-inline">.btn--danger</span>.</p>
+            </div>
+            <div class="demo-preview">
+              <button class="btn btn--sm btn--ghost" onclick="document.querySelector('[data-dialog=delete-domain]').hidden = false">
+                Show delete dialog
+              </button>
+            </div>
+          </div>
+
+          <!-- CF variant (Cloudflare actions) -->
+          <div class="demo-item">
+            <div class="demo-label">
+              <h3 class="h5">Cloudflare variant</h3>
+              <p class="text-muted">For Cloudflare-specific actions. Uses <span class="code-inline">.btn--cf</span> (orange).</p>
+            </div>
+            <div class="demo-preview">
+              <button class="btn btn--sm btn--ghost" onclick="document.querySelector('[data-dialog=cf-action]').hidden = false">
+                Show CF dialog
+              </button>
+            </div>
+          </div>
+
+          <!-- Code example -->
+          <div class="demo-item">
+            <div class="demo-label">
+              <h3 class="h5">Usage</h3>
+            </div>
+            <pre class="code-block"><code>&lt;div class="dialog" data-dialog="name" hidden&gt;
+  &lt;div class="dialog__overlay" data-dialog-close&gt;&lt;/div&gt;
+  &lt;div class="dialog__panel"&gt;
+    &lt;header class="dialog__header"&gt;
+      &lt;h2 class="dialog__title"&gt;Delete domain?&lt;/h2&gt;
+      &lt;button class="btn-close" data-dialog-close&gt;×&lt;/button&gt;
+    &lt;/header&gt;
+    &lt;div class="dialog__body"&gt;
+      &lt;p&gt;Are you sure? This action cannot be undone.&lt;/p&gt;
+    &lt;/div&gt;
+    &lt;footer class="dialog__footer"&gt;
+      &lt;button class="btn btn--danger"&gt;Delete&lt;/button&gt;
+      &lt;button class="btn btn--ghost" data-dialog-close&gt;Cancel&lt;/button&gt;
+    &lt;/footer&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+          </div>
+        </div>
+      </section>
+
       <section id="icons" class="card card--panel guide-section guide-stack">
         <header class="card__header">
           <div class="cluster">
@@ -2146,6 +2211,52 @@
         }
       });
     </script>
+
+    <!-- Confirmation Dialog: Delete Domain (danger variant) -->
+    <div class="dialog" data-dialog="delete-domain" hidden>
+      <div class="dialog__overlay" data-dialog-close></div>
+      <div class="dialog__panel">
+        <header class="dialog__header">
+          <h2 class="dialog__title">Delete domain?</h2>
+          <button class="btn-close" type="button" data-dialog-close aria-label="Close">
+            <span class="icon" data-icon="mono/close"></span>
+          </button>
+        </header>
+        <div class="dialog__body">
+          <p>Are you sure you want to delete <strong>example.com</strong>? This action cannot be undone.</p>
+        </div>
+        <footer class="dialog__footer">
+          <button class="btn btn--danger" type="button" data-dialog-close>
+            <span class="icon" data-icon="mono/delete"></span>
+            <span>Delete domain</span>
+          </button>
+          <button class="btn btn--ghost" type="button" data-dialog-close>Cancel</button>
+        </footer>
+      </div>
+    </div>
+
+    <!-- Confirmation Dialog: Cloudflare Action (CF variant) -->
+    <div class="dialog" data-dialog="cf-action" hidden>
+      <div class="dialog__overlay" data-dialog-close></div>
+      <div class="dialog__panel">
+        <header class="dialog__header">
+          <h2 class="dialog__title">Connect Cloudflare account?</h2>
+          <button class="btn-close" type="button" data-dialog-close aria-label="Close">
+            <span class="icon" data-icon="mono/close"></span>
+          </button>
+        </header>
+        <div class="dialog__body">
+          <p>This will redirect you to Cloudflare to authorize access to your account. You can revoke this access at any time.</p>
+        </div>
+        <footer class="dialog__footer">
+          <button class="btn btn--cf" type="button" data-dialog-close>
+            <span class="icon" data-icon="brand/cloudflare"></span>
+            <span>Connect Cloudflare</span>
+          </button>
+          <button class="btn btn--ghost" type="button" data-dialog-close>Cancel</button>
+        </footer>
+      </div>
+    </div>
 
     <script type="module" src="/src/main.ts"></script>
   </body>

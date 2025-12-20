@@ -3107,6 +3107,119 @@ body.layout-dashboard .burger-button {
   background: var(--panel);
 }
 
+/* ============================================
+   Dialog (Confirmation Modals)
+   ============================================
+
+   Centered modal dialogs for critical actions and confirmations.
+   Unlike drawers (side panels for forms/details), dialogs are used for:
+   - Confirmation prompts (delete, disconnect, etc.)
+   - Critical Cloudflare actions (.btn--cf)
+   - Alerts and short messages
+
+   Usage:
+   <div class="dialog" data-dialog="name" hidden>
+     <div class="dialog__overlay"></div>
+     <div class="dialog__panel">
+       <header class="dialog__header">
+         <h2 class="dialog__title">Title</h2>
+         <button class="btn-close" data-dialog-close>×</button>
+       </header>
+       <div class="dialog__body">Content</div>
+       <footer class="dialog__footer">
+         <button class="btn btn--danger">Confirm</button>
+         <button class="btn btn--ghost" data-dialog-close>Cancel</button>
+       </footer>
+     </div>
+   </div>
+*/
+
+.dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+}
+
+.dialog[hidden] {
+  display: none;
+}
+
+.dialog__overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  cursor: pointer;
+}
+
+.dialog__panel {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+  display: flex;
+  flex-direction: column;
+  animation: dialogFadeIn 0.2s ease-out;
+}
+
+@keyframes dialogFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.dialog__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--border);
+  gap: var(--space-3);
+}
+
+.dialog__title {
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-semibold);
+  margin: 0;
+}
+
+.dialog__body {
+  padding: var(--space-4);
+  color: var(--text-muted);
+}
+
+.dialog__body strong {
+  color: var(--text);
+  font-weight: var(--fw-medium);
+}
+
+.dialog__footer {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border-top: 1px solid var(--border-subtle);
+  background: var(--panel);
+}
+
 /* Domain Preview List */
 .domain-preview-list {
   max-height: 300px;
