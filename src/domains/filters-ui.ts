@@ -37,6 +37,10 @@ function renderFilterChip(config: FilterConfig, activeValue: string | string[] |
   const tooltip = getFilterTooltip(config, activeValue);
   const titleAttr = tooltip ? ` title="${tooltip}"` : '';
 
+  // For multi-select filters, show count badge
+  const count = config.type === 'multi-select' && Array.isArray(activeValue) ? activeValue.length : 0;
+  const countBadge = count > 0 ? `<span class="badge badge--sm">${count}</span>` : '';
+
   return `
     <div class="dropdown" data-dropdown data-filter-id="${config.id}">
       <button
@@ -47,6 +51,7 @@ function renderFilterChip(config: FilterConfig, activeValue: string | string[] |
       >
         <span class="btn-chip__icon" data-icon="mono/filter"></span>
         <span class="btn-chip__label">${config.label}</span>
+        ${countBadge}
         <span class="btn-chip__chevron" data-icon="mono/chevron-down"></span>
       </button>
       <div class="dropdown__menu" role="menu">
