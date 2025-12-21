@@ -25,8 +25,6 @@ export const DOMAIN_FILTERS: FilterConfig[] = [
       { value: 'active', label: 'Active' },
       { value: 'pending', label: 'Pending' },
       { value: 'blocked', label: 'Blocked' },
-      { value: 'expiring', label: 'Expiring (30d)' },
-      { value: 'expired', label: 'Expired' },
     ],
   },
   {

@@ -68,18 +68,9 @@ export function matchesSearch(domain: Domain, query: string): boolean {
  * Check if domain matches active filters
  */
 export function matchesFilters(domain: Domain, filters: ActiveFilters): boolean {
-  // Status filter
+  // Status filter (active/pending/blocked only)
   if (filters.status && filters.status !== 'all') {
-    if (filters.status === 'expiring') {
-      // Check if expires within 30 days
-      if (!domain.expires_at) return false;
-      const daysUntilExpiry = Math.floor(
-        (new Date(domain.expires_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
-      );
-      if (daysUntilExpiry > 30) return false;
-    } else if (domain.status !== filters.status) {
-      return false;
-    }
+    if (domain.status !== filters.status) return false;
   }
 
   // Health filter (multi-select)
