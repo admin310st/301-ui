@@ -3535,6 +3535,7 @@ body.layout-dashboard .burger-button {
 .bulk-actions-bar__actions .btn--danger {
   background: transparent;
   border: 1px solid var(--danger);
+  color: var(--danger);
 }
 
 .bulk-actions-bar__actions .btn--danger:hover {
