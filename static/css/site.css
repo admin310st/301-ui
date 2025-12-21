@@ -2110,6 +2110,11 @@ html[data-theme="light"] .btn--social-github {
   right: 0;
 }
 
+.dropdown__menu--align-left {
+  left: 0;
+  right: auto;
+}
+
 .dropdown__item {
   width: 100%;
   background: transparent;
@@ -3670,4 +3675,27 @@ body.layout-dashboard .burger-button {
 
 .btn-icon[data-reset-filters].is-active:hover {
   background: color-mix(in srgb, var(--brand) 15%, transparent);
+}
+
+/* Filter dropdown positioning to prevent mobile overflow */
+/* First 2 filters align left, last 2 align right */
+.table-controls .dropdown:nth-child(1) .dropdown__menu,
+.table-controls .dropdown:nth-child(2) .dropdown__menu {
+  left: 0;
+  right: auto;
+}
+
+.table-controls .dropdown:nth-last-child(1) .dropdown__menu,
+.table-controls .dropdown:nth-last-child(2) .dropdown__menu {
+  right: 0;
+  left: auto;
+}
+
+/* Middle filters: auto-adjust based on screen space */
+@media (max-width: 640px) {
+  .table-controls .dropdown .dropdown__menu {
+    left: 0;
+    right: auto;
+    min-width: min(220px, calc(100vw - 2rem));
+  }
 }
