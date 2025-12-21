@@ -5,6 +5,7 @@
 
 import type { FilterConfig, ActiveFilters } from './filters-config';
 import { DOMAIN_FILTERS, hasActiveFilters, getDefaultFilters } from './filters-config';
+import { adjustDropdownPosition } from '@ui/dropdown';
 
 /**
  * Get tooltip for filter chip (shows selected values)
@@ -214,6 +215,8 @@ function initDropdownToggles(container: HTMLElement): void {
     // Close all dropdowns
     container.querySelectorAll('.dropdown--open').forEach((d) => {
       d.classList.remove('dropdown--open');
+      const menu = d.querySelector('.dropdown__menu');
+      if (menu) menu.classList.remove('dropdown__menu--up');
       const t = d.querySelector('.dropdown__trigger');
       if (t) t.setAttribute('aria-expanded', 'false');
     });
@@ -222,6 +225,10 @@ function initDropdownToggles(container: HTMLElement): void {
     if (!isOpen) {
       dropdown.classList.add('dropdown--open');
       trigger.setAttribute('aria-expanded', 'true');
+      // Apply smart positioning after opening
+      requestAnimationFrame(() => {
+        adjustDropdownPosition(dropdown);
+      });
     }
   });
 
@@ -230,6 +237,8 @@ function initDropdownToggles(container: HTMLElement): void {
     if (!container.contains(e.target as Node)) {
       container.querySelectorAll('.dropdown--open').forEach((d) => {
         d.classList.remove('dropdown--open');
+        const menu = d.querySelector('.dropdown__menu');
+        if (menu) menu.classList.remove('dropdown__menu--up');
         const t = d.querySelector('.dropdown__trigger');
         if (t) t.setAttribute('aria-expanded', 'false');
       });

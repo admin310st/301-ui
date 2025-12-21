@@ -7,6 +7,7 @@ import { filterDomains as applyFiltersAndSearch } from './filters';
 import { renderFilterBar, initFilterUI } from './filters-ui';
 import { updateDomainsBadge, updateDomainsHealthIndicator } from '@ui/sidebar-nav';
 import { initBulkActions } from './bulk-actions';
+import { adjustDropdownPosition } from '@ui/dropdown';
 
 let currentDomains: Domain[] = [];
 let selectedDomains = new Set<number>();
@@ -127,9 +128,16 @@ export function initDomainsPage(): void {
       if (isOpen) {
         dropdown.classList.remove('dropdown--open');
         trigger.setAttribute('aria-expanded', 'false');
+        // Remove positioning class when closing
+        const menu = dropdown.querySelector('.dropdown__menu');
+        if (menu) menu.classList.remove('dropdown__menu--up');
       } else {
         dropdown.classList.add('dropdown--open');
         trigger.setAttribute('aria-expanded', 'true');
+        // Apply smart positioning after opening
+        requestAnimationFrame(() => {
+          adjustDropdownPosition(dropdown);
+        });
       }
     } else {
       // Close all dropdowns when clicking outside

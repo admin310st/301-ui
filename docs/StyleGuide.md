@@ -1202,6 +1202,57 @@ Dropdown menus use `--shadow-md` elevation:
 </div>
 ```
 
+#### Smart dropdown positioning
+
+**Автоматическое определение позиции dropdown меню** для таблиц и фильтров.
+
+**Проблема:** В последних строках таблиц dropdown меню обрезаются за пределами viewport.
+
+**Решение:** JavaScript функция `adjustDropdownPosition()` (из `@ui/dropdown`) автоматически добавляет класс `.dropdown__menu--up` если меню не помещается снизу.
+
+**CSS:**
+```css
+/* Базовая позиция - вниз */
+.dropdown__menu {
+  position: absolute;
+  top: calc(100% + 0.35rem);
+  right: 0;
+}
+
+/* Автоматически применяется JS - меню вверх */
+.dropdown__menu--up {
+  top: auto;
+  bottom: calc(100% + 0.35rem);
+}
+```
+
+**TypeScript usage:**
+```typescript
+import { adjustDropdownPosition } from '@ui/dropdown';
+
+// При открытии dropdown
+dropdown.classList.add('dropdown--open');
+trigger.setAttribute('aria-expanded', 'true');
+
+// Применить smart positioning после открытия
+requestAnimationFrame(() => {
+  adjustDropdownPosition(dropdown);
+});
+
+// При закрытии убрать класс
+const menu = dropdown.querySelector('.dropdown__menu');
+if (menu) menu.classList.remove('dropdown__menu--up');
+```
+
+**Использование:**
+- Таблицы доменов (action меню в последних строках)
+- Filter chips (на всех экранах)
+- Любые dropdown в скроллируемых контейнерах
+
+**Не применяется:**
+- Dropdown в header/footer (фиксированные элементы)
+- Модальные окна с центрированным контентом
+
 #### 4.5.1. Domains table reference
 
 * Responsive rule: keep `.table--domains` at `min-width: 720px` and wrap in `.table-wrapper` for horizontal scroll on mobile (no card collapse).

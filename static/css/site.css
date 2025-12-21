@@ -2228,6 +2228,12 @@ html[data-theme="light"] .btn--social-github {
   display: block;
 }
 
+/* Smart positioning: flip menu upward when near bottom of viewport */
+.dropdown__menu--up {
+  top: auto;
+  bottom: calc(100% + 0.35rem);
+}
+
 .dropdown__menu .icon {
   width: 1rem;
   height: 1rem;
