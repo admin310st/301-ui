@@ -3699,3 +3699,45 @@ body.layout-dashboard .burger-button {
     min-width: min(220px, calc(100vw - 2rem));
   }
 }
+
+/* Collapsible filters for mobile */
+/* Toggle button: hidden on desktop, visible on mobile */
+[data-toggle-filters] {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  [data-toggle-filters] {
+    display: inline-flex;
+    position: relative;
+  }
+
+  /* Badge on toggle button */
+  [data-toggle-filters] .badge {
+    position: absolute;
+    top: -0.25rem;
+    right: -0.25rem;
+    min-width: 1.25rem;
+    height: 1.25rem;
+    padding: 0 0.25rem;
+    font-size: 0.625rem;
+    line-height: 1.25rem;
+    border-radius: 0.625rem;
+  }
+
+  /* Hide filter bar by default on mobile */
+  [data-filter-bar] {
+    display: none;
+  }
+
+  /* Show filter bar when expanded */
+  [data-filter-bar].is-expanded {
+    display: flex;
+  }
+
+  /* Active state for toggle button when filters visible */
+  [data-toggle-filters].is-active {
+    color: var(--brand);
+    background: color-mix(in srgb, var(--brand) 10%, transparent);
+  }
+}
