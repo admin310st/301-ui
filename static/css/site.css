@@ -3509,7 +3509,22 @@ body.layout-dashboard .burger-button {
 .bulk-actions-bar__actions {
   display: flex;
   align-items: center;
-  gap: var(--inline-gap-sm);
+  gap: var(--inline-gap);
+}
+
+/* Bulk actions buttons styling */
+.bulk-actions-bar__actions .btn--ghost {
+  border: 1px solid var(--border);
+}
+
+.bulk-actions-bar__actions .btn--primary {
+  background: transparent;
+  border: 1px solid var(--primary);
+  color: var(--primary);
+}
+
+.bulk-actions-bar__actions .btn--primary:hover {
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
 }
 
 @media (max-width: 768px) {
