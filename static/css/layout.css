@@ -22,6 +22,14 @@
   }
 }
 
+/* Dashboard layouts: remove page-shell padding on desktop to let content expand */
+@media (min-width: 1024px) {
+  .page-shell.dashboard-shell {
+    padding-inline: 0;
+    padding-block: 0;
+  }
+}
+
 .page-header {
   display: flex;
   align-items: center;
