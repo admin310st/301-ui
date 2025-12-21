@@ -796,6 +796,115 @@ Variant table for the toolbar row:
 | Primary     | `.btn.btn--primary`           | Unified control recipe + pill radius |
 
 **Важно:** разметка и классы чипов в документации и демо-страницах должны совпадать.
+
+#### Bulk Actions Bar (Buttons on Glass)
+
+Floating action bar для массовых операций над выбранными элементами (domains, sites, streams). Использует glassmorphism эффект для визуального отделения от контента.
+
+**Контейнер (`.bulk-actions-bar`):**
+
+```css
+.bulk-actions-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  /* Glassmorphism */
+  background: color-mix(in srgb, var(--bg-card) 85%, transparent);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-top: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.25);
+}
+```
+
+**Glassmorphism tokens:**
+- **Background**: `color-mix(in srgb, var(--bg-card) 85%, transparent)` — полупрозрачный фон
+- **Backdrop**: `blur(20px) + saturate(180%)` — размытие + насыщенность
+- **Border**: `color-mix(in srgb, var(--border) 60%, transparent)` — полупрозрачная граница
+
+**Кнопки внутри bar:**
+
+Все action buttons используют **outline стиль** с заливкой при hover:
+
+```css
+/* Action buttons (Export, Status, Move, Monitor, Sync) */
+.bulk-actions-bar__actions .btn--ghost,
+.bulk-actions-bar__actions .btn--primary {
+  background: transparent;
+  border: 1px solid var(--primary);
+  color: var(--primary);
+}
+
+.bulk-actions-bar__actions .btn--ghost:hover,
+.bulk-actions-bar__actions .btn--primary:hover {
+  background: var(--primary);
+  color: var(--btn-text-on-dark);  /* белый в обеих темах */
+}
+
+/* Danger button (Delete) */
+.bulk-actions-bar__actions .btn--danger {
+  background: transparent;
+  border: 1px solid var(--danger);
+  color: var(--danger);
+}
+
+.bulk-actions-bar__actions .btn--danger:hover {
+  background: var(--danger);
+  color: var(--btn-text-on-dark);
+}
+
+/* Cancel - canonical ghost style */
+.bulk-actions-bar__actions [data-bulk-cancel] {
+  border-color: var(--border-subtle);
+  color: var(--text-main);
+}
+
+.bulk-actions-bar__actions [data-bulk-cancel]:hover {
+  background: var(--panel);
+  border-color: var(--border-strong);
+}
+```
+
+**Ключевые правила:**
+
+1. **Action buttons** (primary/ghost) заливаются синим (`var(--primary)`) при hover
+2. **Danger button** заливается красным (`var(--danger)`) при hover
+3. **Cancel** использует канонический ghost-стиль (нейтральный, без цветной заливки)
+4. **Текст на цветном фоне** всегда `var(--btn-text-on-dark)` (белый в обеих темах)
+5. **Gap между кнопками**: `var(--inline-gap)` для визуального разделения
+6. **Порядок кнопок**: Actions → Danger → Cancel (деструктивные и нейтральные отделены)
+
+**Пример разметки:**
+
+```html
+<div class="bulk-actions-bar" data-bulk-actions hidden>
+  <div class="container">
+    <div class="bulk-actions-bar__content">
+      <div class="bulk-actions-bar__info">
+        <span class="icon" data-icon="mono/check-circle"></span>
+        <strong data-selected-count>5</strong>
+      </div>
+      <div class="bulk-actions-bar__actions">
+        <button class="btn btn--ghost btn--sm" type="button">Export</button>
+        <button class="btn btn--primary btn--sm" type="button">Sync</button>
+        <button class="btn btn--danger btn--sm" type="button">Delete</button>
+        <button class="btn btn--ghost btn--sm" type="button" data-bulk-cancel>Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+```
+
+**Контекст использования:**
+
+- Domains table (bulk delete, export, sync, status change)
+- Sites table (bulk operations)
+- Streams management (bulk enable/disable)
+
+**НЕ дублируем:** базовый `.btn--ghost` из канона работает иначе (subtle hover, не заливка). В контексте bulk actions bar нужна яркая обратная связь, поэтому стили переопределены через `.bulk-actions-bar__actions` scope.
+
 ### 4.2. Form controls
 
 ```css
