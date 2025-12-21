@@ -3543,6 +3543,17 @@ body.layout-dashboard .burger-button {
   color: var(--text-inverted);
 }
 
+/* Cancel button - neutral styling separate from actions */
+.bulk-actions-bar__actions [data-bulk-cancel] {
+  border-color: var(--border);
+  color: var(--text-muted);
+}
+
+.bulk-actions-bar__actions [data-bulk-cancel]:hover {
+  background: var(--bg-soft);
+  color: var(--text);
+}
+
 @media (max-width: 768px) {
   .drawer__panel {
     max-width: 100%;
