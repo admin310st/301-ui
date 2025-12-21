@@ -144,7 +144,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   initGlobalNotice();
   initVisibilityController();
   await applyInitialAuthState();
-  await initTurnstile();
+
+  // Only initialize Turnstile if there are widgets on the page (index.html auth forms)
+  if (document.querySelector('.turnstile-widget')) {
+    await initTurnstile();
+  }
 
   initAuthRouting();
   initLoginForm();
