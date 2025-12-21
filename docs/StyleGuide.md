@@ -313,25 +313,62 @@ Header content must use the same page container: wrap header rows with `.page-sh
 
 ### 2.2. Page Shell
 
+**Все страницы используют `.page-shell` как базовый контейнер**, но с разными правилами padding в зависимости от типа страницы.
+
+#### Public Pages (index.html, about.html, etc.)
+
+Стандартный `.page-shell` с padding для читаемости:
+
 ```css
 .page-shell {
   max-width: 1200px;
   margin-inline: auto;
-  padding-inline: var(--page-gutter-desktop);
+  padding-inline: var(--page-gutter-desktop);  /* var(--space-5) = 1.5rem */
   padding-block: var(--space-6);
 }
 
 @media (max-width: 768px) {
   .page-shell {
-    padding-inline: var(--page-gutter-mobile);
+    padding-inline: var(--page-gutter-mobile);  /* var(--space-4) = 1rem */
     padding-block: var(--space-4);
   }
 }
 ```
 
-* любой экран не должен иметь собственных левых/правых паддингов;
-* все страницы (гайд, index, будущий кабинет) стартуют с `.page-shell`.
-*Header content uses the same page container.* Wrap header rows with `.page-shell` (and `.page-header` for section headers). Background may be full-bleed; inner content aligns to the page grid.
+#### Dashboard Pages (dashboard.html, domains.html, wizard.html, etc.)
+
+Dashboard использует `.page-shell.dashboard-shell` **БЕЗ padding на desktop** — sidebar и grid обеспечивают визуальное разделение, таблицы и контент разворачиваются на полную ширину.
+
+**Централизовано в `layout.css`:**
+
+```css
+/* Desktop: remove padding to let content expand fully */
+@media (min-width: 1024px) {
+  .page-shell.dashboard-shell {
+    padding-inline: 0;
+    padding-block: 0;
+  }
+}
+```
+
+**Tablet (768px-1023px):** добавляется умеренный padding в `site.css`:
+
+```css
+@media (min-width: 768px) and (max-width: 1023px) {
+  .page-shell.dashboard-shell {
+    padding-inline: var(--space-4);  /* 1rem для комфорта */
+  }
+}
+```
+
+**Mobile (<768px):** padding убран — контент управляет собственными отступами.
+
+#### Ключевые правила
+
+* **Любой экран не должен иметь собственных левых/правых padding** — используйте `.page-shell`
+* **Public pages:** padding обеспечивает читаемость и центрирование
+* **Dashboard pages:** padding убран на desktop (≥1024px), grid и sidebar управляют spacing
+* **Header content** использует тот же контейнер: wrap header rows with `.page-shell`
 
 ### 2.3. Common Patterns
 
@@ -542,11 +579,12 @@ On mobile (≤1023px), sidebar becomes an overlay drawer:
 
 #### Notes
 
-- `.page-shell.dashboard-shell` removes default page padding (grid handles spacing)
-- `.dashboard-content` has no padding on desktop (content manages its own spacing)
-- On mobile, `.dashboard-content` gets `padding-inline: var(--space-3)` to prevent edge sticking
-- Sidebar partial: `{{> sidebar}}` (defined in `partials/sidebar.hbs`)
-- Burger menu button (`.burger-button`) only visible on dashboard pages at mobile breakpoint
+- **Layout centralized in `layout.css`**: `.page-shell.dashboard-shell` has NO padding on desktop (≥1024px) — see section 2.2 "Dashboard Pages" for full breakpoint details
+- **Desktop (≥1024px)**: No padding — sidebar + grid gap provide visual separation, tables expand fully
+- **Tablet (768-1023px)**: `padding-inline: var(--space-4)` — comfortable spacing
+- **Mobile (<768px)**: No padding — `.dashboard-content` adds `padding-inline: var(--space-3)` to prevent edge sticking
+- **Sidebar partial**: `{{> sidebar}}` (defined in `partials/sidebar.hbs`)
+- **Burger menu**: `.burger-button` only visible on dashboard pages at mobile breakpoint
 
 ### 2.6. Breakpoints
 
