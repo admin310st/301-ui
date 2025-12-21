@@ -53,12 +53,10 @@ export function matchesSearch(domain: Domain, query: string): boolean {
   if (!freeText) return true;
 
   const searchable = [
-    domain.domain,
+    domain.domain_name,
     domain.project_name || '',
     domain.registrar || '',
-    domain.cf_account_name || '',
     domain.role || '',
-    domain.tld || '',
   ]
     .join(' ')
     .toLowerCase();
@@ -88,11 +86,25 @@ export function matchesFilters(domain: Domain, filters: ActiveFilters): boolean 
   if (filters.health && filters.health.length > 0) {
     const hasMatch = filters.health.some((healthType) => {
       if (healthType === 'ok') {
-        return domain.ssl_valid && !domain.dns_issues && !domain.abuse_warnings;
+        // All healthy: valid SSL, clean abuse status, no errors
+        return (
+          domain.ssl_status === 'valid' &&
+          domain.abuse_status === 'clean' &&
+          !domain.has_errors
+        );
       }
-      if (healthType === 'ssl_bad') return !domain.ssl_valid;
-      if (healthType === 'dns_bad') return domain.dns_issues;
-      if (healthType === 'abuse_bad') return domain.abuse_warnings;
+      if (healthType === 'ssl_bad') {
+        // SSL issues: invalid, expiring, or off
+        return domain.ssl_status === 'invalid' || domain.ssl_status === 'expiring' || domain.ssl_status === 'off';
+      }
+      if (healthType === 'dns_bad') {
+        // DNS/general errors
+        return domain.has_errors;
+      }
+      if (healthType === 'abuse_bad') {
+        // Abuse warnings or blocked
+        return domain.abuse_status === 'warning' || domain.abuse_status === 'blocked';
+      }
       return false;
     });
     if (!hasMatch) return false;
