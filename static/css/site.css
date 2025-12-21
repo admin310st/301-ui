@@ -2183,14 +2183,6 @@ html[data-theme="light"] .btn--social-github {
   color: var(--text);
 }
 
-.dropdown__item--danger {
-  color: var(--danger);
-}
-
-.dropdown__item--danger:hover {
-  background: color-mix(in srgb, var(--danger) 12%, transparent);
-}
-
 .dropdown__item--action {
   color: var(--text-muted);
   font-size: var(--fs-sm);
@@ -2199,6 +2191,23 @@ html[data-theme="light"] .btn--social-github {
 .dropdown__item--action:hover:not(:disabled) {
   color: var(--text-main);
   background: var(--hover);
+}
+
+.dropdown__item--danger {
+  color: var(--danger);
+}
+
+.dropdown__item--danger:hover {
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+}
+
+/* When both action and danger are applied, danger wins */
+.dropdown__item--action.dropdown__item--danger {
+  color: var(--danger);
+}
+
+.dropdown__item--action.dropdown__item--danger:hover {
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
 }
 
 .dropdown__item:disabled {
