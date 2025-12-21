@@ -834,52 +834,48 @@ h5 .icon[data-icon*="close"] {
   transform: translateY(0);
 }
 
-/* Loading indicator bar (1px animated border with running color) */
+/* Loading indicator bar (1px animated border with shimmer effect) */
 .loading-bar {
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(90deg,
-    transparent 0%,
-    transparent 30%,
-    var(--brand) 50%,
-    transparent 70%,
-    transparent 100%
-  );
-  background-size: 200% 100%;
-  background-position: -100% 0;
+  background: var(--brand);
   opacity: 0;
   pointer-events: none;
   transition: opacity 200ms ease;
   z-index: 2; /* Above utility-bar border */
+  overflow: hidden;
 }
 
 .loading-bar[data-loading='true'] {
-  opacity: 1;
-  animation: loadingProgress 1.2s ease-in-out infinite;
+  opacity: 0.4; /* Base opacity for background color */
+}
+
+.loading-bar[data-loading='true']::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    var(--brand) 50%,
+    transparent 100%
+  );
+  animation: shimmer 1.5s ease-in-out infinite;
 }
 
 /* Color variants */
 .loading-bar[data-type='cf'] {
-  background: linear-gradient(90deg,
-    transparent 0%,
-    transparent 30%,
-    var(--cf-orange) 50%,
-    transparent 70%,
-    transparent 100%
-  );
-  background-size: 200% 100%;
+  background: var(--cf-orange);
 }
 
-@keyframes loadingProgress {
-  0% {
-    background-position: -100% 0;
-  }
-  100% {
-    background-position: 200% 0;
-  }
+.loading-bar[data-type='cf']::before {
+  background: linear-gradient(90deg,
+    transparent 0%,
+    var(--cf-orange) 50%,
+    transparent 100%
+  );
 }
 
 .utility-bar__inner {
