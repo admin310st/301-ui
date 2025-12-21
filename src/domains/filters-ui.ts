@@ -86,19 +86,20 @@ function renderFilterOptions(config: FilterConfig, activeValue: string | string[
       })
       .join('');
 
-    // Add clear button at bottom for multi-select
-    const clearButton = `
+    // Add clear button at bottom for multi-select (only if has selections)
+    const clearButton = hasSelections
+      ? `
       <div class="dropdown__divider"></div>
       <button
-        class="dropdown__item dropdown__item--action"
+        class="dropdown__item dropdown__item--action dropdown__item--danger"
         type="button"
         data-filter-clear
-        ${!hasSelections ? 'disabled' : ''}
       >
         <span class="icon" data-icon="mono/close"></span>
         <span>Clear selection</span>
       </button>
-    `;
+    `
+      : '';
 
     return items + clearButton;
   } else {
