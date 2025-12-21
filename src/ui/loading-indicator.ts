@@ -1,6 +1,28 @@
 /**
- * Loading indicator (1px animated bar in utility-bar)
- * Colors: brand (default), cf (orange), primary (blue)
+ * Loading indicator (1px animated bar in utility-bar with shimmer effect)
+ *
+ * Usage:
+ * - Brand (blue): Page loads and general operations
+ * - CF (orange): Cloudflare API operations (account connection, domain sync, etc.)
+ * - Primary (blue): Same as brand, for consistency
+ *
+ * Examples:
+ *
+ * // Manual control
+ * showLoading('cf');
+ * await someCloudflareOperation();
+ * hideLoading();
+ *
+ * // Automatic with promise wrapper
+ * const result = await withLoading(
+ *   fetchCloudflareAccounts(),
+ *   'cf'
+ * );
+ *
+ * // Available globally for use in other modules
+ * window.showLoading('cf');
+ * window.hideLoading();
+ * window.withLoading(promise, 'cf');
  */
 
 let loadingBar: HTMLElement | null = null;

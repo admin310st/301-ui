@@ -1258,3 +1258,45 @@ Header (`.site-header`) uses a blurred background with a thin border. Primary na
 - **Dashboard**: двухколоночная сетка — «Текущий сетап» + «Помощь по экрану».
 - Управление видимостью только через `hidden` на `[data-onlogin]/[data-onlogout]` + инициализация в JS.
 - Кнопки/чипы и иконки в шапке наследуют `currentColor` для поддержки dark/light.
+
+---
+
+## Loading Indicator
+
+**1px animated shimmer bar** in utility-bar for page loads and async operations.
+
+### Color variants
+
+- **Brand (blue)**: Page loads, general operations
+- **CF (orange)**: Cloudflare API operations (account connection, domain sync, etc.)
+- **Primary (blue)**: Same as brand, for consistency
+
+### Usage
+
+```typescript
+// Manual control
+showLoading('cf');
+await someCloudflareOperation();
+hideLoading();
+
+// Automatic with promise wrapper
+const result = await withLoading(
+  fetchCloudflareAccounts(),
+  'cf'
+);
+```
+
+### Implementation
+
+- Shimmer effect using `::before` pseudo-element with `translateX` animation
+- Base color at 40% opacity with bright shimmer wave
+- 1.5s duration for smooth effect
+- Minimum display time: 600ms (ensures animation visibility)
+- No layout shifts: `position: absolute` inside utility-bar
+- Functions exposed globally: `window.showLoading()`, `window.hideLoading()`, `window.withLoading()`
+
+### When to use
+
+- **Page loads**: Automatically shown via `initPageLoadIndicator()` in main.ts
+- **CF operations**: Use `'cf'` type for orange shimmer during Cloudflare API calls
+- **Long operations**: Wrap promises with `withLoading()` for automatic show/hide
