@@ -3628,6 +3628,19 @@ body.layout-dashboard .burger-button {
   }
 }
 
+/* Domains page: card__actions as block container for vertical stacking */
+.card__header .card__actions {
+  display: block;
+}
+
+.card__header .card__actions .controls-row {
+  margin-bottom: var(--space-3);
+}
+
+.card__header .card__actions .controls-row:last-child {
+  margin-bottom: 0;
+}
+
 /* Search row needs flex container (domains page) */
 .card__actions .controls-row:not(.table-controls) {
   display: flex;
