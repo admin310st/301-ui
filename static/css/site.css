@@ -3630,7 +3630,7 @@ body.layout-dashboard .burger-button {
 
 /* Search in dedicated row (domains page) */
 .card__actions .controls-row:not(.table-controls) .table-search {
-  flex: 1 1 auto;
+  flex: 1 1 0;
   min-width: 0;
   max-width: none;
 }
