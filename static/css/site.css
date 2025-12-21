@@ -3701,12 +3701,12 @@ body.layout-dashboard .burger-button {
 }
 
 /* Collapsible filters for mobile */
-/* Toggle button: hidden on desktop, visible on mobile */
+/* Toggle button: hidden on desktop, visible on phones */
 [data-toggle-filters] {
   display: none;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 640px) {
   [data-toggle-filters] {
     display: inline-flex;
     position: relative;
@@ -3725,7 +3725,7 @@ body.layout-dashboard .burger-button {
     border-radius: 0.625rem;
   }
 
-  /* Hide filter bar by default on mobile */
+  /* Hide filter bar by default on phones */
   .table-controls[data-filter-bar] {
     display: none !important;
   }
