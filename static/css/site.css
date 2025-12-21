@@ -3010,12 +3010,6 @@ body.layout-dashboard .burger-button {
 /* ============================================
    Wizard Layout
    ============================================ */
-.wizard-shell {
-  padding-top: var(--space-6);
-  padding-bottom: var(--space-6);
-  min-height: calc(100dvh - var(--header-height) - var(--footer-height));
-}
-
 .wizard-container {
   max-width: 960px;
   margin: 0 auto;
@@ -3037,11 +3031,6 @@ body.layout-dashboard .burger-button {
 
 /* Mobile adjustments */
 @media (max-width: 767px) {
-  .wizard-shell {
-    padding-top: var(--space-4);
-    padding-bottom: var(--space-4);
-  }
-
   .wizard-container {
     padding: 0 var(--space-3);
   }
