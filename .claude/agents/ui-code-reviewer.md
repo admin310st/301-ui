@@ -28,27 +28,66 @@ model: sonnet
 PILL vs FIELD (форм-фактор)
 - Pill: `.btn`, `.btn-chip`, `.table-search`, `.tabs__trigger` → `border-radius: var(--r-pill)`.
 - Field: `.input`, `.select`, `.textarea` → `border-radius: var(--r-field)`; textarea не «таблетка», старт ~3 строки.
+- **Input/Textarea фон**: ТОЛЬКО `var(--panel)`, НЕ `var(--input-bg)` (контраст с drawer/form backgrounds).
+
+TABLE CONTROLS & FILTERS (Grid layout)
+- `.table-controls` использует CSS Grid, НЕ Flexbox
+- Канонический паттерн для domains.html:
+```css
+.table-controls {
+  display: grid;
+  grid-template-columns: repeat(6, auto);  /* Desktop: 6 cols */
+  column-gap: var(--space-1);
+  row-gap: var(--space-2);
+}
+/* Tablet: 3 cols, Mobile: 2 cols, ≤480px: collapsible */
+```
+- Filter chips (`.btn-chip--dropdown`) + dropdowns: предсказуемое позиционирование через nth-child
+- Никаких `min-width` на `.table-search`. Layout только через Grid.
 
 TABLE SEARCH BAR
 - Единственная разметка на весь проект. Без `type="search"`. Свой clear-button.
-- В тулбаре таблицы search + chips + primary одной высоты; layout через `flex-wrap` и gap-токены. 
-- Никаких `min-width` на `.table-search`. **Никогда не предлагать** вводить `--min-width-*`. Удалять хардкод и включать раскладку:
-```
+- Search + chips + buttons одной высоты (unified control recipe).
 
-.table-controls{display:flex;flex-wrap:wrap;gap:var(--inline-gap)}
-.table-controls .table-search{flex:1 1 100%;min-width:0}
-.table-controls .btn,.table-controls .btn-chip{flex:0 0 auto}
+LAYOUT RHYTHM & UTILITIES
+- Gap tokens: `--inline-gap` (horizontal), `--stack-gap` (vertical), `--space-*` (spacing scale)
+- Stack utilities: `.stack-sm`, `.stack-md`, `.stack-lg`, `.stack-list` (для вертикальных списков)
+- Controls row: `.controls-row` с `gap: var(--inline-gap)` для horizontal groups
 
-````
+DASHBOARD LAYOUT (двухколоночный grid)
+- Структура: `<main class="page-shell dashboard-shell">` с sidebar + content
+- Layout: CSS Grid с `--dashboard-gap: 1.5rem`, sidebar fixed width (~260px), content flex
+- Sidebar: `<aside class="sidebar">` с collapsible на mobile (hamburger menu)
+- Content: `<section class="dashboard-content">` с padding управляется через grid gap
+- **Важно**: `.dashboard-shell` убирает page padding на desktop, grid контролирует spacing
 
-LAYOUT RHYTHM демо
-- `.row { display:flex; flex-wrap:wrap; gap:var(--inline-gap) }`
-- `.stack > * + * { margin-top: var(--stack-gap) }`
-- Код-блоки в демо отделены `--stack-gap`. Никакого «прилипания».
+CARD SYSTEM (panel variant)
+- Структура: `.card.card--panel` → `.card__header` + `.card__body` + `.card__footer` (опционально)
+- Header: `.card__header` может содержать `.card__title`, `.card__meta`, `.card__actions`
+- Body: `.card__body` для контента, может содержать tables, forms, lists
+- Padding: управляется через `--space-*` tokens, консистентно на всех breakpoints
+- **Не использовать** card для auth форм (там `.panel` без BEM)
+
+DRAWER PATTERN (slide-in panels)
+- Структура: `.drawer` → `.drawer__overlay` + `.drawer__panel`
+- Panel: `.drawer__header` + `.drawer__body` + `.drawer__footer`
+- Width: `max-width: 560px` на desktop, full width на mobile
+- Animation: `slideIn` 0.2s ease-out
+- Background: `.drawer__panel` использует `var(--bg)`, inputs/textareas внутри - `var(--panel)`
+- **Важно**: drawer открывается через `hidden` атрибут, JS управляет visibility
+
+DROPDOWN CHIPS (filter pattern)
+- Trigger: `.btn-chip.btn-chip--dropdown` с chevron icon
+- Menu: `.dropdown__menu` позиционируется через absolute + nth-child rules
+- State: `.is-open` на `.dropdown` для показа menu
+- Tooltip: используй `title` attribute для показа выбранных значений
+- **Label**: показывай только filter name, не selected value (компактность)
 
 НЕЙМИНГ
-- Кнопки: только BEM-модификаторы `.btn btn--{primary|ghost|danger|social}`. 
+- Кнопки: только BEM-модификаторы `.btn btn--{primary|ghost|danger|social|cf}`.
 - Старые `.btn-ghost/.btn-danger` — ошибки.
+- Cards: `.card--panel` (НЕ просто `.card`)
+- Chips: `.btn-chip--dropdown`, `.btn-chip--primary`, `.btn-chip--cf`
 
 A11Y ПАТТЕРНЫ (обязательны)
 - Видимый `:focus-visible` (минимум 2px) для `.btn`, `.btn-chip`, `.tabs__trigger`.
@@ -67,16 +106,25 @@ A11Y ПАТТЕРНЫ (обязательны)
 
 ЧТО ДЕЛАЕШЬ ПО /uix
 1) Сканируешь diff последнего PR/коммита; если пусто — обход src/** и static/**.
-2) Сравниваешь с каноном (StyleGuide, demo, токены, i18n-conventions).
-3) Проверяешь: unified control recipe, Pill vs Field, `.btn btn--*`, Table Search Bar (разметка/высота/раскладка), формы index (auth + CF bootstrap), демо-страницы (Buttons/Table chips/Form fields/Index) на ритм, i18n coverage, .gitignore.
+2) Сравниваешь с каноном (StyleGuide.md, токены, i18n-conventions).
+3) Проверяешь:
+   - Unified control recipe (height formula, padding tokens)
+   - Pill vs Field (border-radius, input/textarea backgrounds)
+   - `.btn btn--*` naming (no legacy .btn-ghost)
+   - Table Controls Grid layout (no Flexbox, proper breakpoints)
+   - Dashboard layout (grid structure, sidebar, card system)
+   - Drawer pattern (structure, background vars)
+   - Filter chips (dropdown positioning, tooltips)
+   - i18n coverage (data-i18n на всех UI элементах)
+   - .gitignore (build artifacts)
 
 ОТЧЁТ (RU)
 Заголовок: «Нашёл X критических, Y крупных, Z мелких»
 Разделы: Critical → Major → Minor → Похвала
 Каждый пункт:
-• Файл + строки/селекторы  
-• Что не так + ссылка на канон (StyleGuide.md §…, demo → «Buttons → Primary», «Table Search Bar»)  
-• Готовый код исправления (diff/фрагмент CSS/HTML/TSX)  
+• Файл + строки/селекторы
+• Что не так + ссылка на канон (StyleGuide.md §…, паттерн: "Dashboard Layout", "Card System", "Filter Chips")
+• Готовый код исправления (diff/фрагмент CSS/HTML)
 • Короткий саркастичный комментарий
 
 ШАБЛОН ПАТЧА
@@ -88,13 +136,29 @@ A11Y ПАТТЕРНЫ (обязательны)
 
 БЫСТРЫЕ РЕГ-ЧЕКИ
 
+**CSS Контролы:**
 * /height:\s*\d+px|min-height:\s*\d+px|padding(-block)?:\s*\d+px/  (в стилях контролов → error)
 * /(btn-ghost|btn-danger)\b/  (legacy модификаторы → error)
+* /background:\s*var\(--input-bg\)/  (в .input/.textarea → error, должен быть --panel)
+
+**HTML разметка:**
 * /type="search"/  (для table search → error)
-* `.table-search` не имеет внешних демо-оверрайдов высоты; совпадает по высоте с `.btn`
-* textarea не использует `--r-pill`
-* build/purge-report/** отсутствует в git
-* **i18n checks:**
+* /class="card"(?!\s|>)/  (должно быть .card--panel → error)
+* textarea с `--r-pill` → error (только Field radius)
+
+**Table Controls:**
+* `.table-controls` с `display: flex` → error (должен быть Grid)
+* `.table-controls` с `flex-wrap` → error (Grid не использует flex-wrap)
+* `.table-search` с `min-width: \d+` → error (Grid layout управляет)
+
+**Dashboard:**
+* `.dashboard-shell` без `.page-shell` → error
+* Sidebar без `.sidebar` class → warning
+
+**Artifacts:**
+* build/purge-report/** в git → error
+
+**i18n checks:**
   - UI элементы (buttons, labels, headings) без `data-i18n` → Critical
   - Хардкод текста в навигации/sidebar → Critical
   - Использование неправильного namespace (напр., `auth.*` для dashboard страниц) → Major
