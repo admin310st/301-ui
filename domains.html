@@ -52,7 +52,8 @@
         <div class="card card--panel" data-domains-card>
           <header class="card__header">
             <div class="card__actions">
-              <div class="controls-row table-controls">
+              <!-- Search row -->
+              <div class="controls-row">
                 <div class="table-search" data-table-search>
                   <span class="icon" data-icon="mono/search"></span>
                   <input
@@ -65,9 +66,10 @@
                     <span class="icon" data-icon="mono/close"></span>
                   </button>
                 </div>
-                <!-- Filter chips will be injected here by JS -->
-                <div data-filter-bar></div>
               </div>
+
+              <!-- Filter chips row (injected by JS) -->
+              <div class="controls-row table-controls" data-filter-bar></div>
             </div>
           </header>
 

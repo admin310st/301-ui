@@ -210,13 +210,10 @@ export function initDomainsPage(): void {
   const filterBarContainer = document.querySelector('[data-filter-bar]');
   if (filterBarContainer) {
     renderFilters();
-    const tableControls = document.querySelector('.table-controls');
-    if (tableControls) {
-      initFilterUI(tableControls as HTMLElement, activeFilters, () => {
-        renderFilters();
-        applyFiltersAndRender();
-      });
-    }
+    initFilterUI(filterBarContainer as HTMLElement, activeFilters, () => {
+      renderFilters();
+      applyFiltersAndRender();
+    });
   }
 }
 

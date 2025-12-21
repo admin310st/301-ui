@@ -98,7 +98,7 @@ function renderFilterOptions(config: FilterConfig, activeValue: string | string[
 }
 
 /**
- * Render controls row with search and filters (matches UI Style Guide pattern)
+ * Render filter chips (without wrapper, injected into existing controls-row)
  */
 export function renderFilterBar(activeFilters: ActiveFilters): string {
   const chips = DOMAIN_FILTERS.map((config) => {
@@ -109,13 +109,11 @@ export function renderFilterBar(activeFilters: ActiveFilters): string {
   const resetVisible = hasActiveFilters(activeFilters) ? '' : 'hidden';
 
   return `
-    <div class="controls-row table-controls">
-      ${chips}
-      <button type="button" class="btn btn--ghost btn--sm" data-reset-filters ${resetVisible}>
-        <span class="icon" data-icon="mono/refresh"></span>
-        Reset
-      </button>
-    </div>
+    ${chips}
+    <button type="button" class="btn btn--ghost btn--sm" data-reset-filters ${resetVisible}>
+      <span class="icon" data-icon="mono/refresh"></span>
+      Reset
+    </button>
   `;
 }
 
@@ -152,8 +150,7 @@ export function initFilterUI(
     } else {
       activeFilters[filterId] = value as any;
       // Close dropdown for single-select
-      const menu = dropdown.querySelector('.dropdown__menu');
-      if (menu) menu.classList.remove('is-open');
+      dropdown.classList.remove('dropdown--open');
       const trigger = dropdown.querySelector('.dropdown__trigger');
       if (trigger) trigger.setAttribute('aria-expanded', 'false');
     }
@@ -186,22 +183,18 @@ function initDropdownToggles(container: HTMLElement): void {
     const dropdown = trigger.closest('[data-dropdown]');
     if (!dropdown) return;
 
-    const menu = dropdown.querySelector('.dropdown__menu');
-    if (!menu) return;
-
-    const isOpen = menu.classList.contains('is-open');
+    const isOpen = dropdown.classList.contains('dropdown--open');
 
     // Close all dropdowns
-    container.querySelectorAll('.dropdown__menu.is-open').forEach((m) => {
-      m.classList.remove('is-open');
-    });
-    container.querySelectorAll('.dropdown__trigger[aria-expanded="true"]').forEach((t) => {
-      t.setAttribute('aria-expanded', 'false');
+    container.querySelectorAll('.dropdown--open').forEach((d) => {
+      d.classList.remove('dropdown--open');
+      const t = d.querySelector('.dropdown__trigger');
+      if (t) t.setAttribute('aria-expanded', 'false');
     });
 
     // Toggle current dropdown
     if (!isOpen) {
-      menu.classList.add('is-open');
+      dropdown.classList.add('dropdown--open');
       trigger.setAttribute('aria-expanded', 'true');
     }
   });
@@ -209,11 +202,10 @@ function initDropdownToggles(container: HTMLElement): void {
   // Close dropdowns when clicking outside
   document.addEventListener('click', (e) => {
     if (!container.contains(e.target as Node)) {
-      container.querySelectorAll('.dropdown__menu.is-open').forEach((m) => {
-        m.classList.remove('is-open');
-      });
-      container.querySelectorAll('.dropdown__trigger[aria-expanded="true"]').forEach((t) => {
-        t.setAttribute('aria-expanded', 'false');
+      container.querySelectorAll('.dropdown--open').forEach((d) => {
+        d.classList.remove('dropdown--open');
+        const t = d.querySelector('.dropdown__trigger');
+        if (t) t.setAttribute('aria-expanded', 'false');
       });
     }
   });
