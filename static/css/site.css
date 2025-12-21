@@ -3519,7 +3519,8 @@ body.layout-dashboard .burger-button {
 }
 
 .bulk-actions-bar__actions .btn--ghost:hover {
-  background: color-mix(in srgb, var(--primary) 10%, transparent);
+  background: var(--primary);
+  color: var(--text-inverted);
 }
 
 .bulk-actions-bar__actions .btn--primary {
@@ -3529,7 +3530,8 @@ body.layout-dashboard .burger-button {
 }
 
 .bulk-actions-bar__actions .btn--primary:hover {
-  background: color-mix(in srgb, var(--primary) 10%, transparent);
+  background: var(--primary);
+  color: var(--text-inverted);
 }
 
 .bulk-actions-bar__actions .btn--danger {
