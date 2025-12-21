@@ -3639,6 +3639,7 @@ body.layout-dashboard .burger-button {
 .card__actions .controls-row .btn-icon[data-reset-filters] {
   flex: 0 0 auto;
   margin-left: var(--space-2);
+  color: var(--muted);
 }
 
 /* Active state for reset button */
