@@ -51,7 +51,7 @@ export const DASHBOARD_NAV: NavItem[] = [
     labelKey: 'layout.nav.domains',
     icon: 'mono/dns',
     href: '/domains.html',
-    badge: 35,
+    // badge updated dynamically by updateDomainsBadge()
     notificationIcon: 'mono/circle-alert',
     notificationColor: 'danger',
     notificationTitle: '2do',
@@ -182,6 +182,37 @@ export function updateSidebarActive(path?: string): void {
       element.classList.toggle('is-active', isActive);
     }
   });
+}
+
+/**
+ * Update domains badge count
+ */
+export function updateDomainsBadge(count: number): void {
+  const domainsNav = document.querySelector('[data-nav-id="domains"]');
+  if (!domainsNav) return;
+
+  const existingBadge = domainsNav.querySelector('.badge');
+
+  if (count > 0) {
+    if (existingBadge) {
+      existingBadge.textContent = count.toString();
+    } else {
+      // Create badge if it doesn't exist
+      const badge = document.createElement('span');
+      badge.className = 'badge badge--sm';
+      badge.textContent = count.toString();
+
+      const label = domainsNav.querySelector('.label');
+      if (label && label.nextSibling) {
+        domainsNav.insertBefore(badge, label.nextSibling);
+      } else if (label) {
+        label.after(badge);
+      }
+    }
+  } else if (existingBadge) {
+    // Remove badge if count is 0
+    existingBadge.remove();
+  }
 }
 
 /**

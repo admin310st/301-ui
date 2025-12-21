@@ -5,11 +5,14 @@ import { showDialog } from '@ui/dialog';
 import { getDefaultFilters, hasActiveFilters, type ActiveFilters } from './filters-config';
 import { filterDomains as applyFiltersAndSearch } from './filters';
 import { renderFilterBar, initFilterUI } from './filters-ui';
+import { updateDomainsBadge } from '@ui/sidebar-nav';
 
 let currentDomains: Domain[] = [];
 let selectedDomains = new Set<number>();
 let activeFilters: ActiveFilters = getDefaultFilters();
 let searchQuery = '';
+let currentPage = 1;
+const PAGE_SIZE = 25;
 
 export function initDomainsPage(): void {
   const card = document.querySelector('[data-domains-card]');
@@ -45,6 +48,7 @@ export function initDomainsPage(): void {
   if (searchInput) {
     searchInput.addEventListener('input', (e) => {
       searchQuery = (e.target as HTMLInputElement).value;
+      currentPage = 1; // Reset to first page on search
       applyFiltersAndRender();
 
       // Toggle clear button visibility
@@ -63,6 +67,7 @@ export function initDomainsPage(): void {
     searchClear.addEventListener('click', () => {
       searchInput.value = '';
       searchQuery = '';
+      currentPage = 1; // Reset to first page
       applyFiltersAndRender();
       tableSearch.classList.remove('table-search--active');
       searchInput.focus();
@@ -246,6 +251,7 @@ export function initDomainsPage(): void {
 
   // Filter change handler (only re-renders, no listener re-init)
   const onFilterChange = () => {
+    currentPage = 1; // Reset to first page on filter change
     renderFilters();
     applyFiltersAndRender();
     updateResetButton();
@@ -300,6 +306,32 @@ export function initDomainsPage(): void {
     // Initial state
     updateFiltersBadge();
   }
+
+  // Pagination controls
+  const prevBtn = document.querySelector<HTMLButtonElement>('[data-pagination-prev]');
+  const nextBtn = document.querySelector<HTMLButtonElement>('[data-pagination-next]');
+
+  if (prevBtn) {
+    prevBtn.addEventListener('click', (e) => {
+      e.stopPropagation(); // Prevent event bubbling
+      if (currentPage > 1) {
+        currentPage--;
+        applyFiltersAndRender();
+      }
+    });
+  }
+
+  if (nextBtn) {
+    nextBtn.addEventListener('click', (e) => {
+      e.stopPropagation(); // Prevent event bubbling
+      const filtered = applyFiltersAndSearch(currentDomains, activeFilters, searchQuery);
+      const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+      if (currentPage < totalPages) {
+        currentPage++;
+        applyFiltersAndRender();
+      }
+    });
+  }
 }
 
 function showLoadingState(): void {
@@ -324,9 +356,11 @@ function loadDomains(domains: Domain[]): void {
   const emptyState = document.querySelector('[data-empty-state]');
   const tableShell = document.querySelector('[data-table-shell]');
   const tableFooter = document.querySelector('[data-table-footer]');
-  const totalCount = document.querySelector('[data-total-count]');
 
   if (loadingState) loadingState.setAttribute('hidden', '');
+
+  // Update sidebar badge with total count
+  updateDomainsBadge(domains.length);
 
   if (domains.length === 0) {
     if (emptyState) emptyState.removeAttribute('hidden');
@@ -337,10 +371,9 @@ function loadDomains(domains: Domain[]): void {
 
   if (emptyState) emptyState.setAttribute('hidden', '');
   if (tableShell) tableShell.removeAttribute('hidden');
-  if (tableFooter) tableFooter.removeAttribute('hidden');
-  if (totalCount) totalCount.textContent = String(domains.length);
 
-  renderDomainsTable(domains);
+  // Apply filters and pagination
+  applyFiltersAndRender();
 }
 
 function renderDomainsTable(domains: Domain[]): void {
@@ -567,9 +600,17 @@ function renderFilters(): void {
 /**
  * Apply active filters and search query, then re-render table
  */
+function paginateDomains(domains: Domain[], page: number, pageSize: number): Domain[] {
+  const startIndex = (page - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+  return domains.slice(startIndex, endIndex);
+}
+
 function applyFiltersAndRender(): void {
   const filtered = applyFiltersAndSearch(currentDomains, activeFilters, searchQuery);
-  renderDomainsTable(filtered);
+  const paginated = paginateDomains(filtered, currentPage, PAGE_SIZE);
+  renderDomainsTable(paginated);
+  updatePaginationUI(filtered.length);
 }
 
 function toggleSelectAll(checked: boolean): void {
@@ -593,6 +634,39 @@ function updateSelectAllCheckbox(): void {
 
   selectAllCheckbox.checked = selectedCount > 0 && selectedCount === totalVisible;
   selectAllCheckbox.indeterminate = selectedCount > 0 && selectedCount < totalVisible;
+}
+
+function updatePaginationUI(totalCount: number): void {
+  const footer = document.querySelector('[data-table-footer]');
+  const totalCountEl = document.querySelector('[data-total-count]');
+  const paginationInfo = document.querySelector('.pagination__info');
+  const prevBtn = document.querySelector<HTMLButtonElement>('[data-pagination-prev]');
+  const nextBtn = document.querySelector<HTMLButtonElement>('[data-pagination-next]');
+
+  if (!footer || !totalCountEl || !paginationInfo || !prevBtn || !nextBtn) return;
+
+  // Calculate pagination values
+  const totalPages = Math.ceil(totalCount / PAGE_SIZE);
+  const startIndex = (currentPage - 1) * PAGE_SIZE + 1;
+  const endIndex = Math.min(currentPage * PAGE_SIZE, totalCount);
+
+  // Update UI
+  if (totalCount > 0) {
+    footer.removeAttribute('hidden');
+    totalCountEl.textContent = totalCount.toString();
+
+    // Update "Showing X-Y of Z"
+    const showingText = paginationInfo.querySelector('strong:first-child');
+    if (showingText) {
+      showingText.textContent = `${startIndex}-${endIndex}`;
+    }
+
+    // Enable/disable buttons
+    prevBtn.disabled = currentPage === 1;
+    nextBtn.disabled = currentPage >= totalPages;
+  } else {
+    footer.setAttribute('hidden', '');
+  }
 }
 
 function openAddDomainsDrawer(): void {
