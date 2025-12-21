@@ -1300,6 +1300,14 @@ html[data-theme="light"] .btn--ghost:hover {
   white-space: nowrap;
 }
 
+/* Badge inside chip — align with control recipe */
+.btn-chip .badge {
+  font-size: 0.7em;
+  line-height: 1;
+  padding: 0.2em 0.5em;
+  margin-inline: 0;
+}
+
 .btn-chip--ghost {
   background: var(--panel);
   color: var(--text);
