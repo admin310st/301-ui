@@ -3507,7 +3507,14 @@ body.layout-dashboard .burger-button {
   gap: var(--space-2);
 }
 
-/* Selection counter chip - uses unified control sizing */
+/* Selection counter chip - match small button sizing */
+.bulk-actions-bar__info .btn-chip {
+  font-size: calc(var(--fs-control) * var(--control-scale-sm));
+  padding-block: calc(var(--control-pad-y) * var(--control-scale-sm));
+  padding-inline: calc(var(--control-pad-x) * var(--control-scale-sm));
+  min-height: calc(var(--control-min-height) * var(--control-scale-sm));
+}
+
 .bulk-actions-bar__info .btn-chip .icon {
   color: var(--brand);
 }
