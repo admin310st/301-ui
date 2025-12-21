@@ -263,7 +263,16 @@ export function initDomainsPage(): void {
   // Reset filters button handler
   if (resetBtn) {
     resetBtn.addEventListener('click', () => {
-      activeFilters = getDefaultFilters();
+      // Mutate existing object instead of creating new one
+      // to preserve reference for event listeners
+      const defaults = getDefaultFilters();
+      activeFilters.status = defaults.status;
+      activeFilters.health = defaults.health;
+      activeFilters.provider = defaults.provider;
+      activeFilters.project = defaults.project;
+      activeFilters.role = defaults.role;
+      activeFilters.expiry = defaults.expiry;
+
       onFilterChange();
     });
 
