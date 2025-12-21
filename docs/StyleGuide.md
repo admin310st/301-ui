@@ -892,17 +892,33 @@ Floating action bar для массовых операций над выбран
       <div class="bulk-actions-bar__info">
         <span class="icon" data-icon="mono/check-circle"></span>
         <strong data-selected-count>5</strong>
+        <button class="btn btn--ghost btn--sm" type="button" data-bulk-cancel>Cancel</button>
       </div>
       <div class="bulk-actions-bar__actions">
         <button class="btn btn--ghost btn--sm" type="button">Export</button>
-        <button class="btn btn--primary btn--sm" type="button">Sync</button>
+        <button class="btn btn--ghost btn--sm" type="button">Change Status</button>
+        <button class="btn btn--ghost btn--sm" type="button">Move to Project</button>
+        <button class="btn btn--ghost btn--sm" type="button">Toggle Monitoring</button>
+        <button class="btn btn--primary btn--sm" type="button">Sync Registrar</button>
         <button class="btn btn--danger btn--sm" type="button">Delete</button>
-        <button class="btn btn--ghost btn--sm" type="button" data-bulk-cancel>Cancel</button>
       </div>
     </div>
   </div>
 </div>
 ```
+
+**Адаптивная раскладка (grid-based):**
+
+- **Desktop (>768px):**
+  - Info: icon + count + Cancel в одной строке
+  - Actions: 6 кнопок в ряд (`grid-template-columns: repeat(6, auto)`)
+- **Tablet (≤768px):**
+  - Info: icon + count на первой строке, Cancel на второй (full width)
+  - Actions (481-767px): 3 колонки × 2 ряда
+- **Mobile (≤480px):**
+  - Вертикальный layout (`flex-direction: column`)
+  - Actions: 2 колонки × 3 ряда (`repeat(2, 1fr)`)
+  - Все кнопки `width: 100%`
 
 **Контекст использования:**
 

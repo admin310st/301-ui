@@ -3498,22 +3498,36 @@ body.layout-dashboard .burger-button {
 .bulk-actions-bar__info {
   display: flex;
   align-items: center;
-  gap: var(--space-2); /* Increased gap between icon and text */
+  gap: var(--space-2);
   font-size: var(--fs-md);
   color: var(--text);
 }
 
 .bulk-actions-bar__info .icon {
   color: var(--brand);
-  flex-shrink: 0; /* Prevent icon from shrinking */
+  flex-shrink: 0;
 }
 
 .bulk-actions-bar__info strong {
-  margin-inline-end: 0.25em; /* Space between count and "domains selected" */
+  flex-shrink: 0;
 }
 
+/* Cancel button in info section - canonical ghost styling */
+.bulk-actions-bar__info [data-bulk-cancel] {
+  border-color: var(--border-subtle);
+  color: var(--text-main);
+}
+
+.bulk-actions-bar__info [data-bulk-cancel]:hover {
+  background: var(--panel);
+  border-color: var(--border-strong);
+  color: var(--text-main);
+}
+
+/* Actions grid - follows table-controls pattern */
 .bulk-actions-bar__actions {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(6, auto);
   align-items: center;
   gap: var(--inline-gap);
 }
@@ -3551,16 +3565,45 @@ body.layout-dashboard .burger-button {
   color: var(--btn-text-on-dark);
 }
 
-/* Cancel button - canonical ghost styling (neutral, works in both themes) */
-.bulk-actions-bar__actions [data-bulk-cancel] {
-  border-color: var(--border-subtle);
-  color: var(--text-main);
+/* Responsive grid breakpoints - follows table-controls pattern */
+
+/* Tablet and smaller: Cancel wraps to second row */
+@media (max-width: 768px) {
+  .bulk-actions-bar__info {
+    /* Allow wrapping for Cancel button */
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  /* Cancel button takes full width on second row */
+  .bulk-actions-bar__info [data-bulk-cancel] {
+    width: 100%;
+    margin-top: var(--space-2);
+  }
 }
 
-.bulk-actions-bar__actions [data-bulk-cancel]:hover {
-  background: var(--panel);
-  border-color: var(--border-strong);
-  color: var(--text-main);
+/* Tablet portrait: 3 columns × 2 rows */
+@media (max-width: 767px) and (min-width: 481px) {
+  .bulk-actions-bar__actions {
+    grid-template-columns: repeat(3, auto);
+  }
+}
+
+/* Mobile: 2 columns × 3 rows */
+@media (max-width: 480px) {
+  .bulk-actions-bar__content {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-3);
+  }
+
+  .bulk-actions-bar__actions {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .bulk-actions-bar__actions .btn {
+    width: 100%;
+  }
 }
 
 @media (max-width: 768px) {
