@@ -106,15 +106,7 @@ export function renderFilterBar(activeFilters: ActiveFilters): string {
     return renderFilterChip(config, activeValue);
   }).join('\n');
 
-  const resetVisible = hasActiveFilters(activeFilters) ? '' : 'hidden';
-
-  return `
-    ${chips}
-    <button type="button" class="btn btn--ghost btn--sm" data-reset-filters ${resetVisible}>
-      <span class="icon" data-icon="mono/refresh"></span>
-      Reset
-    </button>
-  `;
+  return chips;
 }
 
 /**
@@ -157,15 +149,6 @@ export function initFilterUI(
 
     onChange(activeFilters);
   });
-
-  // Reset filters
-  const resetBtn = container.querySelector('[data-reset-filters]');
-  if (resetBtn) {
-    resetBtn.addEventListener('click', () => {
-      Object.assign(activeFilters, getDefaultFilters());
-      onChange(activeFilters);
-    });
-  }
 
   // Initialize dropdown toggles (reuse existing dropdown logic)
   initDropdownToggles(container);

@@ -215,6 +215,16 @@ export function initDomainsPage(): void {
       applyFiltersAndRender();
     });
   }
+
+  // Reset filters button
+  const resetBtn = document.querySelector('[data-reset-filters]');
+  if (resetBtn) {
+    resetBtn.addEventListener('click', () => {
+      activeFilters = getDefaultFilters();
+      renderFilters();
+      applyFiltersAndRender();
+    });
+  }
 }
 
 function showLoadingState(): void {
