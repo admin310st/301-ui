@@ -7,7 +7,7 @@ import type { ActiveFilters } from './filters-config';
 
 /**
  * Advanced search syntax parser
- * Supports: status:active, provider:cloudflare, project:name, lang:ru, tld:.io
+ * Supports: status:active, provider:cloudflare, project:name, role:donor, tld:.io
  */
 export function parseSearchQuery(query: string): {
   filters: Partial<ActiveFilters>;
@@ -22,7 +22,7 @@ export function parseSearchQuery(query: string): {
     { pattern: /status:(\w+)/g, key: 'status' as const },
     { pattern: /provider:(\w+)/g, key: 'provider' as const },
     { pattern: /project:(\w+)/g, key: 'project' as const },
-    { pattern: /lang:(\w+)/g, key: 'language' as const },
+    { pattern: /role:(\w+)/g, key: 'role' as const },
   ];
 
   tokens.forEach(({ pattern, key }) => {
@@ -44,7 +44,7 @@ export function parseSearchQuery(query: string): {
 
 /**
  * Check if domain matches search query
- * Searches across: domain, project_name, tld, provider, language
+ * Searches across: domain, project_name, tld, provider, role
  */
 export function matchesSearch(domain: Domain, query: string): boolean {
   if (!query) return true;
@@ -57,7 +57,7 @@ export function matchesSearch(domain: Domain, query: string): boolean {
     domain.project_name || '',
     domain.registrar || '',
     domain.cf_account_name || '',
-    domain.language_code || '',
+    domain.role || '',
     domain.tld || '',
   ]
     .join(' ')
@@ -109,9 +109,9 @@ export function matchesFilters(domain: Domain, filters: ActiveFilters): boolean 
     if (domain.project_name !== filters.project) return false;
   }
 
-  // Language filter
-  if (filters.language && filters.language !== 'all') {
-    if (domain.language_code !== filters.language) return false;
+  // Role filter
+  if (filters.role && filters.role !== 'all') {
+    if (domain.role !== filters.role) return false;
   }
 
   // Expiry filter

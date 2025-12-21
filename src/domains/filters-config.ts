@@ -62,16 +62,13 @@ export const DOMAIN_FILTERS: FilterConfig[] = [
     ],
   },
   {
-    id: 'language',
-    label: 'Language',
+    id: 'role',
+    label: 'Role',
     type: 'single-select',
     options: [
       { value: 'all', label: 'All' },
-      { value: 'ru', label: 'RU' },
-      { value: 'en', label: 'EN' },
-      { value: 'es', label: 'ES' },
-      { value: 'fr', label: 'FR' },
-      { value: 'de', label: 'DE' },
+      { value: 'donor', label: 'Donor' },
+      { value: 'acceptor', label: 'Acceptor' },
     ],
   },
   {
@@ -96,7 +93,7 @@ export interface ActiveFilters {
   health?: string[];
   provider?: string;
   project?: string;
-  language?: string;
+  role?: string;
   expiry?: string;
 }
 
@@ -109,7 +106,7 @@ export function hasActiveFilters(filters: ActiveFilters): boolean {
     (filters.health && filters.health.length > 0) ||
     (filters.provider && filters.provider !== 'all') ||
     (filters.project && filters.project !== 'all') ||
-    (filters.language && filters.language !== 'all') ||
+    (filters.role && filters.role !== 'all') ||
     (filters.expiry && filters.expiry !== 'any')
   );
 }
@@ -123,7 +120,7 @@ export function getDefaultFilters(): ActiveFilters {
     health: [],
     provider: 'all',
     project: 'all',
-    language: 'all',
+    role: 'all',
     expiry: 'any',
   };
 }

@@ -45,13 +45,13 @@ Edit `filters-config.ts` to add/modify filters:
 
 ## Search Syntax
 
-**Free text:** Searches domain, project, provider, language, TLD
+**Free text:** Searches domain, project, provider, role, TLD
 
 **Advanced syntax:**
 - `status:active` - Filter by status
 - `provider:cloudflare` - Filter by provider
 - `project:myproject` - Filter by project name
-- `lang:ru` - Filter by language
+- `role:donor` - Filter by role (donor/acceptor)
 - `.io` - Filter by TLD (when query starts with dot)
 
 ## Integration Points
