@@ -1371,6 +1371,7 @@ html[data-theme="light"] .btn--ghost:hover {
   flex-direction: row;
   align-items: center;
   flex-wrap: wrap;
+  justify-content: space-between;
   gap: var(--inline-gap);
 }
 
