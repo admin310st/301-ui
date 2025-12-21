@@ -3520,7 +3520,7 @@ body.layout-dashboard .burger-button {
 
 .bulk-actions-bar__actions .btn--ghost:hover {
   background: var(--primary);
-  color: var(--text-inverted);
+  color: var(--btn-text-on-dark);
 }
 
 .bulk-actions-bar__actions .btn--primary {
@@ -3531,7 +3531,7 @@ body.layout-dashboard .burger-button {
 
 .bulk-actions-bar__actions .btn--primary:hover {
   background: var(--primary);
-  color: var(--text-inverted);
+  color: var(--btn-text-on-dark);
 }
 
 .bulk-actions-bar__actions .btn--danger {
@@ -3542,7 +3542,7 @@ body.layout-dashboard .burger-button {
 
 .bulk-actions-bar__actions .btn--danger:hover {
   background: var(--danger);
-  color: var(--text-inverted);
+  color: var(--btn-text-on-dark);
 }
 
 /* Cancel button - canonical ghost styling (neutral, works in both themes) */
