@@ -3472,9 +3472,15 @@ body.layout-dashboard .burger-button {
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border-top: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.25);
+  /* Upward shadow - matches --shadow-lg opacity from canon */
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.25); /* Light theme */
   transform: translateY(100%);
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Dark theme - stronger shadow */
+[data-theme="dark"] .bulk-actions-bar {
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.65);
 }
 
 .bulk-actions-bar:not([hidden]) {

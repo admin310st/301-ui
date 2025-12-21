@@ -815,7 +815,13 @@ Floating action bar для массовых операций над выбран
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border-top: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.25);
+  /* Upward shadow - matches --shadow-lg opacity from canon */
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.25); /* Light theme */
+}
+
+/* Dark theme - stronger shadow */
+[data-theme="dark"] .bulk-actions-bar {
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.65);
 }
 ```
 
@@ -823,6 +829,7 @@ Floating action bar для массовых операций над выбран
 - **Background**: `color-mix(in srgb, var(--bg-card) 85%, transparent)` — полупрозрачный фон
 - **Backdrop**: `blur(20px) + saturate(180%)` — размытие + насыщенность
 - **Border**: `color-mix(in srgb, var(--border) 60%, transparent)` — полупрозрачная граница
+- **Shadow**: upward shadow using `--shadow-lg` opacity (0.25 light, 0.65 dark) — адаптируется к теме
 
 **Кнопки внутри bar:**
 
