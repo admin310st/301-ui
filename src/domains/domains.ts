@@ -218,31 +218,26 @@ export function initDomainsPage(): void {
     }
   };
 
-  // Helper: Render filters and re-initialize event listeners
-  const filterBarContainer = document.querySelector('[data-filter-bar]');
-  const renderAndInitFilters = () => {
-    if (!filterBarContainer) return;
-
+  // Filter change handler (only re-renders, no listener re-init)
+  const onFilterChange = () => {
     renderFilters();
-    initFilterUI(filterBarContainer as HTMLElement, activeFilters, () => {
-      renderAndInitFilters();
-      applyFiltersAndRender();
-      updateResetButton();
-    });
+    applyFiltersAndRender();
+    updateResetButton();
   };
 
   // Initialize filter bar
+  const filterBarContainer = document.querySelector('[data-filter-bar]');
   if (filterBarContainer) {
-    renderAndInitFilters();
+    renderFilters();
+    // Initialize event listeners ONCE (they stay attached to container)
+    initFilterUI(filterBarContainer as HTMLElement, activeFilters, onFilterChange);
   }
 
   // Reset filters button handler
   if (resetBtn) {
     resetBtn.addEventListener('click', () => {
       activeFilters = getDefaultFilters();
-      renderAndInitFilters();
-      applyFiltersAndRender();
-      updateResetButton();
+      onFilterChange();
     });
 
     // Initial state
