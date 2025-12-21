@@ -876,12 +876,13 @@ Floating action bar для массовых операций над выбран
 
 **Ключевые правила:**
 
-1. **Action buttons** (primary/ghost) заливаются брендовым цветом (`var(--brand)`) при hover
-2. **Danger button** заливается красным (`var(--danger)`) при hover
-3. **Cancel** использует канонический ghost-стиль (нейтральный, без цветной заливки)
-4. **Текст на цветном фоне** всегда `var(--btn-text-on-dark)` (белый в обеих темах)
-5. **Gap между кнопками**: `var(--inline-gap)` для визуального разделения
-6. **Порядок кнопок**: Actions → Danger → Cancel (деструктивные и нейтральные отделены)
+1. **Selection counter chip** использует small sizing (`--control-scale-sm`) для выравнивания с `.btn--sm`
+2. **Action buttons** (primary/ghost) заливаются брендовым цветом (`var(--brand)`) при hover
+3. **Danger button** заливается красным (`var(--danger)`) при hover
+4. **Cancel** использует канонический ghost-стиль (нейтральный, без цветной заливки)
+5. **Текст на цветном фоне** всегда `var(--btn-text-on-dark)` (белый в обеих темах)
+6. **Gap между кнопками**: `var(--inline-gap)` для визуального разделения
+7. **Порядок элементов**: Chip + Cancel → Actions → Danger
 
 **Пример разметки:**
 
@@ -890,7 +891,7 @@ Floating action bar для массовых операций над выбран
   <div class="container">
     <div class="bulk-actions-bar__content">
       <div class="bulk-actions-bar__info">
-        <div class="btn-chip btn-chip--neutral">
+        <div class="btn-chip">
           <span class="icon" data-icon="mono/check-circle"></span>
           <strong data-selected-count>5</strong>
         </div>
