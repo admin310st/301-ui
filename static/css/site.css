@@ -3520,23 +3520,23 @@ body.layout-dashboard .burger-button {
 
 /* Bulk actions buttons styling */
 .bulk-actions-bar__actions .btn--ghost {
-  border: 1px solid var(--primary);
-  color: var(--primary);
+  border: 1px solid var(--brand);
+  color: var(--brand);
 }
 
 .bulk-actions-bar__actions .btn--ghost:hover {
-  background: var(--primary);
+  background: var(--brand);
   color: var(--btn-text-on-dark);
 }
 
 .bulk-actions-bar__actions .btn--primary {
   background: transparent;
-  border: 1px solid var(--primary);
-  color: var(--primary);
+  border: 1px solid var(--brand);
+  color: var(--brand);
 }
 
 .bulk-actions-bar__actions .btn--primary:hover {
-  background: var(--primary);
+  background: var(--brand);
   color: var(--btn-text-on-dark);
 }
 
