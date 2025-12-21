@@ -2,9 +2,14 @@ import { mockDomains, type Domain } from './mock-data';
 import { initAddDomainsDrawer } from './add-domains-drawer';
 import { formatDomainDisplay } from '@utils/idn';
 import { showDialog } from '@ui/dialog';
+import { getDefaultFilters, type ActiveFilters } from './filters-config';
+import { filterDomains as applyFiltersAndSearch } from './filters';
+import { renderFilterBar, initFilterUI } from './filters-ui';
 
 let currentDomains: Domain[] = [];
 let selectedDomains = new Set<number>();
+let activeFilters: ActiveFilters = getDefaultFilters();
+let searchQuery = '';
 
 export function initDomainsPage(): void {
   const card = document.querySelector('[data-domains-card]');
@@ -39,12 +44,12 @@ export function initDomainsPage(): void {
 
   if (searchInput) {
     searchInput.addEventListener('input', (e) => {
-      const query = (e.target as HTMLInputElement).value.toLowerCase();
-      filterDomains(query);
+      searchQuery = (e.target as HTMLInputElement).value;
+      applyFiltersAndRender();
 
       // Toggle clear button visibility
       if (tableSearch) {
-        if (query.length > 0) {
+        if (searchQuery.length > 0) {
           tableSearch.classList.add('table-search--active');
         } else {
           tableSearch.classList.remove('table-search--active');
@@ -57,7 +62,8 @@ export function initDomainsPage(): void {
   if (searchClear && searchInput && tableSearch) {
     searchClear.addEventListener('click', () => {
       searchInput.value = '';
-      filterDomains('');
+      searchQuery = '';
+      applyFiltersAndRender();
       tableSearch.classList.remove('table-search--active');
       searchInput.focus();
     });
@@ -198,6 +204,19 @@ export function initDomainsPage(): void {
         }
       }
     });
+  }
+
+  // Initialize filter bar
+  const filterBarContainer = document.querySelector('[data-filter-bar]');
+  if (filterBarContainer) {
+    renderFilters();
+    const tableControls = document.querySelector('.table-controls');
+    if (tableControls) {
+      initFilterUI(tableControls as HTMLElement, activeFilters, () => {
+        renderFilters();
+        applyFiltersAndRender();
+      });
+    }
   }
 }
 
@@ -436,19 +455,38 @@ function getExpiresText(domain: Domain): string {
   return `<div class="expires-cell">${icon}${dateText}</div>`;
 }
 
-function filterDomains(query: string): void {
-  if (!query) {
-    renderDomainsTable(currentDomains);
-    return;
-  }
+/**
+ * Render filter chips into filter bar container
+ */
+function renderFilters(): void {
+  const container = document.querySelector('[data-filter-bar]');
+  if (!container) return;
 
-  const filtered = currentDomains.filter(
-    (d) =>
-      d.domain_name.toLowerCase().includes(query) ||
-      d.project_name.toLowerCase().includes(query) ||
-      (d.project_lang && d.project_lang.toLowerCase().includes(query))
-  );
+  const filterBarHTML = renderFilterBar(activeFilters);
+  container.innerHTML = filterBarHTML;
 
+  // Re-inject icons (since we're replacing HTML)
+  container.querySelectorAll('[data-icon]').forEach((el) => {
+    if (!el.querySelector('svg')) {
+      const iconName = el.getAttribute('data-icon');
+      if (iconName) {
+        const symbolId = `i-${iconName.replace('/', '-')}`;
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('aria-hidden', 'true');
+        const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+        use.setAttribute('href', `/icons-sprite.svg#${symbolId}`);
+        svg.appendChild(use);
+        el.appendChild(svg);
+      }
+    }
+  });
+}
+
+/**
+ * Apply active filters and search query, then re-render table
+ */
+function applyFiltersAndRender(): void {
+  const filtered = applyFiltersAndSearch(currentDomains, activeFilters, searchQuery);
   renderDomainsTable(filtered);
 }
 

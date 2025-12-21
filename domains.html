@@ -52,17 +52,21 @@
         <div class="card card--panel" data-domains-card>
           <header class="card__header">
             <div class="card__actions">
-              <div class="table-search" data-table-search>
-                <span class="icon" data-icon="mono/search"></span>
-                <input
-                  type="text"
-                  class="table-search__input"
-                  placeholder="Search domains or projects..."
-                  data-search-input
-                />
-                <button class="table-search__clear" type="button" aria-label="Clear" data-search-clear>
-                  <span class="icon" data-icon="mono/close"></span>
-                </button>
+              <div class="controls-row table-controls">
+                <div class="table-search" data-table-search>
+                  <span class="icon" data-icon="mono/search"></span>
+                  <input
+                    type="text"
+                    class="table-search__input"
+                    placeholder="Search domains or projects..."
+                    data-search-input
+                  />
+                  <button class="table-search__clear" type="button" aria-label="Clear" data-search-clear>
+                    <span class="icon" data-icon="mono/close"></span>
+                  </button>
+                </div>
+                <!-- Filter chips will be injected here by JS -->
+                <div data-filter-bar></div>
               </div>
             </div>
           </header>
