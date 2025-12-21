@@ -640,6 +640,10 @@ h5 .icon[data-icon*="close"] {
   --stack-gap: var(--space-6);
 }
 
+.stack--xl {
+  --stack-gap: var(--space-5);
+}
+
 /* Inline stack (horizontal) */
 .stack-inline {
   display: inline-flex;
