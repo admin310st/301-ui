@@ -76,10 +76,19 @@ export async function withLoading<T>(
 export function initPageLoadIndicator(): void {
   // Show loading if page is still loading or interactive (not yet fully loaded)
   if (document.readyState === 'loading' || document.readyState === 'interactive') {
+    const startTime = Date.now();
     showLoading('brand');
 
     const hideOnLoad = (): void => {
-      hideLoading();
+      // Ensure loading bar is visible for at least 600ms to show animation
+      const elapsed = Date.now() - startTime;
+      const minDisplayTime = 600;
+      const delay = Math.max(0, minDisplayTime - elapsed);
+
+      setTimeout(() => {
+        hideLoading();
+      }, delay);
+
       window.removeEventListener('load', hideOnLoad);
     };
 

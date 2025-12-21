@@ -834,53 +834,51 @@ h5 .icon[data-icon*="close"] {
   transform: translateY(0);
 }
 
-/* Loading indicator bar (1px animated border) */
+/* Loading indicator bar (1px animated border with running color) */
 .loading-bar {
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
   height: 1px;
-  background: var(--brand);
+  background: linear-gradient(90deg,
+    transparent 0%,
+    transparent 30%,
+    var(--brand) 50%,
+    transparent 70%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  background-position: -100% 0;
   opacity: 0;
   pointer-events: none;
-  transform: scaleX(0);
-  transform-origin: left center;
   transition: opacity 200ms ease;
   z-index: 2; /* Above utility-bar border */
 }
 
 .loading-bar[data-loading='true'] {
   opacity: 1;
-  animation: loadingProgress 1.5s ease-in-out infinite;
+  animation: loadingProgress 1.2s ease-in-out infinite;
 }
 
 /* Color variants */
-.loading-bar[data-type='brand'],
-.loading-bar[data-type='primary'] {
-  background: var(--brand);
-}
-
 .loading-bar[data-type='cf'] {
-  background: var(--cf-orange);
+  background: linear-gradient(90deg,
+    transparent 0%,
+    transparent 30%,
+    var(--cf-orange) 50%,
+    transparent 70%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
 }
 
 @keyframes loadingProgress {
   0% {
-    transform: scaleX(0);
-    transform-origin: left center;
-  }
-  50% {
-    transform: scaleX(1);
-    transform-origin: left center;
-  }
-  51% {
-    transform: scaleX(1);
-    transform-origin: right center;
+    background-position: -100% 0;
   }
   100% {
-    transform: scaleX(0);
-    transform-origin: right center;
+    background-position: 200% 0;
   }
 }
 
