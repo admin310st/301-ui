@@ -27,6 +27,7 @@ import { initAccountPage } from '@forms/account';
 import { initAccountEdit } from '@forms/account-edit';
 import { initDomainsPage } from '@domains/domains';
 import { initDialogCloseHandlers } from '@ui/dialog';
+import { initPageLoadIndicator, showLoading, hideLoading, withLoading } from '@ui/loading-indicator';
 
 /**
  * Inject SVG sprite with icons once per page.
@@ -133,6 +134,9 @@ function bindLogoutButtons(): void {
   });
 }
 
+// Initialize page load indicator early (shows loading bar during page load)
+initPageLoadIndicator();
+
 document.addEventListener('DOMContentLoaded', async () => {
   await injectIconSprite();
   processDataIconAttributes();
@@ -174,6 +178,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   initDomainsPage();
   initDialogCloseHandlers();
 
-  // Expose showGlobalNotice for testing in Style Guide
+  // Expose utilities for testing in Style Guide and use in other modules
   (window as any).showGlobalNotice = showGlobalNotice;
+  (window as any).showLoading = showLoading;
+  (window as any).hideLoading = hideLoading;
+  (window as any).withLoading = withLoading;
 });

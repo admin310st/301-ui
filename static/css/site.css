@@ -834,6 +834,56 @@ h5 .icon[data-icon*="close"] {
   transform: translateY(0);
 }
 
+/* Loading indicator bar (1px animated border) */
+.loading-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--brand);
+  opacity: 0;
+  pointer-events: none;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: opacity 200ms ease;
+  z-index: 2; /* Above utility-bar border */
+}
+
+.loading-bar[data-loading='true'] {
+  opacity: 1;
+  animation: loadingProgress 1.5s ease-in-out infinite;
+}
+
+/* Color variants */
+.loading-bar[data-type='brand'],
+.loading-bar[data-type='primary'] {
+  background: var(--brand);
+}
+
+.loading-bar[data-type='cf'] {
+  background: var(--cf-orange);
+}
+
+@keyframes loadingProgress {
+  0% {
+    transform: scaleX(0);
+    transform-origin: left center;
+  }
+  50% {
+    transform: scaleX(1);
+    transform-origin: left center;
+  }
+  51% {
+    transform: scaleX(1);
+    transform-origin: right center;
+  }
+  100% {
+    transform: scaleX(0);
+    transform-origin: right center;
+  }
+}
+
 .utility-bar__inner {
   display: flex;
   align-items: center;
