@@ -2,7 +2,7 @@ import { mockDomains, type Domain } from './mock-data';
 import { initAddDomainsDrawer } from './add-domains-drawer';
 import { formatDomainDisplay } from '@utils/idn';
 import { showDialog } from '@ui/dialog';
-import { getDefaultFilters, type ActiveFilters } from './filters-config';
+import { getDefaultFilters, hasActiveFilters, type ActiveFilters } from './filters-config';
 import { filterDomains as applyFiltersAndSearch } from './filters';
 import { renderFilterBar, initFilterUI } from './filters-ui';
 
@@ -206,6 +206,18 @@ export function initDomainsPage(): void {
     });
   }
 
+  // Reset filters button state updater
+  const resetBtn = document.querySelector('[data-reset-filters]');
+  const updateResetButton = () => {
+    if (resetBtn) {
+      if (hasActiveFilters(activeFilters)) {
+        resetBtn.classList.add('is-active');
+      } else {
+        resetBtn.classList.remove('is-active');
+      }
+    }
+  };
+
   // Initialize filter bar
   const filterBarContainer = document.querySelector('[data-filter-bar]');
   if (filterBarContainer) {
@@ -213,17 +225,21 @@ export function initDomainsPage(): void {
     initFilterUI(filterBarContainer as HTMLElement, activeFilters, () => {
       renderFilters();
       applyFiltersAndRender();
+      updateResetButton();
     });
   }
 
-  // Reset filters button
-  const resetBtn = document.querySelector('[data-reset-filters]');
+  // Reset filters button handler
   if (resetBtn) {
     resetBtn.addEventListener('click', () => {
       activeFilters = getDefaultFilters();
       renderFilters();
       applyFiltersAndRender();
+      updateResetButton();
     });
+
+    // Initial state
+    updateResetButton();
   }
 }
 

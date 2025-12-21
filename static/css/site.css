@@ -3627,3 +3627,26 @@ body.layout-dashboard .burger-button {
     justify-content: center;
   }
 }
+
+/* Search in dedicated row (domains page) */
+.card__actions .controls-row:not(.table-controls) .table-search {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: none;
+}
+
+/* Reset button in search row */
+.card__actions .controls-row .btn-icon[data-reset-filters] {
+  flex: 0 0 auto;
+  margin-left: var(--space-2);
+}
+
+/* Active state for reset button */
+.btn-icon[data-reset-filters].is-active {
+  color: var(--brand);
+  background: color-mix(in srgb, var(--brand) 10%, transparent);
+}
+
+.btn-icon[data-reset-filters].is-active:hover {
+  background: color-mix(in srgb, var(--brand) 15%, transparent);
+}
