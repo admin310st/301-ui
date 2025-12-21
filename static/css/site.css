@@ -1368,6 +1368,7 @@ html[data-theme="light"] .btn--ghost:hover {
 
 .table-controls {
   display: flex;
+  flex-direction: row;
   align-items: center;
   flex-wrap: wrap;
   gap: var(--inline-gap);
@@ -3649,6 +3650,7 @@ body.layout-dashboard .burger-button {
 /* Search row needs flex container (domains page) */
 .card__actions .controls-row:not(.table-controls) {
   display: flex;
+  flex-direction: row;
   align-items: center;
   gap: var(--inline-gap);
 }
