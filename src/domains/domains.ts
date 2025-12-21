@@ -306,7 +306,7 @@ function renderDomainsTable(domains: Domain[]): void {
                     <span>${domain.monitoring_enabled ? 'Disable' : 'Enable'} monitoring</span>
                   </button>
                   <button class="dropdown__item" type="button" data-action="apply-security-preset" data-domain-id="${domain.id}">
-                    <span class="icon" data-icon="mono/shield-account"></span>
+                    <span class="icon" data-icon="mono/security"></span>
                     <span>Apply security preset</span>
                   </button>
                   <hr class="dropdown__divider" />
@@ -391,11 +391,11 @@ function getHealthIcons(domain: Domain): string {
 
   // Abuse icon
   if (domain.abuse_status === 'clean') {
-    icons.push('<span class="icon text-ok" data-icon="mono/shield-account" title="Clean"></span>');
+    icons.push('<span class="icon text-ok" data-icon="mono/security" title="Clean"></span>');
   } else if (domain.abuse_status === 'warning') {
-    icons.push('<span class="icon text-warning" data-icon="mono/shield-account" title="Warning"></span>');
+    icons.push('<span class="icon text-warning" data-icon="mono/security" title="Warning"></span>');
   } else {
-    icons.push('<span class="icon text-danger" data-icon="mono/shield-account" title="Blocked"></span>');
+    icons.push('<span class="icon text-danger" data-icon="mono/security" title="Blocked"></span>');
   }
 
   return `<div class="health-icons">${icons.join(' ')}</div>`;
