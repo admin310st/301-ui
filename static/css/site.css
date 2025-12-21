@@ -1371,8 +1371,8 @@ html[data-theme="light"] .btn--ghost:hover {
   flex-direction: row;
   align-items: center;
   flex-wrap: wrap;
-  gap: var(--inline-gap);
-  /* No justify-content - using gap for consistent spacing on uneven rows */
+  gap: var(--space-2);
+  /* Smaller gap to keep filters compact and prevent orphan items */
 }
 
 .table-controls .table-search {
