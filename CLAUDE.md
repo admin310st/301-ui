@@ -7,7 +7,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **301-ui** is a modular authentication and UI frontend for the 301.st project, deployed as a Cloudflare Worker at `app.301.st`. It provides:
 
 - Authentication pages (login, registration, password reset)
-- UI Style Guide (accessible at `/ui-style-guide`)
 - Integration with backend API at `https://api.301.st/auth`
 - Cloudflare account connection wizard
 - Foundation for future user cabinet, domain management, and TDS/streams functionality
@@ -236,17 +235,19 @@ src/
 
 ## UI Style Guide - Critical Rules
 
-**The UI Style Guide (`docs/StyleGuide.md` and `/ui-style-guide` page) is the single source of truth for all design decisions.**
+**The UI Style Guide (`docs/StyleGuide.md`) is the single source of truth for all design decisions.**
+
+Note: `static/ui-style-guide.html` exists as a legacy demo page with exotic layout examples, but is **not maintained** and should not be used as a reference.
 
 ### Repository Ecology Rule
-> Whenever design system updates are introduced, ALL UI components and ALL demo pages must be refactored to follow the new rules. No page in the system is allowed to use outdated paddings, heights, or markup. StyleGuide + demo pages = single source of truth.
+> Whenever design system updates are introduced, ALL UI components must be refactored to follow the new rules. No page in the system is allowed to use outdated paddings, heights, or markup. `docs/StyleGuide.md` = single source of truth.
 
 ### Component Development Process
 1. Any new UI state/variant must FIRST be described in `docs/StyleGuide.md`
-2. Add example to `/ui-style-guide` demo page (in `static/ui-style-guide.html`)
-3. Only after documentation + demo, use the pattern in real pages
+2. Implement in CSS (`static/css/site.css`)
+3. Use the pattern in real pages
 4. **Never** create alternative versions of existing components with different markup
-5. All changes to UI require updating: (a) styles, (b) demo, (c) documentation
+5. All changes to UI require updating: (a) styles, (b) documentation
 
 ### Design System Constraints
 - **No Tailwind** - Use vanilla CSS with custom properties (CSS variables)
@@ -298,14 +299,14 @@ This repository includes a specialized UI code review agent to enforce design sy
 
 **What the agent does:**
 1. Scan recent diffs or traverse `src/` and `static/`
-2. Compare against canonical sources (`docs/StyleGuide.md`, `static/ui-style-guide.html`)
+2. Compare against canonical source (`docs/StyleGuide.md`)
 3. Report violations in three severity levels: Critical → Major → Minor
 4. Provide ready-to-apply patches for each issue
 5. Generate a GitHub Issue draft with proper labels and tasks
 
 **Report structure:**
 - Critical issues (breaking design system rules)
-- Major issues (inconsistencies with demo pages)
+- Major issues (inconsistencies with existing pages)
 - Minor issues (optimization opportunities)
 - Praise (when everything is correct)
 - GitHub Issue draft template (in English, ready to copy)
@@ -313,7 +314,7 @@ This repository includes a specialized UI code review agent to enforce design sy
 **When to use this agent:**
 - After implementing new UI components
 - Before committing CSS/HTML changes
-- When updating demo pages or style guide
+- When updating style guide (`docs/StyleGuide.md`)
 - As part of PR review process
 - When you suspect design system violations
 
@@ -536,8 +537,7 @@ const current = getTheme(); // 'dark' | 'light'
 1. **Start dev server**: `npm run dev`
 2. **Access**: http://localhost:5173
 3. **Test auth flows**: Use forms at `/#login`, `/#register`, `/#reset`
-4. **View style guide**: Navigate to `/ui-style-guide`
-5. **Check icons**: Navigate to `/icons-preview.html`
+4. **Check icons**: Navigate to `/icons-preview.html`
 
 **Note:** Backend API must be running at `https://api.301.st/auth` or you'll see CORS/network errors.
 
