@@ -67,7 +67,9 @@ function renderFilterChip(config: FilterConfig, activeValue: string | string[] |
 function renderFilterOptions(config: FilterConfig, activeValue: string | string[] | undefined): string {
   if (config.type === 'multi-select') {
     const activeArray = Array.isArray(activeValue) ? activeValue : [];
-    return config.options
+    const hasSelections = activeArray.length > 0;
+
+    const items = config.options
       .map((opt) => {
         const checked = activeArray.includes(opt.value);
         const icon = checked ? 'mono/check' : '';
@@ -83,6 +85,22 @@ function renderFilterOptions(config: FilterConfig, activeValue: string | string[
         `;
       })
       .join('');
+
+    // Add clear button at bottom for multi-select
+    const clearButton = `
+      <div class="dropdown__divider"></div>
+      <button
+        class="dropdown__item dropdown__item--action"
+        type="button"
+        data-filter-clear
+        ${!hasSelections ? 'disabled' : ''}
+      >
+        <span class="icon" data-icon="mono/close"></span>
+        <span>Clear selection</span>
+      </button>
+    `;
+
+    return items + clearButton;
   } else {
     const activeString = typeof activeValue === 'string' ? activeValue : 'all';
     return config.options
@@ -154,6 +172,23 @@ export function initFilterUI(
       if (trigger) trigger.setAttribute('aria-expanded', 'false');
     }
 
+    onChange(activeFilters);
+  });
+
+  // Handle clear button clicks (multi-select only)
+  container.addEventListener('click', (e) => {
+    const clearBtn = (e.target as HTMLElement).closest('[data-filter-clear]');
+    if (!clearBtn) return;
+
+    const dropdown = clearBtn.closest('[data-dropdown]');
+    if (!dropdown) return;
+
+    const filterId = dropdown.getAttribute('data-filter-id') as keyof ActiveFilters;
+    const config = DOMAIN_FILTERS.find((f) => f.id === filterId);
+    if (!config || config.type !== 'multi-select') return;
+
+    // Clear all selections for this multi-select filter
+    activeFilters[filterId] = [] as any;
     onChange(activeFilters);
   });
 

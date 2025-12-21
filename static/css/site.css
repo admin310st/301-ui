@@ -2191,6 +2191,22 @@ html[data-theme="light"] .btn--social-github {
   background: color-mix(in srgb, var(--danger) 12%, transparent);
 }
 
+.dropdown__item--action {
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+}
+
+.dropdown__item--action:hover:not(:disabled) {
+  color: var(--text-main);
+  background: var(--hover);
+}
+
+.dropdown__item:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 .dropdown--open .dropdown__menu {
   display: block;
 }
