@@ -1279,9 +1279,9 @@ html[data-theme="light"] .btn--ghost:hover {
 
 /* Icon sizing unified above */
 .btn-chip svg {
-  width: 1.25em;
-  height: 1.25em;
-  flex: 0 0 1.25em;
+  width: 0.875em;
+  height: 0.875em;
+  flex: 0 0 0.875em;
 }
 
 .btn-chip__icon,
