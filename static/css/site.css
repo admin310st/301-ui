@@ -1367,49 +1367,91 @@ html[data-theme="light"] .btn--ghost:hover {
 }
 
 .table-controls {
-  display: flex;
-  flex-direction: row;
+  display: grid;
+  grid-template-columns: repeat(6, auto);
   align-items: center;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-  /* Smaller gap to keep filters compact and prevent orphan items */
+  column-gap: var(--space-1);
+  row-gap: var(--space-2);
+  /* Grid layout for predictable dropdown positioning */
+  /* Smaller column gap to fit filters, normal row gap for breathing room */
 }
 
-.table-controls .table-search {
-  flex: 1 1 0;      /* Stretches but not greedy - keeps chips inline on mobile */
-  min-width: 14rem; /* ~224px - leaves room for 2-3 chips on modern phones */
-}
-
-.table-controls .btn,
-.table-controls .btn-chip {
-  flex: 0 0 auto;
-}
-
-/* Desktop: keep all controls in one line */
-@media (min-width: 1024px) {
+/* Desktop & Tablet landscape: all 6 filters in one row */
+@media (min-width: 768px) {
   .table-controls {
-    flex-wrap: nowrap;
+    grid-template-columns: repeat(6, auto);
+  }
+
+  /* First 2 filters: align dropdown left */
+  .table-controls .dropdown:nth-child(1) .dropdown__menu,
+  .table-controls .dropdown:nth-child(2) .dropdown__menu {
+    left: 0;
+    right: auto;
+  }
+
+  /* Last 2 filters: align dropdown right */
+  .table-controls .dropdown:nth-child(5) .dropdown__menu,
+  .table-controls .dropdown:nth-child(6) .dropdown__menu {
+    right: 0;
+    left: auto;
+  }
+
+  /* Middle filters (3, 4): align left to prevent overflow */
+  .table-controls .dropdown:nth-child(3) .dropdown__menu,
+  .table-controls .dropdown:nth-child(4) .dropdown__menu {
+    left: 0;
+    right: auto;
   }
 }
 
-/* Mobile: search first, then filters/actions wrap below */
-@media (max-width: 640px) {
-  .table-controls .table-search {
-    flex: 1 1 100%;     /* Full width on small screens */
-    min-width: 0;       /* Allow shrinking if needed */
-    order: -1;          /* Search always first */
+/* Tablet portrait: 2 rows × 3 filters */
+@media (max-width: 767px) and (min-width: 481px) {
+  .table-controls {
+    grid-template-columns: repeat(3, auto);
   }
 
-  .table-controls .btn-chip--dropdown {
-    order: 0;           /* Filters second */
+  /* First column in each row: align dropdown left */
+  .table-controls .dropdown:nth-child(3n+1) .dropdown__menu {
+    left: 0;
+    right: auto;
   }
 
-  .table-controls .btn-chip--cf {
-    order: 1;           /* Provider actions third */
+  /* Last column in each row: align dropdown right */
+  .table-controls .dropdown:nth-child(3n) .dropdown__menu {
+    right: 0;
+    left: auto;
   }
 
-  .table-controls .btn--primary {
-    order: 2;           /* Primary action last */
+  /* Middle column: center with max width constraint */
+  .table-controls .dropdown:nth-child(3n+2) .dropdown__menu {
+    left: 50%;
+    transform: translateX(-50%);
+    min-width: min(220px, calc(100vw - 2rem));
+  }
+}
+
+/* Mobile phones: 2 columns × 3 rows (but hidden by default, toggle to show) */
+@media (max-width: 480px) {
+  .table-controls {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* First column: align left */
+  .table-controls .dropdown:nth-child(odd) .dropdown__menu {
+    left: 0;
+    right: auto;
+  }
+
+  /* Second column: align right */
+  .table-controls .dropdown:nth-child(even) .dropdown__menu {
+    right: 0;
+    left: auto;
+  }
+
+  /* Reset middle column centering */
+  .table-controls .dropdown .dropdown__menu {
+    transform: none;
+    min-width: min(220px, calc(100vw - 2rem));
   }
 }
 
@@ -3680,39 +3722,16 @@ body.layout-dashboard .burger-button {
   background: color-mix(in srgb, var(--brand) 15%, transparent);
 }
 
-/* Filter dropdown positioning to prevent mobile overflow */
-/* First 2 filters align left, last 2 align right */
-.table-controls .dropdown:nth-child(1) .dropdown__menu,
-.table-controls .dropdown:nth-child(2) .dropdown__menu {
-  left: 0;
-  right: auto;
-}
-
-.table-controls .dropdown:nth-last-child(1) .dropdown__menu,
-.table-controls .dropdown:nth-last-child(2) .dropdown__menu {
-  right: 0;
-  left: auto;
-}
-
-/* Middle filters: auto-adjust based on screen space */
-@media (max-width: 640px) {
-  .table-controls .dropdown .dropdown__menu {
-    left: 0;
-    right: auto;
-    min-width: min(220px, calc(100vw - 2rem));
-  }
-}
-
 /* Collapsible filters for very small phones only */
 /* Toggle button: hidden by default, visible only on tiny screens */
 [data-toggle-filters] {
   display: none;
 }
 
-/* Tablets and larger: filters wrap into 2 rows naturally via flex-wrap */
+/* Tablets and larger: filters wrap into 2 rows naturally via grid */
 /* No toggle needed, filters visible and usable */
 
-/* Only hide filters on very small phones where 2 rows still too much */
+/* Only hide filters on very small phones where even 2 columns too cramped */
 @media (max-width: 480px) {
   [data-toggle-filters] {
     display: inline-flex;
@@ -3739,7 +3758,7 @@ body.layout-dashboard .burger-button {
 
   /* Show filter bar when expanded */
   .table-controls[data-filter-bar].is-expanded {
-    display: flex !important;
+    display: grid !important;
   }
 
   /* Active state for toggle button when filters visible */
