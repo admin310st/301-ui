@@ -3505,17 +3505,16 @@ body.layout-dashboard .burger-button {
   display: flex;
   align-items: center;
   gap: var(--space-2);
+}
+
+/* Selection counter chip */
+.bulk-actions-bar__info .btn-chip {
   font-size: var(--fs-md);
-  color: var(--text);
+  font-weight: var(--fw-medium);
 }
 
-.bulk-actions-bar__info .icon {
+.bulk-actions-bar__info .btn-chip .icon {
   color: var(--brand);
-  flex-shrink: 0;
-}
-
-.bulk-actions-bar__info strong {
-  flex-shrink: 0;
 }
 
 /* Cancel button in info section - canonical ghost styling */

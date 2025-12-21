@@ -890,8 +890,10 @@ Floating action bar для массовых операций над выбран
   <div class="container">
     <div class="bulk-actions-bar__content">
       <div class="bulk-actions-bar__info">
-        <span class="icon" data-icon="mono/check-circle"></span>
-        <strong data-selected-count>5</strong>
+        <div class="btn-chip btn-chip--neutral">
+          <span class="icon" data-icon="mono/check-circle"></span>
+          <strong data-selected-count>5</strong>
+        </div>
         <button class="btn btn--ghost btn--sm" type="button" data-bulk-cancel>Cancel</button>
       </div>
       <div class="bulk-actions-bar__actions">
