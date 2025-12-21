@@ -1286,9 +1286,9 @@ html[data-theme="light"] .btn--ghost:hover {
 
 .btn-chip__icon,
 .btn-chip__chevron {
-  width: 1em;
-  height: 1em;
-  flex: 0 0 1em;
+  width: 0.875em;
+  height: 0.875em;
+  flex: 0 0 0.875em;
   display: inline-flex;
   align-items: center;
   justify-content: center;
