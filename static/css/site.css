@@ -3726,13 +3726,13 @@ body.layout-dashboard .burger-button {
   }
 
   /* Hide filter bar by default on mobile */
-  [data-filter-bar] {
-    display: none;
+  .table-controls[data-filter-bar] {
+    display: none !important;
   }
 
   /* Show filter bar when expanded */
-  [data-filter-bar].is-expanded {
-    display: flex;
+  .table-controls[data-filter-bar].is-expanded {
+    display: flex !important;
   }
 
   /* Active state for toggle button when filters visible */
