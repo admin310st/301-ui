@@ -8,7 +8,7 @@
 - интеграцию с backend-API (см. `docs/301-wiki/` — локальная документация в виде git submodule);
 - развёртывание всего этого как **Cloudflare Worker** под `app.301.st`.
 
-Текущая кодовая база — это **"Layer 0-1 / Stage 2"** из дорожной карты, описанной в `docs/ui-roadmap.ru.md`: фундамент для будущего кабинета, работы с доменами, потоками (TDS), сайтами, редиректами и админ-инструментами.
+Текущая кодовая база — это **"Layer 0-2"** из дорожной карты, описанной в `docs/ui-roadmap.ru.md`: фундамент (аутентификация, интеграции, UI Style Guide) + начало работы с доменами (таблица, фильтры, bulk actions, инспектор).
 
 > **📖 API Документация (git submodule)**
 > Полная спецификация API находится в `docs/301-wiki/` и подключена как git submodule.
@@ -250,6 +250,80 @@ Cloudflare Workers serves `public/` as the origin root.
 
 ---
 
+## Текущее покрытие по доменам (Layer 2)
+
+Репозиторий начал реализацию управления доменами с UI-первым подходом (mockup data → real API интеграция).
+
+### Реализовано (UI + mock data)
+
+- **Domains Table** (`/domains.html`)
+  - Таблица доменов с колонками: Domain, Status, Health, Expires, Actions, Checkbox
+  - Mock data с реалистичными статусами, датами, health indicators
+  - Pagination (25 доменов на страницу)
+  - Responsive layout с горизонтальным скроллом
+  - Код:
+    - `src/domains/domains.ts` — table rendering, pagination logic
+    - `src/domains/mock-data.ts` — realistic domain fixtures
+
+- **Health Indicators**
+  - Sidebar badge с количеством доменов
+  - Health status indicator (danger/warning/success) в навигации
+  - Visual indicators в таблице: SSL status, DNS errors, abuse warnings
+  - Цветовая кодировка: красный (critical), жёлтый (warnings), зелёный (ok)
+  - Код:
+    - `src/ui/sidebar-nav.ts` — `updateDomainsBadge()`, `updateDomainsHealthIndicator()`
+    - `src/domains/domains.ts` — `calculateDomainsHealth()`
+
+- **Filters & Search**
+  - Multi-select Health filter (SSL issues, DNS errors, Abuse warnings, All OK)
+  - Single-select filters: Status, Provider, Project, Role, Expiry
+  - Search bar с advanced syntax: `status:active`, `provider:cloudflare`, `.ru`
+  - Filter chips с dropdown меnus и count badges
+  - Clear selection для multi-select фильтров
+  - Код:
+    - `src/domains/filters-config.ts` — filter definitions
+    - `src/domains/filters.ts` — filtering logic
+    - `src/domains/filters-ui.ts` — filter chips UI
+
+- **Bulk Actions Bar** (новый паттерн в UI Style Guide)
+  - Floating action bar с glassmorphism эффектом
+  - Selection tracking: checkbox + select all + indeterminate states
+  - Action buttons: Export, Change Status, Move to Project, Toggle Monitoring, Sync Registrar
+  - Danger button: Delete (с confirmation dialog)
+  - Cancel button (нейтральный ghost style)
+  - Outline button style с brand color + fill on hover
+  - Theme-aware shadow (canonical --shadow-lg opacity)
+  - Код:
+    - `src/domains/bulk-actions.ts` — selection tracking, dialog integration
+    - CSS: `.bulk-actions-bar` в `static/css/site.css`
+    - Документация: `docs/StyleGuide.md` → "Bulk Actions Bar (Buttons on Glass)"
+
+- **Domain Inspector Drawer**
+  - Right-side drawer для детального просмотра домена
+  - Role indicator с иконками (donor/acceptor/redirect/parking)
+  - Domain info: registrar, project, dates, tags
+  - Health status с детальными проверками
+  - Action buttons: Edit, Delete, Copy domain
+  - Placeholder для будущих фич: subdomain creation, DNS records, analytics
+  - Код:
+    - `src/domains/domains.ts` — drawer rendering and interactions
+
+### TODO (Layer 2 completion)
+
+- [ ] Implement bulk actions logic (API integration: delete, export CSV/JSON, bulk edit)
+- [ ] Move domains badge + health indicator to global API/state layer (не из domains.ts)
+- [ ] Implement subdomain creation form in domain inspector drawer
+- [ ] Real API integration for domains CRUD (`/domains` endpoints)
+- [ ] Sync domains from Cloudflare/registrar integrations
+- [ ] Domain health checks (SSL validation, DNS verification, abuse scanning)
+- [ ] Bulk operations: change status, move to project, apply tags
+
+### Roadmap
+
+Полная дорожная карта по доменам и другим модулям: **`docs/ui-roadmap.ru.md`**
+
+---
+
 ## Известные расхождения с API (backlog для доработки)
 
 По результатам сверки с `docs/301-wiki/API_Auth.md`:
@@ -402,5 +476,5 @@ For non-Russian readers:
 > - UI Roadmap: `docs/ui-roadmap.ru.md`
 > - Style Guide: `docs/StyleGuide.md`
 >
-> The repo is currently at **Layer 0-1 / Stage 2** of the roadmap: foundation for the future user cabinet, domains, TDS/streams, sites and admin tools.
+> The repo is currently at **Layer 0-2** of the roadmap: foundation (auth, integrations, UI Style Guide) + domains management UI with filters, bulk actions, and inspector drawer.
 

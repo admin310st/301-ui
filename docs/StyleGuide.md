@@ -840,13 +840,13 @@ Floating action bar для массовых операций над выбран
 .bulk-actions-bar__actions .btn--ghost,
 .bulk-actions-bar__actions .btn--primary {
   background: transparent;
-  border: 1px solid var(--primary);
-  color: var(--primary);
+  border: 1px solid var(--brand);
+  color: var(--brand);
 }
 
 .bulk-actions-bar__actions .btn--ghost:hover,
 .bulk-actions-bar__actions .btn--primary:hover {
-  background: var(--primary);
+  background: var(--brand);
   color: var(--btn-text-on-dark);  /* белый в обеих темах */
 }
 
@@ -876,7 +876,7 @@ Floating action bar для массовых операций над выбран
 
 **Ключевые правила:**
 
-1. **Action buttons** (primary/ghost) заливаются синим (`var(--primary)`) при hover
+1. **Action buttons** (primary/ghost) заливаются брендовым цветом (`var(--brand)`) при hover
 2. **Danger button** заливается красным (`var(--danger)`) при hover
 3. **Cancel** использует канонический ghost-стиль (нейтральный, без цветной заливки)
 4. **Текст на цветном фоне** всегда `var(--btn-text-on-dark)` (белый в обеих темах)
