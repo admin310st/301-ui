@@ -428,7 +428,7 @@ Cmd+K     → Quick search in drawer
   - [ ] Enable/disable monitoring
   - [ ] Mark as test/retired
   - [ ] Bulk delete (with confirmation)
-- [ ] Добавить progress bar для длительных операций
+- [x] ~~Добавить progress bar для длительных операций~~ → **Реализовано** в `src/ui/loading-indicator.ts` (shimmer bar с CF-оранжевым цветом). Использовать `window.withLoading(promise, 'cf')` для операций с Cloudflare
 - [ ] Показывать результаты операций (success/error summary)
 - [ ] Сбрасывать selection после выполнения операции
 
@@ -625,7 +625,7 @@ Cmd+K     → Quick search in drawer
   - Заменить mockDomains на API calls
   - Использовать адаптер для конвертации данных
   - Добавить error handling
-  - Добавить loading states
+  - Добавить loading states (UI: использовать `withLoading(promise, 'cf')` из `src/ui/loading-indicator.ts`)
   - Реализовать retry logic
 - [ ] Обновить `src/domains/mock-data.ts`:
   - Экспортировать только `Domain` interface
