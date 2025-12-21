@@ -74,14 +74,16 @@ export async function withLoading<T>(
  * Shows brand-colored loader, hides after page is fully loaded
  */
 export function initPageLoadIndicator(): void {
-  if (document.readyState === 'loading') {
+  // Show loading if page is still loading or interactive (not yet fully loaded)
+  if (document.readyState === 'loading' || document.readyState === 'interactive') {
     showLoading('brand');
 
     const hideOnLoad = (): void => {
       hideLoading();
-      document.removeEventListener('DOMContentLoaded', hideOnLoad);
+      window.removeEventListener('load', hideOnLoad);
     };
 
-    document.addEventListener('DOMContentLoaded', hideOnLoad);
+    // Hide when page is fully loaded (all resources including images/CSS)
+    window.addEventListener('load', hideOnLoad);
   }
 }
