@@ -8,23 +8,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- **Domains management page** (2025-12-19)
+- **Domains management page** (2025-12-19 - 2025-12-22)
   - Full-featured domains table with 6 columns: Select, Domain, Status, Health, Expires, Actions
   - Domain inspector drawer (slide-in panel) with overview section
   - "Add domains" modal for bulk domain input
   - Dropdown action menus for individual domain operations:
     - Manage redirects, DNS settings, Re-check health, Toggle monitoring, Delete
-  - Search functionality (filter by domain name or project)
-  - Select all / bulk selection (ready for bulk actions)
+  - Search bar with advanced syntax support: `status:active`, `provider:cloudflare`, `.ru`
+  - **Filter chips UI** with dropdown menus and selection tracking:
+    - Multi-select Health filter (SSL issues, DNS errors, Abuse warnings, All OK)
+    - Single-select filters: Status, Provider, Project, Role, Expiry
+    - Clear selection for multi-select filters
+    - Count badges showing selected items
+    - Filter state management and persistence
+  - **Bulk actions bar** with glassmorphism effect (new UI Style Guide pattern):
+    - Floating action bar at bottom with semi-transparent background + backdrop blur
+    - Selection tracking: checkbox + select all + indeterminate states
+    - Action buttons: Export, Change Status, Move to Project, Toggle Monitoring, Sync Registrar
+    - Danger action: Delete with confirmation dialog
+    - Cancel button (neutral ghost style)
+    - Outline button style with brand color fill on hover
+    - Theme-aware upward shadow (canonical --shadow-lg opacity: 0.25 light, 0.65 dark)
+    - Module: `src/domains/bulk-actions.ts`
+  - **Health indicators in sidebar navigation**:
+    - Domains badge showing total count (updates from mock data)
+    - Health status indicator (danger/warning/success) based on blocked, expired, SSL issues
+    - Visual feedback: red dot (critical issues), yellow dot (warnings), green dot (all ok)
+  - Select all / bulk selection with indeterminate state support
   - Mock data generation (35 domains with realistic distribution)
   - Status badges (active/expired/expiring/blocked/pending) with correct design system classes
   - Health icons (SSL + Abuse combined in one column)
   - Expires column with badge-colored dates (danger for expired, warning for expiring soon)
   - Empty/loading/error states
-  - Pagination footer (ready for implementation)
+  - Pagination footer (25 domains per page)
   - Mobile-responsive drawer with overlay
   - Routing integration (`/domains.html`)
   - Path alias `@domains` for TypeScript imports
+  - Modules: `src/domains/domains.ts`, `src/domains/filters.ts`, `src/domains/filters-ui.ts`, `src/domains/filters-config.ts`, `src/domains/bulk-actions.ts`, `src/domains/mock-data.ts`
 - **Integrations API implementation** (2025-12-17)
   - Full CRUD for integration keys management (`src/api/integrations.ts`)
   - TypeScript types for all integrations endpoints (`src/api/types.ts`)
@@ -130,6 +150,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Slides out as separate overlay layer without affecting header height
   - Header becomes narrower when utility-bar collapses
   - Added 60px margin compensation for content below header
+
+### Documentation
+- **StyleGuide.md updates** (2025-12-22)
+  - Added "Bulk Actions Bar (Buttons on Glass)" pattern with comprehensive documentation
+  - Glassmorphism tokens: semi-transparent background, backdrop-filter, border
+  - Button styles: outline with brand color fill on hover, danger variant, cancel ghost style
+  - Theme-aware shadow system with canonical --shadow-lg opacity values
+  - Usage rules and HTML examples for bulk operations UI
+- **README.md updates** (2025-12-22)
+  - Updated project status to "Layer 0-2" (foundation + domains management)
+  - Added comprehensive "Текущее покрытие по доменам (Layer 2)" section
+  - Documented all implemented features: table, filters, bulk actions, health indicators
+  - Listed TODOs for Layer 2 completion: API integration, global state, subdomain creation
+  - Updated EN summary to reflect current implementation state
+  - All sources of truth clearly referenced: docs/301-wiki/, docs/StyleGuide.md, docs/ui-roadmap.ru.md
 
 ## [0.2.0] - 2025-12-12
 
