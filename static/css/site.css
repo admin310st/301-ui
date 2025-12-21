@@ -3628,7 +3628,13 @@ body.layout-dashboard .burger-button {
   }
 }
 
-/* Search in dedicated row (domains page) */
+/* Search row needs flex container (domains page) */
+.card__actions .controls-row:not(.table-controls) {
+  display: flex;
+  align-items: center;
+  gap: var(--inline-gap);
+}
+
 .card__actions .controls-row:not(.table-controls) .table-search {
   flex: 1 1 0;
   min-width: 0;

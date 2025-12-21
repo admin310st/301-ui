@@ -7,20 +7,20 @@ import type { FilterConfig, ActiveFilters } from './filters-config';
 import { DOMAIN_FILTERS, hasActiveFilters, getDefaultFilters } from './filters-config';
 
 /**
- * Get active label for filter chip
+ * Get tooltip for filter chip (shows selected values)
  */
-function getActiveLabel(config: FilterConfig, activeValue: string | string[] | undefined): string {
+function getFilterTooltip(config: FilterConfig, activeValue: string | string[] | undefined): string {
   if (config.type === 'multi-select') {
     const activeArray = Array.isArray(activeValue) ? activeValue : [];
-    if (activeArray.length === 0) return config.label;
-    if (activeArray.length === 1) {
-      const option = config.options.find((o) => o.value === activeArray[0]);
-      return `${config.label}: ${option?.label || activeArray[0]}`;
-    }
-    return `${config.label} (${activeArray.length})`;
+    if (activeArray.length === 0) return '';
+    const labels = activeArray.map((val) => {
+      const option = config.options.find((o) => o.value === val);
+      return option?.label || val;
+    });
+    return `${config.label}: ${labels.join(', ')}`;
   } else {
     const value = typeof activeValue === 'string' ? activeValue : 'all';
-    if (value === 'all' || value === 'any') return config.label;
+    if (value === 'all' || value === 'any') return '';
     const option = config.options.find((o) => o.value === value);
     return `${config.label}: ${option?.label || value}`;
   }
@@ -30,10 +30,12 @@ function getActiveLabel(config: FilterConfig, activeValue: string | string[] | u
  * Render filter chip with dropdown (matches UI Style Guide pattern)
  */
 function renderFilterChip(config: FilterConfig, activeValue: string | string[] | undefined): string {
-  const label = getActiveLabel(config, activeValue);
   const isActive = config.type === 'multi-select'
     ? Array.isArray(activeValue) && activeValue.length > 0
     : activeValue && activeValue !== 'all' && activeValue !== 'any';
+
+  const tooltip = getFilterTooltip(config, activeValue);
+  const titleAttr = tooltip ? ` title="${tooltip}"` : '';
 
   return `
     <div class="dropdown" data-dropdown data-filter-id="${config.id}">
@@ -41,10 +43,10 @@ function renderFilterChip(config: FilterConfig, activeValue: string | string[] |
         class="btn-chip btn-chip--dropdown dropdown__trigger ${isActive ? 'is-active' : ''}"
         type="button"
         aria-haspopup="menu"
-        aria-expanded="false"
+        aria-expanded="false"${titleAttr}
       >
         <span class="btn-chip__icon" data-icon="mono/filter"></span>
-        <span class="btn-chip__label">${label}</span>
+        <span class="btn-chip__label">${config.label}</span>
         <span class="btn-chip__chevron" data-icon="mono/chevron-down"></span>
       </button>
       <div class="dropdown__menu" role="menu">
