@@ -3700,13 +3700,17 @@ body.layout-dashboard .burger-button {
   }
 }
 
-/* Collapsible filters for mobile */
-/* Toggle button: hidden on desktop, visible on phones */
+/* Collapsible filters for very small phones only */
+/* Toggle button: hidden by default, visible only on tiny screens */
 [data-toggle-filters] {
   display: none;
 }
 
-@media (max-width: 640px) {
+/* Tablets and larger: filters wrap into 2 rows naturally via flex-wrap */
+/* No toggle needed, filters visible and usable */
+
+/* Only hide filters on very small phones where 2 rows still too much */
+@media (max-width: 480px) {
   [data-toggle-filters] {
     display: inline-flex;
     position: relative;
@@ -3725,7 +3729,7 @@ body.layout-dashboard .burger-button {
     border-radius: 0.625rem;
   }
 
-  /* Hide filter bar by default on phones */
+  /* Hide filter bar by default on tiny phones */
   .table-controls[data-filter-bar] {
     display: none !important;
   }
