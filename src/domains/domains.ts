@@ -5,7 +5,7 @@ import { showDialog } from '@ui/dialog';
 import { getDefaultFilters, hasActiveFilters, type ActiveFilters } from './filters-config';
 import { filterDomains as applyFiltersAndSearch } from './filters';
 import { renderFilterBar, initFilterUI } from './filters-ui';
-import { updateDomainsBadge } from '@ui/sidebar-nav';
+import { updateDomainsBadge, updateDomainsHealthIndicator } from '@ui/sidebar-nav';
 
 let currentDomains: Domain[] = [];
 let selectedDomains = new Set<number>();
@@ -348,6 +348,52 @@ function showLoadingState(): void {
   if (tableFooter) tableFooter.setAttribute('hidden', '');
 }
 
+/**
+ * Calculate health status from domains
+ * Returns: 'danger' | 'warning' | 'success' | null
+ */
+function calculateDomainsHealth(domains: Domain[]): 'danger' | 'warning' | 'success' | null {
+  if (domains.length === 0) return null;
+
+  let hasDanger = false;
+  let hasWarning = false;
+
+  for (const domain of domains) {
+    // Danger: blocked, expired, SSL invalid, abuse
+    if (
+      domain.blocked ||
+      (domain.expired_at && new Date(domain.expired_at) < new Date()) ||
+      domain.ssl_status === 'invalid' ||
+      domain.abuse_status !== 'clean'
+    ) {
+      hasDanger = true;
+      break; // Highest priority, stop checking
+    }
+
+    // Warning: expiring soon, NS not verified, no SSL
+    if (
+      (domain.expired_at && isExpiringSoon(domain.expired_at, 30)) ||
+      !domain.ns_verified ||
+      !domain.ssl_status
+    ) {
+      hasWarning = true;
+    }
+  }
+
+  if (hasDanger) return 'danger';
+  if (hasWarning) return 'warning';
+  return 'success';
+}
+
+/**
+ * Check if domain expires within N days
+ */
+function isExpiringSoon(expiresAt: string, days: number): boolean {
+  const expiryDate = new Date(expiresAt);
+  const daysUntilExpiry = Math.floor((expiryDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+  return daysUntilExpiry > 0 && daysUntilExpiry <= days;
+}
+
 function loadDomains(domains: Domain[]): void {
   currentDomains = domains;
   selectedDomains.clear();
@@ -361,6 +407,10 @@ function loadDomains(domains: Domain[]): void {
 
   // Update sidebar badge with total count
   updateDomainsBadge(domains.length);
+
+  // Update sidebar health indicator
+  const healthStatus = calculateDomainsHealth(domains);
+  updateDomainsHealthIndicator(healthStatus);
 
   if (domains.length === 0) {
     if (emptyState) emptyState.removeAttribute('hidden');

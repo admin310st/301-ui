@@ -51,10 +51,9 @@ export const DASHBOARD_NAV: NavItem[] = [
     labelKey: 'layout.nav.domains',
     icon: 'mono/dns',
     href: '/domains.html',
-    // badge updated dynamically by updateDomainsBadge()
-    notificationIcon: 'mono/circle-alert',
-    notificationColor: 'danger',
-    notificationTitle: '2do',
+    // badge and health indicator updated dynamically
+    // updateDomainsBadge() - shows domain count
+    // updateDomainsHealthIndicator() - shows health status (danger/warning/success)
     isActive: (path) => path.includes('/domains'),
   },
   {
@@ -213,6 +212,46 @@ export function updateDomainsBadge(count: number): void {
     // Remove badge if count is 0
     existingBadge.remove();
   }
+}
+
+/**
+ * Update domains health indicator
+ * @param status - 'danger' | 'warning' | 'success' | null
+ */
+export function updateDomainsHealthIndicator(
+  status: 'danger' | 'warning' | 'success' | null
+): void {
+  const domainsNav = document.querySelector('[data-nav-id="domains"]');
+  if (!domainsNav) return;
+
+  let notificationIcon = domainsNav.querySelector('.notification-icon');
+
+  if (status === null) {
+    // Remove notification icon if no issues
+    if (notificationIcon) {
+      notificationIcon.remove();
+    }
+    return;
+  }
+
+  if (!notificationIcon) {
+    // Create notification icon if it doesn't exist
+    notificationIcon = document.createElement('span');
+    notificationIcon.className = 'notification-icon';
+    notificationIcon.innerHTML = '<span class="icon" data-icon="mono/circle-alert"></span>';
+    domainsNav.appendChild(notificationIcon);
+  }
+
+  // Update color class
+  notificationIcon.className = `notification-icon notification-icon--${status}`;
+
+  // Update tooltip
+  const tooltips = {
+    danger: 'Critical issues detected',
+    warning: 'Warnings detected',
+    success: 'All domains healthy',
+  };
+  notificationIcon.setAttribute('title', tooltips[status]);
 }
 
 /**

@@ -2635,6 +2635,14 @@ body.sidebar-collapsed .sidebar .navitem .badge {
   color: var(--danger);
 }
 
+.sidebar .navitem .notification-icon--warning {
+  color: var(--warning);
+}
+
+.sidebar .navitem .notification-icon--success {
+  color: var(--success);
+}
+
 /* Show notification icon in collapsed state */
 body.sidebar-collapsed .sidebar .navitem .notification-icon {
   opacity: 1;
