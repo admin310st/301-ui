@@ -3545,15 +3545,16 @@ body.layout-dashboard .burger-button {
   color: var(--text-inverted);
 }
 
-/* Cancel button - neutral styling separate from actions */
+/* Cancel button - canonical ghost styling (neutral, works in both themes) */
 .bulk-actions-bar__actions [data-bulk-cancel] {
-  border-color: var(--border);
-  color: var(--text-muted);
+  border-color: var(--border-subtle);
+  color: var(--text-main);
 }
 
 .bulk-actions-bar__actions [data-bulk-cancel]:hover {
-  background: var(--bg-soft);
-  color: var(--text);
+  background: var(--panel);
+  border-color: var(--border-strong);
+  color: var(--text-main);
 }
 
 @media (max-width: 768px) {
