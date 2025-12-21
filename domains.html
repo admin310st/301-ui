@@ -348,6 +348,29 @@
       </div>
     </div>
 
+    <!-- Confirmation Dialog: Bulk Delete Domains (danger variant) -->
+    <div class="dialog dialog--danger" data-dialog="bulk-delete-domains" hidden>
+      <div class="dialog__overlay" data-dialog-close></div>
+      <div class="dialog__panel">
+        <header class="dialog__header">
+          <h2 class="dialog__title">Delete selected domains?</h2>
+          <button class="btn-close" type="button" data-dialog-close aria-label="Close">
+            <span class="icon" data-icon="mono/close"></span>
+          </button>
+        </header>
+        <div class="dialog__body">
+          <p>Are you sure you want to delete <strong data-bulk-delete-count>0</strong> domains? This action cannot be undone.</p>
+        </div>
+        <footer class="dialog__footer">
+          <button class="btn btn--danger" type="button" data-confirm-bulk-delete>
+            <span class="icon" data-icon="mono/delete"></span>
+            <span>Delete domains</span>
+          </button>
+          <button class="btn btn--ghost" type="button" data-dialog-close>Cancel</button>
+        </footer>
+      </div>
+    </div>
+
     <!-- Confirmation Dialog: Cloudflare Action (CF variant) -->
     <div class="dialog dialog--cf" data-dialog="cf-action" hidden>
       <div class="dialog__overlay" data-dialog-close></div>
@@ -368,6 +391,23 @@
           </button>
           <button class="btn btn--ghost" type="button" data-dialog-close>Cancel</button>
         </footer>
+      </div>
+    </div>
+
+    <!-- Bulk Actions Bar (appears when domains selected) -->
+    <div class="bulk-actions-bar" data-bulk-actions hidden>
+      <div class="container">
+        <div class="bulk-actions-bar__content">
+          <div class="bulk-actions-bar__info">
+            <span class="icon" data-icon="mono/check-circle"></span>
+            <strong data-selected-count>0</strong> domains selected
+          </div>
+          <div class="bulk-actions-bar__actions">
+            <button class="btn btn--ghost btn--sm" type="button" data-bulk-cancel>Cancel</button>
+            <button class="btn btn--ghost btn--sm" type="button" data-bulk-export>Export</button>
+            <button class="btn btn--danger btn--sm" type="button" data-bulk-delete>Delete</button>
+          </div>
+        </div>
       </div>
     </div>
 

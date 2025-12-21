@@ -6,6 +6,7 @@ import { getDefaultFilters, hasActiveFilters, type ActiveFilters } from './filte
 import { filterDomains as applyFiltersAndSearch } from './filters';
 import { renderFilterBar, initFilterUI } from './filters-ui';
 import { updateDomainsBadge, updateDomainsHealthIndicator } from '@ui/sidebar-nav';
+import { initBulkActions } from './bulk-actions';
 
 let currentDomains: Domain[] = [];
 let selectedDomains = new Set<number>();
@@ -20,6 +21,9 @@ export function initDomainsPage(): void {
 
   // Initialize Add Domains Drawer
   initAddDomainsDrawer();
+
+  // Initialize Bulk Actions Bar
+  initBulkActions();
 
   // Load mock data after short delay (simulate API)
   setTimeout(() => {
@@ -437,7 +441,7 @@ function renderDomainsTable(domains: Domain[]): void {
       const expiresText = getExpiresText(domain);
 
       return `
-        <tr>
+        <tr data-domain-id="${domain.id}">
           <td>
             <div>
               <div class="domain-cell">
