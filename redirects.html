@@ -118,6 +118,14 @@
                 <table class="table table--redirects">
                   <thead>
                     <tr>
+                      <th class="table__th-checkbox">
+                        <input
+                          type="checkbox"
+                          class="checkbox"
+                          data-select-all-redirects
+                          aria-label="Select all redirects"
+                        />
+                      </th>
                       <th>Domain</th>
                       <th>Target</th>
                       <th>Code</th>
@@ -139,6 +147,37 @@
               <span class="pagination__info">Showing <strong data-shown-count>0</strong> of <strong data-total-count>0</strong></span>
             </div>
           </footer>
+        </div>
+
+        <!-- Bulk Actions Bar -->
+        <div class="bulk-actions-bar" data-bulk-actions hidden>
+          <div class="page-shell">
+            <div class="bulk-actions-bar__content">
+              <div class="bulk-actions-bar__info">
+                <span class="btn-chip btn-chip--neutral">
+                  <span class="icon" data-icon="mono/check-circle"></span>
+                  <span data-selected-count>0</span> selected
+                </span>
+                <button class="btn btn--sm btn--ghost" type="button" data-action="clear-selection">
+                  Clear selection
+                </button>
+              </div>
+              <div class="bulk-actions-bar__actions">
+                <button class="btn btn--sm btn--ghost" type="button" data-action="bulk-enable">
+                  <span class="icon" data-icon="mono/arrow-up"></span>
+                  <span>Enable</span>
+                </button>
+                <button class="btn btn--sm btn--ghost" type="button" data-action="bulk-disable">
+                  <span class="icon" data-icon="mono/pause"></span>
+                  <span>Disable</span>
+                </button>
+                <button class="btn btn--sm btn--danger" type="button" data-action="bulk-delete">
+                  <span class="icon" data-icon="mono/delete"></span>
+                  <span>Delete</span>
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
     </main>

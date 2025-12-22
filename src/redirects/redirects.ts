@@ -10,6 +10,8 @@ import { mockDomainRedirects, groupBySite, type DomainRedirect } from './mock-da
 let currentRedirects: DomainRedirect[] = [];
 let filteredRedirects: DomainRedirect[] = [];
 let collapsedGroups = new Set<number>();  // Set of collapsed site_ids
+let selectedRedirects = new Set<number>(); // Set of selected redirect IDs
+let targetDomains = new Set<string>(); // Set of domains that are redirect targets
 
 /**
  * Initialize redirects page
@@ -34,6 +36,26 @@ export function initRedirectsPage(): void {
 }
 
 /**
+ * Calculate which domains are redirect targets
+ */
+function calculateTargetDomains(redirects: DomainRedirect[]): Set<string> {
+  const targets = new Set<string>();
+
+  for (const redirect of redirects) {
+    if (redirect.target_url) {
+      // Extract domain from target URL
+      const targetHost = redirect.target_url
+        .replace('https://', '')
+        .replace('http://', '')
+        .split('/')[0];
+      targets.add(targetHost);
+    }
+  }
+
+  return targets;
+}
+
+/**
  * Load domain redirects (mock data for now)
  */
 function loadRedirects(): void {
@@ -47,6 +69,7 @@ function loadRedirects(): void {
   setTimeout(() => {
     currentRedirects = [...mockDomainRedirects];
     filteredRedirects = [...currentRedirects];
+    targetDomains = calculateTargetDomains(currentRedirects);
 
     if (loadingState) loadingState.hidden = true;
 
@@ -74,14 +97,16 @@ function renderTable(): void {
 
     const groupHeader = `
       <tr class="table__group-header" data-group-id="${group.site_id}">
-        <td colspan="6">
+        <td colspan="7">
           <button class="table__group-toggle" type="button" data-action="toggle-group" data-group-id="${group.site_id}">
-            <span class="icon" data-icon="mono/${chevronIcon}"></span>
             <span class="table__group-title">
               <span class="table__group-flag">${group.site_flag}</span>
               <span class="table__group-name">${group.site_name}</span>
             </span>
-            <span class="table__group-count">${group.domains.length} domains</span>
+            <span class="table__group-count">
+              ${group.domains.length} domains
+              <span class="icon" data-icon="mono/${chevronIcon}"></span>
+            </span>
           </button>
         </td>
       </tr>
@@ -105,7 +130,15 @@ function renderTable(): void {
  * Render single redirect row
  */
 function renderRow(redirect: DomainRedirect): string {
-  const domainDisplay = getDomainDisplay(redirect);
+  const isTargetDomain = targetDomains.has(redirect.domain);
+  const isSelected = selectedRedirects.has(redirect.id);
+  const rowClass = [
+    redirect.domain_status === 'expired' ? 'table__row--muted' : '',
+    isTargetDomain ? 'table__row--target' : ''
+  ].filter(Boolean).join(' ');
+
+  const checkbox = getCheckboxDisplay(redirect, isTargetDomain);
+  const domainDisplay = getDomainDisplay(redirect, isTargetDomain);
   const targetDisplay = getTargetDisplay(redirect);
   const codeDisplay = getCodeDisplay(redirect);
   const stateDisplay = getStateDisplay(redirect);
@@ -113,7 +146,10 @@ function renderRow(redirect: DomainRedirect): string {
   const actions = getRowActions(redirect);
 
   return `
-    <tr data-redirect-id="${redirect.id}" class="${redirect.domain_status === 'expired' ? 'table__row--muted' : ''}">
+    <tr data-redirect-id="${redirect.id}" class="${rowClass}">
+      <td class="table__cell-checkbox">
+        ${checkbox}
+      </td>
       <td class="table__cell-domain">
         ${domainDisplay}
       </td>
@@ -139,15 +175,44 @@ function renderRow(redirect: DomainRedirect): string {
 }
 
 /**
+ * Get checkbox or target icon
+ */
+function getCheckboxDisplay(redirect: DomainRedirect, isTargetDomain: boolean): string {
+  if (isTargetDomain) {
+    return `
+      <span class="icon text-primary" data-icon="mono/staging" title="This domain is a redirect target"></span>
+    `;
+  }
+
+  const isSelected = selectedRedirects.has(redirect.id);
+  return `
+    <input
+      type="checkbox"
+      class="checkbox"
+      data-redirect-checkbox
+      data-redirect-id="${redirect.id}"
+      ${isSelected ? 'checked' : ''}
+      aria-label="Select ${redirect.domain}"
+    />
+  `;
+}
+
+/**
  * Get domain display with status
  */
-function getDomainDisplay(redirect: DomainRedirect): string {
+function getDomainDisplay(redirect: DomainRedirect, isTargetDomain: boolean): string {
   const statusBadge = redirect.domain_status !== 'active'
     ? `<span class="badge badge--xs badge--${redirect.domain_status === 'parked' ? 'neutral' : 'danger'}">${redirect.domain_status}</span>`
     : '';
 
+  // Show arrow-bottom-right icon for source domains (not targets)
+  const sourceIcon = !isTargetDomain && redirect.target_url
+    ? `<span class="icon text-muted" data-icon="mono/arrow-bottom-right"></span>`
+    : '';
+
   return `
     <div class="table-cell-stack">
+      ${sourceIcon}
       <span class="table-cell-main">${redirect.domain}</span>
       ${statusBadge}
     </div>
@@ -283,7 +348,7 @@ function setupActions(): void {
   const card = document.querySelector('[data-redirects-card]');
   if (!card) return;
 
-  // Delegate events
+  // Delegate events for action buttons
   card.addEventListener('click', (e) => {
     const target = e.target as HTMLElement;
     const button = target.closest('[data-action]') as HTMLElement;
@@ -313,6 +378,63 @@ function setupActions(): void {
         break;
       case 'retry':
         loadRedirects();
+        break;
+    }
+  });
+
+  // Delegate events for checkboxes
+  card.addEventListener('change', (e) => {
+    const target = e.target as HTMLElement;
+
+    // Individual checkbox
+    if (target.hasAttribute('data-redirect-checkbox')) {
+      const checkbox = target as HTMLInputElement;
+      const redirectId = Number(checkbox.dataset.redirectId);
+      if (checkbox.checked) {
+        selectedRedirects.add(redirectId);
+      } else {
+        selectedRedirects.delete(redirectId);
+      }
+      updateBulkActionsBar();
+    }
+
+    // Select all checkbox
+    if (target.hasAttribute('data-select-all-redirects')) {
+      const selectAll = target as HTMLInputElement;
+      handleSelectAll(selectAll.checked);
+    }
+  });
+
+  // Setup bulk actions
+  setupBulkActions();
+}
+
+/**
+ * Setup bulk actions handlers
+ */
+function setupBulkActions(): void {
+  const bulkBar = document.querySelector('[data-bulk-actions]');
+  if (!bulkBar) return;
+
+  bulkBar.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    const button = target.closest('[data-action]') as HTMLElement;
+    if (!button) return;
+
+    const action = button.dataset.action;
+
+    switch (action) {
+      case 'clear-selection':
+        handleClearSelection();
+        break;
+      case 'bulk-enable':
+        handleBulkEnable();
+        break;
+      case 'bulk-disable':
+        handleBulkDisable();
+        break;
+      case 'bulk-delete':
+        handleBulkDelete();
         break;
     }
   });
@@ -369,4 +491,89 @@ function handleDisable(redirectId: number): void {
 function handleAddRedirect(): void {
   console.log('[Redirects] Add redirect');
   alert('➕ Add new redirect\n\n(Drawer coming soon)');
+}
+
+/**
+ * Handle select all redirects
+ */
+function handleSelectAll(checked: boolean): void {
+  if (checked) {
+    // Select only redirects that are not target domains
+    for (const redirect of filteredRedirects) {
+      if (!targetDomains.has(redirect.domain)) {
+        selectedRedirects.add(redirect.id);
+      }
+    }
+  } else {
+    selectedRedirects.clear();
+  }
+  renderTable();
+  updateBulkActionsBar();
+}
+
+/**
+ * Handle clear selection
+ */
+function handleClearSelection(): void {
+  selectedRedirects.clear();
+  renderTable();
+  updateBulkActionsBar();
+}
+
+/**
+ * Update bulk actions bar visibility and count
+ */
+function updateBulkActionsBar(): void {
+  const bulkBar = document.querySelector('[data-bulk-actions]');
+  const countEl = document.querySelector('[data-selected-count]');
+
+  if (!bulkBar || !countEl) return;
+
+  const count = selectedRedirects.size;
+  countEl.textContent = String(count);
+
+  if (count > 0) {
+    bulkBar.hidden = false;
+  } else {
+    bulkBar.hidden = true;
+  }
+
+  // Update select-all checkbox state
+  const selectAllCheckbox = document.querySelector('[data-select-all-redirects]') as HTMLInputElement;
+  if (selectAllCheckbox) {
+    const selectableCount = filteredRedirects.filter(r => !targetDomains.has(r.domain)).length;
+    selectAllCheckbox.checked = count === selectableCount && count > 0;
+    selectAllCheckbox.indeterminate = count > 0 && count < selectableCount;
+  }
+}
+
+/**
+ * Handle bulk enable
+ */
+function handleBulkEnable(): void {
+  const count = selectedRedirects.size;
+  console.log('[Redirects] Bulk enable:', count, 'redirects');
+  alert(`▶️ Enable ${count} redirect(s)\n\n(API integration coming soon)`);
+}
+
+/**
+ * Handle bulk disable
+ */
+function handleBulkDisable(): void {
+  const count = selectedRedirects.size;
+  console.log('[Redirects] Bulk disable:', count, 'redirects');
+  alert(`⏸️ Disable ${count} redirect(s)\n\n(API integration coming soon)`);
+}
+
+/**
+ * Handle bulk delete
+ */
+function handleBulkDelete(): void {
+  const count = selectedRedirects.size;
+  const confirmed = confirm(`Are you sure you want to delete ${count} redirect(s)?\n\nThis action cannot be undone.`);
+
+  if (!confirmed) return;
+
+  console.log('[Redirects] Bulk delete:', count, 'redirects');
+  alert(`🗑️ Delete ${count} redirect(s)\n\n(API integration coming soon)`);
 }
