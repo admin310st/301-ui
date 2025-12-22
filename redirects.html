@@ -124,7 +124,14 @@
                       <th>State</th>
                       <th>Last Sync</th>
                       <th style="width: 120px;">Actions</th>
-                      <th class="table__th-checkbox"></th>
+                      <th class="table__th-checkbox">
+                        <input
+                          type="checkbox"
+                          class="checkbox"
+                          data-select-all-global
+                          aria-label="Select all domains"
+                        />
+                      </th>
                     </tr>
                   </thead>
                   <tbody data-redirects-tbody>
@@ -151,8 +158,8 @@
                   <span class="icon" data-icon="brand/cloudflare"></span>
                   <span>Sync to Cloudflare</span>
                 </button>
-                <button class="btn btn--sm btn--ghost" type="button" data-action="bulk-enable">
-                  <span class="icon" data-icon="mono/arrow-up"></span>
+                <button class="btn btn--sm btn--primary" type="button" data-action="bulk-enable">
+                  <span class="icon" data-icon="mono/play"></span>
                   <span>Enable</span>
                 </button>
                 <button class="btn btn--sm btn--ghost" type="button" data-action="bulk-disable">

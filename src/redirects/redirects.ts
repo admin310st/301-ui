@@ -11,7 +11,7 @@ let currentRedirects: DomainRedirect[] = [];
 let filteredRedirects: DomainRedirect[] = [];
 let collapsedGroups = new Set<number>();  // Set of collapsed site_ids
 let selectedRedirects = new Set<number>(); // Set of selected redirect IDs
-let targetDomains = new Set<string>(); // Set of domains that are redirect targets
+let primaryDomains = new Set<string>(); // Set of primary domains (main domains of sites)
 
 /**
  * Initialize redirects page
@@ -36,14 +36,16 @@ export function initRedirectsPage(): void {
 }
 
 /**
- * Calculate which domains are redirect targets
+ * Calculate which domains are primary domains (main domains of sites)
+ * Primary domain: has no redirect (target_url === null) and is a target for other domains
  */
-function calculateTargetDomains(redirects: DomainRedirect[]): Set<string> {
+function calculatePrimaryDomains(redirects: DomainRedirect[]): Set<string> {
+  const primary = new Set<string>();
   const targets = new Set<string>();
 
+  // First, collect all target domains
   for (const redirect of redirects) {
     if (redirect.target_url) {
-      // Extract domain from target URL
       const targetHost = redirect.target_url
         .replace('https://', '')
         .replace('http://', '')
@@ -52,7 +54,14 @@ function calculateTargetDomains(redirects: DomainRedirect[]): Set<string> {
     }
   }
 
-  return targets;
+  // Then, find domains that are targets but don't redirect themselves
+  for (const redirect of redirects) {
+    if (!redirect.target_url && targets.has(redirect.domain)) {
+      primary.add(redirect.domain);
+    }
+  }
+
+  return primary;
 }
 
 /**
@@ -69,7 +78,7 @@ function loadRedirects(): void {
   setTimeout(() => {
     currentRedirects = [...mockDomainRedirects];
     filteredRedirects = [...currentRedirects];
-    targetDomains = calculateTargetDomains(currentRedirects);
+    primaryDomains = calculatePrimaryDomains(currentRedirects);
 
     if (loadingState) loadingState.hidden = true;
 
@@ -96,7 +105,7 @@ function renderTable(): void {
     const chevronIcon = isCollapsed ? 'chevron-down' : 'chevron-up';
 
     // Check if all selectable domains in this group are selected
-    const selectableDomains = group.domains.filter(d => !targetDomains.has(d.domain));
+    const selectableDomains = group.domains.filter(d => !primaryDomains.has(d.domain));
     const selectedInGroup = selectableDomains.filter(d => selectedRedirects.has(d.id));
     const allSelected = selectableDomains.length > 0 && selectedInGroup.length === selectableDomains.length;
     const someSelected = selectedInGroup.length > 0 && selectedInGroup.length < selectableDomains.length;
@@ -139,6 +148,9 @@ function renderTable(): void {
     (cb as HTMLInputElement).indeterminate = true;
   });
 
+  // Update global select-all checkbox state
+  updateGlobalCheckbox();
+
   // Update counts
   const shownCount = document.querySelector('[data-shown-count]');
   const totalCount = document.querySelector('[data-total-count]');
@@ -147,18 +159,40 @@ function renderTable(): void {
 }
 
 /**
+ * Update global select-all checkbox state
+ */
+function updateGlobalCheckbox(): void {
+  const globalCheckbox = document.querySelector('[data-select-all-global]') as HTMLInputElement;
+  if (!globalCheckbox) return;
+
+  const selectableDomains = filteredRedirects.filter(r => !primaryDomains.has(r.domain));
+  const selectedCount = selectableDomains.filter(r => selectedRedirects.has(r.id)).length;
+
+  if (selectedCount === 0) {
+    globalCheckbox.checked = false;
+    globalCheckbox.indeterminate = false;
+  } else if (selectedCount === selectableDomains.length) {
+    globalCheckbox.checked = true;
+    globalCheckbox.indeterminate = false;
+  } else {
+    globalCheckbox.checked = false;
+    globalCheckbox.indeterminate = true;
+  }
+}
+
+/**
  * Render single redirect row
  */
 function renderRow(redirect: DomainRedirect): string {
-  const isTargetDomain = targetDomains.has(redirect.domain);
+  const isPrimaryDomain = primaryDomains.has(redirect.domain);
   const isSelected = selectedRedirects.has(redirect.id);
   const rowClass = [
     redirect.domain_status === 'expired' ? 'table__row--muted' : '',
-    isTargetDomain ? 'table__row--target' : ''
+    isPrimaryDomain ? 'table__row--primary' : ''
   ].filter(Boolean).join(' ');
 
-  const checkbox = getCheckboxDisplay(redirect, isTargetDomain);
-  const domainDisplay = getDomainDisplay(redirect, isTargetDomain);
+  const checkbox = getCheckboxDisplay(redirect, isPrimaryDomain);
+  const domainDisplay = getDomainDisplay(redirect, isPrimaryDomain);
   const targetDisplay = getTargetDisplay(redirect);
   const codeDisplay = getCodeDisplay(redirect);
   const stateDisplay = getStateDisplay(redirect);
@@ -195,13 +229,12 @@ function renderRow(redirect: DomainRedirect): string {
 }
 
 /**
- * Get checkbox or target icon
+ * Get checkbox display (primary domains don't have checkboxes)
  */
-function getCheckboxDisplay(redirect: DomainRedirect, isTargetDomain: boolean): string {
-  if (isTargetDomain) {
-    return `
-      <span class="icon text-primary" data-icon="mono/staging" title="This domain is a redirect target"></span>
-    `;
+function getCheckboxDisplay(redirect: DomainRedirect, isPrimaryDomain: boolean): string {
+  if (isPrimaryDomain) {
+    // Primary domains don't have checkboxes - they are main site domains
+    return '';
   }
 
   const isSelected = selectedRedirects.has(redirect.id);
@@ -220,19 +253,23 @@ function getCheckboxDisplay(redirect: DomainRedirect, isTargetDomain: boolean): 
 /**
  * Get domain display with status
  */
-function getDomainDisplay(redirect: DomainRedirect, isTargetDomain: boolean): string {
+function getDomainDisplay(redirect: DomainRedirect, isPrimaryDomain: boolean): string {
   const statusBadge = redirect.domain_status !== 'active'
     ? `<span class="badge badge--xs badge--${redirect.domain_status === 'parked' ? 'neutral' : 'danger'}">${redirect.domain_status}</span>`
     : '';
 
-  // Donor domains (sources) send traffic → arrow-top-right ↗️
-  const sourceIcon = !isTargetDomain && redirect.target_url
-    ? `<span class="icon text-muted" data-icon="mono/arrow-top-right"></span>`
-    : '';
+  // Primary domain (main site domain) receives traffic → arrow-right → in blue
+  // Donor domains (sources) send traffic → arrow-top-right ↗️ in gray
+  let icon = '';
+  if (isPrimaryDomain) {
+    icon = `<span class="icon text-primary" data-icon="mono/arrow-right" title="Main domain - receives traffic"></span>`;
+  } else if (redirect.target_url) {
+    icon = `<span class="icon text-muted" data-icon="mono/arrow-top-right"></span>`;
+  }
 
   return `
     <div class="table-cell-stack">
-      ${sourceIcon}
+      ${icon}
       <span class="table-cell-main">${redirect.domain}</span>
       ${statusBadge}
     </div>
@@ -298,7 +335,7 @@ function getStateDisplay(redirect: DomainRedirect): string {
 }
 
 /**
- * Get sync timestamp display
+ * Get sync timestamp display (date only, time in drawer)
  */
 function getSyncDisplay(redirect: DomainRedirect): string {
   if (!redirect.last_sync_at) {
@@ -306,12 +343,10 @@ function getSyncDisplay(redirect: DomainRedirect): string {
   }
 
   const date = new Date(redirect.last_sync_at);
-  const formatted = date.toLocaleString('en-GB', {
+  const formatted = date.toLocaleDateString('en-GB', {
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
   });
 
   return `<span class="text-sm">${formatted}</span>`;
@@ -321,16 +356,29 @@ function getSyncDisplay(redirect: DomainRedirect): string {
  * Get row actions
  */
 function getRowActions(redirect: DomainRedirect): string {
-  const isDisabled = !redirect.enabled || !redirect.target_url;
-  const toggleAction = isDisabled ? 'enable' : 'disable';
-  const toggleIcon = isDisabled ? 'mono/arrow-up' : 'mono/pause';
-  const toggleTitle = isDisabled ? 'Enable redirect' : 'Disable redirect';
-  const toggleClass = isDisabled ? 'btn-icon--neutral' : 'btn-icon--ghost';
+  const isPrimaryDomain = primaryDomains.has(redirect.domain);
 
-  return `
+  // Edit button (always present)
+  const editButton = `
     <button class="btn-icon btn-icon--sm btn-icon--ghost" type="button" data-action="edit" data-redirect-id="${redirect.id}" title="Edit redirect">
       <span class="icon" data-icon="mono/pencil-circle"></span>
     </button>
+  `;
+
+  // Primary domains don't have toggle - they are main site domains that receive traffic
+  if (isPrimaryDomain) {
+    return editButton;
+  }
+
+  // Toggle button for source domains
+  const isDisabled = !redirect.enabled || !redirect.target_url;
+  const toggleAction = isDisabled ? 'enable' : 'disable';
+  const toggleIcon = isDisabled ? 'mono/play' : 'mono/pause';
+  const toggleTitle = isDisabled ? 'Enable redirect' : 'Disable redirect';
+  const toggleClass = isDisabled ? 'btn-icon--primary' : 'btn-icon--ghost';
+
+  return `
+    ${editButton}
     <button class="btn-icon btn-icon--sm ${toggleClass}" type="button" data-action="${toggleAction}" data-redirect-id="${redirect.id}" title="${toggleTitle}">
       <span class="icon" data-icon="${toggleIcon}"></span>
     </button>
@@ -425,6 +473,12 @@ function setupActions(): void {
       const checkbox = target as HTMLInputElement;
       const groupId = Number(checkbox.dataset.selectGroup);
       handleSelectGroup(groupId, checkbox.checked);
+    }
+
+    // Global select-all checkbox
+    if (target.hasAttribute('data-select-all-global')) {
+      const checkbox = target as HTMLInputElement;
+      handleSelectAllGlobal(checkbox.checked);
     }
   });
 
@@ -527,7 +581,7 @@ function handleSelectGroup(groupId: number, checked: boolean): void {
   const group = groups.find(g => g.site_id === groupId);
   if (!group) return;
 
-  const selectableDomains = group.domains.filter(d => !targetDomains.has(d.domain));
+  const selectableDomains = group.domains.filter(d => !primaryDomains.has(d.domain));
 
   if (checked) {
     // Select all selectable domains in this group
@@ -539,6 +593,26 @@ function handleSelectGroup(groupId: number, checked: boolean): void {
     for (const redirect of selectableDomains) {
       selectedRedirects.delete(redirect.id);
     }
+  }
+
+  renderTable();
+  updateBulkActionsBar();
+}
+
+/**
+ * Handle select all redirects globally (all selectable domains on page)
+ */
+function handleSelectAllGlobal(checked: boolean): void {
+  const selectableDomains = filteredRedirects.filter(r => !primaryDomains.has(r.domain));
+
+  if (checked) {
+    // Select all selectable domains
+    for (const redirect of selectableDomains) {
+      selectedRedirects.add(redirect.id);
+    }
+  } else {
+    // Deselect all domains
+    selectedRedirects.clear();
   }
 
   renderTable();

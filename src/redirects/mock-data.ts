@@ -49,14 +49,15 @@ export interface DomainRedirect {
 /**
  * Mock domain redirects
  *
- * Structure: 2 projects, 3 sites, 12 domains
+ * Structure: 2 projects, 3 sites, 13 domains
  * - Project: CryptoBoss (id: 17) - 9 domains
- *   - Site: CryptoBoss (En) 🇺🇸 - 3 domains
- *   - Site: CryptoBoss (Ru) 🇷🇺 - 6 domains
- * - Project: TestProject (id: 18) - 3 domains
- *   - Site: Test Site 🇬🇧 - 3 domains
+ *   - Site: CryptoBoss (En) 🇺🇸 - 3 domains (primary: cryptoboss.pics)
+ *   - Site: CryptoBoss (Ru) 🇷🇺 - 6 domains (primary: finbosse.ru)
+ * - Project: TestProject (id: 18) - 4 domains
+ *   - Site: Test Site 🇬🇧 - 4 domains (primary: example.com)
  *
- * Status distribution: 7 with redirects, 5 without, 2 pending, 1 error
+ * Primary domains: 3 (main site domains that receive traffic)
+ * Status distribution: 7 with redirects, 6 without, 2 pending, 1 error
  */
 export const mockDomainRedirects: DomainRedirect[] = [
   // ===== CryptoBoss (En) 🇺🇸 =====
@@ -255,6 +256,27 @@ export const mockDomainRedirects: DomainRedirect[] = [
   // ===== Test Site 🇬🇧 =====
   {
     id: 10,
+    domain_id: 300,
+    domain: 'example.com',
+    domain_status: 'active',
+    target_url: null,  // Main domain, no redirect
+    redirect_code: 301,
+    enabled: false,
+    cf_rule_id: null,
+    cf_implementation: null,
+    last_sync_at: null,
+    sync_status: 'synced',
+    sync_error: null,
+    site_id: 3,
+    site_name: 'Test Site',
+    site_flag: '🇬🇧',
+    project_id: 18,
+    project_name: 'TestProject',
+    created_at: '2025-01-07T09:00:00Z',
+    updated_at: '2025-01-07T09:00:00Z'
+  },
+  {
+    id: 11,
     domain_id: 301,
     domain: 'test-domain.com',
     domain_status: 'active',
@@ -275,7 +297,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     updated_at: '2025-01-13T10:00:00Z'
   },
   {
-    id: 11,
+    id: 12,
     domain_id: 302,
     domain: 'staging-test.net',
     domain_status: 'active',
@@ -296,7 +318,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     updated_at: '2025-01-13T20:00:00Z'
   },
   {
-    id: 12,
+    id: 13,
     domain_id: 303,
     domain: 'dev-test.org',
     domain_status: 'expired',
