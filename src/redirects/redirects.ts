@@ -105,14 +105,12 @@ function renderTable(): void {
       <tr class="table__group-header" data-group-id="${group.site_id}">
         <td colspan="6">
           <button class="table__group-toggle" type="button" data-action="toggle-group" data-group-id="${group.site_id}">
+            <span class="icon" data-icon="mono/${chevronIcon}"></span>
             <span class="table__group-title">
               <span class="table__group-flag">${group.site_flag}</span>
               <span class="table__group-name">${group.site_name}</span>
             </span>
-            <span class="table__group-count">
-              ${group.domains.length} domains
-              <span class="icon" data-icon="mono/${chevronIcon}"></span>
-            </span>
+            <span class="table__group-count">${group.domains.length} domains</span>
           </button>
         </td>
         <td class="table__group-checkbox">
