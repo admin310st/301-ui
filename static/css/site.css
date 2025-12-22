@@ -3789,21 +3789,13 @@ body.layout-dashboard .burger-button {
 
 .bulk-actions-bar__actions .btn--cf {
   background: transparent;
-  border: 1px solid var(--brand);
-  color: var(--brand);
+  border: 1px solid var(--accent-cf-soft);
+  color: var(--accent-cf);
 }
 
 .bulk-actions-bar__actions .btn--cf:hover {
-  background: var(--cf-orange);
-  border-color: var(--cf-orange);
-  color: var(--btn-text-on-dark);
-}
-
-.bulk-actions-bar__actions .btn--cf .icon {
-  color: var(--cf-orange);
-}
-
-.bulk-actions-bar__actions .btn--cf:hover .icon {
+  background: var(--accent-cf-hover);
+  border-color: var(--accent-cf-hover);
   color: var(--btn-text-on-dark);
 }
 
