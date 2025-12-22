@@ -48,34 +48,6 @@
           </div>
         </header>
 
-        <!-- Stats Cards -->
-        <div class="stats-grid" data-stats-grid>
-          <div class="stat-card">
-            <div class="stat-card__value" data-stat="total">0</div>
-            <div class="stat-card__label">Total rules</div>
-          </div>
-          <div class="stat-card stat-card--ok">
-            <div class="stat-card__value" data-stat="active">0</div>
-            <div class="stat-card__label">Active</div>
-          </div>
-          <div class="stat-card stat-card--neutral">
-            <div class="stat-card__value" data-stat="disabled">0</div>
-            <div class="stat-card__label">Disabled</div>
-          </div>
-          <div class="stat-card stat-card--danger">
-            <div class="stat-card__value" data-stat="errors">0</div>
-            <div class="stat-card__label">Errors</div>
-          </div>
-          <div class="stat-card stat-card--primary">
-            <div class="stat-card__value" data-stat="hits_24h">0</div>
-            <div class="stat-card__label">Hits (24h)</div>
-          </div>
-          <div class="stat-card stat-card--primary">
-            <div class="stat-card__value" data-stat="hits_7d">0</div>
-            <div class="stat-card__label">Hits (7d)</div>
-          </div>
-        </div>
-
         <!-- Redirects Table Card -->
         <div class="card card--panel" data-redirects-card>
           <header class="card__header">
@@ -87,7 +59,7 @@
                   <input
                     type="text"
                     class="table-search__input"
-                    placeholder="Search rules, domains, or projects..."
+                    placeholder="Search domain or target..."
                     data-search-input
                   />
                   <button class="table-search__clear" type="button" aria-label="Clear" data-search-clear>
@@ -119,11 +91,11 @@
             <!-- Empty State -->
             <div class="empty-state" data-empty-state hidden>
               <div class="stack-md">
-                <span class="icon icon--lg" data-icon="mono/directions"></span>
-                <h3 class="h4">No redirects yet</h3>
+                <span class="icon icon--lg" data-icon="mono/arrow-top-right"></span>
+                <h3 class="h4">No redirects configured</h3>
                 <p class="text-muted">
-                  Use redirect rules to define routing across your domains.<br>
-                  Create 301/302 redirects, weighted splits, or conditional flows.
+                  Set up simple 301/302 redirects for your domains.<br>
+                  Useful for blocked domains, migrations, or consolidation.
                 </p>
                 <div class="btn-group">
                   <button class="btn btn--primary" type="button" data-action="add-redirect">
@@ -146,11 +118,12 @@
                 <table class="table table--redirects">
                   <thead>
                     <tr>
-                      <th class="table__th-flow">Routing Flow</th>
-                      <th class="table__th-conditions">Conditions</th>
-                      <th class="table__th-hits">Hits</th>
-                      <th class="table__th-status">Status</th>
-                      <th class="table__th-actions">Actions</th>
+                      <th>Domain</th>
+                      <th>Target</th>
+                      <th>Code</th>
+                      <th>State</th>
+                      <th>Last Sync</th>
+                      <th>Actions</th>
                     </tr>
                   </thead>
                   <tbody data-redirects-tbody>

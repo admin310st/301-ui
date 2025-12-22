@@ -1,13 +1,15 @@
 /**
  * Redirects page UI logic
  *
- * Traffic Control Plane routing rules management
+ * Simple 301/302 domain redirects management
+ * NOT to be confused with Streams/TDS (complex conditional routing)
  */
 
-import { mockRedirectRules, getRedirectStats, type RedirectRule } from './mock-data';
+import { mockDomainRedirects, groupBySite, type DomainRedirect } from './mock-data';
 
-let currentRules: RedirectRule[] = [];
-let filteredRules: RedirectRule[] = [];
+let currentRedirects: DomainRedirect[] = [];
+let filteredRedirects: DomainRedirect[] = [];
+let collapsedGroups = new Set<number>();  // Set of collapsed site_ids
 
 /**
  * Initialize redirects page
@@ -24,108 +26,108 @@ export function initRedirectsPage(): void {
   // Setup search
   setupSearch();
 
+  // Setup filters (future)
+  // setupFilters();
+
   // Setup action buttons
   setupActions();
 }
 
 /**
- * Load redirect rules (mock data for now)
+ * Load domain redirects (mock data for now)
  */
 function loadRedirects(): void {
   const loadingState = document.querySelector('[data-loading-state]');
   const emptyState = document.querySelector('[data-empty-state]');
   const tableShell = document.querySelector('[data-table-shell]');
-  const footer = document.querySelector('[data-table-footer]');
 
   if (loadingState) loadingState.hidden = false;
 
   // Simulate loading
   setTimeout(() => {
-    currentRules = [...mockRedirectRules];
-    filteredRules = [...currentRules];
+    currentRedirects = [...mockDomainRedirects];
+    filteredRedirects = [...currentRedirects];
 
     if (loadingState) loadingState.hidden = true;
 
-    if (currentRules.length === 0) {
+    if (currentRedirects.length === 0) {
       if (emptyState) emptyState.hidden = false;
     } else {
-      renderStats();
       renderTable();
       if (tableShell) tableShell.hidden = false;
-      if (footer) footer.hidden = false;
     }
   }, 300);
 }
 
 /**
- * Render stats cards
- */
-function renderStats(): void {
-  const stats = getRedirectStats(currentRules);
-  const statsGrid = document.querySelector('[data-stats-grid]');
-  if (!statsGrid) return;
-
-  // Update each stat
-  Object.entries(stats).forEach(([key, value]) => {
-    const element = statsGrid.querySelector(`[data-stat="${key}"]`);
-    if (element) {
-      element.textContent = formatNumber(value);
-    }
-  });
-}
-
-/**
- * Format number with K/M suffixes
- */
-function formatNumber(num: number): string {
-  if (num >= 1_000_000) {
-    return (num / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M';
-  }
-  if (num >= 1_000) {
-    return (num / 1_000).toFixed(1).replace(/\.0$/, '') + 'K';
-  }
-  return String(num);
-}
-
-/**
- * Render redirects table
+ * Render redirects table grouped by site
  */
 function renderTable(): void {
   const tbody = document.querySelector('[data-redirects-tbody]');
   if (!tbody) return;
 
-  tbody.innerHTML = filteredRules.map(rule => renderRuleRow(rule)).join('');
+  const groups = groupBySite(filteredRedirects);
+
+  const html = groups.map(group => {
+    const isCollapsed = collapsedGroups.has(group.site_id);
+    const chevronIcon = isCollapsed ? 'chevron-down' : 'chevron-up';
+
+    const groupHeader = `
+      <tr class="table__group-header" data-group-id="${group.site_id}">
+        <td colspan="6">
+          <button class="table__group-toggle" type="button" data-action="toggle-group" data-group-id="${group.site_id}">
+            <span class="icon" data-icon="mono/${chevronIcon}"></span>
+            <span class="table__group-title">
+              <span class="table__group-flag">${group.site_flag}</span>
+              <span class="table__group-name">${group.site_name}</span>
+            </span>
+            <span class="table__group-count">${group.domains.length} domains</span>
+          </button>
+        </td>
+      </tr>
+    `;
+
+    const rows = isCollapsed ? '' : group.domains.map(redirect => renderRow(redirect)).join('');
+
+    return groupHeader + rows;
+  }).join('');
+
+  tbody.innerHTML = html;
 
   // Update counts
   const shownCount = document.querySelector('[data-shown-count]');
   const totalCount = document.querySelector('[data-total-count]');
-  if (shownCount) shownCount.textContent = String(filteredRules.length);
-  if (totalCount) totalCount.textContent = String(currentRules.length);
+  if (shownCount) shownCount.textContent = String(filteredRedirects.length);
+  if (totalCount) totalCount.textContent = String(currentRedirects.length);
 }
 
 /**
- * Render single rule row with flow visualization
+ * Render single redirect row
  */
-function renderRuleRow(rule: RedirectRule): string {
-  const flowDisplay = getFlowDisplay(rule);
-  const conditionsDisplay = getConditionsDisplay(rule);
-  const hitsDisplay = getHitsDisplay(rule);
-  const statusBadge = getStatusBadge(rule);
-  const actions = getRowActions(rule);
+function renderRow(redirect: DomainRedirect): string {
+  const domainDisplay = getDomainDisplay(redirect);
+  const targetDisplay = getTargetDisplay(redirect);
+  const codeDisplay = getCodeDisplay(redirect);
+  const stateDisplay = getStateDisplay(redirect);
+  const syncDisplay = getSyncDisplay(redirect);
+  const actions = getRowActions(redirect);
 
   return `
-    <tr data-rule-id="${rule.id}">
-      <td class="table__cell-flow">
-        ${flowDisplay}
+    <tr data-redirect-id="${redirect.id}" class="${redirect.domain_status === 'expired' ? 'table__row--muted' : ''}">
+      <td class="table__cell-domain">
+        ${domainDisplay}
       </td>
-      <td class="table__cell-conditions">
-        ${conditionsDisplay}
+      <td class="table__cell-target">
+        ${targetDisplay}
       </td>
-      <td class="table__cell-hits">
-        ${hitsDisplay}
+      <td class="table__cell-code">
+        ${codeDisplay}
       </td>
-      <td class="table__cell-status">
-        ${statusBadge}
+      <td class="table__cell-state">
+        ${stateDisplay}
+      </td>
+      <td class="table__cell-sync">
+        ${syncDisplay}
       </td>
       <td class="table__cell-actions">
         <div class="table-actions table-actions--inline">
@@ -137,237 +139,114 @@ function renderRuleRow(rule: RedirectRule): string {
 }
 
 /**
- * Get flow display: Source → Rule → Destinations
+ * Get domain display with status
  */
-function getFlowDisplay(rule: RedirectRule): string {
-  const typeBadge = getTypeBadge(rule);
-  const pathIcon = rule.source_path_type === 'regex'
-    ? '<span class="icon" data-icon="mono/alert-triangle" title="Regex"></span>'
-    : rule.source_path_type === 'prefix'
-    ? '<span class="icon" data-icon="mono/target" title="Prefix match"></span>'
+function getDomainDisplay(redirect: DomainRedirect): string {
+  const statusBadge = redirect.domain_status !== 'active'
+    ? `<span class="badge badge--xs badge--${redirect.domain_status === 'parked' ? 'neutral' : 'danger'}">${redirect.domain_status}</span>`
     : '';
 
-  const destinationsList = getDestinationsList(rule);
-  const destinationTitle = rule.destinations.length > 1 ? 'Destinations' : 'Destination';
-
   return `
-    <div class="redirect-flow">
-      <div class="redirect-flow__segment redirect-flow__segment--source">
-        <div class="redirect-flow__segment-body">
-          <div class="redirect-flow__segment-header">
-            <span class="redirect-flow__pill">Src</span>
-            <div class="redirect-flow__title">${rule.source_domain}</div>
-          </div>
-          <div class="redirect-flow__meta">
-            ${pathIcon}
-            <span class="redirect-flow__path">${rule.source_path}</span>
-          </div>
-        </div>
-      </div>
-
-      <button class="redirect-flow__segment redirect-flow__segment--rule" type="button" data-action="edit" data-rule-id="${rule.id}" aria-label="Edit redirect rule ${rule.name}">
-        <div class="redirect-flow__segment-body">
-          <div class="redirect-flow__segment-header">
-            <span class="redirect-flow__pill redirect-flow__pill--rule">Rule</span>
-            <div class="redirect-flow__title redirect-flow__title--strong">${rule.name}</div>
-          </div>
-          <div class="redirect-flow__meta">
-            ${typeBadge}
-            <span class="badge badge--sm badge--neutral">${rule.project_name}</span>
-          </div>
-        </div>
-        <span class="redirect-flow__cta">
-          <span class="icon" data-icon="mono/pencil-circle"></span>
-        </span>
-      </button>
-
-      <div class="redirect-flow__segment redirect-flow__segment--destination">
-        <div class="redirect-flow__segment-body">
-          <div class="redirect-flow__segment-header">
-            <span class="redirect-flow__pill redirect-flow__pill--destination">Dst</span>
-            <div class="redirect-flow__title">${destinationTitle}</div>
-          </div>
-          <div class="redirect-flow__destinations">
-            ${destinationsList}
-          </div>
-        </div>
-      </div>
+    <div class="table-cell-stack">
+      <span class="table-cell-main">${redirect.domain}</span>
+      ${statusBadge}
     </div>
   `;
 }
 
 /**
- * Format destinations list with weights and overflow handling
+ * Get target display
  */
-function getDestinationsList(rule: RedirectRule): string {
-  const maxVisible = 3;
-  const destinations = rule.destinations.map(dest => ({
-    label: dest.url.replace('https://', '').replace('http://', ''),
-    weight: dest.weight,
-  }));
+function getTargetDisplay(redirect: DomainRedirect): string {
+  if (!redirect.target_url) {
+    return '<span class="text-muted">No redirect</span>';
+  }
 
-  const visibleDestinations = destinations.slice(0, maxVisible);
-  const remaining = destinations.length - visibleDestinations.length;
-
-  const destinationItems = visibleDestinations.map(dest => `
-    <div class="redirect-flow__destination-item">
-      <span class="redirect-flow__destination-url">${dest.label}</span>
-      ${dest.weight ? `<span class="redirect-flow__destination-weight">${dest.weight}%</span>` : ''}
-    </div>
-  `).join('');
-
-  const overflow = remaining > 0
-    ? `<div class="redirect-flow__destination-more">+${remaining} more</div>`
-    : '';
+  const targetHost = redirect.target_url.replace('https://', '').replace('http://', '').split('/')[0];
 
   return `
-    <div class="redirect-flow__destination-list">
-      ${destinationItems}
-      ${overflow}
+    <div class="table-cell-inline">
+      <span class="icon text-muted" data-icon="mono/arrow-top-right"></span>
+      <span class="table-cell-main" title="${redirect.target_url}">${targetHost}</span>
     </div>
   `;
 }
 
 /**
- * Get type badge for rule
+ * Get redirect code badge
  */
-function getTypeBadge(rule: RedirectRule): string {
-  const badges = {
-    simple: `<span class="badge badge--sm ${rule.redirect_code === 301 ? 'badge--success' : 'badge--warning'}">${rule.redirect_code}</span>`,
-    weighted: '<span class="badge badge--sm badge--primary">Split</span>',
-    conditional: '<span class="badge badge--sm badge--warning">Conditional</span>',
-    regex: '<span class="badge badge--sm badge--neutral">Regex</span>',
-  };
-  return badges[rule.type];
-}
-
-/**
- * Get conditions display (chips with icons)
- */
-function getConditionsDisplay(rule: RedirectRule): string {
-  const chips: string[] = [];
-
-  // Countries
-  if (rule.conditions.countries && rule.conditions.countries.length > 0) {
-    chips.push(`
-      <span class="condition-chip" title="${rule.conditions.countries.join(', ')}">
-        <span class="icon" data-icon="mono/target"></span>
-        <span>${rule.conditions.countries.length}</span>
-      </span>
-    `);
-  }
-
-  // Devices
-  if (rule.conditions.devices && rule.conditions.devices.length > 0) {
-    chips.push(`
-      <span class="condition-chip" title="${rule.conditions.devices.join(', ')}">
-        <span class="icon" data-icon="mono/layers"></span>
-        <span>${rule.conditions.devices.length}</span>
-      </span>
-    `);
-  }
-
-  // Browsers
-  if (rule.conditions.browsers && rule.conditions.browsers.length > 0) {
-    chips.push(`
-      <span class="condition-chip" title="${rule.conditions.browsers.join(', ')}">
-        <span class="icon" data-icon="mono/open-in-new"></span>
-        <span>${rule.conditions.browsers.length}</span>
-      </span>
-    `);
-  }
-
-  // Query params
-  if (rule.conditions.query_params && Object.keys(rule.conditions.query_params).length > 0) {
-    const count = Object.keys(rule.conditions.query_params).length;
-    chips.push(`
-      <span class="condition-chip" title="Query params">
-        <span class="icon" data-icon="mono/filter"></span>
-        <span>${count}</span>
-      </span>
-    `);
-  }
-
-  // Headers
-  if (rule.conditions.headers && Object.keys(rule.conditions.headers).length > 0) {
-    const count = Object.keys(rule.conditions.headers).length;
-    chips.push(`
-      <span class="condition-chip" title="Header conditions">
-        <span class="icon" data-icon="mono/alert-triangle"></span>
-        <span>${count}</span>
-      </span>
-    `);
-  }
-
-  if (chips.length === 0) {
+function getCodeDisplay(redirect: DomainRedirect): string {
+  if (!redirect.target_url) {
     return '<span class="text-muted">—</span>';
   }
 
-  return `<div class="stack-inline stack-inline--xs">${chips.join('')}</div>`;
+  const badgeClass = redirect.redirect_code === 301 ? 'badge--success' : 'badge--warning';
+  return `<span class="badge badge--sm ${badgeClass}">${redirect.redirect_code}</span>`;
 }
 
 /**
- * Get hits display
+ * Get combined state badge (enabled + sync)
  */
-function getHitsDisplay(rule: RedirectRule): string {
-  return `
-    <div class="table-metric">
-      <div class="table-metric__row">
-        <span class="table-metric__value">${formatNumber(rule.hits_24h)}</span>
-        <span class="table-metric__label">24h</span>
-      </div>
-      <div class="table-metric__row table-metric__row--muted">
-        <span class="table-metric__value">${formatNumber(rule.hits_7d)}</span>
-        <span class="table-metric__label">7d</span>
-      </div>
-    </div>
-  `;
-}
-
-/**
- * Get status badge
- */
-function getStatusBadge(rule: RedirectRule): string {
-  if (rule.status === 'active') {
-    return '<span class="badge badge--success">Active</span>';
-  }
-
-  if (rule.status === 'disabled') {
+function getStateDisplay(redirect: DomainRedirect): string {
+  if (!redirect.enabled || !redirect.target_url) {
     return '<span class="badge badge--neutral">Disabled</span>';
   }
 
-  if (rule.status === 'error') {
-    return `
-      <span class="badge badge--danger">Error</span>
-      ${rule.error_message ? `<div class="text-sm text-muted">${rule.error_message}</div>` : ''}
-    `;
+  // Enabled + sync status combined
+  if (redirect.sync_status === 'synced') {
+    return '<span class="badge badge--success">Active</span>';
+  }
+
+  if (redirect.sync_status === 'pending') {
+    return '<span class="badge badge--primary">Pending</span>';
+  }
+
+  if (redirect.sync_status === 'error') {
+    const errorTooltip = redirect.sync_error
+      ? `title="${redirect.sync_error}"`
+      : '';
+    return `<span class="badge badge--danger" ${errorTooltip}>Error</span>`;
   }
 
   return '<span class="badge badge--neutral">Unknown</span>';
 }
 
 /**
- * Get row actions based on rule status
+ * Get sync timestamp display
  */
-function getRowActions(rule: RedirectRule): string {
-  const isDisabled = rule.status === 'disabled';
+function getSyncDisplay(redirect: DomainRedirect): string {
+  if (!redirect.last_sync_at) {
+    return '<span class="text-muted">—</span>';
+  }
+
+  const date = new Date(redirect.last_sync_at);
+  const formatted = date.toLocaleString('en-GB', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+
+  return `<span class="text-sm">${formatted}</span>`;
+}
+
+/**
+ * Get row actions
+ */
+function getRowActions(redirect: DomainRedirect): string {
+  const isDisabled = !redirect.enabled || !redirect.target_url;
   const toggleAction = isDisabled ? 'enable' : 'disable';
   const toggleIcon = isDisabled ? 'mono/arrow-up' : 'mono/pause';
-  const toggleTitle = isDisabled ? 'Enable rule' : 'Disable rule';
+  const toggleTitle = isDisabled ? 'Enable redirect' : 'Disable redirect';
   const toggleClass = isDisabled ? 'btn-icon--neutral' : 'btn-icon--ghost';
 
   return `
-    <button class="btn-icon btn-icon--sm btn-icon--ghost" type="button" data-action="refresh" data-rule-id="${rule.id}" title="Re-run checks">
-      <span class="icon" data-icon="mono/refresh"></span>
-    </button>
-    <button class="btn-icon btn-icon--sm btn-icon--ghost" type="button" data-action="edit" data-rule-id="${rule.id}" title="Edit redirect">
+    <button class="btn-icon btn-icon--sm btn-icon--ghost" type="button" data-action="edit" data-redirect-id="${redirect.id}" title="Edit redirect">
       <span class="icon" data-icon="mono/pencil-circle"></span>
     </button>
-    <button class="btn-icon btn-icon--sm ${toggleClass}" type="button" data-action="${toggleAction}" data-rule-id="${rule.id}" title="${toggleTitle}">
+    <button class="btn-icon btn-icon--sm ${toggleClass}" type="button" data-action="${toggleAction}" data-redirect-id="${redirect.id}" title="${toggleTitle}">
       <span class="icon" data-icon="${toggleIcon}"></span>
-    </button>
-    <button class="btn-icon btn-icon--sm btn-icon--ghost" type="button" data-action="more" data-rule-id="${rule.id}" title="More actions">
-      <span class="icon" data-icon="mono/dots-vertical"></span>
     </button>
   `;
 }
@@ -383,13 +262,13 @@ function setupSearch(): void {
     const query = (e.target as HTMLInputElement).value.toLowerCase().trim();
 
     if (!query) {
-      filteredRules = [...currentRules];
+      filteredRedirects = [...currentRedirects];
     } else {
-      filteredRules = currentRules.filter(rule =>
-        rule.name.toLowerCase().includes(query) ||
-        rule.source_domain.toLowerCase().includes(query) ||
-        rule.project_name.toLowerCase().includes(query) ||
-        rule.destinations.some(d => d.url.toLowerCase().includes(query))
+      filteredRedirects = currentRedirects.filter(redirect =>
+        redirect.domain.toLowerCase().includes(query) ||
+        (redirect.target_url && redirect.target_url.toLowerCase().includes(query)) ||
+        redirect.site_name.toLowerCase().includes(query) ||
+        redirect.project_name.toLowerCase().includes(query)
       );
     }
 
@@ -411,25 +290,23 @@ function setupActions(): void {
     if (!button) return;
 
     const action = button.dataset.action;
-    const ruleId = button.dataset.ruleId ? Number(button.dataset.ruleId) : null;
+    const redirectId = button.dataset.redirectId ? Number(button.dataset.redirectId) : null;
+    const groupId = button.dataset.groupId ? Number(button.dataset.groupId) : null;
 
-    console.log('[Redirects] Action:', action, 'Rule ID:', ruleId);
+    console.log('[Redirects] Action:', action, 'Redirect ID:', redirectId, 'Group ID:', groupId);
 
     switch (action) {
+      case 'toggle-group':
+        if (groupId !== null) handleToggleGroup(groupId);
+        break;
       case 'edit':
-        if (ruleId) handleEdit(ruleId);
+        if (redirectId) handleEdit(redirectId);
         break;
       case 'enable':
-        if (ruleId) handleEnable(ruleId);
+        if (redirectId) handleEnable(redirectId);
         break;
       case 'disable':
-        if (ruleId) handleDisable(ruleId);
-        break;
-      case 'refresh':
-        if (ruleId) handleRefresh(ruleId);
-        break;
-      case 'more':
-        if (ruleId) handleMore(ruleId);
+        if (redirectId) handleDisable(redirectId);
         break;
       case 'add-redirect':
         handleAddRedirect();
@@ -442,60 +319,48 @@ function setupActions(): void {
 }
 
 /**
- * Handle edit rule
+ * Handle toggle group collapse/expand
  */
-function handleEdit(ruleId: number): void {
-  const rule = currentRules.find(r => r.id === ruleId);
-  if (!rule) return;
-
-  console.log('[Redirects] Edit rule:', rule.name);
-  alert(`✏️ Edit "${rule.name}"\n\nType: ${rule.type}\nSource: ${rule.source_domain}${rule.source_path}\n\n(Drawer UI coming soon)`);
+function handleToggleGroup(groupId: number): void {
+  if (collapsedGroups.has(groupId)) {
+    collapsedGroups.delete(groupId);
+  } else {
+    collapsedGroups.add(groupId);
+  }
+  renderTable();
 }
 
 /**
- * Handle enable rule
+ * Handle edit redirect
  */
-function handleEnable(ruleId: number): void {
-  const rule = currentRules.find(r => r.id === ruleId);
-  if (!rule) return;
+function handleEdit(redirectId: number): void {
+  const redirect = currentRedirects.find(r => r.id === redirectId);
+  if (!redirect) return;
 
-  console.log('[Redirects] Enable rule:', rule.name);
-  alert(`▶️ Enable "${rule.name}"\n\n(API integration coming soon)`);
+  console.log('[Redirects] Edit redirect:', redirect.domain);
+  alert(`✏️ Edit "${redirect.domain}"\n\nTarget: ${redirect.target_url || 'None'}\nCode: ${redirect.redirect_code}\n\n(Drawer UI coming soon)`);
 }
 
 /**
- * Handle disable rule
+ * Handle enable redirect
  */
-function handleDisable(ruleId: number): void {
-  const rule = currentRules.find(r => r.id === ruleId);
-  if (!rule) return;
+function handleEnable(redirectId: number): void {
+  const redirect = currentRedirects.find(r => r.id === redirectId);
+  if (!redirect) return;
 
-  console.log('[Redirects] Disable rule:', rule.name);
-  alert(`⏸️ Disable "${rule.name}"\n\n(API integration coming soon)`);
+  console.log('[Redirects] Enable redirect:', redirect.domain);
+  alert(`▶️ Enable "${redirect.domain}"\n\n(API integration coming soon)`);
 }
 
 /**
- * Handle refresh check
- * TODO: Integrate with API to refresh health checks and analytics data
+ * Handle disable redirect
  */
-function handleRefresh(ruleId: number): void {
-  const rule = currentRules.find(r => r.id === ruleId);
-  if (!rule) return;
+function handleDisable(redirectId: number): void {
+  const redirect = currentRedirects.find(r => r.id === redirectId);
+  if (!redirect) return;
 
-  console.log('[Redirects] Refresh checks for rule:', rule.name);
-  alert(`🔁 Re-running checks for "${rule.name}"\n\n(Health checks and analytics refresh coming soon)`);
-}
-
-/**
- * Handle contextual menu
- * TODO: Implement context menu with actions: manage, enable/disable, clone, delete, export
- */
-function handleMore(ruleId: number): void {
-  const rule = currentRules.find(r => r.id === ruleId);
-  if (!rule) return;
-
-  console.log('[Redirects] Open more actions for rule:', rule.name);
-  alert(`⋯ Context menu for "${rule.name}"\n\nPlanned actions: manage, enable/disable, clone, delete, export.`);
+  console.log('[Redirects] Disable redirect:', redirect.domain);
+  alert(`⏸️ Disable "${redirect.domain}"\n\n(API integration coming soon)`);
 }
 
 /**
@@ -503,5 +368,5 @@ function handleMore(ruleId: number): void {
  */
 function handleAddRedirect(): void {
   console.log('[Redirects] Add redirect');
-  alert('➕ Add new redirect rule\n\n(Wizard coming soon)');
+  alert('➕ Add new redirect\n\n(Drawer coming soon)');
 }

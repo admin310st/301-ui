@@ -1,25 +1,32 @@
 # TODO: Redirects Page Development
 
-**Redirects = Traffic Control Plane routing rules.**
+**Redirects = Simple domain-level 301/302 redirects**
 
-UX principle: Show the **traffic flow picture**, not just a list of redirects.
+**NOT to be confused with Streams/TDS** (complex conditional routing rules on Workers)
+
+UX principle: Simple domain management with clear redirect status.
 
 ---
 
-## 🎯 Vision
+## 🎯 Scope
 
-User should understand:
-- What leads where
-- Which conditions apply
-- Which domains participate
-- Status and stability
-- Traffic metrics
+**Redirects (this page):**
+- Simple 301/302 redirects on domains
+- Domain → Target URL mapping
+- Used for blocked domains, migrations
+- Implemented via Cloudflare Redirect Rules (≤10 per zone) or Workers
+- No conditions, no splits - just domain redirects
+
+**Streams/TDS (separate future page):**
+- Complex conditional routing (geo, UA, device)
+- Weighted splits, A/B testing
+- SmartLink (UTM), SmartShield (CF metadata)
+- Match-first rules processing
 
 **Target users:**
-- SEO specialists (URL structure migrations)
-- Webmasters (conditional routing)
-- Marketers (A/B testing with weighted splits)
-- Affiliates (geo/device targeting)
+- Webmasters managing domain redirects
+- SEO specialists handling migrations
+- Users dealing with blocked domains
 
 ---
 
@@ -54,295 +61,212 @@ Manage routing rules across your domains and destinations.
 
 ### 1.3. Main Table Structure
 
+**Grouping:** By Site/Project (collapsible groups)
+
 **Columns:**
 
 | Column | Content |
 |--------|---------|
-| **Rule** | Rule name + micro-badge (301/302/Conditional) |
-| **Source** | Domain + path (highlight wildcard/regex) |
-| **Destinations** | 1 URL or list with weight indicators |
-| **Conditions** | Icons: geo/device/UA/header rules |
-| **Hits** | 24h / 7d / total |
-| **Status** | Active / Disabled / Error |
-| **Actions** | Edit (pencil-circle), Enable/Disable, More (⋯) |
+| **Source Domain** | Domain that redirects (e.g., old-domain.com) |
+| **Redirect Type** | "No redirect" or icon + target URL |
+| **Status Code** | 301 (permanent) or 302 (temporary) badge |
+| **Last Sync** | When last synced with Cloudflare |
+| **Actions** | Checkbox + Edit/Delete buttons |
 
-**Row as "card in a line":**
+**Simple table layout:**
 ```
-[Rule name]  [Source /pattern/]  [Destinations →]  [Conditions icons]  [Status chip]  [⋯]
+☐ old-domain.com → [icon] active-domain.com [301] [2025-01-13 18:15]
+☐ spam-domain.net → No redirect                    [—]
 ```
 
-**Hover behavior:**
-- Show full path example
-- For wildcards: show match pattern
-- For weighted: show % breakdown
-
-**Weighted rules display:**
-```
-target1.com (70%) • target2.com (30%)
-```
-or small chips with weights
+**Bulk Actions:**
+- Select multiple domains via checkboxes
+- Mass operations: Enable/Disable/Delete redirects
+- "Select Mass Action" dropdown + Apply button
 
 ### 1.4. Empty State
 
 ```
-Title: No redirects yet
+Title: No redirects configured
 
-Text: Use redirect rules to define routing across your domains.
-      Create 301/302 redirects, weighted splits, or conditional flows.
+Text: Set up simple 301/302 redirects for your domains.
+      Useful for blocked domains, migrations, or consolidation.
 
 CTA: [+ Add redirect]
 ```
 
 ---
 
-## 📋 Этап 2: Redirect Drawer (Editor)
+## 📋 Этап 2: Redirect Form (Simple Editor)
 
 **Trigger:** Click Edit (pencil-circle)
 
 **Layout:** Right full-height drawer
 
-### Drawer Tabs:
+### Simple Form Fields:
 
-1. **Overview**
-   - Rule name
-   - Type: 301/302/Conditional/Weighted
-   - Status
-   - Recent triggers
+**Basic redirect setup:**
 
-2. **Source**
-   - Domain (select from available)
-   - Path type:
-     - Exact match
-     - Prefix match `/path/*`
-     - Regex
-   - **Test URL field** (live preview: ✓ will match / ✗ won't match)
+1. **Source Domain**
+   - Dropdown: Select from user's domains
+   - Shows domain status (active/parked)
 
-3. **Destinations**
-   - Single URL or list (for weighted)
-   - [Add destination] button
-   - For weighted rules:
-     - Weight input + on/off toggle
-     - Auto-balancing/validation (must = 100%)
+2. **Target URL**
+   - Input field: Full URL (https://target-domain.com)
+   - Validation: Must be valid URL
 
-4. **Conditions**
-   - Geography selector (countries, multi-select)
-   - Device type (mobile/desktop/tablet)
-   - Browser
-   - Headers
-   - Query params
-   - Split testing toggle
-   - Each section = chip with count of selected conditions
+3. **Redirect Type**
+   - Radio buttons:
+     - 301 (Permanent) - default
+     - 302 (Temporary)
 
-5. **Traffic Metrics**
-   - Mini-charts:
-     - Hits (24h/7d/30d)
-     - Distribution by destination
-     - Errors (if any)
+4. **Enable/Disable**
+   - Toggle: Active / Disabled
+   - Default: Active
 
-6. **Advanced**
-   - Priority (execution order)
-   - Stop-rules execution (don't process further rules)
-   - Proxy mode (future)
-   - Security preset overrides
+5. **Actions**
+   - [Save] button (primary)
+   - [Cancel] button (ghost)
+   - [Delete] button (danger, only for existing redirects)
 
-7. **Logs**
-   - Live feed of recent triggers:
-     - Timestamp
-     - IP (masked)
-     - Source domain
-     - Resolved target
+**No conditions, no weights, no complex rules** - just simple domain → URL mapping.
 
 ---
 
-## 📋 Этап 3: Add Redirect Wizard
+## 📋 Этап 3: Add Redirect Modal
 
-**Pattern:** Similar to "Add Domains" drawer
+**Trigger:** Click "Add redirect" button
 
-**Steps:**
+**Layout:** Center modal (not drawer)
 
-### Step 1: Basic Info
-- Rule name
-- Rule type:
-  - Simple redirect (301/302)
-  - Weighted split
-  - Conditional routing
+**Fields:** Same as edit form above
 
-### Step 2: Source
-- Domain selector
-- Path pattern
-- Test URL preview
-
-### Step 3: Destinations
-- Single URL (for simple)
-- Multiple URLs with weights (for split)
-- Project/Stream target (for advanced)
-
-### Step 4: Conditions (optional)
-- Add GEO conditions
-- Add device conditions
-- Add browser/UA conditions
-
-### Step 5: Review & Create
-- Summary of rule
-- Test URL results
-- [Create rule] button
+**Flow:**
+1. User clicks "Add redirect"
+2. Modal opens with empty form
+3. User selects source domain, enters target URL, chooses 301/302
+4. Clicks [Create redirect]
+5. API call → Cloudflare Redirect Rules or Worker update
+6. Modal closes, table refreshes with new redirect
 
 ---
 
 ## 📋 Этап 4: Bulk Actions
 
-**When multiple rules selected:**
-- Enable selected
-- Disable selected
-- Clone
-- Delete
-- Export (JSON)
+**When multiple domains selected:**
+- Enable redirects
+- Disable redirects
+- Delete redirects
+- Export list (CSV/JSON)
 
-**UI:** Sticky panel at bottom (like in Domains)
+**UI:** Sticky panel at bottom (like in Domains page)
 
 ---
 
-## 📋 Этап 5: Mock Data Structure
+## 📋 Этап 5: Mock Data Structure (Simplified)
 
-### RedirectRule Interface
+### DomainRedirect Interface
 
 ```typescript
-interface RedirectRule {
+interface DomainRedirect {
   id: number;
-  name: string;
-
-  // Type
-  type: 'simple' | 'weighted' | 'conditional' | 'regex';
-  redirect_code: 301 | 302 | 307;
 
   // Source
-  source_domain_id: number;
-  source_domain: string;  // denormalized
-  source_path_type: 'exact' | 'prefix' | 'regex';
-  source_path: string;
+  domain_id: number;
+  domain: string;  // e.g., "old-domain.com"
 
-  // Destinations
-  destinations: Array<{
-    url: string;
-    weight?: number;  // for weighted
-    enabled: boolean;
-  }>;
+  // Target
+  target_url: string | null;  // null = no redirect
 
-  // Conditions
-  conditions: {
-    countries?: string[];      // ['RU', 'UA', 'KZ']
-    devices?: ('mobile' | 'desktop' | 'tablet')[];
-    browsers?: string[];
-    headers?: Record<string, string>;
-    query_params?: Record<string, string>;
-  };
+  // Redirect Type
+  redirect_code: 301 | 302;  // 301 = permanent, 302 = temporary
 
-  // Status & Metrics
-  status: 'active' | 'disabled' | 'error';
-  error_message?: string;
+  // Status
+  enabled: boolean;
 
-  hits_24h: number;
-  hits_7d: number;
-  hits_total: number;
+  // Cloudflare Sync
+  cf_rule_id: string | null;  // Cloudflare Redirect Rule ID
+  last_sync_at: string | null;
+  sync_status: 'synced' | 'pending' | 'error';
+  sync_error: string | null;
+
+  // Grouping
+  site_id: number;
+  site_name: string;  // e.g., "CryptoBoss (En)"
+  project_id: number;
+  project_name: string;
 
   // Metadata
-  project_id: number;
-  project_name: string;  // denormalized
-  priority: number;
-  stop_execution: boolean;
-
   created_at: string;
   updated_at: string;
-  last_triggered_at: string | null;
 }
 ```
 
 ### Mock Data Examples
 
-**Example 1: Simple 301 redirect**
+**Example 1: Domain with 301 redirect**
 ```typescript
 {
-  name: "Old blog → New blog",
-  type: "simple",
+  id: 1,
+  domain_id: 101,
+  domain: "cryptoboss.icu",
+  target_url: "https://finbosse.ru",
   redirect_code: 301,
-  source_domain: "example.com",
-  source_path_type: "prefix",
-  source_path: "/blog/*",
-  destinations: [{
-    url: "https://blog.example.com",
-    enabled: true
-  }],
-  conditions: {},
-  status: "active",
-  hits_24h: 1234,
-  hits_7d: 8567,
-  hits_total: 45678
+  enabled: true,
+  cf_rule_id: "abc123",
+  last_sync_at: "2025-01-13T18:15:27Z",
+  sync_status: "synced",
+  sync_error: null,
+  site_id: 1,
+  site_name: "CryptoBoss (Ru)",
+  project_id: 17,
+  project_name: "CryptoBoss",
+  created_at: "2025-01-10T10:00:00Z",
+  updated_at: "2025-01-13T18:15:27Z"
 }
 ```
 
-**Example 2: Weighted split (A/B test)**
+**Example 2: Domain without redirect**
 ```typescript
 {
-  name: "Landing A/B test",
-  type: "weighted",
-  redirect_code: 302,
-  source_domain: "promo.example.com",
-  source_path_type: "exact",
-  source_path: "/special-offer",
-  destinations: [
-    { url: "https://landing-a.example.com", weight: 70, enabled: true },
-    { url: "https://landing-b.example.com", weight: 30, enabled: true }
-  ],
-  conditions: {},
-  status: "active",
-  hits_24h: 567,
-  hits_7d: 3456,
-  hits_total: 12345
-}
-```
-
-**Example 3: Conditional (GEO + device)**
-```typescript
-{
-  name: "RU mobile → special landing",
-  type: "conditional",
-  redirect_code: 302,
-  source_domain: "example.com",
-  source_path_type: "prefix",
-  source_path: "/offer/*",
-  destinations: [{
-    url: "https://ru-mobile.example.com",
-    enabled: true
-  }],
-  conditions: {
-    countries: ["RU", "BY", "KZ"],
-    devices: ["mobile"]
-  },
-  status: "active",
-  hits_24h: 890,
-  hits_7d: 5432,
-  hits_total: 23456
-}
-```
-
-**Example 4: Regex-based (SEO migration)**
-```typescript
-{
-  name: "Product URLs migration",
-  type: "regex",
+  id: 2,
+  domain_id: 102,
+  domain: "finbosse.ru",
+  target_url: null,  // No redirect
   redirect_code: 301,
-  source_domain: "shop.example.com",
-  source_path_type: "regex",
-  source_path: "^/products/(\\d+)$",
-  destinations: [{
-    url: "https://new-shop.example.com/items/$1",
-    enabled: true
-  }],
-  conditions: {},
-  status: "active",
-  hits_24h: 234,
-  hits_7d: 1456,
-  hits_total: 8765
+  enabled: false,
+  cf_rule_id: null,
+  last_sync_at: null,
+  sync_status: "synced",
+  sync_error: null,
+  site_id: 1,
+  site_name: "CryptoBoss (Ru)",
+  project_id: 17,
+  project_name: "CryptoBoss",
+  created_at: "2025-01-08T12:00:00Z",
+  updated_at: "2025-01-08T12:00:00Z"
+}
+```
+
+**Example 3: Pending sync**
+```typescript
+{
+  id: 3,
+  domain_id: 103,
+  domain: "cryptopot.ru",
+  target_url: "https://finbosse.ru",
+  redirect_code: 302,
+  enabled: true,
+  cf_rule_id: null,
+  last_sync_at: null,
+  sync_status: "pending",
+  sync_error: null,
+  site_id: 1,
+  site_name: "CryptoBoss (Ru)",
+  project_id: 17,
+  project_name: "CryptoBoss",
+  created_at: "2025-01-13T19:00:00Z",
+  updated_at: "2025-01-13T19:00:00Z"
 }
 ```
 
