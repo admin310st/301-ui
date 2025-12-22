@@ -165,9 +165,9 @@ function updateAvatar(email: string, container: HTMLElement | null): void {
   img.alt = '';
   img.setAttribute('aria-hidden', 'true');
 
-  // Fallback to shield-account icon (from sprite) on error
+  // Fallback to ava.svg on error (matches account form)
   img.onerror = () => {
-    container.innerHTML = `<svg class="avatar-icon" aria-hidden="true"><use href="#i-mono-shield-account"></use></svg>`;
+    container.innerHTML = `<img class="avatar-icon" src="/img/icons/ava.svg" alt="" aria-hidden="true" />`;
   };
 
   img.src = gravatarUrl;
