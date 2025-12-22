@@ -254,7 +254,7 @@ Note: `static/ui-style-guide.html` exists as a legacy demo page with exotic layo
 - **No fixed heights** - All interactive controls use formula: `height = font-size × line-height + padding × 2`
 - **Unified control system** - Buttons, chips, search bars, tabs, and inputs share the same sizing recipe
 - **Theme support** - All components work in both dark (default) and light themes via `[data-theme]`
-- **Icon sizing** - Icons use `1em` sizing with `currentColor` for theme compatibility
+- **Icon sizing** - Icons inside controls use `1.25em` sizing with `currentColor` for theme compatibility
 - **Orange buttons** - Reserved ONLY for Cloudflare-specific actions (`.btn--cf`)
 - **Primary buttons** - Blue (`.btn--primary`) for all other actions
 
@@ -292,7 +292,7 @@ This repository includes a specialized UI code review agent to enforce design sy
 - **Table Search Bar** - Enforces single canonical markup without `type="search"` or `min-width` overrides
 - **Component naming** - Catches legacy class names (`.btn-ghost` → `.btn.btn--ghost`)
 - **Layout rhythm** - Verifies spacing uses tokens (`--inline-gap`, `--stack-gap`) instead of hardcoded rem/px
-- **Icon sizing** - Ensures icons inside controls are `1em`, not fixed px sizes
+- **Icon sizing** - Ensures icons inside controls are `1.25em`, not fixed px sizes
 - **Accessibility** - Validates `:focus-visible`, `aria-label`, `aria-pressed`, `role="status"`
 - **i18n coverage** - Flags visible text missing translation keys
 - **Build artifacts** - Checks that `build/` and `build/purge-report/` aren't committed

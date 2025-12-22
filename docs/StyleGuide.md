@@ -216,7 +216,7 @@ Height = `font-size × line-height + padding × 2`
 
 **Mobile rules**
 
-* Icons inside controls scale via `em` sizing (no px icons).
+* Icons inside controls are `1.25em` (scale with font size, no px icons).
 * Variants never change padding or height; responsive tweaks adjust only layout/wrapping, not control dimensions.
 
 **Rule**
@@ -679,7 +679,7 @@ Buttons use explicit size modifiers: `.btn--sm`, `.btn--md`, `.btn--lg`. `btn--m
 
 ❗ Variants must never alter padding/height. Do not hard-code button heights or paddings per screen; rely on `.btn--*` size modifiers + shared control tokens.
 
-Icons inside buttons use `1em` sizing with `stroke="currentColor"` / `fill="none"` so they stay legible in both themes.
+Icons inside buttons use `1.25em` sizing with `stroke="currentColor"` / `fill="none"` so they stay legible in both themes.
 
 #### Tabs & chips
 
@@ -702,7 +702,7 @@ Tabs, filters and table chips reuse the same `.btn-chip` component and the share
 * высота выводится из рецепта `font-size × line-height + 2 × paddingY`;
 * фон: `var(--bg-elevated)`;
 * текст: `var(--text-main)`;
-* иконки — только через `.btn-chip__icon` / `.btn-chip__chevron` с `1em` SVG в `currentColor`;
+* иконки — только через `.btn-chip__icon` / `.btn-chip__chevron` с `1.25em` SVG в `currentColor`;
 * `padding-inline: var(--control-pad-x)` (вертикальный паддинг считаем через `--control-pad-y`);
 * скругление: `var(--control-radius)`.
 
