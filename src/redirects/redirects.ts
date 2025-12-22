@@ -103,16 +103,6 @@ function renderTable(): void {
 
     const groupHeader = `
       <tr class="table__group-header" data-group-id="${group.site_id}">
-        <td class="table__group-checkbox">
-          <input
-            type="checkbox"
-            class="checkbox"
-            data-select-group="${group.site_id}"
-            ${allSelected ? 'checked' : ''}
-            ${someSelected ? 'data-indeterminate="true"' : ''}
-            aria-label="Select all in ${group.site_name}"
-          />
-        </td>
         <td colspan="6">
           <button class="table__group-toggle" type="button" data-action="toggle-group" data-group-id="${group.site_id}">
             <span class="table__group-title">
@@ -124,6 +114,16 @@ function renderTable(): void {
               <span class="icon" data-icon="mono/${chevronIcon}"></span>
             </span>
           </button>
+        </td>
+        <td class="table__group-checkbox">
+          <input
+            type="checkbox"
+            class="checkbox"
+            data-select-group="${group.site_id}"
+            ${allSelected ? 'checked' : ''}
+            ${someSelected ? 'data-indeterminate="true"' : ''}
+            aria-label="Select all in ${group.site_name}"
+          />
         </td>
       </tr>
     `;
@@ -169,9 +169,6 @@ function renderRow(redirect: DomainRedirect): string {
 
   return `
     <tr data-redirect-id="${redirect.id}" class="${rowClass}">
-      <td class="table__cell-checkbox">
-        ${checkbox}
-      </td>
       <td class="table__cell-domain">
         ${domainDisplay}
       </td>
@@ -191,6 +188,9 @@ function renderRow(redirect: DomainRedirect): string {
         <div class="table-actions table-actions--inline">
           ${actions}
         </div>
+      </td>
+      <td class="table__cell-checkbox">
+        ${checkbox}
       </td>
     </tr>
   `;
