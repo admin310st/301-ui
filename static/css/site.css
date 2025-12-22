@@ -1585,6 +1585,18 @@ input[type="search"]::-webkit-search-cancel-button {
   color: var(--text);
 }
 
+.btn-icon--neutral {
+  background: var(--panel);
+  border-color: var(--border-subtle);
+  color: var(--text-muted);
+}
+
+.btn-icon--neutral:hover {
+  background: var(--panel-hover, var(--bg-soft));
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+
 .btn-outline {
   background: transparent;
   color: var(--text-main);
