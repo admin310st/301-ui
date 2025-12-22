@@ -817,9 +817,9 @@ function openInspector(domainId: number): void {
         const recordsHtml = records
           .map((record) => {
             const cfIcon = record.isCloudflare
-              ? '<span class="icon text-ok" data-icon="brand/cloudflare" title="Cloudflare"></span>'
-              : '<span class="icon" style="opacity: 0; pointer-events: none;"></span>'; // Invisible spacer for alignment
-            return `<div class="stack-inline--sm">${cfIcon}${record.nameserver}</div>`;
+              ? '<span class="icon text-ok" data-icon="brand/cloudflare" title="Cloudflare" style="margin-right: var(--space-2);"></span>'
+              : '<span class="icon" style="opacity: 0; pointer-events: none; margin-right: var(--space-2);"></span>'; // Invisible spacer for alignment
+            return `<div style="display: flex; align-items: center;">${cfIcon}${record.nameserver}</div>`;
           })
           .join('');
 
