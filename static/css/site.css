@@ -3525,6 +3525,8 @@ body.layout-dashboard .burger-button {
   padding-block: calc(var(--control-pad-y) * var(--control-scale-sm));
   padding-inline: calc(var(--control-pad-x) * var(--control-scale-sm));
   min-height: calc(var(--control-min-height) * var(--control-scale-sm));
+  cursor: default;
+  pointer-events: none;
 }
 
 .bulk-actions-bar__info .btn-chip .icon {
