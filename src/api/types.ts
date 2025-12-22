@@ -17,6 +17,8 @@ export interface LoginRequest {
 export interface LoginResponse {
   ok?: boolean;
   access_token?: string;
+  expires_in?: number; // Token lifetime in seconds (~900 for 15 min)
+  active_account_id?: number;
   user?: UserProfile;
   message?: string;
   error?: string;
@@ -73,6 +75,9 @@ export interface VerifyRequest {
 export interface VerifyRegisterResponse {
   ok?: boolean;
   access_token?: string;
+  expires_in?: number; // Token lifetime in seconds
+  active_account_id?: number;
+  accounts?: Array<{ id: number; name?: string }>;
   user?: UserProfile;
   message?: string;
   error?: string;

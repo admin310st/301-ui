@@ -322,12 +322,13 @@ This repository includes a specialized UI code review agent to enforce design sy
 
 The following discrepancies exist between the current UI implementation and the authoritative specification in `docs/301-wiki/API_Auth.md`:
 
-1. **Verification endpoint** - UI sends `{type, token}` but API expects only `{token}` (type is embedded)
+1. ~~**Verification endpoint**~~ - ✅ FIXED: Now correctly sends `{token, code?}`
 2. **Login form** - API supports `phone` OR `email`, but UI only supports `email`
-3. **Login/me responses** - API returns `active_account_id`, `accounts[]`, `expires_in` but UI types only expect `access_token` and minimal `user`
-4. **Registration response** - API returns `{status, mode, channel, token}` for pending verification, but UI expects immediate `access_token`
+3. ~~**Login/Verify response types**~~ - ✅ FIXED: Types now include `expires_in`, `active_account_id`, `accounts[]`
+4. **Token lifecycle** - UI doesn't use `expires_in` for proactive token refresh yet
+5. **Multi-account support** - UI doesn't use `active_account_id` or `accounts[]` yet
 
-**These gaps are documented in README.md under "Известные расхождения с API" and represent technical debt to be addressed.**
+**These gaps represent technical debt to be addressed in future iterations.**
 
 When fixing these gaps:
 - Consult `docs/301-wiki/API_Auth.md` for correct schemas
