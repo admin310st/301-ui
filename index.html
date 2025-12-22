@@ -29,14 +29,25 @@
           });
 
           if (res.ok) {
-            // Valid session - set welcome message for dashboard
+            // Valid session - set random tip for dashboard
             try {
+              // Dynamically import i18n to get random tip
+              const { getRandomTip } = await import('/src/i18n/index.ts');
               const notice = {
                 type: 'success',
-                message: 'Welcome back! You\'re already logged in.'
+                message: getRandomTip()
               };
               window.sessionStorage.setItem('globalNotice', JSON.stringify(notice));
-            } catch {}
+            } catch {
+              // Fallback if module loading fails
+              try {
+                const notice = {
+                  type: 'success',
+                  message: 'Welcome back!'
+                };
+                window.sessionStorage.setItem('globalNotice', JSON.stringify(notice));
+              } catch {}
+            }
 
             // Redirect to dashboard
             window.location.replace('/dashboard.html');

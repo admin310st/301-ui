@@ -10,6 +10,13 @@ export const en = {
       saved: 'Changes saved successfully',
     },
   },
+  tips: [
+    'Welcome back! To search domains by TLD, start your search with a dot (e.g., .com, .ru)',
+    'Welcome back! Use advanced search: try status:active, provider:cloudflare, or project:name',
+    'Welcome back! Click on any domain to open the inspector and view detailed information',
+    'Welcome back! Use bulk actions to manage multiple domains at once',
+    'Welcome back! Filter domains by health status to quickly find issues',
+  ],
   layout: {
     nav: {
       home: 'Home',
