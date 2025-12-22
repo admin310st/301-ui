@@ -115,20 +115,20 @@ function renderRuleRow(rule: RedirectRule): string {
 
   return `
     <tr data-rule-id="${rule.id}">
-      <td>
+      <td class="table__cell-flow">
         ${flowDisplay}
       </td>
-      <td>
+      <td class="table__cell-conditions">
         ${conditionsDisplay}
       </td>
-      <td>
+      <td class="table__cell-hits">
         ${hitsDisplay}
       </td>
-      <td>
+      <td class="table__cell-status">
         ${statusBadge}
       </td>
-      <td>
-        <div class="table-actions">
+      <td class="table__cell-actions">
+        <div class="table-actions table-actions--inline">
           ${actions}
         </div>
       </td>
@@ -147,77 +147,83 @@ function getFlowDisplay(rule: RedirectRule): string {
     ? '<span class="icon" data-icon="mono/target" title="Prefix match"></span>'
     : '';
 
-  // Build destinations list
-  let destinationsList = '';
-  if (rule.destinations.length === 1) {
-    const url = rule.destinations[0].url.replace('https://', '').replace('http://', '');
-    destinationsList = `<span class="redirect-flow__destination-url">${url}</span>`;
-  } else {
-    destinationsList = `
-      <div class="redirect-flow__destination-list">
-        ${rule.destinations.map(dest => {
-          const url = dest.url.replace('https://', '').replace('http://', '');
-          const weight = dest.weight ? `<span class="badge badge--sm badge--neutral">${dest.weight}%</span>` : '';
-          return `
-            <div class="redirect-flow__destination-item">
-              <span class="redirect-flow__destination-url">${url}</span>
-              ${weight}
-            </div>
-          `;
-        }).join('')}
-      </div>
-    `;
-  }
+  const destinationsList = getDestinationsList(rule);
+  const destinationTitle = rule.destinations.length > 1 ? 'Destinations' : 'Destination';
 
   return `
     <div class="redirect-flow">
-      <!-- Vertical track line (CSS) -->
-      <div class="redirect-flow__track">
-        <!-- Source -->
-        <div class="redirect-flow__node redirect-flow__node--source">
-          <div class="redirect-flow__node-icon">
-            <span class="icon" data-icon="mono/dns"></span>
+      <div class="redirect-flow__segment redirect-flow__segment--source">
+        <div class="redirect-flow__segment-body">
+          <div class="redirect-flow__segment-header">
+            <span class="redirect-flow__pill">Src</span>
+            <div class="redirect-flow__title">${rule.source_domain}</div>
           </div>
-          <div class="redirect-flow__node-content">
-            <div class="redirect-flow__node-label">Source</div>
-            <div class="redirect-flow__node-data">
-              <span class="redirect-flow__source-domain">${rule.source_domain}</span>
-              <span class="redirect-flow__source-path">
-                ${pathIcon}
-                <code>${rule.source_path}</code>
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Rule -->
-        <div class="redirect-flow__node redirect-flow__node--rule">
-          <div class="redirect-flow__node-icon">
-            <span class="icon" data-icon="mono/directions-fork"></span>
-          </div>
-          <div class="redirect-flow__node-content">
-            <div class="redirect-flow__node-label">Rule</div>
-            <div class="redirect-flow__node-data">
-              <span class="redirect-flow__rule-name">${rule.name}</span>
-              ${typeBadge}
-              <span class="badge badge--sm badge--neutral">${rule.project_name}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Destination -->
-        <div class="redirect-flow__node redirect-flow__node--destination">
-          <div class="redirect-flow__node-icon">
-            <span class="icon" data-icon="mono/arrow-top-right"></span>
-          </div>
-          <div class="redirect-flow__node-content">
-            <div class="redirect-flow__node-label">Destination</div>
-            <div class="redirect-flow__node-data">
-              ${destinationsList}
-            </div>
+          <div class="redirect-flow__meta">
+            ${pathIcon}
+            <span class="redirect-flow__path">${rule.source_path}</span>
           </div>
         </div>
       </div>
+
+      <button class="redirect-flow__segment redirect-flow__segment--rule" type="button" data-action="edit" data-rule-id="${rule.id}">
+        <div class="redirect-flow__segment-body">
+          <div class="redirect-flow__segment-header">
+            <span class="redirect-flow__pill redirect-flow__pill--rule">Rule</span>
+            <div class="redirect-flow__title redirect-flow__title--strong">${rule.name}</div>
+          </div>
+          <div class="redirect-flow__meta">
+            ${typeBadge}
+            <span class="badge badge--sm badge--neutral">${rule.project_name}</span>
+          </div>
+        </div>
+        <span class="redirect-flow__cta">
+          <span class="icon" data-icon="mono/pencil-circle"></span>
+        </span>
+      </button>
+
+      <div class="redirect-flow__segment redirect-flow__segment--destination">
+        <div class="redirect-flow__segment-body">
+          <div class="redirect-flow__segment-header">
+            <span class="redirect-flow__pill redirect-flow__pill--destination">Dst</span>
+            <div class="redirect-flow__title">${destinationTitle}</div>
+          </div>
+          <div class="redirect-flow__destinations">
+            ${destinationsList}
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+/**
+ * Format destinations list with weights and overflow handling
+ */
+function getDestinationsList(rule: RedirectRule): string {
+  const maxVisible = 3;
+  const destinations = rule.destinations.map(dest => ({
+    label: dest.url.replace('https://', '').replace('http://', ''),
+    weight: dest.weight,
+  }));
+
+  const visibleDestinations = destinations.slice(0, maxVisible);
+  const remaining = destinations.length - visibleDestinations.length;
+
+  const destinationItems = visibleDestinations.map(dest => `
+    <div class="redirect-flow__destination-item">
+      <span class="redirect-flow__destination-url">${dest.label}</span>
+      ${dest.weight ? `<span class="redirect-flow__destination-weight">${dest.weight}%</span>` : ''}
+    </div>
+  `).join('');
+
+  const overflow = remaining > 0
+    ? `<div class="redirect-flow__destination-more">+${remaining} more</div>`
+    : '';
+
+  return `
+    <div class="redirect-flow__destination-list">
+      ${destinationItems}
+      ${overflow}
     </div>
   `;
 }
@@ -227,10 +233,10 @@ function getFlowDisplay(rule: RedirectRule): string {
  */
 function getTypeBadge(rule: RedirectRule): string {
   const badges = {
-    simple: `<span class="badge badge--sm badge--neutral">${rule.redirect_code}</span>`,
+    simple: `<span class="badge badge--sm ${rule.redirect_code === 301 ? 'badge--success' : 'badge--warning'}">${rule.redirect_code}</span>`,
     weighted: '<span class="badge badge--sm badge--primary">Split</span>',
     conditional: '<span class="badge badge--sm badge--warning">Conditional</span>',
-    regex: '<span class="badge badge--sm badge--info">Regex</span>',
+    regex: '<span class="badge badge--sm badge--neutral">Regex</span>',
   };
   return badges[rule.type];
 }
@@ -305,9 +311,15 @@ function getConditionsDisplay(rule: RedirectRule): string {
  */
 function getHitsDisplay(rule: RedirectRule): string {
   return `
-    <div class="stack-list stack-list--xs text-sm">
-      <div><strong>${formatNumber(rule.hits_24h)}</strong> <span class="text-muted">24h</span></div>
-      <div><strong>${formatNumber(rule.hits_7d)}</strong> <span class="text-muted">7d</span></div>
+    <div class="table-metric">
+      <div class="table-metric__row">
+        <span class="table-metric__value">${formatNumber(rule.hits_24h)}</span>
+        <span class="table-metric__label">24h</span>
+      </div>
+      <div class="table-metric__row table-metric__row--muted">
+        <span class="table-metric__value">${formatNumber(rule.hits_7d)}</span>
+        <span class="table-metric__label">7d</span>
+      </div>
     </div>
   `;
 }
@@ -338,37 +350,24 @@ function getStatusBadge(rule: RedirectRule): string {
  * Get row actions based on rule status
  */
 function getRowActions(rule: RedirectRule): string {
-  // Disabled rule - can enable
-  if (rule.status === 'disabled') {
-    return `
-      <button class="btn-icon btn-icon--sm btn-icon--ghost" type="button" data-action="edit" data-rule-id="${rule.id}" title="Edit redirect">
-        <span class="icon" data-icon="mono/pencil-circle"></span>
-      </button>
-      <button class="btn-icon btn-icon--sm btn-icon--success" type="button" data-action="enable" data-rule-id="${rule.id}" title="Enable rule">
-        <span class="icon" data-icon="mono/arrow-up"></span>
-      </button>
-    `;
-  }
+  const isDisabled = rule.status === 'disabled';
+  const toggleAction = isDisabled ? 'enable' : 'disable';
+  const toggleIcon = isDisabled ? 'mono/arrow-up' : 'mono/pause';
+  const toggleTitle = isDisabled ? 'Enable rule' : 'Disable rule';
+  const toggleClass = isDisabled ? 'btn-icon--neutral' : 'btn-icon--ghost';
 
-  // Error state - needs attention
-  if (rule.status === 'error') {
-    return `
-      <button class="btn-icon btn-icon--sm btn-icon--ghost" type="button" data-action="edit" data-rule-id="${rule.id}" title="Edit redirect">
-        <span class="icon" data-icon="mono/pencil-circle"></span>
-      </button>
-      <button class="btn-icon btn-icon--sm btn-icon--danger" type="button" data-action="disable" data-rule-id="${rule.id}" title="Disable rule">
-        <span class="icon" data-icon="mono/close"></span>
-      </button>
-    `;
-  }
-
-  // Active - normal edit/disable actions
   return `
+    <button class="btn-icon btn-icon--sm btn-icon--ghost" type="button" data-action="refresh" data-rule-id="${rule.id}" title="Re-run checks">
+      <span class="icon" data-icon="mono/refresh"></span>
+    </button>
     <button class="btn-icon btn-icon--sm btn-icon--ghost" type="button" data-action="edit" data-rule-id="${rule.id}" title="Edit redirect">
       <span class="icon" data-icon="mono/pencil-circle"></span>
     </button>
-    <button class="btn-icon btn-icon--sm btn-icon--ghost" type="button" data-action="disable" data-rule-id="${rule.id}" title="Disable rule">
-      <span class="icon" data-icon="mono/pause"></span>
+    <button class="btn-icon btn-icon--sm ${toggleClass}" type="button" data-action="${toggleAction}" data-rule-id="${rule.id}" title="${toggleTitle}">
+      <span class="icon" data-icon="${toggleIcon}"></span>
+    </button>
+    <button class="btn-icon btn-icon--sm btn-icon--ghost" type="button" data-action="more" data-rule-id="${rule.id}" title="More actions">
+      <span class="icon" data-icon="mono/dots-vertical"></span>
     </button>
   `;
 }
@@ -426,6 +425,12 @@ function setupActions(): void {
       case 'disable':
         if (ruleId) handleDisable(ruleId);
         break;
+      case 'refresh':
+        if (ruleId) handleRefresh(ruleId);
+        break;
+      case 'more':
+        if (ruleId) handleMore(ruleId);
+        break;
       case 'add-redirect':
         handleAddRedirect();
         break;
@@ -467,6 +472,28 @@ function handleDisable(ruleId: number): void {
 
   console.log('[Redirects] Disable rule:', rule.name);
   alert(`⏸️ Disable "${rule.name}"\n\n(API integration coming soon)`);
+}
+
+/**
+ * Handle refresh check
+ */
+function handleRefresh(ruleId: number): void {
+  const rule = currentRules.find(r => r.id === ruleId);
+  if (!rule) return;
+
+  console.log('[Redirects] Refresh checks for rule:', rule.name);
+  alert(`🔁 Re-running checks for "${rule.name}"\n\n(Health checks and analytics refresh coming soon)`);
+}
+
+/**
+ * Handle contextual menu
+ */
+function handleMore(ruleId: number): void {
+  const rule = currentRules.find(r => r.id === ruleId);
+  if (!rule) return;
+
+  console.log('[Redirects] Open more actions for rule:', rule.name);
+  alert(`⋯ Context menu for "${rule.name}"\n\nPlanned actions: manage, enable/disable, clone, delete, export.`);
 }
 
 /**
