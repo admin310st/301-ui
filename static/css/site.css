@@ -3623,7 +3623,7 @@ html[data-theme="light"] .bulk-actions-bar__actions .btn--ghost:hover {
 /* Mobile: 2 columns × 3 rows */
 @media (max-width: 480px) {
   .bulk-actions-bar__content {
-    flex-direction: column;
+    flex-direction: column-reverse;
     align-items: stretch;
     gap: var(--space-3);
   }
