@@ -2,10 +2,12 @@ import { showGlobalMessage } from '@ui/notifications';
 import { logDebug } from '@utils/logger';
 import { handleOAuthSuccess, isOAuthSuccessPath } from './oauth-success';
 
-const GITHUB_START_URL = 'https://api.301.st/auth/oauth/github/start';
+const GITHUB_START_BASE_URL = 'https://api.301.st/auth/oauth/github/start';
 
 function beginGithubFlow(): void {
-  window.location.href = GITHUB_START_URL;
+  const host = window.location.host; // app.301.st | dev.301.st | localhost:5173
+  const url = `${GITHUB_START_BASE_URL}?redirect_host=${encodeURIComponent(host)}`;
+  window.location.href = url;
 }
 
 async function handleOAuthReturn(): Promise<void> {

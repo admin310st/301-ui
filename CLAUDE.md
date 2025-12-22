@@ -360,10 +360,12 @@ When fixing these gaps:
 
 ### OAuth Flow
 1. User clicks Google/GitHub button
-2. Redirect to provider OAuth URL (generated via `google.ts` / `github.ts`)
-3. Provider redirects back with code/token
-4. Backend exchanges code for access token
-5. Frontend stores token and loads user profile
+2. UI redirects to `/auth/oauth/{google,github}/start?redirect_host={current_host}`
+3. Backend validates `redirect_host` (whitelist: `app.301.st`, `dev.301.st`, `301.st`, `localhost:5173`)
+4. Provider OAuth screen → user authorizes → callback to backend
+5. Backend creates/updates user, generates `access_token` + `refresh_cookie`
+6. Backend redirects to `https://{redirect_host}/auth/success?token=...`
+7. Frontend extracts token from URL, stores it, and redirects to dashboard
 
 ## Working with Forms
 
