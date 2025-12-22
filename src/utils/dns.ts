@@ -59,10 +59,13 @@ export async function queryNSRecords(domain: string): Promise<NSRecord[]> {
     // Extract NS records and check if they're Cloudflare
     return data.Answer
       .filter((record) => record.type === 2) // NS type = 2
-      .map((record) => ({
-        nameserver: record.data.replace(/\.$/, ''), // Remove trailing dot
-        isCloudflare: /cloudflare\.com$/i.test(record.data),
-      }))
+      .map((record) => {
+        const nameserver = record.data.replace(/\.$/, ''); // Remove trailing dot
+        return {
+          nameserver,
+          isCloudflare: /cloudflare\.com$/i.test(nameserver), // Check after removing trailing dot
+        };
+      })
       .sort((a, b) => a.nameserver.localeCompare(b.nameserver));
   } catch (error) {
     console.error('DNS query failed:', error);

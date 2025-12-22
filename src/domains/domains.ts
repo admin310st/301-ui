@@ -756,6 +756,7 @@ function openInspector(domainId: number): void {
   const abuseEl = drawer.querySelector('[data-inspector-abuse]');
   const monitoringEl = drawer.querySelector('[data-inspector-monitoring]');
   const nsEl = drawer.querySelector('[data-inspector-ns]');
+  const nsStatusEl = drawer.querySelector('[data-inspector-ns-status]');
 
   if (domainEl) domainEl.textContent = domain.domain_name;
   if (statusEl) {
@@ -798,18 +799,21 @@ function openInspector(domainId: number): void {
   if (monitoringEl) monitoringEl.textContent = domain.monitoring_enabled ? 'Enabled' : 'Disabled';
 
   // Load NS records asynchronously
-  if (nsEl) {
+  if (nsEl && nsStatusEl) {
     nsEl.innerHTML = '<span class="text-muted">Loading...</span>';
+    nsStatusEl.innerHTML = '';
     queryNSRecords(domain.domain_name)
       .then((records) => {
         if (records.length === 0) {
           nsEl.innerHTML = '<span class="text-muted">No NS records found</span>';
+          nsStatusEl.innerHTML = '';
           return;
         }
 
         const allCloudflare = records.every((r) => r.isCloudflare);
         const someCloudflare = records.some((r) => r.isCloudflare);
 
+        // NS list with CF icons
         const recordsHtml = records
           .map((record) => {
             const cfIcon = record.isCloudflare
@@ -819,17 +823,20 @@ function openInspector(domainId: number): void {
           })
           .join('');
 
+        // Status badge in header (no icons, just colored text)
         const statusBadge = allCloudflare
-          ? '<span class="badge badge--success"><span class="icon" data-icon="mono/check-circle"></span>All nameservers on Cloudflare</span>'
+          ? '<span class="badge badge--success">On Cloudflare</span>'
           : someCloudflare
-          ? '<span class="badge badge--warning"><span class="icon" data-icon="mono/circle-alert"></span>Mixed nameservers</span>'
-          : '<span class="badge badge--neutral"><span class="icon" data-icon="mono/help-circle"></span>Not on Cloudflare</span>';
+          ? '<span class="badge badge--warning">Mixed NS</span>'
+          : '<span class="badge badge--neutral">Not on Cloudflare</span>';
 
-        nsEl.innerHTML = `<div class="stack-list--xs">${recordsHtml}<div>${statusBadge}</div></div>`;
+        nsEl.innerHTML = `<div class="stack-list--xs">${recordsHtml}</div>`;
+        nsStatusEl.innerHTML = statusBadge;
       })
       .catch((error) => {
         console.error('Failed to load NS records:', error);
         nsEl.innerHTML = '<span class="text-muted">Failed to load NS records</span>';
+        nsStatusEl.innerHTML = '';
       });
   }
 
