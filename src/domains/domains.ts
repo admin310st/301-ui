@@ -8,6 +8,7 @@ import { renderFilterBar, initFilterUI } from './filters-ui';
 import { updateDomainsBadge, updateDomainsHealthIndicator } from '@ui/sidebar-nav';
 import { initBulkActions } from './bulk-actions';
 import { adjustDropdownPosition } from '@ui/dropdown';
+import { queryNSRecords } from '@utils/dns';
 
 let currentDomains: Domain[] = [];
 let selectedDomains = new Set<number>();
@@ -754,6 +755,7 @@ function openInspector(domainId: number): void {
   const sslEl = drawer.querySelector('[data-inspector-ssl]');
   const abuseEl = drawer.querySelector('[data-inspector-abuse]');
   const monitoringEl = drawer.querySelector('[data-inspector-monitoring]');
+  const nsEl = drawer.querySelector('[data-inspector-ns]');
 
   if (domainEl) domainEl.textContent = domain.domain_name;
   if (statusEl) {
@@ -794,6 +796,42 @@ function openInspector(domainId: number): void {
   if (sslEl) sslEl.textContent = `${domain.ssl_status.charAt(0).toUpperCase() + domain.ssl_status.slice(1)}${domain.ssl_valid_to ? ` (until ${domain.ssl_valid_to})` : ''}`;
   if (abuseEl) abuseEl.textContent = domain.abuse_status.charAt(0).toUpperCase() + domain.abuse_status.slice(1);
   if (monitoringEl) monitoringEl.textContent = domain.monitoring_enabled ? 'Enabled' : 'Disabled';
+
+  // Load NS records asynchronously
+  if (nsEl) {
+    nsEl.innerHTML = '<span class="text-muted">Loading...</span>';
+    queryNSRecords(domain.domain_name)
+      .then((records) => {
+        if (records.length === 0) {
+          nsEl.innerHTML = '<span class="text-muted">No NS records found</span>';
+          return;
+        }
+
+        const allCloudflare = records.every((r) => r.isCloudflare);
+        const someCloudflare = records.some((r) => r.isCloudflare);
+
+        const recordsHtml = records
+          .map((record) => {
+            const cfBadge = record.isCloudflare
+              ? '<span class="badge badge--sm badge--success" style="margin-left: 0.5rem;">Cloudflare</span>'
+              : '';
+            return `<div>${record.nameserver}${cfBadge}</div>`;
+          })
+          .join('');
+
+        const statusBadge = allCloudflare
+          ? '<div style="margin-top: 0.5rem;"><span class="badge badge--success"><span class="icon" data-icon="mono/check-circle"></span>All nameservers on Cloudflare</span></div>'
+          : someCloudflare
+          ? '<div style="margin-top: 0.5rem;"><span class="badge badge--warning"><span class="icon" data-icon="mono/circle-alert"></span>Mixed nameservers</span></div>'
+          : '<div style="margin-top: 0.5rem;"><span class="badge badge--neutral"><span class="icon" data-icon="mono/help-circle"></span>Not on Cloudflare</span></div>';
+
+        nsEl.innerHTML = `<div class="stack-list stack-list--xs">${recordsHtml}${statusBadge}</div>`;
+      })
+      .catch((error) => {
+        console.error('Failed to load NS records:', error);
+        nsEl.innerHTML = '<span class="text-muted">Failed to load NS records</span>';
+      });
+  }
 
   // Add copy button handler
   const copyBtn = drawer.querySelector('[data-action="copy-domain-inspector"]');
