@@ -95,9 +95,25 @@ function renderTable(): void {
     const isCollapsed = collapsedGroups.has(group.site_id);
     const chevronIcon = isCollapsed ? 'chevron-down' : 'chevron-up';
 
+    // Check if all selectable domains in this group are selected
+    const selectableDomains = group.domains.filter(d => !targetDomains.has(d.domain));
+    const selectedInGroup = selectableDomains.filter(d => selectedRedirects.has(d.id));
+    const allSelected = selectableDomains.length > 0 && selectedInGroup.length === selectableDomains.length;
+    const someSelected = selectedInGroup.length > 0 && selectedInGroup.length < selectableDomains.length;
+
     const groupHeader = `
       <tr class="table__group-header" data-group-id="${group.site_id}">
-        <td colspan="7">
+        <td class="table__group-checkbox">
+          <input
+            type="checkbox"
+            class="checkbox"
+            data-select-group="${group.site_id}"
+            ${allSelected ? 'checked' : ''}
+            ${someSelected ? 'data-indeterminate="true"' : ''}
+            aria-label="Select all in ${group.site_name}"
+          />
+        </td>
+        <td colspan="6">
           <button class="table__group-toggle" type="button" data-action="toggle-group" data-group-id="${group.site_id}">
             <span class="table__group-title">
               <span class="table__group-flag">${group.site_flag}</span>
@@ -118,6 +134,12 @@ function renderTable(): void {
   }).join('');
 
   tbody.innerHTML = html;
+
+  // Set indeterminate state for group checkboxes
+  const groupCheckboxes = tbody.querySelectorAll('[data-indeterminate="true"]');
+  groupCheckboxes.forEach(cb => {
+    (cb as HTMLInputElement).indeterminate = true;
+  });
 
   // Update counts
   const shownCount = document.querySelector('[data-shown-count]');
@@ -205,9 +227,9 @@ function getDomainDisplay(redirect: DomainRedirect, isTargetDomain: boolean): st
     ? `<span class="badge badge--xs badge--${redirect.domain_status === 'parked' ? 'neutral' : 'danger'}">${redirect.domain_status}</span>`
     : '';
 
-  // Show arrow-bottom-right icon for source domains (not targets)
+  // Donor domains (sources) send traffic → arrow-top-right ↗️
   const sourceIcon = !isTargetDomain && redirect.target_url
-    ? `<span class="icon text-muted" data-icon="mono/arrow-bottom-right"></span>`
+    ? `<span class="icon text-muted" data-icon="mono/arrow-top-right"></span>`
     : '';
 
   return `
@@ -229,9 +251,10 @@ function getTargetDisplay(redirect: DomainRedirect): string {
 
   const targetHost = redirect.target_url.replace('https://', '').replace('http://', '').split('/')[0];
 
+  // Target domains receive traffic → arrow-bottom-right ↘️
   return `
     <div class="table-cell-inline">
-      <span class="icon text-muted" data-icon="mono/arrow-top-right"></span>
+      <span class="icon text-muted" data-icon="mono/arrow-bottom-right"></span>
       <span class="table-cell-main" title="${redirect.target_url}">${targetHost}</span>
     </div>
   `;
@@ -395,13 +418,15 @@ function setupActions(): void {
       } else {
         selectedRedirects.delete(redirectId);
       }
+      renderTable();
       updateBulkActionsBar();
     }
 
-    // Select all checkbox
-    if (target.hasAttribute('data-select-all-redirects')) {
-      const selectAll = target as HTMLInputElement;
-      handleSelectAll(selectAll.checked);
+    // Group select checkbox
+    if (target.hasAttribute('data-select-group')) {
+      const checkbox = target as HTMLInputElement;
+      const groupId = Number(checkbox.dataset.selectGroup);
+      handleSelectGroup(groupId, checkbox.checked);
     }
   });
 
@@ -494,19 +519,27 @@ function handleAddRedirect(): void {
 }
 
 /**
- * Handle select all redirects
+ * Handle select all redirects in a group
  */
-function handleSelectAll(checked: boolean): void {
+function handleSelectGroup(groupId: number, checked: boolean): void {
+  const groups = groupBySite(filteredRedirects);
+  const group = groups.find(g => g.site_id === groupId);
+  if (!group) return;
+
+  const selectableDomains = group.domains.filter(d => !targetDomains.has(d.domain));
+
   if (checked) {
-    // Select only redirects that are not target domains
-    for (const redirect of filteredRedirects) {
-      if (!targetDomains.has(redirect.domain)) {
-        selectedRedirects.add(redirect.id);
-      }
+    // Select all selectable domains in this group
+    for (const redirect of selectableDomains) {
+      selectedRedirects.add(redirect.id);
     }
   } else {
-    selectedRedirects.clear();
+    // Deselect all domains in this group
+    for (const redirect of selectableDomains) {
+      selectedRedirects.delete(redirect.id);
+    }
   }
+
   renderTable();
   updateBulkActionsBar();
 }
@@ -536,14 +569,6 @@ function updateBulkActionsBar(): void {
     bulkBar.hidden = false;
   } else {
     bulkBar.hidden = true;
-  }
-
-  // Update select-all checkbox state
-  const selectAllCheckbox = document.querySelector('[data-select-all-redirects]') as HTMLInputElement;
-  if (selectAllCheckbox) {
-    const selectableCount = filteredRedirects.filter(r => !targetDomains.has(r.domain)).length;
-    selectAllCheckbox.checked = count === selectableCount && count > 0;
-    selectAllCheckbox.indeterminate = count > 0 && count < selectableCount;
   }
 }
 

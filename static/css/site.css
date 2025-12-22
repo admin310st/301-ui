@@ -2472,6 +2472,12 @@ html[data-theme="light"] .btn--social-github {
   border-bottom: 1px solid var(--border);
 }
 
+.table__group-checkbox {
+  padding: var(--space-2) 0 var(--space-2) var(--space-3);
+  text-align: center;
+  vertical-align: middle;
+}
+
 .table__group-toggle {
   display: flex;
   align-items: center;
