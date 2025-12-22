@@ -819,7 +819,7 @@ function openInspector(domainId: number): void {
             const cfIcon = record.isCloudflare
               ? '<span class="icon text-ok" data-icon="brand/cloudflare" title="Cloudflare"></span>'
               : '<span class="icon" style="opacity: 0; pointer-events: none;"></span>'; // Invisible spacer for alignment
-            return `<div class="stack-inline--xs">${cfIcon}${record.nameserver}</div>`;
+            return `<div class="stack-inline--sm">${cfIcon}${record.nameserver}</div>`;
           })
           .join('');
 
