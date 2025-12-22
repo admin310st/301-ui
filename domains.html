@@ -314,15 +314,17 @@
             <!-- DNS Configuration -->
             <section class="card card--panel">
               <header class="card__header">
-                <div class="stack-inline--sm" style="justify-content: space-between; align-items: center; width: 100%;">
-                  <h3 class="h5">DNS Configuration</h3>
-                  <span data-inspector-ns-status></span>
-                </div>
+                <h3 class="h5">DNS Configuration</h3>
               </header>
               <div class="card__body">
                 <dl class="detail-list">
                   <div class="detail-row">
-                    <dt class="detail-label">Nameservers</dt>
+                    <dt class="detail-label">
+                      <div class="stack-inline--xs">
+                        <span>Nameservers</span>
+                        <span data-inspector-ns-status></span>
+                      </div>
+                    </dt>
                     <dd class="detail-value" data-inspector-ns>
                       <span class="text-muted">Loading...</span>
                     </dd>

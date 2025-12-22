@@ -813,13 +813,13 @@ function openInspector(domainId: number): void {
         const allCloudflare = records.every((r) => r.isCloudflare);
         const someCloudflare = records.some((r) => r.isCloudflare);
 
-        // NS list with CF icons
+        // NS list with CF icons before nameserver
         const recordsHtml = records
           .map((record) => {
             const cfIcon = record.isCloudflare
               ? '<span class="icon text-ok" data-icon="brand/cloudflare" title="Cloudflare"></span>'
-              : '';
-            return `<div class="stack-inline--xs">${record.nameserver}${cfIcon}</div>`;
+              : '<span class="icon" style="opacity: 0; pointer-events: none;"></span>'; // Invisible spacer for alignment
+            return `<div class="stack-inline--xs">${cfIcon}${record.nameserver}</div>`;
           })
           .join('');
 
