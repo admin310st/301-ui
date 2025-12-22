@@ -2477,7 +2477,9 @@ html[data-theme="light"] .btn--social-github {
   text-align: center;
 }
 
+.table__th-actions,
 .table__cell-actions {
+  width: 140px;
   text-align: right;
 }
 
@@ -4201,6 +4203,7 @@ html[data-theme="light"] .bulk-actions-bar__actions .btn--ghost:hover {
   border: 2px solid var(--flow-accent);
   border-radius: 50%;
   box-shadow: 0 0 0 4px color-mix(in srgb, var(--flow-accent) 15%, transparent);
+  z-index: 2; /* Ensure dot appears above line */
 }
 
 .redirect-flow__segment::after {

@@ -165,7 +165,7 @@ function getFlowDisplay(rule: RedirectRule): string {
         </div>
       </div>
 
-      <button class="redirect-flow__segment redirect-flow__segment--rule" type="button" data-action="edit" data-rule-id="${rule.id}">
+      <button class="redirect-flow__segment redirect-flow__segment--rule" type="button" data-action="edit" data-rule-id="${rule.id}" aria-label="Edit redirect rule ${rule.name}">
         <div class="redirect-flow__segment-body">
           <div class="redirect-flow__segment-header">
             <span class="redirect-flow__pill redirect-flow__pill--rule">Rule</span>
@@ -476,6 +476,7 @@ function handleDisable(ruleId: number): void {
 
 /**
  * Handle refresh check
+ * TODO: Integrate with API to refresh health checks and analytics data
  */
 function handleRefresh(ruleId: number): void {
   const rule = currentRules.find(r => r.id === ruleId);
@@ -487,6 +488,7 @@ function handleRefresh(ruleId: number): void {
 
 /**
  * Handle contextual menu
+ * TODO: Implement context menu with actions: manage, enable/disable, clone, delete, export
  */
 function handleMore(ruleId: number): void {
   const rule = currentRules.find(r => r.id === ruleId);
