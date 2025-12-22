@@ -452,6 +452,9 @@ function setupBulkActions(): void {
       case 'clear-selection':
         handleClearSelection();
         break;
+      case 'bulk-sync':
+        handleBulkSync();
+        break;
       case 'bulk-enable':
         handleBulkEnable();
         break;
@@ -570,6 +573,15 @@ function updateBulkActionsBar(): void {
   } else {
     bulkBar.hidden = true;
   }
+}
+
+/**
+ * Handle bulk sync to Cloudflare
+ */
+function handleBulkSync(): void {
+  const count = selectedRedirects.size;
+  console.log('[Redirects] Bulk sync:', count, 'redirects');
+  alert(`☁️ Sync ${count} redirect(s) to Cloudflare\n\n(API integration coming soon)`);
 }
 
 /**

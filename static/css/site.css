@@ -2459,7 +2459,13 @@ html[data-theme="light"] .btn--social-github {
 .table__th-checkbox,
 .table__cell-checkbox {
   width: 40px;
-  text-align: center;
+  padding-left: var(--space-3);
+  padding-right: 0;
+  text-align: left;
+}
+
+.table__cell-checkbox {
+  vertical-align: middle;
 }
 
 .table__cell-checkbox .icon {
@@ -2473,8 +2479,9 @@ html[data-theme="light"] .btn--social-github {
 }
 
 .table__group-checkbox {
+  width: 40px;
   padding: var(--space-2) 0 var(--space-2) var(--space-3);
-  text-align: center;
+  text-align: left;
   vertical-align: middle;
 }
 
@@ -3752,7 +3759,7 @@ body.layout-dashboard .burger-button {
 /* Actions grid - follows table-controls pattern */
 .bulk-actions-bar__actions {
   display: grid;
-  grid-template-columns: repeat(6, auto);
+  grid-template-columns: repeat(4, auto);
   align-items: center;
   gap: var(--inline-gap);
 }
@@ -3787,6 +3794,17 @@ body.layout-dashboard .burger-button {
 
 .bulk-actions-bar__actions .btn--danger:hover {
   background: var(--danger);
+  color: var(--btn-text-on-dark);
+}
+
+.bulk-actions-bar__actions .btn--cf {
+  background: transparent;
+  border: 1px solid var(--cf-orange);
+  color: var(--cf-orange);
+}
+
+.bulk-actions-bar__actions .btn--cf:hover {
+  background: var(--cf-orange);
   color: var(--btn-text-on-dark);
 }
 
