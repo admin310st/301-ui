@@ -3530,7 +3530,7 @@ body.layout-dashboard .burger-button {
 }
 
 .bulk-actions-bar__info .btn-chip .icon {
-  color: var(--brand);
+  color: var(--success);
 }
 
 /* Cancel button in info section - canonical ghost styling */
