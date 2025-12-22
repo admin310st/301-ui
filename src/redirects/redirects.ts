@@ -12,6 +12,7 @@ let filteredRedirects: DomainRedirect[] = [];
 let collapsedGroups = new Set<number>();  // Set of collapsed site_ids
 let selectedRedirects = new Set<number>(); // Set of selected redirect IDs
 let primaryDomains = new Set<string>(); // Set of primary domains (main domains of sites)
+let currentProjectId: number | 'all' = 'all'; // Current project filter
 
 /**
  * Initialize redirects page
@@ -30,6 +31,9 @@ export function initRedirectsPage(): void {
 
   // Setup filters (future)
   // setupFilters();
+
+  // Setup project switcher
+  setupProjectSwitcher();
 
   // Setup action buttons
   setupActions();
@@ -92,6 +96,18 @@ function loadRedirects(): void {
 }
 
 /**
+ * Get site type badge
+ */
+function getSiteTypeBadge(siteType: string): string {
+  const badges = {
+    landing: '<span class="badge badge--sm badge--success">Landing</span>',
+    tds: '<span class="badge badge--sm badge--primary">TDS</span>',
+    hybrid: '<span class="badge badge--sm badge--warning">Hybrid</span>',
+  };
+  return badges[siteType as keyof typeof badges] || '';
+}
+
+/**
  * Render redirects table grouped by site
  */
 function renderTable(): void {
@@ -118,6 +134,7 @@ function renderTable(): void {
             <span class="table__group-title">
               <span class="badge badge--sm badge--neutral table__group-flag">${group.site_flag}</span>
               <span class="table__group-name">${group.site_name}</span>
+              ${getSiteTypeBadge(group.site_type)}
             </span>
             <span class="table__group-count">${group.domains.length} domains</span>
           </button>
@@ -408,6 +425,62 @@ function setupSearch(): void {
 
     renderTable();
   });
+}
+
+/**
+ * Setup project switcher
+ */
+function setupProjectSwitcher(): void {
+  const switcher = document.querySelector('[data-project-switcher]');
+  const menu = document.querySelector('[data-project-menu]');
+  if (!switcher || !menu) return;
+
+  // Toggle dropdown
+  switcher.addEventListener('click', () => {
+    menu.toggleAttribute('hidden');
+  });
+
+  // Handle project selection
+  menu.addEventListener('click', (e) => {
+    const item = (e.target as HTMLElement).closest('[data-project-id]') as HTMLElement;
+    if (!item) return;
+
+    const projectId = item.dataset.projectId;
+    const projectName = item.textContent || 'All Projects';
+
+    // Update current project
+    currentProjectId = projectId === 'all' ? 'all' : Number(projectId);
+
+    // Update button text
+    const currentProjectEl = document.querySelector('[data-current-project]');
+    if (currentProjectEl) currentProjectEl.textContent = projectName;
+
+    // Filter redirects
+    applyProjectFilter();
+
+    // Close menu
+    menu.setAttribute('hidden', '');
+  });
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!switcher.contains(e.target as Node) && !menu.contains(e.target as Node)) {
+      menu.setAttribute('hidden', '');
+    }
+  });
+}
+
+/**
+ * Apply project filter
+ */
+function applyProjectFilter(): void {
+  if (currentProjectId === 'all') {
+    filteredRedirects = [...currentRedirects];
+  } else {
+    filteredRedirects = currentRedirects.filter(r => r.project_id === currentProjectId);
+  }
+  renderTable();
+  updateBulkActionsBar();
 }
 
 /**

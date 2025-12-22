@@ -9,6 +9,7 @@ export type RedirectCode = 301 | 302;
 export type SyncStatus = 'synced' | 'pending' | 'error';
 export type DomainStatus = 'active' | 'parked' | 'expired';
 export type CfImplementation = 'redirect_rule' | 'worker' | null;
+export type SiteType = 'landing' | 'tds' | 'hybrid';
 
 export interface DomainRedirect {
   id: number;
@@ -38,6 +39,7 @@ export interface DomainRedirect {
   site_id: number;
   site_name: string;  // e.g., "CryptoBoss (En)"
   site_flag: string;  // emoji flag for display
+  site_type: SiteType;  // 'landing' | 'tds' | 'hybrid'
   project_id: number;
   project_name: string;
 
@@ -49,15 +51,24 @@ export interface DomainRedirect {
 /**
  * Mock domain redirects
  *
- * Structure: 2 projects, 3 sites, 13 domains
+ * Structure: 4 projects, 5 sites, 23 domains
  * - Project: CryptoBoss (id: 17) - 9 domains
- *   - Site: CryptoBoss (En) 🇺🇸 - 3 domains (primary: cryptoboss.pics)
- *   - Site: CryptoBoss (Ru) 🇷🇺 - 6 domains (primary: finbosse.ru)
+ *   - Site: CryptoBoss (En) 🇺🇸 [Landing] - 3 domains (primary: cryptoboss.pics)
+ *   - Site: CryptoBoss (Ru) 🇷🇺 [Landing] - 6 domains (primary: finbosse.ru)
  * - Project: TestProject (id: 18) - 4 domains
- *   - Site: Test Site 🇬🇧 - 4 domains (primary: example.com)
+ *   - Site: Test Site 🇬🇧 [Landing] - 4 domains (primary: example.com)
+ * - Project: Vavada (id: 19) - 6 domains
+ *   - Site: Vavada (Ru) 🇷🇺 [TDS] - 6 domains (primary: casinovavada.cyou)
+ * - Project: BetHub (id: 20) - 4 domains
+ *   - Site: BetHub (Eu) 🇪🇺 [Hybrid] - 4 domains (primary: bethub.eu)
  *
- * Primary domains: 3 (main site domains that receive traffic)
- * Status distribution: 7 with redirects, 6 without, 2 pending, 1 error
+ * Site types:
+ * - Landing: Simple landing page sites (3 sites)
+ * - TDS: Traffic Distribution System with routing logic (1 site)
+ * - Hybrid: Landing + TDS combined (1 site)
+ *
+ * Primary domains: 5 (main site domains that receive traffic)
+ * Status distribution: 13 with redirects, 10 without, 2 pending, 0 error
  */
 export const mockDomainRedirects: DomainRedirect[] = [
   // ===== CryptoBoss (En) 🇺🇸 =====
@@ -77,6 +88,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     site_id: 1,
     site_name: 'CryptoBoss (En)',
     site_flag: '🇺🇸',
+    site_type: 'landing',
     project_id: 17,
     project_name: 'CryptoBoss',
     created_at: '2025-01-08T10:00:00Z',
@@ -98,6 +110,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     site_id: 1,
     site_name: 'CryptoBoss (En)',
     site_flag: '🇺🇸',
+    site_type: 'landing',
     project_id: 17,
     project_name: 'CryptoBoss',
     created_at: '2025-01-10T12:00:00Z',
@@ -119,6 +132,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     site_id: 1,
     site_name: 'CryptoBoss (En)',
     site_flag: '🇺🇸',
+    site_type: 'landing',
     project_id: 17,
     project_name: 'CryptoBoss',
     created_at: '2025-01-05T14:00:00Z',
@@ -142,6 +156,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     site_id: 2,
     site_name: 'CryptoBoss (Ru)',
     site_flag: '🇷🇺',
+    site_type: 'landing',
     project_id: 17,
     project_name: 'CryptoBoss',
     created_at: '2025-01-06T09:00:00Z',
@@ -163,6 +178,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     site_id: 2,
     site_name: 'CryptoBoss (Ru)',
     site_flag: '🇷🇺',
+    site_type: 'landing',
     project_id: 17,
     project_name: 'CryptoBoss',
     created_at: '2025-01-11T11:00:00Z',
@@ -184,6 +200,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     site_id: 2,
     site_name: 'CryptoBoss (Ru)',
     site_flag: '🇷🇺',
+    site_type: 'landing',
     project_id: 17,
     project_name: 'CryptoBoss',
     created_at: '2025-01-13T19:00:00Z',
@@ -205,6 +222,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     site_id: 2,
     site_name: 'CryptoBoss (Ru)',
     site_flag: '🇷🇺',
+    site_type: 'landing',
     project_id: 17,
     project_name: 'CryptoBoss',
     created_at: '2025-01-12T10:30:00Z',
@@ -226,6 +244,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     site_id: 2,
     site_name: 'CryptoBoss (Ru)',
     site_flag: '🇷🇺',
+    site_type: 'landing',
     project_id: 17,
     project_name: 'CryptoBoss',
     created_at: '2025-01-12T15:00:00Z',
@@ -247,6 +266,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     site_id: 2,
     site_name: 'CryptoBoss (Ru)',
     site_flag: '🇷🇺',
+    site_type: 'landing',
     project_id: 17,
     project_name: 'CryptoBoss',
     created_at: '2025-01-04T13:00:00Z',
@@ -270,6 +290,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     site_id: 3,
     site_name: 'Test Site',
     site_flag: '🇬🇧',
+    site_type: 'landing',
     project_id: 18,
     project_name: 'TestProject',
     created_at: '2025-01-07T09:00:00Z',
@@ -291,6 +312,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     site_id: 3,
     site_name: 'Test Site',
     site_flag: '🇬🇧',
+    site_type: 'landing',
     project_id: 18,
     project_name: 'TestProject',
     created_at: '2025-01-09T08:00:00Z',
@@ -312,6 +334,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     site_id: 3,
     site_name: 'Test Site',
     site_flag: '🇬🇧',
+    site_type: 'landing',
     project_id: 18,
     project_name: 'TestProject',
     created_at: '2025-01-13T20:00:00Z',
@@ -333,10 +356,235 @@ export const mockDomainRedirects: DomainRedirect[] = [
     site_id: 3,
     site_name: 'Test Site',
     site_flag: '🇬🇧',
+    site_type: 'landing',
     project_id: 18,
     project_name: 'TestProject',
     created_at: '2024-12-01T10:00:00Z',
     updated_at: '2024-12-01T10:00:00Z'
+  },
+
+  // ===== Vavada (Ru) 🇷🇺 - TDS =====
+  {
+    id: 14,
+    domain_id: 401,
+    domain: 'casinovavada.cyou',
+    domain_status: 'active',
+    target_url: null,  // Main domain, no redirect
+    redirect_code: 301,
+    enabled: false,
+    cf_rule_id: null,
+    cf_implementation: null,
+    last_sync_at: null,
+    sync_status: 'synced',
+    sync_error: null,
+    site_id: 4,
+    site_name: 'Vavada (Ru)',
+    site_flag: '🇷🇺',
+    site_type: 'tds',
+    project_id: 19,
+    project_name: 'Vavada',
+    created_at: '2025-11-20T09:00:00Z',
+    updated_at: '2025-11-20T09:00:00Z'
+  },
+  {
+    id: 15,
+    domain_id: 402,
+    domain: 'bdblogov.ru',
+    domain_status: 'active',
+    target_url: 'https://casinovavada.cyou/',
+    redirect_code: 301,
+    enabled: true,
+    cf_rule_id: 'rule_vav1',
+    cf_implementation: 'redirect_rule',
+    last_sync_at: '2025-11-22T10:32:59Z',
+    sync_status: 'synced',
+    sync_error: null,
+    site_id: 4,
+    site_name: 'Vavada (Ru)',
+    site_flag: '🇷🇺',
+    site_type: 'tds',
+    project_id: 19,
+    project_name: 'Vavada',
+    created_at: '2025-11-21T08:00:00Z',
+    updated_at: '2025-11-22T10:32:59Z'
+  },
+  {
+    id: 16,
+    domain_id: 403,
+    domain: 'casinovavada.homes',
+    domain_status: 'active',
+    target_url: 'https://casinovavada.cyou/*',
+    redirect_code: 301,
+    enabled: true,
+    cf_rule_id: 'rule_vav2',
+    cf_implementation: 'redirect_rule',
+    last_sync_at: '2025-11-22T10:19:57Z',
+    sync_status: 'synced',
+    sync_error: null,
+    site_id: 4,
+    site_name: 'Vavada (Ru)',
+    site_flag: '🇷🇺',
+    site_type: 'tds',
+    project_id: 19,
+    project_name: 'Vavada',
+    created_at: '2025-11-21T09:00:00Z',
+    updated_at: '2025-11-22T10:19:57Z'
+  },
+  {
+    id: 17,
+    domain_id: 404,
+    domain: 'clubvavada.ru',
+    domain_status: 'active',
+    target_url: 'https://casinovavada.cyou/*',
+    redirect_code: 301,
+    enabled: true,
+    cf_rule_id: 'rule_vav3',
+    cf_implementation: 'redirect_rule',
+    last_sync_at: '2025-11-22T10:19:57Z',
+    sync_status: 'synced',
+    sync_error: null,
+    site_id: 4,
+    site_name: 'Vavada (Ru)',
+    site_flag: '🇷🇺',
+    site_type: 'tds',
+    project_id: 19,
+    project_name: 'Vavada',
+    created_at: '2025-11-21T10:00:00Z',
+    updated_at: '2025-11-22T10:19:57Z'
+  },
+  {
+    id: 18,
+    domain_id: 405,
+    domain: 'vavada.monster',
+    domain_status: 'active',
+    target_url: 'https://casinovavada.cyou/*',
+    redirect_code: 301,
+    enabled: true,
+    cf_rule_id: 'rule_vav4',
+    cf_implementation: 'redirect_rule',
+    last_sync_at: '2025-11-22T10:19:57Z',
+    sync_status: 'synced',
+    sync_error: null,
+    site_id: 4,
+    site_name: 'Vavada (Ru)',
+    site_flag: '🇷🇺',
+    site_type: 'tds',
+    project_id: 19,
+    project_name: 'Vavada',
+    created_at: '2025-11-21T11:00:00Z',
+    updated_at: '2025-11-22T10:19:57Z'
+  },
+  {
+    id: 19,
+    domain_id: 406,
+    domain: 'vavada10.ru',
+    domain_status: 'active',
+    target_url: 'https://casinovavada.cyou/*',
+    redirect_code: 301,
+    enabled: true,
+    cf_rule_id: 'rule_vav5',
+    cf_implementation: 'redirect_rule',
+    last_sync_at: '2025-11-22T10:19:57Z',
+    sync_status: 'synced',
+    sync_error: null,
+    site_id: 4,
+    site_name: 'Vavada (Ru)',
+    site_flag: '🇷🇺',
+    site_type: 'tds',
+    project_id: 19,
+    project_name: 'Vavada',
+    created_at: '2025-11-21T12:00:00Z',
+    updated_at: '2025-11-22T10:19:57Z'
+  },
+
+  // ===== BetHub (Eu) 🇪🇺 - Hybrid =====
+  {
+    id: 20,
+    domain_id: 501,
+    domain: 'bethub.eu',
+    domain_status: 'active',
+    target_url: null,  // Main domain, no redirect
+    redirect_code: 301,
+    enabled: false,
+    cf_rule_id: null,
+    cf_implementation: null,
+    last_sync_at: null,
+    sync_status: 'synced',
+    sync_error: null,
+    site_id: 5,
+    site_name: 'BetHub (Eu)',
+    site_flag: '🇪🇺',
+    site_type: 'hybrid',
+    project_id: 20,
+    project_name: 'BetHub',
+    created_at: '2025-12-01T08:00:00Z',
+    updated_at: '2025-12-01T08:00:00Z'
+  },
+  {
+    id: 21,
+    domain_id: 502,
+    domain: 'bet-hub.com',
+    domain_status: 'active',
+    target_url: 'https://bethub.eu',
+    redirect_code: 301,
+    enabled: true,
+    cf_rule_id: 'rule_bh1',
+    cf_implementation: 'worker',
+    last_sync_at: '2025-12-15T14:20:00Z',
+    sync_status: 'synced',
+    sync_error: null,
+    site_id: 5,
+    site_name: 'BetHub (Eu)',
+    site_flag: '🇪🇺',
+    site_type: 'hybrid',
+    project_id: 20,
+    project_name: 'BetHub',
+    created_at: '2025-12-10T09:00:00Z',
+    updated_at: '2025-12-15T14:20:00Z'
+  },
+  {
+    id: 22,
+    domain_id: 503,
+    domain: 'betseu.net',
+    domain_status: 'active',
+    target_url: 'https://bethub.eu',
+    redirect_code: 302,
+    enabled: true,
+    cf_rule_id: null,
+    cf_implementation: null,
+    last_sync_at: null,
+    sync_status: 'pending',
+    sync_error: null,
+    site_id: 5,
+    site_name: 'BetHub (Eu)',
+    site_flag: '🇪🇺',
+    site_type: 'hybrid',
+    project_id: 20,
+    project_name: 'BetHub',
+    created_at: '2025-12-18T10:00:00Z',
+    updated_at: '2025-12-18T10:00:00Z'
+  },
+  {
+    id: 23,
+    domain_id: 504,
+    domain: 'gambling-eu.org',
+    domain_status: 'parked',
+    target_url: null,
+    redirect_code: 301,
+    enabled: false,
+    cf_rule_id: null,
+    cf_implementation: null,
+    last_sync_at: null,
+    sync_status: 'synced',
+    sync_error: null,
+    site_id: 5,
+    site_name: 'BetHub (Eu)',
+    site_flag: '🇪🇺',
+    site_type: 'hybrid',
+    project_id: 20,
+    project_name: 'BetHub',
+    created_at: '2025-12-05T11:00:00Z',
+    updated_at: '2025-12-05T11:00:00Z'
   }
 ];
 
@@ -373,6 +621,7 @@ export function groupBySite(redirects: DomainRedirect[]) {
     site_id: siteId,
     site_name: domains[0].site_name,
     site_flag: domains[0].site_flag,
+    site_type: domains[0].site_type,
     project_id: domains[0].project_id,
     project_name: domains[0].project_name,
     domains,

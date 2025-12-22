@@ -41,10 +41,20 @@
             <p class="text-muted">Manage routing rules across your domains and destinations.</p>
           </div>
           <div class="controls-row">
-            <button class="btn btn--primary" type="button" data-action="add-redirect">
-              <span class="icon" data-icon="mono/plus"></span>
-              <span>Add redirect</span>
-            </button>
+            <div class="dropdown">
+              <button class="btn btn--ghost" type="button" data-project-switcher aria-label="Switch project">
+                <span class="icon" data-icon="mono/project"></span>
+                <span data-current-project>All Projects</span>
+                <span class="icon" data-icon="mono/chevron-down"></span>
+              </button>
+              <div class="dropdown__menu" data-project-menu hidden>
+                <button class="dropdown__item" data-project-id="all">All Projects</button>
+                <button class="dropdown__item" data-project-id="17">CryptoBoss</button>
+                <button class="dropdown__item" data-project-id="18">TestProject</button>
+                <button class="dropdown__item" data-project-id="19">Vavada</button>
+                <button class="dropdown__item" data-project-id="20">BetHub</button>
+              </div>
+            </div>
           </div>
         </header>
 
