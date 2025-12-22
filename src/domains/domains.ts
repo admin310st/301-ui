@@ -812,10 +812,10 @@ function openInspector(domainId: number): void {
 
         const recordsHtml = records
           .map((record) => {
-            const cfBadge = record.isCloudflare
-              ? '<span class="badge badge--sm badge--success" style="margin-left: 0.5rem;">Cloudflare</span>'
+            const cfIcon = record.isCloudflare
+              ? '<span class="icon text-ok" data-icon="brand/cloudflare" style="margin-left: 0.375rem; font-size: 0.875rem;" title="Cloudflare"></span>'
               : '';
-            return `<div>${record.nameserver}${cfBadge}</div>`;
+            return `<div style="display: flex; align-items: center; gap: 0.25rem;">${record.nameserver}${cfIcon}</div>`;
           })
           .join('');
 
@@ -825,7 +825,7 @@ function openInspector(domainId: number): void {
           ? '<div style="margin-top: 0.5rem;"><span class="badge badge--warning"><span class="icon" data-icon="mono/circle-alert"></span>Mixed nameservers</span></div>'
           : '<div style="margin-top: 0.5rem;"><span class="badge badge--neutral"><span class="icon" data-icon="mono/help-circle"></span>Not on Cloudflare</span></div>';
 
-        nsEl.innerHTML = `<div class="stack-list stack-list--xs">${recordsHtml}${statusBadge}</div>`;
+        nsEl.innerHTML = `<div style="display: flex; flex-direction: column; gap: 0.25rem;">${recordsHtml}${statusBadge}</div>`;
       })
       .catch((error) => {
         console.error('Failed to load NS records:', error);
