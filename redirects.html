@@ -41,20 +41,10 @@
             <p class="text-muted">Manage routing rules across your domains and destinations.</p>
           </div>
           <div class="controls-row">
-            <div class="dropdown">
-              <button class="btn btn--ghost" type="button" data-project-switcher aria-label="Switch project">
-                <span class="icon" data-icon="mono/project"></span>
-                <span data-current-project>All Projects</span>
-                <span class="icon" data-icon="mono/chevron-down"></span>
-              </button>
-              <div class="dropdown__menu" data-project-menu hidden>
-                <button class="dropdown__item" data-project-id="all">All Projects</button>
-                <button class="dropdown__item" data-project-id="17">CryptoBoss</button>
-                <button class="dropdown__item" data-project-id="18">TestProject</button>
-                <button class="dropdown__item" data-project-id="19">Vavada</button>
-                <button class="dropdown__item" data-project-id="20">BetHub</button>
-              </div>
-            </div>
+            <button class="btn btn--primary" type="button" data-action="add-redirects">
+              <span class="icon" data-icon="mono/plus"></span>
+              <span>Add Redirects</span>
+            </button>
           </div>
         </header>
 
@@ -130,10 +120,8 @@
                     <tr>
                       <th>Domain</th>
                       <th>Target</th>
-                      <th>Code</th>
-                      <th>State</th>
-                      <th>Last Sync</th>
-                      <th style="width: 120px;">Actions</th>
+                      <th>Status</th>
+                      <th>Actions</th>
                       <th class="table__th-checkbox">
                         <input
                           type="checkbox"
@@ -195,6 +183,33 @@
         </div>
       </section>
     </main>
+
+    <!-- Redirect Drawer -->
+    <div class="drawer" data-redirect-drawer hidden>
+      <div class="drawer__overlay" data-drawer-close></div>
+      <div class="drawer__panel">
+        <header class="drawer__header">
+          <div class="stack-xs">
+            <h2 class="h4" data-drawer-title>Edit Redirect</h2>
+            <p class="text-muted text-sm" data-drawer-subtitle></p>
+          </div>
+          <button class="btn-icon btn-icon--ghost" type="button" data-drawer-close aria-label="Close">
+            <span class="icon" data-icon="mono/close"></span>
+          </button>
+        </header>
+
+        <div class="drawer__body" data-drawer-content>
+          <!-- Content injected by JS -->
+        </div>
+
+        <footer class="drawer__footer">
+          <div class="btn-group">
+            <button class="btn btn--ghost" type="button" data-drawer-close>Cancel</button>
+            <button class="btn btn--primary" type="button" data-drawer-save>Save changes</button>
+          </div>
+        </footer>
+      </div>
+    </div>
 
 {{> footer}}
 

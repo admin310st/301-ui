@@ -58,6 +58,14 @@ body {
   display: block;
 }
 
+/* Placeholder for icon spacing in dropdowns (keeps alignment when no icon) */
+.icon-placeholder {
+  width: 1em;
+  height: 1em;
+  flex: 0 0 1em;
+  display: inline-flex;
+}
+
 /* Mono-иконки наследуют цвет текста — работает и в dark */
 .icon[data-icon^="mono/"] svg,
 .icon[data-icon^="mono/"] use {
@@ -1254,6 +1262,27 @@ a.btn-chip {
   background: color-mix(in srgb, var(--danger) 88%, #000 6%);
 }
 
+.btn-link {
+  background: transparent;
+  border: none;
+  color: var(--primary);
+  padding: 0;
+  height: auto;
+  min-height: auto;
+  gap: var(--space-1);
+  font-weight: 500;
+}
+
+.btn-link:hover {
+  color: color-mix(in srgb, var(--primary) 88%, #fff 12%);
+  text-decoration: underline;
+  background: transparent;
+}
+
+.btn-link--sm {
+  font-size: var(--font-sm);
+}
+
 /* Icon sizing unified above */
 
 html[data-theme="light"] .btn--ghost {
@@ -2103,6 +2132,12 @@ html[data-theme="light"] .btn--social-github {
   color: var(--danger);
 }
 
+.badge--primary {
+  background-color: var(--primary-soft);
+  border-color: rgba(77, 163, 255, 0.5);
+  color: var(--primary);
+}
+
 .badge--ok {
   background-color: rgba(37, 208, 164, 0.12);
   border-color: rgba(37, 208, 164, 0.5);
@@ -2458,7 +2493,7 @@ html[data-theme="light"] .btn--social-github {
 /* Checkbox Column - rightmost */
 .table__th-checkbox,
 .table__cell-checkbox {
-  width: 40px;
+  width: 2.5rem;
   text-align: center;
 }
 
@@ -2473,14 +2508,7 @@ html[data-theme="light"] .btn--social-github {
 /* Group Header */
 .table__group-header td {
   padding: 0;
-  border-bottom: 1px solid var(--border);
-}
-
-.table__group-checkbox {
-  width: 40px;
-  text-align: center;
-  vertical-align: middle;
-  padding: var(--space-2) 0;
+  border-bottom: none;
 }
 
 .table__group-toggle {
@@ -2488,7 +2516,8 @@ html[data-theme="light"] .btn--social-github {
   align-items: center;
   gap: var(--space-2);
   width: 100%;
-  padding: var(--space-2) var(--space-3);
+  padding-block: var(--control-pad-y);
+  padding-inline: var(--space-3);
   background: none;
   border: none;
   color: var(--text);
@@ -2500,7 +2529,12 @@ html[data-theme="light"] .btn--social-github {
 }
 
 .table__group-toggle:hover {
-  background: var(--bg-soft);
+  background: color-mix(in srgb, var(--panel) 70%, var(--bg-elevated));
+}
+
+.table__group-toggle:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: -2px;
 }
 
 .table__group-toggle > .icon {
@@ -2515,53 +2549,141 @@ html[data-theme="light"] .btn--social-github {
   flex: 1;
 }
 
-.table__group-flag {
-  font-size: 1.25em;
-  line-height: 1;
-}
-
 .table__group-name {
   font-weight: var(--fw-semibold);
 }
 
 .table__group-count {
-  margin-left: auto;
+  margin-left: var(--space-2);
   color: var(--text-muted);
   font-size: var(--fs-sm);
   font-weight: var(--fw-normal);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.table__group-count .checkbox {
+  margin: 0;
+}
+
+/* Card-like Group Styling */
+/* Override default table row borders for card groups */
+.table--redirects tbody .table__group-header,
+.table--redirects tbody .table__group-row {
+  border-bottom: none;
+}
+
+/* Spacing between project groups */
+.table--redirects .table__group-header:not(:first-child) {
+  box-shadow: 0 var(--space-4) 0 0 transparent;
+}
+
+/* Group header - distinct separator style */
+.table--redirects .table__group-header {
+  position: relative;
+}
+
+.table--redirects .table__group-header td {
+  border-top: 1px solid var(--border-strong);
+  border-left: 0;
+  border-right: 0;
+  border-bottom: 0;
+  background: var(--panel);
+  position: relative;
+}
+
+.table--redirects .table__group-header td:first-child {
+  border-left: 1px solid var(--border-subtle);
+  border-top-left-radius: var(--radius-lg);
+}
+
+.table--redirects .table__group-header td:last-child {
+  border-right: 1px solid var(--border-subtle);
+  border-top-right-radius: var(--radius-lg);
+}
+
+/* Hover state for entire header row */
+.table--redirects .table__group-header:hover td {
+  background: color-mix(in srgb, var(--panel) 70%, var(--bg-elevated));
+}
+
+/* Group rows - side borders and subtle background */
+.table--redirects .table__group-row {
+  background: var(--bg-soft);
+}
+
+.table--redirects .table__group-row td {
+  border-top: 0;
+  border-left: 0;
+  border-right: 0;
+  border-bottom: 0;
+}
+
+.table--redirects .table__group-row td:first-child {
+  border-left: 1px solid var(--border-subtle);
+}
+
+.table--redirects .table__group-row td:last-child {
+  border-right: 1px solid var(--border-subtle);
+}
+
+/* Last row in group - bottom border and corners */
+.table--redirects .table__group-row--last td {
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.table--redirects .table__group-row--last td:first-child {
+  border-bottom-left-radius: var(--radius-lg);
+}
+
+.table--redirects .table__group-row--last td:last-child {
+  border-bottom-right-radius: var(--radius-lg);
+}
+
+/* Site separator - visual gap between sites within a project */
+.table--redirects .table__site-separator td {
+  border-top: 1px solid var(--border-subtle);
+  padding-top: calc(var(--space-2) + var(--cell-pad-y));
+}
+
+/* Collapsed group - close the card */
+.table--redirects .table__group-header:not(:has(+ .table__group-row)) td {
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.table--redirects .table__group-header:not(:has(+ .table__group-row)) td:first-child {
+  border-bottom-left-radius: var(--radius-lg);
+}
+
+.table--redirects .table__group-header:not(:has(+ .table__group-row)) td:last-child {
+  border-bottom-right-radius: var(--radius-lg);
 }
 
 /* Column Sizing */
+/* Domain column */
 .table--redirects th:nth-child(1),
 .table--redirects td:nth-child(1) {
-  width: 28%;
+  width: 30%;
 }
 
+/* Target column (now includes code badges) */
 .table--redirects th:nth-child(2),
 .table--redirects td:nth-child(2) {
-  width: 28%;
+  width: 42%;
 }
 
+/* Status column (unified enabled + sync state) */
 .table--redirects th:nth-child(3),
 .table--redirects td:nth-child(3) {
-  width: 10%;
+  width: 15%;
   text-align: center;
 }
 
+/* Actions column */
 .table--redirects th:nth-child(4),
 .table--redirects td:nth-child(4) {
-  width: 12%;
-  text-align: center;
-}
-
-.table--redirects th:nth-child(5),
-.table--redirects td:nth-child(5) {
-  width: 13%;
-}
-
-.table--redirects th:nth-child(6),
-.table--redirects td:nth-child(6) {
-  width: 120px;
+  width: 7.5rem;
   text-align: right;
 }
 
@@ -2595,6 +2717,24 @@ html[data-theme="light"] .btn--social-github {
 .table-cell-main {
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* Empty state cell with hover quick action */
+.table-cell-empty-state {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.table-cell-quick-action {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+}
+
+tr:hover .table-cell-quick-action {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .table-actions--inline {

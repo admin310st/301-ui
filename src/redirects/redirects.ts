@@ -5,14 +5,18 @@
  * NOT to be confused with Streams/TDS (complex conditional routing)
  */
 
-import { mockDomainRedirects, groupBySite, type DomainRedirect } from './mock-data';
+import { mockDomainRedirects, groupByProject, type DomainRedirect } from './mock-data';
+import { getDefaultFilters, hasActiveFilters, type ActiveFilters } from './filters-config';
+import { renderFilterBar, initFilterUI } from './filters-ui';
+import { initDropdowns } from '@ui/dropdown';
+import { initDrawer, openDrawer, openBulkAddDrawer } from './drawer';
 
 let currentRedirects: DomainRedirect[] = [];
 let filteredRedirects: DomainRedirect[] = [];
 let collapsedGroups = new Set<number>();  // Set of collapsed site_ids
 let selectedRedirects = new Set<number>(); // Set of selected redirect IDs
 let primaryDomains = new Set<string>(); // Set of primary domains (main domains of sites)
-let currentProjectId: number | 'all' = 'all'; // Current project filter
+let activeFilters: ActiveFilters = getDefaultFilters(); // Active filters state
 
 /**
  * Initialize redirects page
@@ -29,14 +33,14 @@ export function initRedirectsPage(): void {
   // Setup search
   setupSearch();
 
-  // Setup filters (future)
-  // setupFilters();
-
-  // Setup project switcher
-  setupProjectSwitcher();
+  // Setup filters
+  setupFilters();
 
   // Setup action buttons
   setupActions();
+
+  // Initialize drawer
+  initDrawer();
 }
 
 /**
@@ -96,28 +100,16 @@ function loadRedirects(): void {
 }
 
 /**
- * Get site type badge
- */
-function getSiteTypeBadge(siteType: string): string {
-  const badges = {
-    landing: '<span class="badge badge--sm badge--success">Landing</span>',
-    tds: '<span class="badge badge--sm badge--primary">TDS</span>',
-    hybrid: '<span class="badge badge--sm badge--warning">Hybrid</span>',
-  };
-  return badges[siteType as keyof typeof badges] || '';
-}
-
-/**
- * Render redirects table grouped by site
+ * Render redirects table grouped by project
  */
 function renderTable(): void {
   const tbody = document.querySelector('[data-redirects-tbody]');
   if (!tbody) return;
 
-  const groups = groupBySite(filteredRedirects);
+  const groups = groupByProject(filteredRedirects);
 
   const html = groups.map(group => {
-    const isCollapsed = collapsedGroups.has(group.site_id);
+    const isCollapsed = collapsedGroups.has(group.project_id);
     const chevronIcon = isCollapsed ? 'chevron-down' : 'chevron-up';
 
     // Check if all selectable domains in this group are selected
@@ -127,32 +119,36 @@ function renderTable(): void {
     const someSelected = selectedInGroup.length > 0 && selectedInGroup.length < selectableDomains.length;
 
     const groupHeader = `
-      <tr class="table__group-header" data-group-id="${group.site_id}">
-        <td colspan="6">
-          <button class="table__group-toggle" type="button" data-action="toggle-group" data-group-id="${group.site_id}">
+      <tr class="table__group-header" data-group-id="${group.project_id}">
+        <td colspan="5">
+          <button class="table__group-toggle" type="button" data-action="toggle-group" data-group-id="${group.project_id}" aria-expanded="${!isCollapsed}">
             <span class="icon" data-icon="mono/${chevronIcon}"></span>
             <span class="table__group-title">
-              <span class="badge badge--sm badge--neutral table__group-flag">${group.site_flag}</span>
-              <span class="table__group-name">${group.site_name}</span>
-              ${getSiteTypeBadge(group.site_type)}
+              <span class="icon" data-icon="mono/project"></span>
+              <span class="table__group-name">${group.project_name}</span>
+              <span class="table__group-count">
+                ${group.domains.length} domains
+                <input
+                  type="checkbox"
+                  class="checkbox"
+                  data-select-group="${group.project_id}"
+                  ${allSelected ? 'checked' : ''}
+                  ${someSelected ? 'data-indeterminate="true"' : ''}
+                  aria-label="Select all in ${group.project_name}"
+                  onclick="event.stopPropagation()"
+                />
+              </span>
             </span>
-            <span class="table__group-count">${group.domains.length} domains</span>
           </button>
-        </td>
-        <td class="table__group-checkbox">
-          <input
-            type="checkbox"
-            class="checkbox"
-            data-select-group="${group.site_id}"
-            ${allSelected ? 'checked' : ''}
-            ${someSelected ? 'data-indeterminate="true"' : ''}
-            aria-label="Select all in ${group.site_name}"
-          />
         </td>
       </tr>
     `;
 
-    const rows = isCollapsed ? '' : group.domains.map(redirect => renderRow(redirect)).join('');
+    const rows = isCollapsed ? '' : group.domains.map((redirect, index, arr) => {
+      const isLastRow = index === arr.length - 1;
+      const isNewSite = index > 0 && redirect.site_id !== arr[index - 1].site_id;
+      return renderRow(redirect, group.project_id, isLastRow, isNewSite);
+    }).join('');
 
     return groupHeader + rows;
   }).join('');
@@ -167,6 +163,9 @@ function renderTable(): void {
 
   // Update global select-all checkbox state
   updateGlobalCheckbox();
+
+  // Initialize dropdowns for kebab menus
+  initDropdowns(tbody as HTMLElement);
 
   // Update counts
   const shownCount = document.querySelector('[data-shown-count]');
@@ -200,38 +199,33 @@ function updateGlobalCheckbox(): void {
 /**
  * Render single redirect row
  */
-function renderRow(redirect: DomainRedirect): string {
+function renderRow(redirect: DomainRedirect, groupId: number, isLastRow: boolean, isNewSite: boolean): string {
   const isPrimaryDomain = primaryDomains.has(redirect.domain);
   const isSelected = selectedRedirects.has(redirect.id);
   const rowClass = [
+    'table__group-row',
     redirect.domain_status === 'expired' ? 'table__row--muted' : '',
-    isPrimaryDomain ? 'table__row--primary' : ''
+    isPrimaryDomain ? 'table__row--primary' : '',
+    isLastRow ? 'table__group-row--last' : '',
+    isNewSite ? 'table__site-separator' : ''
   ].filter(Boolean).join(' ');
 
   const checkbox = getCheckboxDisplay(redirect, isPrimaryDomain);
   const domainDisplay = getDomainDisplay(redirect, isPrimaryDomain);
-  const targetDisplay = getTargetDisplay(redirect);
-  const codeDisplay = getCodeDisplay(redirect);
-  const stateDisplay = getStateDisplay(redirect);
-  const syncDisplay = getSyncDisplay(redirect);
+  const targetDisplay = getTargetDisplay(redirect, isPrimaryDomain);
+  const statusDisplay = getStatusDisplay(redirect);
   const actions = getRowActions(redirect);
 
   return `
-    <tr data-redirect-id="${redirect.id}" class="${rowClass}">
+    <tr data-redirect-id="${redirect.id}" data-group-id="${groupId}" class="${rowClass}">
       <td class="table__cell-domain">
         ${domainDisplay}
       </td>
       <td class="table__cell-target">
         ${targetDisplay}
       </td>
-      <td class="table__cell-code">
-        ${codeDisplay}
-      </td>
-      <td class="table__cell-state">
-        ${stateDisplay}
-      </td>
-      <td class="table__cell-sync">
-        ${syncDisplay}
+      <td class="table__cell-status">
+        ${statusDisplay}
       </td>
       <td class="table__cell-actions">
         <div class="table-actions table-actions--inline">
@@ -269,10 +263,16 @@ function getCheckboxDisplay(redirect: DomainRedirect, isPrimaryDomain: boolean):
 
 /**
  * Get domain display with status
+ * For primary domains, show flag badge after domain name
  */
 function getDomainDisplay(redirect: DomainRedirect, isPrimaryDomain: boolean): string {
   const statusBadge = redirect.domain_status !== 'active'
     ? `<span class="badge badge--xs badge--${redirect.domain_status === 'parked' ? 'neutral' : 'danger'}">${redirect.domain_status}</span>`
+    : '';
+
+  // Flag badge for primary domains (sites) - shown after domain name
+  const flagBadge = isPrimaryDomain
+    ? `<span class="badge badge--sm badge--neutral">${redirect.site_flag}</span>`
     : '';
 
   // Primary domain (main site domain) receives traffic → arrow-right → in blue
@@ -288,6 +288,7 @@ function getDomainDisplay(redirect: DomainRedirect, isPrimaryDomain: boolean): s
     <div class="table-cell-stack">
       ${icon}
       <span class="table-cell-main">${redirect.domain}</span>
+      ${flagBadge}
       ${statusBadge}
     </div>
   `;
@@ -295,82 +296,119 @@ function getDomainDisplay(redirect: DomainRedirect, isPrimaryDomain: boolean): s
 
 /**
  * Get target display
+ * Format: [badge] for primary, → target [code] for redirects, or "No redirect"
+ * - Primary domains: just [Landing/TDS/Hybrid] badge (no domain duplicate)
+ * - Redirects: → target [301/302]
+ * - No redirect: "No redirect"
  */
-function getTargetDisplay(redirect: DomainRedirect): string {
-  if (!redirect.target_url) {
-    return '<span class="text-muted">No redirect</span>';
+function getTargetDisplay(redirect: DomainRedirect, isPrimaryDomain: boolean): string {
+  // Primary domains (sites) → show only site type badge (no domain duplicate)
+  if (isPrimaryDomain && !redirect.target_url) {
+    const siteTypeBadges = {
+      landing: `<span class="badge badge--sm badge--success">Landing</span>`,
+      tds: `<span class="badge badge--sm badge--primary">TDS</span>`,
+      hybrid: `<span class="badge badge--sm badge--warning">Hybrid</span>`,
+    };
+    return siteTypeBadges[redirect.site_type as keyof typeof siteTypeBadges] || '<span class="text-muted">—</span>';
   }
 
+  // No redirect configured → show "+ Add" quick action on hover
+  if (!redirect.target_url) {
+    return `
+      <div class="table-cell-empty-state">
+        <span class="text-muted">No redirect</span>
+        <button
+          class="btn-link btn-link--sm table-cell-quick-action"
+          type="button"
+          data-action="add-redirect"
+          data-redirect-id="${redirect.id}"
+          title="Add redirect"
+        >
+          <span class="icon" data-icon="mono/plus"></span>
+          <span>Add</span>
+        </button>
+      </div>
+    `;
+  }
+
+  // Redirect configured → show colored arrow icon (code in tooltip)
   const targetHost = redirect.target_url.replace('https://', '').replace('http://', '').split('/')[0];
 
-  // Target domains receive traffic → arrow-bottom-right ↘️
+  // Colored icon with redirect code in tooltip
+  const redirectIcon = redirect.redirect_code === 301
+    ? '<span class="icon text-ok" data-icon="mono/arrow-bottom-right" title="301 Permanent Redirect"></span>'
+    : '<span class="icon text-warning" data-icon="mono/arrow-bottom-right" title="302 Temporary Redirect"></span>';
+
   return `
     <div class="table-cell-inline">
-      <span class="icon text-muted" data-icon="mono/arrow-bottom-right"></span>
+      ${redirectIcon}
       <span class="table-cell-main" title="${redirect.target_url}">${targetHost}</span>
     </div>
   `;
 }
 
 /**
- * Get redirect code badge
+ * Get status display (per truth table spec)
+ *
+ * has_redirect=false:
+ * - Disabled (enabled=false)
+ * - Enabled (enabled=true) - edge case, no redirect configured
+ *
+ * has_redirect=true, enabled=false:
+ * - Always Disabled (sync irrelevant)
+ *
+ * has_redirect=true, enabled=true:
+ * - Active (sync_status=synced) - show sync date in tooltip
+ * - Pending (sync_status=pending)
+ * - Error (sync_status=error)
+ * - New (sync_status=never)
  */
-function getCodeDisplay(redirect: DomainRedirect): string {
-  if (!redirect.target_url) {
-    return '<span class="text-muted">—</span>';
+function getStatusDisplay(redirect: DomainRedirect): string {
+  // Case 1: No redirect configured (has_redirect=false)
+  if (!redirect.has_redirect) {
+    if (!redirect.enabled) {
+      return '<span class="badge badge--neutral" title="Disabled by user">Disabled</span>';
+    }
+    // Enabled but no redirect configured - edge case, should prompt user to add redirect
+    return '<span class="badge badge--neutral" title="Enabled by user. No redirect configured">Enabled</span>';
   }
 
-  const badgeClass = redirect.redirect_code === 301 ? 'badge--success' : 'badge--warning';
-  return `<span class="badge badge--sm ${badgeClass}">${redirect.redirect_code}</span>`;
-}
-
-/**
- * Get combined state badge (enabled + sync)
- */
-function getStateDisplay(redirect: DomainRedirect): string {
-  if (!redirect.enabled || !redirect.target_url) {
-    return '<span class="badge badge--neutral">Disabled</span>';
+  // Case 2: Redirect configured but disabled (has_redirect=true, enabled=false)
+  if (!redirect.enabled) {
+    return '<span class="badge badge--neutral" title="Disabled by user">Disabled</span>';
   }
 
-  // Enabled + sync status combined
+  // Case 3: Redirect configured and enabled (has_redirect=true, enabled=true)
+  // Show status based on sync_status
   if (redirect.sync_status === 'synced') {
-    return '<span class="badge badge--success">Active</span>';
+    const syncDate = redirect.last_sync_at ? new Date(redirect.last_sync_at).toLocaleString() : '';
+    const tooltip = syncDate ? `Synced on ${syncDate}` : 'Synced';
+    return `<span class="badge badge--success" title="${tooltip}">Active</span>`;
   }
 
   if (redirect.sync_status === 'pending') {
-    return '<span class="badge badge--primary">Pending</span>';
+    return '<span class="badge badge--warning" title="Sync in progress">Pending</span>';
   }
 
   if (redirect.sync_status === 'error') {
-    const errorTooltip = redirect.sync_error
-      ? `title="${redirect.sync_error}"`
-      : '';
-    return `<span class="badge badge--danger" ${errorTooltip}>Error</span>`;
+    return '<span class="badge badge--danger" title="Sync failed. Click to view details">Error</span>';
   }
 
-  return '<span class="badge badge--neutral">Unknown</span>';
+  if (redirect.sync_status === 'never') {
+    return '<span class="badge badge--neutral" title="Not synced yet">New</span>';
+  }
+
+  return '<span class="badge badge--neutral" title="Unknown status">Unknown</span>';
 }
 
 /**
- * Get sync timestamp display (date only, time in drawer)
- */
-function getSyncDisplay(redirect: DomainRedirect): string {
-  if (!redirect.last_sync_at) {
-    return '<span class="text-muted">—</span>';
-  }
-
-  const date = new Date(redirect.last_sync_at);
-  const formatted = date.toLocaleDateString('en-GB', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  });
-
-  return `<span class="text-sm">${formatted}</span>`;
-}
-
-/**
- * Get row actions
+ * Get row actions (per truth table spec)
+ *
+ * - Edit: always available
+ * - Retry sync: available if has_redirect=true AND enabled=true AND sync_status in ('error', 'never')
+ * - Sync now: available if has_redirect=true AND enabled=true AND sync_status != 'pending'
+ * - Enable/Disable: available for donor domains (not primary)
+ * - Delete: available for donor domains
  */
 function getRowActions(redirect: DomainRedirect): string {
   const isPrimaryDomain = primaryDomains.has(redirect.domain);
@@ -382,24 +420,63 @@ function getRowActions(redirect: DomainRedirect): string {
     </button>
   `;
 
-  // Primary domains don't have toggle - they are main site domains that receive traffic
+  // Primary domains: only Edit (no enable/disable)
   if (isPrimaryDomain) {
     return editButton;
   }
 
-  // Toggle button for source domains
-  const isDisabled = !redirect.enabled || !redirect.target_url;
+  // Kebab menu for donor domains
+  const isDisabled = !redirect.enabled;
+  const toggleLabel = isDisabled ? 'Enable' : 'Disable';
   const toggleAction = isDisabled ? 'enable' : 'disable';
-  const toggleIcon = isDisabled ? 'mono/play' : 'mono/pause';
-  const toggleTitle = isDisabled ? 'Enable redirect' : 'Disable redirect';
-  const toggleClass = isDisabled ? 'btn-icon--primary' : 'btn-icon--ghost';
 
-  return `
-    ${editButton}
-    <button class="btn-icon btn-icon--sm ${toggleClass}" type="button" data-action="${toggleAction}" data-redirect-id="${redirect.id}" title="${toggleTitle}">
-      <span class="icon" data-icon="${toggleIcon}"></span>
+  // Retry sync: only for error and never states (when enabled and has redirect)
+  const canRetrySync = redirect.has_redirect && redirect.enabled &&
+    (redirect.sync_status === 'error' || redirect.sync_status === 'never');
+  const retryOption = canRetrySync ? `
+    <button class="dropdown__item" type="button" data-action="retry-sync" data-redirect-id="${redirect.id}">
+      <span class="icon" data-icon="mono/refresh"></span>
+      <span>Retry sync</span>
     </button>
+  ` : '';
+
+  // Sync now: available when enabled, has redirect, and not currently pending
+  const canSyncNow = redirect.has_redirect && redirect.enabled && redirect.sync_status !== 'pending';
+  const syncNowOption = canSyncNow ? `
+    <button class="dropdown__item" type="button" data-action="sync-now" data-redirect-id="${redirect.id}">
+      <span class="icon" data-icon="brand/cloudflare"></span>
+      <span>Sync now</span>
+    </button>
+  ` : '';
+
+  // Build sync actions (only show divider if there are sync actions)
+  const syncActions = retryOption || syncNowOption;
+  const syncSection = syncActions ? `
+    ${syncNowOption}
+    ${retryOption}
+    <div class="dropdown__divider"></div>
+  ` : '';
+
+  const kebabMenu = `
+    <div class="dropdown" data-dropdown>
+      <button class="btn-icon btn-icon--sm btn-icon--ghost dropdown__trigger" type="button" aria-haspopup="menu" title="More actions">
+        <span class="icon" data-icon="mono/dots-vertical"></span>
+      </button>
+      <div class="dropdown__menu" role="menu">
+        <button class="dropdown__item" type="button" data-action="${toggleAction}" data-redirect-id="${redirect.id}">
+          <span class="icon" data-icon="mono/${isDisabled ? 'play' : 'pause'}"></span>
+          <span>${toggleLabel}</span>
+        </button>
+        ${syncSection}
+        <button class="dropdown__item dropdown__item--danger" type="button" data-action="delete" data-redirect-id="${redirect.id}">
+          <span class="icon" data-icon="mono/delete"></span>
+          <span>Delete</span>
+        </button>
+      </div>
+    </div>
   `;
+
+  return `${editButton} ${kebabMenu}`;
 }
 
 /**
@@ -428,57 +505,49 @@ function setupSearch(): void {
 }
 
 /**
- * Setup project switcher
+ * Setup filters
  */
-function setupProjectSwitcher(): void {
-  const switcher = document.querySelector('[data-project-switcher]');
-  const menu = document.querySelector('[data-project-menu]');
-  if (!switcher || !menu) return;
+function setupFilters(): void {
+  const filterBar = document.querySelector('[data-filter-bar]');
+  if (!filterBar) return;
 
-  // Toggle dropdown
-  switcher.addEventListener('click', () => {
-    menu.toggleAttribute('hidden');
-  });
+  // Handler for filter changes (re-renders filter bar HTML only)
+  const handleFilterChange = (updatedFilters: ActiveFilters) => {
+    activeFilters = updatedFilters;
+    applyFilters();
+    // Re-render filter bar HTML to update UI (checkmarks, count badge, clear button)
+    filterBar.innerHTML = renderFilterBar(activeFilters);
+  };
 
-  // Handle project selection
-  menu.addEventListener('click', (e) => {
-    const item = (e.target as HTMLElement).closest('[data-project-id]') as HTMLElement;
-    if (!item) return;
+  // Initial render
+  filterBar.innerHTML = renderFilterBar(activeFilters);
 
-    const projectId = item.dataset.projectId;
-    const projectName = item.textContent || 'All Projects';
+  // Initialize filter UI once (event listeners use delegation, so they work after re-renders)
+  initFilterUI(filterBar as HTMLElement, activeFilters, handleFilterChange);
 
-    // Update current project
-    currentProjectId = projectId === 'all' ? 'all' : Number(projectId);
-
-    // Update button text
-    const currentProjectEl = document.querySelector('[data-current-project]');
-    if (currentProjectEl) currentProjectEl.textContent = projectName;
-
-    // Filter redirects
-    applyProjectFilter();
-
-    // Close menu
-    menu.setAttribute('hidden', '');
-  });
-
-  // Close dropdown when clicking outside
-  document.addEventListener('click', (e) => {
-    if (!switcher.contains(e.target as Node) && !menu.contains(e.target as Node)) {
-      menu.setAttribute('hidden', '');
-    }
-  });
+  // Reset filters button
+  const resetBtn = document.querySelector('[data-reset-filters]');
+  if (resetBtn) {
+    resetBtn.addEventListener('click', () => {
+      activeFilters = getDefaultFilters();
+      handleFilterChange(activeFilters);
+    });
+  }
 }
 
 /**
- * Apply project filter
+ * Apply filters
  */
-function applyProjectFilter(): void {
-  if (currentProjectId === 'all') {
-    filteredRedirects = [...currentRedirects];
-  } else {
-    filteredRedirects = currentRedirects.filter(r => r.project_id === currentProjectId);
+function applyFilters(): void {
+  let result = [...currentRedirects];
+
+  // Apply project filter (multi-select)
+  if (activeFilters.project && activeFilters.project.length > 0) {
+    const projectIds = activeFilters.project.map(id => Number(id));
+    result = result.filter(r => projectIds.includes(r.project_id));
   }
+
+  filteredRedirects = result;
   renderTable();
   updateBulkActionsBar();
 }
@@ -490,7 +559,15 @@ function setupActions(): void {
   const card = document.querySelector('[data-redirects-card]');
   if (!card) return;
 
-  // Delegate events for action buttons
+  // Handle header "Add Redirects" button (outside of card)
+  const addRedirectsBtn = document.querySelector('[data-action="add-redirects"]');
+  if (addRedirectsBtn) {
+    addRedirectsBtn.addEventListener('click', () => {
+      handleAddRedirects();
+    });
+  }
+
+  // Delegate events for action buttons inside card
   card.addEventListener('click', (e) => {
     const target = e.target as HTMLElement;
     const button = target.closest('[data-action]') as HTMLElement;
@@ -515,8 +592,20 @@ function setupActions(): void {
       case 'disable':
         if (redirectId) handleDisable(redirectId);
         break;
+      case 'retry-sync':
+        if (redirectId) handleRetrySync(redirectId);
+        break;
+      case 'sync-now':
+        if (redirectId) handleSyncNow(redirectId);
+        break;
+      case 'delete':
+        if (redirectId) handleDelete(redirectId);
+        break;
       case 'add-redirect':
-        handleAddRedirect();
+        if (redirectId) handleAddRedirect(redirectId);
+        break;
+      case 'add-redirects':
+        handleAddRedirects();
         break;
       case 'retry':
         loadRedirects();
@@ -543,6 +632,7 @@ function setupActions(): void {
 
     // Group select checkbox
     if (target.hasAttribute('data-select-group')) {
+      e.stopPropagation(); // Prevent toggle-group button from firing
       const checkbox = target as HTMLInputElement;
       const groupId = Number(checkbox.dataset.selectGroup);
       handleSelectGroup(groupId, checkbox.checked);
@@ -612,8 +702,7 @@ function handleEdit(redirectId: number): void {
   const redirect = currentRedirects.find(r => r.id === redirectId);
   if (!redirect) return;
 
-  console.log('[Redirects] Edit redirect:', redirect.domain);
-  alert(`✏️ Edit "${redirect.domain}"\n\nTarget: ${redirect.target_url || 'None'}\nCode: ${redirect.redirect_code}\n\n(Drawer UI coming soon)`);
+  openDrawer(redirect);
 }
 
 /**
@@ -639,19 +728,64 @@ function handleDisable(redirectId: number): void {
 }
 
 /**
- * Handle add redirect
+ * Handle retry sync
  */
-function handleAddRedirect(): void {
-  console.log('[Redirects] Add redirect');
-  alert('➕ Add new redirect\n\n(Drawer coming soon)');
+function handleRetrySync(redirectId: number): void {
+  const redirect = currentRedirects.find(r => r.id === redirectId);
+  if (!redirect) return;
+
+  console.log('[Redirects] Retry sync:', redirect.domain);
+  alert(`🔄 Retry sync for "${redirect.domain}"\n\n(API integration coming soon)`);
+}
+
+/**
+ * Handle sync now
+ */
+function handleSyncNow(redirectId: number): void {
+  const redirect = currentRedirects.find(r => r.id === redirectId);
+  if (!redirect) return;
+
+  console.log('[Redirects] Sync now:', redirect.domain);
+  alert(`☁️ Sync to Cloudflare for "${redirect.domain}"\n\n(API integration coming soon)`);
+}
+
+/**
+ * Handle delete redirect
+ */
+function handleDelete(redirectId: number): void {
+  const redirect = currentRedirects.find(r => r.id === redirectId);
+  if (!redirect) return;
+
+  const confirmed = confirm(`Delete redirect for "${redirect.domain}"?\n\nThis action cannot be undone.`);
+  if (!confirmed) return;
+
+  console.log('[Redirects] Delete redirect:', redirect.domain);
+  alert(`🗑️ Delete "${redirect.domain}"\n\n(API integration coming soon)`);
+}
+
+/**
+ * Handle add redirect (for domains without redirect configured)
+ */
+function handleAddRedirect(redirectId: number): void {
+  const redirect = currentRedirects.find(r => r.id === redirectId);
+  if (!redirect) return;
+
+  openDrawer(redirect);
+}
+
+/**
+ * Handle add redirects (bulk add - main button)
+ */
+function handleAddRedirects(): void {
+  openBulkAddDrawer();
 }
 
 /**
  * Handle select all redirects in a group
  */
 function handleSelectGroup(groupId: number, checked: boolean): void {
-  const groups = groupBySite(filteredRedirects);
-  const group = groups.find(g => g.site_id === groupId);
+  const groups = groupByProject(filteredRedirects);
+  const group = groups.find(g => g.project_id === groupId);
   if (!group) return;
 
   const selectableDomains = group.domains.filter(d => !primaryDomains.has(d.domain));

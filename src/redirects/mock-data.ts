@@ -6,7 +6,7 @@
  */
 
 export type RedirectCode = 301 | 302;
-export type SyncStatus = 'synced' | 'pending' | 'error';
+export type SyncStatus = 'never' | 'pending' | 'synced' | 'error';
 export type DomainStatus = 'active' | 'parked' | 'expired';
 export type CfImplementation = 'redirect_rule' | 'worker' | null;
 export type SiteType = 'landing' | 'tds' | 'hybrid';
@@ -21,6 +21,7 @@ export interface DomainRedirect {
 
   // Target
   target_url: string | null;  // null = no redirect
+  has_redirect: boolean;  // explicit flag: true = redirect configured
 
   // Redirect Type
   redirect_code: RedirectCode;  // 301 = permanent, 302 = temporary
@@ -77,13 +78,14 @@ export const mockDomainRedirects: DomainRedirect[] = [
     domain_id: 101,
     domain: 'cryptoboss.pics',
     domain_status: 'active',
-    target_url: null,  // Main domain, no redirect
+    target_url: null,  // Main domain, no redirect (primary domain = receiver)
+    has_redirect: false,
     redirect_code: 301,
-    enabled: false,
+    enabled: true,  // Primary domains can be "enabled" conceptually
     cf_rule_id: null,
     cf_implementation: null,
     last_sync_at: null,
-    sync_status: 'synced',
+    sync_status: 'never',  // Primary domains never sync (nothing to sync)
     sync_error: null,
     site_id: 1,
     site_name: 'CryptoBoss (En)',
@@ -100,12 +102,13 @@ export const mockDomainRedirects: DomainRedirect[] = [
     domain: 'cryptoboss.online',
     domain_status: 'active',
     target_url: 'https://cryptoboss.pics',
+    has_redirect: true,
     redirect_code: 301,
     enabled: true,
     cf_rule_id: 'rule_abc123',
     cf_implementation: 'redirect_rule',
     last_sync_at: '2025-01-13T18:15:27Z',
-    sync_status: 'synced',
+    sync_status: 'synced',  // Active (enabled + synced)
     sync_error: null,
     site_id: 1,
     site_name: 'CryptoBoss (En)',
@@ -122,12 +125,13 @@ export const mockDomainRedirects: DomainRedirect[] = [
     domain: 'cryptoboss.click',
     domain_status: 'parked',
     target_url: null,
+    has_redirect: false,
     redirect_code: 301,
-    enabled: false,
+    enabled: false,  // Disabled (by user)
     cf_rule_id: null,
     cf_implementation: null,
     last_sync_at: null,
-    sync_status: 'synced',
+    sync_status: 'never',  // Disabled = never syncs
     sync_error: null,
     site_id: 1,
     site_name: 'CryptoBoss (En)',
@@ -145,13 +149,13 @@ export const mockDomainRedirects: DomainRedirect[] = [
     domain_id: 201,
     domain: 'finbosse.ru',
     domain_status: 'active',
-    target_url: null,  // Main domain, no redirect
+    target_url: null,  // Main domain, no redirect (primary domain)
     redirect_code: 301,
-    enabled: false,
+    enabled: true,
     cf_rule_id: null,
     cf_implementation: null,
     last_sync_at: null,
-    sync_status: 'synced',
+    sync_status: 'never',  // Primary domains never sync
     sync_error: null,
     site_id: 2,
     site_name: 'CryptoBoss (Ru)',
@@ -168,6 +172,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     domain: 'cryptoboss.icu',
     domain_status: 'active',
     target_url: 'https://finbosse.ru',
+    has_redirect: true,
     redirect_code: 301,
     enabled: true,
     cf_rule_id: 'rule_def456',
@@ -190,6 +195,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     domain: 'cryptopot.ru',
     domain_status: 'active',
     target_url: 'https://finbosse.ru',
+    has_redirect: true,
     redirect_code: 302,
     enabled: true,
     cf_rule_id: null,
@@ -212,6 +218,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     domain: 'cryptovalve.ru',
     domain_status: 'active',
     target_url: 'https://finbosse.ru',
+    has_redirect: true,
     redirect_code: 301,
     enabled: true,
     cf_rule_id: 'rule_ghi789',
@@ -234,6 +241,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     domain: 'hitboss.ru',
     domain_status: 'active',
     target_url: 'https://finbosse.ru',
+    has_redirect: true,
     redirect_code: 301,
     enabled: true,
     cf_rule_id: null,
@@ -256,12 +264,13 @@ export const mockDomainRedirects: DomainRedirect[] = [
     domain: 'casino-boss.ru',
     domain_status: 'parked',
     target_url: null,
+    has_redirect: false,
     redirect_code: 301,
-    enabled: false,
+    enabled: false,  // Disabled
     cf_rule_id: null,
     cf_implementation: null,
     last_sync_at: null,
-    sync_status: 'synced',
+    sync_status: 'never',  // Disabled = never syncs
     sync_error: null,
     site_id: 2,
     site_name: 'CryptoBoss (Ru)',
@@ -302,6 +311,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     domain: 'test-domain.com',
     domain_status: 'active',
     target_url: 'https://example.com',
+    has_redirect: true,
     redirect_code: 302,
     enabled: true,
     cf_rule_id: 'rule_test1',
@@ -324,6 +334,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     domain: 'staging-test.net',
     domain_status: 'active',
     target_url: 'https://example.com/staging',
+    has_redirect: true,
     redirect_code: 302,
     enabled: true,
     cf_rule_id: null,
@@ -346,6 +357,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     domain: 'dev-test.org',
     domain_status: 'expired',
     target_url: null,
+    has_redirect: false,
     redirect_code: 301,
     enabled: false,
     cf_rule_id: null,
@@ -392,6 +404,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     domain: 'bdblogov.ru',
     domain_status: 'active',
     target_url: 'https://casinovavada.cyou/',
+    has_redirect: true,
     redirect_code: 301,
     enabled: true,
     cf_rule_id: 'rule_vav1',
@@ -414,6 +427,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     domain: 'casinovavada.homes',
     domain_status: 'active',
     target_url: 'https://casinovavada.cyou/*',
+    has_redirect: true,
     redirect_code: 301,
     enabled: true,
     cf_rule_id: 'rule_vav2',
@@ -436,6 +450,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     domain: 'clubvavada.ru',
     domain_status: 'active',
     target_url: 'https://casinovavada.cyou/*',
+    has_redirect: true,
     redirect_code: 301,
     enabled: true,
     cf_rule_id: 'rule_vav3',
@@ -458,6 +473,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     domain: 'vavada.monster',
     domain_status: 'active',
     target_url: 'https://casinovavada.cyou/*',
+    has_redirect: true,
     redirect_code: 301,
     enabled: true,
     cf_rule_id: 'rule_vav4',
@@ -480,6 +496,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     domain: 'vavada10.ru',
     domain_status: 'active',
     target_url: 'https://casinovavada.cyou/*',
+    has_redirect: true,
     redirect_code: 301,
     enabled: true,
     cf_rule_id: 'rule_vav5',
@@ -526,6 +543,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     domain: 'bet-hub.com',
     domain_status: 'active',
     target_url: 'https://bethub.eu',
+    has_redirect: true,
     redirect_code: 301,
     enabled: true,
     cf_rule_id: 'rule_bh1',
@@ -548,6 +566,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     domain: 'betseu.net',
     domain_status: 'active',
     target_url: 'https://bethub.eu',
+    has_redirect: true,
     redirect_code: 302,
     enabled: true,
     cf_rule_id: null,
@@ -570,6 +589,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     domain: 'gambling-eu.org',
     domain_status: 'parked',
     target_url: null,
+    has_redirect: false,
     redirect_code: 301,
     enabled: false,
     cf_rule_id: null,
@@ -623,6 +643,27 @@ export function groupBySite(redirects: DomainRedirect[]) {
     site_flag: domains[0].site_flag,
     site_type: domains[0].site_type,
     project_id: domains[0].project_id,
+    project_name: domains[0].project_name,
+    domains,
+  }));
+}
+
+/**
+ * Group redirects by project (not site)
+ * One project can contain multiple sites with their domains
+ */
+export function groupByProject(redirects: DomainRedirect[]) {
+  const groups = new Map<number, DomainRedirect[]>();
+
+  for (const redirect of redirects) {
+    if (!groups.has(redirect.project_id)) {
+      groups.set(redirect.project_id, []);
+    }
+    groups.get(redirect.project_id)!.push(redirect);
+  }
+
+  return Array.from(groups.entries()).map(([projectId, domains]) => ({
+    project_id: projectId,
     project_name: domains[0].project_name,
     domains,
   }));
