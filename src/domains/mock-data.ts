@@ -199,4 +199,22 @@ export const mockDomains: Domain[] = [
     last_check_at: randomDate(-5),
     has_errors: false,
   },
+  // Real domain for testing Cloudflare NS detection
+  {
+    id: 104,
+    domain_name: '301.st',
+    project_name: 'PlatformCore',
+    project_lang: 'EN',
+    status: 'active',
+    role: 'acceptor',
+    registrar: 'cloudflare',
+    cf_zone_id: 'zone_301st',
+    ssl_status: 'valid',
+    ssl_valid_to: randomDate(90),
+    abuse_status: 'clean',
+    expires_at: randomDate(365),
+    monitoring_enabled: true,
+    last_check_at: randomDate(-1),
+    has_errors: false,
+  },
 ];

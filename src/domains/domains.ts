@@ -813,19 +813,19 @@ function openInspector(domainId: number): void {
         const recordsHtml = records
           .map((record) => {
             const cfIcon = record.isCloudflare
-              ? '<span class="icon text-ok" data-icon="brand/cloudflare" style="margin-left: 0.375rem; font-size: 0.875rem;" title="Cloudflare"></span>'
+              ? '<span class="icon text-ok" data-icon="brand/cloudflare" title="Cloudflare"></span>'
               : '';
-            return `<div style="display: flex; align-items: center; gap: 0.25rem;">${record.nameserver}${cfIcon}</div>`;
+            return `<div class="stack-inline--xs">${record.nameserver}${cfIcon}</div>`;
           })
           .join('');
 
         const statusBadge = allCloudflare
-          ? '<div style="margin-top: 0.5rem;"><span class="badge badge--success"><span class="icon" data-icon="mono/check-circle"></span>All nameservers on Cloudflare</span></div>'
+          ? '<span class="badge badge--success"><span class="icon" data-icon="mono/check-circle"></span>All nameservers on Cloudflare</span>'
           : someCloudflare
-          ? '<div style="margin-top: 0.5rem;"><span class="badge badge--warning"><span class="icon" data-icon="mono/circle-alert"></span>Mixed nameservers</span></div>'
-          : '<div style="margin-top: 0.5rem;"><span class="badge badge--neutral"><span class="icon" data-icon="mono/help-circle"></span>Not on Cloudflare</span></div>';
+          ? '<span class="badge badge--warning"><span class="icon" data-icon="mono/circle-alert"></span>Mixed nameservers</span>'
+          : '<span class="badge badge--neutral"><span class="icon" data-icon="mono/help-circle"></span>Not on Cloudflare</span>';
 
-        nsEl.innerHTML = `<div style="display: flex; flex-direction: column; gap: 0.25rem;">${recordsHtml}${statusBadge}</div>`;
+        nsEl.innerHTML = `<div class="stack-list--xs">${recordsHtml}<div>${statusBadge}</div></div>`;
       })
       .catch((error) => {
         console.error('Failed to load NS records:', error);

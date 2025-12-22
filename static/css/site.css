@@ -667,6 +667,29 @@ h5 .icon[data-icon*="close"] {
   gap: var(--space-4);
 }
 
+/* Vertical stack (block direction) */
+.stack-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.stack-list--xs {
+  gap: var(--space-1);
+}
+
+.stack-list--sm {
+  gap: var(--space-2);
+}
+
+.stack-list--md {
+  gap: var(--space-3);
+}
+
+.stack-list--lg {
+  gap: var(--space-4);
+}
+
 .stack--centered {
   max-width: 960px;
   margin: 0 auto;
