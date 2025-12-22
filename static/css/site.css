@@ -3789,7 +3789,7 @@ body.layout-dashboard .burger-button {
 
 .bulk-actions-bar__actions .btn--cf {
   background: transparent;
-  border: 1px solid var(--accent-cf-soft);
+  border: 1px solid var(--accent-cf);
   color: var(--accent-cf);
 }
 
