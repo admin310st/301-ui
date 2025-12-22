@@ -45,9 +45,22 @@ export function parseSearchQuery(query: string): {
 /**
  * Check if domain matches search query
  * Searches across: domain, project_name, tld, provider, role
+ * Special case: if query starts with '.', search by TLD (.com, .ru, etc.)
  */
 export function matchesSearch(domain: Domain, query: string): boolean {
   if (!query) return true;
+
+  const trimmed = query.trim().toLowerCase();
+
+  // TLD search: if query starts with '.', search by extension
+  if (trimmed.startsWith('.')) {
+    const tldMatch = /^(\.\w{2,})/.exec(trimmed);
+    if (tldMatch) {
+      const searchTLD = tldMatch[1]; // e.g., '.com', '.ru'
+      const domainTLD = domain.domain_name.substring(domain.domain_name.lastIndexOf('.')); // extract TLD from domain
+      return domainTLD.toLowerCase() === searchTLD;
+    }
+  }
 
   const { freeText } = parseSearchQuery(query);
   if (!freeText) return true;
