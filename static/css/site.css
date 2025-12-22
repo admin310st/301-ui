@@ -825,13 +825,14 @@ h5 .icon[data-icon*="close"] {
 .utility-bar {
   background: var(--panel);
   border-bottom: 1px solid var(--border-subtle);
-  position: absolute;
+  position: absolute; /* Also creates positioning context for .loading-bar */
   top: 100%;
   left: 0;
   right: 0;
   z-index: 1;
   transition: transform 0.3s ease;
   transform: translateY(0);
+  overflow: hidden; /* Ensure loading bar doesn't overflow on mobile */
 }
 
 /* Loading indicator bar (1px animated border with shimmer effect) */
