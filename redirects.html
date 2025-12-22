@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>301.st · Redirects</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" href="/css/theme.css" />
+    <link rel="stylesheet" href="/css/layout.css" />
+    <link rel="stylesheet" href="/css/site.css" />
+  </head>
+  <body class="layout-dashboard">
+{{> sidebar-state-loader}}
+    <header class="site-header" role="banner">
+{{> header-top}}
+
+      <div class="utility-bar">
+        <div class="page-shell utility-bar__inner">
+          <div class="utility-left">
+            <span class="badges">
+              <span class="badge badge--neutral">Core</span>
+            </span>
+          </div>
+
+{{> header-utility}}
+        </div>
+
+{{> global-notice}}
+      </div>
+    </header>
+
+    <main class="page-shell dashboard-shell">
+{{> sidebar activePage="redirects"}}
+
+      <section class="dashboard-content">
+        <!-- Page Header -->
+        <header class="page-header">
+          <div class="stack-sm">
+            <h1 class="h3">Redirects</h1>
+            <p class="text-muted">Manage routing rules across your domains and destinations.</p>
+          </div>
+          <div class="controls-row">
+            <button class="btn btn--primary" type="button" data-action="add-redirect">
+              <span class="icon" data-icon="mono/plus"></span>
+              <span>Add redirect</span>
+            </button>
+          </div>
+        </header>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid" data-stats-grid>
+          <div class="stat-card">
+            <div class="stat-card__value" data-stat="total">0</div>
+            <div class="stat-card__label">Total rules</div>
+          </div>
+          <div class="stat-card stat-card--ok">
+            <div class="stat-card__value" data-stat="active">0</div>
+            <div class="stat-card__label">Active</div>
+          </div>
+          <div class="stat-card stat-card--neutral">
+            <div class="stat-card__value" data-stat="disabled">0</div>
+            <div class="stat-card__label">Disabled</div>
+          </div>
+          <div class="stat-card stat-card--danger">
+            <div class="stat-card__value" data-stat="errors">0</div>
+            <div class="stat-card__label">Errors</div>
+          </div>
+          <div class="stat-card stat-card--primary">
+            <div class="stat-card__value" data-stat="hits_24h">0</div>
+            <div class="stat-card__label">Hits (24h)</div>
+          </div>
+          <div class="stat-card stat-card--primary">
+            <div class="stat-card__value" data-stat="hits_7d">0</div>
+            <div class="stat-card__label">Hits (7d)</div>
+          </div>
+        </div>
+
+        <!-- Redirects Table Card -->
+        <div class="card card--panel" data-redirects-card>
+          <header class="card__header">
+            <div class="card__actions">
+              <!-- Search & Filters -->
+              <div class="controls-row">
+                <div class="table-search" data-table-search>
+                  <span class="icon" data-icon="mono/search"></span>
+                  <input
+                    type="text"
+                    class="table-search__input"
+                    placeholder="Search rules, domains, or projects..."
+                    data-search-input
+                  />
+                  <button class="table-search__clear" type="button" aria-label="Clear" data-search-clear>
+                    <span class="icon" data-icon="mono/close"></span>
+                  </button>
+                </div>
+
+                <button type="button" class="btn-icon btn-icon--ghost" data-toggle-filters aria-label="Toggle filters">
+                  <span class="icon" data-icon="mono/filter-plus"></span>
+                </button>
+
+                <button type="button" class="btn-icon btn-icon--neutral" data-reset-filters aria-label="Reset filters">
+                  <span class="icon" data-icon="mono/filter-remove"></span>
+                </button>
+              </div>
+
+              <!-- Filter chips row (injected by JS) -->
+              <div class="controls-row table-controls" data-filter-bar></div>
+            </div>
+          </header>
+
+          <div class="card__body">
+            <!-- Loading State -->
+            <div class="loading-state" data-loading-state hidden>
+              <div class="spinner"></div>
+              <p class="text-muted">Loading redirect rules...</p>
+            </div>
+
+            <!-- Empty State -->
+            <div class="empty-state" data-empty-state hidden>
+              <div class="stack-md">
+                <span class="icon icon--lg" data-icon="mono/directions"></span>
+                <h3 class="h4">No redirects yet</h3>
+                <p class="text-muted">
+                  Use redirect rules to define routing across your domains.<br>
+                  Create 301/302 redirects, weighted splits, or conditional flows.
+                </p>
+                <div class="btn-group">
+                  <button class="btn btn--primary" type="button" data-action="add-redirect">
+                    <span class="icon" data-icon="mono/plus"></span>
+                    <span>Add redirect</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Error State -->
+            <div class="alert alert--danger" data-error-state hidden>
+              <p>Failed to load redirect rules. Please retry or check your connection.</p>
+              <button class="btn btn--sm btn--ghost" type="button" data-action="retry">Retry</button>
+            </div>
+
+            <!-- Redirects Table -->
+            <div class="table-shell" data-table-shell hidden>
+              <div class="table-scroll">
+                <table class="table table--redirects">
+                  <thead>
+                    <tr>
+                      <th style="width: 50%;">Routing Flow</th>
+                      <th>Conditions</th>
+                      <th>Hits</th>
+                      <th>Status</th>
+                      <th style="width: 120px;">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody data-redirects-tbody>
+                    <!-- Rows injected by JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <footer class="card__footer" data-table-footer hidden>
+            <div class="pagination">
+              <span class="pagination__info">Showing <strong data-shown-count>0</strong> of <strong data-total-count>0</strong></span>
+            </div>
+          </footer>
+        </div>
+      </section>
+    </main>
+
+{{> footer}}
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

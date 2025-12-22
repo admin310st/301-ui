@@ -35,6 +35,16 @@ Roadmap for `/domains.html` implementation and enhancement.
 - [x] Add color-coded status display (.text-ok, .text-danger, .text-warning)
 - [x] Implement visual feedback for copy action (green icon for 2s)
 
+### DNS Configuration (2025-12-22)
+- [x] Create `src/utils/dns.ts` with DNS over HTTPS (Google DNS API) support
+- [x] Add nameserver check to domain inspector drawer
+- [x] Implement Cloudflare NS detection (checks for `cloudflare.com` in NS records)
+- [x] Add DNS Configuration section to drawer with status badges
+- [x] Display NS records with Cloudflare brand icons
+- [x] Add status badges: "On Cloudflare" (success), "Mixed NS" (warning), "Not on Cloudflare" (neutral)
+- [x] Fix badge wrapping (`white-space: nowrap`)
+- [x] Add `.detail-label--with-badge` CSS class for responsive badge positioning
+
 ### API Alignment (2025-12-20)
 - [x] Rename `domain` → `domain_name` in mock data (matches backend)
 - [x] Rename `provider` → `registrar` in mock data (matches UI requirements)
@@ -43,26 +53,31 @@ Roadmap for `/domains.html` implementation and enhancement.
 - [x] Document enum values from SQL schema (blocked_reason, ssl_status)
 - [x] Define ssl_status mapping: DB 'error'→UI 'invalid', DB 'none'→UI 'off'
 
-### CSS Improvements (2025-12-20)
+### CSS Improvements (2025-12-20, updated 2025-12-22)
 - [x] Add `.badge--ok` and `.badge--warning` variants
 - [x] Fix textarea background (use `--bg-elevated`)
 - [x] Add `.stack-inline` utilities for horizontal spacing
+- [x] Add `.stack-list` size variants (xs, sm, md, lg) using design tokens
+- [x] Add `white-space: nowrap` to `.badge` class to prevent text wrapping
 
 **Файлы:**
 - `domains.html` - main page
 - `src/domains/domains.ts` - UI logic
-- `src/domains/mock-data.ts` - 35+ mock domains with IDN examples
-- `src/utils/idn.ts` - IDN helpers (new)
-- `static/css/site.css` - styles for drawer, modal, health icons, badges
-- `static/img/icons-src/mono/idn.svg` - IDN badge icon (new)
-- `docs/API-domains-actual-vs-ui.md` - backend API comparison (new)
+- `src/domains/mock-data.ts` - 35+ mock domains with IDN examples + 301.st test domain
+- `src/utils/idn.ts` - IDN helpers (2025-12-20)
+- `src/utils/dns.ts` - DNS over HTTPS utilities (2025-12-22)
+- `static/css/site.css` - styles for drawer, modal, health icons, badges, stack utilities
+- `static/img/icons-src/mono/idn.svg` - IDN badge icon (2025-12-20)
+- `docs/API-domains-actual-vs-ui.md` - backend API comparison (2025-12-20)
 
-**Commits:** 10+ commits pushed to main
+**Commits:** 15+ commits pushed to main
 - Initial MVP (5 commits, 2025-12-19)
 - IDN support (2025-12-20)
 - Inspector drawer enhancements (2025-12-20)
 - Badge variants and CSS fixes (2025-12-20)
 - API documentation and alignment (2025-12-20)
+- DNS nameserver check feature (2025-12-22)
+- Design system improvements (.stack-list, badge fixes) (2025-12-22)
 
 ---
 
@@ -825,4 +840,4 @@ export default {
 
 ---
 
-**Last updated:** 2025-12-20
+**Last updated:** 2025-12-22

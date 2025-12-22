@@ -10,6 +10,7 @@
       "@forms/*": ["forms/*"],
       "@ui/*": ["ui/*"],
       "@domains/*": ["domains/*"],
+      "@redirects/*": ["redirects/*"],
       "@utils/*": ["utils/*"],
       "@state/*": ["state/*"],
       "@social/*": ["social/*"],

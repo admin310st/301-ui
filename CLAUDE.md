@@ -13,6 +13,27 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Stack:** TypeScript + Vite + Vanilla DOM-JS (no frameworks) + Cloudflare Workers + Cloudflare Turnstile + HTML Partials System
 
+## Task Management & Roadmap
+
+**Central TODO index:** [`docs/TODO-index.md`](docs/TODO-index.md)
+
+This is your single source of truth for all project tasks, priorities, and roadmap:
+
+- **Current focus:** What to work on next (Redirects → Projects → Sites)
+- **Detailed TODOs:** Links to page-specific TODO files (e.g., `TODO-domains.md`)
+- **Roadmap phases:** Layer-by-layer progress (Auth → Integrations → Domains → Projects/Sites/Streams → Redirects/TDS → Admin)
+- **Known blockers:** API gaps, missing fields, dependencies
+- **Mock data examples:** Structure for each entity type
+
+**When starting new features:**
+1. Check `docs/TODO-index.md` for priorities and existing plans
+2. Create detailed `TODO-{feature}.md` if needed
+3. Update index with progress and status
+4. Follow established patterns (dashboard layout, table + drawer, mock-first)
+
+**Detailed TODO files:**
+- `TODO-domains.md` - Domains page development (MVP complete, API integration pending)
+
 ## API Reference Documentation
 
 **All API modules must follow the contracts defined in `docs/301-wiki/`.**
@@ -28,12 +49,14 @@ The `docs/301-wiki/` directory contains the complete 301.st platform specificati
 
 | File | Purpose |
 |------|---------|
+| `docs/TODO-index.md` | **Task management** - Central index of all TODOs, roadmap priorities, current focus, detailed task files |
 | `docs/301-wiki/API_Auth.md` | **Primary auth reference** - Authentication API specification for `/auth` endpoints, OmniFlow, Turnstile integration, token lifecycle, OAuth flows |
 | `docs/301-wiki/API_Integrations.md` | **Integrations API reference** - Complete CRUD specification for `/integrations` endpoints: Cloudflare bootstrap, Namecheap, API key management |
 | `docs/301-wiki/Data_Model.md` | Database schema, entity relationships, multi-tenant isolation |
 | `docs/301-wiki/Architecture.md` | System architecture, Cloudflare Workers structure, deployment topology |
-| `docs/301-wiki/Frontend.md` | Frontend architecture, Webstudio integration, routing patterns |
+| `docs/301-wiki/Frontend.md` | Frontend architecture, routing patterns |
 | `docs/301-wiki/Integrations.md` | External service integrations (Cloudflare API, domain registrars, analytics) |
+| `docs/301-wiki/Appendix.md` | **Entity hierarchy** - Projects, Sites, Zones, Domains structure, deletion scenarios, migration patterns |
 | `docs/301-wiki/TDS.md` | Traffic Distribution System specification (future roadmap) |
 | `docs/301-wiki/Security.md` | Security model, CORS policies, authentication requirements |
 | `docs/301-wiki/Glossary.md` | Platform terminology and concept definitions |
@@ -161,7 +184,7 @@ src/
 │   ├── json.ts       # Safe JSON parsing
 │   ├── logger.ts     # Debug logging
 │   ├── password.ts   # Password strength validation
-│   └── webstudio.ts  # Webstudio integration helpers
+│   └── dns.ts        # DNS utilities (NS record queries via DNS over HTTPS)
 ├── i18n/             # Internationalization (@i18n/*)
 │   ├── index.ts
 │   ├── dom.ts        # Apply translations to DOM
@@ -482,13 +505,6 @@ newSection: {
 - Static content, NO i18n attributes
 - Separate HTML files per language if needed (future)
 - See `.claude/i18n-conventions.md` for rationale
-
-## Webstudio Integration
-
-`utils/webstudio.ts` provides helpers for integrating with Webstudio layouts:
-- `setWSVar(key, value)` - Expose variables to Webstudio
-- `updateFetchBuster()` - Trigger Webstudio to re-fetch auth state
-- Auth token automatically passed as `authBearer` variable
 
 ## Common Patterns
 

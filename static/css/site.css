@@ -2534,7 +2534,7 @@ body.sidebar-collapsed .app-shell {
   height: calc(100dvh - var(--header-height));
   background: var(--panel);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--r-lg);
+  border-radius: var(--radius-lg);
   padding: var(--space-2);
   display: flex;
   flex-direction: column;
@@ -3498,7 +3498,7 @@ body.layout-dashboard .burger-button {
 
 .domain-preview-item {
   padding: var(--space-1) var(--space-2);
-  border-radius: var(--r-sm);
+  border-radius: var(--radius);
   transition: background var(--transition-fast);
 }
 
@@ -3706,7 +3706,7 @@ html[data-theme="light"] .bulk-actions-bar__actions .btn--ghost:hover {
    ============================================ */
 .modal {
   border: none;
-  border-radius: var(--r-card);
+  border-radius: var(--radius-lg);
   padding: 0;
   max-width: 560px;
   width: 90%;
@@ -3845,7 +3845,7 @@ html[data-theme="light"] .bulk-actions-bar__actions .btn--ghost:hover {
   padding: 0.15em 0.35em;
   background: var(--bg-muted);
   border: 1px solid var(--border);
-  border-radius: var(--r-sm);
+  border-radius: var(--radius);
   color: var(--text-muted);
   cursor: help;
   transition: all 0.15s ease;
@@ -4028,4 +4028,288 @@ html[data-theme="light"] .bulk-actions-bar__actions .btn--ghost:hover {
     color: var(--brand);
     background: color-mix(in srgb, var(--brand) 10%, transparent);
   }
+}
+
+/* ============================================
+   Redirects Page Specific
+   ============================================ */
+
+/* Stats Grid - responsive grid for stat cards */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+}
+
+@media (min-width: 768px) {
+  .stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .stats-grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+/* Stat Card - individual metric display */
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.stat-card:hover {
+  border-color: var(--border-hover);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
+}
+
+.stat-card__value {
+  font-size: var(--fs-2xl);
+  font-weight: var(--fw-bold);
+  line-height: 1.2;
+  color: var(--text);
+}
+
+.stat-card__label {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  font-weight: var(--fw-medium);
+}
+
+/* Stat card variants with left border accent */
+.stat-card--ok {
+  border-left: 3px solid var(--ok);
+}
+
+.stat-card--ok .stat-card__value {
+  color: var(--ok);
+}
+
+.stat-card--neutral {
+  border-left: 3px solid var(--text-muted);
+}
+
+.stat-card--danger {
+  border-left: 3px solid var(--danger);
+}
+
+.stat-card--danger .stat-card__value {
+  color: var(--danger);
+}
+
+.stat-card--primary {
+  border-left: 3px solid var(--primary);
+}
+
+.stat-card--primary .stat-card__value {
+  color: var(--primary);
+}
+
+/* Flow row - visual representation of Source → Rule → Destinations */
+.redirect-flow {
+  padding: var(--space-3) 0;
+}
+
+/* Vertical track container */
+.redirect-flow__track {
+  position: relative;
+  padding-left: var(--space-4);
+}
+
+/* Vertical connecting line */
+.redirect-flow__track::before {
+  content: '';
+  position: absolute;
+  left: 1rem;
+  top: 1.5rem;
+  bottom: 1.5rem;
+  width: 2px;
+  background: var(--border);
+  opacity: 0.5;
+}
+
+/* Flow node - generic container */
+.redirect-flow__node {
+  position: relative;
+  display: flex;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.redirect-flow__node:last-child {
+  margin-bottom: 0;
+}
+
+/* Node icon (bullet point on the line) */
+.redirect-flow__node-icon {
+  position: absolute;
+  left: calc(-1 * var(--space-4));
+  top: 0.35rem;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  border: 2px solid var(--border);
+  border-radius: 50%;
+  flex-shrink: 0;
+  z-index: 1;
+}
+
+.redirect-flow__node-icon .icon {
+  width: 1em;
+  height: 1em;
+  color: var(--text-muted);
+}
+
+/* Node content area */
+.redirect-flow__node-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+/* Role label (Source/Rule/Destination) */
+.redirect-flow__node-label {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+/* Data container */
+.redirect-flow__node-data {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  padding: var(--space-2);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+/* Node type variants - icon colors */
+.redirect-flow__node--source .redirect-flow__node-icon {
+  border-color: var(--text-muted);
+}
+
+.redirect-flow__node--source .redirect-flow__node-icon .icon {
+  color: var(--text-muted);
+}
+
+.redirect-flow__node--source .redirect-flow__node-label {
+  color: var(--text-muted);
+}
+
+.redirect-flow__node--rule .redirect-flow__node-icon {
+  border-color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 10%, var(--bg));
+}
+
+.redirect-flow__node--rule .redirect-flow__node-icon .icon {
+  color: var(--primary);
+}
+
+.redirect-flow__node--rule .redirect-flow__node-label {
+  color: var(--primary);
+}
+
+.redirect-flow__node--destination .redirect-flow__node-icon {
+  border-color: var(--ok);
+  background: color-mix(in srgb, var(--ok) 10%, var(--bg));
+}
+
+.redirect-flow__node--destination .redirect-flow__node-icon .icon {
+  color: var(--ok);
+}
+
+.redirect-flow__node--destination .redirect-flow__node-label {
+  color: var(--ok);
+}
+
+/* Source-specific styles */
+.redirect-flow__source-domain {
+  font-weight: var(--fw-semibold);
+  color: var(--text);
+  font-size: var(--fs-md);
+}
+
+.redirect-flow__source-path {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--font-mono, monospace);
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.redirect-flow__source-path .icon {
+  width: 0.875em;
+  height: 0.875em;
+  flex-shrink: 0;
+  color: var(--warning);
+}
+
+/* Rule-specific styles */
+.redirect-flow__rule-name {
+  font-weight: var(--fw-semibold);
+  color: var(--text);
+  font-size: var(--fs-md);
+}
+
+/* Destination-specific styles */
+.redirect-flow__destination-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.redirect-flow__destination-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--fs-sm);
+}
+
+.redirect-flow__destination-url {
+  font-family: var(--font-mono, monospace);
+  color: var(--text);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+}
+
+/* Condition chips - compact visual indicators for redirect rules */
+.condition-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.15rem 0.4rem;
+  background: var(--bg-soft);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius);
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.condition-chip .icon {
+  width: 0.875em;
+  height: 0.875em;
+  flex-shrink: 0;
 }

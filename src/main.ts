@@ -26,6 +26,7 @@ import { initIntegrationsPage } from '@ui/integrations';
 import { initAccountPage } from '@forms/account';
 import { initAccountEdit } from '@forms/account-edit';
 import { initDomainsPage } from '@domains/domains';
+import { initRedirectsPage } from '@redirects/redirects';
 import { initDialogCloseHandlers } from '@ui/dialog';
 import { initPageLoadIndicator, showLoading, hideLoading, withLoading } from '@ui/loading-indicator';
 
@@ -176,6 +177,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initAccountPage();
   initAccountEdit();
   initDomainsPage();
+  initRedirectsPage();
   initDialogCloseHandlers();
 
   // Expose utilities for testing in Style Guide and use in other modules
