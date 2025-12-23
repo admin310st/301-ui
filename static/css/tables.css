@@ -43,7 +43,8 @@
   position: absolute;
   top: calc(100% + var(--space-2));
   right: 0;
-  min-width: 220px;
+  min-width: var(--menu-min);
+  max-width: var(--menu-max);
   background: var(--bg-elevated);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius);
@@ -741,7 +742,8 @@ th {
   left: 0;
   z-index: var(--z-dropdown);
 
-  min-width: 11rem;
+  min-width: var(--menu-min);
+  max-width: var(--menu-max);
   padding: var(--space-1) 0;
   border-radius: var(--radius-lg);
   background: var(--panel);
