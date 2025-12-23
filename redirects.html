@@ -181,16 +181,35 @@
       </section>
     </main>
 
-    <!-- Redirect Drawer -->
-    <div class="drawer" data-redirect-drawer hidden>
+    <!-- Redirect Inspector Drawer -->
+    <aside class="drawer" data-drawer="redirect-inspector" data-redirect-drawer hidden>
       <div class="drawer__overlay" data-drawer-close></div>
       <div class="drawer__panel">
         <header class="drawer__header">
-          <div class="stack-xs">
-            <h2 class="h4" data-drawer-title>Edit Redirect</h2>
-            <p class="text-muted text-sm" data-drawer-subtitle></p>
+          <div class="drawer__title">
+            <div class="stack-inline stack-inline--sm">
+              <h2 class="h4" data-drawer-domain>example.com</h2>
+              <button
+                class="btn-icon btn-icon--ghost btn-icon--sm"
+                type="button"
+                data-action="copy-domain-drawer"
+                aria-label="Copy domain"
+                title="Copy domain"
+              >
+                <span class="icon" data-icon="mono/copy"></span>
+              </button>
+              <button
+                class="btn-icon btn-icon--ghost btn-icon--sm"
+                type="button"
+                data-action="open-domain-drawer"
+                aria-label="Open domain in new tab"
+                title="Open in new tab"
+              >
+                <span class="icon" data-icon="mono/open-in-new"></span>
+              </button>
+            </div>
           </div>
-          <button class="btn-icon btn-icon--ghost" type="button" data-drawer-close aria-label="Close">
+          <button class="btn-close" type="button" data-drawer-close aria-label="Close">
             <span class="icon" data-icon="mono/close"></span>
           </button>
         </header>
@@ -200,13 +219,11 @@
         </div>
 
         <footer class="drawer__footer">
-          <div class="btn-group">
-            <button class="btn btn--ghost" type="button" data-drawer-close>Cancel</button>
-            <button class="btn btn--primary" type="button" data-drawer-save>Save changes</button>
-          </div>
+          <button class="btn btn--primary" type="button" data-drawer-save>Save changes</button>
+          <button class="btn btn--ghost" type="button" data-drawer-close>Cancel</button>
         </footer>
       </div>
-    </div>
+    </aside>
 
 {{> footer}}
 

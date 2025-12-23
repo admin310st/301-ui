@@ -43,17 +43,14 @@ export function openDrawer(redirect: DomainRedirect): void {
 
   currentRedirect = redirect;
 
-  // Update title and subtitle
-  const titleEl = drawerElement.querySelector('[data-drawer-title]');
-  const subtitleEl = drawerElement.querySelector('[data-drawer-subtitle]');
-
-  if (titleEl) {
-    titleEl.textContent = redirect.target_url ? 'Edit Redirect' : 'Add Redirect';
+  // Update domain name in header
+  const domainEl = drawerElement.querySelector('[data-drawer-domain]');
+  if (domainEl) {
+    domainEl.textContent = redirect.domain;
   }
 
-  if (subtitleEl) {
-    subtitleEl.textContent = redirect.domain;
-  }
+  // Setup action buttons
+  setupActionButtons(redirect);
 
   // Render drawer content
   renderDrawerContent(redirect);
@@ -143,112 +140,170 @@ export function closeDrawer(): void {
 }
 
 /**
- * Render drawer content
+ * Setup action buttons (copy, open in new tab)
  */
-function renderDrawerContent(redirect: DomainRedirect): string {
+function setupActionButtons(redirect: DomainRedirect): void {
+  if (!drawerElement) return;
+
+  // Copy button
+  const copyBtn = drawerElement.querySelector('[data-action="copy-domain-drawer"]');
+  if (copyBtn) {
+    copyBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText(redirect.domain);
+      // TODO: Show toast notification
+      console.log('Copied:', redirect.domain);
+    });
+  }
+
+  // Open in new tab button
+  const openBtn = drawerElement.querySelector('[data-action="open-domain-drawer"]');
+  if (openBtn) {
+    openBtn.addEventListener('click', () => {
+      window.open(`https://${redirect.domain}`, '_blank');
+    });
+  }
+}
+
+/**
+ * Render drawer content with cards and detail-list
+ */
+function renderDrawerContent(redirect: DomainRedirect): void {
   const contentEl = drawerElement?.querySelector('[data-drawer-content]');
-  if (!contentEl) return '';
+  if (!contentEl) return;
 
   const isPrimaryDomain = redirect.target_url === undefined || redirect.target_url === '';
 
   const content = `
-    <div class="stack-md">
-      <!-- Domain Info -->
-      <div class="form-group">
-        <label class="form-label">Domain</label>
-        <div class="form-value text-muted">${redirect.domain}</div>
-      </div>
-
-      ${isPrimaryDomain ? renderPrimaryDomainFields(redirect) : renderRedirectFields(redirect)}
-
-      <!-- Status Info -->
-      <div class="stack-sm">
-        <h3 class="h5">Sync Status</h3>
-        <div class="form-group">
-          <label class="form-label">Last Sync</label>
-          <div class="form-value text-muted">
-            ${redirect.last_sync ? new Date(redirect.last_sync).toLocaleString() : 'Never synced'}
-          </div>
+    <div class="stack-list">
+      <!-- Overview -->
+      <section class="card card--panel">
+        <header class="card__header">
+          <h3 class="h5">Overview</h3>
+        </header>
+        <div class="card__body">
+          <dl class="detail-list">
+            <div class="detail-row">
+              <dt class="detail-label">Project</dt>
+              <dd class="detail-value">${redirect.project_name || '—'}</dd>
+            </div>
+            <div class="detail-row">
+              <dt class="detail-label">Site</dt>
+              <dd class="detail-value">${redirect.site_name || '—'}</dd>
+            </div>
+            ${!isPrimaryDomain ? `
+              <div class="detail-row">
+                <dt class="detail-label">Target URL</dt>
+                <dd class="detail-value detail-value--mono">${redirect.target_url || '—'}</dd>
+              </div>
+            ` : `
+              <div class="detail-row">
+                <dt class="detail-label">Type</dt>
+                <dd class="detail-value">
+                  <span class="badge badge--sm badge--neutral">${redirect.site_type || 'Site'}</span>
+                </dd>
+              </div>
+            `}
+          </dl>
         </div>
-        ${redirect.sync_error ? `
-          <div class="alert alert--danger">
-            <strong>Sync Error:</strong> ${redirect.sync_error}
-          </div>
-        ` : ''}
-      </div>
+      </section>
+
+      ${isPrimaryDomain ? '' : renderRedirectConfigCard(redirect)}
+      ${renderSyncStatusCard(redirect)}
     </div>
   `;
 
   contentEl.innerHTML = content;
-  return content;
 }
 
 /**
- * Render fields for primary domains (sites)
+ * Render redirect configuration card (for redirect domains)
  */
-function renderPrimaryDomainFields(redirect: DomainRedirect): string {
-  return `
-    <div class="form-group">
-      <label class="form-label">Site Type</label>
-      <div class="form-value">
-        <span class="badge badge--sm badge--neutral">${redirect.site_type}</span>
-      </div>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Site Flag</label>
-      <div class="form-value text-muted">${redirect.site_flag}</div>
-    </div>
-  `;
-}
-
-/**
- * Render fields for redirect configuration
- */
-function renderRedirectFields(redirect: DomainRedirect): string {
-  const targetUrl = redirect.target_url || '';
+function renderRedirectConfigCard(redirect: DomainRedirect): string {
   const redirectCode = redirect.redirect_code || 301;
   const enabled = redirect.enabled ?? true;
 
   return `
-    <div class="form-group">
-      <label class="form-label" for="drawer-target-url">
-        Target URL
-        <span class="text-muted">·</span>
-        <span class="text-sm text-muted">Where this domain redirects to</span>
-      </label>
-      <input
-        type="url"
-        id="drawer-target-url"
-        class="input"
-        placeholder="https://example.com"
-        value="${targetUrl}"
-        data-drawer-field="target_url"
-      />
-    </div>
+    <section class="card card--panel">
+      <header class="card__header">
+        <h3 class="h5">Redirect Configuration</h3>
+      </header>
+      <div class="card__body">
+        <div class="stack-list">
+          <div class="field">
+            <label class="field__label" for="drawer-redirect-code">Redirect Code</label>
+            <select
+              id="drawer-redirect-code"
+              class="input"
+              data-drawer-field="redirect_code"
+            >
+              <option value="301" ${redirectCode === 301 ? 'selected' : ''}>301 - Permanent</option>
+              <option value="302" ${redirectCode === 302 ? 'selected' : ''}>302 - Temporary</option>
+            </select>
+          </div>
 
-    <div class="form-group">
-      <label class="form-label" for="drawer-redirect-code">Redirect Code</label>
-      <select
-        id="drawer-redirect-code"
-        class="input"
-        data-drawer-field="redirect_code"
-      >
-        <option value="301" ${redirectCode === 301 ? 'selected' : ''}>301 - Permanent</option>
-        <option value="302" ${redirectCode === 302 ? 'selected' : ''}>302 - Temporary</option>
-      </select>
-    </div>
+          <div class="field">
+            <label class="checkbox">
+              <input
+                type="checkbox"
+                class="checkbox"
+                ${enabled ? 'checked' : ''}
+                data-drawer-field="enabled"
+              />
+              <span>Enable redirect</span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </section>
+  `;
+}
 
-    <div class="form-group">
-      <label class="checkbox-label">
-        <input
-          type="checkbox"
-          class="checkbox"
-          ${enabled ? 'checked' : ''}
-          data-drawer-field="enabled"
-        />
-        <span>Enable redirect</span>
-      </label>
-    </div>
+/**
+ * Render sync status card
+ */
+function renderSyncStatusCard(redirect: DomainRedirect): string {
+  const lastSync = redirect.last_sync
+    ? new Date(redirect.last_sync).toLocaleString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      })
+    : 'Never';
+
+  const syncStatus = redirect.sync_error ? 'danger' : (redirect.last_sync ? 'success' : 'muted');
+  const syncBadgeText = redirect.sync_error ? 'Failed' : (redirect.last_sync ? 'Synced' : 'Not synced');
+  const syncBadgeClass = redirect.sync_error ? 'badge--danger' : (redirect.last_sync ? 'badge--success' : 'badge--neutral');
+
+  return `
+    <section class="card card--panel">
+      <header class="card__header">
+        <h3 class="h5">Sync Status</h3>
+      </header>
+      <div class="card__body">
+        <dl class="detail-list">
+          <div class="detail-row">
+            <dt class="detail-label">Status</dt>
+            <dd class="detail-value">
+              <span class="badge badge--sm ${syncBadgeClass}">${syncBadgeText}</span>
+            </dd>
+          </div>
+          <div class="detail-row">
+            <dt class="detail-label">Last Sync</dt>
+            <dd class="detail-value">${lastSync}</dd>
+          </div>
+          ${redirect.sync_error ? `
+            <div class="detail-row">
+              <dt class="detail-label">Error</dt>
+              <dd class="detail-value">
+                <span class="text-danger text-sm">${redirect.sync_error}</span>
+              </dd>
+            </div>
+          ` : ''}
+        </dl>
+      </div>
+    </section>
   `;
 }
 
