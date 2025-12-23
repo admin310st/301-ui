@@ -247,22 +247,44 @@ function setupToggleHandlers(): void {
   if (!toggleBtn) return;
 
   toggleBtn.addEventListener('click', () => {
-    const isEnabled = toggleBtn.classList.contains('btn--success');
-    const newEnabled = !isEnabled;
+    const currentEnabled = toggleBtn.getAttribute('data-enabled') === 'true';
+    const newEnabled = !currentEnabled;
 
-    // Update button state
-    toggleBtn.classList.toggle('btn--success', newEnabled);
-    toggleBtn.classList.toggle('btn--ghost', !newEnabled);
-
-    // Update button content
-    const icon = toggleBtn.querySelector('.icon');
-    const text = toggleBtn.querySelector('span:last-child');
-
-    if (icon) {
-      icon.setAttribute('data-icon', `mono/${newEnabled ? 'check-circle' : 'close-circle'}`);
+    // Update button state classes
+    if (newEnabled) {
+      toggleBtn.classList.remove('btn--ghost');
+      toggleBtn.classList.add('btn--success');
+    } else {
+      toggleBtn.classList.remove('btn--success');
+      toggleBtn.classList.add('btn--ghost');
     }
-    if (text) {
-      text.textContent = newEnabled ? 'Enabled' : 'Disabled';
+
+    // Update icon - remove old SVG and update data-icon
+    const iconContainer = toggleBtn.querySelector('.icon');
+    if (iconContainer) {
+      const newIconName = `mono/${newEnabled ? 'check-circle' : 'close-circle'}`;
+      iconContainer.setAttribute('data-icon', newIconName);
+
+      // Remove existing SVG
+      const existingSvg = iconContainer.querySelector('svg');
+      if (existingSvg) {
+        existingSvg.remove();
+      }
+
+      // Create new SVG with correct icon
+      const symbolId = `i-${newIconName.replace('/', '-')}`;
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('aria-hidden', 'true');
+      const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+      use.setAttribute('href', `/icons-sprite.svg#${symbolId}`);
+      svg.appendChild(use);
+      iconContainer.appendChild(svg);
+    }
+
+    // Update text
+    const textSpan = toggleBtn.querySelector('span:last-child');
+    if (textSpan) {
+      textSpan.textContent = newEnabled ? 'Enabled' : 'Disabled';
     }
 
     // Store value for save
@@ -449,8 +471,8 @@ function renderSyncStatusCard(redirect: DomainRedirect): string {
     syncButtonTooltip = 'Enable redirect to sync';
   }
 
-  const syncBadgeText = syncError ? 'Failed' : (redirect.last_sync ? 'Synced' : 'Not synced');
-  const syncBadgeClass = syncError ? 'badge--danger' : (redirect.last_sync ? 'badge--success' : 'badge--neutral');
+  const syncStatusText = syncError ? 'Failed' : (redirect.last_sync ? 'Synced' : 'Not synced');
+  const syncStatusColor = syncError ? 'text-danger' : (redirect.last_sync ? 'text-success' : 'text-muted');
 
   return `
     <section class="card card--panel">
@@ -474,7 +496,7 @@ function renderSyncStatusCard(redirect: DomainRedirect): string {
           <div class="detail-row">
             <dt class="detail-label">Status</dt>
             <dd class="detail-value">
-              <span class="badge badge--sm ${syncBadgeClass}">${syncBadgeText}</span>
+              <span class="${syncStatusColor}">${syncStatusText}</span>
             </dd>
           </div>
           <div class="detail-row">
