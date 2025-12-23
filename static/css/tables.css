@@ -387,10 +387,7 @@
   --indent-unit: 1.5rem;  /* Base indent step */
 }
 
-/* Level 0: Project (no indent) - only Domain column */
-.table__row--level-0 td:first-child {
-  padding-left: var(--space-3);
-}
+/* Level 0: Project - uses .table__group-toggle padding, no extra rule needed */
 
 /* Level 1: Primary domains (indent 1×) - only Domain column */
 .table__row--level-1 td:first-child {
