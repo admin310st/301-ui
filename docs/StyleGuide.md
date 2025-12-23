@@ -1268,6 +1268,7 @@ if (menu) menu.classList.remove('dropdown__menu--up');
 #### 4.5.1. Domains table reference
 
 * Responsive rule: keep `.table--domains` at `min-width: 720px` and wrap in `.table-wrapper` for horizontal scroll on mobile (no card collapse).
+* **Domain column optimization:** First column (`th:first-child`, `td:first-child`) has `max-width: 220px` to prevent excessive space waste. Even long domains (20+ chars) fit comfortably and wrap naturally. This ensures low-priority columns (Expires, Notes) remain visible on desktop with expanded sidebar.
 * Actions live inside a dropdown menu; provider column shows only `cloudflare`, `namecheap`, `namesilo` brand icons.
 * Status/expiry stays in one column, SSL mode and Zone ID surface through the dropdown actions only.
 * Toolbar demo pairs search with a single status dropdown filter, a Cloudflare action chip and a primary button in the same controls row.
@@ -1582,9 +1583,9 @@ All table columns MUST have a `data-priority` attribute to control progressive h
 | Priority | Hidden When | Use For | Examples |
 |----------|-------------|---------|----------|
 | `critical` | **Never** | Essential columns that must always be visible | Domain, Actions, Checkbox |
-| `high` | < 560px (very narrow) | Important but can hide on mobile | Status, Code, Provider |
-| `medium` | < 720px (narrow) | Useful but not essential | Health, Last Sync, Role |
-| `low` | < 880px (compact) | Nice-to-have metadata | Expires, Created At, Notes |
+| `high` | < 480px (very narrow) | Important but can hide on mobile | Status, Code, Provider |
+| `medium` | < 600px (narrow) | Useful but not essential | Health, Last Sync, Role |
+| `low` | < 720px (compact) | Nice-to-have metadata | Expires, Created At, Notes |
 
 **HTML Example:**
 
@@ -1622,7 +1623,7 @@ When creating a new table, always:
 1. ✅ **Assign priorities** to ALL `<th>` and `<td>` elements
 2. ✅ **Mark critical columns** - Domain/Name, Actions, Checkbox are always `critical`
 3. ✅ **Evaluate metadata** - Dates, timestamps, notes are usually `low`
-4. ✅ **Test container sizes** - Verify columns hide in correct order at 880px, 720px, 560px
+4. ✅ **Test container sizes** - Verify columns hide in correct order at 720px, 600px, 480px
 5. ✅ **Document exceptions** - If a column breaks the pattern, explain why in HTML comment
 
 **Why This Matters:**
