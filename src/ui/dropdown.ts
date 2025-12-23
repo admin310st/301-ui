@@ -32,14 +32,17 @@ export function adjustDropdownPosition(dropdown: Element): void {
   const spaceAbove = triggerRect.top;
 
   // Vertical positioning logic
-  // Strategy: prefer opening upward when in lower portion of viewport to avoid scrollbars
-  // If trigger is in bottom half AND there's reasonable space above, open upward
-  const isInBottomHalf = triggerRect.bottom > viewportHeight / 2;
+  // Strategy: open where there's more space, with bias toward avoiding scrollbars
+  const MIN_SPACE = 150; // Minimum space needed to open in a direction
 
-  if (isInBottomHalf && spaceAbove >= 150) {
-    menu.classList.add('dropdown__menu--up');
-  } else if (spaceBelow < 200 && spaceAbove >= 150) {
-    // Fallback: if very little space below, force upward
+  // Determine positioning based on available space
+  // Open upward if:
+  // 1. There's more space above than below
+  // 2. AND there's at least minimum space above
+  // 3. AND we're not in the top portion of viewport (prevent opening up when at top)
+  const isInTopPortion = triggerRect.top < viewportHeight * 0.3; // Top 30% of viewport
+
+  if (!isInTopPortion && spaceAbove >= MIN_SPACE && spaceAbove > spaceBelow) {
     menu.classList.add('dropdown__menu--up');
   }
 
