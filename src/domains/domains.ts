@@ -414,9 +414,9 @@ function renderDomainsTable(domains: Domain[]): void {
             </div>
           </td>
           <td data-priority="high">${statusChip}</td>
-          <td data-priority="medium" class="table__cell-center">${healthIcons}</td>
-          <td data-priority="low" class="table__cell-center">${expiresText}</td>
-          <td data-priority="critical" class="table__cell-center">
+          <td data-priority="medium">${healthIcons}</td>
+          <td data-priority="low">${expiresText}</td>
+          <td data-priority="critical">
             <div class="btn-group">
               <button
                 class="btn-icon"

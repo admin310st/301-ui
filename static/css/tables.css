@@ -165,12 +165,6 @@
   white-space: nowrap;
 }
 
-/* Center-align headers and cells for icon/action columns */
-.table__th-center,
-.table__cell-center {
-  text-align: center;
-}
-
 .th-sort {
   display: inline-flex;
   align-items: center;
@@ -251,13 +245,16 @@
   overflow-wrap: break-word;
 }
 
-/* Center-align Status, Health, and checkbox columns */
+/* Center-align Status, Health (data only), Expires, Actions, and checkbox columns */
 .table--domains th:nth-child(2),
 .table--domains td:nth-child(2),
-.table--domains th:nth-child(3),
-.table--domains td:nth-child(3),
+.table--domains td:nth-child(3),  /* Health data centered, header left-aligned */
+.table--domains th:nth-child(4),
+.table--domains td:nth-child(4),  /* Expires */
+.table--domains th:nth-child(5),
+.table--domains td:nth-child(5),  /* Actions */
 .table--domains th:nth-child(6),
-.table--domains td:nth-child(6) {
+.table--domains td:nth-child(6) { /* Checkbox */
   text-align: center;
 }
 
@@ -427,7 +424,7 @@
 .table--redirects th:nth-child(4),
 .table--redirects td:nth-child(4) {
   width: var(--col-actions);
-  text-align: right;
+  text-align: center;
 }
 
 /* Checkbox column - uses fluid token */
