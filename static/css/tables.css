@@ -41,7 +41,7 @@
 
 .dropdown__menu {
   position: absolute;
-  top: calc(100% + 0.35rem);
+  top: calc(100% + var(--space-2));
   right: 0;
   min-width: 220px;
   background: var(--bg-elevated);
@@ -122,7 +122,7 @@
 /* Smart positioning: flip menu upward when near bottom of viewport */
 .dropdown__menu--up {
   top: auto;
-  bottom: calc(100% + 0.35rem);
+  bottom: calc(100% + var(--space-2));
 }
 
 .dropdown__menu .icon {
@@ -153,7 +153,7 @@
 
 .table th,
 .table td {
-  padding: 0.5rem 0.75rem;
+  padding: var(--space-2) var(--space-3);
   text-align: left;
 }
 
@@ -247,23 +247,23 @@
 .table--domains td:nth-child(5),
 .table--domains th:nth-child(6),
 .table--domains td:nth-child(6) {
-  padding-left: 0.5rem;
-  padding-right: 0.5rem;
+  padding-left: var(--space-2);
+  padding-right: var(--space-2);
 }
 
 /* Mobile optimizations for domains table */
 @media (max-width: 768px) {
   .table th,
   .table td {
-    padding: 0.4rem 0.5rem;
+    padding: var(--space-2) var(--space-2);
   }
 
   .table--domains th:nth-child(5),
   .table--domains td:nth-child(5),
   .table--domains th:nth-child(6),
   .table--domains td:nth-child(6) {
-    padding-left: 0.35rem;
-    padding-right: 0.35rem;
+    padding-left: var(--space-2);
+    padding-right: var(--space-2);
   }
 }
 
@@ -307,7 +307,7 @@
   font-weight: var(--fw-medium);
   text-align: left;
   cursor: pointer;
-  transition: background-color 0.15s ease;
+  transition: background-color var(--transition-md);
 }
 
 .table__group-toggle:hover {
@@ -514,7 +514,7 @@
 .table-cell-quick-action {
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.15s ease;
+  transition: opacity var(--transition-md);
 }
 
 tr:hover .table-cell-quick-action {
@@ -737,12 +737,12 @@ th {
 
 .table-filter__menu {
   position: absolute;
-  top: calc(100% + 0.25rem);
+  top: calc(100% + var(--space-1));
   left: 0;
   z-index: var(--z-dropdown);
 
   min-width: 11rem;
-  padding: 0.25rem 0;
+  padding: var(--space-1) 0;
   border-radius: var(--radius-lg);
   background: var(--panel);
   border: 1px solid var(--border-subtle);
@@ -824,14 +824,14 @@ th {
   /* Badge on toggle button */
   [data-toggle-filters] .badge {
     position: absolute;
-    top: -0.25rem;
-    right: -0.25rem;
+    top: calc(var(--space-1) * -1);
+    right: calc(var(--space-1) * -1);
     min-width: 1.25rem;
     height: 1.25rem;
-    padding: 0 0.25rem;
+    padding: 0 var(--space-1);
     font-size: 0.625rem;
     line-height: 1.25rem;
-    border-radius: 0.625rem;
+    border-radius: var(--radius-lg);
   }
 
   /* Hide filter bar by default on tiny phones */
@@ -1115,12 +1115,12 @@ html[data-theme="light"] .bulk-actions-bar__actions .btn--ghost:hover {
   justify-content: center;
   padding-inline: 0.75em;
   padding-block: 0.15em;
-  border-radius: 999px;
+  border-radius: var(--r-pill);
   border: 1px solid transparent;
 
-  font-size: 0.75rem;
+  font-size: var(--fs-xs);
   line-height: 1.6;
-  font-weight: 500;
+  font-weight: var(--fw-medium);
   white-space: nowrap;
 
   background-color: rgba(255, 255, 255, 0.03);
@@ -1128,11 +1128,11 @@ html[data-theme="light"] .bulk-actions-bar__actions .btn--ghost:hover {
 }
 
 .badge--pill {
-  border-radius: 999px;
+  border-radius: var(--r-pill);
 }
 
 .badge + .badge {
-  margin-left: 0.25rem;
+  margin-left: var(--space-1);
 }
 
 /* Badge Variants */
@@ -1186,7 +1186,7 @@ html[data-theme="light"] .bulk-actions-bar__actions .btn--ghost:hover {
 
 .badge--sm {
   font-size: var(--fs-xs);
-  padding: 2px 8px;
+  padding: var(--space-1) var(--space-2);
 }
 
 /* Light Theme Badge Overrides */
@@ -1242,7 +1242,7 @@ html[data-theme="light"] .bulk-actions-bar__actions .btn--ghost:hover {
 .domain-cell {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: var(--space-1);
   font-weight: var(--fw-medium);
 }
 
@@ -1316,7 +1316,7 @@ html[data-theme="light"] .bulk-actions-bar__actions .btn--ghost:hover {
   border-radius: var(--radius);
   color: var(--text-muted);
   cursor: help;
-  transition: all 0.15s ease;
+  transition: all var(--transition-md);
   vertical-align: middle;
 }
 
@@ -1508,7 +1508,7 @@ html[data-theme="light"] .bulk-actions-bar__actions .btn--ghost:hover {
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  transition: all 0.2s ease;
+  transition: all var(--transition-md);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
@@ -1565,14 +1565,14 @@ html[data-theme="light"] .bulk-actions-bar__actions .btn--ghost:hover {
   display: inline-flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 0.2rem;
+  gap: var(--space-1);
   font-size: var(--fs-sm);
 }
 
 .table-metric__row {
   display: inline-flex;
   align-items: baseline;
-  gap: 0.35rem;
+  gap: var(--space-2);
 }
 
 .table-metric__value {

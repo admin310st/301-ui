@@ -1486,3 +1486,105 @@ const result = await withLoading(
 - **Page loads**: Automatically shown via `initPageLoadIndicator()` in main.ts
 - **CF operations**: Use `'cf'` type for orange shimmer during Cloudflare API calls
 - **Long operations**: Wrap promises with `withLoading()` for automatic show/hide
+
+---
+
+## 9. CSS Architecture & Modularization
+
+### 9.1. File Structure
+
+The CSS is organized into modular files loaded in order:
+
+1. **`theme.css`** - Design tokens (colors, typography, spacing, transitions)
+2. **`layout.css`** - Page shells, grids, containers
+3. **`site.css`** - Global components (buttons, cards, forms, typography)
+4. **`tables.css`** - Table system (dashboard pages only)
+
+### 9.2. tables.css Module
+
+**Purpose:** Self-contained table system for dashboard pages with data tables.
+
+**When to load:** Only on pages with tables (domains, redirects, etc.) to keep auth/marketing pages lean.
+
+**Dependencies:** Requires `site.css` for base button/control styles.
+
+**Architecture:**
+
+1. **Dropdown Menus** - Filter menus and kebab actions
+2. **Table Structure & Variants** - Base table, `.table--domains`, `.table--redirects`
+3. **Table Controls & Filters** - Search bar, filter chips, responsive grid
+4. **Bulk Actions Bar** - Glassmorphic floating bar with selection controls
+5. **Table States** - Empty state, loading spinner
+6. **Pagination** - Page navigation controls
+7. **Table-Specific Components** - Badges, domain cells, provider labels, IDN indicators
+8. **Drawer** - Side panel for edit/add forms
+9. **Page-Specific Components** - Stats cards, metrics
+
+**Design System Compliance:**
+
+- ✅ All spacing uses tokens (`--space-1` through `--space-6`)
+- ✅ All font sizes use tokens (`--fs-xs`, `--fs-sm`, `--fs-md`, etc.)
+- ✅ All font weights use tokens (`--fw-normal`, `--fw-medium`, `--fw-semibold`, `--fw-bold`)
+- ✅ All border radii use tokens (`--radius`, `--radius-lg`, `--r-pill`)
+- ✅ All transitions use tokens (`--transition-fast`, `--transition-md`)
+- ✅ No fixed heights (uses font-driven sizing where applicable)
+- ✅ Responsive breakpoints at 480px, 768px, 1024px
+
+**Exceptions:**
+
+- Icon sizes (20px, 24px, 32px, 40px, 64px) - component-specific design decisions
+- Table min-widths (720px, 950px) - content-driven, prevents horizontal cramming
+- Badge micro-font (0.625rem) - intentionally smaller than `--fs-xs` for compact display
+- Dropdown menu gaps (0.35em) - em-based for font-relative spacing
+
+**Usage in HTML:**
+
+```html
+<link rel="stylesheet" href="/css/theme.css" />
+<link rel="stylesheet" href="/css/layout.css" />
+<link rel="stylesheet" href="/css/site.css" />
+<link rel="stylesheet" href="/css/tables.css" />
+```
+
+### 9.3. Token Usage Rules
+
+**Always prefer tokens over hardcoded values:**
+
+```css
+/* ❌ BAD - Hardcoded values */
+.example {
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.5rem 0.75rem;
+  border-radius: 999px;
+  gap: 0.25rem;
+  transition: all 0.15s ease;
+}
+
+/* ✅ GOOD - Using design tokens */
+.example {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--r-pill);
+  gap: var(--space-1);
+  transition: all var(--transition-md);
+}
+```
+
+**When to use hardcoded values:**
+
+- **Em-based spacing** - Use when spacing should scale with font-size (e.g., `padding: 0.35em 0.9em` in buttons)
+- **Component-specific sizes** - Icon dimensions, table min-widths, empty state heights
+- **Micro-adjustments** - Values not covered by tokens (e.g., `0.625rem` for tiny badges)
+- **Character-based spacing** - Use `ch` units for character width (e.g., `margin-left: 0.5ch`)
+
+### 9.4. Repository Ecology Rule
+
+> Whenever design system updates are introduced, ALL UI components and ALL demo pages must be refactored to follow the new rules. No page in the system is allowed to use outdated paddings, heights, or markup. StyleGuide + demo pages = single source of truth.
+
+This ensures:
+- Consistent visual language across all pages
+- No legacy patterns lingering in codebase
+- Demo pages (`/ui-style-guide`) accurately represent production code
+- Design tokens are enforced systematically
