@@ -204,16 +204,23 @@ function updateGlobalCheckbox(): void {
  */
 function renderTargetSubgroup(target: TargetSubgroup, projectId: number): string {
   if (target.target_type === 'site') {
-    // Primary domain case: first domain is the site, rest redirect to it
+    // Primary domain case: first domain is the site, rest are in same site
     const primaryDomain = target.domains[0];
-    const redirectingDomains = target.domains.slice(1);
+    const otherDomains = target.domains.slice(1);
+
+    // Count only actual redirects to primary (not "No redirect" domains)
+    const actualRedirects = otherDomains.filter(d =>
+      d.has_redirect &&
+      d.target_url &&
+      d.target_url.toLowerCase().includes(primaryDomain.domain.toLowerCase())
+    );
 
     // Render primary domain as target header (Level 1) - enhanced domain row
-    const primaryRow = renderPrimaryDomainRow(primaryDomain, target.site_type!, redirectingDomains.length, projectId);
+    const primaryRow = renderPrimaryDomainRow(primaryDomain, target.site_type!, actualRedirects.length, projectId);
 
-    // Render domains redirecting to primary (Level 2)
-    const childRows = redirectingDomains.map((redirect, index) => {
-      const isLastRow = index === redirectingDomains.length - 1;
+    // Render ALL other domains in site (Level 2) - both redirecting and non-redirecting
+    const childRows = otherDomains.map((redirect, index) => {
+      const isLastRow = index === otherDomains.length - 1;
       return renderRow(redirect, projectId, isLastRow, false);
     }).join('');
 
