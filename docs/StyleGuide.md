@@ -1496,11 +1496,29 @@ const result = await withLoading(
 The CSS is organized into modular files loaded in order:
 
 1. **`theme.css`** - Design tokens (colors, typography, spacing, transitions)
-2. **`layout.css`** - Page shells, grids, containers
+2. **`layout.css`** - Page shells, grids, containers, **fluid layout tokens**
 3. **`site.css`** - Global components (buttons, cards, forms, typography)
 4. **`tables.css`** - Table system (dashboard pages only)
 
-### 9.2. tables.css Module
+### 9.2. Fluid Tokens Policy
+
+**Where fluid tokens live:** `layout.css :root` (layout-specific sizing)
+
+**Rules:**
+- `vw` units are used **ONLY inside `clamp()`** - never hardcoded per-component
+- New classes (`.app-layout`, `.table-grid`) are **NOT introduced** - use existing selectors + tokens
+- Fluid tokens are opt-in: added first, used later after testing
+- Any new adaptive behavior: either via `clamp()` tokens OR existing media queries
+
+**Token naming:**
+- `--sidebar-w`, `--sidebar-w-collapsed` - layout structure
+- `--table-min-*` - table minimum widths
+- `--col-*` - column sizing
+- `--menu-min`, `--menu-max` - dropdown constraints
+
+**Migration strategy:** Small phases (0-4), each self-contained and revertible.
+
+### 9.3. tables.css Module
 
 **Purpose:** Self-contained table system for dashboard pages with data tables.
 
@@ -1546,7 +1564,7 @@ The CSS is organized into modular files loaded in order:
 <link rel="stylesheet" href="/css/tables.css" />
 ```
 
-### 9.3. Token Usage Rules
+### 9.4. Token Usage Rules
 
 **Always prefer tokens over hardcoded values:**
 
@@ -1579,7 +1597,7 @@ The CSS is organized into modular files loaded in order:
 - **Micro-adjustments** - Values not covered by tokens (e.g., `0.625rem` for tiny badges)
 - **Character-based spacing** - Use `ch` units for character width (e.g., `margin-left: 0.5ch`)
 
-### 9.4. Repository Ecology Rule
+### 9.5. Repository Ecology Rule
 
 > Whenever design system updates are introduced, ALL UI components and ALL demo pages must be refactored to follow the new rules. No page in the system is allowed to use outdated paddings, heights, or markup. StyleGuide + demo pages = single source of truth.
 

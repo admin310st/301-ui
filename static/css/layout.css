@@ -6,6 +6,19 @@
   --block-gap: var(--space-4);
   --stack-gap: 0.75rem;
   --inline-gap: 0.5rem;
+
+  /* Fluid layout tokens (Phase 1: opt-in, not used yet) */
+  --sidebar-w: clamp(240px, 18vw, 280px);
+  --sidebar-w-collapsed: clamp(64px, 6vw, 80px);
+
+  --table-min-domains: clamp(680px, 52vw, 720px);
+  --table-min-redirects: clamp(900px, 68vw, 950px);
+
+  --col-actions: clamp(72px, 6vw, 96px);
+  --col-check: clamp(40px, 3.2vw, 48px);
+
+  --menu-min: clamp(200px, 18vw, 240px);
+  --menu-max: min(92vw, 28rem);
 }
 
 .page-shell {
@@ -127,7 +140,12 @@
 @media (min-width: 1024px) {
   .layout-shell {
     display: grid;
-    grid-template-columns: 260px minmax(0, 1fr);
+    grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
+  }
+
+  /* Phase 2.1: Collapsed sidebar state */
+  .layout-shell[data-sidebar="collapsed"] {
+    grid-template-columns: var(--sidebar-w-collapsed) minmax(0, 1fr);
   }
 
   .layout-sidebar {
