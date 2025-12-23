@@ -5,7 +5,7 @@
  * NOT to be confused with Streams/TDS (complex conditional routing)
  */
 
-import { mockDomainRedirects, groupByProject, type DomainRedirect } from './mock-data';
+import { mockDomainRedirects, groupByProject, type DomainRedirect, type ProjectGroup, type TargetSubgroup } from './mock-data';
 import { getDefaultFilters, hasActiveFilters, type ActiveFilters } from './filters-config';
 import { renderFilterBar, initFilterUI } from './filters-ui';
 import { initDropdowns } from '@ui/dropdown';
@@ -112,14 +112,16 @@ function renderTable(): void {
     const isCollapsed = collapsedGroups.has(group.project_id);
     const chevronIcon = isCollapsed ? 'chevron-down' : 'chevron-up';
 
-    // Check if all selectable domains in this group are selected
-    const selectableDomains = group.domains.filter(d => !primaryDomains.has(d.domain));
+    // Flatten all domains from all targets for selection logic
+    const allDomains = group.targets.flatMap(t => t.domains);
+    const selectableDomains = allDomains.filter(d => !primaryDomains.has(d.domain));
     const selectedInGroup = selectableDomains.filter(d => selectedRedirects.has(d.id));
     const allSelected = selectableDomains.length > 0 && selectedInGroup.length === selectableDomains.length;
     const someSelected = selectedInGroup.length > 0 && selectedInGroup.length < selectableDomains.length;
 
-    const groupHeader = `
-      <tr class="table__group-header" data-group-id="${group.project_id}">
+    // Project header row (Level 0)
+    const projectHeader = `
+      <tr class="table__group-header table__row--level-0" data-group-id="${group.project_id}">
         <td colspan="5">
           <button class="table__group-toggle" type="button" data-action="toggle-group" data-group-id="${group.project_id}" aria-expanded="${!isCollapsed}">
             <span class="icon" data-icon="mono/${chevronIcon}"></span>
@@ -127,7 +129,7 @@ function renderTable(): void {
               <span class="icon" data-icon="mono/project"></span>
               <span class="table__group-name">${group.project_name}</span>
               <span class="table__group-count">
-                ${group.domains.length} domains
+                ${group.totalDomains} domains
                 <input
                   type="checkbox"
                   class="checkbox"
@@ -144,13 +146,12 @@ function renderTable(): void {
       </tr>
     `;
 
-    const rows = isCollapsed ? '' : group.domains.map((redirect, index, arr) => {
-      const isLastRow = index === arr.length - 1;
-      const isNewSite = index > 0 && redirect.site_id !== arr[index - 1].site_id;
-      return renderRow(redirect, group.project_id, isLastRow, isNewSite);
+    // Target subgroups + domain rows (Level 1 & 2)
+    const targetRows = isCollapsed ? '' : group.targets.map(target => {
+      return renderTargetSubgroup(target, group.project_id);
     }).join('');
 
-    return groupHeader + rows;
+    return projectHeader + targetRows;
   }).join('');
 
   tbody.innerHTML = html;
@@ -197,17 +198,65 @@ function updateGlobalCheckbox(): void {
 }
 
 /**
+ * Render target subgroup (Level 1) with its domain rows (Level 2)
+ */
+function renderTargetSubgroup(target: TargetSubgroup, projectId: number): string {
+  // Target subgroup header (Level 1)
+  const targetBadge = target.target_type === 'site' && target.site_type
+    ? getSiteTypeBadge(target.site_type)
+    : '';
+
+  const targetIcon = target.target_type === 'site'
+    ? '<span class="icon text-primary" data-icon="mono/arrow-right"></span>'
+    : target.target_type === 'redirect'
+    ? '<span class="icon text-ok" data-icon="mono/arrow-bottom-right"></span>'
+    : '<span class="icon text-muted" data-icon="mono/circle-slash"></span>';
+
+  const targetHeader = `
+    <tr class="table__target-subgroup table__row--level-1" data-target-key="${target.target_key}">
+      <td colspan="5">
+        <div class="table__target-header">
+          ${targetIcon}
+          <span class="table__target-name">${target.target_display}</span>
+          ${targetBadge}
+          <span class="table__target-count">(${target.domains.length})</span>
+        </div>
+      </td>
+    </tr>
+  `;
+
+  // Domain rows (Level 2)
+  const domainRows = target.domains.map((redirect, index) => {
+    const isLastRow = index === target.domains.length - 1;
+    return renderRow(redirect, projectId, isLastRow, false);
+  }).join('');
+
+  return targetHeader + domainRows;
+}
+
+/**
+ * Get site type badge HTML
+ */
+function getSiteTypeBadge(siteType: string): string {
+  const badges = {
+    landing: '<span class="badge badge--sm badge--success">Landing</span>',
+    tds: '<span class="badge badge--sm badge--primary">TDS</span>',
+    hybrid: '<span class="badge badge--sm badge--warning">Hybrid</span>',
+  };
+  return badges[siteType as keyof typeof badges] || '';
+}
+
+/**
  * Render single redirect row
  */
 function renderRow(redirect: DomainRedirect, groupId: number, isLastRow: boolean, isNewSite: boolean): string {
   const isPrimaryDomain = primaryDomains.has(redirect.domain);
   const isSelected = selectedRedirects.has(redirect.id);
   const rowClass = [
-    'table__group-row',
+    'table__domain-row',
+    'table__row--level-2',
     redirect.domain_status === 'expired' ? 'table__row--muted' : '',
-    isPrimaryDomain ? 'table__row--primary' : '',
-    isLastRow ? 'table__group-row--last' : '',
-    isNewSite ? 'table__site-separator' : ''
+    isPrimaryDomain ? 'table__row--primary' : ''
   ].filter(Boolean).join(' ');
 
   const checkbox = getCheckboxDisplay(redirect, isPrimaryDomain);

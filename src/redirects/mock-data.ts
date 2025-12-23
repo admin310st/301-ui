@@ -652,7 +652,86 @@ export function groupBySite(redirects: DomainRedirect[]) {
  * Group redirects by project (not site)
  * One project can contain multiple sites with their domains
  */
-export function groupByProject(redirects: DomainRedirect[]) {
+export interface TargetSubgroup {
+  target_key: string;  // Unique key for grouping (target_url or "site:{site_id}" or "no-redirect")
+  target_display: string;  // Display text (hostname or "No redirect")
+  target_type: 'site' | 'redirect' | 'none';  // site = primary domain with site_type, redirect = external target, none = no redirect
+  site_type?: SiteType;  // Only for target_type === 'site'
+  domains: DomainRedirect[];
+}
+
+export interface ProjectGroup {
+  project_id: number;
+  project_name: string;
+  targets: TargetSubgroup[];
+  totalDomains: number;
+}
+
+/**
+ * Group domains by target within a project
+ * Creates target subgroups: primary sites, redirect targets, and "no redirect"
+ */
+function groupByTarget(domains: DomainRedirect[]): TargetSubgroup[] {
+  const groups = new Map<string, DomainRedirect[]>();
+
+  for (const domain of domains) {
+    let key: string;
+
+    // Primary domain (no redirect, has site): group as "site:{site_id}"
+    if (!domain.target_url && domain.site_type) {
+      key = `site:${domain.site_id}`;
+    }
+    // Has redirect: group by target_url
+    else if (domain.target_url) {
+      key = `redirect:${domain.target_url}`;
+    }
+    // No redirect: group as "no-redirect"
+    else {
+      key = 'no-redirect';
+    }
+
+    if (!groups.has(key)) {
+      groups.set(key, []);
+    }
+    groups.get(key)!.push(domain);
+  }
+
+  // Convert to TargetSubgroup array
+  return Array.from(groups.entries()).map(([key, domains]) => {
+    const first = domains[0];
+
+    if (key.startsWith('site:')) {
+      // Primary site group
+      return {
+        target_key: key,
+        target_display: first.domain,  // Primary domain as display
+        target_type: 'site' as const,
+        site_type: first.site_type,
+        domains,
+      };
+    } else if (key.startsWith('redirect:')) {
+      // Redirect target group
+      const targetUrl = key.replace('redirect:', '');
+      const targetHost = targetUrl.replace(/^https?:\/\//, '').split('/')[0];
+      return {
+        target_key: key,
+        target_display: targetHost,
+        target_type: 'redirect' as const,
+        domains,
+      };
+    } else {
+      // No redirect group
+      return {
+        target_key: key,
+        target_display: 'No redirect',
+        target_type: 'none' as const,
+        domains,
+      };
+    }
+  });
+}
+
+export function groupByProject(redirects: DomainRedirect[]): ProjectGroup[] {
   const groups = new Map<number, DomainRedirect[]>();
 
   for (const redirect of redirects) {
@@ -665,6 +744,7 @@ export function groupByProject(redirects: DomainRedirect[]) {
   return Array.from(groups.entries()).map(([projectId, domains]) => ({
     project_id: projectId,
     project_name: domains[0].project_name,
-    domains,
+    targets: groupByTarget(domains),
+    totalDomains: domains.length,
   }));
 }
