@@ -42,8 +42,11 @@ function renderFilterChip(config: FilterConfig, activeValue: string | string[] |
   const count = config.type === 'multi-select' && Array.isArray(activeValue) ? activeValue.length : 0;
   const countBadge = count > 0 ? `<span class="badge badge--sm">${count}</span>` : '';
 
+  // Add priority attribute for responsive hiding (matches table column priorities)
+  const priorityAttr = config.priority ? ` data-priority="${config.priority}"` : '';
+
   return `
-    <div class="dropdown" data-dropdown data-filter-id="${config.id}">
+    <div class="dropdown" data-dropdown data-filter-id="${config.id}"${priorityAttr}>
       <button
         class="btn-chip btn-chip--dropdown dropdown__trigger ${isActive ? 'is-active' : ''}"
         type="button"

@@ -13,6 +13,7 @@ export interface FilterConfig {
   label: string;
   type: 'single-select' | 'multi-select';
   options: FilterOption[];
+  priority?: 'critical' | 'high' | 'medium' | 'low';
 }
 
 export const DOMAIN_FILTERS: FilterConfig[] = [
@@ -20,6 +21,7 @@ export const DOMAIN_FILTERS: FilterConfig[] = [
     id: 'status',
     label: 'Status',
     type: 'single-select',
+    priority: 'high', // Hidden < 560px - relates to Status column
     options: [
       { value: 'all', label: 'All' },
       { value: 'active', label: 'Active' },
@@ -31,6 +33,7 @@ export const DOMAIN_FILTERS: FilterConfig[] = [
     id: 'health',
     label: 'Health',
     type: 'multi-select',
+    priority: 'medium', // Hidden < 720px - relates to Health column
     options: [
       { value: 'ok', label: 'OK' },
       { value: 'ssl_bad', label: 'SSL issues' },
@@ -42,6 +45,7 @@ export const DOMAIN_FILTERS: FilterConfig[] = [
     id: 'provider',
     label: 'Provider',
     type: 'single-select',
+    priority: 'medium', // Hidden < 720px - metadata filter, not visible column
     options: [
       { value: 'all', label: 'All' },
       { value: 'cloudflare', label: 'Cloudflare' },
@@ -54,6 +58,7 @@ export const DOMAIN_FILTERS: FilterConfig[] = [
     id: 'project',
     label: 'Project',
     type: 'single-select',
+    priority: 'critical', // Always visible - primary grouping/filtering
     options: [
       { value: 'all', label: 'All' },
       // Dynamic options populated from API
@@ -63,6 +68,7 @@ export const DOMAIN_FILTERS: FilterConfig[] = [
     id: 'role',
     label: 'Role',
     type: 'single-select',
+    priority: 'high', // Hidden < 560px - relates to redirect logic
     options: [
       { value: 'all', label: 'All' },
       { value: 'donor', label: 'Donor' },
@@ -73,6 +79,7 @@ export const DOMAIN_FILTERS: FilterConfig[] = [
     id: 'expiry',
     label: 'Expiry',
     type: 'single-select',
+    priority: 'low', // Hidden < 880px - relates to Expires column
     options: [
       { value: 'any', label: 'Any' },
       { value: '30d', label: '≤ 30 days' },
