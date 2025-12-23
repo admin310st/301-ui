@@ -239,8 +239,10 @@
   }
 }
 
-/* Allow domain names to wrap naturally */
+/* Optimize Domain column width - prevent excessive space waste */
+.table--domains th:first-child,
 .table--domains td:first-child {
+  max-width: 280px; /* Reasonable max for even long domains */
   word-break: break-word;
   overflow-wrap: break-word;
 }
