@@ -249,7 +249,10 @@ function renderPrimaryDomainRow(
   const domainDisplay = getDomainDisplay(redirect, true);
   const siteBadge = getSiteTypeBadge(siteType);
   const redirectBadge = redirectCount > 0
-    ? `<span class="badge badge--sm badge--neutral">${redirectCount} redirecting</span>`
+    ? `<span class="badge badge--sm badge--neutral" title="${redirectCount} domain${redirectCount > 1 ? 's' : ''} redirecting to this primary domain">
+        <span class="icon" data-icon="mono/arrow-top-right"></span>
+        <span>${redirectCount}</span>
+      </span>`
     : '';
   const statusDisplay = getStatusDisplay(redirect);
   const actions = getRowActions(redirect);
