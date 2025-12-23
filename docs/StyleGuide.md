@@ -1153,7 +1153,108 @@ All variants use **left accent border (4px)** to visually categorize the action 
 | Content | 1-3 lines text | Multi-field forms |
 | Close | Buttons only | Click outside or button |
 
-### 4.5. Tables
+### 4.5. Custom Tooltips
+
+Rich tooltips for status badges and complex information that requires more context than native `title` attribute can provide.
+
+**When to use custom tooltips:**
+- Error states with full error messages and timestamps
+- Success states with sync details and relative time
+- Multi-line content or formatted information
+- Information that benefits from visual hierarchy
+
+**When to use native `title` attribute:**
+- Simple text hints (Disabled, Pending, New)
+- Short explanations (1-2 words)
+- Static badges without dynamic data
+- Filter chips and simple UI elements
+
+**HTML Structure:**
+
+```html
+<!-- Badge with custom tooltip -->
+<span
+  class="badge badge--danger"
+  data-tooltip
+  data-tooltip-content="<div class='tooltip tooltip--danger'>
+    <div class='tooltip__header'>Sync Failed</div>
+    <div class='tooltip__body'>Cloudflare API timeout</div>
+    <div class='tooltip__footer'>Last attempt: 2h ago</div>
+  </div>"
+>Error</span>
+
+<!-- Badge with simple title (native) -->
+<span class="badge badge--neutral" title="Not synced yet">New</span>
+```
+
+**Tooltip Structure:**
+
+```html
+<div class="tooltip tooltip--{variant}">
+  <div class="tooltip__header">Main title</div>
+  <div class="tooltip__body">Detailed message or description</div>
+  <div class="tooltip__footer">Timestamp or additional context</div>
+</div>
+```
+
+**Color Variants:**
+
+| Variant | Use For | Header Color |
+|---------|---------|--------------|
+| `tooltip--success` | Active/synced states | Green (`--success`) |
+| `tooltip--danger` | Error states | Red (`--danger`) |
+| `tooltip--warning` | Pending/caution states | Yellow (`--warning`) |
+| (no modifier) | Neutral information | Default (`--text`) |
+
+**Implementation Example:**
+
+```typescript
+// In TypeScript (e.g., redirects.ts)
+import { formatTooltipTimestamp, initTooltips } from '@ui/tooltip';
+
+function getErrorBadge(error: string, lastAttempt: string): string {
+  const tooltipContent = `
+    <div class="tooltip tooltip--danger">
+      <div class="tooltip__header">Sync Failed</div>
+      <div class="tooltip__body">${escapeHtml(error)}</div>
+      <div class="tooltip__footer">Last attempt: ${formatTooltipTimestamp(lastAttempt)}</div>
+    </div>
+  `.trim();
+
+  return `<span class="badge badge--danger" data-tooltip data-tooltip-content="${escapeHtml(tooltipContent)}">Error</span>`;
+}
+
+// Call after rendering new content
+renderTable();
+initTooltips(); // Attaches tooltips to all [data-tooltip] elements
+```
+
+**Timestamp Formatting:**
+
+The `formatTooltipTimestamp()` helper provides relative + absolute time:
+- `"2m ago (2025-01-13 18:15:27)"`
+- `"3h ago (2025-01-13 15:30:00)"`
+- `"5d ago (2025-01-08 12:00:00)"`
+
+**Features:**
+- Auto-positioning (flips above if no space below)
+- Smooth fade-in animation (150ms)
+- Help cursor (`cursor: help`) on hover
+- Escape HTML in content for XSS safety
+- Max-width: 280px with word-wrap
+- Uses design tokens for consistent theming
+
+**CSS Classes:**
+
+```css
+[data-tooltip] { cursor: help; }
+.tooltip { /* Base styles with --bg-elevated, --border-subtle */ }
+.tooltip__header { /* Semibold, colored by variant */ }
+.tooltip__body { /* Muted text, main content */ }
+.tooltip__footer { /* Dim text, small font, bordered top */ }
+```
+
+### 4.6. Tables
 
 Domains tables stay in a single row layout even on mobile; wrap the table in a horizontal scroller and keep action menus inside dropdowns so the row stays compact. Above the table you can place a search bar, one or more dropdown filter chips, provider action chips and a primary button. The example shows a table search bar, a status dropdown chip, a Cloudflare action chip and a primary “Add domain” button — all sharing the unified control recipe.
 
@@ -1394,7 +1495,7 @@ Only this set is allowed for dropdown actions across all tables.
 - NameSilo → icon-namesilo (brand)
 - Manual DNS → icon-dns (mono)
 
-### 4.6. Navigation shell
+### 4.7. Navigation shell
 
 Header (`.site-header`) uses a blurred background with a thin border. Primary nav links are inline, theme switch is a ghost button, language selector uses `.btn-chip-group`.
 
