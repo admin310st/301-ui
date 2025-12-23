@@ -564,11 +564,13 @@ input[type="search"]::-webkit-search-cancel-button {
   color: var(--muted);
 }
 
-/* Table controls (filter chips) - Canonical flex layout per Style Guide */
+/* Table controls (filter chips) - Adaptive flex layout */
 .table-controls {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: stretch;
+  align-content: normal;
+  justify-content: space-around;
   gap: var(--inline-gap);
 }
 
