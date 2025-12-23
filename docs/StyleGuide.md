@@ -1155,104 +1155,40 @@ All variants use **left accent border (4px)** to visually categorize the action 
 
 ### 4.5. Custom Tooltips
 
-Rich tooltips for status badges and complex information that requires more context than native `title` attribute can provide.
+Rich tooltips for complex information that needs more than native `title` can provide. Use for error states with full messages, sync details with timestamps, or multi-line formatted content. For simple hints (Disabled, Pending), use native `title`.
 
-**When to use custom tooltips:**
-- Error states with full error messages and timestamps
-- Success states with sync details and relative time
-- Multi-line content or formatted information
-- Information that benefits from visual hierarchy
-
-**When to use native `title` attribute:**
-- Simple text hints (Disabled, Pending, New)
-- Short explanations (1-2 words)
-- Static badges without dynamic data
-- Filter chips and simple UI elements
-
-**HTML Structure:**
-
-```html
-<!-- Badge with custom tooltip -->
-<span
-  class="badge badge--danger"
-  data-tooltip
-  data-tooltip-content="<div class='tooltip tooltip--danger'>
-    <div class='tooltip__header'>Sync Failed</div>
-    <div class='tooltip__body'>Cloudflare API timeout</div>
-    <div class='tooltip__footer'>Last attempt: 2h ago</div>
-  </div>"
->Error</span>
-
-<!-- Badge with simple title (native) -->
-<span class="badge badge--neutral" title="Not synced yet">New</span>
-```
-
-**Tooltip Structure:**
+**Structure:**
 
 ```html
 <div class="tooltip tooltip--{variant}">
   <div class="tooltip__header">Main title</div>
-  <div class="tooltip__body">Detailed message or description</div>
-  <div class="tooltip__footer">Timestamp or additional context</div>
+  <div class="tooltip__body">Detailed message</div>
+  <div class="tooltip__footer">Timestamp or context</div>
 </div>
 ```
 
-**Color Variants:**
+**Variants:** `tooltip--success` (green), `tooltip--danger` (red), `tooltip--warning` (yellow), or no modifier (neutral).
 
-| Variant | Use For | Header Color |
-|---------|---------|--------------|
-| `tooltip--success` | Active/synced states | Green (`--success`) |
-| `tooltip--danger` | Error states | Red (`--danger`) |
-| `tooltip--warning` | Pending/caution states | Yellow (`--warning`) |
-| (no modifier) | Neutral information | Default (`--text`) |
-
-**Implementation Example:**
+**Usage:**
 
 ```typescript
-// In TypeScript (e.g., redirects.ts)
 import { formatTooltipTimestamp, initTooltips } from '@ui/tooltip';
 
-function getErrorBadge(error: string, lastAttempt: string): string {
-  const tooltipContent = `
-    <div class="tooltip tooltip--danger">
-      <div class="tooltip__header">Sync Failed</div>
-      <div class="tooltip__body">${escapeHtml(error)}</div>
-      <div class="tooltip__footer">Last attempt: ${formatTooltipTimestamp(lastAttempt)}</div>
-    </div>
-  `.trim();
+const content = `
+  <div class="tooltip tooltip--danger">
+    <div class="tooltip__header">Sync Failed</div>
+    <div class="tooltip__body">${escapeHtml(error)}</div>
+    <div class="tooltip__footer">Last attempt: ${formatTooltipTimestamp(timestamp)}</div>
+  </div>
+`.trim();
 
-  return `<span class="badge badge--danger" data-tooltip data-tooltip-content="${escapeHtml(tooltipContent)}">Error</span>`;
-}
+return `<span class="badge badge--danger" data-tooltip data-tooltip-content="${escapeHtml(content)}">Error</span>`;
 
-// Call after rendering new content
-renderTable();
-initTooltips(); // Attaches tooltips to all [data-tooltip] elements
+// After rendering:
+initTooltips();
 ```
 
-**Timestamp Formatting:**
-
-The `formatTooltipTimestamp()` helper provides relative + absolute time:
-- `"2m ago (2025-01-13 18:15:27)"`
-- `"3h ago (2025-01-13 15:30:00)"`
-- `"5d ago (2025-01-08 12:00:00)"`
-
-**Features:**
-- Auto-positioning (flips above if no space below)
-- Smooth fade-in animation (150ms)
-- Help cursor (`cursor: help`) on hover
-- Escape HTML in content for XSS safety
-- Max-width: 280px with word-wrap
-- Uses design tokens for consistent theming
-
-**CSS Classes:**
-
-```css
-[data-tooltip] { cursor: help; }
-.tooltip { /* Base styles with --bg-elevated, --border-subtle */ }
-.tooltip__header { /* Semibold, colored by variant */ }
-.tooltip__body { /* Muted text, main content */ }
-.tooltip__footer { /* Dim text, small font, bordered top */ }
-```
+**Features:** Auto-positioning (dropdown logic), 150ms fade-in, `cursor: help`, XSS-safe, 280px max-width, design tokens.
 
 ### 4.6. Tables
 
