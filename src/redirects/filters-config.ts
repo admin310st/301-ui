@@ -14,6 +14,7 @@ export interface FilterConfig {
   icon?: string;
   type: 'single-select' | 'multi-select';
   options: FilterOption[];
+  priority?: 'critical' | 'high' | 'medium' | 'low';
 }
 
 export const REDIRECT_FILTERS: FilterConfig[] = [
@@ -21,6 +22,7 @@ export const REDIRECT_FILTERS: FilterConfig[] = [
     id: 'project',
     label: 'Projects',
     type: 'multi-select',
+    priority: 'critical', // Always visible - relates to Domain column
     options: [
       { value: '17', label: 'CryptoBoss' },
       { value: '18', label: 'TestProject' },
@@ -32,6 +34,7 @@ export const REDIRECT_FILTERS: FilterConfig[] = [
     id: 'configured',
     label: 'Configured',
     type: 'multi-select',
+    priority: 'critical', // Always visible - relates to Target column
     options: [
       { value: 'has-redirect', label: 'Has redirect' },
       { value: 'no-redirect', label: 'No redirect' },
@@ -41,6 +44,7 @@ export const REDIRECT_FILTERS: FilterConfig[] = [
     id: 'sync',
     label: 'Sync',
     type: 'multi-select',
+    priority: 'high', // Hidden < 560px - relates to Status column
     options: [
       { value: 'synced', label: 'Synced' },
       { value: 'pending', label: 'Pending' },
@@ -52,6 +56,7 @@ export const REDIRECT_FILTERS: FilterConfig[] = [
     id: 'enabled',
     label: 'Enabled',
     type: 'multi-select',
+    priority: 'high', // Hidden < 560px - relates to Status column
     options: [
       { value: 'enabled', label: 'Enabled' },
       { value: 'disabled', label: 'Disabled' },

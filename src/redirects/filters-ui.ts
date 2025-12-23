@@ -45,8 +45,11 @@ function renderFilterChip(config: FilterConfig, activeValue: string | string[] |
   // Use custom icon if provided, otherwise default filter icon
   const iconName = config.icon || 'mono/filter';
 
+  // Add priority attribute for responsive hiding (matches table column priorities)
+  const priorityAttr = config.priority ? ` data-priority="${config.priority}"` : '';
+
   return `
-    <div class="dropdown" data-dropdown data-filter-id="${config.id}">
+    <div class="dropdown" data-dropdown data-filter-id="${config.id}"${priorityAttr}>
       <button
         class="btn-chip btn-chip--dropdown dropdown__trigger ${isActive ? 'is-active' : ''}"
         type="button"

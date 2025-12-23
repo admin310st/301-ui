@@ -588,6 +588,29 @@ input[type="search"]::-webkit-search-cancel-button {
   }
 }
 
+/* Progressive filter hiding based on priority (matches column priority system) */
+/* Hide high-priority filters on very narrow screens (< 560px) */
+/* Keep only critical filters visible (Projects, Configured) */
+@media (max-width: 560px) {
+  .table-controls [data-priority="high"] {
+    display: none;
+  }
+}
+
+/* Hide medium-priority filters on narrow screens (< 720px) */
+@media (max-width: 720px) {
+  .table-controls [data-priority="medium"] {
+    display: none;
+  }
+}
+
+/* Hide low-priority filters on small screens (< 880px) */
+@media (max-width: 880px) {
+  .table-controls [data-priority="low"] {
+    display: none;
+  }
+}
+
 /* Default: dropdown menus align left */
 .table-controls .dropdown__menu {
   left: 0;
