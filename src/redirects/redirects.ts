@@ -126,7 +126,7 @@ function renderTable(): void {
           <button class="table__group-toggle" type="button" data-action="toggle-group" data-group-id="${group.project_id}" aria-expanded="${!isCollapsed}">
             <span class="icon" data-icon="mono/${chevronIcon}"></span>
             <span class="table__group-title">
-              <span class="icon" data-icon="mono/project"></span>
+              <span class="icon" data-icon="mono/layers"></span>
               <span class="table__group-name">${group.project_name}</span>
               <span class="table__group-count">
                 ${group.totalDomains} domains
