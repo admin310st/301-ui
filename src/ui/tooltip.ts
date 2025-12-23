@@ -67,25 +67,34 @@ function hideTooltip() {
 }
 
 /**
+ * Attach tooltip to a specific element
+ */
+function attachTooltip(element: HTMLElement): void {
+  const content = element.getAttribute('data-tooltip-content');
+  if (!content) return;
+
+  element.addEventListener('mouseenter', () => {
+    showTooltip(element, content);
+  });
+
+  element.addEventListener('mouseleave', () => {
+    hideTooltip();
+  });
+}
+
+/**
  * Initialize tooltips for all elements with [data-tooltip]
+ * Call this after rendering new content
  */
 export function initTooltips(): void {
-  document.addEventListener('mouseenter', (e) => {
-    const target = (e.target as HTMLElement).closest('[data-tooltip]') as HTMLElement;
-    if (!target) return;
+  const elements = document.querySelectorAll<HTMLElement>('[data-tooltip]');
+  elements.forEach((element) => {
+    // Skip if already initialized
+    if (element.hasAttribute('data-tooltip-initialized')) return;
 
-    const content = target.getAttribute('data-tooltip-content');
-    if (!content) return;
-
-    showTooltip(target, content);
-  }, true);
-
-  document.addEventListener('mouseleave', (e) => {
-    const target = (e.target as HTMLElement).closest('[data-tooltip]');
-    if (!target) return;
-
-    hideTooltip();
-  }, true);
+    element.setAttribute('data-tooltip-initialized', 'true');
+    attachTooltip(element);
+  });
 }
 
 /**

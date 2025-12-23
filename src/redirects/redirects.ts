@@ -43,9 +43,6 @@ export function initRedirectsPage(): void {
 
   // Initialize drawer
   initDrawer();
-
-  // Initialize custom tooltips
-  initTooltips();
 }
 
 /**
@@ -159,6 +156,9 @@ function renderTable(): void {
 
   // Initialize dropdowns for kebab menus
   initDropdowns(tbody as HTMLElement);
+
+  // Initialize tooltips for status badges
+  initTooltips();
 
   // Update counts
   const shownCount = document.querySelector('[data-shown-count]');
