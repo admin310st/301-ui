@@ -613,12 +613,25 @@ function setupFilters(): void {
   const filterBar = document.querySelector('[data-filter-bar]');
   if (!filterBar) return;
 
+  // Reset filters button state updater
+  const resetBtn = document.querySelector('[data-reset-filters]');
+  const updateResetButton = () => {
+    if (resetBtn) {
+      if (hasActiveFilters(activeFilters)) {
+        resetBtn.classList.add('is-active');
+      } else {
+        resetBtn.classList.remove('is-active');
+      }
+    }
+  };
+
   // Handler for filter changes (re-renders filter bar HTML only)
   const handleFilterChange = (updatedFilters: ActiveFilters) => {
     activeFilters = updatedFilters;
     applyFilters();
     // Re-render filter bar HTML to update UI (checkmarks, count badge, clear button)
     filterBar.innerHTML = renderFilterBar(activeFilters);
+    updateResetButton();
   };
 
   // Initial render
@@ -627,14 +640,16 @@ function setupFilters(): void {
   // Initialize filter UI once (event listeners use delegation, so they work after re-renders)
   initFilterUI(filterBar as HTMLElement, activeFilters, handleFilterChange);
 
-  // Reset filters button
-  const resetBtn = document.querySelector('[data-reset-filters]');
+  // Reset filters button handler
   if (resetBtn) {
     resetBtn.addEventListener('click', () => {
       activeFilters = getDefaultFilters();
       handleFilterChange(activeFilters);
     });
   }
+
+  // Initial state
+  updateResetButton();
 }
 
 /**
