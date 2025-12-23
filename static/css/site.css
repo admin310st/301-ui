@@ -2353,10 +2353,14 @@ body.sidebar-collapsed .sidebar .navitem:hover::after {
   margin-bottom: var(--space-4);
 }
 
-/* Add padding on mobile when dashboard-content has no inline padding */
+/* Add horizontal padding to prevent page-header from touching edges */
+.dashboard-content .page-header {
+  padding-inline: var(--page-gutter-desktop);
+}
+
 @media (max-width: 1023px) {
   .dashboard-content .page-header {
-    padding-inline: var(--space-3);
+    padding-inline: var(--page-gutter-mobile);
   }
 }
 
