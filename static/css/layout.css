@@ -117,9 +117,7 @@
   overflow-x: auto;
 }
 
-.table-scroll > table {
-  min-width: 600px;
-}
+/* Note: table min-width is controlled by variants (.table--domains, .table--redirects) in tables.css */
 
 .layout-shell {
   min-height: 100vh;
