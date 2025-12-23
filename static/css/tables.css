@@ -415,8 +415,10 @@
 }
 
 .table-cell-main {
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* Empty state cell with hover quick action */
@@ -461,7 +463,7 @@ tr:hover .table-cell-quick-action {
 
 .table__th-actions,
 .table__cell-actions {
-  width: 7rem;
+  width: var(--col-actions);
   text-align: right;
 }
 
