@@ -179,6 +179,98 @@ function setupActionButtons(redirect: DomainRedirect): void {
 }
 
 /**
+ * Setup dropdown handlers for redirect code selection
+ */
+function setupDropdownHandlers(): void {
+  if (!drawerElement) return;
+
+  const dropdown = drawerElement.querySelector('[data-dropdown="redirect-code"]');
+  if (!dropdown) return;
+
+  const trigger = dropdown.querySelector('.dropdown__trigger');
+  const menu = dropdown.querySelector('.dropdown__menu');
+  const items = dropdown.querySelectorAll('.dropdown__item');
+  const label = dropdown.querySelector('[data-selected-label]');
+
+  if (!trigger || !menu) return;
+
+  // Toggle dropdown
+  trigger.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const isOpen = dropdown.classList.contains('dropdown--open');
+    dropdown.classList.toggle('dropdown--open', !isOpen);
+    trigger.setAttribute('aria-expanded', (!isOpen).toString());
+  });
+
+  // Handle item selection
+  items.forEach((item) => {
+    item.addEventListener('click', () => {
+      const value = item.getAttribute('data-value');
+      const text = item.textContent?.trim();
+
+      // Update selected state
+      items.forEach((i) => i.classList.remove('is-active'));
+      item.classList.add('is-active');
+
+      // Update label
+      if (label && text) {
+        label.textContent = text;
+      }
+
+      // Store value for save
+      if (trigger) {
+        trigger.setAttribute('data-selected-value', value || '301');
+      }
+
+      // Close dropdown
+      dropdown.classList.remove('dropdown--open');
+      trigger.setAttribute('aria-expanded', 'false');
+    });
+  });
+
+  // Close on outside click
+  document.addEventListener('click', (e) => {
+    if (!dropdown.contains(e.target as Node)) {
+      dropdown.classList.remove('dropdown--open');
+      trigger.setAttribute('aria-expanded', 'false');
+    }
+  });
+}
+
+/**
+ * Setup toggle handlers for enable/disable button
+ */
+function setupToggleHandlers(): void {
+  if (!drawerElement) return;
+
+  const toggleBtn = drawerElement.querySelector('[data-drawer-toggle="enabled"]');
+  if (!toggleBtn) return;
+
+  toggleBtn.addEventListener('click', () => {
+    const isEnabled = toggleBtn.classList.contains('btn--success');
+    const newEnabled = !isEnabled;
+
+    // Update button state
+    toggleBtn.classList.toggle('btn--success', newEnabled);
+    toggleBtn.classList.toggle('btn--ghost', !newEnabled);
+
+    // Update button content
+    const icon = toggleBtn.querySelector('.icon');
+    const text = toggleBtn.querySelector('span:last-child');
+
+    if (icon) {
+      icon.setAttribute('data-icon', `mono/${newEnabled ? 'check-circle' : 'close-circle'}`);
+    }
+    if (text) {
+      text.textContent = newEnabled ? 'Enabled' : 'Disabled';
+    }
+
+    // Store value for save
+    toggleBtn.setAttribute('data-enabled', newEnabled.toString());
+  });
+}
+
+/**
  * Render drawer content with cards and detail-list
  */
 function renderDrawerContent(redirect: DomainRedirect): void {
@@ -225,6 +317,10 @@ function renderDrawerContent(redirect: DomainRedirect): void {
   `;
 
   contentEl.innerHTML = content;
+
+  // Setup dropdown and toggle handlers after content is rendered
+  setupDropdownHandlers();
+  setupToggleHandlers();
 }
 
 /**
@@ -234,6 +330,8 @@ function renderRedirectConfigCard(redirect: DomainRedirect): string {
   const redirectCode = redirect.redirect_code || 301;
   const enabled = redirect.enabled ?? true;
   const hasRedirect = redirect.target_url && redirect.target_url.trim() !== '';
+
+  const redirectCodeLabel = redirectCode === 301 ? '301 - Permanent' : '302 - Temporary';
 
   return `
     <section class="card card--panel">
@@ -257,32 +355,55 @@ function renderRedirectConfigCard(redirect: DomainRedirect): string {
             />
           </div>
 
-          <div class="field">
-            <label class="field__label" for="drawer-redirect-code">Redirect Code</label>
-            <select
-              id="drawer-redirect-code"
-              class="input"
-              data-drawer-field="redirect_code"
-            >
-              <option value="301" ${redirectCode === 301 ? 'selected' : ''}>301 - Permanent</option>
-              <option value="302" ${redirectCode === 302 ? 'selected' : ''}>302 - Temporary</option>
-            </select>
+          <div class="detail-row" style="align-items: center;">
+            <dt class="detail-label">Redirect Code</dt>
+            <dd class="detail-value">
+              <div class="dropdown" data-dropdown="redirect-code">
+                <button
+                  class="btn-chip btn-chip--dropdown dropdown__trigger"
+                  type="button"
+                  aria-haspopup="menu"
+                  aria-expanded="false"
+                  data-drawer-dropdown="redirect_code"
+                  data-selected-value="${redirectCode}"
+                >
+                  <span class="btn-chip__label" data-selected-label>${redirectCodeLabel}</span>
+                  <span class="btn-chip__chevron" data-icon="mono/chevron-down"></span>
+                </button>
+                <div class="dropdown__menu" role="menu">
+                  <button
+                    class="dropdown__item ${redirectCode === 301 ? 'is-active' : ''}"
+                    type="button"
+                    role="menuitem"
+                    data-value="301"
+                  >
+                    301 - Permanent
+                  </button>
+                  <button
+                    class="dropdown__item ${redirectCode === 302 ? 'is-active' : ''}"
+                    type="button"
+                    role="menuitem"
+                    data-value="302"
+                  >
+                    302 - Temporary
+                  </button>
+                </div>
+              </div>
+            </dd>
           </div>
 
           <div class="detail-row" style="align-items: center;">
-            <dt class="detail-label">Enable redirect</dt>
+            <dt class="detail-label">Status</dt>
             <dd class="detail-value">
-              <label class="toggle">
-                <input
-                  type="checkbox"
-                  class="toggle__input"
-                  ${enabled ? 'checked' : ''}
-                  data-drawer-field="enabled"
-                />
-                <span class="toggle__track">
-                  <span class="toggle__thumb"></span>
-                </span>
-              </label>
+              <button
+                class="btn btn--sm ${enabled ? 'btn--success' : 'btn--ghost'}"
+                type="button"
+                data-drawer-toggle="enabled"
+                data-enabled="${enabled}"
+              >
+                <span class="icon" data-icon="mono/${enabled ? 'check-circle' : 'close-circle'}"></span>
+                <span>${enabled ? 'Enabled' : 'Disabled'}</span>
+              </button>
             </dd>
           </div>
         </div>
@@ -337,13 +458,13 @@ function renderSyncStatusCard(redirect: DomainRedirect): string {
         <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
           <h3 class="h5">Sync Status</h3>
           <button
-            class="btn btn--sm btn--ghost"
+            class="btn btn--sm btn--cf"
             type="button"
             data-action="sync-redirect"
             ${syncButtonDisabled ? 'disabled' : ''}
             ${syncButtonTooltip ? `title="${syncButtonTooltip}"` : ''}
           >
-            ${syncPending ? '<span class="spinner spinner--sm"></span>' : '<span class="icon" data-icon="mono/refresh"></span>'}
+            ${syncPending ? '<span class="spinner spinner--sm"></span>' : '<span class="icon" data-icon="brand/cloudflare"></span>'}
             <span>${syncButtonLabel}</span>
           </button>
         </div>
@@ -382,8 +503,14 @@ function handleSave(): void {
 
   // Collect form data
   const targetUrl = (drawerElement.querySelector('[data-drawer-field="target_url"]') as HTMLInputElement)?.value || '';
-  const redirectCode = parseInt((drawerElement.querySelector('[data-drawer-field="redirect_code"]') as HTMLSelectElement)?.value || '301');
-  const enabled = (drawerElement.querySelector('[data-drawer-field="enabled"]') as HTMLInputElement)?.checked ?? true;
+
+  // Get redirect code from dropdown
+  const redirectCodeTrigger = drawerElement.querySelector('[data-drawer-dropdown="redirect_code"]');
+  const redirectCode = parseInt(redirectCodeTrigger?.getAttribute('data-selected-value') || '301');
+
+  // Get enabled state from toggle button
+  const toggleBtn = drawerElement.querySelector('[data-drawer-toggle="enabled"]');
+  const enabled = toggleBtn?.getAttribute('data-enabled') === 'true' || toggleBtn?.classList.contains('btn--success');
 
   // TODO: Validate and send to API
   console.log('Saving redirect:', {
