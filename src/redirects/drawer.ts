@@ -387,7 +387,7 @@ function renderRedirectConfigCard(redirect: DomainRedirect): string {
             <dd class="detail-value">
               <div class="dropdown" data-dropdown="redirect-code">
                 <button
-                  class="btn-chip btn-chip--dropdown dropdown__trigger"
+                  class="btn-chip btn-chip--sm btn-chip--dropdown dropdown__trigger"
                   type="button"
                   aria-haspopup="menu"
                   aria-expanded="false"
