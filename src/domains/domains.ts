@@ -224,32 +224,6 @@ export function initDomainsPage(): void {
     });
   }
 
-  // Count active filters
-  const countActiveFilters = (): number => {
-    let count = 0;
-    if (activeFilters.status && activeFilters.status !== 'all') count++;
-    if (activeFilters.health && activeFilters.health.length > 0) count++;
-    if (activeFilters.provider && activeFilters.provider !== 'all') count++;
-    if (activeFilters.project && activeFilters.project !== 'all') count++;
-    if (activeFilters.role && activeFilters.role !== 'all') count++;
-    if (activeFilters.expiry && activeFilters.expiry !== 'any') count++;
-    return count;
-  };
-
-  // Update filters badge count
-  const updateFiltersBadge = () => {
-    const badge = document.querySelector('[data-filters-count]');
-    if (badge) {
-      const count = countActiveFilters();
-      badge.textContent = count.toString();
-      if (count > 0) {
-        badge.removeAttribute('hidden');
-      } else {
-        badge.setAttribute('hidden', '');
-      }
-    }
-  };
-
   // Reset filters button state updater
   const resetBtn = document.querySelector('[data-reset-filters]');
   const updateResetButton = () => {
@@ -268,7 +242,6 @@ export function initDomainsPage(): void {
     renderFilters();
     applyFiltersAndRender();
     updateResetButton();
-    updateFiltersBadge();
   };
 
   // Initialize filter bar
@@ -297,27 +270,6 @@ export function initDomainsPage(): void {
 
     // Initial state
     updateResetButton();
-  }
-
-  // Toggle filters button handler (mobile)
-  const toggleFiltersBtn = document.querySelector('[data-toggle-filters]');
-  if (toggleFiltersBtn && filterBarContainer) {
-    toggleFiltersBtn.addEventListener('click', () => {
-      const isExpanded = filterBarContainer.classList.contains('is-expanded');
-
-      if (isExpanded) {
-        filterBarContainer.classList.remove('is-expanded');
-        toggleFiltersBtn.classList.remove('is-active');
-        toggleFiltersBtn.setAttribute('aria-expanded', 'false');
-      } else {
-        filterBarContainer.classList.add('is-expanded');
-        toggleFiltersBtn.classList.add('is-active');
-        toggleFiltersBtn.setAttribute('aria-expanded', 'true');
-      }
-    });
-
-    // Initial state
-    updateFiltersBadge();
   }
 
   // Pagination controls
