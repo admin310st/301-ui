@@ -581,6 +581,13 @@ input[type="search"]::-webkit-search-cancel-button {
   gap: var(--inline-gap);
 }
 
+/* Override controls-row column stacking on mobile - filters can wrap horizontally */
+@media (max-width: 768px) {
+  .table-controls {
+    flex-direction: row;
+  }
+}
+
 /* Default: dropdown menus align left */
 .table-controls .dropdown__menu {
   left: 0;
