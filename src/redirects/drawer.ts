@@ -49,6 +49,39 @@ export function openDrawer(redirect: DomainRedirect): void {
     domainEl.textContent = redirect.domain;
   }
 
+  // Update role icon based on domain role
+  const roleIcon = drawerElement.querySelector('[data-redirect-icon] .icon');
+  if (roleIcon) {
+    if (redirect.role === 'acceptor') {
+      // Primary domain (acceptor) - receives traffic
+      roleIcon.setAttribute('data-icon', 'mono/arrow-right');
+      roleIcon.classList.remove('text-muted');
+      roleIcon.classList.add('text-primary');
+      roleIcon.setAttribute('title', 'Main domain - receives traffic');
+    } else {
+      // Donor domain - redirects to target
+      roleIcon.setAttribute('data-icon', 'mono/arrow-top-right');
+      roleIcon.classList.remove('text-primary');
+      roleIcon.classList.add('text-muted');
+      roleIcon.setAttribute('title', 'Redirect source');
+    }
+
+    // Remove existing SVG and let the icon system re-inject
+    const existingSvg = roleIcon.querySelector('svg');
+    if (existingSvg) {
+      existingSvg.remove();
+    }
+
+    // Trigger icon re-injection by creating a new SVG
+    const symbolId = `i-${roleIcon.getAttribute('data-icon')?.replace('/', '-')}`;
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('aria-hidden', 'true');
+    const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+    use.setAttribute('href', `/icons-sprite.svg#${symbolId}`);
+    svg.appendChild(use);
+    roleIcon.appendChild(svg);
+  }
+
   // Setup action buttons
   setupActionButtons(redirect);
 
@@ -94,10 +127,10 @@ export function openBulkAddDrawer(): void {
         <div class="stack-sm">
           <h4 class="h5">Purpose</h4>
           <p class="text-muted" style="line-height: 1.6;">
-            This interface will handle <strong>unassigned domains</strong> separately from the main table.
+            This interface manages <strong>reserve domains</strong> (<code>role='reserve'</code>) separately from the main table.
             When you have 100+ domains not yet attached to projects or sites, managing them in the
-            main table becomes cluttered. This dedicated view keeps unassigned domains organized
-            until you're ready to structure them.
+            main table becomes cluttered. This dedicated drawer keeps reserve domains organized
+            until you're ready to structure them into your project hierarchy.
           </p>
         </div>
 
@@ -105,8 +138,8 @@ export function openBulkAddDrawer(): void {
           <h4 class="h5">Key Features</h4>
           <ul style="line-height: 1.8; color: var(--text-muted);">
             <li>Bulk import domains from registrars or CSV</li>
-            <li>View and filter unassigned domains (not yet linked to projects/sites)</li>
-            <li>Mass assign domains to projects and sites</li>
+            <li>View and filter reserve domains (<code>role='reserve'</code>, <code>site_id=NULL</code>)</li>
+            <li>Mass assign domains to projects and sites (changes role to <code>acceptor</code>/<code>donor</code>)</li>
             <li>Configure redirects for multiple domains at once</li>
             <li>Keep main table clean by working with unstructured domains separately</li>
           </ul>
@@ -114,9 +147,9 @@ export function openBulkAddDrawer(): void {
 
         <div class="alert alert--info" style="margin-top: var(--space-4);">
           <p style="margin: 0;">
-            <strong>Architecture Note:</strong> Unassigned domains won't appear in the main Redirects table
+            <strong>Architecture:</strong> Reserve domains (<code>role='reserve'</code>) don't appear in the main Redirects table
             until they're attached to a project/site structure. This separation prevents table clutter
-            and enables efficient bulk operations on raw domain lists.
+            and enables efficient bulk operations on raw domain portfolios.
           </p>
         </div>
       </div>
@@ -263,11 +296,17 @@ function setupToggleHandlers(): void {
       toggleBtn.classList.add('btn--ghost');
     }
 
+    // Update border color based on state
+    (toggleBtn as HTMLElement).style.borderColor = newEnabled ? 'var(--ok)' : 'var(--danger)';
+
     // Update icon - remove old SVG and update data-icon
     const iconContainer = toggleBtn.querySelector('.icon');
     if (iconContainer) {
       const newIconName = `mono/${newEnabled ? 'check-circle' : 'close-circle'}`;
       iconContainer.setAttribute('data-icon', newIconName);
+
+      // Update icon color to match state
+      (iconContainer as HTMLElement).style.color = newEnabled ? 'var(--ok)' : 'var(--danger)';
 
       // Remove existing SVG
       const existingSvg = iconContainer.querySelector('svg');
@@ -303,7 +342,7 @@ function renderDrawerContent(redirect: DomainRedirect): void {
   const contentEl = drawerElement?.querySelector('[data-drawer-content]');
   if (!contentEl) return;
 
-  const isPrimaryDomain = redirect.target_url === undefined || redirect.target_url === '';
+  const isAcceptor = redirect.role === 'acceptor';
 
   const content = `
     <div class="stack-list">
@@ -322,12 +361,20 @@ function renderDrawerContent(redirect: DomainRedirect): void {
               <dt class="detail-label">Site</dt>
               <dd class="detail-value">${redirect.site_name || '—'}</dd>
             </div>
-            ${!isPrimaryDomain && redirect.target_url ? `
+            ${!isAcceptor && redirect.target_url ? `
               <div class="detail-row">
                 <dt class="detail-label">Target</dt>
-                <dd class="detail-value detail-value--mono">${redirect.target_url}</dd>
+                <dd class="detail-value">
+                  <div class="stack-list stack-list--xs">
+                    <span class="detail-value--mono">${redirect.target_url}</span>
+                    <a href="https://${redirect.domain}" target="_blank" rel="noopener noreferrer" class="link-button" style="font-size: var(--fs-sm);">
+                      <span class="icon" data-icon="mono/open-in-new"></span>
+                      <span>Test redirect</span>
+                    </a>
+                  </div>
+                </dd>
               </div>
-            ` : !isPrimaryDomain ? `
+            ` : !isAcceptor ? `
               <div class="detail-row">
                 <dt class="detail-label">Target</dt>
                 <dd class="detail-value text-muted">No redirect configured</dd>
@@ -337,7 +384,7 @@ function renderDrawerContent(redirect: DomainRedirect): void {
         </div>
       </section>
 
-      ${isPrimaryDomain ? '' : renderRedirectConfigCard(redirect)}
+      ${isAcceptor ? '' : renderRedirectConfigCard(redirect)}
       ${renderSyncStatusCard(redirect)}
     </div>
   `;
@@ -428,8 +475,9 @@ function renderRedirectConfigCard(redirect: DomainRedirect): string {
                 type="button"
                 data-drawer-toggle="enabled"
                 data-enabled="${enabled}"
+                style="border-color: ${enabled ? 'var(--ok)' : 'var(--danger)'};"
               >
-                <span class="icon" data-icon="mono/${enabled ? 'check-circle' : 'close-circle'}"></span>
+                <span class="icon" data-icon="mono/${enabled ? 'check-circle' : 'close-circle'}" style="color: ${enabled ? 'var(--ok)' : 'var(--danger)'}"></span>
                 <span>${enabled ? 'Enabled' : 'Disabled'}</span>
               </button>
             </dd>

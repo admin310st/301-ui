@@ -450,10 +450,12 @@ function renderDomainsTable(domains: Domain[]): void {
                     <span class="icon" data-icon="mono/sync"></span>
                     <span>Sync with registrar</span>
                   </button>
+                  ${domain.role === 'acceptor' ? `
                   <button class="dropdown__item" type="button" data-action="toggle-monitoring" data-domain-id="${domain.id}">
                     <span class="icon" data-icon="mono/bell"></span>
                     <span>${domain.monitoring_enabled ? 'Disable' : 'Enable'} monitoring</span>
                   </button>
+                  ` : ''}
                   <button class="dropdown__item" type="button" data-action="apply-security-preset" data-domain-id="${domain.id}">
                     <span class="icon" data-icon="mono/security"></span>
                     <span>Apply security preset</span>
@@ -748,7 +750,16 @@ function openInspector(domainId: number): void {
   if (providerEl) providerEl.textContent = domain.registrar.charAt(0).toUpperCase() + domain.registrar.slice(1);
   if (sslEl) sslEl.textContent = `${domain.ssl_status.charAt(0).toUpperCase() + domain.ssl_status.slice(1)}${domain.ssl_valid_to ? ` (until ${domain.ssl_valid_to})` : ''}`;
   if (abuseEl) abuseEl.textContent = domain.abuse_status.charAt(0).toUpperCase() + domain.abuse_status.slice(1);
-  if (monitoringEl) monitoringEl.textContent = domain.monitoring_enabled ? 'Enabled' : 'Disabled';
+  if (monitoringEl) {
+    // Monitoring only applicable to acceptor domains
+    if (domain.role === 'acceptor') {
+      const monitoringText = domain.monitoring_enabled ? 'Enabled' : 'Disabled';
+      const monitoringColor = domain.monitoring_enabled ? 'text-ok' : 'text-muted';
+      monitoringEl.innerHTML = `<span class="${monitoringColor}">${monitoringText}</span>`;
+    } else {
+      monitoringEl.innerHTML = '<span class="text-muted">N/A</span>';
+    }
+  }
 
   // Load NS records asynchronously
   if (nsEl && nsStatusEl) {

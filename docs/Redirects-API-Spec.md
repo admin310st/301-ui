@@ -4,6 +4,40 @@
 
 ---
 
+## Changelog
+
+### 2025-12-23 - UI Implementation Complete
+
+**UI Features Implemented:**
+- ✅ 3-level tree structure with grouping by Project → Target → Domain
+- ✅ Tree gutter with visual markers (carets, indents, guide lines)
+- ✅ Drawer refactoring matching domain inspector UX pattern
+- ✅ Role-based icons in drawer header (primary vs donor)
+- ✅ Custom dropdown for redirect code with color-coded border (301=green, 302=yellow)
+- ✅ Enable/Disable button with dynamic icon and text
+- ✅ CF-style Sync button in Sync Status section (orange Cloudflare branding)
+
+**Icon System:**
+- Projects: `mono/layers`
+- Redirects: `mono/arrow-right`
+- Primary domain (acceptor): `mono/arrow-right` + `text-primary` (blue)
+- Donor domain (redirect source): `mono/arrow-top-right` + `text-muted` (gray)
+
+**Role Field:**
+- `role` field IS part of the API schema (stored in DB, per `docs/301-wiki/Architecture.md`)
+- Values: `'acceptor'` | `'donor'` | `'reserve'`
+- Primary domain (acceptor): `role='acceptor'` - receives traffic
+- Donor domain: `role='donor'` - redirects to acceptor
+- Reserve domain: `role='reserve'` - not attached to site (handled separately in "Add Redirects" drawer)
+
+**Reserve Domains UI:**
+- Main "Add Redirects" button opens dedicated drawer for reserve domain management
+- Drawer shows domains with `role='reserve'` and `site_id=NULL`
+- Separate API endpoint: `GET /api/domains/reserve` or `GET /api/redirects?role=reserve`
+- Bulk assign operation: `POST /api/domains/assign` (changes role, attaches to project/site)
+
+---
+
 ## 1. Data Model
 
 ### 1.1 Core Entity: `DomainRedirect`
@@ -17,6 +51,7 @@ interface DomainRedirect {
 
   // Domain Status
   domain_status: 'active' | 'parked' | 'expired';
+  role: 'acceptor' | 'donor' | 'reserve';  // acceptor = primary (receives traffic), donor = redirects, reserve = not attached
 
   // Redirect Configuration
   target_url: string | null;  // null = no redirect configured
@@ -69,24 +104,43 @@ Project
           - Can be deleted
 ```
 
-### 2.2 Primary vs Donor Domains
+### 2.2 Primary vs Donor Domains (Role Determination)
 
-**Primary Domain Detection:**
-- `has_redirect = false` AND domain is a target for other domains in the same site
-- OR explicitly marked in backend
-- Primary domains represent the site itself (cannot be removed)
+> **Important:** Domain `role` field is stored in the database and provided by the API. Values: `'acceptor'`, `'donor'`, `'reserve'`.
+
+**Primary Domain (Acceptor):**
+- `role='acceptor'`
+- Represents the site itself (main domain that receives traffic)
+- `target_url` should be null (no redirect)
+- Cannot be removed or disabled
+- UI displays with `mono/arrow-right` icon + `text-primary` (blue)
 
 **Donor Domains:**
-- All other domains in a site
+- `role='donor'`
 - Redirect to primary domain or external URL
-- Can be bulk-selected and managed
+- `target_url` contains destination URL (can be null if not configured yet)
+- Can be enabled/disabled, bulk-selected, and deleted
+- UI displays with `mono/arrow-top-right` icon + `text-muted` (gray)
 
-### 2.3 Unassigned Domains
-
-Domains **not attached** to any project/site:
+**Reserve Domains:**
+- `role='reserve'`
+- Not attached to any site (`site_id=NULL`)
 - Do NOT appear in main Redirects table
-- Managed via "Add Redirects" bulk interface (future feature)
-- Use case: 100+ free domains before structuring into projects
+- Managed via dedicated "Add Redirects" drawer
+
+### 2.3 Reserve Domains Management
+
+**UI Pattern:**
+- Main "Add Redirects" button (top-right of page) opens special drawer
+- Drawer shows ONLY reserve domains (`role='reserve'`, `site_id=NULL`)
+- Bulk operations: assign to projects/sites, configure redirects, delete
+- Use case: Managing 100+ unstructured domains before organizing into project hierarchy
+
+**Why Separate?**
+- Keeps main Redirects table clean (only shows active project structure)
+- Prevents clutter from large domain portfolios
+- Enables efficient bulk operations on unassigned domains
+- Clear separation: structured (main table) vs. unstructured (reserve drawer)
 
 ---
 
@@ -136,6 +190,7 @@ never → pending → synced
       "domain_id": 101,
       "domain": "cryptoboss.pics",
       "domain_status": "active",
+      "role": "acceptor",
       "target_url": null,
       "has_redirect": false,
       "redirect_code": 301,
@@ -159,6 +214,7 @@ never → pending → synced
       "domain_id": 102,
       "domain": "cryptoboss.online",
       "domain_status": "active",
+      "role": "donor",
       "target_url": "https://cryptoboss.pics",
       "has_redirect": true,
       "redirect_code": 301,
@@ -187,9 +243,14 @@ never → pending → synced
 ```
 
 **Notes:**
-- Returns ONLY domains attached to projects/sites
-- Excludes unassigned domains
+- Returns ONLY domains attached to projects/sites (`role='acceptor'` or `role='donor'`)
+- Excludes reserve domains (`role='reserve'`, `site_id=NULL`)
 - Frontend groups by `project_id` → `site_id`
+
+**Reserve Domains:**
+- Separate endpoint needed: `GET /api/domains/reserve` (returns domains with `role='reserve'`)
+- Or filter parameter: `GET /api/redirects?role=reserve`
+- Used by "Add Redirects" drawer to show unassigned domain portfolio
 
 ---
 
@@ -331,6 +392,43 @@ never → pending → synced
   ]
 }
 ```
+
+---
+
+### 4.8 POST `/api/domains/assign` (Reserve Domains Management)
+
+**Purpose:** Assign reserve domains to project/site (changes `role='reserve'` → `'acceptor'` or `'donor'`)
+
+**Request:**
+```json
+{
+  "domain_ids": [101, 102, 103],
+  "project_id": 17,
+  "site_id": 1,
+  "role": "donor",
+  "target_url": "https://cryptoboss.pics",
+  "redirect_code": 301,
+  "enabled": true
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "assigned": 3,
+  "results": [
+    { "id": 101, "domain": "newdomain1.com", "role": "donor", "site_id": 1 },
+    { "id": 102, "domain": "newdomain2.com", "role": "donor", "site_id": 1 },
+    { "id": 103, "domain": "newdomain3.com", "role": "donor", "site_id": 1 }
+  ]
+}
+```
+
+**Use Case:**
+- Bulk assign reserve domains from "Add Redirects" drawer to projects/sites
+- Automatically updates `role`, `site_id`, `project_id`
+- Optionally configures redirect settings
 
 ---
 
@@ -572,7 +670,7 @@ Cloudflare sync should be async:
 
 ---
 
-**Document Version:** 1.0
-**Last Updated:** 2025-01-23
+**Document Version:** 1.1
+**Last Updated:** 2025-12-23
 **Author:** Frontend Team
-**Status:** Ready for Backend Implementation
+**Status:** UI Implementation Complete → Ready for Backend Implementation

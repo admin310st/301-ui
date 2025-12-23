@@ -10,6 +10,7 @@ export type SyncStatus = 'never' | 'pending' | 'synced' | 'error';
 export type DomainStatus = 'active' | 'parked' | 'expired';
 export type CfImplementation = 'redirect_rule' | 'worker' | null;
 export type SiteType = 'landing' | 'tds' | 'hybrid';
+export type DomainRole = 'acceptor' | 'donor' | 'reserve';
 
 export interface DomainRedirect {
   id: number;
@@ -18,6 +19,7 @@ export interface DomainRedirect {
   domain_id: number;
   domain: string;  // e.g., "old-domain.com"
   domain_status: DomainStatus;
+  role: DomainRole;  // acceptor = primary (receives traffic), donor = redirects to acceptor, reserve = not attached
 
   // Target
   target_url: string | null;  // null = no redirect
@@ -78,6 +80,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     domain_id: 101,
     domain: 'cryptoboss.pics',
     domain_status: 'active',
+    role: 'acceptor',  // Primary domain - receives traffic
     target_url: null,  // Main domain, no redirect (primary domain = receiver)
     has_redirect: false,
     redirect_code: 301,
@@ -101,6 +104,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     domain_id: 102,
     domain: 'cryptoboss.online',
     domain_status: 'active',
+    role: 'donor',  // Donor domain - redirects to acceptor
     target_url: 'https://cryptoboss.pics',
     has_redirect: true,
     redirect_code: 301,
@@ -124,6 +128,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     domain_id: 103,
     domain: 'cryptoboss.click',
     domain_status: 'parked',
+    role: 'donor',  // Donor domain - redirects to acceptor
     target_url: null,
     has_redirect: false,
     redirect_code: 301,
@@ -142,6 +147,30 @@ export const mockDomainRedirects: DomainRedirect[] = [
     created_at: '2025-01-05T14:00:00Z',
     updated_at: '2025-01-05T14:00:00Z'
   },
+  {
+    id: 24,
+    domain_id: 104,
+    domain: 'verylongdomainname20.com',  // Test long domain name (20 chars before dot)
+    domain_status: 'active',
+    role: 'donor',  // Donor domain - redirects to acceptor
+    target_url: 'https://cryptoboss.pics',
+    has_redirect: true,
+    redirect_code: 301,
+    enabled: true,
+    cf_rule_id: 'rule_long123',
+    cf_implementation: 'redirect_rule',
+    last_sync_at: '2025-01-14T10:20:30Z',
+    sync_status: 'synced',
+    sync_error: null,
+    site_id: 1,
+    site_name: 'CryptoBoss (En)',
+    site_flag: '🇺🇸',
+    site_type: 'landing',
+    project_id: 17,
+    project_name: 'CryptoBoss',
+    created_at: '2025-01-12T08:00:00Z',
+    updated_at: '2025-01-14T10:20:30Z'
+  },
 
   // ===== CryptoBoss (Ru) 🇷🇺 =====
   {
@@ -149,6 +178,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     domain_id: 201,
     domain: 'finbosse.ru',
     domain_status: 'active',
+    role: 'acceptor',  // Primary domain - receives traffic
     target_url: null,  // Main domain, no redirect (primary domain)
     redirect_code: 301,
     enabled: true,
@@ -171,6 +201,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     domain_id: 202,
     domain: 'cryptoboss.icu',
     domain_status: 'active',
+    role: 'donor',  // Donor domain - redirects to acceptor
     target_url: 'https://finbosse.ru',
     has_redirect: true,
     redirect_code: 301,
@@ -194,6 +225,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     domain_id: 203,
     domain: 'cryptopot.ru',
     domain_status: 'active',
+    role: 'donor',  // Donor domain - redirects to acceptor
     target_url: 'https://finbosse.ru',
     has_redirect: true,
     redirect_code: 302,
@@ -217,6 +249,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     domain_id: 204,
     domain: 'cryptovalve.ru',
     domain_status: 'active',
+    role: 'donor',  // Donor domain - redirects to acceptor
     target_url: 'https://finbosse.ru',
     has_redirect: true,
     redirect_code: 301,
@@ -240,6 +273,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     domain_id: 205,
     domain: 'hitboss.ru',
     domain_status: 'active',
+    role: 'donor',  // Donor domain - redirects to acceptor
     target_url: 'https://finbosse.ru',
     has_redirect: true,
     redirect_code: 301,
@@ -263,6 +297,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     domain_id: 206,
     domain: 'casino-boss.ru',
     domain_status: 'parked',
+    role: 'donor',  // Donor domain - redirects to acceptor
     target_url: null,
     has_redirect: false,
     redirect_code: 301,
@@ -288,6 +323,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     domain_id: 300,
     domain: 'example.com',
     domain_status: 'active',
+    role: 'acceptor',  // Primary domain - receives traffic
     target_url: null,  // Main domain, no redirect
     redirect_code: 301,
     enabled: false,
@@ -310,6 +346,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     domain_id: 301,
     domain: 'test-domain.com',
     domain_status: 'active',
+    role: 'donor',  // Donor domain - redirects to acceptor
     target_url: 'https://example.com',
     has_redirect: true,
     redirect_code: 302,
@@ -333,6 +370,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     domain_id: 302,
     domain: 'staging-test.net',
     domain_status: 'active',
+    role: 'donor',  // Donor domain - redirects to acceptor
     target_url: 'https://example.com/staging',
     has_redirect: true,
     redirect_code: 302,
@@ -356,6 +394,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     domain_id: 303,
     domain: 'dev-test.org',
     domain_status: 'expired',
+    role: 'donor',  // Donor domain - redirects to acceptor
     target_url: null,
     has_redirect: false,
     redirect_code: 301,
@@ -381,6 +420,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     domain_id: 401,
     domain: 'casinovavada.cyou',
     domain_status: 'active',
+    role: 'acceptor',  // Primary domain - receives traffic
     target_url: null,  // Main domain, no redirect
     redirect_code: 301,
     enabled: false,
@@ -403,6 +443,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     domain_id: 402,
     domain: 'bdblogov.ru',
     domain_status: 'active',
+    role: 'donor',  // Donor domain - redirects to acceptor
     target_url: 'https://casinovavada.cyou/',
     has_redirect: true,
     redirect_code: 301,
@@ -426,6 +467,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     domain_id: 403,
     domain: 'casinovavada.homes',
     domain_status: 'active',
+    role: 'donor',  // Donor domain - redirects to acceptor
     target_url: 'https://casinovavada.cyou/*',
     has_redirect: true,
     redirect_code: 301,
@@ -449,6 +491,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     domain_id: 404,
     domain: 'clubvavada.ru',
     domain_status: 'active',
+    role: 'donor',  // Donor domain - redirects to acceptor
     target_url: 'https://casinovavada.cyou/*',
     has_redirect: true,
     redirect_code: 301,
@@ -472,6 +515,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     domain_id: 405,
     domain: 'vavada.monster',
     domain_status: 'active',
+    role: 'donor',  // Donor domain - redirects to acceptor
     target_url: 'https://casinovavada.cyou/*',
     has_redirect: true,
     redirect_code: 301,
@@ -495,6 +539,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     domain_id: 406,
     domain: 'vavada10.ru',
     domain_status: 'active',
+    role: 'donor',  // Donor domain - redirects to acceptor
     target_url: 'https://casinovavada.cyou/*',
     has_redirect: true,
     redirect_code: 301,
@@ -520,6 +565,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     domain_id: 501,
     domain: 'bethub.eu',
     domain_status: 'active',
+    role: 'acceptor',  // Primary domain - receives traffic
     target_url: null,  // Main domain, no redirect
     redirect_code: 301,
     enabled: false,
@@ -542,6 +588,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     domain_id: 502,
     domain: 'bet-hub.com',
     domain_status: 'active',
+    role: 'donor',  // Donor domain - redirects to acceptor
     target_url: 'https://bethub.eu',
     has_redirect: true,
     redirect_code: 301,
@@ -565,6 +612,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     domain_id: 503,
     domain: 'betseu.net',
     domain_status: 'active',
+    role: 'donor',  // Donor domain - redirects to acceptor
     target_url: 'https://bethub.eu',
     has_redirect: true,
     redirect_code: 302,
@@ -588,6 +636,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     domain_id: 504,
     domain: 'gambling-eu.org',
     domain_status: 'parked',
+    role: 'donor',  // Donor domain - redirects to acceptor
     target_url: null,
     has_redirect: false,
     redirect_code: 301,

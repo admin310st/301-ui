@@ -131,6 +131,24 @@ function generateDomain(id: number): Domain {
 // Generate 35 mock domains
 export const mockDomains: Domain[] = [
   ...Array.from({ length: 35 }, (_, i) => generateDomain(i + 1)),
+  // Add long domain name test (20 chars before dot)
+  {
+    id: 99,
+    domain_name: 'verylongdomainname20.com', // exactly 20 characters before .com
+    project_name: 'LongNameTest',
+    project_lang: 'EN',
+    status: 'active',
+    role: 'donor',
+    registrar: 'cloudflare',
+    cf_zone_id: 'zone_99',
+    ssl_status: 'valid',
+    ssl_valid_to: randomDate(180),
+    abuse_status: 'clean',
+    expires_at: randomDate(365),
+    monitoring_enabled: true,
+    last_check_at: randomDate(-2),
+    has_errors: false,
+  },
   // Add IDN test domains
   {
     id: 100,
