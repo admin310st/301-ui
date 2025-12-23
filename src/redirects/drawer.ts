@@ -140,7 +140,7 @@ export function closeDrawer(): void {
 }
 
 /**
- * Setup action buttons (copy, open in new tab)
+ * Setup action buttons (copy, open in new tab, sync)
  */
 function setupActionButtons(redirect: DomainRedirect): void {
   if (!drawerElement) return;
@@ -148,19 +148,33 @@ function setupActionButtons(redirect: DomainRedirect): void {
   // Copy button
   const copyBtn = drawerElement.querySelector('[data-action="copy-domain-drawer"]');
   if (copyBtn) {
-    copyBtn.addEventListener('click', () => {
+    const copyHandler = () => {
       navigator.clipboard.writeText(redirect.domain);
       // TODO: Show toast notification
       console.log('Copied:', redirect.domain);
-    });
+    };
+    copyBtn.removeEventListener('click', copyHandler);
+    copyBtn.addEventListener('click', copyHandler);
   }
 
   // Open in new tab button
   const openBtn = drawerElement.querySelector('[data-action="open-domain-drawer"]');
   if (openBtn) {
-    openBtn.addEventListener('click', () => {
+    const openHandler = () => {
       window.open(`https://${redirect.domain}`, '_blank');
-    });
+    };
+    openBtn.removeEventListener('click', openHandler);
+    openBtn.addEventListener('click', openHandler);
+  }
+
+  // Sync button
+  const syncBtn = drawerElement.querySelector('[data-action="sync-redirect"]');
+  if (syncBtn) {
+    const syncHandler = () => {
+      handleSync(redirect);
+    };
+    syncBtn.removeEventListener('click', syncHandler);
+    syncBtn.addEventListener('click', syncHandler);
   }
 }
 
@@ -190,19 +204,17 @@ function renderDrawerContent(redirect: DomainRedirect): void {
               <dt class="detail-label">Site</dt>
               <dd class="detail-value">${redirect.site_name || '—'}</dd>
             </div>
-            ${!isPrimaryDomain ? `
+            ${!isPrimaryDomain && redirect.target_url ? `
               <div class="detail-row">
-                <dt class="detail-label">Target URL</dt>
-                <dd class="detail-value detail-value--mono">${redirect.target_url || '—'}</dd>
+                <dt class="detail-label">Target</dt>
+                <dd class="detail-value detail-value--mono">${redirect.target_url}</dd>
               </div>
-            ` : `
+            ` : !isPrimaryDomain ? `
               <div class="detail-row">
-                <dt class="detail-label">Type</dt>
-                <dd class="detail-value">
-                  <span class="badge badge--sm badge--neutral">${redirect.site_type || 'Site'}</span>
-                </dd>
+                <dt class="detail-label">Target</dt>
+                <dd class="detail-value text-muted">No redirect configured</dd>
               </div>
-            `}
+            ` : ''}
           </dl>
         </div>
       </section>
@@ -221,6 +233,7 @@ function renderDrawerContent(redirect: DomainRedirect): void {
 function renderRedirectConfigCard(redirect: DomainRedirect): string {
   const redirectCode = redirect.redirect_code || 301;
   const enabled = redirect.enabled ?? true;
+  const hasRedirect = redirect.target_url && redirect.target_url.trim() !== '';
 
   return `
     <section class="card card--panel">
@@ -229,6 +242,21 @@ function renderRedirectConfigCard(redirect: DomainRedirect): string {
       </header>
       <div class="card__body">
         <div class="stack-list">
+          <div class="field">
+            <label class="field__label" for="drawer-target">
+              Target
+              <span class="field__hint">Destination URL or host</span>
+            </label>
+            <input
+              type="text"
+              id="drawer-target"
+              class="input"
+              placeholder="https://example.com"
+              value="${redirect.target_url || ''}"
+              data-drawer-field="target_url"
+            />
+          </div>
+
           <div class="field">
             <label class="field__label" for="drawer-redirect-code">Redirect Code</label>
             <select
@@ -241,16 +269,21 @@ function renderRedirectConfigCard(redirect: DomainRedirect): string {
             </select>
           </div>
 
-          <div class="field">
-            <label class="checkbox">
-              <input
-                type="checkbox"
-                class="checkbox"
-                ${enabled ? 'checked' : ''}
-                data-drawer-field="enabled"
-              />
-              <span>Enable redirect</span>
-            </label>
+          <div class="detail-row" style="align-items: center;">
+            <dt class="detail-label">Enable redirect</dt>
+            <dd class="detail-value">
+              <label class="toggle">
+                <input
+                  type="checkbox"
+                  class="toggle__input"
+                  ${enabled ? 'checked' : ''}
+                  data-drawer-field="enabled"
+                />
+                <span class="toggle__track">
+                  <span class="toggle__thumb"></span>
+                </span>
+              </label>
+            </dd>
           </div>
         </div>
       </div>
@@ -272,14 +305,48 @@ function renderSyncStatusCard(redirect: DomainRedirect): string {
       })
     : 'Never';
 
-  const syncStatus = redirect.sync_error ? 'danger' : (redirect.last_sync ? 'success' : 'muted');
-  const syncBadgeText = redirect.sync_error ? 'Failed' : (redirect.last_sync ? 'Synced' : 'Not synced');
-  const syncBadgeClass = redirect.sync_error ? 'badge--danger' : (redirect.last_sync ? 'badge--success' : 'badge--neutral');
+  const hasRedirect = redirect.target_url && redirect.target_url.trim() !== '';
+  const enabled = redirect.enabled ?? true;
+  const syncError = redirect.sync_error;
+  const syncPending = false; // TODO: Add sync_pending field to DomainRedirect type
+
+  // Determine sync button state
+  let syncButtonLabel = 'Sync now';
+  let syncButtonDisabled = false;
+  let syncButtonTooltip = '';
+
+  if (syncPending) {
+    syncButtonLabel = 'Syncing...';
+    syncButtonDisabled = true;
+  } else if (syncError) {
+    syncButtonLabel = 'Retry sync';
+  } else if (!hasRedirect) {
+    syncButtonDisabled = true;
+    syncButtonTooltip = 'Configure redirect first';
+  } else if (!enabled) {
+    syncButtonDisabled = true;
+    syncButtonTooltip = 'Enable redirect to sync';
+  }
+
+  const syncBadgeText = syncError ? 'Failed' : (redirect.last_sync ? 'Synced' : 'Not synced');
+  const syncBadgeClass = syncError ? 'badge--danger' : (redirect.last_sync ? 'badge--success' : 'badge--neutral');
 
   return `
     <section class="card card--panel">
       <header class="card__header">
-        <h3 class="h5">Sync Status</h3>
+        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+          <h3 class="h5">Sync Status</h3>
+          <button
+            class="btn btn--sm btn--ghost"
+            type="button"
+            data-action="sync-redirect"
+            ${syncButtonDisabled ? 'disabled' : ''}
+            ${syncButtonTooltip ? `title="${syncButtonTooltip}"` : ''}
+          >
+            ${syncPending ? '<span class="spinner spinner--sm"></span>' : '<span class="icon" data-icon="mono/refresh"></span>'}
+            <span>${syncButtonLabel}</span>
+          </button>
+        </div>
       </header>
       <div class="card__body">
         <dl class="detail-list">
@@ -293,11 +360,11 @@ function renderSyncStatusCard(redirect: DomainRedirect): string {
             <dt class="detail-label">Last Sync</dt>
             <dd class="detail-value">${lastSync}</dd>
           </div>
-          ${redirect.sync_error ? `
+          ${syncError ? `
             <div class="detail-row">
               <dt class="detail-label">Error</dt>
               <dd class="detail-value">
-                <span class="text-danger text-sm">${redirect.sync_error}</span>
+                <span class="text-danger text-sm">${syncError}</span>
               </dd>
             </div>
           ` : ''}
@@ -330,4 +397,22 @@ function handleSave(): void {
   // TODO: Update redirect in state and re-render table
   // For now, just close drawer
   closeDrawer();
+}
+
+/**
+ * Handle sync button click
+ */
+function handleSync(redirect: DomainRedirect): void {
+  if (!drawerElement) return;
+
+  // TODO: Check for unsaved changes and show warning if needed
+  // TODO: Send sync request to API
+  console.log('Syncing redirect:', {
+    id: redirect.id,
+    domain: redirect.domain,
+    target_url: redirect.target_url
+  });
+
+  // TODO: Update UI to show sync in progress
+  // TODO: After sync completes, update sync status and re-render
 }
