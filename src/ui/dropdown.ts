@@ -10,13 +10,14 @@
  * Adds positioning classes to prevent overflow:
  * - `.dropdown__menu--up` if menu would overflow bottom
  * - `.dropdown__menu--right` if menu would overflow right edge
+ * - `.dropdown__menu--fixed` if no space anywhere (switches to bottom sheet mode)
  */
 export function adjustDropdownPosition(dropdown: Element): void {
   const menu = dropdown.querySelector('.dropdown__menu') as HTMLElement;
   if (!menu) return;
 
   // Reset position classes before measuring
-  menu.classList.remove('dropdown__menu--up', 'dropdown__menu--right');
+  menu.classList.remove('dropdown__menu--up', 'dropdown__menu--right', 'dropdown__menu--fixed');
 
   // Get menu and trigger positions
   const menuRect = menu.getBoundingClientRect();
@@ -24,11 +25,35 @@ export function adjustDropdownPosition(dropdown: Element): void {
   const viewportWidth = window.innerWidth;
   const viewportHeight = window.innerHeight;
 
-  // Vertical positioning (up/down)
-  const spaceBelow = viewportHeight - menuRect.bottom;
-  const spaceAbove = menuRect.top;
+  // Safety buffer to prevent menus from touching viewport edges (especially on mobile)
+  const BUFFER = 16;
+  // Minimum vertical space required to open dropdown normally (menu height estimate)
+  const MIN_SPACE_REQUIRED = 150;
 
-  if (spaceBelow < 0 && spaceAbove > Math.abs(spaceBelow)) {
+  // Calculate available vertical space
+  const spaceBelow = viewportHeight - triggerRect.bottom;
+  const spaceAbove = triggerRect.top;
+
+  // Check if there's enough space in either direction for normal dropdown
+  const hasSpaceBelow = spaceBelow >= MIN_SPACE_REQUIRED;
+  const hasSpaceAbove = spaceAbove >= MIN_SPACE_REQUIRED;
+
+  // If no space anywhere - switch to fixed positioning (bottom sheet mode)
+  // This creates space by overlaying the entire viewport
+  if (!hasSpaceBelow && !hasSpaceAbove) {
+    menu.classList.add('dropdown__menu--fixed');
+    return; // Fixed mode handles positioning itself via CSS
+  }
+
+  // Normal positioning logic (when space is available)
+  // Strategy: prefer opening upward when in lower portion of viewport to avoid scrollbars
+  // If trigger is in bottom half AND there's reasonable space above, open upward
+  const isInBottomHalf = triggerRect.bottom > viewportHeight / 2;
+
+  if (isInBottomHalf && spaceAbove >= 150) {
+    menu.classList.add('dropdown__menu--up');
+  } else if (spaceBelow < 200 && spaceAbove >= 150) {
+    // Fallback: if very little space below, force upward
     menu.classList.add('dropdown__menu--up');
   }
 
@@ -36,8 +61,8 @@ export function adjustDropdownPosition(dropdown: Element): void {
   const spaceRight = viewportWidth - menuRect.right;
   const spaceLeft = triggerRect.left;
 
-  // If menu overflows right edge and there's more space on the left, align right
-  if (spaceRight < 0 && spaceLeft > Math.abs(spaceRight)) {
+  // Align right if menu would overflow right edge or get too close
+  if (spaceRight < BUFFER && spaceLeft > Math.abs(spaceRight)) {
     menu.classList.add('dropdown__menu--right');
   }
 }
