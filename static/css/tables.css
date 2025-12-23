@@ -165,6 +165,12 @@
   white-space: nowrap;
 }
 
+/* Center-align headers and cells for icon/action columns */
+.table__th-center,
+.table__cell-center {
+  text-align: center;
+}
+
 .th-sort {
   display: inline-flex;
   align-items: center;
