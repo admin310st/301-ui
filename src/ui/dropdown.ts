@@ -1,28 +1,44 @@
 /**
  * Smart dropdown positioning
- * Automatically flips dropdown menu upward when near bottom of viewport
+ * Automatically adjusts dropdown menu position to prevent viewport overflow
+ * - Vertical: flips upward when near bottom
+ * - Horizontal: aligns left/right based on available space
  */
 
 /**
  * Adjust dropdown position based on available space
- * Adds `.dropdown__menu--up` class if menu would overflow bottom of viewport
+ * Adds positioning classes to prevent overflow:
+ * - `.dropdown__menu--up` if menu would overflow bottom
+ * - `.dropdown__menu--right` if menu would overflow right edge
  */
 export function adjustDropdownPosition(dropdown: Element): void {
-  const menu = dropdown.querySelector('.dropdown__menu');
+  const menu = dropdown.querySelector('.dropdown__menu') as HTMLElement;
   if (!menu) return;
 
-  // Reset position class before measuring
-  menu.classList.remove('dropdown__menu--up');
+  // Reset position classes before measuring
+  menu.classList.remove('dropdown__menu--up', 'dropdown__menu--right');
 
-  // Get menu position and dimensions
+  // Get menu and trigger positions
   const menuRect = menu.getBoundingClientRect();
+  const triggerRect = dropdown.getBoundingClientRect();
+  const viewportWidth = window.innerWidth;
   const viewportHeight = window.innerHeight;
+
+  // Vertical positioning (up/down)
   const spaceBelow = viewportHeight - menuRect.bottom;
   const spaceAbove = menuRect.top;
 
-  // If menu overflows bottom and there's more space above, flip it up
   if (spaceBelow < 0 && spaceAbove > Math.abs(spaceBelow)) {
     menu.classList.add('dropdown__menu--up');
+  }
+
+  // Horizontal positioning (left/right)
+  const spaceRight = viewportWidth - menuRect.right;
+  const spaceLeft = triggerRect.left;
+
+  // If menu overflows right edge and there's more space on the left, align right
+  if (spaceRight < 0 && spaceLeft > Math.abs(spaceRight)) {
+    menu.classList.add('dropdown__menu--right');
   }
 }
 

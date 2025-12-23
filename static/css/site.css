@@ -965,11 +965,7 @@ h5 .icon[data-icon*="close"] {
   color: var(--text);
 }
 
-@media (min-width: 1024px) {
-  .controls-row {
-    flex-wrap: nowrap;
-  }
-}
+/* Controls row layout is defined in layout.css */
 
 @media (max-width: 768px) {
   .primary-nav {

@@ -564,94 +564,24 @@ input[type="search"]::-webkit-search-cancel-button {
   color: var(--muted);
 }
 
-/* Table controls grid (filter chips) */
+/* Table controls (filter chips) - Canonical flex layout per Style Guide */
 .table-controls {
-  display: grid;
-  grid-template-columns: repeat(6, auto);
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  column-gap: var(--space-1);
-  row-gap: var(--space-2);
+  gap: var(--inline-gap);
 }
 
-/* Phase 4: Container queries - table controls adapt to container width */
-
-/* Desktop & Tablet landscape: all 6 filters in one row */
-@container table (min-width: 768px) {
-  .table-controls {
-    grid-template-columns: repeat(6, auto);
-  }
-
-  /* First 2 filters: align dropdown left */
-  .table-controls .dropdown:nth-child(1) .dropdown__menu,
-  .table-controls .dropdown:nth-child(2) .dropdown__menu {
-    left: 0;
-    right: auto;
-  }
-
-  /* Last 2 filters: align dropdown right */
-  .table-controls .dropdown:nth-child(5) .dropdown__menu,
-  .table-controls .dropdown:nth-child(6) .dropdown__menu {
-    right: 0;
-    left: auto;
-  }
-
-  /* Middle filters (3, 4): align left to prevent overflow */
-  .table-controls .dropdown:nth-child(3) .dropdown__menu,
-  .table-controls .dropdown:nth-child(4) .dropdown__menu {
-    left: 0;
-    right: auto;
-  }
+/* Default: dropdown menus align left */
+.table-controls .dropdown__menu {
+  left: 0;
+  right: auto;
 }
 
-/* Tablet portrait: 2 rows × 3 filters */
-@container table (max-width: 767px) and (min-width: 481px) {
-  .table-controls {
-    grid-template-columns: repeat(3, auto);
-  }
-
-  /* First column in each row: align dropdown left */
-  .table-controls .dropdown:nth-child(3n+1) .dropdown__menu {
-    left: 0;
-    right: auto;
-  }
-
-  /* Last column in each row: align dropdown right */
-  .table-controls .dropdown:nth-child(3n) .dropdown__menu {
-    right: 0;
-    left: auto;
-  }
-
-  /* Middle column: center with max width constraint */
-  .table-controls .dropdown:nth-child(3n+2) .dropdown__menu {
-    left: 50%;
-    transform: translateX(-50%);
-    min-width: min(var(--menu-min), calc(100vw - 2rem));
-  }
-}
-
-/* Mobile phones: 2 columns × 3 rows */
-@container table (max-width: 480px) {
-  .table-controls {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  /* First column: align left */
-  .table-controls .dropdown:nth-child(odd) .dropdown__menu {
-    left: 0;
-    right: auto;
-  }
-
-  /* Second column: align right */
-  .table-controls .dropdown:nth-child(even) .dropdown__menu {
-    right: 0;
-    left: auto;
-  }
-
-  /* Reset middle column centering */
-  .table-controls .dropdown .dropdown__menu {
-    transform: none;
-    min-width: min(var(--menu-min), calc(100vw - 2rem));
-  }
+/* Smart positioning classes (added via adjustDropdownPosition JS) */
+.dropdown__menu--right {
+  left: auto !important;
+  right: 0 !important;
 }
 
 /* Phase 4: Priority-based progressive column hiding
@@ -743,12 +673,7 @@ th {
   display: none;
 }
 
-/* Controls row layout (used in card headers) */
-@media (min-width: 1024px) {
-  .controls-row {
-    flex-wrap: nowrap;
-  }
-}
+/* Controls row layout is defined in layout.css */
 
 /* Domains page: card__actions as block container for vertical stacking */
 .card__header .card__actions {
