@@ -27,6 +27,7 @@ function getTooltipElement(): HTMLElement {
 
 /**
  * Show tooltip at target element
+ * Uses same positioning logic as dropdown menus
  */
 function showTooltip(target: HTMLElement, content: string) {
   const tooltip = getTooltipElement();
@@ -41,29 +42,47 @@ function showTooltip(target: HTMLElement, content: string) {
   tooltip.offsetHeight;
 
   // Now get accurate measurements
-  const rect = target.getBoundingClientRect();
+  const targetRect = target.getBoundingClientRect();
   const tooltipRect = tooltip.getBoundingClientRect();
+  const viewportWidth = window.innerWidth;
+  const viewportHeight = window.innerHeight;
 
-  // Default: below the target, centered
-  let left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
-  let top = rect.bottom + 8;
+  // Safety buffer to prevent tooltip from touching viewport edges
+  const BUFFER = 16;
+  const MIN_SPACE = 150; // Minimum space needed to open in a direction
+  const SPACING = 8; // Gap between target and tooltip
 
-  // Adjust horizontal position if goes off screen
-  if (left + tooltipRect.width > window.innerWidth - 8) {
-    left = window.innerWidth - tooltipRect.width - 8;
+  // Calculate available vertical space
+  const spaceBelow = viewportHeight - targetRect.bottom;
+  const spaceAbove = targetRect.top;
+
+  // Vertical positioning logic (same as dropdown)
+  // Open upward if:
+  // 1. There's more space above than below
+  // 2. AND there's at least minimum space above
+  // 3. AND we're not in the top portion of viewport
+  const isInTopPortion = targetRect.top < viewportHeight * 0.3;
+
+  let top: number;
+  if (!isInTopPortion && spaceAbove >= MIN_SPACE && spaceAbove > spaceBelow) {
+    // Show above
+    top = targetRect.top - tooltipRect.height - SPACING;
+  } else {
+    // Show below (default)
+    top = targetRect.bottom + SPACING;
   }
-  if (left < 8) {
-    left = 8;
+
+  // Horizontal positioning - center on target, adjust if overflows
+  let left = targetRect.left + (targetRect.width / 2) - (tooltipRect.width / 2);
+
+  // Adjust if goes off right edge
+  if (left + tooltipRect.width > viewportWidth - BUFFER) {
+    left = viewportWidth - tooltipRect.width - BUFFER;
   }
 
-  // If no space below, show above
-  if (top + tooltipRect.height > window.innerHeight - 8) {
-    top = rect.top - tooltipRect.height - 8;
-  }
-
-  // If still off screen at top, force it to show below (scrollable)
-  if (top < 8) {
-    top = rect.bottom + 8;
+  // Adjust if goes off left edge
+  if (left < BUFFER) {
+    left = BUFFER;
   }
 
   tooltip.style.left = `${left}px`;
