@@ -150,6 +150,7 @@
   --z-sticky: 30;
   --z-modal: 40;
   --z-toast: 50;
+  --z-tooltip: 60;
 
   /* High-contrast text for buttons / chips on dark backgrounds */
   --btn-text-on-dark: #FFFFFF;

@@ -18,7 +18,7 @@ function getTooltipElement(): HTMLElement {
     tooltipElement.className = 'tooltip';
     tooltipElement.setAttribute('role', 'tooltip');
     tooltipElement.style.position = 'fixed';
-    tooltipElement.style.zIndex = '9999';
+    tooltipElement.style.zIndex = 'var(--z-tooltip)';
     tooltipElement.style.pointerEvents = 'none';
     document.body.appendChild(tooltipElement);
   }
