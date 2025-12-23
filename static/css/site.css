@@ -967,11 +967,14 @@ h5 .icon[data-icon*="close"] {
 
 /* Controls row layout is defined in layout.css */
 
-@media (max-width: 768px) {
+/* Hide primary nav when burger menu appears (at same breakpoint as burger shows) */
+@media (max-width: 1023px) {
   .primary-nav {
     display: none;
   }
+}
 
+@media (max-width: 768px) {
   .utility-bar__inner {
     flex-wrap: wrap;
     row-gap: var(--space-1);
