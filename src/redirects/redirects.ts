@@ -253,10 +253,10 @@ function renderPrimaryDomainRow(
       <td data-priority="critical" class="table__cell-target">
         ${siteBadge} ${redirectBadge}
       </td>
-      <td data-priority="high" class="table__cell-status">
+      <td data-priority="high" class="table__cell-status table__cell-center">
         ${statusDisplay}
       </td>
-      <td data-priority="critical" class="table__cell-actions">
+      <td data-priority="critical" class="table__cell-actions table__cell-center">
         ${actions}
       </td>
       <td data-priority="critical" class="table__cell-checkbox">
@@ -314,10 +314,10 @@ function renderRow(redirect: DomainRedirect, groupId: number, isLastRow: boolean
       <td data-priority="critical" class="table__cell-target">
         ${targetDisplay}
       </td>
-      <td data-priority="high" class="table__cell-status">
+      <td data-priority="high" class="table__cell-status table__cell-center">
         ${statusDisplay}
       </td>
-      <td data-priority="critical" class="table__cell-actions">
+      <td data-priority="critical" class="table__cell-actions table__cell-center">
         <div class="table-actions table-actions--inline">
           ${actions}
         </div>
