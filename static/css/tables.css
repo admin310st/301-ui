@@ -276,7 +276,7 @@
 /* Checkbox Column - rightmost */
 .table__th-checkbox,
 .table__cell-checkbox {
-  width: 2.5rem;
+  width: var(--col-check);
   text-align: center;
 }
 
@@ -447,27 +447,34 @@
 /* Domain column */
 .table--redirects th:nth-child(1),
 .table--redirects td:nth-child(1) {
-  width: 30%;
+  width: 28%;
 }
 
-/* Target column (now includes code badges) */
+/* Target column (includes code badges and URL) */
 .table--redirects th:nth-child(2),
 .table--redirects td:nth-child(2) {
-  width: 42%;
+  width: 35%;
 }
 
-/* Status column (unified enabled + sync state) */
+/* Status column */
 .table--redirects th:nth-child(3),
 .table--redirects td:nth-child(3) {
-  width: 15%;
+  width: 18%;
   text-align: center;
 }
 
-/* Actions column */
+/* Actions column - uses fluid token */
 .table--redirects th:nth-child(4),
 .table--redirects td:nth-child(4) {
-  width: 7.5rem;
+  width: var(--col-actions);
   text-align: right;
+}
+
+/* Checkbox column - uses fluid token */
+.table--redirects th:nth-child(5),
+.table--redirects td:nth-child(5) {
+  width: var(--col-check);
+  text-align: center;
 }
 
 /* ============================================
