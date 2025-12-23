@@ -461,7 +461,7 @@ function getStatusDisplay(redirect: DomainRedirect): string {
       return '<span class="badge badge--neutral" title="Disabled by user">Disabled</span>';
     }
     // Enabled but no redirect configured - edge case, should prompt user to add redirect
-    return '<span class="badge badge--neutral" title="Enabled by user. No redirect configured">Enabled</span>';
+    return '<span class="badge badge--neutral" title="Enabled by user, but not synced to CDN">Enabled</span>';
   }
 
   // Case 2: Redirect configured but disabled (has_redirect=true, enabled=false)
