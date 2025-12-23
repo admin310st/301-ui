@@ -245,12 +245,10 @@
   overflow-wrap: break-word;
 }
 
-/* Center-align Status, Health (data only), Expires, Actions, and checkbox columns */
+/* Center-align Status, Health (data only), Actions, and checkbox columns */
 .table--domains th:nth-child(2),
-.table--domains td:nth-child(2),
+.table--domains td:nth-child(2),  /* Status */
 .table--domains td:nth-child(3),  /* Health data centered, header left-aligned */
-.table--domains th:nth-child(4),
-.table--domains td:nth-child(4),  /* Expires */
 .table--domains th:nth-child(5),
 .table--domains td:nth-child(5),  /* Actions */
 .table--domains th:nth-child(6),
