@@ -31,9 +31,16 @@ function getTooltipElement(): HTMLElement {
 function showTooltip(target: HTMLElement, content: string) {
   const tooltip = getTooltipElement();
   tooltip.innerHTML = content;
+
+  // Show tooltip off-screen first to measure it
+  tooltip.style.left = '-9999px';
+  tooltip.style.top = '-9999px';
   tooltip.hidden = false;
 
-  // Position tooltip
+  // Force reflow to get accurate measurements
+  tooltip.offsetHeight;
+
+  // Now get accurate measurements
   const rect = target.getBoundingClientRect();
   const tooltipRect = tooltip.getBoundingClientRect();
 
@@ -41,8 +48,8 @@ function showTooltip(target: HTMLElement, content: string) {
   let left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
   let top = rect.bottom + 8;
 
-  // Adjust if goes off screen
-  if (left + tooltipRect.width > window.innerWidth) {
+  // Adjust horizontal position if goes off screen
+  if (left + tooltipRect.width > window.innerWidth - 8) {
     left = window.innerWidth - tooltipRect.width - 8;
   }
   if (left < 8) {
@@ -50,8 +57,13 @@ function showTooltip(target: HTMLElement, content: string) {
   }
 
   // If no space below, show above
-  if (top + tooltipRect.height > window.innerHeight) {
+  if (top + tooltipRect.height > window.innerHeight - 8) {
     top = rect.top - tooltipRect.height - 8;
+  }
+
+  // If still off screen at top, force it to show below (scrollable)
+  if (top < 8) {
+    top = rect.bottom + 8;
   }
 
   tooltip.style.left = `${left}px`;
