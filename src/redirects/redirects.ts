@@ -199,39 +199,73 @@ function updateGlobalCheckbox(): void {
 
 /**
  * Render target subgroup (Level 1) with its domain rows (Level 2)
+ * For 'site' type: primary domain becomes the header (no duplication)
+ * For 'redirect'/'none' type: show all domains at same level
  */
 function renderTargetSubgroup(target: TargetSubgroup, projectId: number): string {
-  // Target subgroup header (Level 1)
-  const targetBadge = target.target_type === 'site' && target.site_type
-    ? getSiteTypeBadge(target.site_type)
+  if (target.target_type === 'site') {
+    // Primary domain case: first domain is the site, rest redirect to it
+    const primaryDomain = target.domains[0];
+    const redirectingDomains = target.domains.slice(1);
+
+    // Render primary domain as target header (Level 1) - enhanced domain row
+    const primaryRow = renderPrimaryDomainRow(primaryDomain, target.site_type!, redirectingDomains.length, projectId);
+
+    // Render domains redirecting to primary (Level 2)
+    const childRows = redirectingDomains.map((redirect, index) => {
+      const isLastRow = index === redirectingDomains.length - 1;
+      return renderRow(redirect, projectId, isLastRow, false);
+    }).join('');
+
+    return primaryRow + childRows;
+  } else {
+    // No primary domain: just render all domains at Level 1 (flat)
+    return target.domains.map((redirect, index) => {
+      const isLastRow = index === target.domains.length - 1;
+      return renderRow(redirect, projectId, isLastRow, false, true); // isTopLevel = true
+    }).join('');
+  }
+}
+
+/**
+ * Render primary domain row (enhanced - acts as target subgroup header)
+ * Shows site type badge + count of domains redirecting to it
+ */
+function renderPrimaryDomainRow(
+  redirect: DomainRedirect,
+  siteType: string,
+  redirectCount: number,
+  groupId: number
+): string {
+  const isSelected = selectedRedirects.has(redirect.id);
+  const checkbox = getPrimaryDomainCheckbox(redirect);
+  const domainDisplay = getDomainDisplay(redirect, true);
+  const siteBadge = getSiteTypeBadge(siteType);
+  const redirectBadge = redirectCount > 0
+    ? `<span class="badge badge--sm badge--neutral">${redirectCount} redirecting</span>`
     : '';
+  const statusDisplay = getStatusDisplay(redirect);
+  const actions = getRowActions(redirect);
 
-  const targetIcon = target.target_type === 'site'
-    ? '<span class="icon text-primary" data-icon="mono/arrow-right"></span>'
-    : target.target_type === 'redirect'
-    ? '<span class="icon text-ok" data-icon="mono/arrow-bottom-right"></span>'
-    : '<span class="icon text-muted" data-icon="mono/circle-slash"></span>';
-
-  const targetHeader = `
-    <tr class="table__target-subgroup table__row--level-1" data-target-key="${target.target_key}">
-      <td colspan="5">
-        <div class="table__target-header">
-          ${targetIcon}
-          <span class="table__target-name">${target.target_display}</span>
-          ${targetBadge}
-          <span class="table__target-count">(${target.domains.length})</span>
-        </div>
+  return `
+    <tr data-redirect-id="${redirect.id}" data-group-id="${groupId}" class="table__primary-domain table__row--level-1">
+      <td data-priority="critical" class="table__cell-domain">
+        ${domainDisplay}
+      </td>
+      <td data-priority="critical" class="table__cell-target">
+        ${siteBadge} ${redirectBadge}
+      </td>
+      <td data-priority="high" class="table__cell-status">
+        ${statusDisplay}
+      </td>
+      <td data-priority="critical" class="table__cell-actions">
+        ${actions}
+      </td>
+      <td data-priority="critical" class="table__cell-checkbox">
+        ${checkbox}
       </td>
     </tr>
   `;
-
-  // Domain rows (Level 2)
-  const domainRows = target.domains.map((redirect, index) => {
-    const isLastRow = index === target.domains.length - 1;
-    return renderRow(redirect, projectId, isLastRow, false);
-  }).join('');
-
-  return targetHeader + domainRows;
 }
 
 /**
@@ -247,14 +281,23 @@ function getSiteTypeBadge(siteType: string): string {
 }
 
 /**
+ * Get checkbox for primary domain (disabled - can't select primary domains)
+ */
+function getPrimaryDomainCheckbox(redirect: DomainRedirect): string {
+  return `
+    <span class="icon text-muted" data-icon="mono/lock" title="Primary domain - cannot be selected"></span>
+  `;
+}
+
+/**
  * Render single redirect row
  */
-function renderRow(redirect: DomainRedirect, groupId: number, isLastRow: boolean, isNewSite: boolean): string {
+function renderRow(redirect: DomainRedirect, groupId: number, isLastRow: boolean, isNewSite: boolean, isTopLevel: boolean = false): string {
   const isPrimaryDomain = primaryDomains.has(redirect.domain);
   const isSelected = selectedRedirects.has(redirect.id);
   const rowClass = [
     'table__domain-row',
-    'table__row--level-2',
+    isTopLevel ? 'table__row--level-1' : 'table__row--level-2',
     redirect.domain_status === 'expired' ? 'table__row--muted' : '',
     isPrimaryDomain ? 'table__row--primary' : ''
   ].filter(Boolean).join(' ');
