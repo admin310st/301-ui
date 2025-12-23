@@ -3059,6 +3059,11 @@ body.layout-dashboard .burger-button {
    Rich tooltips for status badges and complex info
    ============================================ */
 
+/* Elements with tooltips get help cursor */
+[data-tooltip] {
+  cursor: help;
+}
+
 .tooltip {
   background: var(--bg-elevated);
   border: 1px solid var(--border-subtle);
