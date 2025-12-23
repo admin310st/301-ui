@@ -364,7 +364,6 @@
   gap: var(--space-2);
   padding-block: var(--space-2);
   padding-inline: var(--space-3);
-  padding-left: calc(var(--space-3) + var(--indent-unit));  /* Indent Level 1 */
   font-size: var(--fs-sm);
   color: var(--text-muted);
 }
@@ -381,24 +380,24 @@
 }
 
 /* ============================================
-   3-Level Indentation System
+   3-Level Indentation System (Domain column only)
    ============================================ */
 
 :root {
   --indent-unit: 1.5rem;  /* Base indent step */
 }
 
-/* Level 0: Project (no indent) */
-.table__row--level-0 td {
+/* Level 0: Project (no indent) - only Domain column */
+.table__row--level-0 td:first-child {
   padding-left: var(--space-3);
 }
 
-/* Level 1: Target subgroup (indent 1×) */
-.table__row--level-1 td {
+/* Level 1: Primary domains (indent 1×) - only Domain column */
+.table__row--level-1 td:first-child {
   padding-left: calc(var(--space-3) + var(--indent-unit));
 }
 
-/* Level 2: Domain rows (indent 2×) */
+/* Level 2: Child domains (indent 2×) - only Domain column */
 .table__row--level-2 td:first-child {
   padding-left: calc(var(--space-3) + var(--indent-unit) * 2);
 }
