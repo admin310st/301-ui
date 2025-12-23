@@ -242,7 +242,7 @@
 /* Optimize Domain column width - prevent excessive space waste */
 .table--domains th:first-child,
 .table--domains td:first-child {
-  max-width: 280px; /* Reasonable max for even long domains */
+  max-width: 220px; /* Compact max to fit more columns on desktop */
   word-break: break-word;
   overflow-wrap: break-word;
 }
@@ -713,24 +713,24 @@ input[type="search"]::-webkit-search-cancel-button {
 }
 
 /* Progressive filter hiding based on priority (matches column priority system) */
-/* Hide high-priority filters on very narrow screens (< 560px) */
-/* Keep only critical filters visible (Projects, Configured) */
-@media (max-width: 560px) {
-  .table-controls [data-priority="high"] {
+/* Hide low-priority filters (< 720px) */
+@media (max-width: 720px) {
+  .table-controls [data-priority="low"] {
     display: none;
   }
 }
 
-/* Hide medium-priority filters on narrow screens (< 720px) */
-@media (max-width: 720px) {
+/* Hide medium-priority filters (< 600px) */
+@media (max-width: 600px) {
   .table-controls [data-priority="medium"] {
     display: none;
   }
 }
 
-/* Hide low-priority filters on small screens (< 880px) */
-@media (max-width: 880px) {
-  .table-controls [data-priority="low"] {
+/* Hide high-priority filters on narrow screens (< 480px) */
+/* Keep only critical filters visible */
+@media (max-width: 480px) {
+  .table-controls [data-priority="high"] {
     display: none;
   }
 }
@@ -758,24 +758,24 @@ input[type="search"]::-webkit-search-cancel-button {
  * See StyleGuide.md section "Table Column Priorities" for full documentation.
  */
 
-/* Container < 880px: Hide low-priority columns */
-@container table (max-width: 880px) {
+/* Container < 720px: Hide low-priority columns (Expires, Notes) */
+@container table (max-width: 720px) {
   th[data-priority="low"],
   td[data-priority="low"] {
     display: none;
   }
 }
 
-/* Container < 720px: Hide medium-priority columns */
-@container table (max-width: 720px) {
+/* Container < 600px: Hide medium-priority columns (Health, Last Sync) */
+@container table (max-width: 600px) {
   th[data-priority="medium"],
   td[data-priority="medium"] {
     display: none;
   }
 }
 
-/* Container < 560px: Hide high-priority columns, keep only critical */
-@container table (max-width: 560px) {
+/* Container < 480px: Hide high-priority columns, keep only critical */
+@container table (max-width: 480px) {
   th[data-priority="high"],
   td[data-priority="high"] {
     display: none;
