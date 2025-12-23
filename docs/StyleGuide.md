@@ -1564,6 +1564,65 @@ The CSS is organized into modular files loaded in order:
 <link rel="stylesheet" href="/css/tables.css" />
 ```
 
+**Table Column Priorities:**
+
+All table columns MUST have a `data-priority` attribute to control progressive hiding on narrow containers.
+
+**Priority Levels:**
+
+| Priority | Hidden When | Use For | Examples |
+|----------|-------------|---------|----------|
+| `critical` | **Never** | Essential columns that must always be visible | Domain, Actions, Checkbox |
+| `high` | < 560px (very narrow) | Important but can hide on mobile | Status, Code, Provider |
+| `medium` | < 720px (narrow) | Useful but not essential | Health, Last Sync, Role |
+| `low` | < 880px (compact) | Nice-to-have metadata | Expires, Created At, Notes |
+
+**HTML Example:**
+
+```html
+<table class="table table--domains">
+  <thead>
+    <tr>
+      <th data-priority="critical">Domain</th>
+      <th data-priority="high">Status</th>
+      <th data-priority="medium">Health</th>
+      <th data-priority="high">Provider</th>
+      <th data-priority="low">Expires</th>
+      <th data-priority="critical">Actions</th>
+      <th data-priority="critical" class="table__th-checkbox">☑</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td data-priority="critical">example.com</td>
+      <td data-priority="high">Active</td>
+      <td data-priority="medium">✓</td>
+      <td data-priority="high">Namecheap</td>
+      <td data-priority="low">2025-12-01</td>
+      <td data-priority="critical">...</td>
+      <td data-priority="critical" class="table__cell-checkbox">☑</td>
+    </tr>
+  </tbody>
+</table>
+```
+
+**Checklist for New Tables:**
+
+When creating a new table, always:
+
+1. ✅ **Assign priorities** to ALL `<th>` and `<td>` elements
+2. ✅ **Mark critical columns** - Domain/Name, Actions, Checkbox are always `critical`
+3. ✅ **Evaluate metadata** - Dates, timestamps, notes are usually `low`
+4. ✅ **Test container sizes** - Verify columns hide in correct order at 880px, 720px, 560px
+5. ✅ **Document exceptions** - If a column breaks the pattern, explain why in HTML comment
+
+**Why This Matters:**
+
+- 🎯 **Semantic** - Priority is visible in HTML, self-documenting
+- 🛡️ **Resilient** - Adding/removing columns doesn't break hiding logic
+- 📱 **Mobile-first** - Critical content always accessible on narrow screens
+- 🔧 **Maintainable** - Easy to adjust priorities without touching CSS
+
 ### 9.4. Token Usage Rules
 
 **Always prefer tokens over hardcoded values:**

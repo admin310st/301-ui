@@ -710,37 +710,47 @@ input[type="search"]::-webkit-search-cancel-button {
   }
 }
 
-/* Phase 4: Progressive column hiding based on container width */
+/* Phase 4: Priority-based progressive column hiding
+ *
+ * Column priority levels (set via data-priority attribute on <th> and <td>):
+ * - critical: Never hidden (Domain, Actions, Checkbox)
+ * - high: Hidden at < 560px (Status, Code, Provider)
+ * - medium: Hidden at < 720px (Health, Last Sync)
+ * - low: Hidden at < 880px (Expires, Created At, Notes)
+ *
+ * See StyleGuide.md section "Table Column Priorities" for full documentation.
+ */
 
-/* Hide secondary columns when container gets narrow */
+/* Container < 880px: Hide low-priority columns */
 @container table (max-width: 880px) {
-  /* Hide "Last Sync" column in redirects table */
-  .table--redirects th:nth-child(5),
-  .table--redirects td:nth-child(5) {
+  th[data-priority="low"],
+  td[data-priority="low"] {
     display: none;
   }
 }
 
+/* Container < 720px: Hide medium-priority columns */
 @container table (max-width: 720px) {
-  /* Hide "Code" column in redirects table */
-  .table--redirects th:nth-child(3),
-  .table--redirects td:nth-child(3) {
-    display: none;
-  }
-
-  /* Hide "Health" column in domains table */
-  .table--domains th:nth-child(3),
-  .table--domains td:nth-child(3) {
+  th[data-priority="medium"],
+  td[data-priority="medium"] {
     display: none;
   }
 }
 
+/* Container < 560px: Hide high-priority columns, keep only critical */
 @container table (max-width: 560px) {
+  th[data-priority="high"],
+  td[data-priority="high"] {
+    display: none;
+  }
+
   /* Compact actions: hide secondary buttons, kebab only */
   .table-actions--inline .btn:not(.btn-icon) {
     display: none;
   }
 }
+
+/* Critical columns ([data-priority="critical"]) are NEVER hidden */
 
 /* Sortable table headers */
 .th-sort {
