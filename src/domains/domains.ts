@@ -451,7 +451,7 @@ function renderDomainsTable(domains: Domain[]): void {
 
       return `
         <tr data-domain-id="${domain.id}">
-          <td>
+          <td data-priority="critical">
             <div>
               <div class="domain-cell">
                 <strong>${formatDomainDisplay(domain.domain_name, 'compact')}</strong>
@@ -461,10 +461,10 @@ function renderDomainsTable(domains: Domain[]): void {
               </div>
             </div>
           </td>
-          <td>${statusChip}</td>
-          <td>${healthIcons}</td>
-          <td>${expiresText}</td>
-          <td>
+          <td data-priority="high">${statusChip}</td>
+          <td data-priority="medium">${healthIcons}</td>
+          <td data-priority="low">${expiresText}</td>
+          <td data-priority="critical">
             <div class="btn-group">
               <button
                 class="btn-icon"
@@ -520,7 +520,7 @@ function renderDomainsTable(domains: Domain[]): void {
               </div>
             </div>
           </td>
-          <td>
+          <td data-priority="critical">
             <input type="checkbox" data-domain-id="${domain.id}" aria-label="Select ${domain.domain_name}" />
           </td>
         </tr>

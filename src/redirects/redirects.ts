@@ -218,21 +218,21 @@ function renderRow(redirect: DomainRedirect, groupId: number, isLastRow: boolean
 
   return `
     <tr data-redirect-id="${redirect.id}" data-group-id="${groupId}" class="${rowClass}">
-      <td class="table__cell-domain">
+      <td data-priority="critical" class="table__cell-domain">
         ${domainDisplay}
       </td>
-      <td class="table__cell-target">
+      <td data-priority="critical" class="table__cell-target">
         ${targetDisplay}
       </td>
-      <td class="table__cell-status">
+      <td data-priority="high" class="table__cell-status">
         ${statusDisplay}
       </td>
-      <td class="table__cell-actions">
+      <td data-priority="critical" class="table__cell-actions">
         <div class="table-actions table-actions--inline">
           ${actions}
         </div>
       </td>
-      <td class="table__cell-checkbox">
+      <td data-priority="critical" class="table__cell-checkbox">
         ${checkbox}
       </td>
     </tr>
