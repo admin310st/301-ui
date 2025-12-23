@@ -654,6 +654,15 @@ Use `.h1` for page titles in the member area and auth hero, `.h2` for section ti
 - `badge--neutral` for Demo/Staging
 - `badge--danger` for Deprecated/Warning
 
+**Domain & redirect status badges:** Use semantic colors for operational states:
+- `badge--primary` (blue) — **Enabled** (domain/redirect is enabled but not yet active/synced)
+- `badge--success` (green) — **Active** (redirect is synced and working)
+- `badge--neutral` (gray) — **Disabled** (domain/redirect is turned off), **No redirect**
+- `badge--warning` (orange) — **Pending** (sync in progress, awaiting propagation)
+- `badge--danger` (red) — **Error** (sync failed, DNS error, expired)
+
+This color scheme applies to domains table, redirects table, TDS streams, and all other operational status indicators throughout the member area.
+
 ---
 
 ## 4. Components

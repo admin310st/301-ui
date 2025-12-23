@@ -472,7 +472,7 @@ function getStatusDisplay(redirect: DomainRedirect): string {
       return '<span class="badge badge--neutral" title="Disabled by user">Disabled</span>';
     }
     // Enabled but no redirect configured - edge case, should prompt user to add redirect
-    return '<span class="badge badge--neutral" title="Enabled by user. No redirect configured">Enabled</span>';
+    return '<span class="badge badge--primary" title="Enabled by user. No redirect configured">Enabled</span>';
   }
 
   // Case 2: Redirect configured but disabled (has_redirect=true, enabled=false)
@@ -647,6 +647,31 @@ function applyFilters(): void {
   if (activeFilters.project && activeFilters.project.length > 0) {
     const projectIds = activeFilters.project.map(id => Number(id));
     result = result.filter(r => projectIds.includes(r.project_id));
+  }
+
+  // Apply configured filter (multi-select)
+  if (activeFilters.configured && activeFilters.configured.length > 0) {
+    result = result.filter(r => {
+      const hasRedirect = r.has_redirect;
+      if (activeFilters.configured!.includes('has-redirect') && hasRedirect) return true;
+      if (activeFilters.configured!.includes('no-redirect') && !hasRedirect) return true;
+      return false;
+    });
+  }
+
+  // Apply sync filter (multi-select)
+  if (activeFilters.sync && activeFilters.sync.length > 0) {
+    result = result.filter(r => activeFilters.sync!.includes(r.sync_status));
+  }
+
+  // Apply enabled filter (multi-select)
+  if (activeFilters.enabled && activeFilters.enabled.length > 0) {
+    result = result.filter(r => {
+      const enabled = r.enabled;
+      if (activeFilters.enabled!.includes('enabled') && enabled) return true;
+      if (activeFilters.enabled!.includes('disabled') && !enabled) return true;
+      return false;
+    });
   }
 
   filteredRedirects = result;
@@ -890,7 +915,9 @@ function handleSelectGroup(groupId: number, checked: boolean): void {
   const group = groups.find(g => g.project_id === groupId);
   if (!group) return;
 
-  const selectableDomains = group.domains.filter(d => !primaryDomains.has(d.domain));
+  // Flatten all domains from all targets in this project
+  const allDomains = group.targets.flatMap(t => t.domains);
+  const selectableDomains = allDomains.filter(d => !primaryDomains.has(d.domain));
 
   if (checked) {
     // Select all selectable domains in this group
