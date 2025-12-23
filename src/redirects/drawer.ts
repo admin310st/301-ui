@@ -220,6 +220,10 @@ function setupDropdownHandlers(): void {
       // Store value for save
       if (trigger) {
         trigger.setAttribute('data-selected-value', value || '301');
+
+        // Update border color based on selected code
+        const borderColor = value === '301' ? 'var(--ok)' : 'var(--warning)';
+        (trigger as HTMLElement).style.borderColor = borderColor;
       }
 
       // Close dropdown
@@ -354,6 +358,7 @@ function renderRedirectConfigCard(redirect: DomainRedirect): string {
   const hasRedirect = redirect.target_url && redirect.target_url.trim() !== '';
 
   const redirectCodeLabel = redirectCode === 301 ? '301 - Permanent' : '302 - Temporary';
+  const redirectCodeColor = redirectCode === 301 ? 'var(--ok)' : 'var(--warning)';
 
   return `
     <section class="card card--panel">
@@ -388,6 +393,7 @@ function renderRedirectConfigCard(redirect: DomainRedirect): string {
                   aria-expanded="false"
                   data-drawer-dropdown="redirect_code"
                   data-selected-value="${redirectCode}"
+                  style="border-color: ${redirectCodeColor};"
                 >
                   <span class="btn-chip__label" data-selected-label>${redirectCodeLabel}</span>
                   <span class="btn-chip__chevron" data-icon="mono/chevron-down"></span>
