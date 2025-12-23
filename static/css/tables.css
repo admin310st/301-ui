@@ -227,6 +227,13 @@
   min-width: var(--table-min-domains);
 }
 
+/* Mobile: remove min-width to allow table to fit screen */
+@media (max-width: 768px) {
+  .table--domains {
+    min-width: 100%;
+  }
+}
+
 /* Allow domain names to wrap naturally */
 .table--domains td:first-child {
   word-break: break-word;
