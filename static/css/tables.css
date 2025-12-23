@@ -765,21 +765,6 @@ th {
     border-radius: var(--radius-lg);
   }
 
-  /* Hide filter bar by default on tiny phones */
-  .table-controls[data-filter-bar] {
-    display: none !important;
-  }
-
-  /* Show filter bar when expanded */
-  .table-controls[data-filter-bar].is-expanded {
-    display: grid !important;
-  }
-
-  /* Active state for toggle button when filters visible */
-  [data-toggle-filters].is-active {
-    color: var(--brand);
-    background: color-mix(in srgb, var(--brand) 10%, transparent);
-  }
 }
 
 /* ============================================
