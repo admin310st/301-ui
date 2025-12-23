@@ -351,22 +351,9 @@
 }
 
 /* Column Sizing for Redirects Table */
-/* Domain column */
-.table--redirects th:nth-child(1),
-.table--redirects td:nth-child(1) {
-  width: 28%;
-}
-
-/* Target column (includes code badges and URL) */
-.table--redirects th:nth-child(2),
-.table--redirects td:nth-child(2) {
-  width: 35%;
-}
-
-/* Status column */
+/* Status column - center-align */
 .table--redirects th:nth-child(3),
 .table--redirects td:nth-child(3) {
-  width: 18%;
   text-align: center;
 }
 
@@ -387,14 +374,6 @@
 /* ============================================
    3b. TABLE CELL UTILITIES
    ============================================ */
-
-.table__cell-domain,
-.table__cell-target {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 0;
-}
 
 .table__cell-code,
 .table__cell-state,
