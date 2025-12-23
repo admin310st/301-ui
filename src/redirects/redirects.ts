@@ -10,6 +10,7 @@ import { getDefaultFilters, hasActiveFilters, type ActiveFilters } from './filte
 import { renderFilterBar, initFilterUI } from './filters-ui';
 import { initDropdowns } from '@ui/dropdown';
 import { initDrawer, openDrawer, openBulkAddDrawer } from './drawer';
+import { showDialog, hideDialog } from '@ui/dialog';
 
 let currentRedirects: DomainRedirect[] = [];
 let filteredRedirects: DomainRedirect[] = [];
@@ -45,26 +46,13 @@ export function initRedirectsPage(): void {
 
 /**
  * Calculate which domains are primary domains (main domains of sites)
- * Primary domain: has no redirect (target_url === null) and is a target for other domains
+ * Primary domain: role='acceptor' (receives traffic)
  */
 function calculatePrimaryDomains(redirects: DomainRedirect[]): Set<string> {
   const primary = new Set<string>();
-  const targets = new Set<string>();
 
-  // First, collect all target domains
   for (const redirect of redirects) {
-    if (redirect.target_url) {
-      const targetHost = redirect.target_url
-        .replace('https://', '')
-        .replace('http://', '')
-        .split('/')[0];
-      targets.add(targetHost);
-    }
-  }
-
-  // Then, find domains that are targets but don't redirect themselves
-  for (const redirect of redirects) {
-    if (!redirect.target_url && targets.has(redirect.domain)) {
+    if (redirect.role === 'acceptor') {
       primary.add(redirect.domain);
     }
   }
@@ -246,7 +234,7 @@ function renderPrimaryDomainRow(
 ): string {
   const isSelected = selectedRedirects.has(redirect.id);
   const checkbox = getPrimaryDomainCheckbox(redirect);
-  const domainDisplay = getDomainDisplay(redirect, true);
+  const domainDisplay = getDomainDisplay(redirect, true, true); // isPrimary=true, isTopLevel=true
   const siteBadge = getSiteTypeBadge(siteType);
   const redirectBadge = redirectCount > 0
     ? `<span class="badge badge--sm badge--neutral" title="${redirectCount} domain${redirectCount > 1 ? 's' : ''} redirecting to this primary domain">
@@ -313,7 +301,7 @@ function renderRow(redirect: DomainRedirect, groupId: number, isLastRow: boolean
   ].filter(Boolean).join(' ');
 
   const checkbox = getCheckboxDisplay(redirect, isPrimaryDomain);
-  const domainDisplay = getDomainDisplay(redirect, isPrimaryDomain);
+  const domainDisplay = getDomainDisplay(redirect, isPrimaryDomain, isTopLevel);
   const targetDisplay = getTargetDisplay(redirect, isPrimaryDomain);
   const statusDisplay = getStatusDisplay(redirect);
   const actions = getRowActions(redirect);
@@ -366,8 +354,9 @@ function getCheckboxDisplay(redirect: DomainRedirect, isPrimaryDomain: boolean):
 /**
  * Get domain display with status
  * For primary domains, show flag badge after domain name
+ * For child rows (level-2), add indentation via CSS class
  */
-function getDomainDisplay(redirect: DomainRedirect, isPrimaryDomain: boolean): string {
+function getDomainDisplay(redirect: DomainRedirect, isPrimaryDomain: boolean, isTopLevel: boolean = false): string {
   const statusBadge = redirect.domain_status !== 'active'
     ? `<span class="badge badge--xs badge--${redirect.domain_status === 'parked' ? 'neutral' : 'danger'}">${redirect.domain_status}</span>`
     : '';
@@ -387,7 +376,7 @@ function getDomainDisplay(redirect: DomainRedirect, isPrimaryDomain: boolean): s
   }
 
   return `
-    <div class="table-cell-stack">
+    <div class="table-cell-stack ${!isTopLevel ? 'table-cell-stack--child' : ''}">
       ${icon}
       <span class="table-cell-main">${redirect.domain}</span>
       ${flagBadge}
@@ -586,6 +575,9 @@ function getRowActions(redirect: DomainRedirect): string {
  */
 function setupSearch(): void {
   const searchInput = document.querySelector('[data-search-input]') as HTMLInputElement;
+  const searchClear = document.querySelector('[data-search-clear]') as HTMLButtonElement;
+  const tableSearch = document.querySelector('[data-table-search]') as HTMLElement;
+
   if (!searchInput) return;
 
   searchInput.addEventListener('input', (e) => {
@@ -602,8 +594,28 @@ function setupSearch(): void {
       );
     }
 
+    // Toggle clear button visibility
+    if (tableSearch) {
+      if (query.length > 0) {
+        tableSearch.classList.add('table-search--active');
+      } else {
+        tableSearch.classList.remove('table-search--active');
+      }
+    }
+
     renderTable();
   });
+
+  // Clear button handler
+  if (searchClear && searchInput && tableSearch) {
+    searchClear.addEventListener('click', () => {
+      searchInput.value = '';
+      filteredRedirects = [...currentRedirects];
+      renderTable();
+      tableSearch.classList.remove('table-search--active');
+      searchInput.focus();
+    });
+  }
 }
 
 /**
@@ -823,6 +835,27 @@ function setupBulkActions(): void {
         break;
     }
   });
+
+  // Handle bulk delete confirmation
+  const confirmBulkDeleteBtn = document.querySelector('[data-confirm-bulk-delete]');
+  confirmBulkDeleteBtn?.addEventListener('click', () => {
+    const count = selectedRedirects.size;
+    if (count === 0) {
+      hideDialog('bulk-delete-redirects');
+      return;
+    }
+
+    console.log('[Redirects] Confirmed bulk delete:', count, 'redirects');
+    // TODO: Implement actual delete API call
+    // await api.deleteRedirects(Array.from(selectedRedirects));
+
+    // Close dialog and clear selections
+    hideDialog('bulk-delete-redirects');
+    handleClearSelection();
+
+    // Show success notification (when implemented)
+    alert(`Successfully deleted ${count} redirect(s)\n\n(API integration coming soon)`);
+  });
 }
 
 /**
@@ -1030,10 +1063,14 @@ function handleBulkDisable(): void {
  */
 function handleBulkDelete(): void {
   const count = selectedRedirects.size;
-  const confirmed = confirm(`Are you sure you want to delete ${count} redirect(s)?\n\nThis action cannot be undone.`);
+  if (count === 0) return;
 
-  if (!confirmed) return;
+  // Update count in dialog
+  const countElement = document.querySelector('[data-bulk-delete-count]');
+  if (countElement) {
+    countElement.textContent = count.toString();
+  }
 
-  console.log('[Redirects] Bulk delete:', count, 'redirects');
-  alert(`🗑️ Delete ${count} redirect(s)\n\n(API integration coming soon)`);
+  // Show confirmation dialog
+  showDialog('bulk-delete-redirects');
 }

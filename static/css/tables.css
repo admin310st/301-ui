@@ -191,6 +191,11 @@
 
 /* Note: .table-scroll is defined in layout.css */
 
+/* Reduce gap between card header (filters) and table */
+.card--panel .card__body {
+  padding-top: 0;  /* Remove top padding to eliminate gap - border from header provides visual separation */
+}
+
 /* Compensate for card padding on mobile to prevent overflow */
 @media (max-width: 1023px) {
   .card__body .table-scroll {
@@ -303,8 +308,7 @@
   align-items: center;
   gap: var(--space-2);
   width: 100%;
-  padding-block: var(--space-2);
-  padding-inline: var(--space-3);
+  padding: var(--space-3) var(--space-3);  /* Increased padding for better touch targets and readability */
   background: none;
   border: none;
   color: var(--text);
@@ -443,6 +447,63 @@
   gap: var(--space-2);
 }
 
+/* ============================================
+   HIERARCHY CONNECTOR COMPONENT
+   ============================================
+
+   Visual hierarchy for parent-child relationships in tables.
+   Uses indentation + left border to show subordination (simple, no layout shifts).
+
+   Visual Output:
+   → example.com (parent/level-1)
+     | ↗ child1.com
+     | ↗ child2.com
+     | ↗ child3.com
+
+   HTML Structure:
+   <!-- Parent row (level-1) -->
+   <div class="table-cell-stack">
+     <span class="icon">→</span>
+     <span class="table-cell-main">example.com</span>
+   </div>
+
+   <!-- Child rows (level-2) -->
+   <div class="table-cell-stack table-cell-stack--child">
+     <span class="icon">↗</span>
+     <span class="table-cell-main">child1.com</span>
+   </div>
+
+   Design Tokens Used:
+   - --space-2: Left margin (visual offset from parent)
+   - --space-4: Left padding (content indentation)
+   - --border-strong: Vertical line color (14% opacity, visible in both themes)
+
+   Modifiers:
+   - .table-cell-stack--child: Adds indentation + left border
+
+   JS Requirements:
+   - Apply .table-cell-stack--child class to child rows (level-2)
+   - Pass isTopLevel=false to rendering function
+
+   Use Cases:
+   - Redirects table: donor domains under acceptor domains
+   - File/folder hierarchies
+   - Category/subcategory listings
+   - Any parent-child table relationships
+
+   Performance:
+   - Pure CSS (no pseudo-elements, no absolute positioning)
+   - No horizontal shifts (border-left doesn't affect layout width)
+   - Works with collapse/expand, pagination, filtering
+
+   ============================================ */
+
+.table-cell-stack--child {
+  padding-left: var(--space-4);
+  border-left: 2px solid var(--border-strong);
+  margin-left: var(--space-2);
+}
+
 .table-cell-inline {
   display: flex;
   align-items: center;
@@ -506,7 +567,64 @@ tr:hover .table-cell-quick-action {
    4. TABLE CONTROLS & FILTERS
    ============================================ */
 
-/* Table search bar */
+/* ============================================
+   STATUS BUTTON COMPONENT (Drawer)
+   ============================================
+
+   Color-coded status button with icon for binary states (enabled/disabled, active/inactive)
+
+   HTML Structure:
+   <button
+     class="btn btn--sm ${enabled ? 'btn--success' : 'btn--ghost'}"
+     type="button"
+     data-drawer-toggle="enabled"
+     data-enabled="${enabled}"
+     style="border-color: ${enabled ? 'var(--ok)' : 'var(--danger)'};"
+   >
+     <span class="icon" data-icon="mono/${enabled ? 'check-circle' : 'close-circle'}"
+           style="color: ${enabled ? 'var(--ok)' : 'var(--danger)'}"></span>
+     <span>${enabled ? 'Enabled' : 'Disabled'}</span>
+   </button>
+
+   Visual States:
+   - Enabled: Green border + green icon (var(--ok)) + check-circle icon
+   - Disabled: Red border + red icon (var(--danger)) + close-circle icon
+
+   JS Requirements:
+   - Toggle data-enabled attribute on click
+   - Update border-color, icon color, icon name, and text dynamically
+   - Example: see src/redirects/drawer.ts setupToggleHandlers()
+
+   Design Pattern:
+   - Matches Redirect Code dropdown color coding (301=green, 302=yellow)
+   - Provides instant visual feedback of current state
+   - Border + icon color reinforce the status (redundant encoding)
+   ============================================ */
+
+/* ============================================
+   TABLE SEARCH COMPONENT
+   ============================================
+
+   Unified search bar for all tables (domains, redirects, etc.)
+
+   HTML Structure:
+   <div class="table-search" data-table-search>
+     <span class="icon" data-icon="mono/search"></span>
+     <input type="text" class="table-search__input" placeholder="..." data-search-input />
+     <button class="table-search__clear" type="button" aria-label="Clear" data-search-clear>
+       <span class="icon" data-icon="mono/close"></span>
+     </button>
+   </div>
+
+   States:
+   - Default: Search icon visible, clear button hidden
+   - Active (.table-search--active): Clear button visible when input has value
+
+   JS Requirements:
+   - Add/remove .table-search--active class when input value changes
+   - Clear button click should clear input and remove active class
+   ============================================ */
+
 .table-search {
   flex: 1 1 16rem;
   min-width: 0;
@@ -536,6 +654,7 @@ tr:hover .table-cell-quick-action {
   }
 }
 
+/* Hide native search clear button (we use custom one) */
 input[type="search"]::-webkit-search-cancel-button {
   display: none;
 }
@@ -544,8 +663,9 @@ input[type="search"]::-webkit-search-cancel-button {
   color: var(--muted);
 }
 
+/* Clear button - hidden by default, shown when .table-search--active */
 .table-search__clear {
-  display: none;
+  display: none;  /* Hidden by default */
   border: 0;
   padding: 0;
   background: transparent;
@@ -563,6 +683,7 @@ input[type="search"]::-webkit-search-cancel-button {
   background: rgba(255, 255, 255, 0.06);
 }
 
+/* Active state - show clear button when input has value */
 .table-search--active .table-search__clear {
   display: inline-flex;
 }
