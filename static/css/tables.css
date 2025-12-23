@@ -330,7 +330,9 @@
 }
 
 .table__group-name {
+  font-size: var(--fs-base);
   font-weight: var(--fw-semibold);
+  line-height: 1.4;
 }
 
 .table__group-count {
