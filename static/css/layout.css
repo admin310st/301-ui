@@ -12,7 +12,6 @@
   --sidebar-w-collapsed: clamp(64px, 6vw, 80px);
 
   --table-min-domains: clamp(680px, 52vw, 720px);
-  --table-min-redirects: clamp(900px, 68vw, 950px);
 
   --col-actions: clamp(72px, 6vw, 96px);
   --col-check: clamp(40px, 3.2vw, 48px);

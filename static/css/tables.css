@@ -268,10 +268,7 @@
   }
 }
 
-/* Redirects Table with Card-like Groups */
-.table--redirects {
-  min-width: var(--table-min-redirects);
-}
+/* Redirects Table - auto-sizing with container queries */
 
 /* Checkbox Column - rightmost */
 .table__th-checkbox,
