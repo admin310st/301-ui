@@ -679,7 +679,7 @@ input[type="search"]::-webkit-search-cancel-button {
   .table-controls .dropdown:nth-child(3n+2) .dropdown__menu {
     left: 50%;
     transform: translateX(-50%);
-    min-width: min(220px, calc(100vw - 2rem));
+    min-width: min(var(--menu-min), calc(100vw - 2rem));
   }
 }
 
@@ -704,7 +704,7 @@ input[type="search"]::-webkit-search-cancel-button {
   /* Reset middle column centering */
   .table-controls .dropdown .dropdown__menu {
     transform: none;
-    min-width: min(220px, calc(100vw - 2rem));
+    min-width: min(var(--menu-min), calc(100vw - 2rem));
   }
 }
 
