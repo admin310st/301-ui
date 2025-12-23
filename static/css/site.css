@@ -3054,5 +3054,66 @@ body.layout-dashboard .burger-button {
   height: 20px;
 }
 
+/* ============================================
+   CUSTOM TOOLTIPS
+   Rich tooltips for status badges and complex info
+   ============================================ */
+
+.tooltip {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-field);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--fs-sm);
+  line-height: 1.5;
+  box-shadow: var(--shadow-md);
+  max-width: 280px;
+  word-wrap: break-word;
+  animation: tooltip-fade-in 150ms ease;
+}
+
+@keyframes tooltip-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Tooltip content sections */
+.tooltip__header {
+  font-weight: var(--fw-semibold);
+  color: var(--text);
+  margin-bottom: var(--space-1);
+}
+
+.tooltip__body {
+  color: var(--text-muted);
+}
+
+.tooltip__footer {
+  margin-top: var(--space-2);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--border-subtle);
+  font-size: var(--fs-xs);
+  color: var(--text-dim);
+}
+
+/* Color variants matching badge colors */
+.tooltip--success .tooltip__header {
+  color: var(--success);
+}
+
+.tooltip--danger .tooltip__header {
+  color: var(--danger);
+}
+
+.tooltip--warning .tooltip__header {
+  color: var(--warning);
+}
+
 
 

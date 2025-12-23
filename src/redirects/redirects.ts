@@ -11,6 +11,7 @@ import { renderFilterBar, initFilterUI } from './filters-ui';
 import { initDropdowns } from '@ui/dropdown';
 import { initDrawer, openDrawer, openBulkAddDrawer } from './drawer';
 import { showDialog, hideDialog } from '@ui/dialog';
+import { formatTooltipTimestamp, initTooltips } from '@ui/tooltip';
 
 let currentRedirects: DomainRedirect[] = [];
 let filteredRedirects: DomainRedirect[] = [];
@@ -42,6 +43,9 @@ export function initRedirectsPage(): void {
 
   // Initialize drawer
   initDrawer();
+
+  // Initialize custom tooltips
+  initTooltips();
 }
 
 /**
@@ -439,6 +443,18 @@ function getTargetDisplay(redirect: DomainRedirect, isPrimaryDomain: boolean): s
 }
 
 /**
+ * Escape HTML for safe use in attributes
+ */
+function escapeHtml(unsafe: string): string {
+  return unsafe
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+/**
  * Get status display (per truth table spec)
  *
  * has_redirect=false:
@@ -472,9 +488,14 @@ function getStatusDisplay(redirect: DomainRedirect): string {
   // Case 3: Redirect configured and enabled (has_redirect=true, enabled=true)
   // Show status based on sync_status
   if (redirect.sync_status === 'synced') {
-    const syncDate = redirect.last_sync_at ? new Date(redirect.last_sync_at).toLocaleString() : '';
-    const tooltip = syncDate ? `Synced on ${syncDate}` : 'Synced';
-    return `<span class="badge badge--success" title="${tooltip}">Active</span>`;
+    const syncDate = redirect.last_sync_at ? formatTooltipTimestamp(redirect.last_sync_at) : 'Unknown';
+    const tooltipContent = `
+      <div class="tooltip tooltip--success">
+        <div class="tooltip__header">Synced to CDN</div>
+        <div class="tooltip__body">Last sync: ${syncDate}</div>
+      </div>
+    `.trim();
+    return `<span class="badge badge--success" data-tooltip data-tooltip-content="${escapeHtml(tooltipContent)}">Active</span>`;
   }
 
   if (redirect.sync_status === 'pending') {
@@ -482,7 +503,16 @@ function getStatusDisplay(redirect: DomainRedirect): string {
   }
 
   if (redirect.sync_status === 'error') {
-    return '<span class="badge badge--danger" title="Sync failed. Click to view details">Error</span>';
+    const errorMessage = redirect.sync_error || 'Unknown error';
+    const lastAttempt = redirect.last_sync_at ? formatTooltipTimestamp(redirect.last_sync_at) : 'Unknown';
+    const tooltipContent = `
+      <div class="tooltip tooltip--danger">
+        <div class="tooltip__header">Sync Failed</div>
+        <div class="tooltip__body">${errorMessage}</div>
+        <div class="tooltip__footer">Last attempt: ${lastAttempt}</div>
+      </div>
+    `.trim();
+    return `<span class="badge badge--danger" data-tooltip data-tooltip-content="${escapeHtml(tooltipContent)}">Error</span>`;
   }
 
   if (redirect.sync_status === 'never') {
