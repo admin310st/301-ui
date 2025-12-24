@@ -199,15 +199,17 @@ function setupActionButtons(redirect: DomainRedirect): void {
     openBtn.removeEventListener('click', openHandler);
     openBtn.addEventListener('click', openHandler);
 
-    // Color icon based on redirect state
+    // Color icon based on redirect code
     const icon = openBtn.querySelector('.icon');
     if (icon) {
       const hasRedirect = redirect.target_url && redirect.target_url.trim() !== '';
       const enabled = redirect.enabled ?? true;
+      const redirectCode = redirect.redirect_code || 301;
 
       if (hasRedirect && enabled) {
-        // Active redirect - use success color
-        (icon as HTMLElement).style.color = 'var(--ok)';
+        // Active redirect - color matches redirect code
+        const redirectColor = redirectCode === 301 ? 'var(--ok)' : 'var(--warning)';
+        (icon as HTMLElement).style.color = redirectColor;
         openBtn.setAttribute('title', 'Test redirect');
       } else if (hasRedirect && !enabled) {
         // Disabled redirect - use muted color
