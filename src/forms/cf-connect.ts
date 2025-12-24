@@ -3,6 +3,7 @@
  */
 
 import { showGlobalMessage } from '@ui/notifications';
+import { showLoading, hideLoading } from '@ui/loading-indicator';
 
 /**
  * Parse Cloudflare test curl command and extract account ID and token
@@ -84,7 +85,6 @@ export function initCfScopedTokenForm(): void {
     }
 
     const submitBtn = form.querySelector<HTMLButtonElement>('button[type="submit"]');
-    const loadingBar = document.querySelector<HTMLElement>('[data-cf-loading]');
     const drawer = document.querySelector<HTMLElement>('[data-drawer="connect-cloudflare"]');
 
     // Show loading state
@@ -92,9 +92,7 @@ export function initCfScopedTokenForm(): void {
       submitBtn.disabled = true;
       submitBtn.innerHTML = '<span class="icon" data-icon="mono/refresh"></span><span>Verifying...</span>';
     }
-    if (loadingBar) {
-      loadingBar.setAttribute('data-loading', 'true');
-    }
+    showLoading('cf');
 
     try {
       const { initCloudflare } = await import('@api/integrations');
@@ -102,6 +100,9 @@ export function initCfScopedTokenForm(): void {
         cf_account_id: accountId,
         bootstrap_token: token,
       });
+
+      // Hide loading indicator
+      hideLoading();
 
       // Show success message with sync info
       const syncInfo = response.sync
@@ -114,7 +115,14 @@ export function initCfScopedTokenForm(): void {
       showStatus('success', successMsg);
       showGlobalMessage('success', successMsg);
 
-      // Close drawer and refresh integrations after 1.5 seconds
+      // Update button to success state
+      if (submitBtn) {
+        submitBtn.classList.remove('btn--cf');
+        submitBtn.classList.add('btn--success');
+        submitBtn.innerHTML = '<span class="icon" data-icon="mono/check-circle"></span><span>Connected!</span>';
+      }
+
+      // Close drawer and refresh integrations after 2 seconds
       setTimeout(async () => {
         if (drawer) {
           drawer.setAttribute('hidden', '');
@@ -129,9 +137,11 @@ export function initCfScopedTokenForm(): void {
           console.error('Failed to reload integrations:', error);
           window.location.reload();
         }
-      }, 1500);
+      }, 2000);
 
     } catch (error: any) {
+      hideLoading();
+
       const errorMessage = error.message || 'Failed to connect Cloudflare account';
       showStatus('error', errorMessage);
       showGlobalMessage('error', errorMessage);
@@ -140,11 +150,6 @@ export function initCfScopedTokenForm(): void {
       if (submitBtn) {
         submitBtn.disabled = false;
         submitBtn.innerHTML = '<span class="icon" data-icon="brand/cloudflare"></span><span>Save &amp; verify token</span>';
-      }
-    } finally {
-      // Hide loading bar
-      if (loadingBar) {
-        loadingBar.removeAttribute('data-loading');
       }
     }
   });
