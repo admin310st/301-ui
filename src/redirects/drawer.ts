@@ -445,7 +445,7 @@ function renderRedirectConfigCard(redirect: DomainRedirect): string {
                   <span class="btn-chip__label" data-selected-label>${redirectCodeLabel}</span>
                   <span class="btn-chip__chevron" data-icon="mono/chevron-down"></span>
                 </button>
-                <div class="dropdown__menu" role="menu">
+                <div class="dropdown__menu dropdown__menu--fit-trigger" role="menu">
                   <button
                     class="dropdown__item ${redirectCode === 301 ? 'is-active' : ''}"
                     type="button"

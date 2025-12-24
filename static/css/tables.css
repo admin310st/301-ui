@@ -63,6 +63,13 @@
   right: auto;
 }
 
+/* Fit menu to trigger width (for edge-aligned dropdowns on mobile) */
+.dropdown__menu--fit-trigger {
+  width: 100%;
+  min-width: unset;
+  max-width: unset;
+}
+
 .dropdown__item {
   width: 100%;
   background: transparent;

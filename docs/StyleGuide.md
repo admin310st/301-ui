@@ -678,7 +678,7 @@ This color scheme applies to domains table, redirects table, TDS streams, and al
 * `.btn.btn--danger` — destructive actions.
 * `.btn.btn--social` — OAuth starts; layout = icon + left-aligned label, same height as other controls.
 
-Buttons use explicit size modifiers: `.btn--sm`, `.btn--md`, `.btn--lg`. `btn--md` is the default and must match `.btn-chip` height so chips, search bars and primary buttons align inside toolbars. Use `btn--md` for all table headers; reserve `btn--lg` for hero/landing layouts.
+Buttons use explicit size modifiers: `.btn--sm`, `.btn--md`, `.btn--lg`. `btn--md` is the default and must match `.btn-chip` height so chips, search bars and primary buttons align inside toolbars. Use `btn--md` for all table headers; reserve `btn--lg` for hero/landing layouts. Chip buttons also support `.btn-chip--sm` for compact inline controls (e.g., drawer detail rows).
 
 ```html
 <button class="btn btn--primary btn--md">Sign in</button>
@@ -723,6 +723,7 @@ Tabs, filters and table chips reuse the same `.btn-chip` component and the share
 | `btn-chip--cf`       | Cloudflare provider   | Цвет фона = `--accent-cf-bg`, текст = `--accent-cf-text` |
 | `btn-chip--status`   | Active/Paused/Expired | Цвет фона по статусу (`--status-active`, …)              |
 | `btn-chip--primary`  | основной акцент       | Использует токены primary                                |
+| `btn-chip--sm`       | компактные inline чипы | Уменьшенная версия для drawer detail rows, масштаб `--control-scale-sm` (0.9) |
 
 Toolbar with chips **должен** переиспользовать разметку Table Search Bar целиком (search + clear button) — форы и «альтернативные» инпуты запрещены. Любые новые состояния добавляем в компонент и копируем в демо.
 
@@ -1301,6 +1302,43 @@ if (menu) menu.classList.remove('dropdown__menu--up');
 **Не применяется:**
 - Dropdown в header/footer (фиксированные элементы)
 - Модальные окна с центрированным контентом
+
+---
+
+**Dropdown menu fit-to-trigger modifier** для предотвращения выхода за границы экрана на мобильных.
+
+**Проблема:** Dropdown меню с `min-width` могут выходить за левый край экрана, если триггер находится у левого края (например, в drawer'ах).
+
+**Решение:** Модификатор `.dropdown__menu--fit-trigger` делает ширину меню равной ширине триггера.
+
+**CSS:**
+```css
+.dropdown__menu--fit-trigger {
+  width: 100%;
+  min-width: unset;
+  max-width: unset;
+}
+```
+
+**HTML usage:**
+```html
+<div class="dropdown" data-dropdown="redirect-code">
+  <button class="btn-chip btn-chip--dropdown dropdown__trigger">301</button>
+  <div class="dropdown__menu dropdown__menu--fit-trigger" role="menu">
+    <button class="dropdown__item">301 - Permanent</button>
+    <button class="dropdown__item">302 - Temporary</button>
+  </div>
+</div>
+```
+
+**Когда использовать:**
+- Dropdown в drawer'ах на левом краю экрана
+- Компактные btn-chip с dropdown на мобильных устройствах
+- Ситуации, где контент меню умещается в ширину триггера
+
+**Не использовать:**
+- Для основных action меню с длинными лейблами
+- Dropdown в центре экрана (нет риска выхода за границы)
 
 #### 4.5.1. Domains table reference
 
