@@ -3,6 +3,7 @@ import { setFormState, qs } from '@ui/dom';
 import { showGlobalMessage } from '@ui/notifications';
 import { setNextPageNotice } from '@ui/globalNotice';
 import { initCloudflare } from '@api/integrations';
+import { showConfirmDialog } from '@ui/dialog';
 
 async function handleManualSubmit(event: SubmitEvent): Promise<void> {
   event.preventDefault();
@@ -47,11 +48,10 @@ async function handleManualSubmit(event: SubmitEvent): Promise<void> {
       const existingId = context.existing_account_id || 'unknown';
       const newId = context.new_account_id || accountId;
 
-      const confirmReplace = confirm(
-        `You already have a different Cloudflare account connected (${existingId}).\n\n` +
-        `Do you want to replace it with the new account (${newId})?\n\n` +
-        `This will remove the existing integration and create a new one.`
-      );
+      const confirmReplace = await showConfirmDialog('replace-cf-account', {
+        'existing-account-id': existingId,
+        'new-account-id': newId
+      });
 
       if (confirmReplace) {
         // Retry with confirm_replace flag
