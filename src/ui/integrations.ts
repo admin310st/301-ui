@@ -340,6 +340,9 @@ export function openConnectCloudflareDrawer(): void {
     initTabs(drawer);
   }
 
+  // Initialize CF connect forms (includes curl parsing)
+  initCfConnectForms();
+
   // Close drawer function
   const closeDrawer = () => {
     drawer.setAttribute('hidden', '');

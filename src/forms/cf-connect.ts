@@ -13,19 +13,30 @@ import { showLoading, hideLoading } from '@ui/loading-indicator';
  */
 function parseCurlCommand(curlText: string): { accountId: string; token: string } | null {
   try {
-    // Extract account ID from URL
+    console.log('[parseCurl] Input text length:', curlText.length);
+    console.log('[parseCurl] Input text:', curlText.substring(0, 200));
+
+    // Extract account ID from URL (32 hex characters)
     const accountIdMatch = curlText.match(/accounts\/([a-f0-9]{32})/i);
-    // Extract token from Authorization header
+    console.log('[parseCurl] Account ID match:', accountIdMatch?.[1]);
+
+    // Extract token from Authorization header (allow letters, numbers, underscore, dash)
     const tokenMatch = curlText.match(/Bearer\s+([A-Za-z0-9_-]+)/);
+    console.log('[parseCurl] Token match:', tokenMatch?.[1]);
 
     if (accountIdMatch && tokenMatch) {
-      return {
+      const result = {
         accountId: accountIdMatch[1],
         token: tokenMatch[1],
       };
+      console.log('[parseCurl] Successfully parsed:', result);
+      return result;
     }
+
+    console.warn('[parseCurl] Failed to match - accountId:', !!accountIdMatch, 'token:', !!tokenMatch);
     return null;
-  } catch {
+  } catch (error) {
+    console.error('[parseCurl] Error:', error);
     return null;
   }
 }
@@ -43,16 +54,25 @@ export function initCfScopedTokenForm(): void {
   if (!tokenTextarea || !accountIdInput) return;
 
   // Auto-parse curl command when pasted into token field
+  console.log('[cf-connect] Attaching paste listener to tokenTextarea');
   tokenTextarea.addEventListener('paste', (event) => {
+    console.log('[cf-connect] Paste event fired');
+
     // Give the paste event time to complete
     setTimeout(() => {
       const pastedText = tokenTextarea.value;
+      console.log('[cf-connect] Pasted text length:', pastedText.length);
+      console.log('[cf-connect] Contains curl:', pastedText.includes('curl'));
+      console.log('[cf-connect] Contains accounts/:', pastedText.includes('accounts/'));
+      console.log('[cf-connect] Contains Bearer:', pastedText.includes('Bearer'));
 
       // Check if it looks like a curl command
       if (pastedText.includes('curl') && pastedText.includes('accounts/') && pastedText.includes('Bearer')) {
+        console.log('[cf-connect] Detected curl command, attempting to parse...');
         const parsed = parseCurlCommand(pastedText);
 
         if (parsed) {
+          console.log('[cf-connect] Parse successful, auto-filling fields');
           // Auto-fill the fields
           accountIdInput.value = parsed.accountId;
           tokenTextarea.value = parsed.token;
@@ -63,7 +83,12 @@ export function initCfScopedTokenForm(): void {
           // Trigger validation/visual feedback
           accountIdInput.dispatchEvent(new Event('input', { bubbles: true }));
           tokenTextarea.dispatchEvent(new Event('input', { bubbles: true }));
+        } else {
+          console.error('[cf-connect] Parse failed - could not extract account ID and token');
+          showGlobalMessage('error', 'Failed to parse curl command. Please paste Account ID and token separately.');
         }
+      } else {
+        console.log('[cf-connect] Not a curl command, treating as plain token');
       }
     }, 10);
   });
