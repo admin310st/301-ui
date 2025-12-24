@@ -35,7 +35,7 @@ export const DASHBOARD_NAV: NavItem[] = [
     labelKey: 'layout.nav.integrations',
     icon: 'mono/puzzle',
     href: '/integrations.html',
-    isActive: (path) => path.includes('/integrations') || path.includes('/wizard'),
+    isActive: (path) => path.includes('/integrations'),
   },
   {
     id: 'projects',

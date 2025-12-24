@@ -51,8 +51,6 @@ export default {
       ['/index.html', '/index.html'],
       ['/dashboard', '/dashboard.html'],
       ['/dashboard.html', '/dashboard.html'],
-      ['/wizard', '/wizard.html'],
-      ['/wizard.html', '/wizard.html'],
       ['/integrations', '/integrations.html'],
       ['/integrations.html', '/integrations.html'],
       ['/account', '/account.html'],

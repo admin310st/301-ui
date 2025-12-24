@@ -90,10 +90,10 @@
               </div>
 
               <div class="cluster">
-                <a class="btn btn--cf" href="/wizard.html">
+                <button class="btn btn--cf" type="button" data-action="connect-cloudflare">
                   <span class="icon" data-icon="brand/cloudflare"></span>
                   <span data-i18n="dashboard.step1.button">Connect account</span>
-                </a>
+                </button>
                 <span class="text-muted text-sm" data-i18n="dashboard.step1.timeEstimate">Takes 1-2 minutes</span>
               </div>
             </div>
@@ -188,6 +188,8 @@
         </div>
       </section>
     </main>
+
+{{> connect-cloudflare-drawer}}
 
 {{> footer}}
 

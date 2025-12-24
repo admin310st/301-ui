@@ -235,25 +235,6 @@ export const en = {
       requirements: 'Password must include upper & lower case letters and at least one digit.',
     },
   },
-  cf: {
-    wizard: {
-      title: 'Cloudflare account bootstrap',
-      subtitle: 'Step 1 · Paste your Account ID and Bootstrap API token.',
-      accountIdLabel: 'Cloudflare Account ID',
-      tokenLabel: 'Bootstrap API token',
-      tokenHint: "Created as '301st Bootstrap' with Account Settings: Edit and API Tokens: Edit permissions.",
-      accountIdPlaceholder: 'e.g. 1234567890abcdef1234567890abcdef',
-      tokenPlaceholder: "Paste token with 'Account API Tokens: Edit' scope…",
-      avatarMeta: 'Orange action buttons indicate global operations at Cloudflare level.',
-      submit: 'Save & verify token',
-      submitAria: 'Save and verify Cloudflare token',
-      statusStub: 'This will hit /auth/integrations/cloudflare/bootstrap once wired.',
-      statusMissing: 'Fill Account ID and Bootstrap Token.',
-      statusPending: 'Validating token...',
-      statusSuccess: 'Cloudflare account connected successfully!',
-      statusLogged: 'Stub: payload logged, ready to wire to /auth/integrations/cloudflare/bootstrap',
-    },
-  },
   notice: {
     close: 'Dismiss notification',
     errors: {

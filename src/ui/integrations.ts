@@ -328,7 +328,7 @@ function openAddDomainsDrawer(): void {
 /**
  * Open connect Cloudflare drawer
  */
-function openConnectCloudflareDrawer(): void {
+export function openConnectCloudflareDrawer(): void {
   const drawer = document.querySelector<HTMLElement>('[data-drawer="connect-cloudflare"]');
   if (!drawer) return;
 
@@ -389,10 +389,7 @@ export function initIntegrationsPage(): void {
     btn.addEventListener('click', () => openAddDomainsDrawer());
   });
 
-  // Attach "Connect Cloudflare" button handler
-  document.querySelectorAll('[data-action="connect-cloudflare"]').forEach((btn) => {
-    btn.addEventListener('click', () => openConnectCloudflareDrawer());
-  });
+  // Note: "Connect Cloudflare" handler is global (in main.ts)
 
   // Attach dropdown action handlers (delegated)
   document.addEventListener('click', (e) => {

@@ -5,7 +5,6 @@ import { initResetConfirmForm } from '@forms/reset-confirm';
 import { initResetRequestForm } from '@forms/reset-request';
 import { initResetVerifyFlow } from '@forms/reset-verify';
 import { initVerifyFlow } from '@forms/verify';
-import { initCloudflareWizard } from '@forms/cf-wizard';
 import { initGithubOAuth } from '@social/github';
 import { initGoogleOAuth } from '@social/google';
 import { applyInitialAuthState, handleLogoutDom } from '@ui/auth-dom';
@@ -22,7 +21,7 @@ import { initUtilityBarScroll } from '@ui/utility-bar-scroll';
 import { initSidebarToggle } from '@ui/sidebar-toggle';
 import { initSidebarSearch } from '@ui/sidebar-search';
 import { initSidebarNav } from '@ui/sidebar-nav';
-import { initIntegrationsPage } from '@ui/integrations';
+import { initIntegrationsPage, openConnectCloudflareDrawer } from '@ui/integrations';
 import { initAccountPage } from '@forms/account';
 import { initAccountEdit } from '@forms/account-edit';
 import { initDomainsPage } from '@domains/domains';
@@ -164,7 +163,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   initVerifyFlow();
   initGoogleOAuth();
   initGithubOAuth();
-  initCloudflareWizard();
   initAuthTabs();
   bindLogoutButtons();
   initThemeToggle();
@@ -179,6 +177,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   initDomainsPage();
   initRedirectsPage();
   initDialogCloseHandlers();
+
+  // Global handler for "Connect Cloudflare" buttons (dashboard, integrations, etc.)
+  document.querySelectorAll('[data-action="connect-cloudflare"]').forEach((btn) => {
+    btn.addEventListener('click', () => openConnectCloudflareDrawer());
+  });
 
   // Expose utilities for testing in Style Guide and use in other modules
   (window as any).showGlobalNotice = showGlobalNotice;

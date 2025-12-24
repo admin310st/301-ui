@@ -55,7 +55,6 @@ export default defineConfig({
       input: {
         main: resolve(__dirname, 'index.html'),
         dashboard: resolve(__dirname, 'dashboard.html'),
-        wizard: resolve(__dirname, 'wizard.html'),
         integrations: resolve(__dirname, 'integrations.html'),
         account: resolve(__dirname, 'account.html'),
         domains: resolve(__dirname, 'domains.html'),
