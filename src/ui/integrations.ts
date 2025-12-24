@@ -1,8 +1,20 @@
 import { t } from '@i18n';
-import { getIntegrationKeys, deleteIntegrationKey } from '@api/integrations';
-import type { IntegrationKey } from '@api/types';
+import { getZones } from '@api/zones';
+import type { CloudflareZone } from '@api/zones';
 import { showGlobalMessage } from './notifications';
 import { initTooltips } from './tooltip';
+
+/**
+ * Virtual integration derived from zones
+ */
+interface VirtualIntegration {
+  provider: string;
+  alias: string;
+  accountId: string;
+  domainCount: number;
+  status: string;
+  connectedAt: string;
+}
 
 /**
  * Format date to locale string
@@ -49,32 +61,29 @@ function getStatusClass(status: string): string {
 }
 
 /**
- * Render a single integration key row
+ * Render a single integration row
  */
-function renderKeyRow(key: IntegrationKey): string {
-  const providerInfo = getProviderInfo(key.provider);
-  const statusClass = getStatusClass(key.status);
-  const statusLabel = t(`integrations.status.${key.status}` as any) || key.status;
+function renderIntegrationRow(integration: VirtualIntegration): string {
+  const providerInfo = getProviderInfo(integration.provider);
+  const statusClass = getStatusClass(integration.status);
+  const statusLabel = t(`integrations.status.${integration.status}` as any) || integration.status;
 
   // Account ID with tooltip (email placeholder for future)
-  const accountIdShort = key.external_account_id
-    ? key.external_account_id.substring(0, 8) + '...'
+  const accountIdShort = integration.accountId
+    ? integration.accountId.substring(0, 8) + '...'
     : '—';
 
-  const tooltipContent = key.provider === 'cloudflare'
-    ? `<div class="tooltip"><div class="tooltip__body">Account: ${key.external_account_id}<br>Email: email@2do.com</div></div>`
+  const tooltipContent = integration.provider === 'cloudflare'
+    ? `<div class="tooltip"><div class="tooltip__body">Account: ${integration.accountId}<br>Email: email@2do.com</div></div>`
     : '';
 
-  // Domain count (placeholder - will be fetched from API later)
-  const domainCount = '—'; // TODO: Fetch from GET /domains
-
   return `
-    <tr data-key-id="${key.id}">
+    <tr>
       <td class="provider-cell">
         <span class="icon" data-icon="${providerInfo.icon}"></span>
         <span class="provider-label">${providerInfo.name}</span>
       </td>
-      <td>${key.key_alias || '—'}</td>
+      <td>${integration.alias}</td>
       <td>
         <span
           data-tooltip
@@ -84,54 +93,36 @@ function renderKeyRow(key: IntegrationKey): string {
           ${accountIdShort}
         </span>
       </td>
-      <td class="text-muted">${domainCount}</td>
+      <td class="text-muted">${integration.domainCount}</td>
       <td>
         <span class="badge ${statusClass}">${statusLabel}</span>
       </td>
-      <td class="text-muted">${formatDate(key.created_at)}</td>
+      <td class="text-muted">${formatDate(integration.connectedAt)}</td>
       <td class="table-actions">
-        <button
-          type="button"
-          class="btn-icon"
-          data-action="delete"
-          data-key-id="${key.id}"
-          aria-label="Delete integration"
-          title="Delete integration"
-        >
-          <span class="icon" data-icon="mono/delete"></span>
-        </button>
+        <span class="text-muted" style="font-size: var(--fs-xs);">—</span>
       </td>
     </tr>
   `;
 }
 
 /**
- * Handle delete action
+ * Create virtual integration from zones
  */
-async function handleDelete(keyId: number): Promise<void> {
-  if (!confirm('Are you sure you want to delete this integration? This action cannot be undone.')) {
-    return;
-  }
+function createCloudflareIntegration(zones: CloudflareZone[]): VirtualIntegration | null {
+  if (zones.length === 0) return null;
 
-  try {
-    await deleteIntegrationKey(keyId);
-    showGlobalMessage('success', 'Integration deleted successfully');
+  // Use first zone for account info
+  const firstZone = zones[0];
+  const activeZones = zones.filter(z => z.status === 'active');
 
-    // Remove row from table
-    const row = document.querySelector(`tr[data-key-id="${keyId}"]`);
-    if (row) {
-      row.remove();
-    }
-
-    // Check if table is now empty
-    const tbody = document.querySelector<HTMLElement>('[data-integrations-tbody]');
-    if (tbody && tbody.children.length === 0) {
-      showEmptyState();
-    }
-  } catch (error: any) {
-    const errorMessage = error.message || 'Failed to delete integration';
-    showGlobalMessage('error', errorMessage);
-  }
+  return {
+    provider: 'cloudflare',
+    alias: 'Cloudflare Account',
+    accountId: firstZone.cf_zone_id, // Using zone ID as account identifier
+    domainCount: zones.length,
+    status: activeZones.length > 0 ? 'active' : 'pending',
+    connectedAt: firstZone.created_at
+  };
 }
 
 /**
@@ -174,7 +165,7 @@ function showTableState(): void {
 }
 
 /**
- * Load and render integration keys
+ * Load and render integrations from zones
  */
 async function loadIntegrations(): Promise<void> {
   const tbody = document.querySelector<HTMLElement>('[data-integrations-tbody]');
@@ -183,24 +174,18 @@ async function loadIntegrations(): Promise<void> {
   showLoadingState();
 
   try {
-    const keys = await getIntegrationKeys();
+    const zones = await getZones();
 
-    if (keys.length === 0) {
+    // Create virtual integration from zones
+    const cfIntegration = createCloudflareIntegration(zones);
+
+    if (!cfIntegration) {
       showEmptyState();
       return;
     }
 
-    // Render rows
-    tbody.innerHTML = keys.map(renderKeyRow).join('');
-
-    // Attach delete handlers
-    tbody.querySelectorAll('[data-action="delete"]').forEach((button) => {
-      button.addEventListener('click', async (e) => {
-        const target = e.currentTarget as HTMLElement;
-        const keyId = Number(target.dataset.keyId);
-        await handleDelete(keyId);
-      });
-    });
+    // Render single Cloudflare integration
+    tbody.innerHTML = renderIntegrationRow(cfIntegration);
 
     // Initialize tooltips for account IDs
     initTooltips();
