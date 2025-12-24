@@ -125,7 +125,7 @@ function renderNavItem(item: NavItem, currentPath: string): string {
   const notificationTitle = item.notificationTitle ? ` title="${item.notificationTitle}"` : '';
 
   return `
-    <a href="${item.href}" class="navitem${activeClass}" data-nav-id="${item.id}" data-label-en="${item.label}" data-label-key="${item.labelKey}" data-tooltip="${item.label}">
+    <a href="${item.href}" class="navitem${activeClass}" data-nav-id="${item.id}" data-label-en="${item.label}" data-label-key="${item.labelKey}">
       <span class="icon" data-icon="${item.icon}"></span>
       <span class="label" data-i18n="${item.labelKey}">${label}</span>
       ${item.badge ? `<span class="badge badge--sm">${item.badge}</span>` : ''}
