@@ -134,10 +134,6 @@
               <!-- Quick Setup Tab -->
               <div class="tabs__panel" data-tab-panel="quick-setup" role="tabpanel">
                 <form id="cf-connect-quick" class="stack-list" data-form="cf-connect-quick">
-                  <div class="panel panel--warn">
-                    <p><strong>Warning:</strong> This method uses your Global API Key temporarily. We'll create a scoped token and immediately discard the Global API Key.</p>
-                  </div>
-
                   <div class="field">
                     <label class="field__label">Cloudflare Account Email</label>
                     <input
@@ -165,6 +161,10 @@
                     <p class="field__hint text-muted">
                       Found in Cloudflare dashboard: <strong>My Profile → API Tokens → Global API Key → View</strong>
                     </p>
+                  </div>
+
+                  <div class="panel panel--warn">
+                    <p><strong>Warning:</strong> This method uses your Global API Key temporarily. We'll create a scoped token and immediately discard the Global API Key.</p>
                   </div>
 
                   <div class="panel" data-cf-status hidden role="status" aria-live="polite"></div>
