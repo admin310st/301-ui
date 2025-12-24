@@ -434,13 +434,13 @@ function renderRedirectConfigCard(redirect: DomainRedirect): string {
             <dd class="detail-value">
               <div class="dropdown" data-dropdown="redirect-code">
                 <button
-                  class="btn-chip btn-chip--dropdown dropdown__trigger"
+                  class="btn-chip btn-chip--sm btn-chip--dropdown dropdown__trigger"
                   type="button"
                   aria-haspopup="menu"
                   aria-expanded="false"
                   data-drawer-dropdown="redirect_code"
                   data-selected-value="${redirectCode}"
-                  style="border-color: ${redirectCodeColor}; font-size: calc(var(--fs-control) * var(--control-scale-sm)); padding-block: calc(var(--control-pad-y) * var(--control-scale-sm)); padding-inline: calc(var(--control-pad-x) * var(--control-scale-sm)); min-height: calc(var(--control-min-height) * var(--control-scale-sm));"
+                  style="border-color: ${redirectCodeColor};"
                 >
                   <span class="btn-chip__label" data-selected-label>${redirectCodeLabel}</span>
                   <span class="btn-chip__chevron" data-icon="mono/chevron-down"></span>
