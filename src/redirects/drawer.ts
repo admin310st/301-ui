@@ -365,11 +365,10 @@ function renderDrawerContent(redirect: DomainRedirect): void {
               <div class="detail-row">
                 <dt class="detail-label">Target</dt>
                 <dd class="detail-value">
-                  <div class="stack-list stack-list--xs">
+                  <div class="stack-inline stack-inline--xs" style="align-items: center;">
                     <span class="detail-value--mono">${redirect.target_url}</span>
-                    <a href="https://${redirect.domain}" target="_blank" rel="noopener noreferrer" class="link-button" style="font-size: var(--fs-sm);">
+                    <a href="https://${redirect.domain}" target="_blank" rel="noopener noreferrer" title="Test redirect" style="color: var(--primary); display: inline-flex;">
                       <span class="icon" data-icon="mono/open-in-new"></span>
-                      <span>Test redirect</span>
                     </a>
                   </div>
                 </dd>
