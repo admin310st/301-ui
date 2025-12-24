@@ -1708,6 +1708,119 @@ When creating a new table, always:
 - 📱 **Mobile-first** - Critical content always accessible on narrow screens
 - 🔧 **Maintainable** - Easy to adjust priorities without touching CSS
 
+---
+
+### Table States Specification
+
+#### Empty State
+
+**Purpose:** Centered placeholder shown when no data is available (empty tables, no search results, etc.)
+
+**Structure:**
+
+```html
+<div class="card card--panel">
+  <div class="card__body">
+    <div class="empty-state" data-empty-state>
+      <div class="stack-md">
+        <span class="icon icon--lg" data-icon="mono/dns"></span>
+        <h3 class="h4">No items found</h3>
+        <p class="text-muted">
+          Descriptive message explaining why it's empty and what the user can do.
+        </p>
+        <div class="btn-group">
+          <button class="btn btn--primary" type="button">
+            <span class="icon" data-icon="mono/plus"></span>
+            <span>Primary action</span>
+          </button>
+          <button class="btn btn--ghost" type="button">
+            <span>Secondary action</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+```
+
+**CSS Rules:**
+
+```css
+.empty-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  text-align: center;
+}
+
+.empty-state .icon--lg {
+  width: 64px;
+  height: 64px;
+  color: var(--text-muted);
+}
+
+.empty-state .btn-group {
+  justify-content: center;
+}
+```
+
+**Design Tokens:**
+
+- **Container**: `.card__body` provides `padding: var(--space-4)` (desktop) or `var(--space-3)` (mobile)
+- **Vertical stack**: `.stack-md` uses `gap: var(--space-4)` between elements
+- **Icon size**: `64px` (component-specific, not tokenized)
+- **Min height**: `400px` ensures adequate visual weight
+- **Text alignment**: `center` for all child elements
+- **Button centering**: `.btn-group` gets `justify-content: center` inside empty state
+
+**Content Guidelines:**
+
+1. **Icon** - Use large (`icon--lg`) muted icon relevant to content type
+2. **Heading** - Use `.h4` for concise title (e.g., "No domains connected yet")
+3. **Description** - Use `.text-muted` paragraph explaining the situation and suggesting action
+4. **Actions** - Primary button for main action, optional ghost button for secondary
+
+**Examples:**
+
+- Domains: `mono/dns` + "No domains connected yet" + "Add domains" button
+- Redirects: `mono/arrow-top-right` + "No redirects configured" + "Add redirect" button
+- Integrations: `brand/cloudflare` + "No zones found" + "Sync zones" + "Add domains" buttons
+
+#### Loading State
+
+**Purpose:** Centered spinner with message shown during data fetches.
+
+**Structure:**
+
+```html
+<div class="loading-state" data-loading-state>
+  <div class="spinner"></div>
+  <p class="text-muted">Loading items...</p>
+</div>
+```
+
+**CSS Rules:**
+
+```css
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 400px;
+}
+```
+
+**Design Tokens:**
+
+- **Gap**: `var(--space-3)` between spinner and text
+- **Min height**: `400px` matches empty state
+- **Spinner size**: `32px` (component-specific)
+
+---
+
 ### 9.4. Token Usage Rules
 
 **Always prefer tokens over hardcoded values:**
