@@ -12,7 +12,13 @@ export function initTabs(container: HTMLElement = document.body): void {
       if (!tabId) return;
 
       // Find the tabs container
-      const tabsContainer = trigger.closest('.tabs');
+      // First try closest (for triggers inside .tabs), then check in same drawer/container (for footer buttons)
+      let tabsContainer = trigger.closest('.tabs');
+      if (!tabsContainer) {
+        // For footer buttons, find .tabs in the same parent container
+        const drawer = trigger.closest('[data-drawer]');
+        tabsContainer = drawer?.querySelector('.tabs') || container.querySelector('.tabs');
+      }
       if (!tabsContainer) return;
 
       // Deactivate all triggers and panels in this container
