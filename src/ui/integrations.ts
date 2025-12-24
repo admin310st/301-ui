@@ -5,6 +5,7 @@ import { showGlobalMessage } from './notifications';
 import { initTooltips } from './tooltip';
 import { initDropdowns } from './dropdown';
 import { initAddDomainsDrawer } from '@domains/add-domains-drawer';
+import { initTabs } from './tabs';
 
 /**
  * Virtual integration derived from zones
@@ -310,6 +311,22 @@ function openAddDomainsDrawer(): void {
 }
 
 /**
+ * Open connect Cloudflare drawer
+ */
+function openConnectCloudflareDrawer(): void {
+  const drawer = document.querySelector<HTMLElement>('[data-drawer="connect-cloudflare"]');
+  if (!drawer) return;
+
+  drawer.removeAttribute('hidden');
+
+  // Initialize tabs if not already done
+  const tabsContainer = drawer.querySelector('.tabs');
+  if (tabsContainer) {
+    initTabs(drawer);
+  }
+}
+
+/**
  * Initialize integrations page
  */
 export function initIntegrationsPage(): void {
@@ -331,6 +348,11 @@ export function initIntegrationsPage(): void {
   // Attach "Add domains" button handler
   document.querySelectorAll('[data-action="add-domains"]').forEach((btn) => {
     btn.addEventListener('click', () => openAddDomainsDrawer());
+  });
+
+  // Attach "Connect Cloudflare" button handler
+  document.querySelectorAll('[data-action="connect-cloudflare"]').forEach((btn) => {
+    btn.addEventListener('click', () => openConnectCloudflareDrawer());
   });
 
   // Attach dropdown action handlers (delegated)

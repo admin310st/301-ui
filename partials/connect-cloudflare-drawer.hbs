@@ -1,0 +1,200 @@
+<!-- Connect Cloudflare Drawer -->
+    <aside class="drawer" data-drawer="connect-cloudflare" hidden>
+      <div class="drawer__overlay" data-drawer-close></div>
+      <div class="drawer__panel">
+        <header class="drawer__header">
+          <div class="drawer__title">
+            <span class="icon icon--lg" data-icon="brand/cloudflare" style="color: var(--cf-orange);"></span>
+            <h2 class="h4">Connect Cloudflare</h2>
+          </div>
+          <button class="btn-close" type="button" data-drawer-close aria-label="Close">
+            <span class="icon" data-icon="mono/close"></span>
+          </button>
+        </header>
+
+        <div class="drawer__body">
+          <div class="tabs">
+            <!-- Tabs Navigation -->
+            <div class="tabs__nav" role="tablist">
+              <button
+                class="tabs__trigger is-active"
+                role="tab"
+                aria-selected="true"
+                data-tab-trigger="instructions"
+              >
+                <span class="icon" data-icon="mono/help-circle"></span>
+                <span>Instructions</span>
+              </button>
+              <button
+                class="tabs__trigger"
+                role="tab"
+                aria-selected="false"
+                data-tab-trigger="scoped-token"
+              >
+                <span class="icon" data-icon="mono/shield-account"></span>
+                <span>Scoped Token</span>
+              </button>
+              <button
+                class="tabs__trigger"
+                role="tab"
+                aria-selected="false"
+                data-tab-trigger="quick-setup"
+              >
+                <span class="icon" data-icon="mono/zap"></span>
+                <span>Quick Setup</span>
+              </button>
+            </div>
+
+            <!-- Tab Panels -->
+            <div class="tabs__panels">
+              <!-- Instructions Tab -->
+              <div class="tabs__panel is-active" data-tab-panel="instructions" role="tabpanel">
+                <div class="stack-list">
+                  <div class="alert alert--info">
+                    <div class="alert__content">
+                      <p><strong>Choose your connection method:</strong></p>
+                      <ul style="margin-top: var(--space-2); padding-left: var(--space-4);">
+                        <li><strong>Scoped Token</strong> (Recommended) - Secure, granular permissions</li>
+                        <li><strong>Quick Setup</strong> - Fast, but uses Global API Key temporarily</li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  <div class="card card--panel">
+                    <header class="card__header">
+                      <h3 class="h5">How to get Scoped Token credentials</h3>
+                    </header>
+                    <div class="card__body">
+                      <ol class="stack-sm" style="padding-left: var(--space-4);">
+                        <li>Go to <a href="https://dash.cloudflare.com" target="_blank" rel="noopener">Cloudflare Dashboard</a></li>
+                        <li>Navigate to <strong>My Profile → API Tokens</strong></li>
+                        <li>Click <strong>Create Token</strong></li>
+                        <li>Use template <strong>"Edit Cloudflare Workers"</strong> or create custom with:
+                          <ul style="margin-top: var(--space-1); padding-left: var(--space-3);">
+                            <li>Account Settings: <strong>Edit</strong></li>
+                            <li>API Tokens: <strong>Edit</strong></li>
+                          </ul>
+                        </li>
+                        <li>Name it <code>301st Bootstrap</code></li>
+                        <li>Copy the <strong>Account ID</strong> from Overview page</li>
+                        <li>Copy the generated <strong>API Token</strong></li>
+                      </ol>
+                    </div>
+                  </div>
+
+                  <div class="card card--panel">
+                    <header class="card__header">
+                      <h3 class="h5">Quick tip</h3>
+                    </header>
+                    <div class="card__body">
+                      <p>You can paste the entire <code>curl</code> test command from Cloudflare into the <strong>Bootstrap API token</strong> field, and we'll extract both Account ID and token automatically.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Scoped Token Tab -->
+              <div class="tabs__panel" data-tab-panel="scoped-token" role="tabpanel">
+                <form class="stack-list" data-form="cf-connect-scoped">
+                  <div class="field">
+                    <label class="field__label">Cloudflare Account ID</label>
+                    <input
+                      class="input"
+                      type="text"
+                      name="cf_account_id"
+                      placeholder="e.g. 1234567890abcdef1234567890abcdef"
+                      required
+                    />
+                    <p class="field__hint text-muted">
+                      Found in Cloudflare dashboard: <strong>Overview → Account ID</strong>
+                    </p>
+                  </div>
+
+                  <div class="field">
+                    <label class="field__label">Bootstrap API Token</label>
+                    <textarea
+                      class="textarea"
+                      name="cf_bootstrap_token"
+                      rows="4"
+                      placeholder="Paste token with 'Account API Tokens: Edit' scope…"
+                      required
+                    ></textarea>
+                    <p class="field__hint text-muted">
+                      Created as <code>301st Bootstrap</code> with <strong>Account Settings: Edit</strong> and <strong>API Tokens: Edit</strong> permissions.
+                    </p>
+                  </div>
+
+                  <div class="alert alert--info">
+                    <div class="alert__content">
+                      <p><strong>Quick tip:</strong> Paste the entire <code>curl</code> test command from Cloudflare into the <strong>Bootstrap API token</strong> field above, and we'll extract both Account ID and token automatically.</p>
+                    </div>
+                  </div>
+
+                  <div class="field">
+                    <button type="submit" class="btn btn--cf">
+                      <span class="icon" data-icon="brand/cloudflare"></span>
+                      <span>Save &amp; verify token</span>
+                    </button>
+                  </div>
+
+                  <div class="alert" data-cf-status hidden role="status" aria-live="polite"></div>
+                </form>
+              </div>
+
+              <!-- Quick Setup Tab -->
+              <div class="tabs__panel" data-tab-panel="quick-setup" role="tabpanel">
+                <form class="stack-list" data-form="cf-connect-quick">
+                  <div class="alert alert--warning">
+                    <div class="alert__content">
+                      <p><strong>Warning:</strong> This method uses your Global API Key temporarily. We'll create a scoped token and immediately discard the Global API Key.</p>
+                    </div>
+                  </div>
+
+                  <div class="field">
+                    <label class="field__label">Cloudflare Account Email</label>
+                    <input
+                      class="input"
+                      type="email"
+                      name="cf_account_email"
+                      placeholder="your-email@example.com"
+                      autocomplete="email"
+                      required
+                    />
+                    <p class="field__hint text-muted">
+                      The email address associated with your Cloudflare account.
+                    </p>
+                  </div>
+
+                  <div class="field">
+                    <label class="field__label">Global API Key</label>
+                    <textarea
+                      class="textarea"
+                      name="cf_global_key"
+                      rows="3"
+                      placeholder="Paste your Global API Key…"
+                      required
+                    ></textarea>
+                    <p class="field__hint text-muted">
+                      Found in Cloudflare dashboard: <strong>My Profile → API Tokens → Global API Key → View</strong>
+                    </p>
+                  </div>
+
+                  <div class="field">
+                    <button type="submit" class="btn btn--danger">
+                      <span class="icon" data-icon="mono/zap"></span>
+                      <span>Create scoped token</span>
+                    </button>
+                  </div>
+
+                  <div class="alert" data-cf-status hidden role="status" aria-live="polite"></div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <footer class="drawer__footer">
+          <button class="btn btn--ghost" type="button" data-drawer-close>Cancel</button>
+        </footer>
+      </div>
+    </aside>

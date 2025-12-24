@@ -43,10 +43,10 @@
             </p>
           </div>
           <div class="page-header__actions">
-            <a href="/wizard.html" class="btn btn--cf">
+            <button type="button" class="btn btn--cf" data-action="connect-cloudflare">
               <span class="icon" data-icon="brand/cloudflare"></span>
               <span data-i18n="integrations.connectCloudflare">Connect Cloudflare</span>
-            </a>
+            </button>
           </div>
         </header>
 
@@ -129,6 +129,7 @@
 {{> footer}}
 
 {{> add-domains-drawer}}
+{{> connect-cloudflare-drawer}}
 
     <script type="module" src="/src/main.ts"></script>
   </body>

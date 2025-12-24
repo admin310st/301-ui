@@ -1540,6 +1540,51 @@ html[data-theme="light"] .bulk-actions-bar__actions .btn--ghost:hover {
 }
 
 /* ============================================
+   9. TABS COMPONENT
+   ============================================ */
+
+/* Tabs navigation */
+.tabs__nav {
+  display: flex;
+  gap: var(--space-1);
+  padding: var(--space-2);
+  background: var(--panel-subtle);
+  border-radius: var(--radius);
+  margin-bottom: var(--space-4);
+}
+
+/* Tabs trigger uses unified control sizing from site.css */
+.tabs__trigger {
+  flex: 1;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all var(--transition-md);
+}
+
+.tabs__trigger:hover {
+  background: var(--panel);
+  color: var(--text);
+}
+
+.tabs__trigger.is-active {
+  background: var(--bg);
+  border-color: var(--border-subtle);
+  color: var(--text);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Tabs panels */
+.tabs__panel {
+  display: none;
+}
+
+.tabs__panel.is-active {
+  display: block;
+}
+
+/* ============================================
    10. PAGE-SPECIFIC COMPONENTS
    ============================================ */
 

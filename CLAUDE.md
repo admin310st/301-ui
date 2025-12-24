@@ -121,6 +121,7 @@ To eliminate code duplication across pages, the project uses a custom Vite plugi
 - `partials/footer.hbs` - Footer with brand and links
 - `partials/sidebar.hbs` - Sidebar navigation with dynamic `is-active` state
 - `partials/add-domains-drawer.hbs` - Drawer for adding domains with smart domain parser
+- `partials/connect-cloudflare-drawer.hbs` - Drawer for connecting Cloudflare account with tabs (Instructions, Scoped Token, Quick Setup)
 
 **Implementation:**
 The custom Vite plugin (`vite.config.ts`) uses regex-based string replacement during the `transformIndexHtml` hook. It supports:
