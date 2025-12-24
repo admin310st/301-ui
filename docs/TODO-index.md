@@ -359,6 +359,119 @@ table.addEventListener('click', (e) => {
 - Preload/Prefetch для критичных ресурсов
 - Service Worker (если нужен offline режим)
 
+### Code Splitting Strategy (когда bundle >300KB)
+
+**Текущая проблема (анализ 2025-12-24):**
+- Main bundle: 181.56 KB → 50.06 KB gzipped ✅ Пока OK
+- Monolithic bundle: все страницы грузят весь код (domains, redirects, integrations, account)
+- Dynamic import conflicts: попытки lazy load игнорируются из-за static imports в main.ts
+
+**Проблемный паттерн:**
+```typescript
+// main.ts импортирует ВСЁ сразу (на всех страницах):
+import { initDomainsPage } from '@domains/domains';      // Только для domains.html
+import { initRedirectsPage } from '@redirects/redirects'; // Только для redirects.html
+import { initIntegrationsPage } from '@ui/integrations';  // Только для integrations.html
+import { initAccountPage } from '@forms/account';         // Только для account.html
+```
+
+**Решение A — Entry Points Pattern (рекомендовано для MPA):**
+
+Создать отдельные entry points для групп страниц:
+
+```typescript
+// src/main-common.ts — общее для всех страниц
+export { initTheme } from '@ui/theme';
+export { initSidebarNav } from '@ui/sidebar-nav';
+export { applyTranslations, initLangSwitcher } from '@i18n/dom';
+// ... базовый UI
+
+// src/main-auth.ts — только для index.html (auth pages)
+import * as common from './main-common';
+import { initLoginForm } from '@forms/login';
+import { initRegisterForm } from '@forms/register';
+// ... auth-specific код
+
+// src/main-dashboard.ts — для защищенных страниц с sidebar
+import * as common from './main-common';
+import { initSidebarToggle } from '@ui/sidebar-toggle';
+// ... dashboard-specific код
+
+// src/main-domains.ts — только для domains.html
+import './main-dashboard'; // наследует dashboard
+import { initDomainsPage } from '@domains/domains';
+
+// src/main-integrations.ts — только для integrations.html
+import './main-dashboard';
+import { initIntegrationsPage } from '@ui/integrations';
+```
+
+**vite.config.ts:**
+```typescript
+build: {
+  rollupOptions: {
+    input: {
+      'main-auth': resolve(__dirname, 'src/main-auth.ts'),
+      'main-dashboard': resolve(__dirname, 'src/main-dashboard.ts'),
+      'main-domains': resolve(__dirname, 'src/main-domains.ts'),
+      'main-integrations': resolve(__dirname, 'src/main-integrations.ts'),
+      'main-redirects': resolve(__dirname, 'src/main-redirects.ts'),
+    }
+  }
+}
+```
+
+**HTML страницы:**
+```html
+<!-- index.html -->
+<script type="module" src="/src/main-auth.ts"></script>
+
+<!-- domains.html -->
+<script type="module" src="/src/main-domains.ts"></script>
+```
+
+**Эффект:**
+- index.html: ~30-40 KB (только auth код)
+- domains.html: ~50-60 KB (common + dashboard + domains)
+- Каждая страница грузит только нужный код
+
+---
+
+**Решение B — manualChunks (альтернатива, сложнее):**
+
+```typescript
+// vite.config.ts
+build: {
+  rollupOptions: {
+    output: {
+      manualChunks: {
+        'vendor-i18n': ['@i18n'],
+        'vendor-utils': ['@utils'],
+        'ui-common': ['@ui/theme', '@ui/sidebar-nav', '@ui/notifications'],
+        'forms-auth': ['@forms/login', '@forms/register', '@forms/reset-request'],
+        'page-domains': ['@domains/domains', '@domains/filters', '@domains/bulk-actions'],
+        'page-redirects': ['@redirects/redirects'],
+        'page-integrations': ['@ui/integrations', '@api/integrations'],
+      }
+    }
+  }
+}
+```
+
+**Эффект:**
+- Автоматическое разделение на chunks
+- Vite сам определяет, какие chunks грузить на каждой странице
+- Сложнее контролировать, какие chunks попадут куда
+
+---
+
+**Рекомендация:**
+- **Для MPA проекта:** Entry Points Pattern (Решение A)
+  - Явный контроль над тем, что грузится на каждой странице
+  - Проще отлаживать
+  - Чище git diff при изменениях
+- **Для SPA проекта:** manualChunks (Решение B)
+
 **Метрики для решений:**
 - Bundle >300KB → code splitting
 - Таблица >500 строк → virtualization
