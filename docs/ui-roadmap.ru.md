@@ -338,7 +338,7 @@ Overview              [home icon]           - dashboard/overview page
 Integrations          [puzzle icon]         - CF accounts, registrars
 Projects              [project icon]        - project management
 Domains               [dns icon]            - domain list and sync
-Sites                 [web-sync icon]       - landing pages, whitelists
+Sites                 [landing icon]        - landing pages, whitelists
 Streams               [directions-fork]     - TDS/traffic distribution
 Redirects             [directions icon]     - redirect rules
 ---

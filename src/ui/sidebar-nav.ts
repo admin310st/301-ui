@@ -60,7 +60,7 @@ export const DASHBOARD_NAV: NavItem[] = [
     id: 'sites',
     label: 'Sites',
     labelKey: 'layout.nav.sites',
-    icon: 'mono/web-sync',
+    icon: 'mono/landing',
     href: '/sites.html',
     isActive: (path) => path.includes('/sites'),
   },
