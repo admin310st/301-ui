@@ -4,6 +4,7 @@ import type { CloudflareZone } from '@api/zones';
 import { showGlobalMessage } from './notifications';
 import { initTooltips } from './tooltip';
 import { initDropdowns } from './dropdown';
+import { initAddDomainsDrawer } from '@domains/add-domains-drawer';
 
 /**
  * Virtual integration derived from zones
@@ -146,10 +147,12 @@ function createCloudflareIntegration(zones: CloudflareZone[]): VirtualIntegratio
  * Show loading state
  */
 function showLoadingState(): void {
+  const header = document.querySelector<HTMLElement>('[data-integrations-header]');
   const loading = document.querySelector<HTMLElement>('[data-integrations-loading]');
   const empty = document.querySelector<HTMLElement>('[data-integrations-empty]');
   const table = document.querySelector<HTMLElement>('[data-integrations-table]');
 
+  if (header) header.hidden = true;
   if (loading) loading.hidden = false;
   if (empty) empty.hidden = true;
   if (table) table.hidden = true;
@@ -159,10 +162,12 @@ function showLoadingState(): void {
  * Show empty state
  */
 function showEmptyState(): void {
+  const header = document.querySelector<HTMLElement>('[data-integrations-header]');
   const loading = document.querySelector<HTMLElement>('[data-integrations-loading]');
   const empty = document.querySelector<HTMLElement>('[data-integrations-empty]');
   const table = document.querySelector<HTMLElement>('[data-integrations-table]');
 
+  if (header) header.hidden = true;
   if (loading) loading.hidden = true;
   if (empty) empty.hidden = false;
   if (table) table.hidden = true;
@@ -172,10 +177,12 @@ function showEmptyState(): void {
  * Show table state
  */
 function showTableState(): void {
+  const header = document.querySelector<HTMLElement>('[data-integrations-header]');
   const loading = document.querySelector<HTMLElement>('[data-integrations-loading]');
   const empty = document.querySelector<HTMLElement>('[data-integrations-empty]');
   const table = document.querySelector<HTMLElement>('[data-integrations-table]');
 
+  if (header) header.hidden = false;
   if (loading) loading.hidden = true;
   if (empty) empty.hidden = true;
   if (table) table.hidden = false;
@@ -293,11 +300,24 @@ async function handleDeleteIntegration(event: Event): Promise<void> {
 }
 
 /**
+ * Open add domains drawer
+ */
+function openAddDomainsDrawer(): void {
+  const drawer = document.querySelector<HTMLElement>('[data-drawer="add-domains"]');
+  if (!drawer) return;
+
+  drawer.removeAttribute('hidden');
+}
+
+/**
  * Initialize integrations page
  */
 export function initIntegrationsPage(): void {
   // Only run on integrations page
   if (!document.querySelector('[data-integrations-tbody]')) return;
+
+  // Initialize add domains drawer
+  initAddDomainsDrawer();
 
   // Load integrations
   loadIntegrations();
@@ -307,6 +327,11 @@ export function initIntegrationsPage(): void {
   if (syncBtn) {
     syncBtn.addEventListener('click', handleSyncZones);
   }
+
+  // Attach "Add domains" button handler
+  document.querySelectorAll('[data-action="add-domains"]').forEach((btn) => {
+    btn.addEventListener('click', () => openAddDomainsDrawer());
+  });
 
   // Attach dropdown action handlers (delegated)
   document.addEventListener('click', (e) => {
