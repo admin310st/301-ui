@@ -3,6 +3,7 @@ import { getZones, syncZones } from '@api/zones';
 import type { CloudflareZone } from '@api/zones';
 import { showGlobalMessage } from './notifications';
 import { initTooltips } from './tooltip';
+import { initDropdowns } from './dropdown';
 
 /**
  * Virtual integration derived from zones
@@ -69,43 +70,53 @@ function renderIntegrationRow(integration: VirtualIntegration): string {
   const statusClass = getStatusClass(integration.status);
   const statusLabel = t(`integrations.status.${integration.status}` as any) || integration.status;
 
-  // Account ID with tooltip (email placeholder for future)
-  const accountIdShort = integration.accountId
-    ? integration.accountId.substring(0, 8) + '...'
-    : '—';
-
   // Tooltip: "example.com + 3 more" or just "example.com"
   const tooltipText = integration.domainCount > 1
     ? `${integration.rootDomain} + ${integration.domainCount - 1} more`
     : integration.rootDomain;
 
-  const tooltipContent = integration.provider === 'cloudflare'
-    ? `<div class="tooltip"><div class="tooltip__body">${tooltipText}</div></div>`
-    : '';
+  const tooltipContent = `<div class="tooltip"><div class="tooltip__body">${tooltipText}</div></div>`;
+
+  // Integration type based on provider
+  const integrationType = integration.provider === 'cloudflare' ? 'CDN' : integration.provider;
 
   return `
-    <tr>
+    <tr data-integration-id="${integration.accountId}">
       <td class="provider-cell">
         <span class="icon" data-icon="${providerInfo.icon}"></span>
         <span class="provider-label">${providerInfo.name}</span>
       </td>
-      <td>${integration.alias}</td>
+      <td class="text-muted">${integrationType}</td>
+      <td class="text-muted">N/A</td>
       <td>
         <span
           data-tooltip
           data-tooltip-content="${tooltipContent.replace(/"/g, '&quot;')}"
           style="cursor: help;"
         >
-          ${accountIdShort}
+          ${integration.domainCount}
         </span>
       </td>
-      <td class="text-muted">${integration.domainCount}</td>
       <td>
         <span class="badge ${statusClass}">${statusLabel}</span>
       </td>
       <td class="text-muted">${formatDate(integration.connectedAt)}</td>
       <td class="table-actions">
-        <span class="text-muted" style="font-size: var(--fs-xs);">—</span>
+        <div class="dropdown dropdown--menu">
+          <button class="btn-icon btn-icon--neutral dropdown__trigger" type="button" aria-label="Actions">
+            <span class="icon" data-icon="mono/dots-vertical"></span>
+          </button>
+          <div class="dropdown__menu dropdown__menu--right" hidden>
+            <button class="dropdown__item" type="button" data-action="sync-integration" data-integration-id="${integration.accountId}">
+              <span class="icon" data-icon="mono/refresh"></span>
+              <span>Sync zones</span>
+            </button>
+            <button class="dropdown__item dropdown__item--danger" type="button" data-action="delete-integration" data-integration-id="${integration.accountId}">
+              <span class="icon" data-icon="mono/delete"></span>
+              <span>Delete</span>
+            </button>
+          </div>
+        </div>
       </td>
     </tr>
   `;
@@ -201,6 +212,12 @@ async function loadIntegrations(): Promise<void> {
     // Initialize tooltips
     initTooltips();
 
+    // Initialize dropdowns
+    const tableContainer = document.querySelector('[data-integrations-table]');
+    if (tableContainer) {
+      initDropdowns(tableContainer as HTMLElement);
+    }
+
     showTableState();
   } catch (error: any) {
     const errorMessage = error.message || 'Failed to load integrations';
@@ -240,6 +257,42 @@ async function handleSyncZones(): Promise<void> {
 }
 
 /**
+ * Handle sync integration action from dropdown
+ */
+async function handleSyncIntegration(event: Event): Promise<void> {
+  const button = event.currentTarget as HTMLButtonElement;
+  const integrationId = button.dataset.integrationId;
+
+  if (!integrationId) return;
+
+  try {
+    const result = await syncZones();
+    showGlobalMessage('success', `Synced ${result.zones_synced} zones and ${result.domains_synced} domains`);
+
+    // Reload integrations to update domain count
+    setTimeout(() => {
+      loadIntegrations();
+    }, 1000);
+  } catch (error: any) {
+    const errorMessage = error.message || 'Failed to sync zones';
+    showGlobalMessage('error', errorMessage);
+  }
+}
+
+/**
+ * Handle delete integration action from dropdown
+ */
+async function handleDeleteIntegration(event: Event): Promise<void> {
+  const button = event.currentTarget as HTMLButtonElement;
+  const integrationId = button.dataset.integrationId;
+
+  if (!integrationId) return;
+
+  // TODO: Implement delete integration via API
+  showGlobalMessage('info', 'Delete integration functionality will be implemented soon');
+}
+
+/**
  * Initialize integrations page
  */
 export function initIntegrationsPage(): void {
@@ -249,9 +302,24 @@ export function initIntegrationsPage(): void {
   // Load integrations
   loadIntegrations();
 
-  // Attach sync zones handler
+  // Attach sync zones handler for empty state button
   const syncBtn = document.querySelector('[data-sync-zones]');
   if (syncBtn) {
     syncBtn.addEventListener('click', handleSyncZones);
   }
+
+  // Attach dropdown action handlers (delegated)
+  document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+
+    // Sync integration
+    if (target.closest('[data-action="sync-integration"]')) {
+      handleSyncIntegration(e);
+    }
+
+    // Delete integration
+    if (target.closest('[data-action="delete-integration"]')) {
+      handleDeleteIntegration(e);
+    }
+  });
 }

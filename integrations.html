@@ -51,6 +51,26 @@
 
         <!-- Integrations Card -->
         <div class="card card--panel">
+          <header class="card__header">
+            <div class="card__actions">
+              <!-- Search row -->
+              <div class="controls-row">
+                <div class="table-search" data-table-search>
+                  <span class="icon" data-icon="mono/search"></span>
+                  <input
+                    type="text"
+                    class="table-search__input"
+                    placeholder="Search integrations..."
+                    data-search-input
+                  />
+                  <button class="table-search__clear" type="button" aria-label="Clear" data-search-clear>
+                    <span class="icon" data-icon="mono/close"></span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </header>
+
           <div class="card__body">
             <!-- Loading State -->
             <div class="loading-state" data-integrations-loading hidden>
@@ -85,13 +105,13 @@
                 <table class="table">
                   <thead>
                     <tr>
-                      <th data-i18n="integrations.table.columns.provider">Provider</th>
-                      <th data-i18n="integrations.table.columns.type">Alias</th>
-                      <th>Account</th>
-                      <th>Domains</th>
-                      <th data-i18n="integrations.table.columns.status">Status</th>
-                      <th data-i18n="integrations.table.columns.connectedAt">Connected</th>
-                      <th data-i18n="integrations.table.columns.actions">Actions</th>
+                      <th data-priority="critical">Provider</th>
+                      <th data-priority="high">Type</th>
+                      <th data-priority="medium">Account</th>
+                      <th data-priority="high">Domains</th>
+                      <th data-priority="high">Status</th>
+                      <th data-priority="low">Connected</th>
+                      <th data-priority="critical">Actions</th>
                     </tr>
                   </thead>
                   <tbody data-integrations-tbody>
