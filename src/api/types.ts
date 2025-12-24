@@ -174,6 +174,18 @@ export interface InitIntegrationResponse {
   };
 }
 
+export interface ApiErrorResponse {
+  ok: false;
+  error: string;
+  recoverable?: boolean;
+  context?: {
+    cf_code?: number;
+    cf_message?: string;
+    [key: string]: unknown;
+  };
+  message?: string;
+}
+
 export interface GetKeysResponse {
   ok: true;
   keys: IntegrationKey[];

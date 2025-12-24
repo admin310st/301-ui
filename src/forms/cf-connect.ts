@@ -4,6 +4,37 @@
 
 import { showGlobalMessage } from '@ui/notifications';
 import { showLoading, hideLoading } from '@ui/loading-indicator';
+import type { ApiErrorResponse } from '@api/types';
+import type { ApiError } from '@utils/errors';
+
+/**
+ * Get user-friendly error message from API error response
+ */
+function getErrorMessage(error: ApiError<unknown>): string {
+  const body = error.body as ApiErrorResponse | null;
+
+  if (!body || typeof body !== 'object') {
+    return error.message || 'Failed to connect Cloudflare account';
+  }
+
+  // If there's a Cloudflare-specific error in context, show it
+  if (body.context?.cf_message) {
+    return `Cloudflare API error: ${body.context.cf_message}`;
+  }
+
+  // Map error codes to user-friendly messages
+  const errorMessages: Record<string, string> = {
+    'bootstrap_invalid': 'Invalid bootstrap token. Please check your API token and try again.',
+    'bootstrap_insufficient': 'Bootstrap token has insufficient permissions. Make sure it has "Account Settings: Edit" and "API Tokens: Edit" permissions.',
+    'account_mismatch': 'Account ID does not match the token. Please verify both values.',
+    'token_rotation_failed': 'Failed to rotate token. Please try again or contact support.',
+    'free_account_limit': 'Free Cloudflare accounts cannot use token rotation. Please upgrade your Cloudflare plan or use the existing integration.',
+    'cf_api_error': 'Cloudflare API error. Please check your credentials and try again.',
+  };
+
+  const userMessage = errorMessages[body.error] || body.message || body.error;
+  return userMessage;
+}
 
 /**
  * Parse Cloudflare test curl command and extract account ID and token
@@ -167,9 +198,18 @@ export function initCfScopedTokenForm(): void {
     } catch (error: any) {
       hideLoading();
 
-      const errorMessage = error.message || 'Failed to connect Cloudflare account';
+      console.error('[cf-connect] Error:', error);
+
+      const errorMessage = getErrorMessage(error);
+      const body = error.body as ApiErrorResponse | null;
+
       showStatus('error', errorMessage);
       showGlobalMessage('error', errorMessage);
+
+      // Log additional context for debugging
+      if (body?.context) {
+        console.error('[cf-connect] Error context:', body.context);
+      }
 
       // Reset button
       if (submitBtn) {
