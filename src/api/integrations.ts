@@ -57,14 +57,14 @@ export async function deleteIntegrationKey(id: number): Promise<void> {
 /**
  * Initialize Cloudflare integration (bootstrap → working token flow)
  * @param data Cloudflare account ID and bootstrap token
- * @returns Created key ID
+ * @returns Integration response with key_id, is_rotation, and sync info
  */
-export async function initCloudflare(data: InitCloudflareRequest): Promise<number> {
+export async function initCloudflare(data: InitCloudflareRequest): Promise<InitIntegrationResponse> {
   const response = await apiFetch<InitIntegrationResponse>(`${BASE_URL}/cloudflare/init`, {
     method: 'POST',
     body: JSON.stringify(data),
   });
-  return response.key_id;
+  return response;
 }
 
 /**

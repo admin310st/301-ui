@@ -19,20 +19,74 @@ async function handleManualSubmit(event: SubmitEvent): Promise<void> {
   setFormState(form, 'pending', t('cf.wizard.statusPending'));
 
   try {
-    const keyId = await initCloudflare({
+    const response = await initCloudflare({
       cf_account_id: accountId,
       bootstrap_token: bootstrapToken,
     });
 
-    setFormState(form, 'success', t('cf.wizard.statusSuccess'));
-    setNextPageNotice('success', 'cf.wizard.statusSuccess');
+    // Show success message with sync info
+    const syncInfo = response.sync
+      ? ` Synced ${response.sync.zones} zones and ${response.sync.domains} domains.`
+      : '';
+    const successMsg = response.is_rotation
+      ? `Cloudflare token rotated successfully.${syncInfo}`
+      : `Cloudflare account connected successfully.${syncInfo}`;
+
+    setFormState(form, 'success', successMsg);
+    setNextPageNotice('success', successMsg);
 
     // Redirect to integrations page to view the new integration
     setTimeout(() => {
       window.location.href = '/integrations.html';
     }, 2000);
   } catch (error: any) {
-    const errorMessage = error.message || error.error || 'Unknown error occurred';
+    // Handle 409 conflict (different CF account on free plan)
+    const errorBody = error.body || {};
+    if (error.status === 409 && errorBody.error === 'cf_account_conflict') {
+      const context = errorBody.context || {};
+      const existingId = context.existing_account_id || 'unknown';
+      const newId = context.new_account_id || accountId;
+
+      const confirmReplace = confirm(
+        `You already have a different Cloudflare account connected (${existingId}).\n\n` +
+        `Do you want to replace it with the new account (${newId})?\n\n` +
+        `This will remove the existing integration and create a new one.`
+      );
+
+      if (confirmReplace) {
+        // Retry with confirm_replace flag
+        try {
+          const response = await initCloudflare({
+            cf_account_id: accountId,
+            bootstrap_token: bootstrapToken,
+            confirm_replace: true,
+          });
+
+          const syncInfo = response.sync
+            ? ` Synced ${response.sync.zones} zones and ${response.sync.domains} domains.`
+            : '';
+          const successMsg = `Cloudflare account replaced successfully.${syncInfo}`;
+
+          setFormState(form, 'success', successMsg);
+          setNextPageNotice('success', successMsg);
+
+          setTimeout(() => {
+            window.location.href = '/integrations.html';
+          }, 2000);
+        } catch (retryError: any) {
+          const retryErrorBody = retryError.body || {};
+          const errorMessage = retryError.message || retryErrorBody.error || 'Failed to replace account';
+          setFormState(form, 'error', errorMessage);
+          showGlobalMessage('error', `Failed to replace Cloudflare account: ${errorMessage}`);
+        }
+      } else {
+        setFormState(form, 'error', 'Account replacement cancelled');
+      }
+      return;
+    }
+
+    // Handle other errors
+    const errorMessage = error.message || errorBody.error || 'Unknown error occurred';
     setFormState(form, 'error', errorMessage);
     showGlobalMessage('error', `Failed to connect Cloudflare: ${errorMessage}`);
   }

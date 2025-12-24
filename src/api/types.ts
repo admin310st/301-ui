@@ -150,6 +150,7 @@ export interface InitCloudflareRequest {
   cf_account_id: string;
   bootstrap_token: string;
   key_alias?: string;
+  confirm_replace?: boolean;
 }
 
 export interface InitNamecheapRequest {
@@ -166,6 +167,11 @@ export interface UpdateKeyRequest {
 export interface InitIntegrationResponse {
   ok: true;
   key_id: number;
+  is_rotation: boolean;
+  sync?: {
+    zones: number;
+    domains: number;
+  };
 }
 
 export interface GetKeysResponse {
