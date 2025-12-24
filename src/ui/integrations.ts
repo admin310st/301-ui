@@ -107,7 +107,7 @@ function renderIntegrationRow(integration: VirtualIntegration): string {
           <button class="btn-icon btn-icon--neutral dropdown__trigger" type="button" aria-label="Actions">
             <span class="icon" data-icon="mono/dots-vertical"></span>
           </button>
-          <div class="dropdown__menu dropdown__menu--right" hidden>
+          <div class="dropdown__menu dropdown__menu--right" role="menu">
             <button class="dropdown__item" type="button" data-action="sync-integration" data-integration-id="${integration.accountId}">
               <span class="icon" data-icon="mono/refresh"></span>
               <span>Sync zones</span>
