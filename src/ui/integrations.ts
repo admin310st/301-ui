@@ -6,6 +6,7 @@ import { initTooltips } from './tooltip';
 import { initDropdowns } from './dropdown';
 import { initAddDomainsDrawer } from '@domains/add-domains-drawer';
 import { initTabs } from './tabs';
+import { initCfConnectForms } from '@forms/cf-connect';
 
 /**
  * Virtual integration derived from zones
@@ -335,6 +336,9 @@ export function initIntegrationsPage(): void {
 
   // Initialize add domains drawer
   initAddDomainsDrawer();
+
+  // Initialize CF connect forms
+  initCfConnectForms();
 
   // Load integrations
   loadIntegrations();

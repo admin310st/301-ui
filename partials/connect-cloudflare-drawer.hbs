@@ -52,42 +52,38 @@
                 <div class="stack-list">
                   <div class="alert alert--info">
                     <div class="alert__content">
-                      <p><strong>Choose your connection method:</strong></p>
-                      <ul style="margin-top: var(--space-2); padding-left: var(--space-4);">
-                        <li><strong>Scoped Token</strong> (Recommended) - Secure, granular permissions</li>
-                        <li><strong>Quick Setup</strong> - Fast, but uses Global API Key temporarily</li>
+                      <p><strong>Choose your method:</strong></p>
+                      <ul style="margin-top: var(--space-1); padding-left: var(--space-4); margin-bottom: 0;">
+                        <li><strong>Scoped Token</strong> (Recommended) — Secure, minimal permissions</li>
+                        <li><strong>Quick Setup</strong> — Fast but uses Global API Key temporarily</li>
                       </ul>
                     </div>
                   </div>
 
                   <div class="card card--panel">
                     <header class="card__header">
-                      <h3 class="h5">How to get Scoped Token credentials</h3>
+                      <h3 class="h5">Creating Bootstrap Token</h3>
                     </header>
                     <div class="card__body">
-                      <ol class="stack-sm" style="padding-left: var(--space-4);">
-                        <li>Go to <a href="https://dash.cloudflare.com" target="_blank" rel="noopener">Cloudflare Dashboard</a></li>
-                        <li>Navigate to <strong>My Profile → API Tokens</strong></li>
-                        <li>Click <strong>Create Token</strong></li>
-                        <li>Use template <strong>"Edit Cloudflare Workers"</strong> or create custom with:
-                          <ul style="margin-top: var(--space-1); padding-left: var(--space-3);">
-                            <li>Account Settings: <strong>Edit</strong></li>
-                            <li>API Tokens: <strong>Edit</strong></li>
+                      <ol style="padding-left: var(--space-4); margin: 0;">
+                        <li style="margin-bottom: var(--space-2);">Go to <a href="https://dash.cloudflare.com" target="_blank" rel="noopener">Cloudflare Dashboard</a> → <strong>Manage account → Account API tokens</strong></li>
+                        <li style="margin-bottom: var(--space-2);">Click <strong>Get started</strong> (Create Custom Token)</li>
+                        <li style="margin-bottom: var(--space-2);">Set <strong>Token name:</strong> <code>301.st Bootstrap</code></li>
+                        <li style="margin-bottom: var(--space-2);"><strong>Permissions:</strong> Add two rows:
+                          <ul style="margin-top: var(--space-1); padding-left: var(--space-3); margin-bottom: 0;">
+                            <li><code>Account</code> → <code>Account Settings</code> → <strong>Edit</strong></li>
+                            <li><code>Account</code> → <code>API Tokens</code> → <strong>Edit</strong></li>
                           </ul>
                         </li>
-                        <li>Name it <code>301st Bootstrap</code></li>
-                        <li>Copy the <strong>Account ID</strong> from Overview page</li>
-                        <li>Copy the generated <strong>API Token</strong></li>
+                        <li style="margin-bottom: var(--space-2);">Click <strong>Continue to summary</strong> → <strong>Create Token</strong></li>
+                        <li>Copy the entire <strong>Test this token</strong> curl command or just the token</li>
                       </ol>
                     </div>
                   </div>
 
-                  <div class="card card--panel">
-                    <header class="card__header">
-                      <h3 class="h5">Quick tip</h3>
-                    </header>
-                    <div class="card__body">
-                      <p>You can paste the entire <code>curl</code> test command from Cloudflare into the <strong>Bootstrap API token</strong> field, and we'll extract both Account ID and token automatically.</p>
+                  <div class="alert alert--success">
+                    <div class="alert__content">
+                      <p style="margin: 0;"><strong>💡 Pro tip:</strong> Paste the entire <code>curl</code> command from Cloudflare into the <strong>Bootstrap API token</strong> field. We'll auto-extract both Account ID and token.</p>
                     </div>
                   </div>
                 </div>
@@ -124,9 +120,9 @@
                     </p>
                   </div>
 
-                  <div class="alert alert--info">
+                  <div class="alert alert--success">
                     <div class="alert__content">
-                      <p><strong>Quick tip:</strong> Paste the entire <code>curl</code> test command from Cloudflare into the <strong>Bootstrap API token</strong> field above, and we'll extract both Account ID and token automatically.</p>
+                      <p style="margin: 0;"><strong>💡 Pro tip:</strong> Paste the entire <code>curl</code> command from <strong>Test this token</strong> section, and we'll auto-extract both fields.</p>
                     </div>
                   </div>
 
