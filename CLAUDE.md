@@ -266,19 +266,20 @@ src/
 
 ## UI Style Guide - Critical Rules
 
-**The UI Style Guide (`docs/StyleGuide.md`) is the single source of truth for all design decisions.**
-
-Note: `static/ui-style-guide.html` exists as a legacy demo page with exotic layout examples, but is **not maintained** and should not be used as a reference.
+**The UI Style Guide has two interconnected sources of truth:**
+1. **`docs/StyleGuide.md`** - Complete design system specification (tokens, rules, component anatomy)
+2. **`static/ui-style-guide.html`** - Visual demo page with live component examples (accessible at `/ui-style-guide`)
 
 ### Repository Ecology Rule
-> Whenever design system updates are introduced, ALL UI components must be refactored to follow the new rules. No page in the system is allowed to use outdated paddings, heights, or markup. `docs/StyleGuide.md` = single source of truth.
+> Whenever design system updates are introduced, ALL UI components and ALL demo pages must be refactored to follow the new rules. No page in the system is allowed to use outdated paddings, heights, or markup. StyleGuide.md + demo page = single source of truth.
 
 ### Component Development Process
 1. Any new UI state/variant must FIRST be described in `docs/StyleGuide.md`
-2. Implement in CSS (`static/css/site.css`)
-3. Use the pattern in real pages
-4. **Never** create alternative versions of existing components with different markup
-5. All changes to UI require updating: (a) styles, (b) documentation
+2. Add visual example to `static/ui-style-guide.html` demo page
+3. Implement in CSS (`static/css/site.css` or component-specific files)
+4. Only after documentation + demo, use the pattern in real pages
+5. **Never** create alternative versions of existing components with different markup
+6. All changes to UI require updating: (a) styles, (b) StyleGuide.md, (c) demo page
 
 ### Design System Constraints
 - **No Tailwind** - Use vanilla CSS with custom properties (CSS variables)
@@ -288,11 +289,18 @@ Note: `static/ui-style-guide.html` exists as a legacy demo page with exotic layo
 - **Icon sizing** - Icons inside controls use `1.25em` sizing with `currentColor` for theme compatibility
 - **Orange buttons** - Reserved ONLY for Cloudflare-specific actions (`.btn--cf`)
 - **Primary buttons** - Blue (`.btn--primary`) for all other actions
+- **Border radius rules**:
+  - Buttons/chips/toggles → `--r-pill` (999px)
+  - Inputs/textareas → `--r-field` (0.75rem)
+  - Cards/panels → `--radius-lg` (0.75rem)
+  - Dropdowns/menus → `--radius` (0.5rem)
+- **Spacing tokens** - Use semantic tokens (`--space-1` through `--space-6`, `--inline-gap`, `--stack-gap`, `--block-gap`, `--section-gap`) instead of hardcoded rem/px values
 
 ### Component Naming Convention
-- Use BEM modifiers: `.btn.btn--primary`, `.btn.btn--ghost`, `.btn.btn--danger`
+- Use BEM modifiers: `.btn.btn--primary`, `.btn.btn--ghost`, `.btn.btn--danger`, `.btn.btn--cf`
 - Legacy class names (`.btn-ghost`, `.btn-danger`) are deprecated
 - Size modifiers: `.btn--sm`, `.btn--md` (default), `.btn--lg`
+- Chip modifiers: `.btn-chip`, `.btn-chip--dropdown`, `.btn-chip--cf`, `.btn-chip--status`, `.btn-chip--primary`, `.btn-chip--sm`
 
 ### Never Commit Build Artifacts
 - `/dist`, `/public`, `/build/` are local/CI-only
@@ -319,7 +327,10 @@ This repository includes a specialized UI code review agent to enforce design sy
 
 **What it checks:**
 - **Unified control recipe** - Ensures buttons, chips, search bars, and tabs use consistent sizing (no fixed heights)
-- **Pill vs Field** - Validates border-radius usage (`.btn` uses `--r-pill`, `.input` uses `--r-field`)
+- **Border-radius tokens** - Validates correct usage:
+  - `.btn`, `.btn-chip` → `--r-pill` (999px)
+  - `.input`, `.textarea` → `--r-field` (0.75rem)
+  - `.card.card--panel` → `--radius-lg` (0.75rem)
 - **Table Search Bar** - Enforces single canonical markup without `type="search"` or `min-width` overrides
 - **Component naming** - Catches legacy class names (`.btn-ghost` → `.btn.btn--ghost`)
 - **Layout rhythm** - Verifies spacing uses tokens (`--inline-gap`, `--stack-gap`) instead of hardcoded rem/px
