@@ -120,6 +120,7 @@ To eliminate code duplication across pages, the project uses a custom Vite plugi
 - `partials/header-utility.hbs` - Help button, notifications, user menu, logout button
 - `partials/footer.hbs` - Footer with brand and links
 - `partials/sidebar.hbs` - Sidebar navigation with dynamic `is-active` state
+- `partials/add-domains-drawer.hbs` - Drawer for adding domains with smart domain parser
 
 **Implementation:**
 The custom Vite plugin (`vite.config.ts`) uses regex-based string replacement during the `transformIndexHtml` hook. It supports:
