@@ -55,13 +55,13 @@ Cloudflare Workers serves `public/` as the origin root.
 
 **Логическая структура**
 
-- `index.html`, `dashboard.html`, `wizard.html`, `integrations.html` — HTML-страницы с использованием partials.
+- `index.html`, `dashboard.html`, `integrations.html`, `domains.html` — HTML-страницы с использованием partials.
 - `partials/` — переиспользуемые компоненты (header-top, header-utility, footer, sidebar).
 - `src/api` — типизированный клиент для `/auth` и `/integrations` эндпоинтов:
   - `auth.ts` — login, register, reset, verify, me, refresh
   - `integrations.ts` — CRUD для integration keys (Cloudflare, Namecheap)
   - `types.ts` — TypeScript типы для всех API контрактов
-- `src/forms` — инициализация и обработчики форм (логин/регистрация/ресет/верификация/cloudflare-wizard).
+- `src/forms` — инициализация и обработчики форм (логин/регистрация/ресет/верификация/cf-connect для drawer'ов).
 - `src/state` — хранение токена, вызовы `/auth/me` и `/auth/refresh`, обновление UI.
 - `src/ui` — хелперы для работы с DOM:
   - отображение ошибок/уведомлений
@@ -209,11 +209,12 @@ Cloudflare Workers serves `public/` as the origin root.
 ### Реализовано
 
 - **Cloudflare Bootstrap Flow**
-  - Wizard страница (`/wizard.html`) для подключения CF-аккаунта
+  - Connect Cloudflare drawer (`partials/connect-cloudflare-drawer.hbs`) на странице интеграций
+  - Три метода подключения: Instructions, Scoped Token, Quick Setup
   - Bootstrap token → Working token flow через `/integrations/cloudflare/init`
-  - Автоматический редирект на `/integrations.html` после успешного подключения
+  - Автоматическое закрытие drawer и обновление таблицы после успешного подключения
   - Код:
-    - `src/forms/cf-wizard.ts`
+    - `src/forms/cf-connect.ts`
     - `src/api/integrations.ts → initCloudflare()`
     - `src/api/types.ts → InitCloudflareRequest/Response`
 
@@ -368,9 +369,11 @@ Cloudflare Workers serves `public/` as the origin root.
 301-ui/
 ├── index.html            # Главная страница (auth forms)
 ├── dashboard.html        # Дашборд (с сайдбаром)
-├── wizard.html           # Cloudflare Setup Wizard
-├── integrations.html     # Integrations Management
+├── integrations.html     # Integrations Management (with Connect CF drawer)
+├── domains.html          # Domains Management
 ├── partials/             # Переиспользуемые компоненты
+│   ├── connect-cloudflare-drawer.hbs  # CF setup drawer (3 methods)
+│   ├── global-notice.hbs # Global notification banner
 │   ├── header-top.hbs    # Лого, навигация, язык, тема
 │   ├── header-utility.hbs# Помощь, уведомления, user menu
 │   ├── footer.hbs        # Футер с брендом
@@ -387,7 +390,7 @@ Cloudflare Workers serves `public/` as the origin root.
 │   │   ├── register.ts
 │   │   ├── reset-*.ts
 │   │   ├── verify.ts
-│   │   └── cf-wizard.ts  # Cloudflare bootstrap form
+│   │   └── cf-connect.ts # Cloudflare drawer forms (scoped/quick)
 │   ├── social/           # OAuth (Google, GitHub)
 │   ├── state/            # Состояние аутентификации
 │   ├── ui/               # DOM-утилиты, нотификации, видимость блоков
@@ -471,7 +474,8 @@ For non-Russian readers:
 > - Omni-token verification and OAuth starts
 > - Integrations management (Cloudflare accounts, domain registrars)
 > - Full CRUD for integration keys
-> - Cloudflare bootstrap wizard
+> - Cloudflare bootstrap flow via drawer (3 methods: instructions, scoped token, quick setup)
+> - Domains management UI with filters, bulk actions, inspector drawer
 > - UI style guide for consistent design across future features
 >
 > **Documentation:**

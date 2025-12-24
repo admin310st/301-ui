@@ -8,8 +8,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - Authentication pages (login, registration, password reset)
 - Integration with backend API at `https://api.301.st/auth`
-- Cloudflare account connection wizard
-- Foundation for future user cabinet, domain management, and TDS/streams functionality
+- Cloudflare account connection via drawer (Instructions, Scoped Token, Quick Setup)
+- Domains management UI with filters, bulk actions, inspector drawer
+- Foundation for user cabinet and TDS/streams functionality
 
 **Stack:** TypeScript + Vite + Vanilla DOM-JS (no frameworks) + Cloudflare Workers + Cloudflare Turnstile + HTML Partials System
 
@@ -142,7 +143,7 @@ The custom Vite plugin (`vite.config.ts`) uses regex-based string replacement du
 - No external dependencies (custom plugin, ~40 lines of code)
 
 **When creating new pages:**
-Always use partials for header/footer/sidebar. Page-specific content (breadcrumbs, badges) stays inline. See existing pages (index.html, dashboard.html, wizard.html) for examples.
+Always use partials for header/footer/sidebar. Page-specific content (breadcrumbs, badges) stays inline. See existing pages (index.html, dashboard.html, integrations.html, domains.html) for examples.
 
 ## Architecture
 
@@ -170,7 +171,7 @@ src/
 │   ├── reset-verify.ts
 │   ├── reset-confirm.ts
 │   ├── verify.ts     # Email/omni-token verification
-│   └── cf-wizard.ts  # Cloudflare account connection wizard
+│   └── cf-connect.ts # Cloudflare drawer forms (scoped/quick)
 ├── social/           # OAuth integrations (@social/*)
 │   ├── google.ts
 │   └── github.ts
@@ -449,7 +450,6 @@ common.*           // Общие элементы (pleaseWait, etc)
 layout.nav.*       // Навигация (home, integrations, projects, etc)
 layout.footer.*    // Футер (about, docs, privacy, etc)
 auth.*             // Аутентификация (login, register, reset)
-cf.wizard.*        // Cloudflare wizard
 notice.*           // Уведомления
 
 // Dashboard sections (полная структура для каждого раздела)
