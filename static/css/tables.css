@@ -1117,6 +1117,7 @@ html[data-theme="light"] .bulk-actions-bar__actions .btn--ghost:hover {
 }
 
 .empty-state .btn-group {
+  margin-top: var(--space-4);
   justify-content: center;
 }
 
