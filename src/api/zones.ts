@@ -53,12 +53,13 @@ export async function getZones(): Promise<CloudflareZone[]> {
 
 /**
  * Manually sync zones from Cloudflare to D1
- * @param accountKeyId - ID of the Cloudflare account key
+ * @param accountKeyId - Optional ID of the Cloudflare account key (backend may determine from JWT)
  */
-export async function syncZones(accountKeyId: number): Promise<SyncZonesResponse> {
+export async function syncZones(accountKeyId?: number): Promise<SyncZonesResponse> {
+  const body = accountKeyId ? { account_key_id: accountKeyId } : {};
   const response = await apiFetch<SyncZonesResponse>('/zones/sync', {
     method: 'POST',
-    body: JSON.stringify({ account_key_id: accountKeyId }),
+    body: JSON.stringify(body),
   });
   return response;
 }

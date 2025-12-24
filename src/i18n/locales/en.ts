@@ -335,8 +335,8 @@ export const en = {
     loading: 'Loading integrations...',
     connectCloudflare: 'Connect Cloudflare',
     empty: {
-      title: 'No integrations yet',
-      description: 'Connect your first Cloudflare account or domain registrar to get started.',
+      title: 'No zones found',
+      description: 'Try syncing zones from Cloudflare or add domains in the Domains section.',
       cta: 'Connect integration',
     },
     actions: {
