@@ -198,6 +198,27 @@ function setupActionButtons(redirect: DomainRedirect): void {
     };
     openBtn.removeEventListener('click', openHandler);
     openBtn.addEventListener('click', openHandler);
+
+    // Color icon based on redirect state
+    const icon = openBtn.querySelector('.icon');
+    if (icon) {
+      const hasRedirect = redirect.target_url && redirect.target_url.trim() !== '';
+      const enabled = redirect.enabled ?? true;
+
+      if (hasRedirect && enabled) {
+        // Active redirect - use success color
+        (icon as HTMLElement).style.color = 'var(--ok)';
+        openBtn.setAttribute('title', 'Test redirect');
+      } else if (hasRedirect && !enabled) {
+        // Disabled redirect - use muted color
+        (icon as HTMLElement).style.color = 'var(--text-muted)';
+        openBtn.setAttribute('title', 'Open domain (redirect disabled)');
+      } else {
+        // No redirect configured - use muted color
+        (icon as HTMLElement).style.color = 'var(--text-muted)';
+        openBtn.setAttribute('title', 'Open domain');
+      }
+    }
   }
 
   // Sync button
@@ -365,12 +386,7 @@ function renderDrawerContent(redirect: DomainRedirect): void {
               <div class="detail-row">
                 <dt class="detail-label">Target</dt>
                 <dd class="detail-value">
-                  <div class="stack-inline stack-inline--xs" style="align-items: center;">
-                    <span class="detail-value--mono">${redirect.target_url}</span>
-                    <a href="https://${redirect.domain}" target="_blank" rel="noopener noreferrer" title="Test redirect" style="color: var(--primary); display: inline-flex;">
-                      <span class="icon" data-icon="mono/open-in-new"></span>
-                    </a>
-                  </div>
+                  <span class="detail-value--mono">${redirect.target_url}</span>
                 </dd>
               </div>
             ` : !isAcceptor ? `
