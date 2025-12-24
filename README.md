@@ -4,7 +4,7 @@
 
 - страницы аутентификации (логин, регистрация, восстановление пароля);
 - управление интеграциями (Cloudflare accounts, domain registrars);
-- единый **UI Style Guide** (`/ui-style-guide`), где описаны токены, компоненты и паттерны интерфейса;
+- единый **UI Style Guide** (`docs/StyleGuide.md`), где описаны токены, компоненты и паттерны интерфейса;
 - интеграцию с backend-API (см. `docs/301-wiki/` — локальная документация в виде git submodule);
 - развёртывание всего этого как **Cloudflare Worker** под `app.301.st`.
 
@@ -55,7 +55,7 @@ Cloudflare Workers serves `public/` as the origin root.
 
 **Логическая структура**
 
-- `index.html`, `dashboard.html`, `wizard.html`, `integrations.html`, `ui-style-guide.html` — HTML-страницы с использованием partials.
+- `index.html`, `dashboard.html`, `wizard.html`, `integrations.html` — HTML-страницы с использованием partials.
 - `partials/` — переиспользуемые компоненты (header-top, header-utility, footer, sidebar).
 - `src/api` — типизированный клиент для `/auth` и `/integrations` эндпоинтов:
   - `auth.ts` — login, register, reset, verify, me, refresh
@@ -95,12 +95,11 @@ Cloudflare Workers serves `public/` as the origin root.
 
 ## UI Style Guide (Layer 0)
 
-Файл `docs/StyleGuide.md` и страница `/ui-style-guide` на `app.301.st` — это:
+Файл `docs/StyleGuide.md` — это единый источник правды по:
 
-- единый источник правды по:
-  - цветовым токенам (`--bg`, `--panel`, `--brand`, `--muted`, `--shadow-*` и т.д.),
-  - компонентам (`btn`, `btn-chip`, `Table Search Bar`, таблицы доменов, dropdown-меню),
-  - иконам (набор `mono/*` и `brand/*` с `currentColor`);
+- цветовым токенам (`--bg`, `--panel`, `--brand`, `--muted`, `--shadow-*` и т.д.),
+- компонентам (`btn`, `btn-chip`, `Table Search Bar`, таблицы доменов, dropdown-меню),
+- иконам (набор `mono/*` и `brand/*` с `currentColor`);
 - основа, которой должны придерживаться и разработчики, и Codex при создании новых экранов:
   - экраны кабинета,
   - управление доменами,
@@ -109,13 +108,13 @@ Cloudflare Workers serves `public/` as the origin root.
 **Важно:**
 При добавлении новых компонентов/поправок сначала обновляется Style Guide, затем этот паттерн переиспользуется в боевых страницах (а не наоборот).
 
-- Компоненты в `/ui-style-guide.html` считаются эталоном.
-- Если на демо-страницах используются те же компоненты (например, Table Search Bar в таблицах), верстка должна копироваться из эталонного блока 1:1.
+- Компоненты в `docs/StyleGuide.md` являются эталоном.
+- Если на разных страницах используются те же компоненты (например, Table Search Bar в таблицах), верстка должна копироваться из описания в StyleGuide 1:1.
 - Нельзя создавать вторые версии одного и того же компонента с отличающейся разметкой.
 
 ### UI process
 
-1. Любое новое состояние/вариант компонента сначала описывается в `docs/StyleGuide.md` + добавляется пример на `/ui-style-guide`.
+1. Любое новое состояние/вариант компонента сначала описывается в `docs/StyleGuide.md`.
 2. Только после этого паттерн используется на боевых страницах.
 3. Codex не должен изобретать новые размеры, цвета или отступы вне существующих токенов и компонентов.
 
@@ -123,19 +122,18 @@ Cloudflare Workers serves `public/` as the origin root.
 
 > Все компоненты должны повторять структуры, описанные в `docs/StyleGuide.md`.
 >
-> Демки (`/ui-style-guide.html`, `/icons-preview.html`) являются эталонным отображением и должны всегда совпадать с документацией.
+> Демо-страница `/icons-preview.html` является эталонным отображением иконок и должна всегда совпадать с исходниками в `static/img/icons-src/`.
 >
 > Все изменения в UI требуют:
 >
 > 1. обновления стилей
-> 2. обновления демки
-> 3. обновления документации
+> 2. обновления документации `docs/StyleGuide.md`
 
 > **Repository Ecology Rule**
-> Whenever design system updates are introduced, all UI components and all demo pages must be refactored to follow the new rules.
+> Whenever design system updates are introduced, all UI components must be refactored to follow the new rules.
 > No page in the system is allowed to use outdated paddings, heights, or markup.
-> StyleGuide + demo pages = single source of truth.
-> Codex must always update demos when changing components and attach dark/light + mobile screenshots for the affected demos.
+> StyleGuide.md = single source of truth.
+> Codex must attach dark/light + mobile screenshots when documenting new components.
 
 ### Repository hygiene
 
@@ -372,7 +370,6 @@ Cloudflare Workers serves `public/` as the origin root.
 ├── dashboard.html        # Дашборд (с сайдбаром)
 ├── wizard.html           # Cloudflare Setup Wizard
 ├── integrations.html     # Integrations Management
-├── ui-style-guide.html   # UI Style Guide (демо компонентов)
 ├── partials/             # Переиспользуемые компоненты
 │   ├── header-top.hbs    # Лого, навигация, язык, тема
 │   ├── header-utility.hbs# Помощь, уведомления, user menu

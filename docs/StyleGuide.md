@@ -1861,5 +1861,5 @@ When creating a new table, always:
 This ensures:
 - Consistent visual language across all pages
 - No legacy patterns lingering in codebase
-- Demo pages (`/ui-style-guide`) accurately represent production code
+- StyleGuide documentation accurately represents production code
 - Design tokens are enforced systematically
