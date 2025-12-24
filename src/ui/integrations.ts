@@ -1,6 +1,8 @@
 import { t } from '@i18n';
 import { getZones, syncZones } from '@api/zones';
 import type { CloudflareZone } from '@api/zones';
+import { getIntegrationKeys } from '@api/integrations';
+import type { IntegrationKey } from '@api/types';
 import { showGlobalMessage } from './notifications';
 import { initTooltips } from './tooltip';
 import { initDropdowns } from './dropdown';
@@ -9,12 +11,13 @@ import { initTabs } from './tabs';
 import { initCfConnectForms } from '@forms/cf-connect';
 
 /**
- * Virtual integration derived from zones
+ * Virtual integration derived from zones and integration keys
  */
 interface VirtualIntegration {
   provider: string;
   alias: string;
-  accountId: string;
+  keyId: number;           // Real account_key_id from /integrations/keys
+  accountId: string;       // CF account ID for display
   rootDomain: string;
   domainCount: number;
   status: string;
@@ -84,7 +87,7 @@ function renderIntegrationRow(integration: VirtualIntegration): string {
   const integrationType = integration.provider === 'cloudflare' ? 'CDN' : integration.provider;
 
   return `
-    <tr data-integration-id="${integration.accountId}">
+    <tr data-integration-id="${integration.keyId}">
       <td class="provider-cell">
         <span class="icon" data-icon="${providerInfo.icon}"></span>
         <span class="provider-label">${providerInfo.name}</span>
@@ -110,11 +113,11 @@ function renderIntegrationRow(integration: VirtualIntegration): string {
             <span class="icon" data-icon="mono/dots-vertical"></span>
           </button>
           <div class="dropdown__menu dropdown__menu--right" role="menu">
-            <button class="dropdown__item" type="button" data-action="sync-integration" data-integration-id="${integration.accountId}">
+            <button class="dropdown__item" type="button" data-action="sync-integration" data-key-id="${integration.keyId}">
               <span class="icon" data-icon="mono/refresh"></span>
               <span>Sync zones</span>
             </button>
-            <button class="dropdown__item dropdown__item--danger" type="button" data-action="delete-integration" data-integration-id="${integration.accountId}">
+            <button class="dropdown__item dropdown__item--danger" type="button" data-action="delete-integration" data-key-id="${integration.keyId}">
               <span class="icon" data-icon="mono/delete"></span>
               <span>Delete</span>
             </button>
@@ -126,9 +129,12 @@ function renderIntegrationRow(integration: VirtualIntegration): string {
 }
 
 /**
- * Create virtual integration from zones
+ * Create virtual integration from zones and integration key
  */
-function createCloudflareIntegration(zones: CloudflareZone[]): VirtualIntegration | null {
+function createCloudflareIntegration(
+  zones: CloudflareZone[],
+  integrationKey: IntegrationKey
+): VirtualIntegration | null {
   if (zones.length === 0) return null;
 
   const firstZone = zones[0];
@@ -136,12 +142,13 @@ function createCloudflareIntegration(zones: CloudflareZone[]): VirtualIntegratio
 
   return {
     provider: 'cloudflare',
-    alias: 'Cloudflare Account',
-    accountId: firstZone.cf_zone_id,
+    alias: integrationKey.key_alias || 'Cloudflare Account',
+    keyId: integrationKey.id,
+    accountId: integrationKey.external_account_id || firstZone.cf_zone_id,
     rootDomain: firstZone.root_domain,
     domainCount: zones.length,
-    status: activeZones.length > 0 ? 'active' : 'pending',
-    connectedAt: firstZone.created_at,
+    status: integrationKey.status,
+    connectedAt: integrationKey.created_at,
   };
 }
 
@@ -191,7 +198,7 @@ function showTableState(): void {
 }
 
 /**
- * Load and render integrations from zones
+ * Load and render integrations from zones and integration keys
  */
 export async function loadIntegrations(): Promise<void> {
   const tbody = document.querySelector<HTMLElement>('[data-integrations-tbody]');
@@ -200,15 +207,22 @@ export async function loadIntegrations(): Promise<void> {
   showLoadingState();
 
   try {
-    const zones = await getZones();
+    // Fetch both zones and integration keys
+    const [zones, integrationKeys] = await Promise.all([
+      getZones(),
+      getIntegrationKeys('cloudflare'),
+    ]);
 
-    if (zones.length === 0) {
+    if (zones.length === 0 || integrationKeys.length === 0) {
       showEmptyState();
       return;
     }
 
-    // Create virtual integration from zones
-    const cfIntegration = createCloudflareIntegration(zones);
+    // Use first Cloudflare integration key
+    const cfKey = integrationKeys[0];
+
+    // Create virtual integration from zones and key
+    const cfIntegration = createCloudflareIntegration(zones, cfKey);
 
     if (!cfIntegration) {
       showEmptyState();
@@ -270,12 +284,12 @@ async function handleSyncZones(): Promise<void> {
  */
 async function handleSyncIntegration(event: Event): Promise<void> {
   const button = event.currentTarget as HTMLButtonElement;
-  const integrationId = button.dataset.integrationId;
+  const keyId = button.dataset.keyId;
 
-  if (!integrationId) return;
+  if (!keyId) return;
 
   try {
-    const result = await syncZones();
+    const result = await syncZones(parseInt(keyId, 10));
     showGlobalMessage('success', `Synced ${result.zones_synced} zones and ${result.domains_synced} domains`);
 
     // Reload integrations to update domain count
