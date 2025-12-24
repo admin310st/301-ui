@@ -86,17 +86,12 @@
                       <strong>Pro tip:</strong> Paste the entire <code>curl</code> command from Cloudflare into the <strong>Bootstrap API token</strong> field. We'll auto-extract both Account ID and token.
                     </p>
                   </div>
-
-                  <button type="button" class="btn btn--primary" data-tab-trigger="scoped-token">
-                    <span class="icon" data-icon="mono/play"></span>
-                    <span>Start setup</span>
-                  </button>
                 </div>
               </div>
 
               <!-- Scoped Token Tab -->
               <div class="tabs__panel" data-tab-panel="scoped-token" role="tabpanel">
-                <form class="stack-list" data-form="cf-connect-scoped">
+                <form id="cf-connect-scoped" class="stack-list" data-form="cf-connect-scoped">
                   <div class="field">
                     <label class="field__label">Cloudflare Account ID</label>
                     <input
@@ -132,18 +127,13 @@
                     </p>
                   </div>
 
-                  <button type="submit" class="btn btn--cf">
-                    <span class="icon" data-icon="brand/cloudflare"></span>
-                    <span>Save &amp; verify token</span>
-                  </button>
-
                   <div class="panel" data-cf-status hidden role="status" aria-live="polite"></div>
                 </form>
               </div>
 
               <!-- Quick Setup Tab -->
               <div class="tabs__panel" data-tab-panel="quick-setup" role="tabpanel">
-                <form class="stack-list" data-form="cf-connect-quick">
+                <form id="cf-connect-quick" class="stack-list" data-form="cf-connect-quick">
                   <div class="panel panel--warn">
                     <p><strong>Warning:</strong> This method uses your Global API Key temporarily. We'll create a scoped token and immediately discard the Global API Key.</p>
                   </div>
@@ -177,11 +167,6 @@
                     </p>
                   </div>
 
-                  <button type="submit" class="btn btn--danger">
-                    <span class="icon" data-icon="mono/zap"></span>
-                    <span>Create scoped token</span>
-                  </button>
-
                   <div class="panel" data-cf-status hidden role="status" aria-live="polite"></div>
                 </form>
               </div>
@@ -191,6 +176,24 @@
 
         <footer class="drawer__footer">
           <button class="btn btn--ghost" type="button" data-drawer-close>Cancel</button>
+
+          <!-- Instructions tab action -->
+          <button type="button" class="btn btn--primary" data-tab-trigger="scoped-token" data-footer-action="instructions">
+            <span class="icon" data-icon="mono/play"></span>
+            <span>Start setup</span>
+          </button>
+
+          <!-- Scoped Token form action -->
+          <button type="submit" form="cf-connect-scoped" class="btn btn--cf" data-footer-action="scoped-token" hidden>
+            <span class="icon" data-icon="brand/cloudflare"></span>
+            <span>Save &amp; verify token</span>
+          </button>
+
+          <!-- Quick Setup form action -->
+          <button type="submit" form="cf-connect-quick" class="btn btn--danger" data-footer-action="quick-setup" hidden>
+            <span class="icon" data-icon="mono/zap"></span>
+            <span>Create scoped token</span>
+          </button>
         </footer>
       </div>
     </aside>

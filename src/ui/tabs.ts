@@ -33,6 +33,19 @@ export function initTabs(container: HTMLElement = document.body): void {
       if (panel) {
         panel.classList.add('is-active');
       }
+
+      // Update footer action buttons visibility
+      const drawer = tabsContainer.closest('[data-drawer]');
+      if (drawer) {
+        const footerActions = drawer.querySelectorAll<HTMLButtonElement>('[data-footer-action]');
+        footerActions.forEach((btn) => {
+          if (btn.dataset.footerAction === tabId) {
+            btn.removeAttribute('hidden');
+          } else {
+            btn.setAttribute('hidden', '');
+          }
+        });
+      }
     });
   });
 

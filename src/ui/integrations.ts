@@ -343,6 +343,20 @@ export function openConnectCloudflareDrawer(): void {
   // Initialize CF connect forms (includes curl parsing)
   initCfConnectForms();
 
+  // Set initial footer button visibility based on active tab
+  const activePanel = drawer.querySelector('.tabs__panel.is-active');
+  const activePanelId = activePanel?.getAttribute('data-tab-panel');
+  if (activePanelId) {
+    const footerActions = drawer.querySelectorAll<HTMLButtonElement>('[data-footer-action]');
+    footerActions.forEach((btn) => {
+      if (btn.dataset.footerAction === activePanelId) {
+        btn.removeAttribute('hidden');
+      } else {
+        btn.setAttribute('hidden', '');
+      }
+    });
+  }
+
   // Close drawer function
   const closeDrawer = () => {
     drawer.setAttribute('hidden', '');

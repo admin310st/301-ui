@@ -140,7 +140,7 @@ export function initCfScopedTokenForm(): void {
       return;
     }
 
-    const submitBtn = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+    const submitBtn = document.querySelector<HTMLButtonElement>('button[type="submit"][form="cf-connect-scoped"]');
     const drawer = document.querySelector<HTMLElement>('[data-drawer="connect-cloudflare"]');
 
     // Show loading state
