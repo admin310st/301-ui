@@ -266,20 +266,19 @@ src/
 
 ## UI Style Guide - Critical Rules
 
-**The UI Style Guide has two interconnected sources of truth:**
-1. **`docs/StyleGuide.md`** - Complete design system specification (tokens, rules, component anatomy)
-2. **`static/ui-style-guide.html`** - Visual demo page with live component examples (accessible at `/ui-style-guide`)
+**`docs/StyleGuide.md` is the ONLY source of truth for design system.**
+
+Note: `static/ui-style-guide.html` is LEGACY and should NOT be referenced or updated.
 
 ### Repository Ecology Rule
-> Whenever design system updates are introduced, ALL UI components and ALL demo pages must be refactored to follow the new rules. No page in the system is allowed to use outdated paddings, heights, or markup. StyleGuide.md + demo page = single source of truth.
+> Whenever design system updates are introduced, ALL UI components must be refactored to follow the new rules. No page in the system is allowed to use outdated paddings, heights, or markup. `docs/StyleGuide.md` = single source of truth.
 
 ### Component Development Process
 1. Any new UI state/variant must FIRST be described in `docs/StyleGuide.md`
-2. Add visual example to `static/ui-style-guide.html` demo page
-3. Implement in CSS (`static/css/site.css` or component-specific files)
-4. Only after documentation + demo, use the pattern in real pages
-5. **Never** create alternative versions of existing components with different markup
-6. All changes to UI require updating: (a) styles, (b) StyleGuide.md, (c) demo page
+2. Implement in CSS (`static/css/site.css` or component-specific files)
+3. Use the pattern in real pages
+4. **Never** create alternative versions of existing components with different markup
+5. All changes to UI require updating: (a) styles, (b) StyleGuide.md documentation
 
 ### Design System Constraints
 - **No Tailwind** - Use vanilla CSS with custom properties (CSS variables)
