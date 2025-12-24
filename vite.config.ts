@@ -1,6 +1,7 @@
 import { defineConfig, Plugin } from 'vite';
 import { resolve } from 'path';
 import { readFileSync } from 'fs';
+import { visualizer } from 'rollup-plugin-visualizer';
 
 // Custom plugin to handle partials
 function partialsPlugin(): Plugin {
@@ -47,7 +48,15 @@ export default defineConfig({
   publicDir: 'static',
   base: '/',
   appType: 'mpa',
-  plugins: [partialsPlugin()],
+  plugins: [
+    partialsPlugin(),
+    visualizer({
+      filename: 'build/bundle-stats.html',
+      open: false,
+      gzipSize: true,
+      brotliSize: true,
+    }),
+  ],
   build: {
     outDir: 'public',
     emptyOutDir: true,

@@ -301,6 +301,72 @@ interface Site {
 
 ---
 
+## ⚡ Performance & Optimization
+
+### Monitoring (NOW)
+
+**Bundle analyzer:**
+- ✅ Добавлен `rollup-plugin-visualizer`
+- ✅ Script: `npm run build:analyze`
+- ✅ Output: `build/bundle-stats.html` (не коммитится)
+
+**Когда запускать:**
+- После каждого добавления библиотеки
+- Перед выходом в production
+- При подозрении на "раздувание" бандла
+
+### Performance Patterns (документировано, применяется при API integration)
+
+**Event Delegation для таблиц:**
+```typescript
+// ❌ Плохо: N обработчиков на N строк
+rows.forEach(row => row.addEventListener('click', handler));
+
+// ✅ Хорошо: 1 обработчик на всю таблицу
+table.addEventListener('click', (e) => {
+  const row = e.target.closest('[data-domain-id]');
+  if (!row) return;
+  handleRowClick(row.dataset.domainId);
+});
+```
+
+**Когда применять:**
+- ✅ При подключении API для Domains (Layer 2 завершение)
+- ✅ При подключении API для Integrations
+- ✅ Для всех будущих таблиц (Redirects, Projects, Sites, Streams)
+
+**Эффект:**
+- Меньше памяти на event listeners
+- Быстрее рендер таблиц
+- Проще добавлять/удалять строки динамически
+
+### Optimization Roadmap
+
+**Layer 2 завершение (при API integration):**
+- Event delegation для `src/domains/domains.ts`
+- Event delegation для `src/ui/integrations.ts`
+
+**Layer 3-4 (Projects/Sites/Redirects):**
+- Code splitting с `manualChunks` (когда бандл >300KB)
+- Lazy loading для тяжёлых модальных окон
+
+**Layer 5-6 (TDS/Streams, масштабирование):**
+- Виртуализация таблиц (когда реальные данные >500 строк)
+- Web Workers для клиентской фильтрации (если тормозит)
+
+**Pre-production (Layer 7):**
+- Edge caching headers (Cloudflare Workers)
+- Preload/Prefetch для критичных ресурсов
+- Service Worker (если нужен offline режим)
+
+**Метрики для решений:**
+- Bundle >300KB → code splitting
+- Таблица >500 строк → virtualization
+- FCP >2s → lazy loading, code splitting
+- LCP >2.5s → image optimization, preload
+
+---
+
 ## 📚 Документация и конвенции
 
 ### Архитектура
