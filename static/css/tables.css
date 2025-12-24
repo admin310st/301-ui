@@ -1492,6 +1492,23 @@ html[data-theme="light"] .bulk-actions-bar__actions .btn--ghost:hover {
   background: var(--panel);
 }
 
+/* Drawer-specific component overrides */
+.drawer .empty-state {
+  min-height: 120px;
+}
+
+.drawer .domain-preview-list {
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+/* Compact textarea in drawer */
+.drawer .textarea {
+  resize: vertical;
+  min-height: calc(1.5em * 6 + var(--space-2) * 2);
+  max-height: 40vh;
+}
+
 /* Drawer responsive - mobile optimizations */
 @media (max-width: 768px) {
   .drawer__panel {
