@@ -45,6 +45,12 @@ The `docs/301-wiki/` directory contains the complete 301.st platform specificati
 - System architecture and integration patterns
 - Security requirements and access control
 
+**Git Submodule Setup:**
+The documentation is included as a git submodule from [301.wiki repository](https://github.com/admin310st/301.wiki.git).
+
+- **First-time setup** (after cloning 301-ui): `git submodule update --init --recursive`
+- **Update documentation** (pull latest changes from 301.wiki): `git submodule update --remote docs/301-wiki`
+
 ### Key Documentation Files
 
 | File | Purpose |
