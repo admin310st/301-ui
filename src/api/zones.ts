@@ -34,9 +34,31 @@ export interface GetZonesResponse {
 }
 
 /**
+ * Response from POST /zones/sync
+ */
+export interface SyncZonesResponse {
+  ok: boolean;
+  zones_synced: number;
+  domains_synced: number;
+  errors: any[];
+}
+
+/**
  * Get all Cloudflare zones for current user
  */
 export async function getZones(): Promise<CloudflareZone[]> {
   const response = await apiFetch<GetZonesResponse>('/zones');
   return response.zones;
+}
+
+/**
+ * Manually sync zones from Cloudflare to D1
+ * @param accountKeyId - ID of the Cloudflare account key
+ */
+export async function syncZones(accountKeyId: number): Promise<SyncZonesResponse> {
+  const response = await apiFetch<SyncZonesResponse>('/zones/sync', {
+    method: 'POST',
+    body: JSON.stringify({ account_key_id: accountKeyId }),
+  });
+  return response;
 }

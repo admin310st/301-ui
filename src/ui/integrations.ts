@@ -1,11 +1,13 @@
 import { t } from '@i18n';
+import { getIntegrationKeys } from '@api/integrations';
 import { getZones } from '@api/zones';
+import type { IntegrationKey } from '@api/types';
 import type { CloudflareZone } from '@api/zones';
 import { showGlobalMessage } from './notifications';
 import { initTooltips } from './tooltip';
 
 /**
- * Virtual integration derived from zones
+ * Virtual integration derived from keys + zones
  */
 interface VirtualIntegration {
   provider: string;
@@ -14,6 +16,7 @@ interface VirtualIntegration {
   domainCount: number;
   status: string;
   connectedAt: string;
+  keyId: number;
 }
 
 /**
@@ -74,11 +77,11 @@ function renderIntegrationRow(integration: VirtualIntegration): string {
     : '—';
 
   const tooltipContent = integration.provider === 'cloudflare'
-    ? `<div class="tooltip"><div class="tooltip__body">Account: ${integration.accountId}<br>Email: email@2do.com</div></div>`
+    ? `<div class="tooltip"><div class="tooltip__body">Account ID: ${integration.accountId}</div></div>`
     : '';
 
   return `
-    <tr>
+    <tr data-key-id="${integration.keyId}">
       <td class="provider-cell">
         <span class="icon" data-icon="${providerInfo.icon}"></span>
         <span class="provider-label">${providerInfo.name}</span>
@@ -106,22 +109,17 @@ function renderIntegrationRow(integration: VirtualIntegration): string {
 }
 
 /**
- * Create virtual integration from zones
+ * Create virtual integration from key + zones
  */
-function createCloudflareIntegration(zones: CloudflareZone[]): VirtualIntegration | null {
-  if (zones.length === 0) return null;
-
-  // Use first zone for account info
-  const firstZone = zones[0];
-  const activeZones = zones.filter(z => z.status === 'active');
-
+function createCloudflareIntegration(key: IntegrationKey, zones: CloudflareZone[]): VirtualIntegration {
   return {
-    provider: 'cloudflare',
-    alias: 'Cloudflare Account',
-    accountId: firstZone.cf_zone_id, // Using zone ID as account identifier
+    provider: key.provider,
+    alias: key.key_alias || 'Cloudflare Account',
+    accountId: key.external_account_id || '—',
     domainCount: zones.length,
-    status: activeZones.length > 0 ? 'active' : 'pending',
-    connectedAt: firstZone.created_at
+    status: key.status,
+    connectedAt: key.created_at,
+    keyId: key.id,
   };
 }
 
@@ -165,7 +163,7 @@ function showTableState(): void {
 }
 
 /**
- * Load and render integrations from zones
+ * Load and render integrations from keys + zones
  */
 async function loadIntegrations(): Promise<void> {
   const tbody = document.querySelector<HTMLElement>('[data-integrations-tbody]');
@@ -174,18 +172,25 @@ async function loadIntegrations(): Promise<void> {
   showLoadingState();
 
   try {
-    const zones = await getZones();
+    // Get integration keys (Cloudflare, Namecheap, etc.)
+    const keys = await getIntegrationKeys();
 
-    // Create virtual integration from zones
-    const cfIntegration = createCloudflareIntegration(zones);
+    // Filter only Cloudflare keys
+    const cfKeys = keys.filter(k => k.provider === 'cloudflare');
 
-    if (!cfIntegration) {
+    if (cfKeys.length === 0) {
       showEmptyState();
       return;
     }
 
-    // Render single Cloudflare integration
-    tbody.innerHTML = renderIntegrationRow(cfIntegration);
+    // Get zones for domain count (may be empty for new accounts)
+    const zones = await getZones();
+
+    // Create virtual integrations from keys + zones
+    const integrations = cfKeys.map(key => createCloudflareIntegration(key, zones));
+
+    // Render all integrations
+    tbody.innerHTML = integrations.map(renderIntegrationRow).join('');
 
     // Initialize tooltips for account IDs
     initTooltips();
