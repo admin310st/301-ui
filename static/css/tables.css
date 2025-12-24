@@ -1116,6 +1116,10 @@ html[data-theme="light"] .bulk-actions-bar__actions .btn--ghost:hover {
   color: var(--text-muted);
 }
 
+.empty-state .btn-group {
+  justify-content: center;
+}
+
 /* Loading State */
 .loading-state {
   display: flex;
