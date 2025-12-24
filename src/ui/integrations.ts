@@ -325,6 +325,27 @@ function openConnectCloudflareDrawer(): void {
   if (tabsContainer) {
     initTabs(drawer);
   }
+
+  // Close drawer function
+  const closeDrawer = () => {
+    drawer.setAttribute('hidden', '');
+  };
+
+  // Close on Escape key
+  const handleEscape = (e: KeyboardEvent) => {
+    if (e.key === 'Escape' && !drawer.hasAttribute('hidden')) {
+      closeDrawer();
+    }
+  };
+
+  // Remove old listener if exists, add new one
+  document.removeEventListener('keydown', handleEscape);
+  document.addEventListener('keydown', handleEscape);
+
+  // Close on overlay or close button click
+  drawer.querySelectorAll('[data-drawer-close]').forEach((el) => {
+    el.addEventListener('click', closeDrawer);
+  });
 }
 
 /**
