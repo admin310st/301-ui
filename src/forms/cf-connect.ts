@@ -158,8 +158,8 @@ export function initCfScopedTokenForm(): void {
     const statusEl = form.querySelector('[data-cf-status]');
     if (!statusEl) return;
 
-    statusEl.classList.remove('alert--danger', 'alert--success');
-    statusEl.classList.add(type === 'error' ? 'alert--danger' : 'alert--success');
+    statusEl.classList.remove('panel--danger', 'panel--success');
+    statusEl.classList.add(type === 'error' ? 'panel--danger' : 'panel--success');
     statusEl.textContent = message;
     statusEl.removeAttribute('hidden');
   }
@@ -187,8 +187,8 @@ export function initCfQuickSetupForm(): void {
     // Show success message
     const statusEl = form.querySelector('[data-cf-status]');
     if (statusEl) {
-      statusEl.classList.remove('alert--danger');
-      statusEl.classList.add('alert--success');
+      statusEl.classList.remove('panel--danger');
+      statusEl.classList.add('panel--success');
       statusEl.textContent = 'Scoped token created successfully! Global API Key has been discarded.';
       statusEl.removeAttribute('hidden');
     }
