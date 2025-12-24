@@ -682,6 +682,11 @@ h5 .icon[data-icon*="close"] {
   gap: var(--space-3);
 }
 
+/* Prevent buttons from stretching to full width in column stacks */
+.stack-list > .btn {
+  align-self: flex-start;
+}
+
 .stack-list--xs {
   gap: var(--space-1);
 }
