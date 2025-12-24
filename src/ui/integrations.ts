@@ -2,6 +2,7 @@ import { t } from '@i18n';
 import { getIntegrationKeys, deleteIntegrationKey } from '@api/integrations';
 import type { IntegrationKey } from '@api/types';
 import { showGlobalMessage } from './notifications';
+import { initTooltips } from './tooltip';
 
 /**
  * Format date to locale string
@@ -55,6 +56,18 @@ function renderKeyRow(key: IntegrationKey): string {
   const statusClass = getStatusClass(key.status);
   const statusLabel = t(`integrations.status.${key.status}` as any) || key.status;
 
+  // Account ID with tooltip (email placeholder for future)
+  const accountIdShort = key.external_account_id
+    ? key.external_account_id.substring(0, 8) + '...'
+    : '—';
+
+  const tooltipContent = key.provider === 'cloudflare'
+    ? `<div class="tooltip"><div class="tooltip__body">Account: ${key.external_account_id}<br>Email: email@2do.com</div></div>`
+    : '';
+
+  // Domain count (placeholder - will be fetched from API later)
+  const domainCount = '—'; // TODO: Fetch from GET /domains
+
   return `
     <tr data-key-id="${key.id}">
       <td class="provider-cell">
@@ -62,7 +75,16 @@ function renderKeyRow(key: IntegrationKey): string {
         <span class="provider-label">${providerInfo.name}</span>
       </td>
       <td>${key.key_alias || '—'}</td>
-      <td class="text-muted">${key.external_account_id || '—'}</td>
+      <td>
+        <span
+          data-tooltip
+          data-tooltip-content="${tooltipContent.replace(/"/g, '&quot;')}"
+          style="cursor: help;"
+        >
+          ${accountIdShort}
+        </span>
+      </td>
+      <td class="text-muted">${domainCount}</td>
       <td>
         <span class="badge ${statusClass}">${statusLabel}</span>
       </td>
@@ -179,6 +201,9 @@ async function loadIntegrations(): Promise<void> {
         await handleDelete(keyId);
       });
     });
+
+    // Initialize tooltips for account IDs
+    initTooltips();
 
     showTableState();
   } catch (error: any) {
