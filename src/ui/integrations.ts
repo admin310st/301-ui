@@ -11,6 +11,7 @@ interface VirtualIntegration {
   provider: string;
   alias: string;
   accountId: string;
+  rootDomain: string;
   domainCount: number;
   status: string;
   connectedAt: string;
@@ -73,8 +74,13 @@ function renderIntegrationRow(integration: VirtualIntegration): string {
     ? integration.accountId.substring(0, 8) + '...'
     : '—';
 
+  // Tooltip: "example.com + 3 more" or just "example.com"
+  const tooltipText = integration.domainCount > 1
+    ? `${integration.rootDomain} + ${integration.domainCount - 1} more`
+    : integration.rootDomain;
+
   const tooltipContent = integration.provider === 'cloudflare'
-    ? `<div class="tooltip"><div class="tooltip__body">Zone ID: ${integration.accountId}</div></div>`
+    ? `<div class="tooltip"><div class="tooltip__body">${tooltipText}</div></div>`
     : '';
 
   return `
@@ -118,6 +124,7 @@ function createCloudflareIntegration(zones: CloudflareZone[]): VirtualIntegratio
     provider: 'cloudflare',
     alias: 'Cloudflare Account',
     accountId: firstZone.cf_zone_id,
+    rootDomain: firstZone.root_domain,
     domainCount: zones.length,
     status: activeZones.length > 0 ? 'active' : 'pending',
     connectedAt: firstZone.created_at,
