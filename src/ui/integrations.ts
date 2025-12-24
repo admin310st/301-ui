@@ -76,7 +76,7 @@ function renderKeyRow(key: IntegrationKey): string {
           aria-label="Delete integration"
           title="Delete integration"
         >
-          <span class="icon" data-icon="mono/trash"></span>
+          <span class="icon" data-icon="mono/delete"></span>
         </button>
       </td>
     </tr>
