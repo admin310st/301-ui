@@ -70,25 +70,94 @@ export function initCfScopedTokenForm(): void {
   // Form submit handler
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
+    console.log('[cf-connect] Scoped Token form submitted');
 
     const formData = new FormData(form);
     const accountId = formData.get('cf_account_id') as string;
     const token = formData.get('cf_bootstrap_token') as string;
 
-    console.log('Submitting Scoped Token:', { accountId, token: token.substring(0, 10) + '...' });
+    console.log('[cf-connect] Data:', { accountId, tokenLength: token?.length });
 
-    // TODO: Implement API call to backend
-    // await connectCloudflare({ accountId, token });
+    if (!accountId || !token) {
+      showStatus('error', 'Please fill in both Account ID and Bootstrap Token');
+      return;
+    }
 
-    // Show success message
-    const statusEl = form.querySelector('[data-cf-status]');
-    if (statusEl) {
-      statusEl.classList.remove('alert--danger');
-      statusEl.classList.add('alert--success');
-      statusEl.textContent = 'Token verified successfully! Setting up your Cloudflare integration...';
-      statusEl.removeAttribute('hidden');
+    const submitBtn = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+    const loadingBar = document.querySelector<HTMLElement>('[data-cf-loading]');
+    const drawer = document.querySelector<HTMLElement>('[data-drawer="connect-cloudflare"]');
+
+    // Show loading state
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span class="icon" data-icon="mono/refresh"></span><span>Verifying...</span>';
+    }
+    if (loadingBar) {
+      loadingBar.setAttribute('data-loading', 'true');
+    }
+
+    try {
+      const { initCloudflare } = await import('@api/integrations');
+      const response = await initCloudflare({
+        cf_account_id: accountId,
+        bootstrap_token: token,
+      });
+
+      // Show success message with sync info
+      const syncInfo = response.sync
+        ? ` Synced ${response.sync.zones} zones and ${response.sync.domains} domains.`
+        : '';
+      const successMsg = response.is_rotation
+        ? `Token rotated successfully.${syncInfo}`
+        : `Cloudflare account connected!${syncInfo}`;
+
+      showStatus('success', successMsg);
+      showGlobalMessage('success', successMsg);
+
+      // Close drawer and refresh integrations after 1.5 seconds
+      setTimeout(async () => {
+        if (drawer) {
+          drawer.setAttribute('hidden', '');
+        }
+
+        // Reload integrations to show new CF integration
+        try {
+          const { loadIntegrations } = await import('@ui/integrations');
+          await loadIntegrations();
+        } catch (error) {
+          // Fallback: reload page
+          console.error('Failed to reload integrations:', error);
+          window.location.reload();
+        }
+      }, 1500);
+
+    } catch (error: any) {
+      const errorMessage = error.message || 'Failed to connect Cloudflare account';
+      showStatus('error', errorMessage);
+      showGlobalMessage('error', errorMessage);
+
+      // Reset button
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<span class="icon" data-icon="brand/cloudflare"></span><span>Save &amp; verify token</span>';
+      }
+    } finally {
+      // Hide loading bar
+      if (loadingBar) {
+        loadingBar.removeAttribute('data-loading');
+      }
     }
   });
+
+  function showStatus(type: 'error' | 'success', message: string) {
+    const statusEl = form.querySelector('[data-cf-status]');
+    if (!statusEl) return;
+
+    statusEl.classList.remove('alert--danger', 'alert--success');
+    statusEl.classList.add(type === 'error' ? 'alert--danger' : 'alert--success');
+    statusEl.textContent = message;
+    statusEl.removeAttribute('hidden');
+  }
 }
 
 /**

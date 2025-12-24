@@ -1484,12 +1484,55 @@ html[data-theme="light"] .bulk-actions-bar__actions .btn--ghost:hover {
 }
 
 .drawer__footer {
+  position: relative;
   display: flex;
   align-items: center;
   gap: var(--space-2);
   padding: var(--space-4);
   border-top: 1px solid var(--border-subtle);
   background: var(--panel);
+  overflow: hidden;
+}
+
+/* Loading indicator bar for drawer footer */
+.drawer__footer .loading-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--brand);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.drawer__footer .loading-bar[data-loading='true'] {
+  opacity: 0.4;
+}
+
+.drawer__footer .loading-bar[data-loading='true']::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    var(--brand) 50%,
+    transparent 100%
+  );
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+/* CF variant for Cloudflare operations */
+.drawer__footer .loading-bar[data-type='cf'] {
+  background: var(--cf-orange);
+}
+
+.drawer__footer .loading-bar[data-type='cf']::before {
+  background: linear-gradient(90deg,
+    transparent 0%,
+    var(--cf-orange) 50%,
+    transparent 100%
+  );
 }
 
 /* Drawer-specific component overrides */

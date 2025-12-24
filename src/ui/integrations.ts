@@ -193,7 +193,7 @@ function showTableState(): void {
 /**
  * Load and render integrations from zones
  */
-async function loadIntegrations(): Promise<void> {
+export async function loadIntegrations(): Promise<void> {
   const tbody = document.querySelector<HTMLElement>('[data-integrations-tbody]');
   if (!tbody) return;
 
