@@ -310,15 +310,6 @@ function setupToggleHandlers(): void {
     const currentEnabled = toggleBtn.getAttribute('data-enabled') === 'true';
     const newEnabled = !currentEnabled;
 
-    // Update button state classes
-    if (newEnabled) {
-      toggleBtn.classList.remove('btn--ghost');
-      toggleBtn.classList.add('btn--success');
-    } else {
-      toggleBtn.classList.remove('btn--success');
-      toggleBtn.classList.add('btn--ghost');
-    }
-
     // Update border color based on state
     (toggleBtn as HTMLElement).style.borderColor = newEnabled ? 'var(--ok)' : 'var(--danger)';
 
@@ -488,7 +479,7 @@ function renderRedirectConfigCard(redirect: DomainRedirect): string {
             <dt class="detail-label">Status</dt>
             <dd class="detail-value">
               <button
-                class="btn btn--sm ${enabled ? 'btn--success' : 'btn--ghost'}"
+                class="btn btn--sm btn--outline"
                 type="button"
                 data-drawer-toggle="enabled"
                 data-enabled="${enabled}"
@@ -603,7 +594,7 @@ function handleSave(): void {
 
   // Get enabled state from toggle button
   const toggleBtn = drawerElement.querySelector('[data-drawer-toggle="enabled"]');
-  const enabled = toggleBtn?.getAttribute('data-enabled') === 'true' || toggleBtn?.classList.contains('btn--success');
+  const enabled = toggleBtn?.getAttribute('data-enabled') === 'true';
 
   // TODO: Validate and send to API
   console.log('Saving redirect:', {

@@ -45,16 +45,19 @@
           <!-- Status Field -->
           <div class="field">
             <label class="field__label">Status</label>
-            <div class="stack-list stack-list--xs">
-              <label class="checkbox">
-                <input type="radio" name="status" value="active" required />
-                <span>Active — Integration is working normally</span>
-              </label>
-              <label class="checkbox">
-                <input type="radio" name="status" value="revoked" required />
-                <span>Revoked — Disable this integration without deleting</span>
-              </label>
-            </div>
+            <button
+              class="btn btn--sm btn--outline"
+              type="button"
+              data-integration-toggle="status"
+              data-status="active"
+              style="border-color: var(--ok);"
+            >
+              <span class="icon" data-icon="mono/check-circle" style="color: var(--ok);"></span>
+              <span>Active</span>
+            </button>
+            <p class="field__hint text-muted">
+              Click to toggle between Active and Revoked
+            </p>
           </div>
 
           <!-- Rotate Token Section (Cloudflare only, shown conditionally) -->

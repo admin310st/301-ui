@@ -229,10 +229,25 @@ function openEditIntegrationDrawer(key: IntegrationKey): void {
   const aliasInput = drawer.querySelector<HTMLInputElement>('[name="key_alias"]');
   if (aliasInput) aliasInput.value = key.key_alias;
 
-  const statusRadios = drawer.querySelectorAll<HTMLInputElement>('[name="status"]');
-  statusRadios.forEach((radio) => {
-    radio.checked = radio.value === key.status;
-  });
+  // Set status toggle button state
+  const statusToggle = drawer.querySelector('[data-integration-toggle="status"]');
+  if (statusToggle) {
+    const isActive = key.status === 'active';
+    statusToggle.setAttribute('data-status', key.status);
+    (statusToggle as HTMLElement).style.borderColor = isActive ? 'var(--ok)' : 'var(--danger)';
+
+    const icon = statusToggle.querySelector('.icon');
+    const label = statusToggle.querySelector('span:last-child');
+
+    if (icon) {
+      icon.setAttribute('data-icon', isActive ? 'mono/check-circle' : 'mono/close-circle');
+      (icon as HTMLElement).style.color = isActive ? 'var(--ok)' : 'var(--danger)';
+    }
+
+    if (label) {
+      label.textContent = isActive ? 'Active' : 'Revoked';
+    }
+  }
 
   // Show/hide rotate token section (Cloudflare only)
   const rotateSection = drawer.querySelector('[data-rotate-token-section]');
@@ -328,6 +343,33 @@ function initEditIntegrationDrawer(): void {
     });
   });
 
+  // Status toggle handler
+  const statusToggle = drawer.querySelector('[data-integration-toggle="status"]');
+  statusToggle?.addEventListener('click', () => {
+    const currentStatus = statusToggle.getAttribute('data-status');
+    const newStatus = currentStatus === 'active' ? 'revoked' : 'active';
+    const isActive = newStatus === 'active';
+
+    // Update data attribute
+    statusToggle.setAttribute('data-status', newStatus);
+
+    // Update border color
+    (statusToggle as HTMLElement).style.borderColor = isActive ? 'var(--ok)' : 'var(--danger)';
+
+    // Update icon
+    const icon = statusToggle.querySelector('.icon');
+    if (icon) {
+      icon.setAttribute('data-icon', isActive ? 'mono/check-circle' : 'mono/close-circle');
+      (icon as HTMLElement).style.color = isActive ? 'var(--ok)' : 'var(--danger)';
+    }
+
+    // Update label
+    const label = statusToggle.querySelector('span:last-child');
+    if (label) {
+      label.textContent = isActive ? 'Active' : 'Revoked';
+    }
+  });
+
   // Form submit - save alias and status
   const form = drawer.querySelector<HTMLFormElement>('[data-form="edit-integration"]');
   form?.addEventListener('submit', async (e) => {
@@ -336,7 +378,10 @@ function initEditIntegrationDrawer(): void {
 
     const formData = new FormData(form);
     const alias = formData.get('key_alias') as string;
-    const status = formData.get('status') as 'active' | 'revoked';
+
+    // Get status from toggle button
+    const statusToggleBtn = drawer.querySelector('[data-integration-toggle="status"]');
+    const status = (statusToggleBtn?.getAttribute('data-status') || 'active') as 'active' | 'revoked';
 
     try {
       await updateIntegrationKey(currentEditingKey.id, {
