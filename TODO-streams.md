@@ -8,7 +8,59 @@
 
 **Target:** Полноценный UI для управления TDS правилами с онбордингом, таблицей, drawer-редактором и reorder UX
 
-**API Reference:** [`docs/mini-tds-analysis.md`](docs/mini-tds-analysis.md) - Analysis of production TDS implementation (investblog/mini-tds)
+**API Reference:**
+- [`docs/301-wiki/TDS.md`](docs/301-wiki/TDS.md) - Official TDS specification (SmartLink + SmartShield)
+- [`docs/tds-backend-recommendations.md`](docs/tds-backend-recommendations.md) - Backend API recommendations
+- [`docs/mini-tds-analysis.md`](docs/mini-tds-analysis.md) - mini-tds prototype analysis (reference only)
+
+---
+
+## 🎯 Key Feature: Multi-Armed Bandits (MAB)
+
+**The 301.st TDS includes auto-optimizing A/B testing using Multi-Armed Bandit algorithms — a competitive advantage over traditional TDS systems.**
+
+### What Makes This Special?
+
+**Traditional A/B Testing (competitors):**
+- ❌ Fixed weights (50/50, 60/40) throughout the entire test
+- ❌ You lose conversions showing the worse variant
+- ❌ Manual analysis and weight adjustment required
+- ❌ Slow convergence to optimal solution
+
+**MAB A/B Testing (301.st TDS):**
+- ✅ **Auto-optimizing**: Algorithm dynamically redistributes traffic to better-performing variant
+- ✅ **Minimizes losses**: Less traffic to worse variant = higher overall conversions
+- ✅ **Faster convergence**: Reaches optimal distribution in hours, not weeks
+- ✅ **Real-time adaptation**: Adjusts to changes automatically (time of day, audience shifts)
+- ✅ **Multiple algorithms**: Thompson Sampling (recommended), UCB, Epsilon-Greedy
+
+### Business Impact
+
+**Example:**
+- Traditional A/B test: 50/50 split between Variant A (CR 8%) and Variant B (CR 6%)
+  - Overall CR: **7.0%** (you lose 1% showing the worse variant)
+
+- MAB test: Starts 50/50, converges to 70/30 after learning
+  - Overall CR: **7.4%** (minimized losses from worse variant)
+  - **Result: +5.7% revenue boost** from the same traffic
+
+### UI Implementation
+
+1. **Simple Toggle**: Choose "Redirect" (single target) or "A/B Test (MAB)" (multiple targets)
+2. **3 Algorithms**: Thompson Sampling (recommended), UCB (conservative), Epsilon-Greedy (simple)
+3. **Real-time Stats**: See current weights, conversions, estimated values for each variant
+4. **Performance Chart**: Visual feedback on optimization progress
+5. **One-Click Reset**: Restart test if conditions change
+
+### Marketing Angle
+
+**Positioning:**
+> "Unlike static A/B tests that waste your budget on losing variants, 301.st TDS uses ML-powered Multi-Armed Bandits to automatically optimize traffic distribution in real-time. Start seeing results in hours, not weeks."
+
+**Target audience:**
+- Affiliate marketers running aggressive split-tests
+- Performance marketers optimizing ROI
+- Teams tired of manual A/B test management
 
 ---
 
@@ -960,14 +1012,21 @@ const showWelcome = !entryDomain || rulesCount === 0 || isReadOnly;
         <span class="icon" data-icon="mono/arrow-right"></span>
         <span>Redirect</span>
       </button>
+      <button class="btn-chip" type="button" data-action-type="mab_redirect">
+        <span class="icon" data-icon="mono/trending-up"></span>
+        <span>A/B Test (MAB)</span>
+      </button>
       <button class="btn-chip" type="button" data-action-type="response">
         <span class="icon" data-icon="mono/code"></span>
         <span>Response</span>
       </button>
     </div>
+    <p class="field__hint text-muted">
+      <strong>MAB</strong> = Multi-Armed Bandit: auto-optimizing A/B test that minimizes losses
+    </p>
   </div>
 
-  <!-- Redirect fields (show when type=redirect) -->
+  <!-- Simple Redirect fields (show when type=redirect) -->
   <div class="action-fields" data-action-fields="redirect">
     <div class="field">
       <label class="field__label">Target URL</label>
@@ -1013,24 +1072,245 @@ const showWelcome = !entryDomain || rulesCount === 0 || isReadOnly;
     </div>
 
     <!-- Advanced options (collapsible) -->
-    <details class="panel">
-      <summary class="panel__summary">
-        <span class="icon" data-icon="mono/chevron-down"></span>
-        <span>Advanced redirect options</span>
-      </summary>
-      <div class="panel__body stack">
+    <details class="field__details">
+      <summary class="field__details-summary">Advanced redirect options</summary>
+      <div class="stack-list stack-list--sm">
         <div class="field">
           <label class="checkbox">
             <input type="checkbox" />
-            <span class="checkbox__label">Preserve path</span>
+            <span class="checkbox__label">Append country code (?country=RU)</span>
           </label>
         </div>
         <div class="field">
-          <label class="field__label">Custom headers</label>
-          <textarea class="textarea" rows="3" placeholder="X-Custom-Header: value"></textarea>
+          <label class="checkbox">
+            <input type="checkbox" />
+            <span class="checkbox__label">Append device type (?device=mobile)</span>
+          </label>
         </div>
       </div>
     </details>
+  </div>
+
+  <!-- MAB Redirect fields (show when type=mab_redirect) -->
+  <div class="action-fields" data-action-fields="mab_redirect" hidden>
+    <!-- Test Variants -->
+    <div class="field">
+      <label class="field__label">Test Variants (2+ required)</label>
+
+      <!-- Variant A -->
+      <div class="card card--compact stack-list stack-list--xs" data-variant="a">
+        <div class="cluster cluster--sm">
+          <span class="badge badge--sm badge--primary">Variant A</span>
+          <input type="text" class="input" placeholder="Label (e.g., Offer A)" value="Offer A" style="flex: 0 0 140px;" />
+        </div>
+        <input type="url" class="input" placeholder="https://offer-a.example.com" required />
+
+        <!-- Stats (read-only, показываются только при редактировании существующего правила) -->
+        <div class="mab-stats" data-mab-stats="variant-a">
+          <div class="mab-stats__grid">
+            <div class="mab-stats__item">
+              <span class="text-muted text-xs">Weight:</span>
+              <strong>58.3%</strong>
+            </div>
+            <div class="mab-stats__item">
+              <span class="text-muted text-xs">Conversions:</span>
+              <strong>142 / 1850</strong>
+            </div>
+            <div class="mab-stats__item">
+              <span class="text-muted text-xs">Est. value:</span>
+              <strong>7.68%</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Variant B -->
+      <div class="card card--compact stack-list stack-list--xs" data-variant="b">
+        <div class="cluster cluster--sm">
+          <span class="badge badge--sm badge--info">Variant B</span>
+          <input type="text" class="input" placeholder="Label" value="Offer B" style="flex: 0 0 140px;" />
+          <button class="btn-icon btn-icon--compact" type="button" data-action="remove-variant" title="Remove variant">
+            <span class="icon" data-icon="mono/close"></span>
+          </button>
+        </div>
+        <input type="url" class="input" placeholder="https://offer-b.example.com" required />
+
+        <div class="mab-stats" data-mab-stats="variant-b">
+          <div class="mab-stats__grid">
+            <div class="mab-stats__item">
+              <span class="text-muted text-xs">Weight:</span>
+              <strong>41.7%</strong>
+            </div>
+            <div class="mab-stats__item">
+              <span class="text-muted text-xs">Conversions:</span>
+              <strong>89 / 1320</strong>
+            </div>
+            <div class="mab-stats__item">
+              <span class="text-muted text-xs">Est. value:</span>
+              <strong>6.74%</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn btn--ghost btn--sm" type="button" data-action="add-variant">
+        <span class="icon" data-icon="mono/plus"></span>
+        <span>Add variant</span>
+      </button>
+    </div>
+
+    <!-- Algorithm -->
+    <div class="field">
+      <label class="field__label">Optimization Algorithm</label>
+      <div class="dropdown" data-dropdown>
+        <button class="btn-chip" type="button">
+          <span>Thompson Sampling</span>
+          <span class="badge badge--sm badge--success">Recommended</span>
+          <span class="icon" data-icon="mono/chevron-down"></span>
+        </button>
+        <div class="dropdown__menu dropdown__menu--wide">
+          <button class="dropdown__item is-active">
+            <div class="dropdown__item-content">
+              <div class="cluster cluster--sm">
+                <strong>Thompson Sampling</strong>
+                <span class="badge badge--sm badge--success">Recommended</span>
+              </div>
+              <p class="text-sm text-muted">Bayesian approach, best balance between exploration and exploitation</p>
+            </div>
+          </button>
+          <button class="dropdown__item">
+            <div class="dropdown__item-content">
+              <strong>UCB (Upper Confidence Bound)</strong>
+              <p class="text-sm text-muted">Conservative, slower convergence but very stable</p>
+            </div>
+          </button>
+          <button class="dropdown__item">
+            <div class="dropdown__item-content">
+              <strong>Epsilon-Greedy</strong>
+              <p class="text-sm text-muted">Simple, requires epsilon parameter tuning</p>
+            </div>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Target Metric -->
+    <div class="field">
+      <label class="field__label">Target Metric</label>
+      <select class="select">
+        <option value="conversion_rate">Conversion Rate (CR)</option>
+        <option value="revenue_per_user">Revenue per User (RPU)</option>
+        <option value="click_through_rate">Click-Through Rate (CTR)</option>
+      </select>
+      <p class="field__hint text-muted">
+        Metric to optimize. Requires analytics integration via postback URL.
+      </p>
+    </div>
+
+    <!-- Status Code -->
+    <div class="field">
+      <label class="field__label">Status code</label>
+      <div class="dropdown" data-dropdown>
+        <button class="btn-chip" type="button">
+          <span class="badge badge--info">302</span>
+          <span>Temporary Redirect</span>
+          <span class="icon" data-icon="mono/chevron-down"></span>
+        </button>
+        <div class="dropdown__menu">
+          <button class="dropdown__item">
+            <span class="badge badge--success">301</span>
+            <span>Permanent Redirect</span>
+          </button>
+          <button class="dropdown__item">
+            <span class="badge badge--info">302</span>
+            <span>Temporary Redirect</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Advanced Settings -->
+    <details class="field__details">
+      <summary class="field__details-summary">Advanced settings</summary>
+      <div class="stack-list stack-list--sm">
+        <div class="field">
+          <label class="field__label">Min sample size per variant</label>
+          <input type="number" class="input" value="100" min="10" step="10" />
+          <p class="field__hint text-muted">
+            Minimum impressions before optimization starts (default: 100)
+          </p>
+        </div>
+
+        <div class="field">
+          <label class="field__label">Exploration period (seconds)</label>
+          <input type="number" class="input" value="3600" min="0" step="300" />
+          <p class="field__hint text-muted">
+            Initial period with equal distribution (default: 1 hour = 3600s)
+          </p>
+        </div>
+
+        <!-- Algorithm-specific params (показываются условно) -->
+        <div class="field" data-algorithm-param="epsilon_greedy" hidden>
+          <label class="field__label">Epsilon (exploration rate)</label>
+          <input type="number" class="input" value="0.1" min="0" max="1" step="0.01" />
+          <p class="field__hint text-muted">
+            Probability of random choice (0.1 = 10% exploration)
+          </p>
+        </div>
+
+        <div class="field" data-algorithm-param="ucb">
+          <label class="field__label">Confidence level</label>
+          <input type="number" class="input" value="0.95" min="0.5" max="0.99" step="0.01" />
+          <p class="field__hint text-muted">
+            Confidence level for UCB algorithm (default: 0.95)
+          </p>
+        </div>
+
+        <div class="field">
+          <label class="checkbox">
+            <input type="checkbox" checked />
+            <span class="checkbox__label">Preserve query string</span>
+          </label>
+        </div>
+
+        <div class="field">
+          <label class="checkbox">
+            <input type="checkbox" />
+            <span class="checkbox__label">Append country code</span>
+          </label>
+        </div>
+
+        <div class="field">
+          <label class="checkbox">
+            <input type="checkbox" />
+            <span class="checkbox__label">Append device type</span>
+          </label>
+        </div>
+      </div>
+    </details>
+
+    <!-- Performance Chart (опционально, для существующих правил) -->
+    <div class="panel panel--info" data-mab-performance hidden>
+      <div class="panel__header">
+        <h4 class="panel__title">Performance Over Time</h4>
+        <span class="badge badge--sm badge--success">
+          <span class="icon" data-icon="mono/check-circle"></span>
+          <span>Optimizing</span>
+        </span>
+      </div>
+      <div class="panel__body">
+        <!-- Здесь будет canvas/svg график или простая таблица -->
+        <div class="mab-chart" data-mab-chart>
+          <p class="text-muted text-sm">Performance chart will be available after test starts</p>
+        </div>
+      </div>
+      <div class="panel__footer">
+        <button class="btn btn--ghost btn--sm" type="button" data-action="reset-mab">
+          <span class="icon" data-icon="mono/refresh"></span>
+          <span>Reset statistics</span>
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- Response fields (show when type=response) -->
@@ -1554,11 +1834,14 @@ streams: {
 
 ## Mock Data Structure
 
-**Updated 2025-12-24:** Aligned with 301-wiki TDS specification (see `docs/301-wiki/TDS.md` and `docs/tds-backend-recommendations.md`)
+**Updated 2025-12-25:** Aligned with 301-wiki TDS specification + Multi-Armed Bandits (MAB) for auto-optimizing A/B tests
 
 **Key changes from mini-tds:**
 - Added `rule_type: "smartlink" | "smartshield"` discriminator
 - Split match conditions into SmartShieldMatch (geo/device/bots/ASN/TLS) and SmartLinkMatch (UTM params)
+- **Removed `weighted_redirect`** (static A/B weights)
+- **Added `mab_redirect`** (Multi-Armed Bandit auto-optimization) — **key competitive feature**
+- `redirect` now uses `url: string` (not `targets: []`)
 - Added SmartLink examples (UTM-based routing)
 - Added advanced SmartShield conditions (ASN, TLS version, IP ranges)
 
@@ -1595,15 +1878,10 @@ export interface SmartLinkMatch {
 // Unified match type (either SmartShield OR SmartLink)
 export type MatchRule = SmartShieldMatch | SmartLinkMatch;
 
-export interface RedirectTarget {
-  url: string;                   // Absolute URL
-  weight?: number;               // For A/B tests (sum must = 100)
-  label?: string;                // Display name in UI
-}
-
+// Simple redirect action (single target)
 export interface RedirectAction {
-  type: "redirect" | "weighted_redirect";
-  targets: RedirectTarget[];     // Single target or multiple for A/B
+  type: "redirect";
+  url: string;                   // Target URL
   query?: Record<string, string | { fromPathGroup: number }>;
   preserveOriginalQuery?: boolean;
   appendCountry?: boolean;       // Add ?country=RU
@@ -1611,6 +1889,48 @@ export interface RedirectAction {
   status?: 301 | 302;            // Default 302
 }
 
+// Multi-Armed Bandit redirect (auto-optimizing A/B test)
+export interface MABTarget {
+  url: string;                   // Absolute URL
+  label?: string;                // Display name (e.g., "Variant A")
+
+  // Statistics (read-only, updated by backend)
+  stats?: {
+    impressions: number;         // Total visits to this variant
+    conversions: number;         // Successful conversions
+    revenue: number;             // Total revenue generated
+    current_weight: number;      // Current dynamic weight (0-100%)
+    estimated_value: number;     // Algorithm's value estimate
+  };
+}
+
+export interface MABRedirectAction {
+  type: "mab_redirect";
+  algorithm: "ucb" | "thompson_sampling" | "epsilon_greedy";
+  targets: MABTarget[];          // 2+ variants for A/B testing
+
+  // Target metric for optimization
+  metric: "conversion_rate" | "revenue_per_user" | "click_through_rate";
+
+  // Minimum impressions per variant before optimization starts
+  min_sample_size?: number;      // Default: 100
+
+  // Initial exploration period (seconds) with equal distribution
+  exploration_period?: number;   // Default: 3600 (1 hour)
+
+  // Algorithm-specific parameters
+  epsilon?: number;              // For epsilon-greedy (0-1, default: 0.1)
+  confidence_level?: number;     // For UCB (0-1, default: 0.95)
+
+  // Common redirect options
+  query?: Record<string, string | { fromPathGroup: number }>;
+  preserveOriginalQuery?: boolean;
+  appendCountry?: boolean;
+  appendDevice?: boolean;
+  status?: 301 | 302;
+}
+
+// Response action (return HTML/JSON without redirect)
 export interface ResponseAction {
   type: "response";
   status?: number;               // HTTP status (200, 404, etc.)
@@ -1619,7 +1939,7 @@ export interface ResponseAction {
   bodyText?: string;             // Plain text body
 }
 
-export type RouteAction = RedirectAction | ResponseAction;
+export type RouteAction = RedirectAction | MABRedirectAction | ResponseAction;
 
 export interface TDSRule {
   id: string;                    // Unique rule ID
@@ -1649,7 +1969,7 @@ export const MOCK_TDS_RULES: TDSRule[] = [
     rule_type: "smartshield",
     enabled: true,
     priority: 1,
-    label: "RU Mobile Casino → A/B Test",
+    label: "RU Mobile Casino → MAB A/B Test",
     match: {
       path: ["^/casino/([^/?#]+)"],
       countries: ["RU", "BY"],
@@ -1657,11 +1977,35 @@ export const MOCK_TDS_RULES: TDSRule[] = [
       bots: false,
     },
     action: {
-      type: "weighted_redirect",
+      type: "mab_redirect",
+      algorithm: "thompson_sampling",
+      metric: "conversion_rate",
       targets: [
-        { url: "https://offer1.example.com/landing", weight: 60, label: "Offer A (60%)" },
-        { url: "https://offer2.example.com/promo", weight: 40, label: "Offer B (40%)" },
+        {
+          url: "https://offer1.example.com/landing",
+          label: "Offer A",
+          stats: {
+            impressions: 1850,
+            conversions: 142,
+            revenue: 14200,
+            current_weight: 58.3,
+            estimated_value: 0.0768,
+          },
+        },
+        {
+          url: "https://offer2.example.com/promo",
+          label: "Offer B",
+          stats: {
+            impressions: 1320,
+            conversions: 89,
+            revenue: 8900,
+            current_weight: 41.7,
+            estimated_value: 0.0674,
+          },
+        },
       ],
+      min_sample_size: 100,
+      exploration_period: 3600,
       query: {
         bonus: { fromPathGroup: 1 },  // From regex capture group
         src: "tds-mobile",
@@ -1690,9 +2034,7 @@ export const MOCK_TDS_RULES: TDSRule[] = [
     },
     action: {
       type: "redirect",
-      targets: [
-        { url: "https://mainsite.example.com/slots-ua", label: "Main Site" },
-      ],
+      url: "https://mainsite.example.com/slots-ua",
       preserveOriginalQuery: true,
       status: 301,
     },
@@ -1712,9 +2054,7 @@ export const MOCK_TDS_RULES: TDSRule[] = [
     },
     action: {
       type: "redirect",
-      targets: [
-        { url: "https://premium-offer.example.com", label: "Premium Offer" },
-      ],
+      url: "https://premium-offer.example.com",
       status: 302,
     },
   },
@@ -1732,9 +2072,7 @@ export const MOCK_TDS_RULES: TDSRule[] = [
     },
     action: {
       type: "redirect",
-      targets: [
-        { url: "https://offer2.example.com/fb-summer", label: "FB Landing" },
-      ],
+      url: "https://offer2.example.com/fb-summer",
       preserveOriginalQuery: true,
       status: 302,
     },
@@ -1747,18 +2085,43 @@ export const MOCK_TDS_RULES: TDSRule[] = [
     rule_type: "smartlink",
     enabled: true,
     priority: 5,
-    label: "Google Ads A/B Test",
+    label: "Google Ads MAB A/B Test",
     match: {
       utm_source: ["google", "adwords"],
       utm_medium: ["cpc"],
       utm_content: ["banner1", "banner2"],
     },
     action: {
-      type: "weighted_redirect",
+      type: "mab_redirect",
+      algorithm: "ucb",
+      metric: "revenue_per_user",
       targets: [
-        { url: "https://landing-a.example.com", weight: 50, label: "Landing A" },
-        { url: "https://landing-b.example.com", weight: 50, label: "Landing B" },
+        {
+          url: "https://landing-a.example.com",
+          label: "Landing A",
+          stats: {
+            impressions: 950,
+            conversions: 85,
+            revenue: 12750,
+            current_weight: 52.1,
+            estimated_value: 13.42,
+          },
+        },
+        {
+          url: "https://landing-b.example.com",
+          label: "Landing B",
+          stats: {
+            impressions: 874,
+            conversions: 71,
+            revenue: 10650,
+            current_weight: 47.9,
+            estimated_value: 12.19,
+          },
+        },
       ],
+      min_sample_size: 50,
+      exploration_period: 1800,
+      confidence_level: 0.95,
       status: 302,
     },
   },
@@ -1777,9 +2140,7 @@ export const MOCK_TDS_RULES: TDSRule[] = [
     },
     action: {
       type: "redirect",
-      targets: [
-        { url: "https://exclusive.example.com/subscribers", label: "Subscriber Offer" },
-      ],
+      url: "https://exclusive.example.com/subscribers",
       preserveOriginalQuery: true,
       status: 302,
     },
