@@ -1,105 +1,98 @@
 <!-- Edit Integration Drawer -->
 <aside class="drawer" data-drawer="edit-integration" hidden>
   <div class="drawer__overlay" data-drawer-close></div>
-
   <div class="drawer__panel">
     <header class="drawer__header">
-      <h2 class="h4">Edit Integration</h2>
-      <button type="button" class="btn-icon" data-drawer-close aria-label="Close">
+      <div class="drawer__title">
+        <h2 class="h4">Edit Integration</h2>
+        <p class="text-muted">Manage API key settings and permissions.</p>
+      </div>
+      <button class="btn-close" type="button" data-drawer-close aria-label="Close">
         <span class="icon" data-icon="mono/close"></span>
       </button>
     </header>
 
     <div class="drawer__body">
-      <!-- Provider Info (Read-only) -->
-      <div class="panel panel--info">
-        <div class="stack-list--xs">
-          <div class="stack-inline--xs">
+      <div class="stack-list">
+        <!-- Provider Info (Read-only) -->
+        <div class="field">
+          <label class="field__label">Provider</label>
+          <div class="stack-inline stack-inline--sm">
             <span class="icon" data-icon="mono/key" data-integration-provider-icon></span>
             <strong data-integration-provider-name>Provider</strong>
           </div>
-          <div class="text-muted text-sm">
+          <p class="field__hint text-muted">
             Account ID: <code data-integration-account-id>—</code>
-          </div>
-        </div>
-      </div>
-
-      <!-- Edit Form -->
-      <form id="edit-integration-form" class="stack-md" data-form="edit-integration">
-        <!-- Alias Field -->
-        <div class="form-group">
-          <label for="integration-alias" class="label">
-            Alias
-            <span class="text-muted">(Display name for this integration)</span>
-          </label>
-          <input
-            type="text"
-            id="integration-alias"
-            name="key_alias"
-            class="input"
-            placeholder="My Cloudflare Account"
-            required
-          />
-        </div>
-
-        <!-- Status Field -->
-        <div class="form-group">
-          <label class="label">Status</label>
-          <div class="stack-list--xs">
-            <label class="radio-label">
-              <input type="radio" name="status" value="active" required />
-              <span>Active — Integration is working normally</span>
-            </label>
-            <label class="radio-label">
-              <input type="radio" name="status" value="revoked" required />
-              <span>Revoked — Disable this integration without deleting</span>
-            </label>
-          </div>
-        </div>
-
-        <!-- Rotate Token Section (Cloudflare only, shown conditionally) -->
-        <div class="panel panel--warning stack-sm" data-rotate-token-section hidden>
-          <div class="stack-list--xs">
-            <strong>Rotate API Token</strong>
-            <p class="text-sm text-muted">
-              Generate a new scoped token and revoke the current one. This requires a valid bootstrap token.
-            </p>
-          </div>
-          <button
-            type="button"
-            class="btn btn--sm btn--outline"
-            data-action="rotate-token-submit"
-          >
-            <span class="icon" data-icon="mono/refresh"></span>
-            <span>Rotate Token</span>
-          </button>
-        </div>
-      </form>
-
-      <!-- Danger Zone -->
-      <div class="panel panel--danger stack-sm">
-        <div class="stack-list--xs">
-          <strong>Delete Integration</strong>
-          <p class="text-sm text-muted">
-            This will remove the API key from 301.st. The token at the provider will NOT be deleted.
           </p>
         </div>
-        <button
-          type="button"
-          class="btn btn--sm btn--danger btn--outline"
-          data-action="delete-integration-confirm"
-        >
-          <span class="icon" data-icon="mono/trash"></span>
-          <span>Delete Integration</span>
-        </button>
+
+        <!-- Edit Form -->
+        <form id="edit-integration-form" class="stack-list" data-form="edit-integration">
+          <!-- Alias Field -->
+          <div class="field">
+            <label for="integration-alias" class="field__label">Alias</label>
+            <input
+              type="text"
+              id="integration-alias"
+              name="key_alias"
+              class="input"
+              placeholder="My Cloudflare Account"
+              required
+            />
+            <p class="field__hint text-muted">Display name for this integration</p>
+          </div>
+
+          <!-- Status Field -->
+          <div class="field">
+            <label class="field__label">Status</label>
+            <div class="stack-list stack-list--xs">
+              <label class="checkbox">
+                <input type="radio" name="status" value="active" required />
+                <span>Active — Integration is working normally</span>
+              </label>
+              <label class="checkbox">
+                <input type="radio" name="status" value="revoked" required />
+                <span>Revoked — Disable this integration without deleting</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Rotate Token Section (Cloudflare only, shown conditionally) -->
+          <div class="card card--panel card--warning" data-rotate-token-section hidden>
+            <div class="card__body">
+              <div class="stack-list stack-list--xs">
+                <strong>Rotate API Token</strong>
+                <p class="text-sm text-muted">
+                  Generate a new scoped token and revoke the current one. This requires a valid bootstrap token.
+                </p>
+                <button
+                  type="button"
+                  class="btn btn--sm btn--outline"
+                  data-action="rotate-token-submit"
+                >
+                  <span class="icon" data-icon="mono/refresh"></span>
+                  <span>Rotate Token</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </form>
       </div>
     </div>
 
     <footer class="drawer__footer">
-      <button type="button" class="btn btn--ghost" data-drawer-close>Cancel</button>
       <button type="submit" form="edit-integration-form" class="btn btn--primary">
         Save Changes
       </button>
+      <button
+        type="button"
+        class="btn btn--danger btn--outline"
+        data-action="delete-integration-confirm"
+      >
+        <span class="icon" data-icon="mono/delete"></span>
+        <span>Delete Integration</span>
+      </button>
+      <button type="button" class="btn btn--ghost" data-drawer-close>Cancel</button>
     </footer>
   </div>
 </aside>
