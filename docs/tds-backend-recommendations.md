@@ -84,19 +84,27 @@
 
 ```
 Account
-  └─ Project
-       └─ Site
-            └─ Zone
-                 └─ Domains
-                      ├─ acceptor (role)  ← TDS правила применяются ЗДЕСЬ
-                      ├─ donor (role)     ← Простые 301/302 → acceptor
-                      └─ reserve (role)   ← Резервные домены
+  └─ Project (кампания/бренд)
+       └─ Site (логическая группа доменов для одного оффера)
+            └─ Domains (домены с разными ролями)
+                 ├─ acceptor (role)  ← TDS правила применяются ЗДЕСЬ
+                 ├─ donor (role)     ← Простые 301/302 → acceptor
+                 └─ reserve (role)   ← Резервные домены
 ```
 
 **TDS Rules привязаны к Site (site_id)**
 **Правила применяются ТОЛЬКО к доменам с ролью `acceptor`**
 
-**Ключевой принцип:** 1 Site = 1 Zone = N Domains (с разными ролями)
+**Ключевой принцип:** 1 Site = N Domains (с разными ролями)
+
+**⚠️ Примечание о Cloudflare Zones:**
+- **Zone** существует в базе данных как **техническая сущность** (хранит cf_zone_id, SSL settings)
+- **НЕ показывается в UI** — пользователь не должен знать про зоны Cloudflare
+- При добавлении домена `offer.example.com` система автоматически:
+  - Определяет root domain (`example.com`)
+  - Создаёт или находит Zone для этого root domain в Cloudflare
+  - Связывает Domain с Zone через FK `zone_id`
+- **В UI показываем только Domains** — плоский список без иерархии зон
 
 **Роли доменов:**
 - **acceptor** - принимающий домен, на котором работает TDS Worker
