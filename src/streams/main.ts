@@ -4,19 +4,14 @@
  * Iteration 2: Welcome Card + Empty State (Onboarding)
  */
 
-import { injectIconSprite } from '../ui/icons';
-
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
   console.log('🚀 TDS module initialized');
 
-  // Inject icon sprite
-  injectIconSprite();
+  // Icon sprite is injected by main.ts
 
   // Initialize components
   initWelcomeCard();
-  initContextBar();
-  initPipeline();
 });
 
 /**
@@ -36,30 +31,6 @@ function initWelcomeCard(): void {
   });
 }
 
-/**
- * Context Bar initialization (placeholder)
- */
-function initContextBar(): void {
-  const publishButton = document.querySelector('[data-action="publish"]');
-
-  // Publish button (disabled for now)
-  publishButton?.addEventListener('click', () => {
-    console.log('Publish clicked');
-    alert('Publish functionality coming in Iteration 11!');
-  });
-}
-
-/**
- * Pipeline initialization (placeholder)
- */
-function initPipeline(): void {
-  const pipeline = document.querySelector('[data-pipeline]');
-
-  if (!pipeline) return;
-
-  console.log('Pipeline initialized');
-  // TODO: Update badge counts dynamically
-}
 
 /**
  * Show/hide welcome card based on rules count
