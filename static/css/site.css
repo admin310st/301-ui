@@ -3328,26 +3328,22 @@ body.layout-dashboard .burger-button {
   color: var(--text-dim);
 }
 
-/* TDS Welcome Section */
-.tds-welcome {
-  padding: var(--space-5) var(--space-4);
-}
-
+/* TDS Checklist */
 .checklist {
   list-style: none;
   padding: 0;
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: var(--space-4);
 }
 
 .checklist__item {
   display: flex;
   gap: var(--space-3);
-  padding: var(--space-3);
+  padding: var(--space-4);
   background: var(--bg-subtle);
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-subtle);
   border-radius: var(--r-md);
   transition: border-color 0.2s ease;
 }

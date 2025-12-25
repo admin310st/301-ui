@@ -35,113 +35,14 @@
 {{> sidebar activePage="streams"}}
 
       <section class="dashboard-content">
-      <!-- Context Bar (sticky top navigation) -->
-      <div class="tds-context-bar" data-context-bar>
-        <div class="tds-context-bar__selectors">
-          <!-- Project selector -->
-          <div class="dropdown" data-dropdown>
-            <button class="btn-chip" data-dropdown-trigger>
-              <span class="icon" data-icon="mono/briefcase"></span>
-              <span>Casino Q1 2025</span>
-              <span class="icon" data-icon="mono/chevron-down"></span>
-            </button>
-            <div class="dropdown__menu">
-              <button class="dropdown__item is-active">
-                <strong>Casino Q1 2025</strong>
-              </button>
-              <button class="dropdown__item">
-                <strong>Crypto Brand</strong>
-              </button>
-            </div>
+        <header class="page-header">
+          <div class="stack-sm">
+            <h1 class="h3">TDS Rules</h1>
+            <p class="text-muted">Traffic Distribution System — route users by geo, device, and source</p>
           </div>
+        </header>
 
-          <!-- Site selector (PRIMARY SCOPE) -->
-          <div class="dropdown" data-dropdown>
-            <button class="btn-chip" data-dropdown-trigger>
-              <span class="icon" data-icon="mono/layers"></span>
-              <span>RU Landing</span>
-              <span class="icon" data-icon="mono/chevron-down"></span>
-            </button>
-            <div class="dropdown__menu">
-              <button class="dropdown__item is-active">
-                <strong>RU Landing</strong>
-                <span class="text-sm text-muted">3 domains</span>
-              </button>
-              <button class="dropdown__item">
-                <strong>EN Promo</strong>
-                <span class="text-sm text-muted">2 domains</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- Acceptor domain selector (SECONDARY) -->
-          <div class="dropdown" data-dropdown>
-            <button class="btn-chip" data-dropdown-trigger>
-              <span class="icon" data-icon="mono/dns"></span>
-              <span>offer.example.com</span>
-              <span class="badge badge--sm badge--success">acceptor</span>
-              <span class="icon" data-icon="mono/chevron-down"></span>
-            </button>
-            <div class="dropdown__menu">
-              <button class="dropdown__item is-active">
-                <div class="dropdown__item-content">
-                  <strong>offer.example.com</strong>
-                  <span class="badge badge--sm badge--success">acceptor</span>
-                  <p class="text-sm text-muted">TDS active</p>
-                </div>
-              </button>
-              <button class="dropdown__item">
-                <div class="dropdown__item-content">
-                  <strong>promo.example.com</strong>
-                  <span class="badge badge--sm badge--success">acceptor</span>
-                  <p class="text-sm text-muted">TDS active</p>
-                </div>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div class="tds-context-bar__status">
-          <span class="badge badge--sm badge--success">
-            <span class="icon" data-icon="mono/shield-check"></span>
-            <span>Shield: On</span>
-          </span>
-          <span class="badge badge--sm badge--success">
-            <span class="icon" data-icon="mono/zap"></span>
-            <span>TDS: Active</span>
-          </span>
-        </div>
-
-        <div class="tds-context-bar__actions">
-          <button class="btn-icon" title="Test in Simulator">
-            <span class="icon" data-icon="mono/flask"></span>
-          </button>
-          <button class="btn btn--primary" disabled data-action="publish">
-            <span class="icon" data-icon="mono/upload"></span>
-            <span>Publish</span>
-          </button>
-          <div class="dropdown" data-dropdown>
-            <button class="btn-icon" data-dropdown-trigger title="More actions">
-              <span class="icon" data-icon="mono/menu"></span>
-            </button>
-            <div class="dropdown__menu dropdown__menu--right">
-              <button class="dropdown__item">
-                <span class="icon" data-icon="mono/download"></span>
-                <span>Export rules</span>
-              </button>
-              <button class="dropdown__item">
-                <span class="icon" data-icon="mono/upload"></span>
-                <span>Import rules</span>
-              </button>
-              <button class="dropdown__item">
-                <span class="icon" data-icon="mono/shield-check"></span>
-                <span>Validate all</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
+        <div class="stack stack--xl">
       <!-- Welcome Card (shown when no rules) -->
       <section class="tds-welcome" data-welcome-card>
         <article class="card card--panel card--accent card--accent-info">
@@ -272,21 +173,22 @@
         </div>
       </section>
 
-      <!-- Empty State (shown when rules exist but filtered to 0) -->
-      <div class="empty-state" data-empty-state hidden>
-        <span class="icon icon--xxl" data-icon="mono/search"></span>
-        <h2>No rules match your filters</h2>
-        <p>Try adjusting your search or filters to find what you're looking for.</p>
-        <button class="btn btn--ghost" data-action="clear-filters">
-          <span class="icon" data-icon="mono/x"></span>
-          <span>Clear Filters</span>
-        </button>
-      </div>
+        <!-- Empty State (shown when rules exist but filtered to 0) -->
+        <div class="empty-state" data-empty-state hidden>
+          <span class="icon icon--xxl" data-icon="mono/search"></span>
+          <h2>No rules match your filters</h2>
+          <p>Try adjusting your search or filters to find what you're looking for.</p>
+          <button class="btn btn--ghost" data-action="clear-filters">
+            <span class="icon" data-icon="mono/x"></span>
+            <span>Clear Filters</span>
+          </button>
+        </div>
 
-      <!-- Rules Table (shown when rules exist) -->
-      <div class="tds-rules-container" data-rules-container hidden>
-        <!-- Will be added in Iteration 3 -->
-      </div>
+        <!-- Rules Table (shown when rules exist) -->
+        <div class="tds-rules-container" data-rules-container hidden>
+          <!-- Will be added in Iteration 3 -->
+        </div>
+        </div>
       </section>
     </main>
 
