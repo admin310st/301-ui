@@ -1,20 +1,39 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" data-theme="dark">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TDS Rules — Traffic Distribution System | 301.st</title>
-  <link rel="stylesheet" href="/static/css/site.css">
-  <link rel="icon" type="image/svg+xml" href="/static/img/favicon.svg">
-</head>
-<body>
-  {{> header-top}}
-  {{> header-utility}}
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TDS Rules — Traffic Distribution System | 301.st</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" href="/css/theme.css" />
+    <link rel="stylesheet" href="/css/layout.css" />
+    <link rel="stylesheet" href="/css/site.css" />
+  </head>
+  <body class="layout-dashboard">
+{{> sidebar-state-loader}}
+    <header class="site-header" role="banner">
+{{> header-top}}
 
-  <div class="app-layout">
-    {{> sidebar activePage="streams"}}
+      <div class="utility-bar">
+        <div class="page-shell utility-bar__inner">
+          <div class="utility-left">
+            <span class="badges">
+              <span class="badge badge--primary">TDS Rules</span>
+            </span>
+          </div>
 
-    <main class="page-content">
+{{> header-utility}}
+        </div>
+
+{{> global-notice}}
+      </div>
+    </header>
+
+    <main class="page-shell dashboard-shell">
+{{> sidebar activePage="streams"}}
+
+      <section class="dashboard-content">
       <!-- Context Bar (sticky top navigation) -->
       <div class="tds-context-bar" data-context-bar>
         <div class="tds-context-bar__selectors">
@@ -299,10 +318,10 @@
       <div class="tds-rules-container" data-rules-container hidden>
         <!-- Will be added in Iteration 3 -->
       </div>
+      </section>
     </main>
-  </div>
 
-  {{> footer}}
+{{> footer}}
 
   <script type="module" src="/src/main.ts"></script>
   <script type="module" src="/src/streams/main.ts"></script>
