@@ -1,5 +1,5 @@
 import { t } from '@i18n';
-import { getIntegrationKeys, deleteIntegrationKey } from '@api/integrations';
+import { getIntegrationKeys, getIntegrationKey, deleteIntegrationKey, updateIntegrationKey } from '@api/integrations';
 import type { IntegrationKey } from '@api/types';
 import { getAccountId } from '@state/auth-state';
 import { showGlobalMessage } from './notifications';
@@ -7,6 +7,9 @@ import { initDropdowns } from './dropdown';
 import { initAddDomainsDrawer } from '@domains/add-domains-drawer';
 import { initTabs } from './tabs';
 import { initCfConnectForms } from '@forms/cf-connect';
+
+// Store current editing key
+let currentEditingKey: IntegrationKey | null = null;
 
 /**
  * Format date to locale string
@@ -73,33 +76,15 @@ function renderIntegrationRow(key: IntegrationKey): string {
       </td>
       <td class="text-muted">${formatDate(key.last_used)}</td>
       <td class="table-actions">
-        <div class="dropdown dropdown--menu">
-          <button class="btn-icon btn-icon--neutral dropdown__trigger" type="button" aria-label="Actions">
-            <span class="icon" data-icon="mono/dots-vertical"></span>
-          </button>
-          <div class="dropdown__menu dropdown__menu--right" role="menu">
-            <button class="dropdown__item" type="button" data-action="edit-key" data-key-id="${key.id}">
-              <span class="icon" data-icon="mono/edit"></span>
-              <span>Rename</span>
-            </button>
-            ${key.provider === 'cloudflare' && key.status === 'active' ? `
-            <button class="dropdown__item" type="button" data-action="rotate-token" data-key-id="${key.id}">
-              <span class="icon" data-icon="mono/refresh"></span>
-              <span>Rotate token</span>
-            </button>
-            ` : ''}
-            ${key.status === 'active' ? `
-            <button class="dropdown__item" type="button" data-action="revoke-key" data-key-id="${key.id}">
-              <span class="icon" data-icon="mono/shield-off"></span>
-              <span>Revoke</span>
-            </button>
-            ` : ''}
-            <button class="dropdown__item dropdown__item--danger" type="button" data-action="delete-integration" data-key-id="${key.id}">
-              <span class="icon" data-icon="mono/delete"></span>
-              <span>Delete</span>
-            </button>
-          </div>
-        </div>
+        <button
+          class="btn-icon"
+          type="button"
+          data-action="edit-key"
+          data-key-id="${key.id}"
+          aria-label="Edit ${key.key_alias}"
+        >
+          <span class="icon" data-icon="mono/pencil-circle"></span>
+        </button>
       </td>
     </tr>
   `;
@@ -194,7 +179,7 @@ export async function loadIntegrations(): Promise<void> {
 
 
 /**
- * Handle rename key action
+ * Handle edit key action - open drawer
  */
 async function handleEditKey(event: Event): Promise<void> {
   const button = event.currentTarget as HTMLButtonElement;
@@ -202,73 +187,63 @@ async function handleEditKey(event: Event): Promise<void> {
 
   if (!keyId) return;
 
-  // TODO: Open edit drawer/modal with key_alias input
-  showGlobalMessage('info', 'Rename functionality coming soon');
-}
-
-/**
- * Handle rotate token action (Cloudflare only)
- */
-async function handleRotateToken(event: Event): Promise<void> {
-  const button = event.currentTarget as HTMLButtonElement;
-  const keyId = button.dataset.keyId;
-
-  if (!keyId) return;
-
-  // TODO: Open drawer to input new bootstrap token
-  showGlobalMessage('info', 'Token rotation functionality coming soon');
-}
-
-/**
- * Handle revoke key action
- */
-async function handleRevokeKey(event: Event): Promise<void> {
-  const button = event.currentTarget as HTMLButtonElement;
-  const keyId = button.dataset.keyId;
-
-  if (!keyId) return;
-
-  const confirmed = confirm('Revoke this integration key? It will no longer be usable.');
-
-  if (!confirmed) return;
-
   try {
-    const { updateIntegrationKey } = await import('@api/integrations');
-    await updateIntegrationKey(parseInt(keyId, 10), { status: 'revoked' });
-    showGlobalMessage('success', 'Integration key revoked');
+    // Fetch full key details
+    const key = await getIntegrationKey(parseInt(keyId, 10));
+    currentEditingKey = key;
 
-    // Reload integrations
-    await loadIntegrations();
+    // Open drawer
+    openEditIntegrationDrawer(key);
   } catch (error: any) {
-    const errorMessage = error.message || 'Failed to revoke key';
-    showGlobalMessage('error', errorMessage);
+    showGlobalMessage('error', error.message || 'Failed to load integration details');
   }
 }
 
 /**
- * Handle delete integration action from dropdown
+ * Open edit integration drawer and populate with key data
  */
-async function handleDeleteIntegration(event: Event): Promise<void> {
-  const button = event.currentTarget as HTMLButtonElement;
-  const keyId = button.dataset.keyId;
+function openEditIntegrationDrawer(key: IntegrationKey): void {
+  const drawer = document.querySelector<HTMLElement>('[data-drawer="edit-integration"]');
+  if (!drawer) return;
 
-  if (!keyId) return;
+  // Populate provider info
+  const providerIcon = drawer.querySelector('[data-integration-provider-icon]');
+  const providerName = drawer.querySelector('[data-integration-provider-name]');
+  const accountIdEl = drawer.querySelector('[data-integration-account-id]');
 
-  const confirmed = confirm('Delete this integration? The API key will be removed from 301.st.');
-
-  if (!confirmed) return;
-
-  try {
-    await deleteIntegrationKey(parseInt(keyId, 10));
-    showGlobalMessage('success', 'Integration deleted successfully');
-
-    // Reload integrations
-    await loadIntegrations();
-  } catch (error: any) {
-    const errorMessage = error.message || 'Failed to delete integration';
-    showGlobalMessage('error', errorMessage);
+  if (providerIcon) {
+    const { icon, name } = getProviderInfo(key.provider);
+    providerIcon.setAttribute('data-icon', icon);
+    if (providerName) providerName.textContent = name;
   }
+
+  if (accountIdEl) {
+    accountIdEl.textContent = key.external_account_id;
+  }
+
+  // Populate form fields
+  const aliasInput = drawer.querySelector<HTMLInputElement>('[name="key_alias"]');
+  if (aliasInput) aliasInput.value = key.key_alias;
+
+  const statusRadios = drawer.querySelectorAll<HTMLInputElement>('[name="status"]');
+  statusRadios.forEach((radio) => {
+    radio.checked = radio.value === key.status;
+  });
+
+  // Show/hide rotate token section (Cloudflare only)
+  const rotateSection = drawer.querySelector('[data-rotate-token-section]');
+  if (rotateSection) {
+    if (key.provider === 'cloudflare' && key.status === 'active') {
+      rotateSection.removeAttribute('hidden');
+    } else {
+      rotateSection.setAttribute('hidden', '');
+    }
+  }
+
+  // Show drawer
+  drawer.removeAttribute('hidden');
 }
+
 
 /**
  * Open add domains drawer
@@ -335,17 +310,89 @@ export function openConnectCloudflareDrawer(): void {
 }
 
 /**
+ * Initialize edit integration drawer
+ */
+function initEditIntegrationDrawer(): void {
+  const drawer = document.querySelector<HTMLElement>('[data-drawer="edit-integration"]');
+  if (!drawer) return;
+
+  // Close drawer handlers
+  drawer.querySelectorAll('[data-drawer-close]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      drawer.setAttribute('hidden', '');
+      currentEditingKey = null;
+    });
+  });
+
+  // Form submit - save alias and status
+  const form = drawer.querySelector<HTMLFormElement>('[data-form="edit-integration"]');
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!currentEditingKey) return;
+
+    const formData = new FormData(form);
+    const alias = formData.get('key_alias') as string;
+    const status = formData.get('status') as 'active' | 'revoked';
+
+    try {
+      await updateIntegrationKey(currentEditingKey.id, {
+        key_alias: alias,
+        status,
+      });
+
+      showGlobalMessage('success', 'Integration updated successfully');
+      drawer.setAttribute('hidden', '');
+      currentEditingKey = null;
+
+      // Reload integrations
+      await loadIntegrations();
+    } catch (error: any) {
+      showGlobalMessage('error', error.message || 'Failed to update integration');
+    }
+  });
+
+  // Delete integration from drawer
+  const deleteBtn = drawer.querySelector('[data-action="delete-integration-confirm"]');
+  deleteBtn?.addEventListener('click', async () => {
+    if (!currentEditingKey) return;
+
+    const confirmed = confirm(
+      `Delete "${currentEditingKey.key_alias}"?\n\nThis will remove the API key from 301.st. The token at ${currentEditingKey.provider} will NOT be deleted.`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      await deleteIntegrationKey(currentEditingKey.id);
+      showGlobalMessage('success', 'Integration deleted successfully');
+      drawer.setAttribute('hidden', '');
+      currentEditingKey = null;
+
+      // Reload integrations
+      await loadIntegrations();
+    } catch (error: any) {
+      showGlobalMessage('error', error.message || 'Failed to delete integration');
+    }
+  });
+
+  // Rotate token (Cloudflare)
+  const rotateBtn = drawer.querySelector('[data-action="rotate-token-submit"]');
+  rotateBtn?.addEventListener('click', () => {
+    showGlobalMessage('info', 'Token rotation functionality coming soon');
+  });
+}
+
+/**
  * Initialize integrations page
  */
 export function initIntegrationsPage(): void {
   // Only run on integrations page
   if (!document.querySelector('[data-integrations-tbody]')) return;
 
-  // Initialize add domains drawer
+  // Initialize drawers
   initAddDomainsDrawer();
-
-  // Initialize CF connect forms
   initCfConnectForms();
+  initEditIntegrationDrawer();
 
   // Load integrations when account ID becomes available
   const accountId = getAccountId();
@@ -371,28 +418,13 @@ export function initIntegrationsPage(): void {
 
   // Note: "Connect Cloudflare" handler is global (in main.ts)
 
-  // Attach dropdown action handlers (delegated)
+  // Attach edit key handler (delegated)
   document.addEventListener('click', (e) => {
     const target = e.target as HTMLElement;
 
-    // Edit/Rename key
+    // Edit key - opens drawer
     if (target.closest('[data-action="edit-key"]')) {
       handleEditKey(e);
-    }
-
-    // Rotate token (Cloudflare)
-    if (target.closest('[data-action="rotate-token"]')) {
-      handleRotateToken(e);
-    }
-
-    // Revoke key
-    if (target.closest('[data-action="revoke-key"]')) {
-      handleRevokeKey(e);
-    }
-
-    // Delete integration
-    if (target.closest('[data-action="delete-integration"]')) {
-      handleDeleteIntegration(e);
     }
   });
 }
