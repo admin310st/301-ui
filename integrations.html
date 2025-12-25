@@ -127,6 +127,30 @@
 {{> connect-cloudflare-drawer}}
 {{> edit-integration-drawer}}
 
+    <!-- Confirmation Dialog: Delete Integration (danger variant) -->
+    <div class="dialog dialog--danger" data-dialog="delete-integration" hidden>
+      <div class="dialog__overlay" data-dialog-close></div>
+      <div class="dialog__panel">
+        <header class="dialog__header">
+          <h2 class="dialog__title">Delete integration?</h2>
+          <button class="btn-close" type="button" data-dialog-close aria-label="Close">
+            <span class="icon" data-icon="mono/close"></span>
+          </button>
+        </header>
+        <div class="dialog__body">
+          <p>Are you sure you want to delete <strong data-integration-alias>this integration</strong>?</p>
+          <p class="text-muted">This will remove the API key from 301.st. The token at <strong data-integration-provider>the provider</strong> will NOT be deleted.</p>
+        </div>
+        <footer class="dialog__footer">
+          <button class="btn btn--danger" type="button" data-confirm-delete-integration>
+            <span class="icon" data-icon="mono/delete"></span>
+            <span>Delete integration</span>
+          </button>
+          <button class="btn btn--ghost" type="button" data-dialog-close>Cancel</button>
+        </footer>
+      </div>
+    </div>
+
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

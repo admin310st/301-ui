@@ -7,6 +7,7 @@ import { initDropdowns } from './dropdown';
 import { initAddDomainsDrawer } from '@domains/add-domains-drawer';
 import { initTabs } from './tabs';
 import { initCfConnectForms } from '@forms/cf-connect';
+import { showDialog, hideDialog } from './dialog';
 
 // Store current editing key
 let currentEditingKey: IntegrationKey | null = null;
@@ -354,28 +355,26 @@ function initEditIntegrationDrawer(): void {
     }
   });
 
-  // Delete integration from drawer
-  const deleteBtn = drawer.querySelector('[data-action="delete-integration-confirm"]');
-  deleteBtn?.addEventListener('click', async () => {
+  // Delete integration - open confirmation dialog
+  const deleteBtn = drawer.querySelector('[data-action="delete-integration"]');
+  deleteBtn?.addEventListener('click', () => {
     if (!currentEditingKey) return;
 
-    const confirmed = confirm(
-      `Delete "${currentEditingKey.key_alias}"?\n\nThis will remove the API key from 301.st. The token at ${currentEditingKey.provider} will NOT be deleted.`
-    );
+    // Populate dialog with integration info
+    const dialog = document.querySelector('[data-dialog="delete-integration"]');
+    if (!dialog) return;
 
-    if (!confirmed) return;
+    const aliasEl = dialog.querySelector('[data-integration-alias]');
+    const providerEl = dialog.querySelector('[data-integration-provider]');
 
-    try {
-      await deleteIntegrationKey(currentEditingKey.id);
-      showGlobalMessage('success', 'Integration deleted successfully');
-      drawer.setAttribute('hidden', '');
-      currentEditingKey = null;
-
-      // Reload integrations
-      await loadIntegrations();
-    } catch (error: any) {
-      showGlobalMessage('error', error.message || 'Failed to delete integration');
+    if (aliasEl) aliasEl.textContent = currentEditingKey.key_alias;
+    if (providerEl) {
+      const providerInfo = getProviderInfo(currentEditingKey.provider);
+      providerEl.textContent = providerInfo.name;
     }
+
+    // Show confirmation dialog
+    showDialog('delete-integration');
   });
 
   // Rotate token (Cloudflare)
@@ -429,5 +428,35 @@ export function initIntegrationsPage(): void {
     if (target.closest('[data-action="edit-key"]')) {
       handleEditKey(e);
     }
+
+    // Confirm delete integration from dialog
+    if (target.closest('[data-confirm-delete-integration]')) {
+      handleConfirmDeleteIntegration();
+    }
   });
+}
+
+/**
+ * Handle confirmed delete integration from dialog
+ */
+async function handleConfirmDeleteIntegration(): Promise<void> {
+  if (!currentEditingKey) return;
+
+  try {
+    await deleteIntegrationKey(currentEditingKey.id);
+    showGlobalMessage('success', 'Integration deleted successfully');
+
+    // Hide dialog and drawer
+    hideDialog('delete-integration');
+    const drawer = document.querySelector<HTMLElement>('[data-drawer="edit-integration"]');
+    if (drawer) drawer.setAttribute('hidden', '');
+
+    currentEditingKey = null;
+
+    // Reload integrations
+    await loadIntegrations();
+  } catch (error: any) {
+    showGlobalMessage('error', error.message || 'Failed to delete integration');
+    hideDialog('delete-integration');
+  }
 }
