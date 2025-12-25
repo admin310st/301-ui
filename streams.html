@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TDS Rules — Traffic Distribution System | 301.st</title>
+  <link rel="stylesheet" href="/static/css/site.css">
+  <link rel="icon" type="image/svg+xml" href="/static/img/favicon.svg">
+</head>
+<body>
+  {{> header-top}}
+  {{> header-utility}}
+
+  <div class="app-layout">
+    {{> sidebar activePage="streams"}}
+
+    <main class="page-content">
+      <!-- Context Bar (sticky top navigation) -->
+      <div class="tds-context-bar" data-context-bar>
+        <div class="tds-context-bar__selectors">
+          <!-- Project selector -->
+          <div class="dropdown" data-dropdown>
+            <button class="btn-chip" data-dropdown-trigger>
+              <span class="icon" data-icon="mono/briefcase"></span>
+              <span>Casino Q1 2025</span>
+              <span class="icon" data-icon="mono/chevron-down"></span>
+            </button>
+            <div class="dropdown__menu">
+              <button class="dropdown__item is-active">
+                <strong>Casino Q1 2025</strong>
+              </button>
+              <button class="dropdown__item">
+                <strong>Crypto Brand</strong>
+              </button>
+            </div>
+          </div>
+
+          <!-- Site selector (PRIMARY SCOPE) -->
+          <div class="dropdown" data-dropdown>
+            <button class="btn-chip" data-dropdown-trigger>
+              <span class="icon" data-icon="mono/layers"></span>
+              <span>RU Landing</span>
+              <span class="icon" data-icon="mono/chevron-down"></span>
+            </button>
+            <div class="dropdown__menu">
+              <button class="dropdown__item is-active">
+                <strong>RU Landing</strong>
+                <span class="text-sm text-muted">3 domains</span>
+              </button>
+              <button class="dropdown__item">
+                <strong>EN Promo</strong>
+                <span class="text-sm text-muted">2 domains</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Acceptor domain selector (SECONDARY) -->
+          <div class="dropdown" data-dropdown>
+            <button class="btn-chip" data-dropdown-trigger>
+              <span class="icon" data-icon="mono/dns"></span>
+              <span>offer.example.com</span>
+              <span class="badge badge--sm badge--success">acceptor</span>
+              <span class="icon" data-icon="mono/chevron-down"></span>
+            </button>
+            <div class="dropdown__menu">
+              <button class="dropdown__item is-active">
+                <div class="dropdown__item-content">
+                  <strong>offer.example.com</strong>
+                  <span class="badge badge--sm badge--success">acceptor</span>
+                  <p class="text-sm text-muted">TDS active</p>
+                </div>
+              </button>
+              <button class="dropdown__item">
+                <div class="dropdown__item-content">
+                  <strong>promo.example.com</strong>
+                  <span class="badge badge--sm badge--success">acceptor</span>
+                  <p class="text-sm text-muted">TDS active</p>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="tds-context-bar__status">
+          <span class="badge badge--sm badge--success">
+            <span class="icon" data-icon="mono/shield-check"></span>
+            <span>Shield: On</span>
+          </span>
+          <span class="badge badge--sm badge--success">
+            <span class="icon" data-icon="mono/zap"></span>
+            <span>TDS: Active</span>
+          </span>
+        </div>
+
+        <div class="tds-context-bar__actions">
+          <button class="btn-icon" title="Test in Simulator">
+            <span class="icon" data-icon="mono/flask"></span>
+          </button>
+          <button class="btn btn--primary" disabled data-action="publish">
+            <span class="icon" data-icon="mono/upload"></span>
+            <span>Publish</span>
+          </button>
+          <div class="dropdown" data-dropdown>
+            <button class="btn-icon" data-dropdown-trigger title="More actions">
+              <span class="icon" data-icon="mono/menu"></span>
+            </button>
+            <div class="dropdown__menu dropdown__menu--right">
+              <button class="dropdown__item">
+                <span class="icon" data-icon="mono/download"></span>
+                <span>Export rules</span>
+              </button>
+              <button class="dropdown__item">
+                <span class="icon" data-icon="mono/upload"></span>
+                <span>Import rules</span>
+              </button>
+              <button class="dropdown__item">
+                <span class="icon" data-icon="mono/shield-check"></span>
+                <span>Validate all</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pipeline visualization -->
+      <div class="tds-pipeline" data-pipeline>
+        <div class="tds-pipeline__segment">
+          <div class="tds-pipeline__segment-icon">
+            <span class="icon" data-icon="mono/shield"></span>
+          </div>
+          <div class="tds-pipeline__segment-content">
+            <strong>Traffic Shield</strong>
+            <span class="text-sm text-muted">CF Rules</span>
+          </div>
+        </div>
+
+        <div class="tds-pipeline__arrow">
+          <span class="icon" data-icon="mono/arrow-right"></span>
+        </div>
+
+        <div class="tds-pipeline__segment is-active">
+          <div class="tds-pipeline__segment-icon">
+            <span class="icon" data-icon="mono/directions-fork"></span>
+          </div>
+          <div class="tds-pipeline__segment-content">
+            <strong>TDS Rules</strong>
+            <span class="badge badge--sm">0</span>
+          </div>
+        </div>
+
+        <div class="tds-pipeline__arrow">
+          <span class="icon" data-icon="mono/arrow-right"></span>
+        </div>
+
+        <div class="tds-pipeline__segment">
+          <div class="tds-pipeline__segment-icon">
+            <span class="icon" data-icon="mono/target"></span>
+          </div>
+          <div class="tds-pipeline__segment-content">
+            <strong>Targets</strong>
+            <span class="text-sm text-muted">Offers/Sites</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Welcome Card (shown when no rules) -->
+      <div class="tds-welcome" data-welcome-card>
+        <!-- Hero -->
+        <div class="tds-welcome__hero">
+          <h1 class="tds-welcome__title">
+            <span class="icon icon--lg" data-icon="mono/directions-fork"></span>
+            Traffic Distribution System
+          </h1>
+          <p class="tds-welcome__subtitle">
+            Intelligent traffic routing with auto-optimizing A/B tests. Route users by geo, device, source — and let AI maximize your revenue.
+          </p>
+        </div>
+
+        <!-- Key Features -->
+        <div class="tds-welcome__features">
+          <div class="tds-welcome__feature">
+            <div class="tds-welcome__feature-icon tds-welcome__feature-icon--primary">
+              <span class="icon icon--lg" data-icon="mono/shield"></span>
+            </div>
+            <h3>SmartShield</h3>
+            <p>Protect from moderators and bots. Route by geo, device, ASN, TLS version. Show white pages to unwanted traffic.</p>
+          </div>
+
+          <div class="tds-welcome__feature">
+            <div class="tds-welcome__feature-icon tds-welcome__feature-icon--info">
+              <span class="icon icon--lg" data-icon="mono/link"></span>
+            </div>
+            <h3>SmartLink</h3>
+            <p>Route by UTM params and campaign tags. Split traffic by source, creative, or custom parameters. DeepLinks support.</p>
+          </div>
+
+          <div class="tds-welcome__feature">
+            <div class="tds-welcome__feature-icon tds-welcome__feature-icon--success">
+              <span class="icon icon--lg" data-icon="mono/trending-up"></span>
+            </div>
+            <h3>MAB A/B Testing <span class="badge badge--sm badge--warning">Pro</span></h3>
+            <p><strong>+5.7% revenue boost.</strong> Multi-Armed Bandits auto-optimize traffic distribution. No manual analysis — AI does it for you.</p>
+          </div>
+        </div>
+
+        <!-- Quick Start Checklist -->
+        <div class="tds-welcome__checklist">
+          <h2>Quick Start Guide</h2>
+          <ul class="checklist">
+            <li class="checklist__item">
+              <span class="checklist__icon">
+                <span class="icon" data-icon="mono/shield-check"></span>
+              </span>
+              <div class="checklist__content">
+                <strong>Configure Traffic Shield</strong>
+                <p>Set up Cloudflare Rules to block bots and moderators before they reach TDS.</p>
+              </div>
+            </li>
+            <li class="checklist__item">
+              <span class="checklist__icon">
+                <span class="icon" data-icon="mono/plus-circle"></span>
+              </span>
+              <div class="checklist__content">
+                <strong>Create your first rule</strong>
+                <p>Choose SmartShield (geo/device) or SmartLink (UTM routing). Rules execute top to bottom.</p>
+              </div>
+            </li>
+            <li class="checklist__item">
+              <span class="checklist__icon">
+                <span class="icon" data-icon="mono/trending-up"></span>
+              </span>
+              <div class="checklist__content">
+                <strong>Try MAB A/B Testing</strong>
+                <p>Add 2+ variants and let Thompson Sampling algorithm optimize traffic automatically.</p>
+              </div>
+            </li>
+            <li class="checklist__item">
+              <span class="checklist__icon">
+                <span class="icon" data-icon="mono/flask"></span>
+              </span>
+              <div class="checklist__content">
+                <strong>Test in Simulator</strong>
+                <p>Simulate requests with different geo/device/UTM to verify your rules work correctly.</p>
+              </div>
+            </li>
+            <li class="checklist__item">
+              <span class="checklist__icon">
+                <span class="icon" data-icon="mono/upload"></span>
+              </span>
+              <div class="checklist__content">
+                <strong>Publish changes</strong>
+                <p>Rules are saved as drafts. Click "Publish" to sync them to Cloudflare Workers.</p>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <!-- CTA -->
+        <div class="tds-welcome__cta">
+          <button class="btn btn--primary btn--lg" data-action="create-rule">
+            <span class="icon" data-icon="mono/plus"></span>
+            <span>Create Your First Rule</span>
+          </button>
+          <a href="/docs/tds-guide.html" class="btn btn--ghost btn--lg">
+            <span class="icon" data-icon="mono/book-open"></span>
+            <span>Read Full Guide</span>
+          </a>
+        </div>
+
+        <!-- Footer links -->
+        <div class="tds-welcome__footer">
+          <a href="/docs/mab-explained.html" class="link">
+            <span class="icon" data-icon="mono/help-circle"></span>
+            <span>What is MAB A/B Testing?</span>
+          </a>
+          <a href="/docs/tds-examples.html" class="link">
+            <span class="icon" data-icon="mono/code"></span>
+            <span>View Example Rules</span>
+          </a>
+          <a href="https://github.com/301st/docs" class="link" target="_blank">
+            <span class="icon" data-icon="mono/github"></span>
+            <span>API Documentation</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Empty State (shown when rules exist but filtered to 0) -->
+      <div class="empty-state" data-empty-state hidden>
+        <span class="icon icon--xxl" data-icon="mono/search"></span>
+        <h2>No rules match your filters</h2>
+        <p>Try adjusting your search or filters to find what you're looking for.</p>
+        <button class="btn btn--ghost" data-action="clear-filters">
+          <span class="icon" data-icon="mono/x"></span>
+          <span>Clear Filters</span>
+        </button>
+      </div>
+
+      <!-- Rules Table (shown when rules exist) -->
+      <div class="tds-rules-container" data-rules-container hidden>
+        <!-- Will be added in Iteration 3 -->
+      </div>
+    </main>
+  </div>
+
+  {{> footer}}
+
+  <script type="module" src="/src/main.ts"></script>
+  <script type="module" src="/src/streams/main.ts"></script>
+</body>
+</html>
