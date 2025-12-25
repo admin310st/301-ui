@@ -158,7 +158,7 @@ Worker parses URL parameters:
   },
   "action": {
     "type": "redirect",
-    "target": "https://offer1.example.com/landing?camp=fb-summer"
+    "url": "https://offer1.example.com/landing?camp=fb-summer"
   }
 }
 ```
@@ -212,7 +212,7 @@ Decision:
   },
   "action": {
     "type": "redirect",
-    "target": "https://offer1.example.com/ru-mobile"
+    "url": "https://offer1.example.com/ru-mobile"
   }
 }
 ```
@@ -667,14 +667,24 @@ UPDATE tds_rules SET priority = 3 WHERE id = 3;
 }
 ```
 
-**Update flow:**
-1. User updates rule via API
-2. API-worker updates D1 table `tds_rules`
-3. API-worker queries all enabled rules for site (sorted by priority)
+**Update flow (Draft → Publish):**
+
+**Draft changes (NO KV sync):**
+1. User creates/updates/deletes/reorders rules via API
+2. API-worker saves changes to D1 table `tds_rules` with `draft_status = 'draft'`
+3. API-worker writes to audit_log (draft action)
+4. UI shows "Unpublished changes" banner
+5. **NO KV sync** — Edge-worker continues using old published rules
+
+**Publish flow (KV sync happens here):**
+1. User clicks "Publish" button in UI
+2. API validates all rules (via `/validate` endpoint)
+3. If valid: API-worker queries all enabled rules for site (sorted by priority)
 4. API-worker generates JSON snapshot
 5. API-worker puts snapshot to KV: `KV_TDS.put('tds:site:123', snapshot)`
-6. API-worker writes to audit_log
-7. Edge-worker reads updated snapshot on next request
+6. API-worker updates `draft_status = 'published'` and `published_at = NOW()`
+7. API-worker writes to audit_log (publish action)
+8. Edge-worker reads updated snapshot on next request
 
 ---
 
@@ -791,21 +801,38 @@ UPDATE tds_rules SET priority = 3 WHERE id = 3;
 
 ### 5. KV Snapshot Sync
 
-✅ **When to sync:**
-- After CREATE rule
-- After UPDATE rule (enabled, match, action, priority)
-- After DELETE rule
-- After REORDER rules
+⚠️ **КРИТИЧЕСКИ ВАЖНО: Draft/Publish Flow**
 
-✅ **What to include:**
-- Only enabled rules
+**KV обновляется ТОЛЬКО при Publish (commit), НЕ при каждом изменении!**
+
+✅ **When to sync:**
+- **ONLY** after explicit PUBLISH action (commit draft changes)
+- Никогда не синкать при CREATE/UPDATE/DELETE/REORDER draft-изменений
+
+✅ **Draft flow (DB only, NO KV sync):**
+- User creates/updates/deletes/reorders rules → changes saved to D1 as **draft**
+- Draft changes tracked in `draft_changes` table or status column
+- User sees "Unpublished changes" banner in UI
+- No impact on Edge-worker (KV still has old state)
+
+✅ **Publish flow (DB + KV sync):**
+- User clicks "Publish" button
+- API validates all rules
+- API generates KV snapshot from D1 (only enabled rules, sorted by priority)
+- API puts snapshot to KV: `KV_TDS.put('tds:site:123', snapshot)`
+- API clears draft status
+- Edge-worker reads updated snapshot on next request
+
+✅ **What to include in KV snapshot:**
+- Only **published** enabled rules
 - Sorted by priority (ASC)
 - Full rule objects (id, match, action)
-- Metadata (etag, updated_at)
+- Metadata (etag, updated_at, published_at)
 
 ❌ **Don't:**
+- Don't sync draft changes to KV (только published)
 - Don't sync disabled rules to KV
-- Don't sync full audit history (only current state)
+- Don't sync full audit history (only current published state)
 
 ---
 
@@ -1104,8 +1131,11 @@ function validateRule(rule: TDSRule): string[] {
 - [ ] ❌ **НЕ РЕАЛИЗУЙТЕ weighted_redirect** (устарело!)
 
 ### Хранение и синхронизация
-- [ ] KV snapshot sync при каждом изменении
-- [ ] Только enabled правила в KV, отсортированные по priority
+- [ ] **Draft/Publish flow**: изменения сохраняются в D1 как draft
+- [ ] **KV snapshot sync ТОЛЬКО при Publish** (НЕ при каждом изменении!)
+- [ ] Добавить `draft_status` колонку или `draft_changes` таблицу
+- [ ] Endpoint `POST /api/sites/:siteId/tds/publish` для публикации draft-изменений
+- [ ] Только published enabled правила в KV, отсортированные по priority
 - [ ] Edge-worker читает KV snapshot (read-only)
 
 ### Валидация

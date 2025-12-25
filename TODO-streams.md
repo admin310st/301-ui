@@ -179,13 +179,21 @@
 - Use `.btn-chip` for selectors (existing component)
 
 **Логика селекторов:**
-- **Project selector** - выбор проекта/кампании
-- **Site selector** - выбор сайта в проекте (логическая группа доменов)
-- **Acceptor domain selector** - выбор домена с ролью `acceptor` (на котором работает TDS)
+
+⚠️ **Primary scope: Site (не Domain!)**
+- TDS правила хранятся с FK `site_id`
+- **Site selector обязателен** - это основной контекст страницы
+- Правила применяются ко всем acceptor доменам сайта автоматически
+
+**Selectors:**
+- **Project selector** - выбор проекта/кампании (группировка сайтов)
+- **Site selector** ⭐ - **PRIMARY SCOPE** - выбор сайта (к которому привязаны TDS правила)
+- **Acceptor domain selector** - **ВТОРИЧНЫЙ** - выбор домена для:
+  - Entry URL (копирование ссылки для трафика)
+  - Симулятора (тест запроса "as if it came to this domain")
+  - Отображения "Правила применяются к: offer.example.com, promo.example.com"
   - Показываем ТОЛЬКО домены с `role: acceptor` из выбранного Site
   - Donor/reserve домены НЕ показываем (у них нет TDS)
-  - Badge "acceptor" показывает роль домена
-  - Hint "TDS active" подтверждает, что на домене работает TDS Worker
 
 **Files:**
 - `static/css/site.css` - add `.tds-context-bar` styles
@@ -455,7 +463,7 @@ const showWelcome = !entryDomain || rulesCount === 0 || isReadOnly;
 **Component:** Reuse `.table` pattern with custom columns
 
 **Columns:**
-1. **Priority** (80px) - number + up/down + drag handle
+1. **Position** (80px) - number + up/down + drag handle
 2. **Type** (100px) - SmartLink or SmartShield badge
 3. **When** (fluid) - chips summary of conditions
 4. **Then** (fluid) - target + status
@@ -463,13 +471,15 @@ const showWelcome = !entryDomain || rulesCount === 0 || isReadOnly;
 6. **Updated** (120px) - relative time
 7. **Actions** (100px) - edit/duplicate/delete
 
+**Note:** "Position" in UI = execution order (lower number = higher priority). In API/storage, this is stored as `priority` field.
+
 **Structure:**
 ```html
 <div class="table-wrapper">
   <table class="table">
     <thead>
       <tr>
-        <th class="th-priority">Priority</th>
+        <th class="th-priority">Position</th>
         <th class="th-type">Type</th>
         <th>When</th>
         <th>Then</th>
@@ -481,7 +491,7 @@ const showWelcome = !entryDomain || rulesCount === 0 || isReadOnly;
     <tbody>
       <!-- SmartShield rule -->
       <tr class="table-row" data-rule-id="1" data-rule-type="smartshield">
-        <!-- Priority cell -->
+        <!-- Position cell -->
         <td class="td-priority">
           <div class="priority-control">
             <button class="priority-control__btn" data-action="move-up" title="Move up">
@@ -813,24 +823,38 @@ const showWelcome = !entryDomain || rulesCount === 0 || isReadOnly;
 **Form Structure:**
 ```html
 <form class="stack-list" data-form="rule-conditions">
-  <!-- Rule Type Selector -->
+  <!-- Catch-all toggle -->
   <div class="field">
-    <label class="field__label">Rule Type</label>
-    <div class="btn-group btn-group--full" role="group" data-rule-type-selector>
-      <button type="button" class="btn btn--ghost is-active" data-rule-type="smartshield">
-        <span class="icon" data-icon="mono/shield"></span>
-        <span>SmartShield</span>
-      </button>
-      <button type="button" class="btn btn--ghost" data-rule-type="smartlink">
-        <span class="icon" data-icon="mono/link"></span>
-        <span>SmartLink</span>
-      </button>
-    </div>
+    <label class="checkbox">
+      <input type="checkbox" data-match-all-traffic />
+      <span class="checkbox__label"><strong>Match all traffic (Catch-all)</strong></span>
+    </label>
     <p class="field__hint text-muted">
-      <strong>SmartShield:</strong> Route by geo, device, bots (CF metadata).
-      <strong>SmartLink:</strong> Route by UTM params, campaign tags.
+      When enabled, this rule will match ANY request (no conditions required).
+      Useful for fallback/default actions. Will be displayed as "ANY" in table.
     </p>
   </div>
+
+  <!-- Conditions wrapper (disabled when match-all is checked) -->
+  <div data-conditions-wrapper>
+    <!-- Rule Type Selector -->
+    <div class="field">
+      <label class="field__label">Rule Type</label>
+      <div class="btn-group btn-group--full" role="group" data-rule-type-selector>
+        <button type="button" class="btn btn--ghost is-active" data-rule-type="smartshield">
+          <span class="icon" data-icon="mono/shield"></span>
+          <span>SmartShield</span>
+        </button>
+        <button type="button" class="btn btn--ghost" data-rule-type="smartlink">
+          <span class="icon" data-icon="mono/link"></span>
+          <span>SmartLink</span>
+        </button>
+      </div>
+      <p class="field__hint text-muted">
+        <strong>SmartShield:</strong> Route by geo, device, bots (CF metadata).
+        <strong>SmartLink:</strong> Route by UTM params, campaign tags.
+      </p>
+    </div>
 
   <!-- SmartShield Conditions (shown when type=smartshield) -->
   <div data-rule-type-fields="smartshield">
@@ -1007,7 +1031,34 @@ const showWelcome = !entryDomain || rulesCount === 0 || isReadOnly;
       </div>
     </details>
   </div>
+  <!-- End conditions wrapper -->
+  </div>
 </form>
+```
+
+**JavaScript Logic:**
+```typescript
+// src/streams/drawer.ts
+const matchAllCheckbox = document.querySelector('[data-match-all-traffic]') as HTMLInputElement;
+const conditionsWrapper = document.querySelector('[data-conditions-wrapper]') as HTMLElement;
+
+matchAllCheckbox.addEventListener('change', () => {
+  if (matchAllCheckbox.checked) {
+    // Disable all condition fields
+    conditionsWrapper.querySelectorAll('input, select, button').forEach(el => {
+      (el as HTMLInputElement).disabled = true;
+    });
+    conditionsWrapper.style.opacity = '0.5';
+    conditionsWrapper.style.pointerEvents = 'none';
+  } else {
+    // Re-enable condition fields
+    conditionsWrapper.querySelectorAll('input, select, button').forEach(el => {
+      (el as HTMLInputElement).disabled = false;
+    });
+    conditionsWrapper.style.opacity = '1';
+    conditionsWrapper.style.pointerEvents = 'auto';
+  }
+});
 ```
 
 **New Components:**
@@ -1039,9 +1090,11 @@ const showWelcome = !entryDomain || rulesCount === 0 || isReadOnly;
         <span class="icon" data-icon="mono/arrow-right"></span>
         <span>Redirect</span>
       </button>
-      <button class="btn-chip" type="button" data-action-type="mab_redirect">
+      <!-- MAB button: disabled + locked badge if Free plan -->
+      <button class="btn-chip" type="button" data-action-type="mab_redirect" data-requires-plan="paid" disabled title="MAB A/B testing requires Paid plan">
         <span class="icon" data-icon="mono/trending-up"></span>
         <span>A/B Test (MAB)</span>
+        <span class="badge badge--sm badge--warning">Pro</span>
       </button>
       <button class="btn-chip" type="button" data-action-type="response">
         <span class="icon" data-icon="mono/code"></span>
@@ -1049,7 +1102,7 @@ const showWelcome = !entryDomain || rulesCount === 0 || isReadOnly;
       </button>
     </div>
     <p class="field__hint text-muted">
-      <strong>MAB</strong> = Multi-Armed Bandit: auto-optimizing A/B test that minimizes losses
+      <strong>MAB</strong> = Multi-Armed Bandit: auto-optimizing A/B test that minimizes losses. <strong>Requires Paid plan.</strong>
     </p>
   </div>
 
@@ -1347,18 +1400,71 @@ const showWelcome = !entryDomain || rulesCount === 0 || isReadOnly;
       <input type="number" class="input" value="200" min="200" max="599" />
     </div>
 
+    <!-- Body type selector -->
     <div class="field">
-      <label class="field__label">Response body</label>
-      <textarea class="textarea" rows="8" placeholder="HTML content or JSON response"></textarea>
+      <label class="field__label">Response body type</label>
+      <div class="btn-group btn-group--full" role="group">
+        <button type="button" class="btn btn--ghost is-active" data-body-type="html">
+          <span>HTML</span>
+        </button>
+        <button type="button" class="btn btn--ghost" data-body-type="text">
+          <span>Text/JSON</span>
+        </button>
+      </div>
       <p class="field__hint text-muted">
-        Supports HTML, JSON, or plain text.
+        HTML: saved as <code>bodyHtml</code>. Text/JSON: saved as <code>bodyText</code>.
       </p>
     </div>
+
+    <!-- Body content (label changes based on type) -->
+    <div class="field">
+      <label class="field__label" data-body-label>Response body (HTML)</label>
+      <textarea class="textarea" rows="8" placeholder="<!doctype html>..."></textarea>
+      <p class="field__hint text-muted">
+        For bots/moderators. Will be returned directly without redirect.
+      </p>
+    </div>
+
+    <!-- Headers (optional, collapsed) -->
+    <details class="field__details">
+      <summary class="field__details-summary">Custom headers (optional)</summary>
+      <div class="stack-list stack-list--sm">
+        <div class="field" data-repeatable-headers>
+          <div class="cluster cluster--sm">
+            <input type="text" class="input" placeholder="Content-Type" style="flex: 1;" />
+            <input type="text" class="input" placeholder="text/html; charset=utf-8" style="flex: 2;" />
+            <button class="btn-icon btn-icon--compact" type="button" title="Remove header">
+              <span class="icon" data-icon="mono/close"></span>
+            </button>
+          </div>
+        </div>
+        <button class="btn btn--ghost btn--sm" type="button" data-action="add-header">
+          <span class="icon" data-icon="mono/plus"></span>
+          <span>Add header</span>
+        </button>
+      </div>
+    </details>
   </div>
 </form>
 ```
 
 **Pattern Reference:** Existing form components, `<details>` for collapsible sections
+
+**Plan Gating Logic:**
+```typescript
+// src/streams/drawer.ts
+const userPlan = await getUserPlan(); // 'free' | 'paid'
+
+const mabButton = document.querySelector('[data-action-type="mab_redirect"]');
+if (userPlan === 'free') {
+  mabButton.setAttribute('disabled', '');
+  mabButton.setAttribute('title', 'MAB A/B testing requires Paid plan. Upgrade to unlock.');
+  // Show badge "Pro"
+} else {
+  mabButton.removeAttribute('disabled');
+  // Hide badge
+}
+```
 
 ---
 
@@ -1383,7 +1489,7 @@ const showWelcome = !entryDomain || rulesCount === 0 || isReadOnly;
     "type": "redirect",
     "url": "https://offer1.example.com",
     "status": 301,
-    "preserveQuery": true
+    "preserveOriginalQuery": true
   },
   "metadata": {
     "etag": "abc123",
@@ -1469,9 +1575,14 @@ drawerCloseBtn.addEventListener('click', (e) => {
 
 ---
 
-## Milestone 5: Reorder UX (Priority Controls)
+## Milestone 5: Reorder UX (Position Controls)
 
-### 5.1. Priority Column Controls + Undo Toast
+**Terminology Note:**
+- **UI/User-facing:** "Position" (lower number = executes first)
+- **Code/API:** `priority` field, `.priority-control` CSS class
+- **Why:** "Position" is clearer for non-technical users ("rule #1 runs first")
+
+### 5.1. Position Column Controls + Undo Toast
 
 **Component:** `.priority-control` (already defined in 3.2)
 
@@ -1605,9 +1716,11 @@ Sortable.create(tbody, {
 
 ---
 
-### 5.4. Priority Control in Drawer
+### 5.4. Position Control in Drawer
 
 **Component:** `.priority-mini` (already defined in 4.1 drawer header)
+
+**Note:** Code still uses "priority" internally, but UI displays "Position"
 
 **Behavior:**
 ```typescript
@@ -1805,7 +1918,7 @@ streams: {
     // ... checklist items
   },
   table: {
-    priority: 'Priority',
+    position: 'Position',  // Note: API field is "priority", but UI shows "Position"
     when: 'When',
     then: 'Then',
     // ... column headers
@@ -2200,9 +2313,49 @@ export const MOCK_TDS_RULES: TDSRule[] = [
 
 ## API Integration (Future - Out of Scope)
 
-**Reference:** `docs/mini-tds-analysis.md` - Complete API specification based on production mini-tds
+⚠️ **КРИТИЧЕСКИ ВАЖНО: API Contract Clarification**
 
-When connecting to real API:
+**Production API:**
+- **UI integrates with 301.st API** (not mini-tds!)
+- **Base path:** `/api/sites/:siteId/tds/...`  ← Site-scoped!
+- **Reference:** `docs/tds-backend-recommendations.md` ← AUTHORITATIVE SOURCE
+
+**mini-tds API:**
+- **Reference only** for architectural inspiration
+- **DO NOT** code UI against mini-tds endpoints
+- Paths differ: mini-tds uses `/api/tds/rules`, 301.st uses `/api/sites/:siteId/tds/rules`
+
+**Current State:**
+- UI uses **mock data** (`src/streams/mock-data.ts`)
+- No real API calls until backend implements 301.st spec
+
+---
+
+**301.st API Endpoints (PRODUCTION):**
+```
+GET    /api/sites/:siteId/tds/rules           # Get all rules for site
+GET    /api/sites/:siteId/tds/rules/:id       # Get single rule
+POST   /api/sites/:siteId/tds/rules           # Create new rule
+PATCH  /api/sites/:siteId/tds/rules/:id       # Update rule
+DELETE /api/sites/:siteId/tds/rules/:id       # Delete rule
+POST   /api/sites/:siteId/tds/rules/validate  # Validate rules
+POST   /api/sites/:siteId/tds/rules/reorder   # Batch reorder
+POST   /api/sites/:siteId/tds/publish         # Publish draft changes → KV sync
+```
+
+**Response structures:** See `docs/tds-backend-recommendations.md` sections:
+- "GET /api/sites/:siteId/tds/rules"
+- "POST /api/sites/:siteId/tds/rules"
+- "PATCH /api/sites/:siteId/tds/rules/:id"
+- "POST /api/sites/:siteId/tds/rules/reorder"
+
+---
+
+**mini-tds Reference (DO NOT USE IN PRODUCTION):**
+
+**Reference:** `docs/mini-tds-analysis.md` - Architectural reference only
+
+**Core Endpoints (mini-tds - reference only):**
 
 **Core Endpoints (mini-tds compatible):**
 ```
