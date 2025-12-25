@@ -235,9 +235,11 @@ interface Site {
 
 ### 5. Streams/TDS (Приоритет #4)
 
-**Статус:** ✅ Documented (TODO-streams.md создан 2025-12-24)
+**Статус:** ✅ Documented (TODO-streams.md создан 2025-12-24, aligned with mini-tds)
 
-**Файл:** [`TODO-streams.md`](../TODO-streams.md)
+**Файлы:**
+- [`TODO-streams.md`](../TODO-streams.md) - Complete UI implementation epic
+- [`docs/mini-tds-analysis.md`](mini-tds-analysis.md) - Production TDS API analysis (investblog/mini-tds)
 
 **Цель:** Traffic Distribution System - распределение трафика по офферам
 
@@ -256,6 +258,12 @@ interface Site {
 4. Rule editor logic (conditions, targets, weights)
 5. Priority controls (reorder UX)
 6. Draft/publish workflow + filters
+
+**API Alignment:**
+- ✅ Data structure выровнена с mini-tds (RouteRule format)
+- ✅ Match/Action паттерн вместо nested conditions
+- ✅ Support для weighted_redirect (A/B тесты)
+- ✅ ETag-based updates (optimistic locking)
 
 **Детали:** См. полный эпик в `TODO-streams.md` с HTML/CSS примерами и mock data
 

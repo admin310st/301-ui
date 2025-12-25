@@ -8,6 +8,8 @@
 
 **Target:** Полноценный UI для управления TDS правилами с онбордингом, таблицей, drawer-редактором и reorder UX
 
+**API Reference:** [`docs/mini-tds-analysis.md`](docs/mini-tds-analysis.md) - Analysis of production TDS implementation (investblog/mini-tds)
+
 ---
 
 ## Architecture Alignment
@@ -1301,68 +1303,139 @@ streams: {
 
 ## Mock Data Structure
 
+**Updated 2025-12-24:** Aligned with mini-tds production patterns (see `docs/mini-tds-analysis.md`)
+
 ```typescript
-// src/streams/mock-data.ts
+// src/streams/types.ts
+export type Device = "mobile" | "desktop" | "tablet" | "any";
+
+export interface MatchRule {
+  path?: string | string[];      // Regex patterns: ["^/casino/([^/?#]+)"]
+  countries?: string[];          // ISO codes (uppercase): ["RU", "UA", "BY"]
+  devices?: Device[];            // Device types
+  bots?: boolean;                // true = bots only, false = exclude bots
+  // Extensions (301-ui specific):
+  referrer?: string | string[];  // Regex for referrer
+  utm_source?: string[];         // UTM source whitelist
+  utm_campaign?: string[];       // UTM campaign whitelist
+}
+
+export interface RedirectTarget {
+  url: string;                   // Absolute URL
+  weight?: number;               // For A/B tests (sum must = 100)
+  label?: string;                // Display name in UI
+}
+
+export interface RedirectAction {
+  type: "redirect" | "weighted_redirect";
+  targets: RedirectTarget[];     // Single target or multiple for A/B
+  query?: Record<string, string | { fromPathGroup: number }>;
+  preserveOriginalQuery?: boolean;
+  appendCountry?: boolean;       // Add ?country=RU
+  appendDevice?: boolean;        // Add ?device=mobile
+  status?: 301 | 302;            // Default 302
+}
+
+export interface ResponseAction {
+  type: "response";
+  status?: number;               // HTTP status (200, 404, etc.)
+  headers?: Record<string, string>;
+  bodyHtml?: string;             // HTML response body
+  bodyText?: string;             // Plain text body
+}
+
+export type RouteAction = RedirectAction | ResponseAction;
+
 export interface TDSRule {
-  id: string;
-  priority: number;
-  enabled: boolean;
-  label?: string; // Optional user-friendly name
-
-  // Conditions
-  conditions: {
-    paths?: string[]; // ["/offer/*", "/promo/*"]
-    countries?: string[]; // ["US", "CA", "GB"]
-    device?: 'all' | 'desktop' | 'mobile' | 'tablet';
-    bots?: 'any' | 'bots-only' | 'exclude-bots';
-  };
-
-  // Action
-  action: {
-    type: 'redirect' | 'response';
-    // Redirect fields
-    url?: string;
-    status?: 301 | 302 | 307 | 308;
-    preserveQuery?: boolean;
-    preservePath?: boolean;
-    headers?: Record<string, string>;
-    // Response fields
-    responseStatus?: number;
-    responseBody?: string;
-  };
-
-  // Metadata
-  metadata: {
-    etag: string;
-    updatedAt: string;
+  id: string;                    // Unique rule ID
+  enabled?: boolean;             // Default true
+  priority?: number;             // For UI sorting (not in mini-tds)
+  label?: string;                // User-friendly name (UI only)
+  match: MatchRule;              // Conditions
+  action: RouteAction;           // Action to take
+  // Metadata (read-only from API)
+  metadata?: {
+    etag?: string;
+    updatedAt?: string;
     updatedBy?: string;
   };
 }
+```
 
-export const MOCK_RULES: TDSRule[] = [
+**Example Mock Data:**
+
+```typescript
+// src/streams/mock-data.ts
+export const MOCK_TDS_RULES: TDSRule[] = [
   {
-    id: 'rule-1',
-    priority: 1,
+    id: "rule-ru-mobile-casino",
     enabled: true,
-    label: 'Mobile US Traffic',
-    conditions: {
-      paths: ['/offer/*'],
-      countries: ['US'],
-      device: 'mobile',
-      bots: 'exclude-bots',
+    priority: 1,
+    label: "RU Mobile Casino → A/B Test",
+    match: {
+      path: ["^/casino/([^/?#]+)"],
+      countries: ["RU", "BY"],
+      devices: ["mobile"],
+      bots: false,
     },
     action: {
-      type: 'redirect',
-      url: 'https://offer1.example.com',
-      status: 301,
-      preserveQuery: true,
+      type: "weighted_redirect",
+      targets: [
+        { url: "https://offer1.example.com/landing", weight: 60, label: "Offer A (60%)" },
+        { url: "https://offer2.example.com/promo", weight: 40, label: "Offer B (40%)" },
+      ],
+      query: {
+        bonus: { fromPathGroup: 1 },  // From regex capture group
+        src: "tds-mobile",
+      },
+      appendCountry: true,
+      appendDevice: true,
+      status: 302,
     },
     metadata: {
-      etag: 'abc123',
-      updatedAt: '2025-12-24T12:00:00Z',
+      etag: "abc123def456",
+      updatedAt: "2025-12-24T12:00:00Z",
+      updatedBy: "admin@ip-1.2.3.4",
     },
   },
-  // ... more rules
+  {
+    id: "rule-ua-desktop-slots",
+    enabled: true,
+    priority: 2,
+    label: "UA Desktop Slots → Direct",
+    match: {
+      path: ["^/slots/"],
+      countries: ["UA"],
+      devices: ["desktop"],
+      bots: false,
+    },
+    action: {
+      type: "redirect",
+      targets: [
+        { url: "https://mainsite.example.com/slots-ua", label: "Main Site" },
+      ],
+      preserveOriginalQuery: true,
+      status: 301,
+    },
+  },
+  {
+    id: "rule-bots-landing",
+    enabled: true,
+    priority: 99,
+    label: "Bots → Safe Landing Page",
+    match: {
+      bots: true,
+    },
+    action: {
+      type: "response",
+      status: 200,
+      headers: {
+        "Content-Type": "text/html; charset=utf-8",
+      },
+      bodyHtml: "<!doctype html><html><head><title>Welcome</title></head><body><h1>Site is fine</h1></body></html>",
+    },
+  },
+  // ... 7-10 more rules for realistic table
 ];
 ```
 
@@ -1370,23 +1443,79 @@ export const MOCK_RULES: TDSRule[] = [
 
 ## API Integration (Future - Out of Scope)
 
+**Reference:** `docs/mini-tds-analysis.md` - Complete API specification based on production mini-tds
+
 When connecting to real API:
 
-**Endpoints:**
+**Core Endpoints (mini-tds compatible):**
 ```
-GET    /api/tds/rules?siteId={id}           # List rules
-POST   /api/tds/rules                        # Create rule
-GET    /api/tds/rules/:id                    # Get rule
-PATCH  /api/tds/rules/:id                    # Update rule
-DELETE /api/tds/rules/:id                    # Delete rule
-PATCH  /api/tds/rules/reorder                # Reorder rules
-POST   /api/tds/rules/validate               # Validate rule
-POST   /api/tds/publish                      # Publish draft changes
-POST   /api/tds/simulate                     # Test rule
+GET    /api/tds/rules                # Get all rules + ETag
+                                      Response: { rules: TDSRule[], version: string, etag: string }
+
+PUT    /api/tds/rules                # Replace all rules (requires If-Match header)
+                                      Request: { rules: TDSRule[] }
+                                      Headers: If-Match: <etag>
+                                      Response: { ok: true, etag: string }
+
+PATCH  /api/tds/rules/:id            # Update single rule
+                                      Request: { patch: Partial<TDSRule> }
+                                      Response: { ok: true, etag: string }
+
+DELETE /api/tds/rules/:id            # Delete rule
+                                      Response: { ok: true, etag: string }
+
+POST   /api/tds/rules/validate       # Validate without saving
+                                      Request: { routes: TDSRule[] }
+                                      Response: { ok: true } | { error: string }
+```
+
+**Extended Endpoints (301-ui specific):**
+```
+GET    /api/tds/audit?limit=20      # Audit log (last N changes)
+                                      Response: AuditEntry[]
+
+POST   /api/tds/cache/invalidate    # Invalidate worker cache
+                                      Response: { ok: true }
+
+GET    /api/tds/export              # Export full bundle
+                                      Response: { rules, flags, metadata, etag }
+
+POST   /api/tds/import              # Import bundle
+                                      Request: { routes, flags }
+```
+
+**Authentication:**
+```typescript
+// All API requests require Bearer token
+headers: {
+  'Authorization': 'Bearer <token>',
+  'Content-Type': 'application/json'
+}
+```
+
+**ETag-based Updates (Optimistic Locking):**
+```typescript
+// When updating rules, include If-Match header to prevent lost updates
+const response = await fetch('/api/tds/rules', {
+  method: 'PUT',
+  headers: {
+    'If-Match': currentEtag,  // From GET /api/tds/rules response
+    'Authorization': `Bearer ${token}`,
+  },
+  body: JSON.stringify({ rules: updatedRules }),
+});
+
+// If ETag mismatch: 412 Precondition Failed
+// User must reload and retry
 ```
 
 **Event Delegation:**
 When implementing API calls, apply event delegation pattern from performance roadmap.
+
+**Validation Strategy:**
+- Client-side: Validate before opening save button
+- Server-side: Validate via `POST /api/tds/rules/validate` before PUT
+- Show validation errors in drawer form (field-level + summary)
 
 ---
 
