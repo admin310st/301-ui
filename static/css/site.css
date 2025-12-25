@@ -726,6 +726,35 @@ h5 .icon[data-icon*="close"] {
   flex-wrap: wrap;
 }
 
+.cluster--center {
+  justify-content: center;
+}
+
+/* Card grid layout */
+.card-grid {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: 1fr;
+}
+
+.card-grid--2col {
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+.card-grid--3col {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+@media (min-width: 1024px) {
+  .card-grid--2col {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .card-grid--3col {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 /* ===== Header stack ====================================================== */
 .site-header {
   position: sticky;
@@ -840,6 +869,49 @@ h5 .icon[data-icon*="close"] {
   height: calc(1em + 1.25rem);
   display: inline-grid;
   place-items: center;
+}
+
+.btn-icon--lg {
+  width: calc(1em + 2rem);
+  height: calc(1em + 2rem);
+  font-size: var(--fs-lg);
+}
+
+/* Icon button color variants */
+.btn-icon.btn--primary,
+.btn-icon--primary {
+  background: var(--primary);
+  color: var(--btn-text-on-dark);
+  border-color: color-mix(in srgb, var(--primary) 40%, transparent);
+}
+
+.btn-icon.btn--primary:hover,
+.btn-icon--primary:hover {
+  background: var(--primary-hover);
+}
+
+.btn-icon.btn--success,
+.btn-icon--success {
+  background: var(--success);
+  color: var(--btn-text-on-dark);
+  border-color: color-mix(in srgb, var(--success) 40%, transparent);
+}
+
+.btn-icon.btn--success:hover,
+.btn-icon--success:hover {
+  background: color-mix(in srgb, var(--success) 88%, #000 6%);
+}
+
+.btn-icon.btn--info,
+.btn-icon--info {
+  background: var(--info, var(--primary));
+  color: var(--btn-text-on-dark);
+  border-color: color-mix(in srgb, var(--info, var(--primary)) 40%, transparent);
+}
+
+.btn-icon.btn--info:hover,
+.btn-icon--info:hover {
+  background: color-mix(in srgb, var(--info, var(--primary)) 88%, #000 6%);
 }
 
 .btn .icon,
@@ -1264,6 +1336,26 @@ a.btn-chip {
 
 .btn--danger:hover {
   background: color-mix(in srgb, var(--danger) 88%, #000 6%);
+}
+
+.btn--success {
+  background: var(--success);
+  color: var(--btn-text-on-dark);
+  border-color: color-mix(in srgb, var(--success) 40%, transparent);
+}
+
+.btn--success:hover {
+  background: color-mix(in srgb, var(--success) 88%, #000 6%);
+}
+
+.btn--info {
+  background: var(--info, var(--primary));
+  color: var(--btn-text-on-dark);
+  border-color: color-mix(in srgb, var(--info, var(--primary)) 40%, transparent);
+}
+
+.btn--info:hover {
+  background: color-mix(in srgb, var(--info, var(--primary)) 88%, #000 6%);
 }
 
 .btn-link {
@@ -3236,112 +3328,9 @@ body.layout-dashboard .burger-button {
   color: var(--text-dim);
 }
 
-/* Welcome Card */
+/* TDS Welcome Section */
 .tds-welcome {
-  max-width: 1200px;
-  margin: var(--space-6) auto;
-  padding: 0 var(--space-4);
-}
-
-.tds-welcome__hero {
-  text-align: center;
-  margin-bottom: var(--space-8);
-}
-
-.tds-welcome__title {
-  font-size: var(--fs-3xl);
-  font-weight: var(--fw-bold);
-  margin: 0 0 var(--space-3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-3);
-  color: var(--text);
-}
-
-.tds-welcome__subtitle {
-  font-size: var(--fs-lg);
-  color: var(--text-muted);
-  max-width: 600px;
-  margin: 0 auto;
-  line-height: 1.6;
-}
-
-/* Features grid */
-.tds-welcome__features {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: var(--space-4);
-  margin-bottom: var(--space-8);
-}
-
-.tds-welcome__feature {
-  text-align: center;
-  padding: var(--space-5);
-  background: var(--bg-subtle);
-  border: 1px solid var(--border);
-  border-radius: var(--r-lg);
-  transition: all 0.2s ease;
-}
-
-.tds-welcome__feature:hover {
-  border-color: var(--primary);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.tds-welcome__feature-icon {
-  width: 64px;
-  height: 64px;
-  margin: 0 auto var(--space-3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--r-full);
-  font-size: var(--fs-2xl);
-}
-
-.tds-welcome__feature-icon--primary {
-  background: var(--primary-subtle);
-  color: var(--primary);
-}
-
-.tds-welcome__feature-icon--info {
-  background: var(--info-subtle);
-  color: var(--info);
-}
-
-.tds-welcome__feature-icon--success {
-  background: var(--success-subtle);
-  color: var(--success);
-}
-
-.tds-welcome__feature h3 {
-  font-size: var(--fs-lg);
-  font-weight: var(--fw-semibold);
-  margin: 0 0 var(--space-2);
-  color: var(--text);
-}
-
-.tds-welcome__feature p {
-  font-size: var(--fs-sm);
-  color: var(--text-muted);
-  margin: 0;
-  line-height: 1.6;
-}
-
-/* Checklist */
-.tds-welcome__checklist {
-  max-width: 800px;
-  margin: 0 auto var(--space-8);
-}
-
-.tds-welcome__checklist h2 {
-  font-size: var(--fs-xl);
-  font-weight: var(--fw-semibold);
-  margin: 0 0 var(--space-4);
-  text-align: center;
-  color: var(--text);
+  padding: var(--space-5) var(--space-4);
 }
 
 .checklist {
@@ -3397,68 +3386,6 @@ body.layout-dashboard .burger-button {
   font-size: var(--fs-sm);
   color: var(--text-muted);
   line-height: 1.5;
-}
-
-/* CTA section */
-.tds-welcome__cta {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-3);
-  margin-bottom: var(--space-6);
-  flex-wrap: wrap;
-}
-
-/* Footer links */
-.tds-welcome__footer {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-4);
-  padding-top: var(--space-4);
-  border-top: 1px solid var(--border);
-  flex-wrap: wrap;
-}
-
-.tds-welcome__footer .link {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  font-size: var(--fs-sm);
-  color: var(--text-muted);
-  text-decoration: none;
-  transition: color 0.2s ease;
-}
-
-.tds-welcome__footer .link:hover {
-  color: var(--primary);
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .tds-welcome__title {
-    font-size: var(--fs-2xl);
-    flex-direction: column;
-    gap: var(--space-2);
-  }
-
-  .tds-welcome__subtitle {
-    font-size: var(--fs-md);
-  }
-
-  .tds-welcome__features {
-    grid-template-columns: 1fr;
-  }
-
-  .tds-welcome__cta {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .tds-welcome__footer {
-    flex-direction: column;
-    gap: var(--space-2);
-  }
 }
 
 
