@@ -57,20 +57,20 @@ export const DASHBOARD_NAV: NavItem[] = [
     isActive: (path) => path.includes('/domains'),
   },
   {
-    id: 'sites',
-    label: 'Sites',
-    labelKey: 'layout.nav.sites',
-    icon: 'mono/landing',
-    href: '/sites.html',
-    isActive: (path) => path.includes('/sites'),
-  },
-  {
     id: 'redirects',
     label: 'Redirects',
     labelKey: 'layout.nav.redirects',
     icon: 'mono/arrow-right',
     href: '/redirects.html',
     isActive: (path) => path.includes('/redirects'),
+  },
+  {
+    id: 'sites',
+    label: 'Sites',
+    labelKey: 'layout.nav.sites',
+    icon: 'mono/landing',
+    href: '/sites.html',
+    isActive: (path) => path.includes('/sites'),
   },
   {
     id: 'streams',
