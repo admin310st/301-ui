@@ -1,25 +1,61 @@
-# TDS Backend API Recommendations
+# Рекомендации по Backend API для TDS
 
-**Date:** 2025-12-24
-**Based on:**
-- `docs/301-wiki/TDS.md` (official spec)
-- `docs/301-wiki/Data_Model.md` (DB schema)
-- `docs/mini-tds-analysis.md` (production mini-tds patterns)
-- `TODO-streams.md` (UI requirements)
+**Дата:** 2025-12-25 (обновлено)
+**Основано на:**
+- `docs/301-wiki/TDS.md` (официальная спецификация)
+- `docs/301-wiki/Data_Model.md` (схема БД)
+- `docs/mini-tds-analysis.md` (анализ прототипа mini-tds)
+- `TODO-streams.md` (требования UI)
+
+---
+
+## ⚠️ КРИТИЧЕСКИ ВАЖНО: Отказ от статических A/B тестов
+
+**Команде бекенда:**
+
+**НЕ РЕАЛИЗУЙТЕ `weighted_redirect` (статические A/B тесты с фиксированными весами).**
+
+### Почему это плохо:
+
+Классические A/B тесты с фиксированными весами (50/50, 60/40) — это **устаревший подход**, который:
+
+- ❌ **Теряет деньги клиента**: Весь период теста показывает худший вариант в фиксированной пропорции
+- ❌ **Медленная сходимость**: Нужны недели для статистической значимости
+- ❌ **Ручное управление**: Аналитик должен следить, анализировать, менять веса
+- ❌ **Не адаптируется**: Если условия меняются (время суток, аудитория), тест не реагирует
+- ❌ **Нет конкурентного преимущества**: Все конкуренты предлагают то же самое
+
+### ✅ Что реализовать вместо этого: Multi-Armed Bandits (MAB)
+
+**MAB — это КЛЮЧЕВАЯ конкурентная фича 301.st.**
+
+**Бизнес-выгода для клиента:**
+- ✅ **Минимизация потерь**: Алгоритм автоматически снижает трафик на худший вариант
+- ✅ **Быстрая оптимизация**: Сходимость за часы, а не недели
+- ✅ **Автопилот**: Не нужен аналитик — ML сам оптимизирует
+- ✅ **Real-time адаптация**: Реагирует на изменения аудитории
+- ✅ **Конкурентное преимущество**: Почти никто из конкурентов не предлагает MAB
+
+**Пример:**
+- **Традиционный A/B** (50/50): Вариант A (CR 8%), Вариант B (CR 6%) → Общий CR = **7.0%**
+- **MAB**: Начинается 50/50, сходится к 70/30 → Общий CR = **7.4%**
+- **Результат: +5.7% к выручке** с того же трафика!
+
+**Вывод:** MAB — это не просто "улучшение", это **маркетинговая фишка**, которая выделит 301.st среди конкурентов.
 
 ---
 
 ## 🎯 Executive Summary
 
-**Ключевые findings:**
+**Ключевые выводы:**
 
 1. ✅ **TDS ≠ Redirects** — это разные сущности с разными целями
 2. ✅ **Два типа TDS** — SmartLink (UTM) vs SmartShield (CF metadata)
 3. ✅ **Иерархия Site-based** — rules привязаны к Site, применяются ко всем доменам
-4. ⚠️ **mini-tds не покрывает full spec** — это упрощенная версия только для SmartShield
-5. ⚠️ **UI нужно обновить** — добавить поддержку SmartLink, ASN, TLS
+4. ✅ **MAB вместо weighted_redirect** — ключевая конкурентная фича
+5. ⚠️ **mini-tds не покрывает full spec** — это упрощенная версия только для SmartShield
 
-**Рекомендация:** Backend должен реализовать **полную спецификацию** из 301-wiki, а не ограничиваться mini-tds паттернами.
+**Рекомендация:** Backend должен реализовать **полную спецификацию** из 301-wiki + MAB для A/B тестов.
 
 ---
 
@@ -273,7 +309,7 @@ CREATE INDEX idx_tds_rules_account ON tds_rules(account_id);
 ```json
 {
   "type": "redirect",
-  "target": "https://offer1.example.com/landing",
+  "url": "https://offer1.example.com/landing",
   "status": 302,
   "query": {
     "bonus": { "fromPathGroup": 1 },
@@ -285,19 +321,47 @@ CREATE INDEX idx_tds_rules_account ON tds_rules(account_id);
 }
 ```
 
-**Weighted redirect (A/B test):**
+**MAB redirect (автооптимизирующийся A/B тест):**
 ```json
 {
-  "type": "weighted_redirect",
+  "type": "mab_redirect",
+  "algorithm": "thompson_sampling",
+  "metric": "conversion_rate",
   "targets": [
-    { "url": "https://offer1.example.com", "weight": 60, "label": "Offer A" },
-    { "url": "https://offer2.example.com", "weight": 40, "label": "Offer B" }
+    {
+      "url": "https://offer1.example.com",
+      "label": "Offer A",
+      "stats": {
+        "impressions": 1850,
+        "conversions": 142,
+        "revenue": 14200,
+        "current_weight": 58.3,
+        "estimated_value": 0.0768
+      }
+    },
+    {
+      "url": "https://offer2.example.com",
+      "label": "Offer B",
+      "stats": {
+        "impressions": 1320,
+        "conversions": 89,
+        "revenue": 8900,
+        "current_weight": 41.7,
+        "estimated_value": 0.0674
+      }
+    }
   ],
-  "status": 302
+  "min_sample_size": 100,
+  "exploration_period": 3600,
+  "confidence_level": 0.95,
+  "status": 302,
+  "preserveOriginalQuery": true
 }
 ```
 
-**Custom response (for bots):**
+**⚠️ ВАЖНО:** `stats` — это read-only поля, обновляемые бекендом. Фронтенд только читает их для отображения в UI.
+
+**Custom response (для ботов):**
 ```json
 {
   "type": "response",
@@ -309,10 +373,15 @@ CREATE INDEX idx_tds_rules_account ON tds_rules(account_id);
 }
 ```
 
-**Validation rules:**
-1. `type` must be in ['redirect', 'weighted_redirect', 'response']
-2. If `weighted_redirect`, weights must sum to 100
-3. If `response`, must have `bodyHtml` OR `bodyText`
+**Правила валидации:**
+1. `type` must be in **['redirect', 'mab_redirect', 'response']** ← НЕТ weighted_redirect!
+2. Для `mab_redirect`:
+   - `algorithm` in ['thompson_sampling', 'ucb', 'epsilon_greedy']
+   - `metric` in ['conversion_rate', 'revenue_per_user', 'click_through_rate']
+   - `targets` должно быть минимум 2 варианта
+   - `min_sample_size` >= 10
+   - `exploration_period` >= 0 (в секундах)
+3. Для `response`: должен быть `bodyHtml` ИЛИ `bodyText`
 4. `status` must be valid HTTP code (301, 302, 307, 308, 200, 403, 404, etc.)
 
 ---
@@ -345,7 +414,7 @@ POST   /api/sites/:siteId/tds/rules/reorder
       "rule_type": "smartshield",
       "priority": 1,
       "enabled": true,
-      "label": "RU Mobile Casino → A/B Test",
+      "label": "RU Mobile Casino → MAB A/B Test",
       "match": {
         "path": ["^/casino/([^/?#]+)"],
         "countries": ["RU", "BY"],
@@ -353,11 +422,36 @@ POST   /api/sites/:siteId/tds/rules/reorder
         "bots": false
       },
       "action": {
-        "type": "weighted_redirect",
+        "type": "mab_redirect",
+        "algorithm": "thompson_sampling",
+        "metric": "conversion_rate",
         "targets": [
-          { "url": "https://offer1.example.com", "weight": 60, "label": "Offer A" },
-          { "url": "https://offer2.example.com", "weight": 40, "label": "Offer B" }
-        ]
+          {
+            "url": "https://offer1.example.com",
+            "label": "Offer A",
+            "stats": {
+              "impressions": 1850,
+              "conversions": 142,
+              "revenue": 14200,
+              "current_weight": 58.3,
+              "estimated_value": 0.0768
+            }
+          },
+          {
+            "url": "https://offer2.example.com",
+            "label": "Offer B",
+            "stats": {
+              "impressions": 1320,
+              "conversions": 89,
+              "revenue": 8900,
+              "current_weight": 41.7,
+              "estimated_value": 0.0674
+            }
+          }
+        ],
+        "min_sample_size": 100,
+        "exploration_period": 3600,
+        "status": 302
       },
       "created_at": "2025-01-15T10:00:00Z",
       "updated_at": "2025-01-15T10:00:00Z"
@@ -385,7 +479,7 @@ POST   /api/sites/:siteId/tds/rules/reorder
   },
   "action": {
     "type": "redirect",
-    "target": "https://offer1.example.com/fb-summer",
+    "url": "https://offer1.example.com/fb-summer",
     "status": 302
   }
 }
@@ -468,14 +562,17 @@ UPDATE tds_rules SET priority = 3 WHERE id = 3;
 {
   "rule_type": "smartshield",
   "match": {
-    "countries": ["INVALID"],  // Bad ISO code
-    "devices": ["smartphone"]  // Invalid device type
+    "countries": ["INVALID"],  // Неверный ISO код
+    "devices": ["smartphone"]  // Неверный тип устройства
   },
   "action": {
-    "type": "weighted_redirect",
+    "type": "mab_redirect",
+    "algorithm": "invalid_algo",  // Неверный алгоритм
+    "metric": "conversion_rate",
     "targets": [
-      { "url": "https://offer1.com", "weight": 70 }  // Sum != 100
-    ]
+      { "url": "https://offer1.com", "label": "Offer A" }  // Только 1 вариант (нужно минимум 2)
+    ],
+    "min_sample_size": 5  // Меньше минимума (10)
   }
 }
 ```
@@ -494,8 +591,16 @@ UPDATE tds_rules SET priority = 3 WHERE id = 3;
       "message": "Invalid device type: smartphone. Must be one of: mobile, desktop, tablet, any."
     },
     {
+      "field": "action.algorithm",
+      "message": "Invalid algorithm: invalid_algo. Must be one of: thompson_sampling, ucb, epsilon_greedy."
+    },
+    {
       "field": "action.targets",
-      "message": "Weights must sum to 100. Current sum: 70."
+      "message": "MAB requires at least 2 variants. Current count: 1."
+    },
+    {
+      "field": "action.min_sample_size",
+      "message": "min_sample_size must be >= 10. Current value: 5."
     }
   ]
 }
@@ -563,10 +668,10 @@ UPDATE tds_rules SET priority = 3 WHERE id = 3;
 | **ASN matching** | ❌ None | ✅ SmartShield | ❌ Missing in mini-tds |
 | **TLS version** | ❌ None | ✅ SmartShield | ❌ Missing in mini-tds |
 | **Hierarchy** | Flat rules array | Site → Zone → Domains | ❌ Mini-tds doesn't have Site concept |
-| **A/B testing** | ❌ None | ✅ Paid plan (multiple sets) or weighted_redirect | ⚠️ Different approaches |
+| **A/B testing** | ❌ None | ✅ **MAB** (Multi-Armed Bandits) | ⚠️ КЛЮЧЕВАЯ фича! |
 | **Match logic** | First match wins | First match wins | ✅ Same |
 | **Match conditions** | path, countries, devices, bots | Same + UTM, ASN, TLS | ⚠️ Mini-tds subset |
-| **Action types** | redirect, response | redirect, weighted_redirect, response | ⚠️ Mini-tds subset |
+| **Action types** | redirect, response | **redirect, mab_redirect, response** | ⚠️ НЕТ weighted_redirect! |
 | **Storage** | KV only | D1 + KV snapshot | ⚠️ Different |
 | **Validation** | Server-side | Server-side | ✅ Same |
 
@@ -625,15 +730,43 @@ UPDATE tds_rules SET priority = 3 WHERE id = 3;
 
 ### 4. Action Types Support
 
-✅ **Implement all three:**
-1. **redirect** — simple redirect to single target
-2. **weighted_redirect** — A/B test with multiple targets + weights
-3. **response** — custom HTML/text response (for bots)
+✅ **Реализовать все три типа:**
 
-**Validation:**
-- Weights must sum to 100
-- At least 1 target required
-- Response must have body
+1. **redirect** — простой редирект на единственную цель
+   - Поле `url` (строка)
+   - Статус 301/302
+   - Опции: preserveOriginalQuery, appendCountry, appendDevice
+
+2. **mab_redirect** — автооптимизирующийся A/B тест (Multi-Armed Bandits)
+   - **ОБЯЗАТЕЛЬНЫЕ поля:**
+     - `algorithm`: 'thompson_sampling' | 'ucb' | 'epsilon_greedy'
+     - `metric`: 'conversion_rate' | 'revenue_per_user' | 'click_through_rate'
+     - `targets`: массив из 2+ вариантов (каждый с `url` и `label`)
+   - **Опциональные поля:**
+     - `min_sample_size` (default: 100)
+     - `exploration_period` (default: 3600 сек = 1 час)
+     - `confidence_level` (default: 0.95, только для UCB)
+     - `epsilon` (default: 0.1, только для epsilon-greedy)
+   - **Read-only поля (обновляет бекенд):**
+     - `targets[].stats.impressions`
+     - `targets[].stats.conversions`
+     - `targets[].stats.revenue`
+     - `targets[].stats.current_weight` (динамический вес в %)
+     - `targets[].stats.estimated_value` (оценка алгоритма)
+
+3. **response** — кастомный HTML/текст ответ (для ботов)
+   - `bodyHtml` ИЛИ `bodyText`
+   - `status` (200, 403, 404, и т.д.)
+   - `headers` (опционально)
+
+**❌ НЕ РЕАЛИЗУЙТЕ `weighted_redirect`** — это устаревший подход!
+
+**Валидация для mab_redirect:**
+- Минимум 2 варианта в `targets`
+- `algorithm` должен быть из списка
+- `metric` должен быть из списка
+- `min_sample_size` >= 10
+- `exploration_period` >= 0
 
 ---
 
@@ -660,16 +793,18 @@ UPDATE tds_rules SET priority = 3 WHERE id = 3;
 ### 6. Free vs Paid Plan Limits
 
 ✅ **Free plan:**
-- 1 TDS rule set (all rules belong to single site)
-- Max 5-10 rules per site
-- SmartLink + SmartShield both available
-- Basic actions (redirect, response)
+- 1 TDS rule set (все правила принадлежат одному сайту)
+- Max 5-10 правил на сайт
+- SmartLink + SmartShield оба доступны
+- Базовые действия (redirect, response)
+- ❌ **БЕЗ MAB** (только простые редиректы)
 
 ✅ **Paid plan:**
-- Multiple TDS rule sets (can create multiple sites)
-- Max 50+ rules per site
-- weighted_redirect (A/B tests)
-- Advanced conditions (ASN, TLS, IP ranges)
+- Множественные TDS rule sets (можно создать несколько сайтов)
+- Max 50+ правил на сайт
+- ✅ **MAB redirect** (автооптимизирующиеся A/B тесты) — **КЛЮЧЕВАЯ фича платного плана!**
+- Продвинутые условия (ASN, TLS, IP ranges)
+- Приоритетная поддержка
 
 **Enforcement:**
 ```sql
@@ -828,11 +963,19 @@ function validateRule(rule: TDSRule): string[] {
     });
   }
 
-  // Weights validation
-  if (rule.action.type === 'weighted_redirect') {
-    const sum = rule.action.targets.reduce((s, t) => s + (t.weight || 0), 0);
-    if (sum !== 100) {
-      errors.push(`Weights must sum to 100 (current: ${sum})`);
+  // MAB validation
+  if (rule.action.type === 'mab_redirect') {
+    if (!rule.action.targets || rule.action.targets.length < 2) {
+      errors.push("MAB requires at least 2 variants");
+    }
+    if (!['thompson_sampling', 'ucb', 'epsilon_greedy'].includes(rule.action.algorithm)) {
+      errors.push(`Invalid algorithm: ${rule.action.algorithm}`);
+    }
+    if (!['conversion_rate', 'revenue_per_user', 'click_through_rate'].includes(rule.action.metric)) {
+      errors.push(`Invalid metric: ${rule.action.metric}`);
+    }
+    if (rule.action.min_sample_size && rule.action.min_sample_size < 10) {
+      errors.push("min_sample_size must be >= 10");
     }
   }
 
@@ -885,16 +1028,22 @@ function validateRule(rule: TDSRule): string[] {
 
 ---
 
-### Phase 3: Advanced Features
+### Phase 3: MAB + Advanced Features
 
 **Scope:**
-- ✅ weighted_redirect action
-- ✅ ASN, TLS, IP ranges matching
-- ✅ Reorder endpoint
+- ✅ **mab_redirect action** (Multi-Armed Bandits) — **КЛЮЧЕВАЯ ФИЧА!**
+  - Thompson Sampling algorithm
+  - UCB algorithm
+  - Epsilon-Greedy algorithm
+  - Stats tracking (impressions, conversions, revenue)
+  - Dynamic weight calculation
+- ✅ ASN, TLS, IP ranges matching (SmartShield advanced)
+- ✅ Reorder endpoint (batch priority updates)
 - ✅ Audit log integration
-- ✅ Free vs Paid plan limits
+- ✅ Free vs Paid plan limits (MAB только в Paid)
+- ✅ Postback URL для получения метрик конверсий
 
-**Timeline:** 4-5 days
+**Timeline:** 7-10 дней (MAB требует реализации алгоритмов)
 
 ---
 
@@ -908,23 +1057,55 @@ function validateRule(rule: TDSRule): string[] {
 
 ---
 
-## ✅ Summary Checklist for Backend
+## ✅ Summary Checklist для Backend-команды
 
-- [ ] Implement `tds_rules` table with `site_id` FK
-- [ ] Add `rule_type` ENUM('smartlink', 'smartshield')
-- [ ] Use JSON columns for `match_json` and `action_json`
-- [ ] Implement all API endpoints (CRUD + validate + reorder)
-- [ ] Support SmartLink match conditions (UTM params)
-- [ ] Support SmartShield match conditions (geo, device, bots, ASN, TLS)
-- [ ] Support all action types (redirect, weighted_redirect, response)
-- [ ] Implement KV snapshot sync on every change
-- [ ] Add server-side validation with detailed error messages
-- [ ] Enforce Free/Paid plan limits
-- [ ] Add ETag-based optimistic locking
-- [ ] Write to audit_log on all changes
-- [ ] Test with Edge-worker (read KV snapshot)
+### Базовая инфраструктура
+- [ ] Реализовать таблицу `tds_rules` с FK `site_id`
+- [ ] Добавить `rule_type` ENUM('smartlink', 'smartshield')
+- [ ] Использовать JSON колонки для `match_json` и `action_json`
+- [ ] Реализовать все API endpoints (CRUD + validate + reorder)
+- [ ] Добавить ETag-based optimistic locking (If-Match headers)
+- [ ] Писать в audit_log на все изменения
+
+### Match условия
+- [ ] SmartLink: поддержка UTM params (source, campaign, content, medium)
+- [ ] SmartShield: geo, device, bots, path (regex)
+- [ ] SmartShield Advanced: ASN, TLS version, IP ranges (CIDR)
+
+### Action types
+- [ ] **redirect** — простой редирект (`url: string`)
+- [ ] **mab_redirect** — Multi-Armed Bandits (КЛЮЧЕВАЯ ФИЧА!)
+  - [ ] Thompson Sampling algorithm
+  - [ ] UCB algorithm
+  - [ ] Epsilon-Greedy algorithm
+  - [ ] Stats tracking (impressions, conversions, revenue)
+  - [ ] Dynamic weight calculation
+  - [ ] Postback URL для метрик конверсий
+- [ ] **response** — кастомный HTML/текст ответ
+- [ ] ❌ **НЕ РЕАЛИЗУЙТЕ weighted_redirect** (устарело!)
+
+### Хранение и синхронизация
+- [ ] KV snapshot sync при каждом изменении
+- [ ] Только enabled правила в KV, отсортированные по priority
+- [ ] Edge-worker читает KV snapshot (read-only)
+
+### Валидация
+- [ ] Server-side валидация с детальными error messages
+- [ ] Client-side валидация (примеры в документе)
+- [ ] Endpoint `/validate` для проверки перед сохранением
+
+### Ограничения тарифов
+- [ ] Free plan: redirect + response только (БЕЗ MAB)
+- [ ] Paid plan: все фичи включая MAB
+- [ ] Enforcement лимитов по количеству правил
+
+### Тестирование
+- [ ] Протестировать с Edge-worker (чтение KV snapshot)
+- [ ] Нагрузочное тестирование MAB алгоритмов
+- [ ] E2E тесты с UI (TODO-streams.md)
 
 ---
 
-**Last updated:** 2025-12-24
-**Next step:** Backend review and API design discussion
+**Дата обновления:** 2025-12-25
+**Критическое изменение:** Отказ от weighted_redirect в пользу MAB
+**Следующий шаг:** Backend review, обсуждение API design + MAB алгоритмов
