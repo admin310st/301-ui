@@ -83,18 +83,14 @@
             <div class="empty-state" data-integrations-empty hidden>
               <div class="stack-md">
                 <span class="icon icon--lg" data-icon="brand/cloudflare"></span>
-                <h3 class="h4" data-i18n="integrations.empty.title">No zones found</h3>
+                <h3 class="h4" data-i18n="integrations.empty.title">No integrations yet</h3>
                 <p class="text-muted" data-i18n="integrations.empty.description">
-                  Try syncing zones from Cloudflare or add domains in the Domains section.
+                  Connect external services to manage domains, analytics, and monitoring.
                 </p>
                 <div class="btn-group">
-                  <button type="button" class="btn btn--primary" data-sync-zones>
-                    <span class="icon" data-icon="mono/refresh"></span>
-                    <span>Sync zones</span>
-                  </button>
-                  <button type="button" class="btn btn--ghost" data-action="add-domains">
-                    <span class="icon" data-icon="mono/plus"></span>
-                    <span>Add domains</span>
+                  <button type="button" class="btn btn--cf" data-action="connect-cloudflare">
+                    <span class="icon" data-icon="brand/cloudflare"></span>
+                    <span>Connect Cloudflare</span>
                   </button>
                 </div>
               </div>
@@ -107,11 +103,10 @@
                   <thead>
                     <tr>
                       <th data-priority="critical">Provider</th>
-                      <th data-priority="high">Type</th>
-                      <th data-priority="medium">Account</th>
-                      <th data-priority="high">Domains</th>
+                      <th data-priority="high">Alias</th>
+                      <th data-priority="medium">Account ID</th>
                       <th data-priority="high">Status</th>
-                      <th data-priority="low">Connected</th>
+                      <th data-priority="low">Last Used</th>
                       <th data-priority="critical">Actions</th>
                     </tr>
                   </thead>

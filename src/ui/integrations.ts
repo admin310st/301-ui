@@ -1,28 +1,11 @@
 import { t } from '@i18n';
-import { getZones, syncZones } from '@api/zones';
-import type { CloudflareZone } from '@api/zones';
-import { getIntegrationKeys } from '@api/integrations';
+import { getIntegrationKeys, deleteIntegrationKey } from '@api/integrations';
 import type { IntegrationKey } from '@api/types';
 import { showGlobalMessage } from './notifications';
-import { initTooltips } from './tooltip';
 import { initDropdowns } from './dropdown';
 import { initAddDomainsDrawer } from '@domains/add-domains-drawer';
 import { initTabs } from './tabs';
 import { initCfConnectForms } from '@forms/cf-connect';
-
-/**
- * Virtual integration derived from zones and integration keys
- */
-interface VirtualIntegration {
-  provider: string;
-  alias: string;
-  keyId: number;           // Real account_key_id from /integrations/keys
-  accountId: string;       // CF account ID for display
-  rootDomain: string;
-  domainCount: number;
-  status: string;
-  connectedAt: string;
-}
 
 /**
  * Format date to locale string
@@ -71,53 +54,30 @@ function getStatusClass(status: string): string {
 /**
  * Render a single integration row
  */
-function renderIntegrationRow(integration: VirtualIntegration): string {
-  const providerInfo = getProviderInfo(integration.provider);
-  const statusClass = getStatusClass(integration.status);
-  const statusLabel = t(`integrations.status.${integration.status}` as any) || integration.status;
-
-  // Tooltip: "example.com + 3 more" or just "example.com"
-  const tooltipText = integration.domainCount > 1
-    ? `${integration.rootDomain} + ${integration.domainCount - 1} more`
-    : integration.rootDomain;
-
-  const tooltipContent = `<div class="tooltip"><div class="tooltip__body">${tooltipText}</div></div>`;
-
-  // Integration type based on provider
-  const integrationType = integration.provider === 'cloudflare' ? 'CDN' : integration.provider;
+function renderIntegrationRow(key: IntegrationKey): string {
+  const providerInfo = getProviderInfo(key.provider);
+  const statusClass = getStatusClass(key.status);
+  const statusLabel = t(`integrations.status.${key.status}` as any) || key.status;
 
   return `
-    <tr data-integration-id="${integration.keyId}">
+    <tr data-key-id="${key.id}">
       <td class="provider-cell">
         <span class="icon" data-icon="${providerInfo.icon}"></span>
         <span class="provider-label">${providerInfo.name}</span>
       </td>
-      <td class="text-muted">${integrationType}</td>
-      <td class="text-muted">N/A</td>
-      <td>
-        <span
-          data-tooltip
-          data-tooltip-content="${tooltipContent.replace(/"/g, '&quot;')}"
-          style="cursor: help;"
-        >
-          ${integration.domainCount}
-        </span>
-      </td>
+      <td>${key.key_alias}</td>
+      <td class="text-muted"><code class="code-inline">${key.external_account_id}</code></td>
       <td>
         <span class="badge ${statusClass}">${statusLabel}</span>
       </td>
-      <td class="text-muted">${formatDate(integration.connectedAt)}</td>
+      <td class="text-muted">${formatDate(key.last_used)}</td>
       <td class="table-actions">
         <div class="dropdown dropdown--menu">
           <button class="btn-icon btn-icon--neutral dropdown__trigger" type="button" aria-label="Actions">
             <span class="icon" data-icon="mono/dots-vertical"></span>
           </button>
           <div class="dropdown__menu dropdown__menu--right" role="menu">
-            <button class="dropdown__item" type="button" data-action="sync-integration" data-key-id="${integration.keyId}">
-              <span class="icon" data-icon="mono/refresh"></span>
-              <span>Sync zones</span>
-            </button>
-            <button class="dropdown__item dropdown__item--danger" type="button" data-action="delete-integration" data-key-id="${integration.keyId}">
+            <button class="dropdown__item dropdown__item--danger" type="button" data-action="delete-integration" data-key-id="${key.id}">
               <span class="icon" data-icon="mono/delete"></span>
               <span>Delete</span>
             </button>
@@ -128,29 +88,6 @@ function renderIntegrationRow(integration: VirtualIntegration): string {
   `;
 }
 
-/**
- * Create virtual integration from zones and integration key
- */
-function createCloudflareIntegration(
-  zones: CloudflareZone[],
-  integrationKey: IntegrationKey
-): VirtualIntegration | null {
-  if (zones.length === 0) return null;
-
-  const firstZone = zones[0];
-  const activeZones = zones.filter(z => z.status === 'active');
-
-  return {
-    provider: 'cloudflare',
-    alias: integrationKey.key_alias || 'Cloudflare Account',
-    keyId: integrationKey.id,
-    accountId: integrationKey.external_account_id || firstZone.cf_zone_id,
-    rootDomain: firstZone.root_domain,
-    domainCount: zones.length,
-    status: integrationKey.status,
-    connectedAt: integrationKey.created_at,
-  };
-}
 
 /**
  * Show loading state
@@ -198,7 +135,7 @@ function showTableState(): void {
 }
 
 /**
- * Load and render integrations from zones and integration keys
+ * Load and render integration keys
  */
 export async function loadIntegrations(): Promise<void> {
   const tbody = document.querySelector<HTMLElement>('[data-integrations-tbody]');
@@ -207,33 +144,16 @@ export async function loadIntegrations(): Promise<void> {
   showLoadingState();
 
   try {
-    // Fetch both zones and integration keys
-    const [zones, integrationKeys] = await Promise.all([
-      getZones(),
-      getIntegrationKeys('cloudflare'),
-    ]);
+    // Fetch all integration keys (all providers)
+    const integrationKeys = await getIntegrationKeys();
 
-    if (zones.length === 0 || integrationKeys.length === 0) {
+    if (integrationKeys.length === 0) {
       showEmptyState();
       return;
     }
 
-    // Use first Cloudflare integration key
-    const cfKey = integrationKeys[0];
-
-    // Create virtual integration from zones and key
-    const cfIntegration = createCloudflareIntegration(zones, cfKey);
-
-    if (!cfIntegration) {
-      showEmptyState();
-      return;
-    }
-
-    // Render Cloudflare integration
-    tbody.innerHTML = renderIntegrationRow(cfIntegration);
-
-    // Initialize tooltips
-    initTooltips();
+    // Render all integration keys
+    tbody.innerHTML = integrationKeys.map(key => renderIntegrationRow(key)).join('');
 
     // Initialize dropdowns
     const tableContainer = document.querySelector('[data-integrations-table]');
@@ -249,70 +169,30 @@ export async function loadIntegrations(): Promise<void> {
   }
 }
 
-/**
- * Handle sync zones button click
- */
-async function handleSyncZones(): Promise<void> {
-  const syncBtn = document.querySelector<HTMLButtonElement>('[data-sync-zones]');
-  if (!syncBtn) return;
-
-  const originalText = syncBtn.textContent;
-  syncBtn.disabled = true;
-  syncBtn.textContent = 'Syncing...';
-
-  try {
-    // Try to sync without account_key_id (backend should determine from JWT)
-    const result = await syncZones();
-
-    showGlobalMessage('success', `Synced ${result.zones_synced} zones and ${result.domains_synced} domains`);
-
-    // Reload integrations
-    setTimeout(() => {
-      loadIntegrations();
-    }, 1000);
-  } catch (error: any) {
-    const errorMessage = error.message || 'Failed to sync zones';
-    showGlobalMessage('error', errorMessage);
-  } finally {
-    syncBtn.disabled = false;
-    syncBtn.textContent = originalText;
-  }
-}
-
-/**
- * Handle sync integration action from dropdown
- */
-async function handleSyncIntegration(event: Event): Promise<void> {
-  const button = event.currentTarget as HTMLButtonElement;
-  const keyId = button.dataset.keyId;
-
-  if (!keyId) return;
-
-  try {
-    const result = await syncZones(parseInt(keyId, 10));
-    showGlobalMessage('success', `Synced ${result.zones_synced} zones and ${result.domains_synced} domains`);
-
-    // Reload integrations to update domain count
-    setTimeout(() => {
-      loadIntegrations();
-    }, 1000);
-  } catch (error: any) {
-    const errorMessage = error.message || 'Failed to sync zones';
-    showGlobalMessage('error', errorMessage);
-  }
-}
 
 /**
  * Handle delete integration action from dropdown
  */
 async function handleDeleteIntegration(event: Event): Promise<void> {
   const button = event.currentTarget as HTMLButtonElement;
-  const integrationId = button.dataset.integrationId;
+  const keyId = button.dataset.keyId;
 
-  if (!integrationId) return;
+  if (!keyId) return;
 
-  // TODO: Implement delete integration via API
-  showGlobalMessage('info', 'Delete integration functionality will be implemented soon');
+  const confirmed = confirm('Delete this integration? The API key will be removed from 301.st.');
+
+  if (!confirmed) return;
+
+  try {
+    await deleteIntegrationKey(parseInt(keyId, 10));
+    showGlobalMessage('success', 'Integration deleted successfully');
+
+    // Reload integrations
+    await loadIntegrations();
+  } catch (error: any) {
+    const errorMessage = error.message || 'Failed to delete integration';
+    showGlobalMessage('error', errorMessage);
+  }
 }
 
 /**
@@ -395,12 +275,6 @@ export function initIntegrationsPage(): void {
   // Load integrations
   loadIntegrations();
 
-  // Attach sync zones handler for empty state button
-  const syncBtn = document.querySelector('[data-sync-zones]');
-  if (syncBtn) {
-    syncBtn.addEventListener('click', handleSyncZones);
-  }
-
   // Attach "Add domains" button handler
   document.querySelectorAll('[data-action="add-domains"]').forEach((btn) => {
     btn.addEventListener('click', () => openAddDomainsDrawer());
@@ -411,11 +285,6 @@ export function initIntegrationsPage(): void {
   // Attach dropdown action handlers (delegated)
   document.addEventListener('click', (e) => {
     const target = e.target as HTMLElement;
-
-    // Sync integration
-    if (target.closest('[data-action="sync-integration"]')) {
-      handleSyncIntegration(e);
-    }
 
     // Delete integration
     if (target.closest('[data-action="delete-integration"]')) {
