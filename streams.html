@@ -44,13 +44,8 @@
 
         <div class="stack stack--xl">
       <!-- Welcome Card (shown when no rules) -->
-      <section class="tds-welcome" data-welcome-card>
-        <article class="card card--panel card--accent card--accent-info">
+      <article class="tds-welcome card card--panel card--accent card--accent-info" data-welcome-card>
           <header class="card__header">
-            <h2 class="card__title">
-              <span class="icon icon--lg" data-icon="mono/directions-fork"></span>
-              Traffic Distribution System
-            </h2>
             <p class="text-muted">
               Intelligent traffic routing with auto-optimizing A/B tests. Route users by geo, device, source — and let AI maximize your revenue.
             </p>
@@ -119,59 +114,58 @@
               </a>
             </div>
           </footer>
+      </article>
+
+      <!-- Feature Cards -->
+      <div class="card-grid card-grid--3col" data-welcome-card>
+        <article class="card card--panel">
+          <div class="card__header">
+            <div class="cluster">
+              <span class="btn-icon btn-icon--lg btn--primary">
+                <span class="icon" data-icon="mono/shield"></span>
+              </span>
+              <h3 class="h5">SmartShield</h3>
+            </div>
+          </div>
+          <div class="card__body">
+            <p class="text-body">
+              Protect from moderators and bots. Route by geo, device, ASN, TLS version. Show white pages to unwanted traffic.
+            </p>
+          </div>
         </article>
 
-        <!-- Feature Cards -->
-        <div class="card-grid card-grid--3col">
-          <article class="card card--panel">
-            <div class="card__header">
-              <div class="cluster">
-                <span class="btn-icon btn-icon--lg btn--primary">
-                  <span class="icon" data-icon="mono/shield"></span>
-                </span>
-                <h3 class="h5">SmartShield</h3>
-              </div>
+        <article class="card card--panel">
+          <div class="card__header">
+            <div class="cluster">
+              <span class="btn-icon btn-icon--lg btn--info">
+                <span class="icon" data-icon="mono/link"></span>
+              </span>
+              <h3 class="h5">SmartLink</h3>
             </div>
-            <div class="card__body">
-              <p class="text-body">
-                Protect from moderators and bots. Route by geo, device, ASN, TLS version. Show white pages to unwanted traffic.
-              </p>
-            </div>
-          </article>
+          </div>
+          <div class="card__body">
+            <p class="text-body">
+              Route by UTM params and campaign tags. Split traffic by source, creative, or custom parameters. DeepLinks support.
+            </p>
+          </div>
+        </article>
 
-          <article class="card card--panel">
-            <div class="card__header">
-              <div class="cluster">
-                <span class="btn-icon btn-icon--lg btn--info">
-                  <span class="icon" data-icon="mono/link"></span>
-                </span>
-                <h3 class="h5">SmartLink</h3>
-              </div>
+        <article class="card card--panel">
+          <div class="card__header">
+            <div class="cluster">
+              <span class="btn-icon btn-icon--lg btn--success">
+                <span class="icon" data-icon="mono/trending-up"></span>
+              </span>
+              <h3 class="h5">MAB A/B Testing <span class="badge badge--sm badge--warning">Pro</span></h3>
             </div>
-            <div class="card__body">
-              <p class="text-body">
-                Route by UTM params and campaign tags. Split traffic by source, creative, or custom parameters. DeepLinks support.
-              </p>
-            </div>
-          </article>
-
-          <article class="card card--panel">
-            <div class="card__header">
-              <div class="cluster">
-                <span class="btn-icon btn-icon--lg btn--success">
-                  <span class="icon" data-icon="mono/trending-up"></span>
-                </span>
-                <h3 class="h5">MAB A/B Testing <span class="badge badge--sm badge--warning">Pro</span></h3>
-              </div>
-            </div>
-            <div class="card__body">
-              <p class="text-body">
-                <strong>+5.7% revenue boost.</strong> Multi-Armed Bandits auto-optimize traffic distribution. No manual analysis — AI does it for you.
-              </p>
-            </div>
-          </article>
-        </div>
-      </section>
+          </div>
+          <div class="card__body">
+            <p class="text-body">
+              <strong>+5.7% revenue boost.</strong> Multi-Armed Bandits auto-optimize traffic distribution. No manual analysis — AI does it for you.
+            </p>
+          </div>
+        </article>
+      </div>
 
         <!-- Empty State (shown when rules exist but filtered to 0) -->
         <div class="empty-state" data-empty-state hidden>
