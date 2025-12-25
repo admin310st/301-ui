@@ -283,6 +283,26 @@ const showWelcome = !entryDomain || rulesCount === 0 || isReadOnly;
 
   <!-- Filter chips -->
   <div class="filter-chips">
+    <!-- NEW: Rule Type filter -->
+    <div class="dropdown filter-chip" data-dropdown>
+      <button class="btn-chip btn-chip--sm">
+        <span class="icon" data-icon="mono/filter"></span>
+        <span>Type: All</span>
+        <span class="icon" data-icon="mono/chevron-down"></span>
+      </button>
+      <div class="dropdown__menu">
+        <button class="dropdown__item" data-filter-value="all">All types</button>
+        <button class="dropdown__item" data-filter-value="smartshield">
+          <span class="icon" data-icon="mono/shield"></span>
+          <span>SmartShield</span>
+        </button>
+        <button class="dropdown__item" data-filter-value="smartlink">
+          <span class="icon" data-icon="mono/link"></span>
+          <span>SmartLink</span>
+        </button>
+      </div>
+    </div>
+
     <div class="dropdown filter-chip" data-dropdown>
       <button class="btn-chip btn-chip--sm">
         <span>Status: All</span>
@@ -357,11 +377,12 @@ const showWelcome = !entryDomain || rulesCount === 0 || isReadOnly;
 
 **Columns:**
 1. **Priority** (80px) - number + up/down + drag handle
-2. **When** (fluid) - chips summary of conditions
-3. **Then** (fluid) - target + status
-4. **Enabled** (80px) - toggle switch
-5. **Updated** (120px) - relative time
-6. **Actions** (100px) - edit/duplicate/delete
+2. **Type** (100px) - SmartLink or SmartShield badge
+3. **When** (fluid) - chips summary of conditions
+4. **Then** (fluid) - target + status
+5. **Enabled** (80px) - toggle switch
+6. **Updated** (120px) - relative time
+7. **Actions** (100px) - edit/duplicate/delete
 
 **Structure:**
 ```html
@@ -370,6 +391,7 @@ const showWelcome = !entryDomain || rulesCount === 0 || isReadOnly;
     <thead>
       <tr>
         <th class="th-priority">Priority</th>
+        <th class="th-type">Type</th>
         <th>When</th>
         <th>Then</th>
         <th class="th-center">Enabled</th>
@@ -378,7 +400,8 @@ const showWelcome = !entryDomain || rulesCount === 0 || isReadOnly;
       </tr>
     </thead>
     <tbody>
-      <tr class="table-row" data-rule-id="1">
+      <!-- SmartShield rule -->
+      <tr class="table-row" data-rule-id="1" data-rule-type="smartshield">
         <!-- Priority cell -->
         <td class="td-priority">
           <div class="priority-control">
@@ -395,12 +418,20 @@ const showWelcome = !entryDomain || rulesCount === 0 || isReadOnly;
           </div>
         </td>
 
-        <!-- When cell -->
+        <!-- Type cell -->
+        <td class="td-type">
+          <span class="badge badge--sm badge--primary">
+            <span class="icon" data-icon="mono/shield"></span>
+            <span>Shield</span>
+          </span>
+        </td>
+
+        <!-- When cell (SmartShield conditions) -->
         <td class="td-when">
           <div class="condition-chips">
             <span class="badge badge--sm">
               <span class="icon" data-icon="mono/flag"></span>
-              US, CA, GB +3
+              RU, BY
             </span>
             <span class="badge badge--sm">
               <span class="icon" data-icon="mono/devices"></span>
@@ -463,6 +494,93 @@ const showWelcome = !entryDomain || rulesCount === 0 || isReadOnly;
           </div>
         </td>
       </tr>
+
+      <!-- SmartLink rule -->
+      <tr class="table-row" data-rule-id="2" data-rule-type="smartlink">
+        <td class="td-priority">
+          <div class="priority-control">
+            <button class="priority-control__btn" data-action="move-up">
+              <span class="icon" data-icon="mono/chevron-up"></span>
+            </button>
+            <span class="priority-control__number">2</span>
+            <button class="priority-control__btn" data-action="move-down">
+              <span class="icon" data-icon="mono/chevron-down"></span>
+            </button>
+            <button class="priority-control__handle" data-drag-handle>
+              <span class="icon" data-icon="mono/drag-vertical"></span>
+            </button>
+          </div>
+        </td>
+
+        <!-- Type cell -->
+        <td class="td-type">
+          <span class="badge badge--sm badge--info">
+            <span class="icon" data-icon="mono/link"></span>
+            <span>Link</span>
+          </span>
+        </td>
+
+        <!-- When cell (SmartLink conditions) -->
+        <td class="td-when">
+          <div class="condition-chips">
+            <span class="badge badge--sm">
+              <span class="icon" data-icon="mono/tag"></span>
+              utm_source=fb
+            </span>
+            <span class="badge badge--sm">
+              <span class="icon" data-icon="mono/tag"></span>
+              utm_campaign=summer
+            </span>
+          </div>
+        </td>
+
+        <!-- Then cell -->
+        <td class="td-then">
+          <div class="target-info">
+            <span class="target-info__url">https://offer2.example.com/fb-summer</span>
+            <span class="badge badge--sm badge--success">302</span>
+          </div>
+        </td>
+
+        <td class="td-center">
+          <label class="toggle">
+            <input type="checkbox" checked />
+            <span class="toggle__slider"></span>
+          </label>
+        </td>
+
+        <td class="td-updated">
+          <time datetime="2025-12-24">1 day ago</time>
+        </td>
+
+        <td class="td-actions">
+          <div class="btn-group">
+            <button class="btn-icon btn-icon--compact" data-action="edit">
+              <span class="icon" data-icon="mono/pencil"></span>
+            </button>
+            <div class="dropdown" data-dropdown>
+              <button class="btn-icon btn-icon--compact">
+                <span class="icon" data-icon="mono/dots-vertical"></span>
+              </button>
+              <div class="dropdown__menu dropdown__menu--right">
+                <button class="dropdown__item">
+                  <span class="icon" data-icon="mono/content-copy"></span>
+                  <span>Duplicate</span>
+                </button>
+                <button class="dropdown__item">
+                  <span class="icon" data-icon="mono/flask"></span>
+                  <span>Test in simulator</span>
+                </button>
+                <hr class="dropdown__divider" />
+                <button class="dropdown__item text-danger">
+                  <span class="icon" data-icon="mono/delete"></span>
+                  <span>Delete</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
     </tbody>
   </table>
 </div>
@@ -473,6 +591,8 @@ const showWelcome = !entryDomain || rulesCount === 0 || isReadOnly;
 - `.condition-chips` - chips container with "+N" overflow
 - `.target-info` - URL + status badge
 - `.toggle` - iOS-style toggle switch (reuse if exists)
+- `.badge--primary` - blue badge for SmartShield type
+- `.badge--info` - purple/teal badge for SmartLink type
 
 **CSS Requirements:**
 - Sticky header
@@ -614,76 +734,199 @@ const showWelcome = !entryDomain || rulesCount === 0 || isReadOnly;
 **Form Structure:**
 ```html
 <form class="stack-list" data-form="rule-conditions">
-  <!-- Path patterns -->
+  <!-- Rule Type Selector -->
   <div class="field">
-    <label class="field__label">Path patterns</label>
-    <div class="field__input-group">
-      <input type="text" class="input" placeholder="/offer/*" />
-      <button class="btn-icon" type="button" data-action="add-pattern">
-        <span class="icon" data-icon="mono/plus"></span>
+    <label class="field__label">Rule Type</label>
+    <div class="btn-group btn-group--full" role="group" data-rule-type-selector>
+      <button type="button" class="btn btn--ghost is-active" data-rule-type="smartshield">
+        <span class="icon" data-icon="mono/shield"></span>
+        <span>SmartShield</span>
+      </button>
+      <button type="button" class="btn btn--ghost" data-rule-type="smartlink">
+        <span class="icon" data-icon="mono/link"></span>
+        <span>SmartLink</span>
       </button>
     </div>
     <p class="field__hint text-muted">
-      Use wildcards: /path/* or exact paths. Leave empty to match all.
+      <strong>SmartShield:</strong> Route by geo, device, bots (CF metadata).
+      <strong>SmartLink:</strong> Route by UTM params, campaign tags.
     </p>
-    <!-- Pattern list -->
-    <ul class="pattern-list">
-      <li class="pattern-list__item">
-        <span class="pattern-list__text">/offer/*</span>
-        <button class="btn-icon btn-icon--compact" data-action="remove-pattern">
-          <span class="icon" data-icon="mono/close"></span>
-        </button>
-      </li>
-    </ul>
   </div>
 
-  <!-- Countries -->
-  <div class="field">
-    <label class="field__label">Countries</label>
-    <div class="dropdown" data-dropdown>
-      <button class="btn-chip" type="button">
-        <span class="icon" data-icon="mono/flag"></span>
-        <span>Select countries</span>
-        <span class="badge badge--sm">3</span>
-        <span class="icon" data-icon="mono/chevron-down"></span>
-      </button>
-      <div class="dropdown__menu dropdown__menu--wide">
-        <!-- Multi-select checkboxes -->
-        <label class="dropdown__item dropdown__item--checkbox">
-          <input type="checkbox" checked />
-          <span class="icon" data-icon="mono/check"></span>
-          <span>United States (US)</span>
+  <!-- SmartShield Conditions (shown when type=smartshield) -->
+  <div data-rule-type-fields="smartshield">
+    <!-- Path patterns -->
+    <div class="field">
+      <label class="field__label">Path patterns (optional)</label>
+      <div class="field__input-group">
+        <input type="text" class="input" placeholder="^/casino/([^/?#]+)" />
+        <button class="btn-icon" type="button" data-action="add-pattern">
+          <span class="icon" data-icon="mono/plus"></span>
+        </button>
+      </div>
+      <p class="field__hint text-muted">
+        Regex patterns. Leave empty to match all paths.
+      </p>
+      <ul class="pattern-list">
+        <li class="pattern-list__item">
+          <span class="pattern-list__text">^/casino/([^/?#]+)</span>
+          <button class="btn-icon btn-icon--compact" data-action="remove-pattern">
+            <span class="icon" data-icon="mono/close"></span>
+          </button>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Countries -->
+    <div class="field">
+      <label class="field__label">Countries (optional)</label>
+      <div class="dropdown" data-dropdown>
+        <button class="btn-chip" type="button">
+          <span class="icon" data-icon="mono/flag"></span>
+          <span>Select countries</span>
+          <span class="badge badge--sm">2</span>
+          <span class="icon" data-icon="mono/chevron-down"></span>
+        </button>
+        <div class="dropdown__menu dropdown__menu--wide">
+          <label class="dropdown__item dropdown__item--checkbox">
+            <input type="checkbox" value="RU" checked />
+            <span class="icon" data-icon="mono/check"></span>
+            <span>🇷🇺 Russia (RU)</span>
+          </label>
+          <label class="dropdown__item dropdown__item--checkbox">
+            <input type="checkbox" value="BY" checked />
+            <span class="icon" data-icon="mono/check"></span>
+            <span>🇧🇾 Belarus (BY)</span>
+          </label>
+          <!-- ... more countries ... -->
+        </div>
+      </div>
+      <p class="field__hint text-muted">
+        Leave empty to match all countries.
+      </p>
+    </div>
+
+    <!-- Devices -->
+    <div class="field">
+      <label class="field__label">Devices (optional)</label>
+      <div class="chip-group">
+        <label class="chip-group__item">
+          <input type="checkbox" value="mobile" checked />
+          <span class="chip-group__label">
+            <span class="icon" data-icon="mono/cellphone"></span>
+            <span>Mobile</span>
+          </span>
         </label>
-        <!-- ... more countries ... -->
+        <label class="chip-group__item">
+          <input type="checkbox" value="desktop" />
+          <span class="chip-group__label">
+            <span class="icon" data-icon="mono/monitor"></span>
+            <span>Desktop</span>
+          </span>
+        </label>
+        <label class="chip-group__item">
+          <input type="checkbox" value="tablet" />
+          <span class="chip-group__label">
+            <span class="icon" data-icon="mono/tablet"></span>
+            <span>Tablet</span>
+          </span>
+        </label>
       </div>
     </div>
-    <p class="field__hint text-muted">
-      Leave empty to match all countries.
-    </p>
-  </div>
 
-  <!-- Devices -->
-  <div class="field">
-    <label class="field__label">Devices</label>
-    <div class="btn-chip-group" role="group">
-      <button class="btn-chip is-active" type="button" data-device="all">All</button>
-      <button class="btn-chip" type="button" data-device="desktop">Desktop</button>
-      <button class="btn-chip" type="button" data-device="mobile">Mobile</button>
-      <button class="btn-chip" type="button" data-device="tablet">Tablet</button>
+    <!-- Bots -->
+    <div class="field">
+      <label class="field__label">Bots</label>
+      <select class="select">
+        <option value="">Any (include bots and humans)</option>
+        <option value="false" selected>Exclude bots</option>
+        <option value="true">Bots only</option>
+      </select>
+      <p class="field__hint text-muted">
+        Filter by bot detection (Googlebot, YandexBot, etc.)
+      </p>
     </div>
+
+    <!-- Advanced: ASN (NEW) -->
+    <details class="field__details">
+      <summary class="field__details-summary">Advanced conditions</summary>
+      <div class="stack-list stack-list--sm">
+        <div class="field">
+          <label class="field__label">ASN (optional)</label>
+          <input type="text" class="input" placeholder="12389, 8359" />
+          <p class="field__hint text-muted">
+            AS numbers (comma-separated). Example: 12389 (MTS), 8359 (Beeline)
+          </p>
+        </div>
+
+        <div class="field">
+          <label class="field__label">TLS Version (optional)</label>
+          <div class="chip-group">
+            <label class="chip-group__item">
+              <input type="checkbox" value="1.2" />
+              <span class="chip-group__label">TLS 1.2</span>
+            </label>
+            <label class="chip-group__item">
+              <input type="checkbox" value="1.3" />
+              <span class="chip-group__label">TLS 1.3</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field__label">IP Ranges (optional)</label>
+          <input type="text" class="input" placeholder="203.0.113.0/24" />
+          <p class="field__hint text-muted">
+            CIDR notation, comma-separated
+          </p>
+        </div>
+      </div>
+    </details>
   </div>
 
-  <!-- Bots condition -->
-  <div class="field">
-    <label class="field__label">Bots</label>
-    <select class="select">
-      <option value="any">Any (bots and humans)</option>
-      <option value="bots-only">Bots only</option>
-      <option value="exclude-bots">Exclude bots</option>
-    </select>
-    <p class="field__hint text-muted">
-      Requires Traffic Shield to be enabled for bot detection.
-    </p>
+  <!-- SmartLink Conditions (shown when type=smartlink) -->
+  <div data-rule-type-fields="smartlink" hidden>
+    <div class="field">
+      <label class="field__label">UTM Source</label>
+      <input type="text" class="input" placeholder="facebook, fb, instagram" />
+      <p class="field__hint text-muted">
+        Comma-separated values. Example: facebook, fb
+      </p>
+    </div>
+
+    <div class="field">
+      <label class="field__label">UTM Campaign (optional)</label>
+      <input type="text" class="input" placeholder="summer2025" />
+    </div>
+
+    <div class="field">
+      <label class="field__label">UTM Content (optional)</label>
+      <input type="text" class="input" placeholder="banner1, video2" />
+    </div>
+
+    <div class="field">
+      <label class="field__label">UTM Medium (optional)</label>
+      <input type="text" class="input" placeholder="cpc, social" />
+    </div>
+
+    <!-- Custom Parameters -->
+    <details class="field__details">
+      <summary class="field__details-summary">Custom parameters</summary>
+      <div class="stack-list stack-list--sm">
+        <div class="field">
+          <label class="field__label">Parameter name</label>
+          <div class="cluster cluster--sm">
+            <input type="text" class="input" placeholder="sub1" style="flex: 1;" />
+            <input type="text" class="input" placeholder="value" style="flex: 1;" />
+            <button class="btn btn--ghost btn--sm" type="button">Remove</button>
+          </div>
+        </div>
+        <button class="btn btn--ghost btn--sm" type="button">
+          <span class="icon" data-icon="mono/plus"></span>
+          <span>Add parameter</span>
+        </button>
+      </div>
+    </details>
   </div>
 </form>
 ```
@@ -691,8 +934,16 @@ const showWelcome = !entryDomain || rulesCount === 0 || isReadOnly;
 **New Components:**
 - `.pattern-list` - list of removable items
 - `.dropdown__item--checkbox` - checkbox item in dropdown
+- `.btn-group--full` - full-width button group for rule type selector
+- `.chip-group` - checkbox group styled as chips
+- `.field__details` - collapsible details element for advanced fields
 
 **Pattern Reference:** Existing form components, `.field`, `.btn-chip-group`
+
+**JavaScript Logic:**
+- Toggle visibility of `[data-rule-type-fields]` based on selected rule type
+- SmartShield: show geo, device, bots, path, ASN, TLS, IP fields
+- SmartLink: show UTM params, custom params fields
 
 ---
 
@@ -1303,22 +1554,46 @@ streams: {
 
 ## Mock Data Structure
 
-**Updated 2025-12-24:** Aligned with mini-tds production patterns (see `docs/mini-tds-analysis.md`)
+**Updated 2025-12-24:** Aligned with 301-wiki TDS specification (see `docs/301-wiki/TDS.md` and `docs/tds-backend-recommendations.md`)
+
+**Key changes from mini-tds:**
+- Added `rule_type: "smartlink" | "smartshield"` discriminator
+- Split match conditions into SmartShieldMatch (geo/device/bots/ASN/TLS) and SmartLinkMatch (UTM params)
+- Added SmartLink examples (UTM-based routing)
+- Added advanced SmartShield conditions (ASN, TLS version, IP ranges)
 
 ```typescript
 // src/streams/types.ts
+
+// Rule type discriminator (from 301-wiki/TDS.md)
+export type RuleType = "smartlink" | "smartshield";
+
 export type Device = "mobile" | "desktop" | "tablet" | "any";
 
-export interface MatchRule {
+// SmartShield Match Conditions (route by CF metadata)
+export interface SmartShieldMatch {
   path?: string | string[];      // Regex patterns: ["^/casino/([^/?#]+)"]
   countries?: string[];          // ISO codes (uppercase): ["RU", "UA", "BY"]
   devices?: Device[];            // Device types
   bots?: boolean;                // true = bots only, false = exclude bots
-  // Extensions (301-ui specific):
+  // Advanced conditions:
+  asn?: number[];                // AS numbers: [12389, 8359]
+  tls_version?: string[];        // TLS versions: ["1.2", "1.3"]
+  ip_ranges?: string[];          // CIDR notation: ["203.0.113.0/24"]
   referrer?: string | string[];  // Regex for referrer
-  utm_source?: string[];         // UTM source whitelist
-  utm_campaign?: string[];       // UTM campaign whitelist
 }
+
+// SmartLink Match Conditions (route by UTM params)
+export interface SmartLinkMatch {
+  utm_source?: string[];         // UTM source values: ["facebook", "fb"]
+  utm_campaign?: string[];       // UTM campaign values: ["summer2025"]
+  utm_content?: string[];        // UTM content values: ["banner1", "video2"]
+  utm_medium?: string[];         // UTM medium values: ["cpc", "social"]
+  custom_params?: Record<string, string[]>; // Custom query params: { sub1: ["value1"] }
+}
+
+// Unified match type (either SmartShield OR SmartLink)
+export type MatchRule = SmartShieldMatch | SmartLinkMatch;
 
 export interface RedirectTarget {
   url: string;                   // Absolute URL
@@ -1348,10 +1623,11 @@ export type RouteAction = RedirectAction | ResponseAction;
 
 export interface TDSRule {
   id: string;                    // Unique rule ID
+  rule_type: RuleType;           // "smartlink" | "smartshield" (discriminator)
   enabled?: boolean;             // Default true
   priority?: number;             // For UI sorting (not in mini-tds)
   label?: string;                // User-friendly name (UI only)
-  match: MatchRule;              // Conditions
+  match: MatchRule;              // Conditions (type depends on rule_type)
   action: RouteAction;           // Action to take
   // Metadata (read-only from API)
   metadata?: {
@@ -1367,8 +1643,10 @@ export interface TDSRule {
 ```typescript
 // src/streams/mock-data.ts
 export const MOCK_TDS_RULES: TDSRule[] = [
+  // SmartShield rules (route by CF metadata: geo, device, bots)
   {
     id: "rule-ru-mobile-casino",
+    rule_type: "smartshield",
     enabled: true,
     priority: 1,
     label: "RU Mobile Casino → A/B Test",
@@ -1400,6 +1678,7 @@ export const MOCK_TDS_RULES: TDSRule[] = [
   },
   {
     id: "rule-ua-desktop-slots",
+    rule_type: "smartshield",
     enabled: true,
     priority: 2,
     label: "UA Desktop Slots → Direct",
@@ -1419,7 +1698,97 @@ export const MOCK_TDS_RULES: TDSRule[] = [
     },
   },
   {
+    id: "rule-us-advanced",
+    rule_type: "smartshield",
+    enabled: true,
+    priority: 3,
+    label: "US Traffic (Advanced Filters)",
+    match: {
+      countries: ["US"],
+      devices: ["desktop"],
+      asn: [7922, 20057],  // Comcast, AT&T
+      tls_version: ["1.3"],
+      bots: false,
+    },
+    action: {
+      type: "redirect",
+      targets: [
+        { url: "https://premium-offer.example.com", label: "Premium Offer" },
+      ],
+      status: 302,
+    },
+  },
+
+  // SmartLink rules (route by UTM params)
+  {
+    id: "rule-fb-summer-campaign",
+    rule_type: "smartlink",
+    enabled: true,
+    priority: 4,
+    label: "Facebook Summer Campaign",
+    match: {
+      utm_source: ["facebook", "fb"],
+      utm_campaign: ["summer2025"],
+    },
+    action: {
+      type: "redirect",
+      targets: [
+        { url: "https://offer2.example.com/fb-summer", label: "FB Landing" },
+      ],
+      preserveOriginalQuery: true,
+      status: 302,
+    },
+    metadata: {
+      updatedAt: "2025-12-23T10:00:00Z",
+    },
+  },
+  {
+    id: "rule-google-ads-ab",
+    rule_type: "smartlink",
+    enabled: true,
+    priority: 5,
+    label: "Google Ads A/B Test",
+    match: {
+      utm_source: ["google", "adwords"],
+      utm_medium: ["cpc"],
+      utm_content: ["banner1", "banner2"],
+    },
+    action: {
+      type: "weighted_redirect",
+      targets: [
+        { url: "https://landing-a.example.com", weight: 50, label: "Landing A" },
+        { url: "https://landing-b.example.com", weight: 50, label: "Landing B" },
+      ],
+      status: 302,
+    },
+  },
+  {
+    id: "rule-email-campaign",
+    rule_type: "smartlink",
+    enabled: true,
+    priority: 6,
+    label: "Email Newsletter Campaign",
+    match: {
+      utm_source: ["newsletter"],
+      utm_medium: ["email"],
+      custom_params: {
+        subscriber_id: ["*"],  // Any value present
+      },
+    },
+    action: {
+      type: "redirect",
+      targets: [
+        { url: "https://exclusive.example.com/subscribers", label: "Subscriber Offer" },
+      ],
+      preserveOriginalQuery: true,
+      status: 302,
+    },
+  },
+
+  // Fallback/catch-all SmartShield rule
+  {
     id: "rule-bots-landing",
+    rule_type: "smartshield",
     enabled: true,
     priority: 99,
     label: "Bots → Safe Landing Page",
@@ -1435,7 +1804,7 @@ export const MOCK_TDS_RULES: TDSRule[] = [
       bodyHtml: "<!doctype html><html><head><title>Welcome</title></head><body><h1>Site is fine</h1></body></html>",
     },
   },
-  // ... 7-10 more rules for realistic table
+  // ... add 2-3 more rules for realistic table if needed
 ];
 ```
 
