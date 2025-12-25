@@ -65,17 +65,17 @@ function renderIntegrationRow(key: IntegrationKey): string {
 
   return `
     <tr data-key-id="${key.id}">
-      <td class="provider-cell">
+      <td data-priority="critical" class="provider-cell">
         <span class="icon" data-icon="${providerInfo.icon}"></span>
         <span class="provider-label">${providerInfo.name}</span>
       </td>
-      <td title="Account ID: ${key.external_account_id}">${key.key_alias}</td>
-      <td class="text-muted">—</td>
-      <td>
+      <td data-priority="high" title="Account ID: ${key.external_account_id}">${key.key_alias}</td>
+      <td data-priority="medium" class="text-muted">—</td>
+      <td data-priority="high">
         <span class="badge ${statusClass}">${statusLabel}</span>
       </td>
-      <td class="text-muted">${formatDate(key.last_used)}</td>
-      <td class="table-actions">
+      <td data-priority="low" class="text-muted">${formatDate(key.last_used)}</td>
+      <td data-priority="critical" class="table-actions">
         <button
           class="btn-icon"
           type="button"
@@ -182,9 +182,12 @@ export async function loadIntegrations(): Promise<void> {
  * Handle edit key action - open drawer
  */
 async function handleEditKey(event: Event): Promise<void> {
-  const button = event.currentTarget as HTMLButtonElement;
-  const keyId = button.dataset.keyId;
+  const target = event.target as HTMLElement;
+  const button = target.closest('[data-action="edit-key"]') as HTMLButtonElement;
 
+  if (!button) return;
+
+  const keyId = button.dataset.keyId;
   if (!keyId) return;
 
   try {
