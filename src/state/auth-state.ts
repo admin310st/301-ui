@@ -130,6 +130,10 @@ export async function initAuthState(): Promise<void> {
       setAuthToken(accessToken ?? null);
       const profile = await me();
       setUser(profile.user ?? profile ?? null);
+      // Save account ID from /auth/me response
+      if (profile.active_account_id) {
+        updateState({ accountId: profile.active_account_id });
+      }
     } else {
       setAuthToken(null);
       setUser(null);

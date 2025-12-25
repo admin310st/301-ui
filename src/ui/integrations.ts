@@ -279,8 +279,22 @@ export function initIntegrationsPage(): void {
   // Initialize CF connect forms
   initCfConnectForms();
 
-  // Load integrations
-  loadIntegrations();
+  // Load integrations when account ID becomes available
+  const accountId = getAccountId();
+  if (accountId) {
+    // Account ID already available (page reload case)
+    loadIntegrations();
+  } else {
+    // Wait for account ID to be loaded (fresh login case)
+    import('@state/auth-state').then(({ onAuthChange }) => {
+      const unsubscribe = onAuthChange((state) => {
+        if (state.accountId) {
+          loadIntegrations();
+          unsubscribe(); // Only load once
+        }
+      });
+    });
+  }
 
   // Attach "Add domains" button handler
   document.querySelectorAll('[data-action="add-domains"]').forEach((btn) => {
