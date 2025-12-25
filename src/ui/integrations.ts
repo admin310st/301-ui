@@ -1,6 +1,7 @@
 import { t } from '@i18n';
 import { getIntegrationKeys, deleteIntegrationKey } from '@api/integrations';
 import type { IntegrationKey } from '@api/types';
+import { getAccountId } from '@state/auth-state';
 import { showGlobalMessage } from './notifications';
 import { initDropdowns } from './dropdown';
 import { initAddDomainsDrawer } from '@domains/add-domains-drawer';
@@ -144,8 +145,14 @@ export async function loadIntegrations(): Promise<void> {
   showLoadingState();
 
   try {
+    // Get account ID from auth state
+    const accountId = getAccountId();
+    if (!accountId) {
+      throw new Error('Account ID not found. Please log in again.');
+    }
+
     // Fetch all integration keys (all providers)
-    const integrationKeys = await getIntegrationKeys();
+    const integrationKeys = await getIntegrationKeys(accountId);
 
     if (integrationKeys.length === 0) {
       showEmptyState();

@@ -25,11 +25,17 @@ function getErrorMessage(error: ApiError<unknown>): string {
   // Map error codes to user-friendly messages
   const errorMessages: Record<string, string> = {
     'bootstrap_invalid': 'Invalid bootstrap token. Please check your API token and try again.',
+    'bootstrap_expired': 'Bootstrap token has expired. Please generate a new token.',
+    'bootstrap_not_active': 'Bootstrap token is not active. Please check your token status.',
     'bootstrap_insufficient': 'Bootstrap token has insufficient permissions. Make sure it has "Account Settings: Edit" and "API Tokens: Edit" permissions.',
+    'permissions_missing': 'Bootstrap token has insufficient permissions. Please verify required permissions.',
     'account_mismatch': 'Account ID does not match the token. Please verify both values.',
     'token_rotation_failed': 'Failed to rotate token. Please try again or contact support.',
     'free_account_limit': 'Free Cloudflare accounts cannot use token rotation. Please upgrade your Cloudflare plan or use the existing integration.',
+    'quota_exceeded': 'You have reached the maximum number of Cloudflare accounts for your plan.',
     'cf_api_error': 'Cloudflare API error. Please check your credentials and try again.',
+    'cf_rejected': 'Cloudflare API rejected the request. Please check your credentials.',
+    'cf_unavailable': 'Cloudflare API is temporarily unavailable. Please try again later.',
   };
 
   const userMessage = errorMessages[body.error] || body.message || body.error;
@@ -200,9 +206,83 @@ export function initCfScopedTokenForm(): void {
 
       console.error('[cf-connect] Error:', error);
 
-      const errorMessage = getErrorMessage(error);
       const body = error.body as ApiErrorResponse | null;
 
+      // Handle cf_account_conflict - show confirmation dialog
+      if (body?.error === 'cf_account_conflict') {
+        const context = body.context as { existing_account_id?: string; new_account_id?: string };
+        const confirmed = confirm(
+          `You already have a Cloudflare account connected (${context?.existing_account_id || 'existing account'}).\n\n` +
+          `On the free plan, you can only connect one Cloudflare account. ` +
+          `Replacing it will remove all synced zones and domains.\n\n` +
+          `Do you want to replace the existing account with ${context?.new_account_id || 'this account'}?`
+        );
+
+        if (confirmed) {
+          // Retry with confirm_replace flag
+          try {
+            if (submitBtn) {
+              submitBtn.disabled = true;
+              submitBtn.innerHTML = '<span class="icon" data-icon="mono/refresh"></span><span>Replacing...</span>';
+            }
+            showLoading('cf');
+
+            const { initCloudflare } = await import('@api/integrations');
+            const response = await initCloudflare({
+              cf_account_id: accountId,
+              bootstrap_token: token,
+              confirm_replace: true,
+            });
+
+            hideLoading();
+
+            const syncInfo = response.sync
+              ? ` Synced ${response.sync.zones} zones and ${response.sync.domains} domains.`
+              : '';
+            const successMsg = `Cloudflare account replaced successfully!${syncInfo}`;
+
+            showStatus('success', successMsg);
+            showGlobalMessage('success', successMsg);
+
+            if (submitBtn) {
+              submitBtn.classList.remove('btn--cf');
+              submitBtn.classList.add('btn--success');
+              submitBtn.innerHTML = '<span class="icon" data-icon="mono/check-circle"></span><span>Connected!</span>';
+            }
+
+            setTimeout(async () => {
+              if (drawer) drawer.setAttribute('hidden', '');
+              try {
+                const { loadIntegrations } = await import('@ui/integrations');
+                await loadIntegrations();
+              } catch (error) {
+                console.error('Failed to reload integrations:', error);
+                window.location.reload();
+              }
+            }, 2000);
+
+          } catch (retryError: any) {
+            hideLoading();
+            const retryErrorMessage = getErrorMessage(retryError);
+            showStatus('error', retryErrorMessage);
+            showGlobalMessage('error', retryErrorMessage);
+            if (submitBtn) {
+              submitBtn.disabled = false;
+              submitBtn.innerHTML = '<span class="icon" data-icon="brand/cloudflare"></span><span>Save &amp; verify token</span>';
+            }
+          }
+        } else {
+          // User cancelled
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<span class="icon" data-icon="brand/cloudflare"></span><span>Save &amp; verify token</span>';
+          }
+        }
+        return;
+      }
+
+      // Handle other errors
+      const errorMessage = getErrorMessage(error);
       showStatus('error', errorMessage);
       showGlobalMessage('error', errorMessage);
 

@@ -13,6 +13,7 @@ let listeners = new Set<Listener>();
 export interface AuthState {
   token: string | null;
   user: MeResponse['user'] | null;
+  accountId: number | null;
   loading: boolean;
   isLoggedIn: boolean;
 }
@@ -20,6 +21,7 @@ export interface AuthState {
 let currentState: AuthState = {
   token: null,
   user: null,
+  accountId: null,
   loading: false,
   isLoggedIn: false,
 };
@@ -67,6 +69,10 @@ export function isLoggedIn(): boolean {
   return currentState.isLoggedIn;
 }
 
+export function getAccountId(): number | null {
+  return currentState.accountId;
+}
+
 export function setUser(user: MeResponse['user'] | null): void {
   updateState({ user });
 }
@@ -76,6 +82,9 @@ export async function loadUser(): Promise<MeResponse['user'] | null> {
     updateState({ loading: true });
     const profile = await me();
     setUser(profile.user ?? profile ?? null);
+    if (profile.active_account_id) {
+      updateState({ accountId: profile.active_account_id });
+    }
     return profile.user ?? profile ?? null;
   } catch (error) {
     logDebug('Failed to load user', error);

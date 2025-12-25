@@ -13,12 +13,16 @@ const BASE_URL = '/integrations';
 
 /**
  * Get all integration keys for the current account
+ * @param accountId Account ID (required, from JWT or auth state)
  * @param provider Optional provider filter (cloudflare, namecheap, etc.)
  * @returns Array of integration keys
  */
-export async function getIntegrationKeys(provider?: string): Promise<IntegrationKey[]> {
-  const params = provider ? `?provider=${provider}` : '';
-  const response = await apiFetch<GetKeysResponse>(`${BASE_URL}/keys${params}`);
+export async function getIntegrationKeys(accountId: number, provider?: string): Promise<IntegrationKey[]> {
+  const params = new URLSearchParams({ account_id: accountId.toString() });
+  if (provider) {
+    params.set('provider', provider);
+  }
+  const response = await apiFetch<GetKeysResponse>(`${BASE_URL}/keys?${params}`);
   return response.keys;
 }
 

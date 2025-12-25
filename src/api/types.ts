@@ -99,6 +99,7 @@ export interface MeResponse {
   user?: UserProfile;
   email?: string;
   access_token?: string;
+  active_account_id?: number;
 }
 
 export interface OAuthStartResponse {
