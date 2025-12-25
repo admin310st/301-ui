@@ -35,137 +35,201 @@
 {{> sidebar activePage="streams"}}
 
       <section class="dashboard-content">
-        <header class="page-header">
-          <div class="stack-sm">
+        <!-- Welcome Section (shown when no rules) -->
+        <div class="tds-onboarding" data-welcome-card>
+          <!-- Hero -->
+          <header class="tds-hero">
             <h1 class="h3">TDS Rules</h1>
-            <p class="text-muted">Traffic Distribution System — route users by geo, device, and source</p>
-          </div>
-        </header>
-
-        <div class="stack stack--xl">
-      <!-- Welcome Card (shown when no rules) -->
-      <article class="tds-welcome card card--panel card--accent card--accent-info" data-welcome-card>
-          <header class="card__header">
-            <p class="text-muted">
-              Intelligent traffic routing with auto-optimizing A/B tests. Route users by geo, device, source — and let AI maximize your revenue.
+            <p class="text-lead">Traffic Distribution System — route users by geo, device, and source.</p>
+            <p class="text-body">
+              Build clear routing rules that run top-to-bottom, and keep unwanted traffic out with Traffic Shield.
+              Test everything in Simulator, then publish once you're confident.
             </p>
+            <a href="#" class="link" onclick="return false;">
+              <span class="icon" data-icon="mono/book-open"></span>
+              <span>Learn the basics</span>
+            </a>
           </header>
 
-          <div class="card__body stack">
-            <!-- Quick Start Checklist -->
-            <ul class="checklist">
-              <li class="checklist__item">
-                <span class="checklist__icon">
-                  <span class="icon" data-icon="mono/shield-check"></span>
-                </span>
-                <div class="checklist__content">
-                  <strong>Configure Traffic Shield</strong>
-                  <p>Set up Cloudflare Rules to block bots and moderators before they reach TDS.</p>
-                </div>
-              </li>
-              <li class="checklist__item">
-                <span class="checklist__icon">
-                  <span class="icon" data-icon="mono/plus-circle"></span>
-                </span>
-                <div class="checklist__content">
-                  <strong>Create your first rule</strong>
-                  <p>Choose SmartShield (geo/device) or SmartLink (UTM routing). Rules execute top to bottom.</p>
-                </div>
-              </li>
-              <li class="checklist__item">
-                <span class="checklist__icon">
-                  <span class="icon" data-icon="mono/trending-up"></span>
-                </span>
-                <div class="checklist__content">
-                  <strong>Try MAB A/B Testing</strong>
-                  <p>Add 2+ variants and let Thompson Sampling algorithm optimize traffic automatically. <strong>+5.7% revenue boost.</strong></p>
-                </div>
-              </li>
-              <li class="checklist__item">
-                <span class="checklist__icon">
-                  <span class="icon" data-icon="mono/flask"></span>
-                </span>
-                <div class="checklist__content">
-                  <strong>Test in Simulator</strong>
-                  <p>Simulate requests with different geo/device/UTM to verify your rules work correctly.</p>
-                </div>
-              </li>
-              <li class="checklist__item">
-                <span class="checklist__icon">
-                  <span class="icon" data-icon="mono/upload"></span>
-                </span>
-                <div class="checklist__content">
-                  <strong>Publish changes</strong>
-                  <p>Rules are saved as drafts. Click "Publish" to sync them to Cloudflare Workers.</p>
-                </div>
-              </li>
-            </ul>
-          </div>
-
-          <footer class="card__footer">
-            <div class="cluster">
-              <button class="btn btn--primary" data-action="create-rule">
-                <span class="icon" data-icon="mono/plus"></span>
-                <span>Create Your First Rule</span>
-              </button>
-              <a href="#" class="btn btn--ghost" onclick="return false;">
-                <span class="icon" data-icon="mono/book-open"></span>
-                <span>Read Full Guide</span>
-              </a>
-            </div>
-          </footer>
-      </article>
-
-      <!-- Feature Cards -->
-      <div class="card-grid card-grid--3col" data-welcome-card>
-        <article class="card card--panel">
-          <div class="card__header">
-            <div class="cluster">
-              <span class="btn-icon btn-icon--lg btn--primary">
+          <!-- Traffic Pipeline -->
+          <div class="tds-pipeline">
+            <div class="tds-pipeline__segment">
+              <span class="tds-pipeline__icon">
                 <span class="icon" data-icon="mono/shield"></span>
               </span>
-              <h3 class="h5">SmartShield</h3>
+              <div class="tds-pipeline__content">
+                <strong>Traffic Shield</strong>
+                <span class="text-muted text-sm">CF Rules</span>
+              </div>
             </div>
-          </div>
-          <div class="card__body">
-            <p class="text-body">
-              Protect from moderators and bots. Route by geo, device, ASN, TLS version. Show white pages to unwanted traffic.
-            </p>
-          </div>
-        </article>
-
-        <article class="card card--panel">
-          <div class="card__header">
-            <div class="cluster">
-              <span class="btn-icon btn-icon--lg btn--info">
-                <span class="icon" data-icon="mono/link"></span>
+            <span class="tds-pipeline__arrow">→</span>
+            <div class="tds-pipeline__segment is-active">
+              <span class="tds-pipeline__icon">
+                <span class="icon" data-icon="mono/directions-fork"></span>
               </span>
-              <h3 class="h5">SmartLink</h3>
+              <div class="tds-pipeline__content">
+                <strong>TDS Rules</strong>
+                <span class="badge badge--sm">0</span>
+              </div>
             </div>
-          </div>
-          <div class="card__body">
-            <p class="text-body">
-              Route by UTM params and campaign tags. Split traffic by source, creative, or custom parameters. DeepLinks support.
-            </p>
-          </div>
-        </article>
-
-        <article class="card card--panel">
-          <div class="card__header">
-            <div class="cluster">
-              <span class="btn-icon btn-icon--lg btn--success">
-                <span class="icon" data-icon="mono/trending-up"></span>
+            <span class="tds-pipeline__arrow">→</span>
+            <div class="tds-pipeline__segment">
+              <span class="tds-pipeline__icon">
+                <span class="icon" data-icon="mono/target"></span>
               </span>
-              <h3 class="h5">MAB A/B Testing <span class="badge badge--sm badge--warning">Pro</span></h3>
+              <div class="tds-pipeline__content">
+                <strong>Target</strong>
+                <span class="text-muted text-sm">Offers/Sites</span>
+              </div>
             </div>
           </div>
-          <div class="card__body">
-            <p class="text-body">
-              <strong>+5.7% revenue boost.</strong> Multi-Armed Bandits auto-optimize traffic distribution. No manual analysis — AI does it for you.
-            </p>
+
+          <!-- Main content grid -->
+          <div class="tds-onboarding__grid">
+            <!-- Checklist -->
+            <article class="card card--panel">
+
+              <header class="card__header">
+                <h2 class="h5">Quick Start</h2>
+              </header>
+
+              <div class="card__body">
+                <ul class="checklist">
+                  <li class="checklist__item">
+                    <span class="checklist__icon">
+                      <span class="icon" data-icon="mono/shield-check"></span>
+                    </span>
+                    <div class="checklist__content">
+                      <strong>Configure Traffic Shield</strong>
+                      <p>Block bots and moderators before they reach routing rules.</p>
+                      <p class="text-sm text-muted">Traffic Shield decisions may prevent requests from reaching TDS.</p>
+                    </div>
+                    <button class="btn btn--sm btn--ghost">Open Traffic Shield</button>
+                  </li>
+
+                  <li class="checklist__item">
+                    <span class="checklist__icon">
+                      <span class="icon" data-icon="mono/plus-circle"></span>
+                    </span>
+                    <div class="checklist__content">
+                      <strong>Create your first rule</strong>
+                      <p>Choose what to match (geo/device/source) and what to do (redirect/response).</p>
+                      <p class="text-sm text-muted">Rules execute top to bottom — the first match wins.</p>
+                    </div>
+                    <button class="btn btn--sm btn--primary" data-action="create-rule">Create rule</button>
+                  </li>
+
+                  <li class="checklist__item">
+                    <span class="checklist__icon">
+                      <span class="icon" data-icon="mono/trending-up"></span>
+                    </span>
+                    <div class="checklist__content">
+                      <strong>Try MAB A/B Testing <span class="badge badge--sm badge--warning">Pro</span></strong>
+                      <p>Add 2+ variants and let Multi-Armed Bandits optimize distribution automatically.</p>
+                      <p class="text-sm text-muted">Can improve revenue over time as data accumulates.</p>
+                    </div>
+                    <a href="#" class="btn btn--sm btn--ghost" onclick="return false;">Learn about MAB</a>
+                  </li>
+
+                  <li class="checklist__item">
+                    <span class="checklist__icon">
+                      <span class="icon" data-icon="mono/flask"></span>
+                    </span>
+                    <div class="checklist__content">
+                      <strong>Test in Simulator</strong>
+                      <p>Simulate geo/device/UTM to confirm the exact outcome — including Shield decisions.</p>
+                    </div>
+                    <button class="btn btn--sm btn--ghost">Open Simulator</button>
+                  </li>
+
+                  <li class="checklist__item">
+                    <span class="checklist__icon">
+                      <span class="icon" data-icon="mono/upload"></span>
+                    </span>
+                    <div class="checklist__content">
+                      <strong>Publish changes</strong>
+                      <p>Edits are saved as drafts. Publish to sync the active ruleset to Workers.</p>
+                    </div>
+                    <button class="btn btn--sm btn--primary" disabled>Publish</button>
+                  </li>
+                </ul>
+              </div>
+
+              <footer class="card__footer">
+                <div class="cluster">
+                  <button class="btn btn--primary" data-action="create-rule">
+                    <span class="icon" data-icon="mono/plus"></span>
+                    <span>Create Your First Rule</span>
+                  </button>
+                  <a href="#" class="btn btn--ghost" onclick="return false;">
+                    <span class="icon" data-icon="mono/book-open"></span>
+                    <span>Read Full Guide</span>
+                  </a>
+                </div>
+              </footer>
+            </article>
+
+            <!-- Feature Cards Sidebar -->
+            <aside class="tds-features">
+              <article class="card card--panel card--compact">
+                <div class="card__header">
+                  <div class="cluster cluster--wrap">
+                    <span class="btn-icon btn-icon--lg btn--primary">
+                      <span class="icon" data-icon="mono/shield"></span>
+                    </span>
+                    <h3 class="h6">SmartShield</h3>
+                  </div>
+                </div>
+                <div class="card__body">
+                  <p class="text-sm">
+                    Protect from bots and moderators. Match by geo, device, ASN, TLS fingerprint — and route unwanted traffic to safe pages.
+                  </p>
+                </div>
+                <footer class="card__footer">
+                  <a href="#" class="link link--sm" onclick="return false;">See SmartShield rules</a>
+                </footer>
+              </article>
+
+              <article class="card card--panel card--compact">
+                <div class="card__header">
+                  <div class="cluster cluster--wrap">
+                    <span class="btn-icon btn-icon--lg btn--info">
+                      <span class="icon" data-icon="mono/link"></span>
+                    </span>
+                    <h3 class="h6">SmartLink</h3>
+                  </div>
+                </div>
+                <div class="card__body">
+                  <p class="text-sm">
+                    Route by UTM and campaign tags. Split traffic by source, creative, or custom parameters. Deep links supported.
+                  </p>
+                </div>
+                <footer class="card__footer">
+                  <a href="#" class="link link--sm" onclick="return false;">See SmartLink examples</a>
+                </footer>
+              </article>
+
+              <article class="card card--panel card--compact card--accent card--accent-warning">
+                <div class="card__header">
+                  <div class="cluster cluster--wrap">
+                    <span class="btn-icon btn-icon--lg btn--success">
+                      <span class="icon" data-icon="mono/trending-up"></span>
+                    </span>
+                    <h3 class="h6">MAB A/B Testing <span class="badge badge--sm badge--warning">Pro</span></h3>
+                  </div>
+                </div>
+                <div class="card__body">
+                  <p class="text-sm">
+                    Multi-Armed Bandits auto-optimize traffic allocation. No manual analysis — the best variant gets more traffic over time.
+                  </p>
+                </div>
+                <footer class="card__footer">
+                  <a href="#" class="link link--sm" onclick="return false;">Upgrade to Pro</a>
+                </footer>
+              </article>
+            </aside>
           </div>
-        </article>
-      </div>
+        </div>
 
         <!-- Empty State (shown when rules exist but filtered to 0) -->
         <div class="empty-state" data-empty-state hidden>

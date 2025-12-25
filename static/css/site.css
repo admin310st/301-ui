@@ -3229,65 +3229,39 @@ body.layout-dashboard .burger-button {
    TDS (Traffic Distribution System) Components
    ============================================================================ */
 
-/* Context Bar - Sticky navigation */
-.tds-context-bar {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-3) var(--space-4);
-  background: var(--bg-subtle);
-  border-bottom: 1px solid var(--border);
-  flex-wrap: wrap;
+/* ============================================
+   TDS Onboarding Section
+   ============================================ */
+
+/* Hero */
+.tds-hero {
+  margin-bottom: var(--space-6);
 }
 
-.tds-context-bar__selectors {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  flex-wrap: wrap;
+.tds-hero h1 {
+  margin-bottom: var(--space-2);
 }
 
-.tds-context-bar__status {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  margin-left: auto;
+.tds-hero .text-lead {
+  margin-bottom: var(--space-3);
 }
 
-.tds-context-bar__actions {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
+.tds-hero .text-body {
+  margin-bottom: var(--space-3);
+  max-width: 70ch;
 }
 
-@media (max-width: 768px) {
-  .tds-context-bar {
-    flex-direction: column;
-    align-items: stretch;
-    gap: var(--space-2);
-  }
-
-  .tds-context-bar__status {
-    margin-left: 0;
-    justify-content: flex-start;
-  }
-
-  .tds-context-bar__actions {
-    justify-content: flex-end;
-  }
-}
-
-/* Pipeline visualization */
+/* Traffic Pipeline */
 .tds-pipeline {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
+  justify-content: center;
+  gap: var(--space-3);
   padding: var(--space-4);
-  background: var(--bg);
-  border-bottom: 1px solid var(--border);
+  margin-bottom: var(--space-6);
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-md);
   overflow-x: auto;
 }
 
@@ -3296,36 +3270,70 @@ body.layout-dashboard .burger-button {
   align-items: center;
   gap: var(--space-2);
   padding: var(--space-2) var(--space-3);
-  border-radius: var(--r-md);
-  background: var(--bg-subtle);
-  border: 1px solid var(--border);
+  border-radius: var(--r-pill);
+  background: var(--bg);
+  border: 1px solid var(--border-subtle);
   transition: all 0.2s ease;
   white-space: nowrap;
 }
 
 .tds-pipeline__segment.is-active {
-  background: var(--primary-subtle);
+  background: var(--primary);
   border-color: var(--primary);
+  color: var(--btn-text-on-dark);
 }
 
-.tds-pipeline__segment-icon {
-  font-size: var(--fs-xl);
-  color: var(--text-muted);
+.tds-pipeline__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
 }
 
-.tds-pipeline__segment.is-active .tds-pipeline__segment-icon {
-  color: var(--primary);
-}
-
-.tds-pipeline__segment-content {
+.tds-pipeline__content {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: 2px;
+}
+
+.tds-pipeline__content strong {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
 }
 
 .tds-pipeline__arrow {
   font-size: var(--fs-lg);
-  color: var(--text-dim);
+  color: var(--text-muted);
+  user-select: none;
+}
+
+/* Onboarding Grid: 2-column on desktop, 1-column on mobile */
+.tds-onboarding__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-5);
+  align-items: start;
+}
+
+@media (min-width: 1024px) {
+  .tds-onboarding__grid {
+    grid-template-columns: 1fr 320px;
+  }
+}
+
+/* Feature Cards Sidebar */
+.tds-features {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+@media (max-width: 1023px) {
+  .tds-features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  }
 }
 
 /* TDS Checklist */
@@ -3339,17 +3347,34 @@ body.layout-dashboard .burger-button {
 }
 
 .checklist__item {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
   gap: var(--space-3);
   padding: var(--space-4);
   background: var(--bg-subtle);
   border: 1px solid var(--border-subtle);
   border-radius: var(--r-md);
   transition: border-color 0.2s ease;
+  align-items: start;
 }
 
 .checklist__item:hover {
-  border-color: var(--primary);
+  border-color: var(--border-strong);
+}
+
+@media (max-width: 768px) {
+  .checklist__item {
+    grid-template-columns: auto 1fr;
+    grid-template-areas:
+      "icon content"
+      "icon action";
+  }
+
+  .checklist__item > .btn,
+  .checklist__item > .link {
+    grid-area: action;
+    margin-top: var(--space-2);
+  }
 }
 
 .checklist__icon {
