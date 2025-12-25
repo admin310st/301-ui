@@ -78,6 +78,22 @@ function renderIntegrationRow(key: IntegrationKey): string {
             <span class="icon" data-icon="mono/dots-vertical"></span>
           </button>
           <div class="dropdown__menu dropdown__menu--right" role="menu">
+            <button class="dropdown__item" type="button" data-action="edit-key" data-key-id="${key.id}">
+              <span class="icon" data-icon="mono/edit"></span>
+              <span>Rename</span>
+            </button>
+            ${key.provider === 'cloudflare' && key.status === 'active' ? `
+            <button class="dropdown__item" type="button" data-action="rotate-token" data-key-id="${key.id}">
+              <span class="icon" data-icon="mono/refresh"></span>
+              <span>Rotate token</span>
+            </button>
+            ` : ''}
+            ${key.status === 'active' ? `
+            <button class="dropdown__item" type="button" data-action="revoke-key" data-key-id="${key.id}">
+              <span class="icon" data-icon="mono/shield-off"></span>
+              <span>Revoke</span>
+            </button>
+            ` : ''}
             <button class="dropdown__item dropdown__item--danger" type="button" data-action="delete-integration" data-key-id="${key.id}">
               <span class="icon" data-icon="mono/delete"></span>
               <span>Delete</span>
@@ -176,6 +192,58 @@ export async function loadIntegrations(): Promise<void> {
   }
 }
 
+
+/**
+ * Handle rename key action
+ */
+async function handleEditKey(event: Event): Promise<void> {
+  const button = event.currentTarget as HTMLButtonElement;
+  const keyId = button.dataset.keyId;
+
+  if (!keyId) return;
+
+  // TODO: Open edit drawer/modal with key_alias input
+  showGlobalMessage('info', 'Rename functionality coming soon');
+}
+
+/**
+ * Handle rotate token action (Cloudflare only)
+ */
+async function handleRotateToken(event: Event): Promise<void> {
+  const button = event.currentTarget as HTMLButtonElement;
+  const keyId = button.dataset.keyId;
+
+  if (!keyId) return;
+
+  // TODO: Open drawer to input new bootstrap token
+  showGlobalMessage('info', 'Token rotation functionality coming soon');
+}
+
+/**
+ * Handle revoke key action
+ */
+async function handleRevokeKey(event: Event): Promise<void> {
+  const button = event.currentTarget as HTMLButtonElement;
+  const keyId = button.dataset.keyId;
+
+  if (!keyId) return;
+
+  const confirmed = confirm('Revoke this integration key? It will no longer be usable.');
+
+  if (!confirmed) return;
+
+  try {
+    const { updateIntegrationKey } = await import('@api/integrations');
+    await updateIntegrationKey(parseInt(keyId, 10), { status: 'revoked' });
+    showGlobalMessage('success', 'Integration key revoked');
+
+    // Reload integrations
+    await loadIntegrations();
+  } catch (error: any) {
+    const errorMessage = error.message || 'Failed to revoke key';
+    showGlobalMessage('error', errorMessage);
+  }
+}
 
 /**
  * Handle delete integration action from dropdown
@@ -306,6 +374,21 @@ export function initIntegrationsPage(): void {
   // Attach dropdown action handlers (delegated)
   document.addEventListener('click', (e) => {
     const target = e.target as HTMLElement;
+
+    // Edit/Rename key
+    if (target.closest('[data-action="edit-key"]')) {
+      handleEditKey(e);
+    }
+
+    // Rotate token (Cloudflare)
+    if (target.closest('[data-action="rotate-token"]')) {
+      handleRotateToken(e);
+    }
+
+    // Revoke key
+    if (target.closest('[data-action="revoke-key"]')) {
+      handleRevokeKey(e);
+    }
 
     // Delete integration
     if (target.closest('[data-action="delete-integration"]')) {
