@@ -66,8 +66,8 @@ function renderIntegrationRow(key: IntegrationKey): string {
         <span class="icon" data-icon="${providerInfo.icon}"></span>
         <span class="provider-label">${providerInfo.name}</span>
       </td>
-      <td>${key.key_alias}</td>
-      <td class="text-muted"><code class="code-inline">${key.external_account_id}</code></td>
+      <td title="Account ID: ${key.external_account_id}">${key.key_alias}</td>
+      <td class="text-muted">—</td>
       <td>
         <span class="badge ${statusClass}">${statusLabel}</span>
       </td>

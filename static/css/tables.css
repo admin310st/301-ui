@@ -159,6 +159,12 @@
   background: var(--bg-soft);
 }
 
+.table tbody {
+  /* Minimum height to accommodate dropdown menus even with single row */
+  min-height: 12rem;
+  display: table-row-group;
+}
+
 .table th,
 .table td {
   padding: var(--space-2) var(--space-3);
