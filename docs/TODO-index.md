@@ -235,19 +235,29 @@ interface Site {
 
 ### 5. Streams/TDS (Приоритет #4)
 
-**Статус:** 📋 Planned (создать `TODO-streams.md`)
+**Статус:** ✅ Documented (TODO-streams.md создан 2025-12-24)
+
+**Файл:** [`TODO-streams.md`](../TODO-streams.md)
 
 **Цель:** Traffic Distribution System - распределение трафика по офферам
 
-**Задачи MVP:**
-- [ ] Страница `/streams.html`
-- [ ] Mock data с условиями (GEO, device, referrer)
-- [ ] Stream editor с визуальным конструктором
-- [ ] GEO selector с флагами (`flag-icons` library)
-- [ ] Weights и priorities
-- [ ] Fallback targets
+**Основные компоненты:**
+- ✅ Context bar (project/site/domain selectors)
+- ✅ Pipeline strip (Traffic Shield → TDS Rules → Target/Origin)
+- ✅ Rules table with priority controls (up/down arrows)
+- ✅ Drawer-based rule editor (conditions, targets, weights)
+- ✅ Draft/publish workflow with sticky banner
+- ✅ Onboarding checklist card
 
-**Детали:** Отложено до завершения Redirects/Projects/Sites
+**Milestones (6 этапов, ~6-9 дней):**
+1. Page skeleton + context bar + pipeline strip
+2. Welcome screen + onboarding checklist
+3. Rules table + add rule drawer (MVP)
+4. Rule editor logic (conditions, targets, weights)
+5. Priority controls (reorder UX)
+6. Draft/publish workflow + filters
+
+**Детали:** См. полный эпик в `TODO-streams.md` с HTML/CSS примерами и mock data
 
 ---
 
@@ -575,6 +585,11 @@ build: {
 
 ## 📅 История обновлений
 
+- **2025-12-24**: Добавлен TDS/Streams epic
+  - Создан детальный `TODO-streams.md` с 6 milestones
+  - Mapped все компоненты к existing design patterns
+  - Определены HTML/CSS структуры, mock data, implementation order
+
 - **2025-12-22**: Создан центральный индекс TODO
   - Согласован порядок разработки (Redirects → Projects → Sites)
   - Добавлены секции для будущих TODO файлов
@@ -582,6 +597,6 @@ build: {
 
 ---
 
-**Последнее обновление:** 2025-12-22
+**Последнее обновление:** 2025-12-24
 
 **Next action:** Создать `TODO-redirects.md` и начать разработку Redirects page
