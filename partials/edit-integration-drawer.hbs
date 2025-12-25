@@ -45,41 +45,43 @@
           <!-- Status Field -->
           <div class="field">
             <label class="field__label">Status</label>
-            <button
-              class="btn btn--sm btn--outline"
-              type="button"
-              data-integration-toggle="status"
-              data-status="active"
-              style="border-color: var(--ok);"
-            >
-              <span class="icon" data-icon="mono/check-circle" style="color: var(--ok);"></span>
-              <span>Active</span>
-            </button>
+            <div>
+              <button
+                class="btn btn--sm btn--outline"
+                type="button"
+                data-integration-toggle="status"
+                data-status="active"
+                style="border-color: var(--ok);"
+              >
+                <span class="icon" data-icon="mono/check-circle" style="color: var(--ok);"></span>
+                <span>Active</span>
+              </button>
+            </div>
             <p class="field__hint text-muted">
               Click to toggle between Active and Revoked
             </p>
           </div>
+        </form>
 
-          <!-- Rotate Token Section (Cloudflare only, shown conditionally) -->
-          <div class="card card--panel card--warning" data-rotate-token-section hidden>
-            <div class="card__body">
-              <div class="stack-list stack-list--xs">
-                <strong>Rotate API Token</strong>
-                <p class="text-sm text-muted">
-                  Generate a new scoped token and revoke the current one. This requires a valid bootstrap token.
-                </p>
-                <button
-                  type="button"
-                  class="btn btn--sm btn--outline"
-                  data-action="rotate-token-submit"
-                >
-                  <span class="icon" data-icon="mono/refresh"></span>
-                  <span>Rotate Token</span>
-                </button>
-              </div>
+        <!-- Rotate Token Section (Cloudflare only, shown conditionally) -->
+        <div class="card card--panel card--warning" data-rotate-token-section hidden style="margin-top: var(--space-4);">
+          <div class="card__body">
+            <div class="stack-list stack-list--xs">
+              <strong>Rotate API Token</strong>
+              <p class="text-sm text-muted">
+                Generate a new scoped token and revoke the current one. This requires a valid bootstrap token.
+              </p>
+              <button
+                type="button"
+                class="btn btn--sm"
+                data-action="rotate-token-submit"
+              >
+                <span class="icon" data-icon="mono/refresh"></span>
+                <span>Rotate Token</span>
+              </button>
             </div>
           </div>
-        </form>
+        </div>
       </div>
     </div>
 
