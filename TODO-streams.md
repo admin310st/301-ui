@@ -111,13 +111,30 @@
       </button>
     </div>
 
-    <!-- Entry domain selector -->
+    <!-- Acceptor domain selector (TDS enabled) -->
     <div class="dropdown" data-dropdown>
       <button class="btn-chip">
         <span class="icon" data-icon="mono/dns"></span>
         <span>offer.example.com</span>
+        <span class="badge badge--sm badge--success">acceptor</span>
         <span class="icon" data-icon="mono/chevron-down"></span>
       </button>
+      <div class="dropdown__menu">
+        <button class="dropdown__item">
+          <div class="dropdown__item-content">
+            <strong>offer.example.com</strong>
+            <span class="badge badge--sm badge--success">acceptor</span>
+            <p class="text-sm text-muted">TDS active</p>
+          </div>
+        </button>
+        <button class="dropdown__item">
+          <div class="dropdown__item-content">
+            <strong>promo.example.com</strong>
+            <span class="badge badge--sm badge--success">acceptor</span>
+            <p class="text-sm text-muted">TDS active</p>
+          </div>
+        </button>
+      </div>
     </div>
   </div>
 
@@ -161,9 +178,19 @@
 - Spacing tokens: `--space-3` between groups
 - Use `.btn-chip` for selectors (existing component)
 
+**Логика селекторов:**
+- **Project selector** - выбор проекта/кампании
+- **Site selector** - выбор сайта в проекте (логическая группа доменов)
+- **Acceptor domain selector** - выбор домена с ролью `acceptor` (на котором работает TDS)
+  - Показываем ТОЛЬКО домены с `role: acceptor` из выбранного Site
+  - Donor/reserve домены НЕ показываем (у них нет TDS)
+  - Badge "acceptor" показывает роль домена
+  - Hint "TDS active" подтверждает, что на домене работает TDS Worker
+
 **Files:**
 - `static/css/site.css` - add `.tds-context-bar` styles
 - `streams.html` - HTML structure
+- `src/streams/context.ts` - селекторы + фильтрация acceptor доменов
 
 ---
 
