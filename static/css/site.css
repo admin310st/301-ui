@@ -2015,6 +2015,16 @@ html[data-theme="light"] .btn--social-github {
   border-radius: 999px;
 }
 
+.badge--circle {
+  min-width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+}
+
 .badge + .badge {
   margin-left: 0.25rem;
 }
@@ -2377,6 +2387,10 @@ body.sidebar-collapsed .sidebar .navitem .badge {
 
 .sidebar .navitem .notification-icon--success {
   color: var(--success);
+}
+
+.sidebar .navitem .notification-icon--primary {
+  color: var(--primary);
 }
 
 /* Show notification icon in collapsed state */

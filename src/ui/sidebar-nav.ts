@@ -193,7 +193,7 @@ export function updateNavItemIndicators(
   options: {
     badge?: string | number | null;
     badgeClass?: string;
-    notificationIcon?: 'warning' | 'danger' | 'success' | null;
+    notificationIcon?: 'primary' | 'warning' | 'danger' | 'success' | null;
     notificationTitle?: string;
   }
 ): void {
@@ -335,11 +335,14 @@ export function updateDashboardOnboardingIndicator(currentStep: number | null): 
       notificationIcon: null,
     });
   } else {
-    // Show current step badge and warning icon
+    // Determine icon color: warning (orange) for step 1, primary (blue) for step 2+
+    const iconColor = currentStep === 1 ? 'warning' : 'primary';
+
+    // Show current step badge (circular) and colored status dot
     updateNavItemIndicators('overview', {
       badge: currentStep,
-      badgeClass: 'badge badge--sm badge--primary',
-      notificationIcon: 'warning',
+      badgeClass: 'badge badge--circle',
+      notificationIcon: iconColor,
       notificationTitle: 'Complete setup to get started',
     });
   }
