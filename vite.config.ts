@@ -68,6 +68,7 @@ export default defineConfig({
         account: resolve(__dirname, 'account.html'),
         domains: resolve(__dirname, 'domains.html'),
         redirects: resolve(__dirname, 'redirects.html'),
+        streams: resolve(__dirname, 'streams.html'),
         guide: resolve(__dirname, 'ui-style-guide.html'),
         about: resolve(__dirname, 'about.html'),
         privacy: resolve(__dirname, 'privacy.html'),
