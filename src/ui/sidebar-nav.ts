@@ -184,7 +184,76 @@ export function updateSidebarActive(path?: string): void {
 }
 
 /**
+ * Universal API to update sidebar navigation item indicators
+ * @param navId - Navigation item ID (e.g., 'overview', 'domains')
+ * @param options - Badge and notification icon options
+ */
+export function updateNavItemIndicators(
+  navId: string,
+  options: {
+    badge?: string | number | null;
+    badgeClass?: string;
+    notificationIcon?: 'warning' | 'danger' | 'success' | null;
+    notificationTitle?: string;
+  }
+): void {
+  const navItem = document.querySelector(`[data-nav-id="${navId}"]`);
+  if (!navItem) return;
+
+  // Update or remove badge
+  let badge = navItem.querySelector('.badge');
+
+  if (options.badge === null || options.badge === undefined) {
+    // Remove badge
+    if (badge) badge.remove();
+  } else {
+    // Update or create badge
+    if (badge) {
+      badge.textContent = options.badge.toString();
+      if (options.badgeClass) {
+        badge.className = options.badgeClass;
+      }
+    } else {
+      badge = document.createElement('span');
+      badge.className = options.badgeClass || 'badge badge--sm';
+      badge.textContent = options.badge.toString();
+
+      const label = navItem.querySelector('.label');
+      if (label && label.nextSibling) {
+        navItem.insertBefore(badge, label.nextSibling);
+      } else if (label) {
+        label.after(badge);
+      }
+    }
+  }
+
+  // Update or remove notification icon
+  let notificationIcon = navItem.querySelector('.notification-icon');
+
+  if (options.notificationIcon === null || options.notificationIcon === undefined) {
+    // Remove notification icon
+    if (notificationIcon) notificationIcon.remove();
+  } else {
+    // Update or create notification icon
+    if (!notificationIcon) {
+      notificationIcon = document.createElement('span');
+      notificationIcon.innerHTML = '<span class="icon" data-icon="mono/circle-alert"></span>';
+      navItem.appendChild(notificationIcon);
+    }
+
+    // Update class and title
+    const colorClass = `notification-icon--${options.notificationIcon}`;
+    notificationIcon.className = `notification-icon ${colorClass}`;
+
+    if (options.notificationTitle) {
+      notificationIcon.setAttribute('title', options.notificationTitle);
+    }
+  }
+}
+
+/**
  * Update domains badge count
+ * @deprecated Use updateNavItemIndicators('domains', { badge: count }) instead
  */
 export function updateDomainsBadge(count: number): void {
   const domainsNav = document.querySelector('[data-nav-id="domains"]');
@@ -259,47 +328,20 @@ export function updateDomainsHealthIndicator(
  * @param currentStep - Current onboarding step (1, 2, 3) or null if complete
  */
 export function updateDashboardOnboardingIndicator(currentStep: number | null): void {
-  const overviewNav = document.querySelector('[data-nav-id="overview"]');
-  if (!overviewNav) return;
-
-  let badge = overviewNav.querySelector('.badge');
-  let notificationIcon = overviewNav.querySelector('.notification-icon');
-
   if (currentStep === null) {
     // Onboarding complete - remove badge and icon
-    if (badge) badge.remove();
-    if (notificationIcon) notificationIcon.remove();
-    return;
-  }
-
-  // Update or create badge with current step number
-  if (badge) {
-    badge.textContent = currentStep.toString();
+    updateNavItemIndicators('overview', {
+      badge: null,
+      notificationIcon: null,
+    });
   } else {
-    badge = document.createElement('span');
-    badge.className = 'badge badge--sm';
-    badge.textContent = currentStep.toString();
-
-    const label = overviewNav.querySelector('.label');
-    if (label && label.nextSibling) {
-      overviewNav.insertBefore(badge, label.nextSibling);
-    } else if (label) {
-      label.after(badge);
-    }
-  }
-
-  // Update or create notification icon (warning)
-  if (!notificationIcon) {
-    notificationIcon = document.createElement('span');
-    notificationIcon.className = 'notification-icon notification-icon--warning';
-    notificationIcon.setAttribute('title', 'Complete setup to get started');
-
-    const iconEl = document.createElement('span');
-    iconEl.className = 'icon';
-    iconEl.setAttribute('data-icon', 'mono/circle-alert');
-
-    notificationIcon.appendChild(iconEl);
-    overviewNav.appendChild(notificationIcon);
+    // Show current step badge and warning icon
+    updateNavItemIndicators('overview', {
+      badge: currentStep,
+      badgeClass: 'badge badge--sm badge--primary',
+      notificationIcon: 'warning',
+      notificationTitle: 'Complete setup to get started',
+    });
   }
 }
 
