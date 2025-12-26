@@ -2835,6 +2835,15 @@ body.layout-dashboard .burger-button {
     animation: fadeIn 200ms ease;
   }
 
+  /* Hide header and utility-bar when mobile sidebar is open (prevent conflict) */
+  body.sidebar-open .site-header {
+    transform: translateY(-100%);
+  }
+
+  body.sidebar-open .utility-bar {
+    transform: translateY(-100%);
+  }
+
   @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
