@@ -276,7 +276,7 @@ body {
   bottom: 0;
   z-index: 100; /* High z-index to ensure it's above all utility-bar content (buttons have position:relative) */
   background: var(--panel);
-  border-bottom: 1px solid var(--border-subtle);
+  border-bottom: var(--indicator-thickness) solid var(--border-subtle);
   transform: translateY(-100%);
   opacity: 0;
   overflow: hidden;
@@ -764,6 +764,14 @@ h5 .icon[data-icon*="close"] {
   border-bottom: 1px solid var(--border-subtle);
   /* Isolate stacking context for utility-bar positioning */
   isolation: isolate;
+  /* Smooth transform for scroll hide/show */
+  transition: transform 0.3s ease;
+  transform: translateY(0);
+}
+
+/* Hide header when scrolling down */
+.site-header.header-hidden {
+  transform: translateY(-100%);
 }
 
 /* Compensate for absolutely positioned utility-bar */
@@ -943,13 +951,18 @@ h5 .icon[data-icon*="close"] {
   overflow: hidden; /* Ensure loading bar doesn't overflow on mobile */
 }
 
-/* Loading indicator bar (1px animated border with shimmer effect) */
+/* Hide utility-bar when scrolling down (first level to hide) */
+.utility-bar.utility-bar-hidden {
+  transform: translateY(-100%);
+}
+
+/* Loading indicator bar (animated border with shimmer effect) */
 .loading-bar {
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
-  height: 1px;
+  height: var(--indicator-thickness);
   background: var(--brand);
   opacity: 0;
   pointer-events: none;

@@ -17,7 +17,7 @@ import { t } from '@i18n';
 import { initTheme, initThemeToggle } from '@ui/theme';
 import { applyRouteFromHash, initAuthRouting, initAuthTabs } from '@ui/auth-routing';
 import { initPasswordToggles } from '@ui/password-toggle';
-import { initUtilityBarScroll } from '@ui/utility-bar-scroll';
+import { initHeaderScroll } from '@ui/header-scroll';
 import { initSidebarToggle } from '@ui/sidebar-toggle';
 import { initSidebarSearch } from '@ui/sidebar-search';
 import { initSidebarNav } from '@ui/sidebar-nav';
@@ -168,7 +168,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   bindLogoutButtons();
   initThemeToggle();
   initPasswordToggles();
-  initUtilityBarScroll();
+  initHeaderScroll();
   initSidebarToggle();
   initSidebarNav();          // First: render nav items
   initSidebarSearch();       // Then: attach search to rendered items

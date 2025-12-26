@@ -76,6 +76,7 @@
   --control-pad-y: 0.35em;
   --control-pad-x: 0.90em;
   --border-1: 1px;
+  --indicator-thickness: 1px; /* For loading bar & global notice border */
   --control-min-height: calc(
     1em * var(--lh-control) +
     2 * var(--control-pad-y) +
