@@ -3,7 +3,29 @@ import { getAccountId } from '@state/auth-state';
 import { updateDashboardOnboardingIndicator } from './sidebar-nav';
 
 /**
- * Update Step 1 state based on integrations count
+ * Check onboarding status and update sidebar indicator (global)
+ */
+export async function updateOnboardingStatus(): Promise<void> {
+  try {
+    const accountId = getAccountId();
+    if (!accountId) return;
+
+    // Fetch integrations to check if Step 1 is complete
+    const integrations = await getIntegrationKeys(accountId);
+    const cfIntegrations = integrations.filter(key => key.provider === 'cloudflare');
+    const hasIntegrations = cfIntegrations.length > 0;
+
+    // Update sidebar onboarding indicator
+    updateDashboardOnboardingIndicator(!hasIntegrations);
+  } catch (error) {
+    console.error('Failed to check onboarding status:', error);
+    // Show warning icon on error (assume onboarding incomplete)
+    updateDashboardOnboardingIndicator(true);
+  }
+}
+
+/**
+ * Update Step 1 state based on integrations count (dashboard page only)
  */
 async function updateStep1State(): Promise<void> {
   try {
@@ -38,14 +60,11 @@ async function updateStep1State(): Promise<void> {
       completedState.hidden = true;
     }
 
-    // Update sidebar onboarding indicator
-    // Show warning icon if Step 1 is not complete
+    // Update sidebar onboarding indicator (will also run globally, but ok to call twice)
     updateDashboardOnboardingIndicator(!hasIntegrations);
   } catch (error) {
     // Silently fail - keep default pending state
     console.error('Failed to load integrations for dashboard:', error);
-    // Show warning icon on error (onboarding incomplete)
-    updateDashboardOnboardingIndicator(true);
   }
 }
 

@@ -101,7 +101,7 @@
             <!-- Completed State (has integrations) -->
             <div class="card__body" data-step1-state="completed" hidden>
               <div class="panel panel--success">
-                <div class="cluster">
+                <div class="cluster cluster--start">
                   <span class="icon" data-icon="mono/check-circle"></span>
                   <div class="stack stack--xs">
                     <p class="text-sm"><strong data-i18n="dashboard.step1.completed.title">Cloudflare account connected</strong></p>
@@ -109,10 +109,7 @@
                       <span data-dashboard-integrations-count>—</span>
                       <span data-i18n="dashboard.step1.completed.count"> integration(s) active</span>
                       <span> · </span>
-                      <a href="/integrations.html" class="link-button">
-                        <span class="icon icon--sm" data-icon="mono/settings"></span>
-                        <span data-i18n="dashboard.step1.completed.manage">Manage integrations</span>
-                      </a>
+                      <a href="/integrations.html" data-i18n="dashboard.step1.completed.manage">Manage integrations</a>
                     </p>
                   </div>
                 </div>

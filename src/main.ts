@@ -28,7 +28,7 @@ import { initDomainsPage } from '@domains/domains';
 import { initRedirectsPage } from '@redirects/redirects';
 import { initDialogCloseHandlers } from '@ui/dialog';
 import { initPageLoadIndicator, showLoading, hideLoading, withLoading } from '@ui/loading-indicator';
-import { initDashboardPage } from '@ui/dashboard';
+import { initDashboardPage, updateOnboardingStatus } from '@ui/dashboard';
 
 /**
  * Inject SVG sprite with icons once per page.
@@ -172,6 +172,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initSidebarToggle();
   initSidebarNav();       // First: render nav items
   initSidebarSearch();    // Then: attach search to rendered items
+  updateOnboardingStatus(); // Update onboarding indicator in sidebar (global)
   initDashboardPage();
   initIntegrationsPage();
   initAccountPage();
