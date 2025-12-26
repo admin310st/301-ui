@@ -39,6 +39,8 @@ async function updateStep1State(): Promise<void> {
     const hasCfIntegration = cfIntegrations.length > 0;
     const hasZones = zones.length > 0;
 
+    console.log('[Dashboard] CF integrations:', cfIntegrations.length, 'hasZones:', hasZones, 'zones:', zones.length);
+
     // Get state containers
     const pendingState = document.querySelector<HTMLElement>('[data-step1-state="pending"]');
     const completedState = document.querySelector<HTMLElement>('[data-step1-state="completed"]');
@@ -61,6 +63,7 @@ async function updateStep1State(): Promise<void> {
 
     // Update sidebar indicator with current step
     const currentStep = calculateOnboardingStep(hasCfIntegration, hasZones);
+    console.log('[Dashboard] Current step:', currentStep);
     updateDashboardOnboardingIndicator(currentStep);
   } catch (error) {
     console.error('Failed to load integrations for dashboard:', error);
