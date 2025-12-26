@@ -206,6 +206,34 @@ src/
 └── worker.ts         # Cloudflare Worker entry point
 ```
 
+### CSS Organization
+
+The project uses a modular CSS architecture with separate files for different concerns:
+
+```
+static/css/
+├── theme.css      # Design tokens (colors, spacing, typography, shadows, z-index)
+├── layout.css     # Page layout structure (shells, grids, sections)
+├── site.css       # Core UI components (buttons, forms, cards, dialogs, modals, alerts)
+├── tables.css     # Table components (data tables, filters, badges, tabs)
+├── drawers.css    # Drawer components (side panels for forms/details/actions)
+└── ui-guide.css   # Style guide specific styles (only loaded on /ui-style-guide)
+```
+
+**Loading order** (must be preserved):
+1. `theme.css` - Variables must load first
+2. `layout.css` - Page structure
+3. `site.css` - General components
+4. `tables.css` - Table-specific components (when needed)
+5. `drawers.css` - Drawer components (when needed)
+6. `ui-guide.css` - Only on style guide page
+
+**Component separation philosophy:**
+- **site.css** - Universal UI components used across all pages (buttons, forms, dialogs, alerts)
+- **tables.css** - Domain-specific table components (status badges, filters, bulk actions)
+- **drawers.css** - Drawer overlays with loading indicators and responsive behavior
+- Drawers were separated from tables.css because they're a general UI pattern, not table-specific
+
 ### Key Architectural Patterns
 
 **1. Data Attribute Hooks**
