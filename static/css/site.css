@@ -92,7 +92,7 @@ body {
   flex-shrink: 0;
   width: 3rem;
   height: 3rem;
-  border-radius: var(--r-field);
+  border-radius: var(--r-pill);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -102,8 +102,8 @@ body {
 }
 
 .icon-ring .icon {
-  width: 1.5rem;
-  height: 1.5rem;
+  width: 2rem;
+  height: 2rem;
   color: var(--text);
 }
 
