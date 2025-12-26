@@ -494,6 +494,29 @@ When design system updates are introduced, **ALL** UI components and demo pages 
 
 **Available icons**: See `static/icons-preview.html`
 
+#### Icon Ring (Promotional Icons)
+
+For larger, visually prominent icons in promotional cards and feature highlights:
+
+```html
+<div class="icon-ring icon-ring--brand">
+  <span class="icon" data-icon="mono/plus"></span>
+</div>
+```
+
+**Specifications:**
+- Container: 3rem (48px) × 3rem with `border-radius: var(--r-field)`
+- Icon inside: 1.5rem (24px)
+- Border: 1px solid with subtle background
+- Matches avatar-ring sizing for consistency
+
+**Variants:**
+- `.icon-ring--brand` - brand color accent (blue)
+- `.icon-ring--cf` - Cloudflare orange accent
+- `.icon-ring--success` - success color accent (green)
+
+**Usage:** Dashboard cards, feature highlights, empty states with prominent actions
+
 ### Responsive Design
 
 **Breakpoints:**
