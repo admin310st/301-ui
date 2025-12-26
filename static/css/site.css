@@ -1830,15 +1830,6 @@ html[data-theme="light"] .btn--social-github {
   justify-content: center;
 }
 
-.auth-links {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-  margin-top: 0.75rem;
-}
-
-/* Links in auth forms now use global .link class */
-
 .auth-status {
   margin-top: var(--space-3);
   padding: var(--space-3);

@@ -663,6 +663,57 @@ Use `.h1` for page titles in the member area and auth hero, `.h2` for section ti
 
 This color scheme applies to domains table, redirects table, TDS streams, and all other operational status indicators throughout the member area.
 
+### 3.1. Links
+
+**Global link styles** for consistent appearance across the application:
+
+```css
+.link {
+  color: var(--primary);
+  text-decoration: none;
+  transition: text-decoration 150ms ease;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+```
+
+**Variants:**
+
+```css
+.link--sm {
+  font-size: var(--fs-sm);
+}
+
+.link--muted {
+  color: var(--text-muted);
+}
+
+.link--muted:hover {
+  color: var(--primary);
+}
+```
+
+**Usage:**
+
+```html
+<!-- Standard link (blue, underline on hover) -->
+<a href="/path" class="link">View details</a>
+
+<!-- Small link -->
+<a href="/path" class="link link--sm">Learn more</a>
+
+<!-- Muted link (gray, becomes blue on hover) -->
+<a href="/path" class="link link--muted">Optional action</a>
+```
+
+**Notes:**
+- Base `<a>` tags have `color: inherit` by default
+- Always use `.link` class for styled links to maintain consistency
+- Use `.link--muted` for secondary/optional actions that shouldn't compete with primary content
+- Use with `.cluster` or `.stack` utilities for proper spacing
+
 ---
 
 ## 4. Components
