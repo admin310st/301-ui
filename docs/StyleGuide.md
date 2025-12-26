@@ -21,6 +21,8 @@ Design system for **301.st** (marketing front + member area).
 | **Cards** | `.card.card--panel`, `.card--soft` | `dashboard.html` step cards | `site.css` → "Cards v2" |
 | **Panels** | `.panel.panel--{info\|success\|warning\|danger}` | `dashboard.html` Step 1 info panel | `site.css` → "Panels" |
 | **Badges** | `.badge.badge--{primary\|success\|neutral\|warning\|danger}` | `domains.html` status column | `site.css` → "Badges" |
+| **Loading Indicator** | `.loading-bar[data-loading][data-type]` | `index.html` login/register | `site.css` → "Loading indicator bar" |
+| **Global Notices** | `.app-alert.app-alert--{success\|error\|info}` | All pages, utility-bar overlay | `site.css` → "Global Notices" |
 | **Layout** | `.cluster`, `.stack`, `.stack--{xs\|sm\|md\|lg\|xl}` | All pages | `site.css` → "Common Patterns" |
 
 ### Live Examples
@@ -219,6 +221,123 @@ When design system updates are introduced, **ALL** UI components and demo pages 
 - Sticky headers on scroll
 - Provider icons (Cloudflare, GoDaddy, etc.)
 - Domain health indicators
+
+### Loading Indicator & Global Notices
+
+**Purpose**: Unified visual feedback system combining loading states and notifications.
+
+**Architecture**:
+- **Loading Bar** - 1px shimmer animation in `.utility-bar` border
+- **Global Notice** - Alert message in `.app-alert` with coordinated border flash
+- **Coordination** - Shimmer transitions to notice color, then fixes as border
+
+**Visual Flow**:
+
+```
+1. Loading Phase
+   └─ Shimmer animation (blue/orange)
+
+2. Completion with Notice
+   ├─ Shimmer "flushes" to notice color (1.5s)
+   ├─ Border holds solid color (600ms)
+   └─ Notice slides down with message
+
+3. No Notice
+   └─ Shimmer fades out (200ms)
+```
+
+**CSS Implementation**:
+
+```css
+/* Loading bar with shimmer */
+.loading-bar {
+  position: absolute;
+  bottom: 0;
+  height: var(--indicator-thickness); /* 1px */
+  background: var(--brand); /* Blue */
+  z-index: var(--z-indicator);
+}
+
+.loading-bar[data-loading='true']::before {
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+/* Shimmer flush state (final cycle) */
+.loading-bar[data-loading='flushing']::before {
+  animation: shimmer 1.5s ease-in-out 1; /* Once, not infinite */
+}
+
+/* Color variants */
+.loading-bar[data-type='brand'] { background: var(--brand); }
+.loading-bar[data-type='cf'] { background: var(--accent-cf); }
+.loading-bar[data-type='success'] { background: var(--success); }
+.loading-bar[data-type='error'] { background: var(--danger); }
+.loading-bar[data-type='info'] { background: var(--info); }
+
+/* Border flash on utility-bar */
+.utility-bar[data-border-flash='success'] {
+  border-bottom-color: var(--success);
+}
+.utility-bar[data-border-flash='error'] {
+  border-bottom-color: var(--danger);
+}
+.utility-bar[data-border-flash='info'] {
+  border-bottom-color: var(--info);
+}
+```
+
+**Timing Specifications**:
+
+| Phase | Duration | Animation |
+|-------|----------|-----------|
+| Loading shimmer | Infinite | 1.5s ease-in-out |
+| Shimmer flush | 1.5s | 1 cycle (not infinite) |
+| Border flash | 600ms | Solid color hold |
+| Notice delay | 2200ms | Total wait (1500 + 600 + 100) |
+| Notice slide | 300ms | translateY(0) |
+
+**Color Usage**:
+
+| Type | Color | Use Case |
+|------|-------|----------|
+| `brand` | Blue (`--brand`) | Auth operations (login, register, logout) |
+| `cf` | Orange (`--accent-cf`) | Cloudflare API operations |
+| `success` | Green (`--success`) | Success notices |
+| `error` | Red (`--danger`) | Error notices |
+| `info` | Blue (`--info`) | Info notices |
+
+**Design Tokens**:
+
+```css
+:root {
+  --indicator-thickness: 1px;
+  --z-indicator: 2;        /* Loading bar layer */
+  --z-global-notice: 100;  /* Notice overlay layer */
+
+  /* Colors */
+  --brand: #3475C0;        /* Blue for auth */
+  --accent-cf: #C24F00;    /* Orange for CF */
+  --success: #18C27A;      /* Green */
+  --danger: #FF4F6E;       /* Red */
+  --info: #3B82F6;         /* Info blue */
+}
+```
+
+**Accessibility**:
+- Loading bar has `aria-hidden="true"` (visual only)
+- Global notice has `role="status"` or `role="alert"` for errors
+- `aria-live="polite"` for screen reader announcements
+- Color not sole indicator (shimmer animation + text message)
+
+**Production Examples**:
+- `/ui-style-guide#loading-indicator` - Interactive demo
+- `index.html` - Login/register forms
+- `integrations.html` - Cloudflare connect drawer
+
+**API Reference**:
+- Technical implementation: `CLAUDE.md` → "Loading Indicator & Global Notices"
+- TypeScript API: `src/ui/loading-indicator.ts`
+- Coordination logic: `src/ui/globalNotice.ts`
 
 ---
 

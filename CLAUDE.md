@@ -561,6 +561,149 @@ showGlobalMessage('success', t('auth.messages.loginSuccess'));
 showGlobalMessage('error', 'Something went wrong');
 ```
 
+### Loading Indicator & Global Notices
+
+The 301-ui project uses a unified loading indicator system that coordinates with global notices to provide seamless visual feedback.
+
+**Architecture:**
+- **Loading Bar** - 1px animated shimmer bar in utility-bar border
+- **Global Notices** - Alert messages that appear in utility-bar with colored border flash
+- **Coordination** - Loading shimmer transitions to notice color, then fixes as border for 600ms
+
+**Visual Flow:**
+1. **Loading Phase** - Shimmer animation (blue for auth, orange for Cloudflare)
+2. **Completion Phase** - Shimmer "flushes" to notice color (green/red/blue) over 1.5s
+3. **Border Flash** - Utility-bar border holds notice color for 600ms
+4. **Notice Display** - Global notice slides down with message
+
+#### Manual Loading Control
+
+```typescript
+import { showLoading, hideLoading } from '@ui/loading-indicator';
+
+// Show loading indicator
+showLoading('brand'); // Blue shimmer for general operations
+showLoading('cf');    // Orange shimmer for Cloudflare operations
+
+// Perform operation
+await someOperation();
+
+// Hide loading (triggers transition if notice pending)
+hideLoading();
+```
+
+#### Automatic API Integration
+
+All API functions automatically show loading indicators:
+
+```typescript
+import { login, register, logout } from '@api/auth';
+import { initCloudflare } from '@api/integrations';
+
+// Auth operations show blue shimmer automatically
+await login({ email, password, turnstile_token });
+// → showLoading('brand') → hideLoading() → automatic coordination
+
+// Cloudflare operations show orange shimmer automatically
+await initCloudflare({ cf_account_id, bootstrap_token });
+// → showLoading('cf') → hideLoading() → automatic coordination
+```
+
+**API Integration Options:**
+
+The `apiFetch()` function accepts `showLoading` parameter:
+
+```typescript
+import { apiFetch } from '@api/client';
+
+// With loading indicator
+const data = await apiFetch<ResponseType>('/endpoint', {
+  method: 'POST',
+  body: JSON.stringify(payload),
+  showLoading: 'brand', // or 'cf'
+});
+
+// Without loading indicator (silent background requests)
+const data = await apiFetch<ResponseType>('/auth/me'); // No loading
+```
+
+**Current API Coverage:**
+- `login()` - `showLoading: 'brand'`
+- `register()` - `showLoading: 'brand'`
+- `logout()` - `showLoading: 'brand'`
+- `resetPassword()` - `showLoading: 'brand'`
+- `verifyToken()` - `showLoading: 'brand'`
+- `confirmPassword()` - `showLoading: 'brand'`
+- `initCloudflare()` - `showLoading: 'cf'`
+- `initNamecheap()` - `showLoading: 'brand'`
+- `me()` - No loading (background)
+- `refresh()` - No loading (background)
+
+#### Coordinated Notice Display
+
+When showing a notice while loading is active, the system automatically coordinates:
+
+```typescript
+import { showGlobalNotice } from '@ui/globalNotice';
+
+// If loading is active, notice waits for shimmer flush
+showGlobalNotice('success', 'Operation completed successfully');
+// → Checks isLoading()
+// → Sets pending flash type
+// → Waits for shimmer flush (1.5s) + border flash (600ms)
+// → Shows notice
+
+// If no loading, shows immediately
+showGlobalNotice('error', 'Something went wrong');
+```
+
+#### Best Practices
+
+1. **Don't manually call loading in forms** - API functions handle it automatically
+2. **Remove duplicate showLoading/hideLoading** - Check if your API call already has `showLoading` parameter
+3. **Use correct type** - `'brand'` for general operations, `'cf'` for Cloudflare-specific
+4. **Let coordination happen** - Don't manually delay notices, the system handles timing
+
+**Example: Form Submission (Before/After)**
+
+```typescript
+// ❌ BEFORE: Manual loading management
+async function handleSubmit(e: SubmitEvent) {
+  e.preventDefault();
+  showLoading('cf'); // Duplicate!
+
+  try {
+    const response = await initCloudflare(data);
+    hideLoading(); // Duplicate!
+    showGlobalNotice('success', 'Connected!');
+  } catch (error) {
+    hideLoading(); // Duplicate!
+    showGlobalNotice('error', error.message);
+  }
+}
+
+// ✅ AFTER: Automatic coordination
+async function handleSubmit(e: SubmitEvent) {
+  e.preventDefault();
+
+  try {
+    const response = await initCloudflare(data);
+    // Loading already handled by initCloudflare()
+    showGlobalNotice('success', 'Connected!');
+    // Notice automatically coordinates with loading completion
+  } catch (error) {
+    showGlobalNotice('error', error.message);
+  }
+}
+```
+
+**Visual Design Reference:**
+- See `docs/StyleGuide.md` for visual specifications
+- See `/ui-style-guide#loading-indicator` for live examples
+- Shimmer animation: 1.5s ease-in-out (infinite during loading, once during flush)
+- Border flash: 600ms solid color hold
+- Colors: `--brand` (blue), `--accent-cf` (orange), `--success` (green), `--danger` (red), `--info` (blue)
+
 ### Toggling Theme
 ```typescript
 import { toggleTheme, getTheme } from '@ui/theme';
