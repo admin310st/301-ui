@@ -13,6 +13,9 @@ import { getZones } from '@api/zones';
 // Store current editing key
 let currentEditingKey: IntegrationKey | null = null;
 
+// Store search query
+let searchQuery = '';
+
 /**
  * Format date to locale string
  */
@@ -138,6 +141,10 @@ function showTableState(): void {
   if (table) table.hidden = false;
 }
 
+// Store all loaded integrations and zones for filtering
+let allIntegrations: IntegrationKey[] = [];
+let zonesCountMap: Record<number, number> = {};
+
 /**
  * Load and render integration keys
  */
@@ -160,35 +167,61 @@ export async function loadIntegrations(): Promise<void> {
       getZones().catch(() => []) // Graceful fallback if zones fail
     ]);
 
+    // Store for filtering
+    allIntegrations = integrationKeys;
+
     if (integrationKeys.length === 0) {
       showEmptyState();
       return;
     }
 
     // Count zones per integration key (requires key_id in API response)
-    const zonesCountByKeyId = zones.reduce((acc, zone) => {
+    zonesCountMap = zones.reduce((acc, zone) => {
       if (zone.key_id) {
         acc[zone.key_id] = (acc[zone.key_id] || 0) + 1;
       }
       return acc;
     }, {} as Record<number, number>);
 
-    // Render all integration keys with zones count
-    tbody.innerHTML = integrationKeys
-      .map(key => renderIntegrationRow(key, zonesCountByKeyId[key.id] || 0))
-      .join('');
-
-    // Initialize dropdowns
-    const tableContainer = document.querySelector('[data-integrations-table]');
-    if (tableContainer) {
-      initDropdowns(tableContainer as HTMLElement);
-    }
+    // Apply current search filter
+    renderFilteredIntegrations();
 
     showTableState();
   } catch (error: any) {
     const errorMessage = error.message || 'Failed to load integrations';
     showGlobalMessage('error', errorMessage);
     showEmptyState();
+  }
+}
+
+/**
+ * Filter and render integrations based on search query
+ */
+function renderFilteredIntegrations(): void {
+  const tbody = document.querySelector<HTMLElement>('[data-integrations-tbody]');
+  if (!tbody) return;
+
+  // Filter integrations by provider name or alias
+  const filtered = allIntegrations.filter(key => {
+    if (!searchQuery) return true;
+
+    const query = searchQuery.toLowerCase();
+    const providerInfo = getProviderInfo(key.provider);
+    const providerName = providerInfo.name.toLowerCase();
+    const alias = key.key_alias.toLowerCase();
+
+    return providerName.includes(query) || alias.includes(query);
+  });
+
+  // Render filtered results
+  tbody.innerHTML = filtered
+    .map(key => renderIntegrationRow(key, zonesCountMap[key.id] || 0))
+    .join('');
+
+  // Re-initialize dropdowns after render
+  const tableContainer = document.querySelector('[data-integrations-table]');
+  if (tableContainer) {
+    initDropdowns(tableContainer as HTMLElement);
   }
 }
 
@@ -478,6 +511,36 @@ export function initIntegrationsPage(): void {
   });
 
   // Note: "Connect Cloudflare" handler is global (in main.ts)
+
+  // Search input handler
+  const searchInput = document.querySelector<HTMLInputElement>('[data-search-input]');
+  const searchClear = document.querySelector<HTMLButtonElement>('[data-search-clear]');
+  const searchContainer = document.querySelector<HTMLElement>('[data-table-search]');
+
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      searchQuery = (e.target as HTMLInputElement).value;
+      renderFilteredIntegrations();
+
+      // Toggle active state
+      if (searchContainer) {
+        if (searchQuery) {
+          searchContainer.classList.add('table-search--active');
+        } else {
+          searchContainer.classList.remove('table-search--active');
+        }
+      }
+    });
+  }
+
+  if (searchClear) {
+    searchClear.addEventListener('click', () => {
+      searchQuery = '';
+      if (searchInput) searchInput.value = '';
+      if (searchContainer) searchContainer.classList.remove('table-search--active');
+      renderFilteredIntegrations();
+    });
+  }
 
   // Attach edit key handler (delegated)
   document.addEventListener('click', (e) => {

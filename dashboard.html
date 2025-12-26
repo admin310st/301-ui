@@ -75,19 +75,20 @@
               <p class="text-muted" data-i18n="dashboard.step1.subtitle">Link your Cloudflare account to enable zone sync and traffic management.</p>
             </header>
 
-            <div class="card__body stack">
+            <!-- Pending State (no integrations) -->
+            <div class="card__body stack" data-step1-state="pending">
               <p class="text-body" data-i18n="dashboard.step1.description">
                 We'll create a scoped API token with limited permissions for syncing zones and applying security presets.
                 You maintain full control — the token only accesses necessary functions.
               </p>
 
               <div class="panel panel--success">
-                <p class="text-sm">
+                <div class="cluster">
                   <span class="btn-icon btn-icon--compact btn--success">
                     <span class="icon" data-icon="mono/check-circle"></span>
                   </span>
-                  <span data-i18n="dashboard.step1.securityNote">Scoped tokens limit what 301.st can access. We'll never see your password or Global API Key.</span>
-                </p>
+                  <span class="text-sm" data-i18n="dashboard.step1.securityNote">Scoped tokens limit what 301.st can access. We'll never see your password or Global API Key.</span>
+                </div>
               </div>
 
               <div class="cluster">
@@ -96,6 +97,26 @@
                   <span data-i18n="dashboard.step1.button">Connect account</span>
                 </button>
                 <span class="text-muted text-sm" data-i18n="dashboard.step1.timeEstimate">Takes 1-2 minutes</span>
+              </div>
+            </div>
+
+            <!-- Completed State (has integrations) -->
+            <div class="card__body" data-step1-state="completed" hidden>
+              <div class="panel panel--success">
+                <div class="cluster">
+                  <span class="btn-icon btn-icon--compact btn--success">
+                    <span class="icon" data-icon="mono/check-circle"></span>
+                  </span>
+                  <div class="stack stack--xs">
+                    <p class="text-sm"><strong data-i18n="dashboard.step1.completed.title">Cloudflare account connected</strong></p>
+                    <p class="text-sm text-muted">
+                      <span data-dashboard-integrations-count>—</span>
+                      <span data-i18n="dashboard.step1.completed.count"> integration(s) active</span>
+                      <span> · </span>
+                      <a href="/integrations.html" class="link-button" data-i18n="dashboard.step1.completed.manage">Manage integrations</a>
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </article>
@@ -144,10 +165,10 @@
               </div>
 
               <div class="panel panel--info">
-                <p class="text-sm">
+                <div class="cluster">
                   <span class="icon" data-icon="mono/info"></span>
-                  <span data-i18n="dashboard.step2.notice">This section becomes available after connecting your Cloudflare account.</span>
-                </p>
+                  <span class="text-sm" data-i18n="dashboard.step2.notice">This section becomes available after connecting your Cloudflare account.</span>
+                </div>
               </div>
             </div>
           </article>
@@ -179,10 +200,10 @@
               </ul>
 
               <div class="panel panel--info">
-                <p class="text-sm">
+                <div class="cluster">
                   <span class="icon" data-icon="mono/info"></span>
-                  <span data-i18n="dashboard.step3.notice">Traffic control features become available after adding and activating domains.</span>
-                </p>
+                  <span class="text-sm" data-i18n="dashboard.step3.notice">Traffic control features become available after adding and activating domains.</span>
+                </div>
               </div>
             </div>
           </article>

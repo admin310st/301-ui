@@ -284,6 +284,11 @@ export const en = {
       securityNote: 'Scoped tokens limit what 301.st can access. We\'ll never see your password or Global API Key.',
       button: 'Connect account',
       timeEstimate: 'Takes 1-2 minutes',
+      completed: {
+        title: 'Cloudflare account connected',
+        count: ' integration(s) active',
+        manage: 'Manage integrations',
+      },
     },
     step2: {
       title: 'Add your domains',

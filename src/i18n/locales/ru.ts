@@ -290,6 +290,11 @@ export const ru: Translation = {
       securityNote: 'Scoped-токены ограничивают доступ 301.st к вашему аккаунту. Мы никогда не увидим ваш пароль или Global API Key.',
       button: 'Подключить аккаунт',
       timeEstimate: 'Займет 1-2 минуты',
+      completed: {
+        title: 'Аккаунт Cloudflare подключен',
+        count: ' интеграц. активно',
+        manage: 'Управление интеграциями',
+      },
     },
     step2: {
       title: 'Добавьте домены',
