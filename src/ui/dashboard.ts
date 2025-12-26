@@ -39,11 +39,8 @@ async function updateSidebarOnboardingIndicator(): Promise<void> {
     const hasCfIntegration = cfIntegrations.length > 0;
     const hasZones = zones.length > 0;
 
-    console.log('[Dashboard] CF integrations:', cfIntegrations.length, 'hasZones:', hasZones, 'zones:', zones.length);
-
     // Update sidebar indicator with current step
     const currentStep = calculateOnboardingStep(hasCfIntegration, hasZones);
-    console.log('[Dashboard] Current step:', currentStep);
     updateDashboardOnboardingIndicator(currentStep);
   } catch (error) {
     console.error('Failed to update onboarding indicator:', error);
