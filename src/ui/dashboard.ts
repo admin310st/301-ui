@@ -1,5 +1,6 @@
 import { getIntegrationKeys } from '@api/integrations';
 import { getAccountId } from '@state/auth-state';
+import { updateDashboardOnboardingIndicator } from './sidebar-nav';
 
 /**
  * Update Step 1 state based on integrations count
@@ -36,9 +37,15 @@ async function updateStep1State(): Promise<void> {
       pendingState.hidden = false;
       completedState.hidden = true;
     }
+
+    // Update sidebar onboarding indicator
+    // Show warning icon if Step 1 is not complete
+    updateDashboardOnboardingIndicator(!hasIntegrations);
   } catch (error) {
     // Silently fail - keep default pending state
     console.error('Failed to load integrations for dashboard:', error);
+    // Show warning icon on error (onboarding incomplete)
+    updateDashboardOnboardingIndicator(true);
   }
 }
 

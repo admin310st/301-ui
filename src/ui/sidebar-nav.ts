@@ -255,6 +255,34 @@ export function updateDomainsHealthIndicator(
 }
 
 /**
+ * Update dashboard onboarding indicator
+ * @param incomplete - true if onboarding is incomplete
+ */
+export function updateDashboardOnboardingIndicator(incomplete: boolean): void {
+  const overviewNav = document.querySelector('[data-nav-id="overview"]');
+  if (!overviewNav) return;
+
+  let notificationIcon = overviewNav.querySelector('.notification-icon');
+
+  if (!incomplete) {
+    // Remove notification icon if onboarding is complete
+    if (notificationIcon) {
+      notificationIcon.remove();
+    }
+    return;
+  }
+
+  if (!notificationIcon) {
+    // Create notification icon if it doesn't exist
+    notificationIcon = document.createElement('span');
+    notificationIcon.className = 'notification-icon notification-icon--warning';
+    notificationIcon.innerHTML = '<span class="icon" data-icon="mono/circle-alert"></span>';
+    notificationIcon.setAttribute('title', 'Complete setup to get started');
+    overviewNav.appendChild(notificationIcon);
+  }
+}
+
+/**
  * Initialize sidebar navigation
  */
 export function initSidebarNav(): void {
