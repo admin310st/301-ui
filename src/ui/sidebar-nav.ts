@@ -256,44 +256,50 @@ export function updateDomainsHealthIndicator(
 
 /**
  * Update dashboard onboarding indicator
- * @param incomplete - true if onboarding is incomplete
+ * @param currentStep - Current onboarding step (1, 2, 3) or null if complete
  */
-export function updateDashboardOnboardingIndicator(incomplete: boolean): void {
-  console.log('[Sidebar] updateDashboardOnboardingIndicator called with incomplete =', incomplete);
-
+export function updateDashboardOnboardingIndicator(currentStep: number | null): void {
   const overviewNav = document.querySelector('[data-nav-id="overview"]');
-  if (!overviewNav) {
-    console.warn('[Sidebar] Overview nav not found - sidebar may not be rendered yet');
-    return;
-  }
+  if (!overviewNav) return;
 
-  console.log('[Sidebar] Overview nav found:', overviewNav);
-
+  let badge = overviewNav.querySelector('.badge');
   let notificationIcon = overviewNav.querySelector('.notification-icon');
 
-  if (!incomplete) {
-    // Remove notification icon if onboarding is complete
-    if (notificationIcon) {
-      notificationIcon.remove();
-    }
+  if (currentStep === null) {
+    // Onboarding complete - remove badge and icon
+    if (badge) badge.remove();
+    if (notificationIcon) notificationIcon.remove();
     return;
   }
 
+  // Update or create badge with current step number
+  if (badge) {
+    badge.textContent = currentStep.toString();
+  } else {
+    badge = document.createElement('span');
+    badge.className = 'badge badge--sm';
+    badge.textContent = currentStep.toString();
+
+    const label = overviewNav.querySelector('.label');
+    if (label && label.nextSibling) {
+      overviewNav.insertBefore(badge, label.nextSibling);
+    } else if (label) {
+      label.after(badge);
+    }
+  }
+
+  // Update or create notification icon (warning)
   if (!notificationIcon) {
-    // Create notification icon if it doesn't exist
     notificationIcon = document.createElement('span');
     notificationIcon.className = 'notification-icon notification-icon--warning';
     notificationIcon.setAttribute('title', 'Complete setup to get started');
 
-    // Create icon element with data-icon attribute
     const iconEl = document.createElement('span');
     iconEl.className = 'icon';
     iconEl.setAttribute('data-icon', 'mono/circle-alert');
 
     notificationIcon.appendChild(iconEl);
     overviewNav.appendChild(notificationIcon);
-
-    console.log('Onboarding indicator added to sidebar');
   }
 }
 
