@@ -1837,14 +1837,7 @@ html[data-theme="light"] .btn--social-github {
   margin-top: 0.75rem;
 }
 
-.auth-links a {
-  color: var(--primary);
-  text-decoration: none;
-}
-
-.auth-links a:hover {
-  text-decoration: underline;
-}
+/* Links in auth forms now use global .link class */
 
 .auth-status {
   margin-top: var(--space-3);
@@ -2145,6 +2138,31 @@ html[data-theme="light"] .btn--social-github {
 
 .link-button--sm {
   font-size: var(--fs-xs);
+}
+
+/* ============================================
+   Links (global styles)
+   ============================================ */
+.link {
+  color: var(--primary);
+  text-decoration: none;
+  transition: text-decoration 150ms ease;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.link--sm {
+  font-size: var(--fs-sm);
+}
+
+.link--muted {
+  color: var(--text-muted);
+}
+
+.link--muted:hover {
+  color: var(--primary);
 }
 
 /* ============================================
