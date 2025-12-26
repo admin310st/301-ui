@@ -67,6 +67,7 @@ export async function initCloudflare(data: InitCloudflareRequest): Promise<InitI
   const response = await apiFetch<InitIntegrationResponse>(`${BASE_URL}/cloudflare/init`, {
     method: 'POST',
     body: JSON.stringify(data),
+    showLoading: 'cf',
   });
   return response;
 }
@@ -80,6 +81,7 @@ export async function initNamecheap(data: InitNamecheapRequest): Promise<number>
   const response = await apiFetch<InitIntegrationResponse>(`${BASE_URL}/namecheap/init`, {
     method: 'POST',
     body: JSON.stringify(data),
+    showLoading: 'brand',
   });
   return response.key_id;
 }

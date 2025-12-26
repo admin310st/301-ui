@@ -2,12 +2,19 @@ import { getAuthToken } from '@state/auth-state';
 import { createApiError } from '@utils/errors';
 import { logDebug } from '@utils/logger';
 import { parseJsonSafe } from '@utils/json';
+import { showLoading, hideLoading } from '@ui/loading-indicator';
 
 const API_ROOT = 'https://api.301.st';
 
-export async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
+export interface ApiFetchOptions extends RequestInit {
+  /** Show loading indicator during request */
+  showLoading?: 'brand' | 'cf' | false;
+}
+
+export async function apiFetch<T>(path: string, options: ApiFetchOptions = {}): Promise<T> {
   const headers = new Headers(options.headers ?? {});
   const token = getAuthToken();
+  const loadingType = options.showLoading;
 
   if (token && !headers.has('authorization')) {
     headers.set('authorization', `Bearer ${token}`);
@@ -17,19 +24,31 @@ export async function apiFetch<T>(path: string, options: RequestInit = {}): Prom
     headers.set('content-type', 'application/json');
   }
 
-  const response = await fetch(`${API_ROOT}${path}`, {
-    credentials: 'include',
-    ...options,
-    headers,
-  });
-
-  const body = await parseJsonSafe<unknown>(response);
-
-  if (!response.ok) {
-    throw createApiError(response.status, body, response.statusText);
+  // Show loading indicator if requested
+  if (loadingType) {
+    showLoading(loadingType);
   }
 
-  return (body ?? ({} as T)) as T;
+  try {
+    const response = await fetch(`${API_ROOT}${path}`, {
+      credentials: 'include',
+      ...options,
+      headers,
+    });
+
+    const body = await parseJsonSafe<unknown>(response);
+
+    if (!response.ok) {
+      throw createApiError(response.status, body, response.statusText);
+    }
+
+    return (body ?? ({} as T)) as T;
+  } finally {
+    // Always hide loading, even on error
+    if (loadingType) {
+      hideLoading();
+    }
+  }
 }
 
 export async function healthcheck(): Promise<boolean> {

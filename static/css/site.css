@@ -582,19 +582,17 @@ h5 .icon[data-icon*="close"] {
   border-top: var(--card-divider, 1px solid var(--border-subtle));
 }
 
-.app-alert--error {
-  border-bottom-width: 2px;
-  border-bottom-color: var(--danger-border, var(--danger));
+/* Notice type colors - applied via utility-bar[data-border-flash] instead of app-alert border */
+.app-alert--error .app-alert__icon {
+  color: var(--danger);
 }
 
-.app-alert--success {
-  border-bottom-width: 2px;
-  border-bottom-color: var(--ok);
+.app-alert--success .app-alert__icon {
+  color: var(--ok);
 }
 
-.app-alert--info {
-  border-bottom-width: 2px;
-  border-bottom-color: var(--brand);
+.app-alert--info .app-alert__icon {
+  color: var(--brand);
 }
 
 @media (max-width: 768px) {
