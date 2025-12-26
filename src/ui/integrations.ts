@@ -165,11 +165,20 @@ export async function loadIntegrations(): Promise<void> {
       return;
     }
 
+    // Debug: Check if zones have key_id
+    console.log('[integrations] Zones loaded:', zones.length);
+    console.log('[integrations] First zone:', zones[0]);
+    console.log('[integrations] Has key_id?', zones[0]?.key_id);
+
     // Count zones per integration key
     const zonesCountByKeyId = zones.reduce((acc, zone) => {
-      acc[zone.key_id] = (acc[zone.key_id] || 0) + 1;
+      if (zone.key_id) {
+        acc[zone.key_id] = (acc[zone.key_id] || 0) + 1;
+      }
       return acc;
     }, {} as Record<number, number>);
+
+    console.log('[integrations] Zones count by key_id:', zonesCountByKeyId);
 
     // Render all integration keys with zones count
     tbody.innerHTML = integrationKeys
