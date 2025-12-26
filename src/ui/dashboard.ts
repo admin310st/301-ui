@@ -3,48 +3,7 @@ import { getAccountId } from '@state/auth-state';
 import { updateDashboardOnboardingIndicator } from './sidebar-nav';
 
 /**
- * Check onboarding status and update sidebar indicator (global)
- */
-export function updateOnboardingStatus(): void {
-  const accountId = getAccountId();
-
-  if (accountId) {
-    // Account ID already available - check onboarding status immediately
-    checkAndUpdateOnboarding(accountId);
-  } else {
-    // Wait for account ID to be loaded
-    import('@state/auth-state').then(({ onAuthChange }) => {
-      const unsubscribe = onAuthChange((state) => {
-        if (state.accountId) {
-          checkAndUpdateOnboarding(state.accountId);
-          unsubscribe(); // Only check once
-        }
-      });
-    });
-  }
-}
-
-/**
- * Internal function to check onboarding and update indicator
- */
-async function checkAndUpdateOnboarding(accountId: number): Promise<void> {
-  try {
-    // Fetch integrations to check if Step 1 is complete
-    const integrations = await getIntegrationKeys(accountId);
-    const cfIntegrations = integrations.filter(key => key.provider === 'cloudflare');
-    const hasIntegrations = cfIntegrations.length > 0;
-
-    // Update sidebar onboarding indicator
-    updateDashboardOnboardingIndicator(!hasIntegrations);
-  } catch (error) {
-    console.error('Failed to check onboarding status:', error);
-    // Show warning icon on error (assume onboarding incomplete)
-    updateDashboardOnboardingIndicator(true);
-  }
-}
-
-/**
- * Update Step 1 state based on integrations count (dashboard page only)
+ * Update Step 1 state and sidebar indicator (dashboard page only)
  */
 async function updateStep1State(): Promise<void> {
   try {
