@@ -730,6 +730,10 @@ h5 .icon[data-icon*="close"] {
   justify-content: center;
 }
 
+.cluster--start {
+  align-items: flex-start;
+}
+
 /* Card grid layout */
 .card-grid {
   display: grid;

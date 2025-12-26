@@ -5,11 +5,30 @@ import { updateDashboardOnboardingIndicator } from './sidebar-nav';
 /**
  * Check onboarding status and update sidebar indicator (global)
  */
-export async function updateOnboardingStatus(): Promise<void> {
-  try {
-    const accountId = getAccountId();
-    if (!accountId) return;
+export function updateOnboardingStatus(): void {
+  const accountId = getAccountId();
 
+  if (accountId) {
+    // Account ID already available - check onboarding status immediately
+    checkAndUpdateOnboarding(accountId);
+  } else {
+    // Wait for account ID to be loaded
+    import('@state/auth-state').then(({ onAuthChange }) => {
+      const unsubscribe = onAuthChange((state) => {
+        if (state.accountId) {
+          checkAndUpdateOnboarding(state.accountId);
+          unsubscribe(); // Only check once
+        }
+      });
+    });
+  }
+}
+
+/**
+ * Internal function to check onboarding and update indicator
+ */
+async function checkAndUpdateOnboarding(accountId: number): Promise<void> {
+  try {
     // Fetch integrations to check if Step 1 is complete
     const integrations = await getIntegrationKeys(accountId);
     const cfIntegrations = integrations.filter(key => key.provider === 'cloudflare');
