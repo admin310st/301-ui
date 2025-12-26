@@ -1,0 +1,184 @@
+/* ============================================
+   DRAWERS
+   ============================================
+
+   Side panel overlays for forms, details, and actions.
+   Used for: integration setup, domain inspector, redirect editor, etc.
+
+   Features:
+   - Slide-in animation from right
+   - Overlay backdrop with dimming (no blur for consistency)
+   - Loading indicators (brand/cf variants)
+   - Responsive mobile optimizations
+   ============================================ */
+
+.drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: var(--z-modal);
+  display: flex;
+  justify-content: flex-end;
+}
+
+.drawer[hidden] {
+  display: none;
+}
+
+.drawer__overlay {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+}
+
+.drawer__panel {
+  position: relative;
+  width: 100%;
+  max-width: 560px;
+  background: var(--bg);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  animation: slideIn 0.2s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.drawer__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--border);
+  gap: var(--space-3);
+}
+
+.drawer__title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  flex-wrap: wrap;
+}
+
+/* Add spacing after domain name to separate from action buttons */
+.drawer__title .h4 {
+  margin-right: var(--space-2);
+}
+
+.drawer__body {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-4);
+}
+
+.drawer__footer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border-top: 1px solid var(--border-subtle);
+  background: var(--panel);
+  overflow: hidden;
+}
+
+/* Loading indicator bar for drawer footer */
+.drawer__footer .loading-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--brand);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.drawer__footer .loading-bar[data-loading='true'] {
+  opacity: 0.4;
+}
+
+.drawer__footer .loading-bar[data-loading='true']::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    var(--brand) 50%,
+    transparent 100%
+  );
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+/* CF variant for Cloudflare operations */
+.drawer__footer .loading-bar[data-type='cf'] {
+  background: var(--cf-orange);
+}
+
+.drawer__footer .loading-bar[data-type='cf']::before {
+  background: linear-gradient(90deg,
+    transparent 0%,
+    var(--cf-orange) 50%,
+    transparent 100%
+  );
+}
+
+/* Drawer-specific component overrides */
+.drawer .empty-state {
+  min-height: 120px;
+}
+
+.drawer .domain-preview-list {
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+/* Compact textarea in drawer */
+.drawer .textarea {
+  resize: vertical;
+  min-height: calc(1.5em * 6 + var(--space-2) * 2);
+  max-height: 40vh;
+}
+
+/* Drawer responsive - mobile optimizations */
+@media (max-width: 768px) {
+  .drawer__panel {
+    max-width: 100%;
+  }
+
+  .drawer__header {
+    padding: var(--space-3);
+  }
+
+  .drawer__body {
+    padding: var(--space-3);
+  }
+
+  .drawer__footer {
+    padding: var(--space-3);
+  }
+
+  .btn-close {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+  }
+
+  .btn-close .icon {
+    width: 24px;
+    height: 24px;
+  }
+}
