@@ -329,10 +329,11 @@ export function updateDomainsHealthIndicator(
  */
 export function updateDashboardOnboardingIndicator(currentStep: number | null): void {
   if (currentStep === null) {
-    // Onboarding complete - remove badge and icon
+    // Onboarding complete - show green indicator without badge
     updateNavItemIndicators('overview', {
       badge: null,
-      notificationIcon: null,
+      notificationIcon: 'success',
+      notificationTitle: 'Setup complete',
     });
   } else {
     // Determine icon color: warning (orange) for step 1, primary (blue) for step 2+
