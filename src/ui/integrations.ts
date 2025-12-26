@@ -8,6 +8,7 @@ import { initAddDomainsDrawer } from '@domains/add-domains-drawer';
 import { initTabs } from './tabs';
 import { initCfConnectForms } from '@forms/cf-connect';
 import { showDialog, hideDialog } from './dialog';
+import { getZones } from '@api/zones';
 
 // Store current editing key
 let currentEditingKey: IntegrationKey | null = null;
@@ -59,7 +60,7 @@ function getStatusClass(status: string): string {
 /**
  * Render a single integration row
  */
-function renderIntegrationRow(key: IntegrationKey): string {
+function renderIntegrationRow(key: IntegrationKey, zonesCount: number = 0): string {
   const providerInfo = getProviderInfo(key.provider);
   const statusClass = getStatusClass(key.status);
   const statusLabel = t(`integrations.status.${key.status}` as any) || key.status;
@@ -71,7 +72,7 @@ function renderIntegrationRow(key: IntegrationKey): string {
         <span class="provider-label">${providerInfo.name}</span>
       </td>
       <td data-priority="high" title="Account ID: ${key.external_account_id}">${key.key_alias}</td>
-      <td data-priority="medium" class="text-muted">—</td>
+      <td data-priority="medium" class="text-muted">${zonesCount > 0 ? zonesCount : '—'}</td>
       <td data-priority="high">
         <span class="badge ${statusClass}">${statusLabel}</span>
       </td>
@@ -153,16 +154,27 @@ export async function loadIntegrations(): Promise<void> {
       throw new Error('Account ID not found. Please log in again.');
     }
 
-    // Fetch all integration keys (all providers)
-    const integrationKeys = await getIntegrationKeys(accountId);
+    // Fetch all integration keys (all providers) and zones in parallel
+    const [integrationKeys, zones] = await Promise.all([
+      getIntegrationKeys(accountId),
+      getZones().catch(() => []) // Graceful fallback if zones fail
+    ]);
 
     if (integrationKeys.length === 0) {
       showEmptyState();
       return;
     }
 
-    // Render all integration keys
-    tbody.innerHTML = integrationKeys.map(key => renderIntegrationRow(key)).join('');
+    // Count zones per integration key
+    const zonesCountByKeyId = zones.reduce((acc, zone) => {
+      acc[zone.key_id] = (acc[zone.key_id] || 0) + 1;
+      return acc;
+    }, {} as Record<number, number>);
+
+    // Render all integration keys with zones count
+    tbody.innerHTML = integrationKeys
+      .map(key => renderIntegrationRow(key, zonesCountByKeyId[key.id] || 0))
+      .join('');
 
     // Initialize dropdowns
     const tableContainer = document.querySelector('[data-integrations-table]');

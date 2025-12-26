@@ -10,6 +10,7 @@ import { apiFetch } from './client';
  */
 export interface CloudflareZone {
   id: number;
+  key_id: number;
   cf_zone_id: string;
   status: 'active' | 'pending' | 'error' | 'deleted';
   plan: 'free' | 'pro' | 'business' | 'enterprise';

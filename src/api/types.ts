@@ -175,6 +175,30 @@ export interface InitIntegrationResponse {
   };
 }
 
+export interface Zone {
+  id: number;
+  account_id?: number;
+  key_id: number;
+  cf_zone_id: string;
+  status: string;
+  plan: string;
+  ns_expected: string;
+  verified: number;
+  ssl_status: string;
+  ssl_mode?: string;
+  auto_https?: number;
+  caching_level?: string;
+  waf_mode?: string;
+  last_sync_at: string | null;
+  created_at: string;
+  root_domain: string;
+}
+
+export interface GetZonesResponse {
+  ok: true;
+  zones: Zone[];
+}
+
 export interface ApiErrorResponse {
   ok: false;
   error: string;
