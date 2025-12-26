@@ -259,11 +259,15 @@ export function updateDomainsHealthIndicator(
  * @param incomplete - true if onboarding is incomplete
  */
 export function updateDashboardOnboardingIndicator(incomplete: boolean): void {
+  console.log('[Sidebar] updateDashboardOnboardingIndicator called with incomplete =', incomplete);
+
   const overviewNav = document.querySelector('[data-nav-id="overview"]');
   if (!overviewNav) {
-    console.warn('Overview nav not found - sidebar may not be rendered yet');
+    console.warn('[Sidebar] Overview nav not found - sidebar may not be rendered yet');
     return;
   }
+
+  console.log('[Sidebar] Overview nav found:', overviewNav);
 
   let notificationIcon = overviewNav.querySelector('.notification-icon');
 
