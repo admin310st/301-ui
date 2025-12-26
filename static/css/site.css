@@ -946,7 +946,7 @@ h5 .icon[data-icon*="close"] {
   left: 0;
   right: 0;
   z-index: var(--z-base);
-  transition: transform 0.3s ease;
+  transition: transform 0.3s ease, border-color 300ms ease;
   transform: translateY(0);
   overflow: hidden; /* Ensure loading bar doesn't overflow on mobile */
 }
@@ -954,6 +954,19 @@ h5 .icon[data-icon*="close"] {
 /* Hide utility-bar when scrolling down (first level to hide) */
 .utility-bar.utility-bar-hidden {
   transform: translateY(-100%);
+}
+
+/* Border flash - colored border after loading completes with notice */
+.utility-bar[data-border-flash='success'] {
+  border-bottom-color: var(--success);
+}
+
+.utility-bar[data-border-flash='error'] {
+  border-bottom-color: var(--danger);
+}
+
+.utility-bar[data-border-flash='info'] {
+  border-bottom-color: var(--info);
 }
 
 /* Loading indicator bar (animated border with shimmer effect) */
@@ -971,11 +984,13 @@ h5 .icon[data-icon*="close"] {
   overflow: hidden;
 }
 
-.loading-bar[data-loading='true'] {
+.loading-bar[data-loading='true'],
+.loading-bar[data-loading='flushing'] {
   opacity: 0.4; /* Base opacity for background color */
 }
 
-.loading-bar[data-loading='true']::before {
+.loading-bar[data-loading='true']::before,
+.loading-bar[data-loading='flushing']::before {
   content: '';
   position: absolute;
   inset: 0;
@@ -987,15 +1002,67 @@ h5 .icon[data-icon*="close"] {
   animation: shimmer 1.5s ease-in-out infinite;
 }
 
-/* Color variants */
-.loading-bar[data-type='cf'] {
-  background: var(--cf-orange);
+/* Flushing state: shimmer runs once and fades out */
+.loading-bar[data-loading='flushing']::before {
+  animation: shimmer 1.5s ease-in-out 1; /* Run once, not infinite */
 }
 
+/* Color variants - Brand (blue) */
+.loading-bar[data-type='brand'] {
+  background: var(--brand);
+}
+.loading-bar[data-type='brand']::before {
+  background: linear-gradient(90deg,
+    transparent 0%,
+    var(--brand) 50%,
+    transparent 100%
+  );
+}
+
+/* Cloudflare (orange) */
+.loading-bar[data-type='cf'] {
+  background: var(--accent-cf);
+}
 .loading-bar[data-type='cf']::before {
   background: linear-gradient(90deg,
     transparent 0%,
-    var(--cf-orange) 50%,
+    var(--accent-cf) 50%,
+    transparent 100%
+  );
+}
+
+/* Success (green) */
+.loading-bar[data-type='success'] {
+  background: var(--success);
+}
+.loading-bar[data-type='success']::before {
+  background: linear-gradient(90deg,
+    transparent 0%,
+    var(--success) 50%,
+    transparent 100%
+  );
+}
+
+/* Error (red) */
+.loading-bar[data-type='error'] {
+  background: var(--danger);
+}
+.loading-bar[data-type='error']::before {
+  background: linear-gradient(90deg,
+    transparent 0%,
+    var(--danger) 50%,
+    transparent 100%
+  );
+}
+
+/* Info (blue) */
+.loading-bar[data-type='info'] {
+  background: var(--info);
+}
+.loading-bar[data-type='info']::before {
+  background: linear-gradient(90deg,
+    transparent 0%,
+    var(--info) 50%,
     transparent 100%
   );
 }

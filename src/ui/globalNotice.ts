@@ -1,4 +1,5 @@
 import { t } from '@i18n';
+import { isLoading, setPendingNoticeFlash } from './loading-indicator';
 
 export type NoticeType = 'success' | 'error' | 'info';
 
@@ -50,6 +51,32 @@ export function showGlobalNotice(
 
   const autoHideMs = opts.autoHideMs ?? 6000;
 
+  // If loading is active, coordinate with loading-indicator
+  if (isLoading()) {
+    // Set pending flash to transition shimmer to notice color
+    setPendingNoticeFlash(type);
+
+    // Delay notice appearance until after shimmer flush + border flash
+    // 1500ms shimmer + 600ms border flash + 100ms buffer = 2200ms
+    setTimeout(() => {
+      showGlobalNoticeImmediate(type, message, autoHideMs, root, textNode, iconUse);
+    }, 2200);
+
+    return;
+  }
+
+  // Show immediately if no loading
+  showGlobalNoticeImmediate(type, message, autoHideMs, root, textNode, iconUse);
+}
+
+function showGlobalNoticeImmediate(
+  type: NoticeType,
+  message: string,
+  autoHideMs: number,
+  root: HTMLElement,
+  textNode: HTMLElement,
+  iconUse: SVGUseElement | null
+): void {
   // clear previous timer
   if (hideTimer != null) {
     window.clearTimeout(hideTimer);

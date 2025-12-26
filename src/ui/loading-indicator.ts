@@ -25,7 +25,10 @@
  * window.withLoading(promise, 'cf');
  */
 
+export type NoticeFlashType = 'success' | 'error' | 'info';
+
 let loadingBar: HTMLElement | null = null;
+let pendingNoticeFlash: NoticeFlashType | null = null;
 
 function ensureLoadingBar(): HTMLElement {
   if (loadingBar) return loadingBar;
@@ -60,9 +63,50 @@ export function showLoading(type: 'brand' | 'cf' | 'primary' = 'brand'): void {
 
 /**
  * Hide loading indicator
+ * If pendingNoticeFlash is set, transitions shimmer to notice color
  */
 export function hideLoading(): void {
   if (!loadingBar) return;
+
+  // If there's a pending notice, transition shimmer to notice color
+  if (pendingNoticeFlash) {
+    const flashType = pendingNoticeFlash;
+    pendingNoticeFlash = null; // Clear pending
+
+    // Change shimmer color to notice color
+    loadingBar.dataset.type = flashType;
+    loadingBar.dataset.loading = 'flushing'; // Special state: shimmer continues with new color
+
+    // After one shimmer cycle (1.5s), fix color in utility-bar border
+    setTimeout(() => {
+      if (!loadingBar) return;
+      delete loadingBar.dataset.loading;
+
+      // Fix color in utility-bar border for 600ms
+      const utilityBar = document.querySelector<HTMLElement>('.utility-bar');
+      if (utilityBar) {
+        utilityBar.dataset.borderFlash = flashType;
+
+        // Clear border flash after 600ms
+        setTimeout(() => {
+          if (utilityBar.dataset.borderFlash === flashType) {
+            delete utilityBar.dataset.borderFlash;
+          }
+        }, 600);
+      }
+
+      // Reset loading-bar type to default
+      setTimeout(() => {
+        if (loadingBar && !loadingBar.dataset.loading) {
+          loadingBar.dataset.type = 'brand';
+        }
+      }, 200);
+    }, 1500); // One full shimmer cycle
+
+    return;
+  }
+
+  // Normal hide without notice flash
   delete loadingBar.dataset.loading;
 
   // Keep the element in DOM for reuse
@@ -71,6 +115,21 @@ export function hideLoading(): void {
       loadingBar.dataset.type = 'brand'; // Reset to default
     }
   }, 200); // Match CSS transition duration
+}
+
+/**
+ * Set pending notice flash that will show after loading completes
+ * Call this BEFORE hideLoading() to trigger the flash transition
+ */
+export function setPendingNoticeFlash(type: NoticeFlashType): void {
+  pendingNoticeFlash = type;
+}
+
+/**
+ * Check if loading is currently active
+ */
+export function isLoading(): boolean {
+  return loadingBar?.dataset.loading === 'true';
 }
 
 /**
