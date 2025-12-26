@@ -260,7 +260,10 @@ export function updateDomainsHealthIndicator(
  */
 export function updateDashboardOnboardingIndicator(incomplete: boolean): void {
   const overviewNav = document.querySelector('[data-nav-id="overview"]');
-  if (!overviewNav) return;
+  if (!overviewNav) {
+    console.warn('Overview nav not found - sidebar may not be rendered yet');
+    return;
+  }
 
   let notificationIcon = overviewNav.querySelector('.notification-icon');
 
@@ -276,9 +279,17 @@ export function updateDashboardOnboardingIndicator(incomplete: boolean): void {
     // Create notification icon if it doesn't exist
     notificationIcon = document.createElement('span');
     notificationIcon.className = 'notification-icon notification-icon--warning';
-    notificationIcon.innerHTML = '<span class="icon" data-icon="mono/circle-alert"></span>';
     notificationIcon.setAttribute('title', 'Complete setup to get started');
+
+    // Create icon element with data-icon attribute
+    const iconEl = document.createElement('span');
+    iconEl.className = 'icon';
+    iconEl.setAttribute('data-icon', 'mono/circle-alert');
+
+    notificationIcon.appendChild(iconEl);
     overviewNav.appendChild(notificationIcon);
+
+    console.log('Onboarding indicator added to sidebar');
   }
 }
 
