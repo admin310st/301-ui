@@ -45,7 +45,7 @@
   border-left: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-  animation: slideIn 0.2s ease-out;
+  animation: slideIn 200ms ease-out;
 }
 
 @keyframes slideIn {
@@ -101,10 +101,10 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 2px;
+  height: var(--indicator-thickness);
   background: var(--brand);
   opacity: 0;
-  transition: opacity 0.2s ease;
+  transition: opacity 200ms ease;
 }
 
 .drawer__footer .loading-bar[data-loading='true'] {
