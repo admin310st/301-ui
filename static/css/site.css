@@ -74,6 +74,67 @@ body {
 }
 /* Mono icons inherit color automatically via SVG fill="currentColor" */
 
+/* Icon Ring - Promotional icon wrapper with border
+   ============================================
+
+   Usage:
+   <div class="icon-ring">
+     <span class="icon" data-icon="mono/plus"></span>
+   </div>
+
+   Variants:
+   .icon-ring--brand - brand color accent
+   .icon-ring--cf - Cloudflare orange accent
+   .icon-ring--success - success color accent
+   ============================================ */
+
+.icon-ring {
+  flex-shrink: 0;
+  width: 3rem;
+  height: 3rem;
+  border-radius: var(--r-field);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-subtle);
+  transition: background 200ms ease, border-color 200ms ease;
+}
+
+.icon-ring .icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: var(--text);
+}
+
+/* Color variants */
+.icon-ring--brand {
+  background: color-mix(in srgb, var(--brand) 8%, transparent);
+  border-color: color-mix(in srgb, var(--brand) 20%, transparent);
+}
+
+.icon-ring--brand .icon {
+  color: var(--brand);
+}
+
+.icon-ring--cf {
+  background: color-mix(in srgb, var(--cf-orange) 8%, transparent);
+  border-color: color-mix(in srgb, var(--cf-orange) 20%, transparent);
+}
+
+.icon-ring--cf .icon {
+  color: var(--cf-orange);
+}
+
+.icon-ring--success {
+  background: color-mix(in srgb, var(--success) 8%, transparent);
+  border-color: color-mix(in srgb, var(--success) 20%, transparent);
+}
+
+.icon-ring--success .icon {
+  color: var(--success);
+}
+
 .sr-only {
   position: absolute;
   width: 1px;
