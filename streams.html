@@ -37,164 +37,161 @@
       <section class="dashboard-content">
         <!-- Welcome Section (shown when no rules) -->
         <div class="tds-onboarding" data-welcome-card>
-          <!-- Hero -->
-          <header class="tds-hero">
-            <h1 class="h3">TDS Rules</h1>
-            <p class="text-lead">Traffic Distribution System — route users by geo, device, and source.</p>
-            <p class="text-body">
-              Build clear routing rules that run top-to-bottom, and keep unwanted traffic out with Traffic Shield.
-              Test everything in Simulator, then publish once you're confident.
-            </p>
-            <a href="#" class="link" onclick="return false;">
-              <span class="icon" data-icon="mono/book-open"></span>
-              <span>Learn the basics</span>
-            </a>
+          <header class="page-header">
+            <div class="stack-sm">
+              <h1 class="h3">TDS Rules</h1>
+              <p class="text-lead">Traffic Distribution System — route users by geo, device, and source.</p>
+            </div>
           </header>
 
-          <!-- Main content grid -->
-          <div class="tds-onboarding__grid">
-            <!-- Checklist -->
-            <article class="card card--panel">
+          <div class="stack stack--xl">
+            <!-- Step Flow Indicator -->
+            <div class="card card--soft">
+              <div class="step-flow">
+                <div class="step-pill">
+                  <span class="step-number">1</span>
+                  <span class="step-text">Configure Shield</span>
+                </div>
+                <span class="step-separator">→</span>
+                <div class="step-pill">
+                  <span class="step-number">2</span>
+                  <span class="step-text">Create rules</span>
+                </div>
+                <span class="step-separator">→</span>
+                <div class="step-pill">
+                  <span class="step-number">3</span>
+                  <span class="step-text">Test & Publish</span>
+                </div>
+              </div>
+            </div>
 
+            <!-- Step 1: Traffic Shield -->
+            <article class="card card--panel">
               <header class="card__header">
-                <h2 class="h5">Quick Start</h2>
+                <div class="cluster">
+                  <h2 class="h4">
+                    <span class="badge badge--neutral" style="margin-right: var(--space-2);">1</span>
+                    <span>Configure Traffic Shield</span>
+                  </h2>
+                </div>
+                <p class="text-muted">Block bots and moderators before they reach routing rules.</p>
               </header>
 
-              <div class="card__body">
-                <ul class="checklist">
-                  <li class="checklist__item">
-                    <span class="checklist__icon">
-                      <span class="icon" data-icon="mono/shield-check"></span>
-                    </span>
-                    <div class="checklist__content">
-                      <strong>Configure Traffic Shield</strong>
-                      <p>Block bots and moderators before they reach routing rules.</p>
-                      <p class="text-sm text-muted">Traffic Shield decisions may prevent requests from reaching TDS.</p>
-                    </div>
-                    <button class="btn btn--sm btn--ghost">Open Traffic Shield</button>
-                  </li>
+              <div class="card__body stack">
+                <p class="text-body">
+                  Traffic Shield protects your campaigns by filtering unwanted traffic. Match by geo, device, ASN, TLS fingerprint —
+                  and route bots and moderators to safe pages before they reach your TDS rules.
+                </p>
 
-                  <li class="checklist__item">
-                    <span class="checklist__icon">
-                      <span class="icon" data-icon="mono/plus-circle"></span>
-                    </span>
-                    <div class="checklist__content">
-                      <strong>Create your first rule</strong>
-                      <p>Choose what to match (geo/device/source) and what to do (redirect/response).</p>
-                      <p class="text-sm text-muted">Rules execute top to bottom — the first match wins.</p>
-                    </div>
-                    <button class="btn btn--sm btn--primary" data-action="create-rule">Create rule</button>
-                  </li>
+                <div class="panel panel--info">
+                  <p class="text-sm">
+                    <span class="icon" data-icon="mono/info"></span>
+                    <span>Shield decisions may prevent requests from reaching TDS rules. Configure Shield first to ensure proper traffic flow.</span>
+                  </p>
+                </div>
 
-                  <li class="checklist__item">
-                    <span class="checklist__icon">
-                      <span class="icon" data-icon="mono/trending-up"></span>
-                    </span>
-                    <div class="checklist__content">
-                      <strong>Try MAB A/B Testing <span class="badge badge--sm badge--warning">Pro</span></strong>
-                      <p>Add 2+ variants and let Multi-Armed Bandits optimize distribution automatically.</p>
-                      <p class="text-sm text-muted">Can improve revenue over time as data accumulates.</p>
-                    </div>
-                    <a href="#" class="btn btn--sm btn--ghost" onclick="return false;">Learn about MAB</a>
-                  </li>
-
-                  <li class="checklist__item">
-                    <span class="checklist__icon">
-                      <span class="icon" data-icon="mono/flask"></span>
-                    </span>
-                    <div class="checklist__content">
-                      <strong>Test in Simulator</strong>
-                      <p>Simulate geo/device/UTM to confirm the exact outcome — including Shield decisions.</p>
-                    </div>
-                    <button class="btn btn--sm btn--ghost">Open Simulator</button>
-                  </li>
-
-                  <li class="checklist__item">
-                    <span class="checklist__icon">
-                      <span class="icon" data-icon="mono/upload"></span>
-                    </span>
-                    <div class="checklist__content">
-                      <strong>Publish changes</strong>
-                      <p>Edits are saved as drafts. Publish to sync the active ruleset to Workers.</p>
-                    </div>
-                    <button class="btn btn--sm btn--primary" disabled>Publish</button>
-                  </li>
-                </ul>
+                <div class="cluster">
+                  <button class="btn btn--primary">
+                    <span class="icon" data-icon="mono/shield"></span>
+                    <span>Open Traffic Shield</span>
+                  </button>
+                </div>
               </div>
+            </article>
 
-              <footer class="card__footer">
+            <!-- Step 2: Create Rules -->
+            <article class="card card--panel">
+              <header class="card__header">
+                <div class="cluster">
+                  <h2 class="h4">
+                    <span class="badge badge--neutral" style="margin-right: var(--space-2);">2</span>
+                    <span>Create your first rule</span>
+                  </h2>
+                </div>
+                <p class="text-muted">Choose what to match and what to do when the rule matches.</p>
+              </header>
+
+              <div class="card__body stack">
+                <p class="text-body">
+                  Build routing rules that run top-to-bottom. The first matching rule wins.
+                  You can route by geo, device type, traffic source, UTM parameters, and more.
+                </p>
+
+                <div class="stack stack--sm">
+                  <div class="panel">
+                    <span class="icon" data-icon="mono/link"></span>
+                    <div class="stack stack--xs">
+                      <p class="text-sm"><strong>SmartLink</strong></p>
+                      <p class="text-sm text-muted">Route by UTM and campaign tags. Split traffic by source, creative, or custom parameters.</p>
+                    </div>
+                  </div>
+
+                  <div class="panel">
+                    <span class="icon" data-icon="mono/trending-up"></span>
+                    <div class="stack stack--xs">
+                      <p class="text-sm"><strong>MAB A/B Testing <span class="badge badge--sm badge--warning">Pro</span></strong></p>
+                      <p class="text-sm text-muted">Add 2+ variants and let Multi-Armed Bandits optimize distribution automatically.</p>
+                    </div>
+                  </div>
+                </div>
+
                 <div class="cluster">
                   <button class="btn btn--primary" data-action="create-rule">
                     <span class="icon" data-icon="mono/plus"></span>
-                    <span>Create Your First Rule</span>
+                    <span>Create Rule</span>
                   </button>
-                  <a href="#" class="btn btn--ghost" onclick="return false;">
-                    <span class="icon" data-icon="mono/book-open"></span>
-                    <span>Read Full Guide</span>
-                  </a>
                 </div>
-              </footer>
+              </div>
             </article>
 
-            <!-- Feature Cards Sidebar -->
-            <aside class="tds-features">
-              <article class="card card--panel card--compact">
-                <div class="card__header">
-                  <div class="cluster cluster--wrap">
-                    <span class="btn-icon btn-icon--lg btn--primary">
-                      <span class="icon" data-icon="mono/shield"></span>
-                    </span>
-                    <h3 class="h6">SmartShield</h3>
-                  </div>
+            <!-- Step 3: Test & Publish -->
+            <article class="card card--panel">
+              <header class="card__header">
+                <div class="cluster">
+                  <h2 class="h4">
+                    <span class="badge badge--neutral" style="margin-right: var(--space-2);">3</span>
+                    <span>Test and publish changes</span>
+                  </h2>
                 </div>
-                <div class="card__body">
-                  <p class="text-sm">
-                    Protect from bots and moderators. Match by geo, device, ASN, TLS fingerprint — and route unwanted traffic to safe pages.
-                  </p>
-                </div>
-                <footer class="card__footer">
-                  <a href="#" class="link link--sm" onclick="return false;">See SmartShield rules</a>
-                </footer>
-              </article>
+                <p class="text-muted">Verify rules work correctly before going live.</p>
+              </header>
 
-              <article class="card card--panel card--compact">
-                <div class="card__header">
-                  <div class="cluster cluster--wrap">
-                    <span class="btn-icon btn-icon--lg btn--info">
-                      <span class="icon" data-icon="mono/link"></span>
-                    </span>
-                    <h3 class="h6">SmartLink</h3>
-                  </div>
-                </div>
-                <div class="card__body">
-                  <p class="text-sm">
-                    Route by UTM and campaign tags. Split traffic by source, creative, or custom parameters. Deep links supported.
-                  </p>
-                </div>
-                <footer class="card__footer">
-                  <a href="#" class="link link--sm" onclick="return false;">See SmartLink examples</a>
-                </footer>
-              </article>
+              <div class="card__body stack">
+                <p class="text-body">
+                  All edits are saved as drafts. Use the Simulator to test your rules with different geo/device/UTM combinations,
+                  then publish to sync the active ruleset to Workers.
+                </p>
 
-              <article class="card card--panel card--compact card--accent card--accent-warning">
-                <div class="card__header">
-                  <div class="cluster cluster--wrap">
-                    <span class="btn-icon btn-icon--lg btn--success">
-                      <span class="icon" data-icon="mono/trending-up"></span>
-                    </span>
-                    <h3 class="h6">MAB A/B Testing <span class="badge badge--sm badge--warning">Pro</span></h3>
+                <div class="stack stack--sm">
+                  <div class="panel">
+                    <span class="icon" data-icon="mono/flask"></span>
+                    <div class="stack stack--xs">
+                      <p class="text-sm"><strong>Test in Simulator</strong></p>
+                      <p class="text-sm text-muted">Simulate geo/device/UTM to confirm the exact outcome — including Shield decisions.</p>
+                    </div>
+                  </div>
+
+                  <div class="panel">
+                    <span class="icon" data-icon="mono/upload"></span>
+                    <div class="stack stack--xs">
+                      <p class="text-sm"><strong>Publish to Production</strong></p>
+                      <p class="text-sm text-muted">Deploy your ruleset to Cloudflare Workers and make it active for all traffic.</p>
+                    </div>
                   </div>
                 </div>
-                <div class="card__body">
-                  <p class="text-sm">
-                    Multi-Armed Bandits auto-optimize traffic allocation. No manual analysis — the best variant gets more traffic over time.
-                  </p>
+
+                <div class="cluster">
+                  <button class="btn btn--ghost">
+                    <span class="icon" data-icon="mono/flask"></span>
+                    <span>Open Simulator</span>
+                  </button>
+                  <button class="btn btn--primary" disabled>
+                    <span class="icon" data-icon="mono/upload"></span>
+                    <span>Publish</span>
+                  </button>
                 </div>
-                <footer class="card__footer">
-                  <a href="#" class="link link--sm" onclick="return false;">Upgrade to Pro</a>
-                </footer>
-              </article>
-            </aside>
+              </div>
+            </article>
           </div>
         </div>
 
