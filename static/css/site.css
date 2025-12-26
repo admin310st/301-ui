@@ -273,10 +273,10 @@ body {
   top: 0;
   left: 0;
   right: 0;
-  bottom: 0;
-  z-index: 100; /* High z-index to ensure it's above all utility-bar content (buttons have position:relative) */
+  bottom: var(--indicator-thickness); /* Sit above utility-bar border, don't overlap */
+  z-index: var(--z-global-notice);
   background: var(--panel);
-  border-bottom: var(--indicator-thickness) solid var(--border-subtle);
+  /* No border needed - utility-bar border provides visual separation */
   transform: translateY(-100%);
   opacity: 0;
   overflow: hidden;
@@ -759,7 +759,7 @@ h5 .icon[data-icon*="close"] {
 .site-header {
   position: sticky;
   top: 0;
-  z-index: var(--z-sticky, 100);
+  z-index: var(--z-header);
   background: var(--bg);
   border-bottom: 1px solid var(--border-subtle);
   /* Isolate stacking context for utility-bar positioning */
@@ -785,7 +785,7 @@ h5 .icon[data-icon*="close"] {
   gap: var(--inline-gap);
   padding-block: var(--space-2);
   position: relative;
-  z-index: 2;
+  z-index: var(--z-indicator);
   background: var(--bg);
   border-bottom: 1px solid var(--border-subtle);
 }
@@ -940,12 +940,12 @@ h5 .icon[data-icon*="close"] {
 
 .utility-bar {
   background: var(--panel);
-  border-bottom: 1px solid var(--border-subtle);
+  border-bottom: var(--indicator-thickness) solid var(--border-subtle);
   position: absolute; /* Also creates positioning context for .loading-bar */
   top: 100%;
   left: 0;
   right: 0;
-  z-index: 1;
+  z-index: var(--z-base);
   transition: transform 0.3s ease;
   transform: translateY(0);
   overflow: hidden; /* Ensure loading bar doesn't overflow on mobile */
@@ -967,7 +967,7 @@ h5 .icon[data-icon*="close"] {
   opacity: 0;
   pointer-events: none;
   transition: opacity 200ms ease;
-  z-index: 2; /* Above utility-bar border */
+  z-index: var(--z-indicator);
   overflow: hidden;
 }
 
@@ -1943,7 +1943,7 @@ html[data-theme="light"] .btn--social-github {
   flex-direction: row;
   gap: 0;
   align-items: center;
-  z-index: 10;
+  z-index: var(--z-elevated);
 }
 
 .auth-form .avatar-ring {
@@ -2185,11 +2185,6 @@ html[data-theme="light"] .btn--social-github {
   /* Dashboard grid */
   --dashboard-gap: 1.5rem;        /* --space-4 equivalent */
   --dashboard-padding: 1.5rem;
-
-  /* Z-index layers */
-  --z-sidebar: 100;
-  --z-sidebar-overlay: 99;
-  --z-header: 200;
 }
 
 /* Dashboard Shell: Grid that reacts to sidebar state */
@@ -2459,7 +2454,7 @@ body.sidebar-collapsed .sidebar .navitem::after {
   opacity: 0;
   pointer-events: none;
   transition: opacity 200ms ease, transform 200ms ease;
-  z-index: 10;
+  z-index: var(--z-elevated);
 }
 
 body.sidebar-collapsed .sidebar .navitem:hover::after {
@@ -2971,7 +2966,7 @@ body.layout-dashboard .burger-button {
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 1000;
+  z-index: var(--z-modal);
   display: flex;
   align-items: center;
   justify-content: center;

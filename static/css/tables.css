@@ -930,7 +930,7 @@ th {
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: 100;
+  z-index: var(--z-global-notice);
   /* Glassmorphism effect */
   background: color-mix(in srgb, var(--bg-card) 85%, transparent);
   backdrop-filter: blur(20px) saturate(180%);
@@ -1423,7 +1423,7 @@ html[data-theme="light"] .bulk-actions-bar__actions .btn--ghost:hover {
   right: 0;
   bottom: 0;
   left: 0;
-  z-index: 1000;
+  z-index: var(--z-modal);
   display: flex;
   justify-content: flex-end;
 }
