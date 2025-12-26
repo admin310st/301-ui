@@ -121,6 +121,14 @@ function stopRefresh(): void {
 export async function initAuthState(): Promise<void> {
   // Strategy: refresh on startup plus periodic refreshes to keep the session aligned with the
   // backend lifecycle described in the API docs. If refresh fails we clear local auth state.
+
+  // Skip if index.html already did the auth check (prevents duplicate /auth/refresh calls)
+  if (typeof window !== 'undefined' && (window as any).__authCheckDone) {
+    logDebug('Auth check already done by inline script, skipping initAuthState refresh');
+    updateState({ loading: false });
+    return;
+  }
+
   try {
     updateState({ loading: true });
     const refreshed = await refresh();

@@ -20,6 +20,9 @@
     </style>
     <script>
       (async function() {
+        // Mark that we already checked auth (prevents duplicate refresh in main.ts)
+        window.__authCheckDone = true;
+
         try {
           // Quick session check via refresh endpoint
           const res = await fetch('https://api.301.st/auth/refresh', {
@@ -53,9 +56,9 @@
             window.location.replace('/dashboard.html');
             return; // Don't show login page
           }
-        } catch (err) {
+        } catch {
           // No session or network error - continue to login page
-          console.debug('Auth check:', err.message || 'No active session');
+          // Suppress console noise for expected 401s
         }
 
         // No valid session - show login page
@@ -342,7 +345,7 @@
                         />
                       </div>
 
-                      <input type="hidden" name="type" value="email" />
+                      <input type="hidden" id="reset-type" name="type" value="email" />
 
                       <div
                         class="auth-status"

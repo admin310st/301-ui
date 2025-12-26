@@ -64,6 +64,16 @@ function bindObserver(root: ParentNode): void {
   observer.observe(root, { childList: true, subtree: true });
 }
 
+/**
+ * Initialize Cloudflare Turnstile captcha widgets.
+ *
+ * Note: The Turnstile SDK may generate browser console warnings about:
+ * - CSP (Content Security Policy) - SDK loads scripts from challenges.cloudflare.com
+ * - Private Access Tokens - Privacy feature for iOS/macOS
+ * - Preload resources - Performance hints
+ *
+ * These warnings are from Cloudflare's SDK and are safe to ignore.
+ */
 export async function initTurnstile(root: ParentNode = document): Promise<void> {
   siteKey = await loadSiteKey();
   const api = await loadScript();
@@ -111,21 +121,14 @@ export function renderTurnstileWidgets(root: ParentNode = document): void {
       size: 'flexible',
       appearance: mobile ? 'always' : 'execute',
       callback: (token: string) => {
-        logDebug('Turnstile validation success', { token: token.substring(0, 20) + '...' });
-
         storeToken(form, token);
 
         // Enable ALL auth form submit buttons (one Turnstile for all forms)
         const allAuthButtons = document.querySelectorAll<HTMLButtonElement>('[data-auth-submit]');
-        if (allAuthButtons.length > 0) {
-          logDebug(`Enabling ${allAuthButtons.length} auth submit buttons`);
-          allAuthButtons.forEach((btn) => {
-            btn.disabled = false;
-            btn.removeAttribute('data-turnstile-pending');
-          });
-        } else {
-          logDebug('No auth submit buttons found!');
-        }
+        allAuthButtons.forEach((btn) => {
+          btn.disabled = false;
+          btn.removeAttribute('data-turnstile-pending');
+        });
 
         // Hide widget after successful completion (desktop only, prevent layout shift on mobile)
         if (statusContainer && !mobile) {
@@ -140,7 +143,6 @@ export function renderTurnstileWidgets(root: ParentNode = document): void {
         if (statusContainer) statusContainer.hidden = false;
       },
       'error-callback': () => {
-        logDebug('Turnstile error');
         storeToken(form, null);
         // Disable ALL auth buttons on error
         document.querySelectorAll<HTMLButtonElement>('[data-auth-submit]').forEach((btn) => {
@@ -163,9 +165,11 @@ export function renderTurnstileWidgets(root: ParentNode = document): void {
     )
     .forEach((form) => {
       if (!form.querySelector('input[name="turnstile_token"]')) {
+        const formType = form.getAttribute('data-form');
         const hidden = document.createElement('input');
         hidden.type = 'hidden';
         hidden.name = 'turnstile_token';
+        hidden.id = `${formType}-turnstile-token`;
         form.appendChild(hidden);
       }
 
