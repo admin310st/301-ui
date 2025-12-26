@@ -21,9 +21,9 @@ function calculateOnboardingStep(hasCfIntegration: boolean, hasZones: boolean): 
 }
 
 /**
- * Update Step 1 state and sidebar indicator (dashboard page only)
+ * Update sidebar onboarding indicator (runs on all pages)
  */
-async function updateStep1State(): Promise<void> {
+async function updateSidebarOnboardingIndicator(): Promise<void> {
   try {
     const accountId = getAccountId();
     if (!accountId) return;
@@ -40,6 +40,28 @@ async function updateStep1State(): Promise<void> {
     const hasZones = zones.length > 0;
 
     console.log('[Dashboard] CF integrations:', cfIntegrations.length, 'hasZones:', hasZones, 'zones:', zones.length);
+
+    // Update sidebar indicator with current step
+    const currentStep = calculateOnboardingStep(hasCfIntegration, hasZones);
+    console.log('[Dashboard] Current step:', currentStep);
+    updateDashboardOnboardingIndicator(currentStep);
+  } catch (error) {
+    console.error('Failed to update onboarding indicator:', error);
+  }
+}
+
+/**
+ * Update Step 1 card state (dashboard page only)
+ */
+async function updateStep1CardState(): Promise<void> {
+  try {
+    const accountId = getAccountId();
+    if (!accountId) return;
+
+    // Fetch integrations
+    const integrations = await getIntegrationKeys(accountId);
+    const cfIntegrations = integrations.filter(key => key.provider === 'cloudflare');
+    const hasCfIntegration = cfIntegrations.length > 0;
 
     // Get state containers
     const pendingState = document.querySelector<HTMLElement>('[data-step1-state="pending"]');
@@ -60,33 +82,48 @@ async function updateStep1State(): Promise<void> {
       pendingState.hidden = false;
       completedState.hidden = true;
     }
-
-    // Update sidebar indicator with current step
-    const currentStep = calculateOnboardingStep(hasCfIntegration, hasZones);
-    console.log('[Dashboard] Current step:', currentStep);
-    updateDashboardOnboardingIndicator(currentStep);
   } catch (error) {
-    console.error('Failed to load integrations for dashboard:', error);
+    console.error('Failed to update dashboard card:', error);
   }
 }
 
 /**
- * Initialize dashboard page
+ * Initialize dashboard page (dashboard.html only)
  */
 export function initDashboardPage(): void {
   // Only run on dashboard page
   if (!document.querySelector('[data-step1-state]')) return;
 
-  // Update Step 1 state when account ID becomes available
+  // Update Step 1 card state when account ID becomes available
   const accountId = getAccountId();
   if (accountId) {
-    updateStep1State();
+    updateStep1CardState();
   } else {
     // Wait for account ID to be loaded (fresh login case)
     import('@state/auth-state').then(({ onAuthChange }) => {
       const unsubscribe = onAuthChange((state) => {
         if (state.accountId) {
-          updateStep1State();
+          updateStep1CardState();
+          unsubscribe();
+        }
+      });
+    });
+  }
+}
+
+/**
+ * Initialize sidebar onboarding indicator (all authenticated pages)
+ */
+export function initSidebarOnboarding(): void {
+  const accountId = getAccountId();
+  if (accountId) {
+    updateSidebarOnboardingIndicator();
+  } else {
+    // Wait for account ID to be loaded (fresh login case)
+    import('@state/auth-state').then(({ onAuthChange }) => {
+      const unsubscribe = onAuthChange((state) => {
+        if (state.accountId) {
+          updateSidebarOnboardingIndicator();
           unsubscribe();
         }
       });

@@ -5,6 +5,7 @@
 ## 📋 Список иконок (mono/)
 
 1. **`shield-check.svg`**
+   +
    - Описание: Щит с галочкой
    - Где используется: Status badge "Shield: On"
    - Пример: Lucide `shield-check`, Heroicons `shield-check`
