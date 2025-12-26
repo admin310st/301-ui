@@ -3058,7 +3058,6 @@ body.sidebar-open .utility-bar {
   right: 0;
   bottom: 0;
   background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
   cursor: pointer;
 }
 
@@ -3208,7 +3207,6 @@ body.sidebar-open .utility-bar {
 
 .modal::backdrop {
   background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
 }
 
 .modal__content {

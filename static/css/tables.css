@@ -1439,7 +1439,6 @@ html[data-theme="light"] .bulk-actions-bar__actions .btn--ghost:hover {
   bottom: 0;
   left: 0;
   background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
   cursor: pointer;
 }
 
