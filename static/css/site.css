@@ -102,8 +102,9 @@ body {
 }
 
 .icon-ring .icon {
-  width: 2rem;
-  height: 2rem;
+  width: 2rem !important;
+  height: 2rem !important;
+  flex: 0 0 2rem;
   color: var(--text);
 }
 
