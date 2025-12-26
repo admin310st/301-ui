@@ -3,7 +3,6 @@
  */
 
 import { showGlobalMessage } from '@ui/notifications';
-import { showLoading, hideLoading } from '@ui/loading-indicator';
 import type { ApiErrorResponse } from '@api/types';
 import type { ApiError } from '@utils/errors';
 
@@ -154,7 +153,6 @@ export function initCfScopedTokenForm(): void {
       submitBtn.disabled = true;
       submitBtn.innerHTML = '<span class="icon" data-icon="mono/refresh"></span><span>Verifying...</span>';
     }
-    showLoading('cf');
 
     try {
       const { initCloudflare } = await import('@api/integrations');
@@ -162,9 +160,7 @@ export function initCfScopedTokenForm(): void {
         cf_account_id: accountId,
         bootstrap_token: token,
       });
-
-      // Hide loading indicator
-      hideLoading();
+      // Loading indicator managed by initCloudflare() automatically
 
       // Show success message with sync info
       const syncInfo = response.sync
@@ -225,7 +221,6 @@ export function initCfScopedTokenForm(): void {
               submitBtn.disabled = true;
               submitBtn.innerHTML = '<span class="icon" data-icon="mono/refresh"></span><span>Replacing...</span>';
             }
-            showLoading('cf');
 
             const { initCloudflare } = await import('@api/integrations');
             const response = await initCloudflare({
@@ -233,8 +228,7 @@ export function initCfScopedTokenForm(): void {
               bootstrap_token: token,
               confirm_replace: true,
             });
-
-            hideLoading();
+            // Loading indicator managed by initCloudflare() automatically
 
             const syncInfo = response.sync
               ? ` Synced ${response.sync.zones} zones and ${response.sync.domains} domains.`
