@@ -1,6 +1,7 @@
 {
   "mono": [
     "2fa",
+    "ab-testing",
     "account-arrow",
     "alert-triangle",
     "alert",
