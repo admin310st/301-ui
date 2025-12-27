@@ -63,20 +63,38 @@
                       <h3 class="h5">Creating Bootstrap Token</h3>
                     </header>
                     <div class="card__body">
-                      <ol class="list--ruled">
-                        <li>Go to <a href="https://dash.cloudflare.com" target="_blank" rel="noopener">Cloudflare Dashboard</a> → <strong>Manage account → Account API tokens</strong></li>
-                        <li>Click <strong>Get started</strong> (Create Custom Token)</li>
-                        <li>Set <strong>Token name:</strong> <code>301.st Bootstrap</code></li>
-                        <li>
-                          <strong>Permissions:</strong> Add two rows:
-                          <ul class="list--spaced">
-                            <li><code>Account</code> → <code>Account Settings</code> → <strong>Edit</strong></li>
-                            <li><code>Account</code> → <code>API Tokens</code> → <strong>Edit</strong></li>
-                          </ul>
-                        </li>
-                        <li>Click <strong>Continue to summary</strong> → <strong>Create Token</strong></li>
-                        <li>Copy the entire <strong>Test this token</strong> curl command or just the token</li>
-                      </ol>
+                      <div class="step-list">
+                        <div class="step-item">
+                          <span class="badge badge--neutral">1</span>
+                          <span>Go to <a href="https://dash.cloudflare.com" target="_blank" rel="noopener">Cloudflare Dashboard</a> → <strong>Manage account → Account API tokens</strong></span>
+                        </div>
+                        <div class="step-item">
+                          <span class="badge badge--neutral">2</span>
+                          <span>Click <strong>Get started</strong> (Create Custom Token)</span>
+                        </div>
+                        <div class="step-item">
+                          <span class="badge badge--neutral">3</span>
+                          <span>Set <strong>Token name:</strong> <code>301.st Bootstrap</code></span>
+                        </div>
+                        <div class="step-item">
+                          <span class="badge badge--neutral">4</span>
+                          <span>
+                            <strong>Permissions:</strong> Add two rows:
+                            <ul class="list--spaced" style="margin-top: var(--space-2);">
+                              <li><code>Account</code> → <code>Account Settings</code> → <strong>Edit</strong></li>
+                              <li><code>Account</code> → <code>API Tokens</code> → <strong>Edit</strong></li>
+                            </ul>
+                          </span>
+                        </div>
+                        <div class="step-item">
+                          <span class="badge badge--neutral">5</span>
+                          <span>Click <strong>Continue to summary</strong> → <strong>Create Token</strong></span>
+                        </div>
+                        <div class="step-item">
+                          <span class="badge badge--success">6</span>
+                          <span>Copy the entire <strong>Test this token</strong> curl command or just the token</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
