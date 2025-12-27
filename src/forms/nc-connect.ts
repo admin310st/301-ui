@@ -155,7 +155,7 @@ export function initNcConnectForm(): void {
         // Reset button
         if (submitBtn) {
           submitBtn.disabled = false;
-          submitBtn.innerHTML = '<span class="icon" data-icon="brand/namecheap"></span><span>Connect NameCheap</span>';
+          submitBtn.innerHTML = '<span class="icon" data-icon="mono/puzzle-plus"></span><span>Connect NameCheap</span>';
         }
         return;
       }
@@ -173,7 +173,7 @@ export function initNcConnectForm(): void {
       // Reset button
       if (submitBtn) {
         submitBtn.disabled = false;
-        submitBtn.innerHTML = '<span class="icon" data-icon="brand/namecheap"></span><span>Connect NameCheap</span>';
+        submitBtn.innerHTML = '<span class="icon" data-icon="mono/puzzle-plus"></span><span>Connect NameCheap</span>';
       }
     }
   });
