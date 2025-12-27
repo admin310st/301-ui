@@ -356,7 +356,7 @@ export function initAddDomainsDrawer(): void {
                   <div class="cluster cluster--space-between">
                     <code class="text-sm">${ns}</code>
                     <button
-                      class="btn-icon btn-icon--sm"
+                      class="btn-icon btn-icon--ghost btn-icon--sm"
                       data-copy-single-ns="${ns}"
                       title="Copy ${ns}"
                     >
@@ -370,7 +370,7 @@ export function initAddDomainsDrawer(): void {
               <div class="cluster cluster--space-between">
                 <p class="text-sm">${group.domains.map(d => formatDomainDisplay(d.domain)).join(', ')}</p>
                 <button
-                  class="btn-icon btn-icon--sm"
+                  class="btn-icon btn-icon--ghost btn-icon--sm"
                   data-copy-domains="${group.domains.map(d => d.domain).join(',')}"
                   title="Copy domain list"
                 >
