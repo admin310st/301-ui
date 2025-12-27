@@ -170,7 +170,7 @@ export function initAddDomainsDrawer(): void {
           role="menuitem"
           data-integration-id="${integration.id}"
         >
-          ${integration.alias || integration.cf_account_name || `Account #${integration.id}`}
+          ${integration.key_alias || `Account #${integration.id}`}
         </button>
       `
         )
@@ -183,10 +183,7 @@ export function initAddDomainsDrawer(): void {
           selectedIntegration = availableIntegrations.find((i) => i.id === integrationId) || null;
 
           if (selectedIntegration) {
-            label.textContent =
-              selectedIntegration.alias ||
-              selectedIntegration.cf_account_name ||
-              `Account #${selectedIntegration.id}`;
+            label.textContent = selectedIntegration.key_alias || `Account #${selectedIntegration.id}`;
             button.setAttribute('data-selected-value', String(selectedIntegration.id));
 
             // Update active state
@@ -202,7 +199,7 @@ export function initAddDomainsDrawer(): void {
       if (availableIntegrations.length === 1) {
         const integration = availableIntegrations[0];
         selectedIntegration = integration;
-        label.textContent = integration.alias || integration.cf_account_name || `Account #${integration.id}`;
+        label.textContent = integration.key_alias || `Account #${integration.id}`;
         button.setAttribute('data-selected-value', String(integration.id));
         menu.querySelector('[data-integration-id]')?.classList.add('is-active');
         updateSubmitButton();

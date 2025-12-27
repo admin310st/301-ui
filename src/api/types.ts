@@ -137,14 +137,12 @@ export interface IntegrationKey {
   provider: IntegrationProvider;
   key_alias: string;
   external_account_id: string;
+  kv_key: string;
   status: KeyStatus;
   expires_at: string | null;
   last_used: string | null;
   created_at: string;
-  provider_scope?: {
-    cf_token_id?: string;
-    cf_token_name?: string;
-  };
+  provider_scope?: string; // JSON string from API
 }
 
 export interface InitCloudflareRequest {
