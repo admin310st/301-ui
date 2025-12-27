@@ -376,6 +376,45 @@ export function openConnectCloudflareDrawer(): void {
 }
 
 /**
+ * Open connect NameCheap drawer
+ */
+export function openConnectNamecheapDrawer(): void {
+  const drawer = document.querySelector<HTMLElement>('[data-drawer="connect-namecheap"]');
+  if (!drawer) {
+    console.warn('NameCheap drawer not found');
+    return;
+  }
+
+  drawer.removeAttribute('hidden');
+
+  // Initialize NameCheap connect form
+  import('@forms/nc-connect').then(({ initNcConnectForm }) => {
+    initNcConnectForm();
+  });
+
+  // Close drawer function
+  const closeDrawer = () => {
+    drawer.setAttribute('hidden', '');
+  };
+
+  // Close on Escape key
+  const handleEscape = (e: KeyboardEvent) => {
+    if (e.key === 'Escape' && !drawer.hasAttribute('hidden')) {
+      closeDrawer();
+    }
+  };
+
+  // Remove old listener if exists, add new one
+  document.removeEventListener('keydown', handleEscape);
+  document.addEventListener('keydown', handleEscape);
+
+  // Close on overlay or close button click
+  drawer.querySelectorAll('[data-drawer-close]').forEach((el) => {
+    el.addEventListener('click', closeDrawer);
+  });
+}
+
+/**
  * Initialize edit integration drawer
  */
 function initEditIntegrationDrawer(): void {
@@ -488,6 +527,12 @@ export function initIntegrationsPage(): void {
   initCfConnectForms();
   initEditIntegrationDrawer();
 
+  // Initialize page header dropdown for "Add integration"
+  const pageHeader = document.querySelector('.page-header');
+  if (pageHeader) {
+    initDropdowns(pageHeader as HTMLElement);
+  }
+
   // Load integrations when account ID becomes available
   const accountId = getAccountId();
   if (accountId) {
@@ -510,7 +555,7 @@ export function initIntegrationsPage(): void {
     btn.addEventListener('click', () => openAddDomainsDrawer());
   });
 
-  // Note: "Connect Cloudflare" handler is global (in main.ts)
+  // Note: "Connect Cloudflare" and "Connect NameCheap" handlers are global (in main.ts)
 
   // Search input handler
   const searchInput = document.querySelector<HTMLInputElement>('[data-search-input]');

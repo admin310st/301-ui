@@ -21,7 +21,7 @@ import { initHeaderScroll } from '@ui/header-scroll';
 import { initSidebarToggle } from '@ui/sidebar-toggle';
 import { initSidebarSearch } from '@ui/sidebar-search';
 import { initSidebarNav } from '@ui/sidebar-nav';
-import { initIntegrationsPage, openConnectCloudflareDrawer } from '@ui/integrations';
+import { initIntegrationsPage, openConnectCloudflareDrawer, openConnectNamecheapDrawer } from '@ui/integrations';
 import { initAccountPage } from '@forms/account';
 import { initAccountEdit } from '@forms/account-edit';
 import { initDomainsPage } from '@domains/domains';
@@ -184,6 +184,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Global handler for "Connect Cloudflare" buttons (dashboard, integrations, etc.)
   document.querySelectorAll('[data-action="connect-cloudflare"]').forEach((btn) => {
     btn.addEventListener('click', () => openConnectCloudflareDrawer());
+  });
+
+  // Global handler for "Connect NameCheap" buttons
+  document.querySelectorAll('[data-action="connect-namecheap"]').forEach((btn) => {
+    btn.addEventListener('click', () => openConnectNamecheapDrawer());
   });
 
   // Expose utilities for testing in Style Guide and use in other modules

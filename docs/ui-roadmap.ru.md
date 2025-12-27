@@ -549,7 +549,6 @@ Admin (самый конец, Layer 7)
 - ✅ **Mock data** (`src/domains/mock-data.ts`): 35 доменов с реалистичным распределением
 - ✅ **Search functionality**: поиск по домену/проекту
 - ✅ **Domain inspector drawer**: slide-in панель с overview секцией
-- ✅ **Add domains modal**: bulk ввод доменов (textarea, одна строка = один домен)
 - ✅ **Dropdown action menu** для каждого домена:
   - Manage redirects
   - DNS / Zone settings
@@ -563,9 +562,23 @@ Admin (самый конец, Layer 7)
 - ✅ **Icon system**: использованы только существующие иконки из sprite
 - ✅ **Routing**: интеграция в vite.config.ts и worker.ts
 
+**Реализовано (2025-12-27) — Этап 1.6: Add Domains Drawer:**
+
+- ✅ **Add Domains Drawer** с полной интеграцией real API `POST /domains/zones/batch`
+- ✅ **Domain extraction** из сырого текста (email от регистраторов, списки)
+- ✅ **CF Account selector** (btn-chip dropdown в стиле redirects drawer)
+- ✅ **Real-time preview** детектированных доменов
+- ✅ **Results view** с группировкой по NS серверам
+- ✅ **Copy functionality** для NS и списков доменов
+- ✅ **Error handling** с визуальной обратной связью (orange panel для mixed results)
+- ✅ **Lazy loading** интеграций через MutationObserver
+- ✅ **No integrations state** с кнопкой "Connect Cloudflare"
+
 **Файлы:**
 - `domains.html` - главная страница
-- `src/domains/domains.ts` - UI логика
+- `src/domains/domains.ts` - UI логика таблицы
+- `src/domains/add-domains-drawer.ts` - Add Domains drawer (450+ строк)
+- `partials/add-domains-drawer.hbs` - drawer markup
 - `src/domains/mock-data.ts` - моковые данные
 - `TODO-domains.md` - roadmap по доработке
 

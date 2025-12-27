@@ -1,0 +1,98 @@
+<!-- Connect NameCheap Drawer -->
+    <aside class="drawer" data-drawer="connect-namecheap" hidden>
+      <div class="drawer__overlay" data-drawer-close></div>
+      <div class="drawer__panel">
+        <header class="drawer__header">
+          <div class="drawer__title">
+            <span class="icon" data-icon="brand/namecheap"></span>
+            <h2 class="h4">Connect NameCheap</h2>
+          </div>
+          <button class="btn-close" type="button" data-drawer-close aria-label="Close">
+            <span class="icon" data-icon="mono/close"></span>
+          </button>
+        </header>
+
+        <div class="drawer__body">
+          <div class="stack-list">
+            <!-- Instructions Panel -->
+            <div class="card card--panel">
+              <header class="card__header">
+                <h3 class="h5">Getting your NameCheap API Key</h3>
+              </header>
+              <div class="card__body">
+                <ol class="list--ruled">
+                  <li>Go to <a href="https://ap.www.namecheap.com/settings/tools/apiaccess/" target="_blank" rel="noopener">NameCheap API Settings</a></li>
+                  <li>Enable <strong>API Access</strong> if it's not already enabled</li>
+                  <li>Copy your <strong>API Key</strong> from the page</li>
+                  <li>Add your server's IP addresses to the <strong>Whitelisted IPs</strong> section</li>
+                </ol>
+              </div>
+            </div>
+
+            <div class="panel panel--info">
+              <p>
+                <span class="icon" data-icon="mono/info-circle"></span>
+                <strong>Note:</strong> NameCheap requires IP whitelisting. If you see an error, add the listed IP addresses to your API settings.
+              </p>
+            </div>
+
+            <!-- Connection Form -->
+            <form id="nc-connect-form" class="stack-md" data-form="nc-connect">
+              <div class="field">
+                <label class="field__label">NameCheap Username</label>
+                <input
+                  class="input"
+                  type="text"
+                  name="username"
+                  placeholder="your-username"
+                  autocomplete="username"
+                  required
+                />
+                <p class="field__hint text-muted">
+                  Your NameCheap account username.
+                </p>
+              </div>
+
+              <div class="field">
+                <label class="field__label">API Key</label>
+                <textarea
+                  class="textarea"
+                  name="api_key"
+                  rows="3"
+                  placeholder="Paste your NameCheap API Key…"
+                  required
+                ></textarea>
+                <p class="field__hint text-muted">
+                  Found in NameCheap dashboard: <strong>Profile → Tools → API Access</strong>
+                </p>
+              </div>
+
+              <div class="field">
+                <label class="field__label">Alias (optional)</label>
+                <input
+                  class="input"
+                  type="text"
+                  name="key_alias"
+                  placeholder="e.g. My NameCheap Account"
+                  maxlength="100"
+                />
+                <p class="field__hint text-muted">
+                  A friendly name to identify this integration.
+                </p>
+              </div>
+
+              <!-- Status Panel (for errors/success) -->
+              <div class="panel" data-nc-status hidden role="status" aria-live="polite"></div>
+            </form>
+          </div>
+        </div>
+
+        <footer class="drawer__footer">
+          <button class="btn btn--ghost" type="button" data-drawer-close>Cancel</button>
+          <button type="submit" form="nc-connect-form" class="btn btn--primary">
+            <span class="icon" data-icon="mono/save"></span>
+            <span>Connect NameCheap</span>
+          </button>
+        </footer>
+      </div>
+    </aside>

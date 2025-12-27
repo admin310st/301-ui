@@ -326,6 +326,7 @@ export const ru: Translation = {
     title: 'Интеграции',
     subtitle: 'Подключите аккаунты Cloudflare и регистраторов доменов',
     loading: 'Загрузка интеграций...',
+    addIntegration: 'Добавить интеграцию',
     connectCloudflare: 'Подключить Cloudflare',
     empty: {
       title: 'Зоны не найдены',

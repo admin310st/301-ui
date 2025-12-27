@@ -1533,6 +1533,39 @@ a.btn-chip {
 
 /* Icon sizing unified above */
 
+/* Dropdown button (button with chevron that opens a menu) */
+.btn--dropdown {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.btn__chevron,
+.btn-chip__chevron {
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.btn__chevron {
+  margin-left: auto;
+  opacity: 0.7;
+  font-size: 0.875em;
+}
+
+.dropdown__trigger[aria-expanded="true"] .btn__chevron,
+.dropdown__trigger[aria-expanded="true"] .btn-chip__chevron {
+  transform: rotate(180deg);
+}
+
+.btn--dropdown:hover .btn__chevron,
+.btn-chip--dropdown:hover .btn-chip__chevron {
+  opacity: 1;
+}
+
+/* Dropdown item badge positioning */
+.dropdown__item .badge {
+  margin-left: auto;
+}
+
 html[data-theme="light"] .btn--ghost {
   background: #ffffff;
   color: var(--text-main);
@@ -1662,10 +1695,22 @@ html[data-theme="light"] .btn--ghost:hover {
   color: var(--text);
 }
 
+/* Preserve color variants when combined with dropdown */
+.btn-chip--primary.btn-chip--dropdown {
+  color: var(--btn-text-on-dark);
+}
+
 .btn-chip--dropdown.is-open {
   background: var(--panel);
   border-color: var(--brand);
   box-shadow: 0 0 0 1px var(--brand);
+}
+
+/* Keep primary color even when open */
+.btn-chip--primary.btn-chip--dropdown.is-open {
+  background: var(--primary);
+  border-color: var(--brand);
+  color: var(--btn-text-on-dark);
 }
 
 .btn-chip.is-active {

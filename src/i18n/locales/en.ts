@@ -320,6 +320,7 @@ export const en = {
     title: 'Integrations',
     subtitle: 'Connect your Cloudflare accounts and domain registrars',
     loading: 'Loading integrations...',
+    addIntegration: 'Add integration',
     connectCloudflare: 'Connect Cloudflare',
     empty: {
       title: 'No zones found',

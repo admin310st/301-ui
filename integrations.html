@@ -44,10 +44,34 @@
             </p>
           </div>
           <div class="page-header__actions">
-            <button type="button" class="btn btn--cf" data-action="connect-cloudflare">
-              <span class="icon" data-icon="brand/cloudflare"></span>
-              <span data-i18n="integrations.connectCloudflare">Connect Cloudflare</span>
-            </button>
+            <div class="dropdown" data-dropdown="add-integration">
+              <button
+                class="btn-chip btn-chip--primary btn-chip--dropdown dropdown__trigger"
+                type="button"
+                aria-haspopup="menu"
+                aria-expanded="false"
+              >
+                <span class="btn-chip__icon" data-icon="mono/plus"></span>
+                <span class="btn-chip__label" data-i18n="integrations.addIntegration">Add integration</span>
+                <span class="btn-chip__chevron icon" data-icon="mono/chevron-down"></span>
+              </button>
+              <div class="dropdown__menu" role="menu">
+                <button class="dropdown__item" data-action="connect-cloudflare" role="menuitem">
+                  <span class="icon" data-icon="brand/cloudflare"></span>
+                  <span>Cloudflare</span>
+                </button>
+                <button class="dropdown__item" data-action="connect-namecheap" role="menuitem">
+                  <span class="icon" data-icon="brand/namecheap"></span>
+                  <span>NameCheap</span>
+                </button>
+                <!-- Future providers -->
+                <button class="dropdown__item" disabled role="menuitem">
+                  <span class="icon" data-icon="brand/namesilo"></span>
+                  <span>Namesilo</span>
+                  <span class="badge badge--neutral badge--sm">Soon</span>
+                </button>
+              </div>
+            </div>
           </div>
         </header>
 
@@ -126,6 +150,7 @@
 
 {{> add-domains-drawer}}
 {{> connect-cloudflare-drawer}}
+{{> connect-namecheap-drawer}}
 {{> edit-integration-drawer}}
 
     <!-- Confirmation Dialog: Delete Integration (danger variant) -->

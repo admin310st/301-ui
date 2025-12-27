@@ -372,6 +372,80 @@ Cmd+K     → Quick search in drawer
 
 ---
 
+## ✅ Этап 1.6: Add Domains Drawer - Batch Zone Creation (COMPLETED)
+
+**Status:** ✅ Complete (2025-12-27)
+
+### Философия
+
+Add Domains = отдельный drawer для массового добавления доменов через API `/domains/zones/batch`.
+Drawer-first подход применен не только для просмотра/редактирования (inspector drawer), но и для создания доменов.
+
+### Реализованный функционал
+
+#### Core Features
+- [x] **Drawer UI** с двумя view-состояниями: Input View и Results View
+- [x] **CF Account Selector** - btn-chip dropdown в стиле redirects drawer
+- [x] **Domain extraction** - парсинг сырого текста (email уведомления от регистраторов, списки, смешанный контент)
+- [x] **Real-time preview** - детектированные домены показываются live с счетчиком
+- [x] **API Integration** - `POST /domains/zones/batch` с реальным создаNием зон в Cloudflare
+- [x] **Results View** - группировка по NS серверам (домены в одном батче получают одинаковые NS)
+- [x] **Visual feedback** - compact summary panel, orange style для mixed results (success + errors)
+- [x] **Copy functionality** - копирование NS серверов и списков доменов с зеленой подсветкой кнопки
+- [x] **No integrations state** - warning panel с кнопкой "Connect Cloudflare" если нет интеграций
+- [x] **Lazy loading** - интеграции загружаются только при открытии drawer (MutationObserver)
+- [x] **Error handling** - показ ошибок по доменам (already_exists, not_registrable, api_error)
+
+#### UX Improvements (итерации по фидбеку)
+- [x] Компактный summary banner (panel вместо card)
+- [x] Оранжевый стиль для mixed results (panel--warning)
+- [x] Группировка NS по парам (домены в батче = одинаковые NS)
+- [x] Info panel общий для всех NS групп (не дублируется)
+- [x] Убраны Zone ID badges (не нужны пользователю)
+- [x] Убрана кнопка "Add more" (глючила, упрощен flow до "Go to Domains" + "Close")
+- [x] Ghost style для copy buttons (btn-icon--ghost)
+- [x] Field layout для селектора (hint под кнопкой, не справа)
+- [x] Fix: Submit button queries fresh DOM (не кешируется)
+- [x] Fix: Copy feedback на кнопке, не на иконке (btn-icon--success)
+
+#### API Integration
+- [x] Использование `key_alias` вместо несуществующего `alias`
+- [x] Обновлен `IntegrationKey` type в соответствии с реальным API:
+  - `key_alias: string` (не `alias`)
+  - `kv_key: string` (добавлено)
+  - `provider_scope?: string` (JSON string, не parsed object)
+- [x] Правильные поля для визуала: `key_alias || Account #${id}`
+
+#### Техническая реализация
+- [x] **MutationObserver** для lazy loading интеграций
+- [x] **Dropdown pattern** из redirects drawer (btn-chip с chevron)
+- [x] **NS grouping logic** - Map<string, Domain[]> по ключу `ns1,ns2`
+- [x] **Copy handlers** - `copySingleNameserver()`, `copyDomainsList()` с setTimeout для green flash
+- [x] **State management** - `currentState` с count/domains/selected integration
+- [x] **Form reset** - очистка после успешного создания
+
+### Файлы
+
+**Созданные/обновленные:**
+- `src/domains/add-domains-drawer.ts` - полная имплементация (450+ строк)
+- `partials/add-domains-drawer.hbs` - drawer markup с btn-chip dropdown
+- `src/api/types.ts` - исправлен IntegrationKey type
+- `src/i18n/locales/ru.ts` - исправлен перевод ошибки not_registrable
+
+**API endpoints используемые:**
+- `GET /integrations/keys` - список CF аккаунтов
+- `POST /domains/zones/batch` - создание зон батчем
+
+### Следующие шаги (не критично, future)
+
+- [ ] Добавить валидацию доменов перед отправкой (check TLD, max length)
+- [ ] Добавить progress indicator для batch creation (если >10 доменов)
+- [ ] Сохранять последний выбранный CF account в localStorage
+- [ ] Добавить "Recently added" секцию в Results View
+- [ ] i18n coverage для всех текстов drawer
+
+---
+
 ## 🎯 Этап 2: Фильтры и поиск
 
 **Status:** 📋 Planned
