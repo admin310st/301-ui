@@ -291,6 +291,36 @@ export function initAddDomainsDrawer(): void {
   }
 
   /**
+   * Group domains by nameserver pairs
+   */
+  function groupByNameservers(
+    domains: BatchZoneSuccess[]
+  ): Record<string, { ns: string[]; domains: BatchZoneSuccess[] }> {
+    const groups: Record<string, { ns: string[]; domains: BatchZoneSuccess[] }> = {};
+
+    domains.forEach((domain) => {
+      const nsKey = domain.name_servers.join(',');
+
+      if (!groups[nsKey]) {
+        groups[nsKey] = {
+          ns: domain.name_servers,
+          domains: [],
+        };
+      }
+
+      groups[nsKey].domains.push(domain);
+    });
+
+    // Sort groups by domain count (largest first)
+    return Object.keys(groups)
+      .sort((a, b) => groups[b].domains.length - groups[a].domains.length)
+      .reduce((sorted, key) => {
+        sorted[key] = groups[key];
+        return sorted;
+      }, {} as Record<string, { ns: string[]; domains: BatchZoneSuccess[] }>);
+  }
+
+  /**
    * Render results view
    */
   function renderResultsView(results: BatchZoneResponse): void {
@@ -302,48 +332,90 @@ export function initAddDomainsDrawer(): void {
 
     let html = '';
 
-    // Summary panel
+    // Summary banner
     html += `
-      <div class="panel ${failedCount === 0 ? 'panel--success' : failedCount > 0 && successCount > 0 ? 'panel--info' : 'panel--danger'}">
-        <p class="text-sm">
-          ${successCount > 0 ? `<span class="icon" data-icon="mono/check-circle"></span> <strong>${successCount} domain(s) added successfully</strong>` : ''}
-          ${failedCount > 0 ? `<br><span class="icon" data-icon="mono/alert-circle"></span> <strong>${failedCount} domain(s) failed</strong>` : ''}
-        </p>
+      <div class="card card--soft">
+        <div class="cluster cluster--space-between">
+          <div class="cluster cluster--sm">
+            ${successCount > 0 ? `
+              <span class="cluster cluster--xs">
+                <span class="icon icon--success" data-icon="mono/check-circle"></span>
+                <strong>${successCount}</strong> <span class="text-muted">imported</span>
+              </span>
+            ` : ''}
+            ${successCount > 0 ? `
+              <span class="cluster cluster--xs">
+                <span class="icon icon--warning" data-icon="mono/clock"></span>
+                <strong>${successCount}</strong> <span class="text-muted">need NS setup</span>
+              </span>
+            ` : ''}
+            ${failedCount > 0 ? `
+              <span class="cluster cluster--xs">
+                <span class="icon icon--danger" data-icon="mono/alert-circle"></span>
+                <strong>${failedCount}</strong> <span class="text-muted">failed</span>
+              </span>
+            ` : ''}
+          </div>
+          <span class="text-sm text-muted">Next: Set nameservers at your registrar</span>
+        </div>
       </div>
     `;
 
-    // Success list
+    // Group success domains by NS pairs
     if (successCount > 0) {
-      html += '<div class="stack-list">';
-      html += '<h3 class="h5">✅ SUCCESS (' + successCount + ')</h3>';
+      const nsGroups = groupByNameservers(results.results.success);
+      const groupKeys = Object.keys(nsGroups);
 
-      results.results.success.forEach((item) => {
+      html += '<div class="stack-list">';
+
+      // Render each NS group
+      groupKeys.forEach((nsKey, index) => {
+        const group = nsGroups[nsKey];
+        const isLargest = index === 0; // First group is the largest
+
         html += `
           <div class="card card--panel">
             <header class="card__header">
-              <div class="cluster cluster--sm">
-                <h4 class="h5">${formatDomainDisplay(item.domain)}</h4>
-                <span class="badge badge--neutral">Zone #${item.zone_id}</span>
-                <span class="badge badge--warning">Pending NS</span>
-              </div>
+              <h3 class="h5">
+                ${groupKeys.length === 1 ? 'Nameservers for all domains' : isLargest ? `Nameservers for ${group.domains.length} domains` : `Different nameservers (${group.domains.length})`}
+              </h3>
             </header>
             <div class="card__body stack-sm">
-              <p class="text-sm text-muted">Configure these nameservers at your registrar:</p>
-              <div class="stack-xs">
-                ${item.name_servers.map(ns => `<div class="text-sm"><code>${ns}</code></div>`).join('')}
+              <!-- NS List -->
+              <div>
+                <p class="text-sm text-muted">Configure these nameservers:</p>
+                <div class="stack-xs">
+                  ${group.ns.map(ns => `<div class="text-sm"><code>${ns}</code></div>`).join('')}
+                </div>
               </div>
 
+              <!-- Domains List -->
+              <div>
+                <p class="text-sm text-muted">Domains (${group.domains.length}):</p>
+                <p class="text-sm">${group.domains.map(d => formatDomainDisplay(d.domain)).join(', ')}</p>
+              </div>
+
+              <!-- Actions -->
               <div class="cluster cluster--sm">
-                <button class="btn btn--sm btn--ghost" data-copy-ns="${item.name_servers.join(',')}">
+                <button
+                  class="btn btn--sm btn--primary"
+                  data-copy-ns="${group.ns.join(',')}"
+                  title="Copy nameservers to clipboard"
+                >
                   <span class="icon" data-icon="mono/copy"></span>
                   <span>Copy NS</span>
                 </button>
-                <button class="btn btn--sm btn--ghost" disabled title="Coming soon">
-                  <span class="icon" data-icon="mono/web-sync"></span>
-                  <span>Sync with registrar</span>
+                <button
+                  class="btn btn--sm btn--ghost"
+                  data-copy-domains="${group.domains.map(d => d.domain).join(',')}"
+                  title="Copy domain list to clipboard"
+                >
+                  <span class="icon" data-icon="mono/list"></span>
+                  <span>Copy domains list</span>
                 </button>
               </div>
 
+              <!-- Info panel -->
               <div class="panel panel--info">
                 <p class="text-xs">
                   <span class="icon" data-icon="mono/info"></span>
@@ -397,12 +469,21 @@ export function initAddDomainsDrawer(): void {
 
     resultsView.innerHTML = html;
 
-    // Attach copy handlers
+    // Attach copy NS handlers
     resultsView.querySelectorAll('[data-copy-ns]').forEach((btn) => {
       btn.addEventListener('click', (e) => {
         const target = e.currentTarget as HTMLButtonElement;
         const ns = target.getAttribute('data-copy-ns')?.split(',') || [];
-        copyNameservers(ns);
+        copyNameservers(ns, target);
+      });
+    });
+
+    // Attach copy domains handlers
+    resultsView.querySelectorAll('[data-copy-domains]').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        const target = e.currentTarget as HTMLButtonElement;
+        const domains = target.getAttribute('data-copy-domains')?.split(',') || [];
+        copyDomainsList(domains, target);
       });
     });
   }
@@ -456,12 +537,24 @@ export function initAddDomainsDrawer(): void {
   /**
    * Copy nameservers to clipboard
    */
-  async function copyNameservers(ns: string[]): Promise<void> {
+  async function copyNameservers(ns: string[], button?: HTMLButtonElement): Promise<void> {
     const text = ns.join('\n');
 
     try {
       await navigator.clipboard.writeText(text);
       showGlobalMessage('success', 'Nameservers copied to clipboard');
+
+      // Visual feedback on button
+      if (button) {
+        const icon = button.querySelector('.icon');
+        if (icon) {
+          const originalClass = icon.className;
+          icon.classList.add('icon--success');
+          setTimeout(() => {
+            icon.className = originalClass;
+          }, 1500);
+        }
+      }
     } catch (error) {
       // Fallback for older browsers
       const textarea = document.createElement('textarea');
@@ -473,6 +566,41 @@ export function initAddDomainsDrawer(): void {
       document.execCommand('copy');
       document.body.removeChild(textarea);
       showGlobalMessage('success', 'Nameservers copied to clipboard');
+    }
+  }
+
+  /**
+   * Copy domains list to clipboard
+   */
+  async function copyDomainsList(domains: string[], button?: HTMLButtonElement): Promise<void> {
+    const text = domains.join('\n');
+
+    try {
+      await navigator.clipboard.writeText(text);
+      showGlobalMessage('success', 'Domains list copied to clipboard');
+
+      // Visual feedback on button
+      if (button) {
+        const icon = button.querySelector('.icon');
+        if (icon) {
+          const originalClass = icon.className;
+          icon.classList.add('icon--success');
+          setTimeout(() => {
+            icon.className = originalClass;
+          }, 1500);
+        }
+      }
+    } catch (error) {
+      // Fallback for older browsers
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+      showGlobalMessage('success', 'Domains list copied to clipboard');
     }
   }
 
