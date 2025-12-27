@@ -7,6 +7,7 @@
 
 import { showGlobalMessage } from '@ui/notifications';
 import { formatDomainDisplay } from '@utils/idn';
+import { showLoading, hideLoading } from '@ui/loading-indicator';
 
 // Domain matching regex (updated for IDN TLD support)
 // Matches: example.com, xn--domain.net, sub.domain.co.uk, домен.рф (xn--c1ad6a.xn--p1ai)
@@ -65,7 +66,7 @@ export function initAddDomainsDrawer(): void {
     if (currentState.count === 0) return;
 
     submitBtn.disabled = true;
-    submitBtn.textContent = 'Adding...';
+    showLoading('brand'); // Show global loading indicator
 
     try {
       // TODO: Replace with actual API call
@@ -74,17 +75,19 @@ export function initAddDomainsDrawer(): void {
         skipExisting: skipExisting?.checked || false,
       });
 
-      // Success
+      // Success - showGlobalMessage sets pendingNoticeFlash, then hideLoading transitions smoothly
       showGlobalMessage('success', `Successfully added ${currentState.count} domains`);
+      hideLoading(); // Triggers shimmer → notice color transition
       closeDrawer();
       resetState();
 
       // Reload domains table
       window.location.reload(); // Temporary; replace with proper table update
     } catch (error) {
+      // Error - same coordination pattern
       showGlobalMessage('danger', error instanceof Error ? error.message : 'Failed to add domains');
+      hideLoading(); // Triggers shimmer → notice color transition
       submitBtn.disabled = false;
-      submitBtn.innerHTML = '<span class="icon" data-icon="mono/plus"></span><span>Add domains</span>';
     }
   });
 
