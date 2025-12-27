@@ -174,6 +174,7 @@ When design system updates are introduced, **ALL** UI components and demo pages 
 
 **Semantic variants:**
 - `.badge--primary` (blue) - Enabled (not yet active/synced)
+- `.badge--info` (blue) - Informational, emphasizes connection to info panels
 - `.badge--success` (green) - Active/working
 - `.badge--neutral` (gray) - Disabled/No redirect
 - `.badge--warning` (orange) - Pending/In progress

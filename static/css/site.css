@@ -2234,6 +2234,12 @@ html[data-theme="light"] .btn--social-github {
   color: var(--primary);
 }
 
+.badge--info {
+  background-color: color-mix(in srgb, var(--primary) 12%, var(--bg-soft));
+  border-color: color-mix(in srgb, var(--primary) 35%, transparent);
+  color: var(--primary);
+}
+
 .badge--ok {
   background-color: rgba(37, 208, 164, 0.12);
   border-color: rgba(37, 208, 164, 0.5);
@@ -2304,6 +2310,12 @@ html[data-theme="light"] .btn--social-github {
   background-color: color-mix(in srgb, var(--accent-cf-bg) 14%, #ffffff);
   border-color: color-mix(in srgb, var(--accent-cf-bg) 40%, transparent);
   color: var(--accent-cf-bg);
+}
+
+:root[data-theme='light'] .badge--info {
+  background-color: color-mix(in srgb, var(--primary) 16%, #ffffff);
+  border-color: color-mix(in srgb, var(--primary) 42%, transparent);
+  color: var(--primary);
 }
 
 /* Link buttons */
@@ -2728,11 +2740,6 @@ body.sidebar-collapsed .sidebar .navitem:hover::after {
 .panel--danger {
   background: color-mix(in srgb, var(--danger) 10%, var(--bg-soft));
   border-color: color-mix(in srgb, var(--danger) 30%, transparent);
-}
-
-/* Highlight list item marker in info panel color */
-.list--ruled .text-info-emphasis::marker {
-  color: var(--primary);
 }
 
 .cluster {
