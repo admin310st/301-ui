@@ -158,8 +158,15 @@
                   </div>
                 </div>
               </div>
+
+            <div class="cluster">
+              <button class="btn btn--primary" type="button" data-action="add-domains">
+                <span class="icon" data-icon="mono/plus"></span>
+                <span data-i18n="dashboard.step2.button">Add domains</span>
+              </button>
             </div>
-          </article>
+          </div>
+        </article>
 
           <!-- Step 3: Control Traffic -->
           <article class="card card--panel">
@@ -193,9 +200,11 @@
     </main>
 
 {{> connect-cloudflare-drawer}}
+{{> add-domains-drawer}}
 
 {{> footer}}
 
     <script type="module" src="/src/main.ts"></script>
+    <script type="module" src="/src/dashboard/main.ts"></script>
   </body>
 </html>
