@@ -271,78 +271,6 @@ export function initAddDomainsDrawer(): void {
   }
 
   /**
-   * Switch back to input view
-   */
-  function switchToInputView(): void {
-    currentView = 'input';
-    lastResults = null;
-
-    const inputView = document.querySelector('[data-add-input-view]');
-    const resultsView = document.querySelector('[data-add-results-view]');
-    const footer = drawer.querySelector('.drawer__footer');
-
-    if (inputView) inputView.removeAttribute('hidden');
-    if (resultsView) resultsView.setAttribute('hidden', '');
-
-    // Restore footer with original buttons
-    if (footer) {
-      footer.innerHTML = `
-        <button class="btn btn--primary" type="button" data-add-submit disabled>
-          <span class="icon" data-icon="mono/plus"></span>
-          <span>Add domains</span>
-        </button>
-        <button class="btn btn--ghost" type="button" data-drawer-close>Cancel</button>
-      `;
-
-      // Re-attach submit handler
-      const newSubmitBtn = footer.querySelector<HTMLButtonElement>('[data-add-submit]');
-      if (newSubmitBtn) {
-        newSubmitBtn.addEventListener('click', async () => {
-          if (currentState.count === 0 || !selectedIntegration) return;
-
-          newSubmitBtn.disabled = true;
-          showLoading('cf');
-
-          try {
-            const results = await createZonesBatch({
-              account_key_id: selectedIntegration.id,
-              domains: currentState.domains,
-            });
-
-            hideLoading();
-            lastResults = results;
-            switchToResultsView();
-
-            const successCount = results.results.success.length;
-            const failedCount = results.results.failed.length;
-
-            if (failedCount === 0) {
-              showGlobalMessage('success', `Successfully added ${successCount} domain(s)`);
-            } else if (successCount === 0) {
-              showGlobalMessage('danger', `Failed to add all ${failedCount} domain(s)`);
-            } else {
-              showGlobalMessage('info', `Added ${successCount} of ${successCount + failedCount} domains`);
-            }
-          } catch (error) {
-            hideLoading();
-            showGlobalMessage('danger', error instanceof Error ? error.message : 'Failed to add domains');
-            newSubmitBtn.disabled = false;
-          }
-        });
-      }
-
-      // Re-attach close handler
-      const newCloseBtn = footer.querySelector('[data-drawer-close]');
-      if (newCloseBtn) {
-        newCloseBtn.addEventListener('click', () => closeDrawer());
-      }
-    }
-
-    // Reset state
-    resetState();
-  }
-
-  /**
    * Group domains by nameserver pairs
    */
   function groupByNameservers(
@@ -546,10 +474,7 @@ export function initAddDomainsDrawer(): void {
         <span class="icon" data-icon="mono/arrow-right"></span>
         <span>Go to Domains</span>
       </button>
-      <button class="btn btn--ghost" type="button" data-results-add-more>
-        <span class="icon" data-icon="mono/plus"></span>
-        <span>Add more domains</span>
-      </button>
+      <button class="btn btn--ghost" type="button" data-drawer-close>Close</button>
     `;
 
     // Attach handlers
@@ -558,8 +483,8 @@ export function initAddDomainsDrawer(): void {
       window.location.href = '/domains.html';
     });
 
-    footer.querySelector('[data-results-add-more]')?.addEventListener('click', () => {
-      switchToInputView();
+    footer.querySelector('[data-drawer-close]')?.addEventListener('click', () => {
+      closeDrawer();
     });
   }
 
@@ -573,7 +498,7 @@ export function initAddDomainsDrawer(): void {
         'Contact Cloudflare support to transfer the zone, or remove it from the other account first.',
       zone_banned: 'Contact Cloudflare support to resolve the block.',
       zone_held: 'Check domain status at your registrar.',
-      not_registrable: 'This domain may already exist in the database, or it is a subdomain (use root domain instead, e.g., example.com instead of www.example.com).',
+      not_registrable: 'Domain already exists in database or is a subdomain. Add root domain only (e.g., example.com, not www.example.com).',
       quota_exceeded: 'Upgrade your plan or remove unused zones.',
     };
 
@@ -654,11 +579,19 @@ export function initAddDomainsDrawer(): void {
   function closeDrawer(): void {
     drawer?.setAttribute('hidden', '');
 
-    // Reset to input view on close
+    // Reset state on close
+    resetState();
+
+    // Reset view
     if (currentView === 'results') {
-      switchToInputView();
-    } else {
-      resetState();
+      currentView = 'input';
+      lastResults = null;
+
+      const inputView = document.querySelector('[data-add-input-view]');
+      const resultsView = document.querySelector('[data-add-results-view]');
+
+      if (inputView) inputView.removeAttribute('hidden');
+      if (resultsView) resultsView.setAttribute('hidden', '');
     }
   }
 }
