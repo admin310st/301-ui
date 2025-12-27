@@ -194,7 +194,7 @@ function setupActionButtons(redirect: DomainRedirect): void {
   const openBtn = drawerElement.querySelector('[data-action="open-domain-drawer"]');
   if (openBtn) {
     const openHandler = () => {
-      window.open(`https://${redirect.domain}`, '_blank');
+      window.open(`https://${redirect.domain}`, '_blank', 'noopener,noreferrer');
     };
     openBtn.removeEventListener('click', openHandler);
     openBtn.addEventListener('click', openHandler);
