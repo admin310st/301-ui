@@ -264,18 +264,12 @@ export function initAddDomainsDrawer(): void {
 
     const inputView = document.querySelector('[data-add-input-view]');
     const resultsView = document.querySelector('[data-add-results-view]');
-    const submitBtn = document.querySelector<HTMLButtonElement>('[data-add-submit]');
+    const footer = drawer.querySelector('.drawer__footer');
 
     if (inputView) inputView.removeAttribute('hidden');
     if (resultsView) resultsView.setAttribute('hidden', '');
 
-    // Restore submit button
-    if (submitBtn) {
-      submitBtn.removeAttribute('hidden');
-    }
-
-    // Remove results footer
-    const footer = drawer.querySelector('.drawer__footer');
+    // Restore footer with original buttons
     if (footer) {
       footer.innerHTML = `
         <button class="btn btn--primary" type="button" data-add-submit disabled>
@@ -284,6 +278,49 @@ export function initAddDomainsDrawer(): void {
         </button>
         <button class="btn btn--ghost" type="button" data-drawer-close>Cancel</button>
       `;
+
+      // Re-attach submit handler
+      const newSubmitBtn = footer.querySelector<HTMLButtonElement>('[data-add-submit]');
+      if (newSubmitBtn) {
+        newSubmitBtn.addEventListener('click', async () => {
+          if (currentState.count === 0 || !selectedIntegration) return;
+
+          newSubmitBtn.disabled = true;
+          showLoading('cf');
+
+          try {
+            const results = await createZonesBatch({
+              account_key_id: selectedIntegration.id,
+              domains: currentState.domains,
+            });
+
+            hideLoading();
+            lastResults = results;
+            switchToResultsView();
+
+            const successCount = results.results.success.length;
+            const failedCount = results.results.failed.length;
+
+            if (failedCount === 0) {
+              showGlobalMessage('success', `Successfully added ${successCount} domain(s)`);
+            } else if (successCount === 0) {
+              showGlobalMessage('danger', `Failed to add all ${failedCount} domain(s)`);
+            } else {
+              showGlobalMessage('info', `Added ${successCount} of ${successCount + failedCount} domains`);
+            }
+          } catch (error) {
+            hideLoading();
+            showGlobalMessage('danger', error instanceof Error ? error.message : 'Failed to add domains');
+            newSubmitBtn.disabled = false;
+          }
+        });
+      }
+
+      // Re-attach close handler
+      const newCloseBtn = footer.querySelector('[data-drawer-close]');
+      if (newCloseBtn) {
+        newCloseBtn.addEventListener('click', () => closeDrawer());
+      }
     }
 
     // Reset state
@@ -329,34 +366,26 @@ export function initAddDomainsDrawer(): void {
 
     const successCount = results.results.success.length;
     const failedCount = results.results.failed.length;
+    const isMixed = successCount > 0 && failedCount > 0;
 
     let html = '';
 
-    // Summary banner
+    // Summary banner - compact style
     html += `
-      <div class="card card--soft">
-        <div class="cluster cluster--space-between">
-          <div class="cluster cluster--sm">
-            ${successCount > 0 ? `
-              <span class="cluster cluster--xs">
-                <span class="icon icon--success" data-icon="mono/check-circle"></span>
-                <strong>${successCount}</strong> <span class="text-muted">imported</span>
-              </span>
-            ` : ''}
-            ${successCount > 0 ? `
-              <span class="cluster cluster--xs">
-                <span class="icon icon--warning" data-icon="mono/clock"></span>
-                <strong>${successCount}</strong> <span class="text-muted">need NS setup</span>
-              </span>
-            ` : ''}
-            ${failedCount > 0 ? `
-              <span class="cluster cluster--xs">
-                <span class="icon icon--danger" data-icon="mono/alert-circle"></span>
-                <strong>${failedCount}</strong> <span class="text-muted">failed</span>
-              </span>
-            ` : ''}
-          </div>
-          <span class="text-sm text-muted">Next: Set nameservers at your registrar</span>
+      <div class="panel ${isMixed ? 'panel--warning' : failedCount > 0 ? 'panel--danger' : 'panel--success'}">
+        <div class="cluster cluster--xs">
+          ${successCount > 0 ? `
+            <span class="cluster cluster--xs">
+              <span class="icon" data-icon="mono/check-circle"></span>
+              <strong>${successCount}</strong> added
+            </span>
+          ` : ''}
+          ${failedCount > 0 ? `
+            <span class="cluster cluster--xs">
+              <span class="icon" data-icon="mono/alert-circle"></span>
+              <strong>${failedCount}</strong> failed
+            </span>
+          ` : ''}
         </div>
       </div>
     `;
@@ -371,56 +400,41 @@ export function initAddDomainsDrawer(): void {
       // Render each NS group
       groupKeys.forEach((nsKey, index) => {
         const group = nsGroups[nsKey];
-        const isLargest = index === 0; // First group is the largest
 
         html += `
           <div class="card card--panel">
             <header class="card__header">
-              <h3 class="h5">
-                ${groupKeys.length === 1 ? 'Nameservers for all domains' : isLargest ? `Nameservers for ${group.domains.length} domains` : `Different nameservers (${group.domains.length})`}
-              </h3>
+              <h3 class="h5">Configure these nameservers at your registrar:</h3>
             </header>
             <div class="card__body stack-sm">
-              <!-- NS List -->
-              <div>
-                <p class="text-sm text-muted">Configure these nameservers:</p>
-                <div class="stack-xs">
-                  ${group.ns.map(ns => `<div class="text-sm"><code>${ns}</code></div>`).join('')}
-                </div>
+              <!-- NS List - each with copy icon -->
+              <div class="stack-xs">
+                ${group.ns.map(ns => `
+                  <div class="cluster cluster--space-between">
+                    <code class="text-sm">${ns}</code>
+                    <button
+                      class="btn-icon btn-icon--sm"
+                      data-copy-single-ns="${ns}"
+                      title="Copy ${ns}"
+                    >
+                      <span class="icon" data-icon="mono/copy"></span>
+                    </button>
+                  </div>
+                `).join('')}
               </div>
 
               <!-- Domains List -->
               <div>
-                <p class="text-sm text-muted">Domains (${group.domains.length}):</p>
-                <p class="text-sm">${group.domains.map(d => formatDomainDisplay(d.domain)).join(', ')}</p>
-              </div>
-
-              <!-- Actions -->
-              <div class="cluster cluster--sm">
-                <button
-                  class="btn btn--sm btn--primary"
-                  data-copy-ns="${group.ns.join(',')}"
-                  title="Copy nameservers to clipboard"
-                >
-                  <span class="icon" data-icon="mono/copy"></span>
-                  <span>Copy NS</span>
-                </button>
-                <button
-                  class="btn btn--sm btn--ghost"
-                  data-copy-domains="${group.domains.map(d => d.domain).join(',')}"
-                  title="Copy domain list to clipboard"
-                >
-                  <span class="icon" data-icon="mono/list"></span>
-                  <span>Copy domains list</span>
-                </button>
-              </div>
-
-              <!-- Info panel -->
-              <div class="panel panel--info">
-                <p class="text-xs">
-                  <span class="icon" data-icon="mono/info"></span>
-                  NS verification may take 1-48 hours. We'll check automatically.
-                </p>
+                <div class="cluster cluster--space-between">
+                  <p class="text-sm text-muted">${group.domains.map(d => formatDomainDisplay(d.domain)).join(', ')}</p>
+                  <button
+                    class="btn-icon btn-icon--sm"
+                    data-copy-domains="${group.domains.map(d => d.domain).join(',')}"
+                    title="Copy domain list"
+                  >
+                    <span class="icon" data-icon="mono/copy"></span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -428,6 +442,16 @@ export function initAddDomainsDrawer(): void {
       });
 
       html += '</div>';
+
+      // Common info panel for all NS groups
+      html += `
+        <div class="panel panel--info">
+          <p class="text-sm">
+            <span class="icon" data-icon="mono/info"></span>
+            NS verification may take 1-48 hours. We'll check automatically.
+          </p>
+        </div>
+      `;
     }
 
     // Failed list
@@ -469,12 +493,12 @@ export function initAddDomainsDrawer(): void {
 
     resultsView.innerHTML = html;
 
-    // Attach copy NS handlers
-    resultsView.querySelectorAll('[data-copy-ns]').forEach((btn) => {
+    // Attach copy single NS handlers
+    resultsView.querySelectorAll('[data-copy-single-ns]').forEach((btn) => {
       btn.addEventListener('click', (e) => {
         const target = e.currentTarget as HTMLButtonElement;
-        const ns = target.getAttribute('data-copy-ns')?.split(',') || [];
-        copyNameservers(ns, target);
+        const ns = target.getAttribute('data-copy-single-ns') || '';
+        copySingleNameserver(ns, target);
       });
     });
 
@@ -535,16 +559,13 @@ export function initAddDomainsDrawer(): void {
   }
 
   /**
-   * Copy nameservers to clipboard
+   * Copy single nameserver to clipboard
    */
-  async function copyNameservers(ns: string[], button?: HTMLButtonElement): Promise<void> {
-    const text = ns.join('\n');
-
+  async function copySingleNameserver(ns: string, button?: HTMLButtonElement): Promise<void> {
     try {
-      await navigator.clipboard.writeText(text);
-      showGlobalMessage('success', 'Nameservers copied to clipboard');
+      await navigator.clipboard.writeText(ns);
 
-      // Visual feedback on button
+      // Visual feedback on button icon
       if (button) {
         const icon = button.querySelector('.icon');
         if (icon) {
@@ -558,14 +579,13 @@ export function initAddDomainsDrawer(): void {
     } catch (error) {
       // Fallback for older browsers
       const textarea = document.createElement('textarea');
-      textarea.value = text;
+      textarea.value = ns;
       textarea.style.position = 'fixed';
       textarea.style.opacity = '0';
       document.body.appendChild(textarea);
       textarea.select();
       document.execCommand('copy');
       document.body.removeChild(textarea);
-      showGlobalMessage('success', 'Nameservers copied to clipboard');
     }
   }
 
@@ -577,9 +597,8 @@ export function initAddDomainsDrawer(): void {
 
     try {
       await navigator.clipboard.writeText(text);
-      showGlobalMessage('success', 'Domains list copied to clipboard');
 
-      // Visual feedback on button
+      // Visual feedback on button icon
       if (button) {
         const icon = button.querySelector('.icon');
         if (icon) {
@@ -600,7 +619,6 @@ export function initAddDomainsDrawer(): void {
       textarea.select();
       document.execCommand('copy');
       document.body.removeChild(textarea);
-      showGlobalMessage('success', 'Domains list copied to clipboard');
     }
   }
 
