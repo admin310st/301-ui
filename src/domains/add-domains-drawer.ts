@@ -367,24 +367,15 @@ export function initAddDomainsDrawer(): void {
               </div>
 
               <!-- Domains List -->
-              <div>
-                <div class="cluster cluster--space-between">
-                  <div class="cluster cluster--xs cluster--wrap">
-                    ${group.domains.map(d => `
-                      <span class="cluster cluster--xs">
-                        <span class="text-sm">${formatDomainDisplay(d.domain)}</span>
-                        <span class="badge badge--warning">Pending NS</span>
-                      </span>
-                    `).join('')}
-                  </div>
-                  <button
-                    class="btn-icon btn-icon--sm"
-                    data-copy-domains="${group.domains.map(d => d.domain).join(',')}"
-                    title="Copy domain list"
-                  >
-                    <span class="icon" data-icon="mono/copy"></span>
-                  </button>
-                </div>
+              <div class="cluster cluster--space-between">
+                <p class="text-sm">${group.domains.map(d => formatDomainDisplay(d.domain)).join(', ')}</p>
+                <button
+                  class="btn-icon btn-icon--sm"
+                  data-copy-domains="${group.domains.map(d => d.domain).join(',')}"
+                  title="Copy domain list"
+                >
+                  <span class="icon" data-icon="mono/copy"></span>
+                </button>
               </div>
             </div>
           </div>
