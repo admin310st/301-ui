@@ -16,29 +16,21 @@ function getErrorMessage(error: ApiError<unknown>): string {
     return error.message || 'Failed to connect NameCheap account';
   }
 
-  // Map error codes to user-friendly messages
-  const errorMessages: Record<string, string> = {
-    'invalid_credentials': 'Invalid NameCheap username or API key. Please check your credentials.',
-    'api_key_expired': 'API key has expired. Please generate a new API key.',
-    'api_disabled': 'API access is not enabled for your NameCheap account. Please enable it in your account settings.',
-    'quota_exceeded': 'You have reached the maximum number of NameCheap accounts for your plan.',
-    'nc_api_error': 'NameCheap API error. Please check your credentials and try again.',
-    'nc_unavailable': 'NameCheap API is temporarily unavailable. Please try again later.',
-  };
-
-  const userMessage = errorMessages[body.error] || body.message || body.error;
-  return userMessage;
+  // API returns translated message - use it directly
+  return body.message || error.message || 'Failed to connect NameCheap account';
 }
 
 /**
  * Format IP whitelist error message
  */
-function formatIpWhitelistError(ips: string[]): string {
+function formatIpWhitelistError(ipsString: string, message: string): string {
+  // Parse comma-separated IP string
+  const ips = ipsString.split(',').map(ip => ip.trim()).filter(Boolean);
   const ipList = ips.map(ip => `• ${ip}`).join('\n');
-  return `IP Whitelist Required
 
-NameCheap requires you to whitelist the following IP addresses in your API settings:
+  return `${message}
 
+Required IPs:
 ${ipList}
 
 To whitelist these IPs:
@@ -149,21 +141,21 @@ export function initNcConnectForm(): void {
 
       // Handle ip_not_whitelisted - show IPs in status panel
       if (body?.error === 'ip_not_whitelisted') {
-        const context = body.context as { required_ips?: string[] };
-        const ips = context?.required_ips || [];
+        const ipsString = (body as any).ips as string | undefined;
+        const message = body.message || 'Add these IPs to your Namecheap API whitelist';
 
-        if (ips.length > 0) {
-          const ipMessage = formatIpWhitelistError(ips);
+        if (ipsString) {
+          const ipMessage = formatIpWhitelistError(ipsString, message);
           showStatus('error', ipMessage);
-          console.error('[nc-connect] IP whitelist required:', ips);
+          console.error('[nc-connect] IP whitelist required:', ipsString);
         } else {
-          showStatus('error', 'IP whitelist required. Please add your server IPs to NameCheap API settings.');
+          showStatus('error', message);
         }
 
         // Reset button
         if (submitBtn) {
           submitBtn.disabled = false;
-          submitBtn.innerHTML = '<span class="icon" data-icon="mono/save"></span><span>Connect NameCheap</span>';
+          submitBtn.innerHTML = '<span class="icon" data-icon="brand/namecheap"></span><span>Connect NameCheap</span>';
         }
         return;
       }
@@ -181,7 +173,7 @@ export function initNcConnectForm(): void {
       // Reset button
       if (submitBtn) {
         submitBtn.disabled = false;
-        submitBtn.innerHTML = '<span class="icon" data-icon="mono/save"></span><span>Connect NameCheap</span>';
+        submitBtn.innerHTML = '<span class="icon" data-icon="brand/namecheap"></span><span>Connect NameCheap</span>';
       }
     }
   });
