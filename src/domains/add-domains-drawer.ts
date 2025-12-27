@@ -224,8 +224,10 @@ export function initAddDomainsDrawer(): void {
    * Update submit button state
    */
   function updateSubmitButton(): void {
-    if (!submitBtn) return;
-    submitBtn.disabled = currentState.count === 0 || !selectedIntegration;
+    // Always query fresh button (it may be recreated after innerHTML)
+    const btn = document.querySelector<HTMLButtonElement>('[data-add-submit]');
+    if (!btn) return;
+    btn.disabled = currentState.count === 0 || !selectedIntegration;
   }
 
   /**
@@ -426,7 +428,14 @@ export function initAddDomainsDrawer(): void {
               <!-- Domains List -->
               <div>
                 <div class="cluster cluster--space-between">
-                  <p class="text-sm text-muted">${group.domains.map(d => formatDomainDisplay(d.domain)).join(', ')}</p>
+                  <div class="cluster cluster--xs cluster--wrap">
+                    ${group.domains.map(d => `
+                      <span class="cluster cluster--xs">
+                        <span class="text-sm">${formatDomainDisplay(d.domain)}</span>
+                        <span class="badge badge--warning">Pending NS</span>
+                      </span>
+                    `).join('')}
+                  </div>
                   <button
                     class="btn-icon btn-icon--sm"
                     data-copy-domains="${group.domains.map(d => d.domain).join(',')}"
@@ -551,7 +560,7 @@ export function initAddDomainsDrawer(): void {
         'Contact Cloudflare support to transfer the zone, or remove it from the other account first.',
       zone_banned: 'Contact Cloudflare support to resolve the block.',
       zone_held: 'Check domain status at your registrar.',
-      not_registrable: 'Add the root domain instead (e.g., example.com instead of www.example.com).',
+      not_registrable: 'This domain may already exist in the database, or it is a subdomain (use root domain instead, e.g., example.com instead of www.example.com).',
       quota_exceeded: 'Upgrade your plan or remove unused zones.',
     };
 
@@ -565,16 +574,13 @@ export function initAddDomainsDrawer(): void {
     try {
       await navigator.clipboard.writeText(ns);
 
-      // Visual feedback on button icon
+      // Visual feedback - turn button green briefly
       if (button) {
-        const icon = button.querySelector('.icon');
-        if (icon) {
-          const originalClass = icon.className;
-          icon.classList.add('icon--success');
-          setTimeout(() => {
-            icon.className = originalClass;
-          }, 1500);
-        }
+        const originalClass = button.className;
+        button.classList.add('btn-icon--success');
+        setTimeout(() => {
+          button.className = originalClass;
+        }, 1500);
       }
     } catch (error) {
       // Fallback for older browsers
@@ -598,16 +604,13 @@ export function initAddDomainsDrawer(): void {
     try {
       await navigator.clipboard.writeText(text);
 
-      // Visual feedback on button icon
+      // Visual feedback - turn button green briefly
       if (button) {
-        const icon = button.querySelector('.icon');
-        if (icon) {
-          const originalClass = icon.className;
-          icon.classList.add('icon--success');
-          setTimeout(() => {
-            icon.className = originalClass;
-          }, 1500);
-        }
+        const originalClass = button.className;
+        button.classList.add('btn-icon--success');
+        setTimeout(() => {
+          button.className = originalClass;
+        }, 1500);
       }
     } catch (error) {
       // Fallback for older browsers
