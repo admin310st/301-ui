@@ -2730,13 +2730,9 @@ body.sidebar-collapsed .sidebar .navitem:hover::after {
   border-color: color-mix(in srgb, var(--danger) 30%, transparent);
 }
 
-/* Highlight list item in info panel color */
-.list--ruled .text-info-emphasis {
-  padding: var(--space-2);
-  margin: calc(var(--space-2) * -1);
-  background: color-mix(in srgb, var(--primary) 10%, var(--bg-soft));
-  border-left: 2px solid color-mix(in srgb, var(--primary) 50%, transparent);
-  border-radius: var(--r-sm);
+/* Highlight list item marker in info panel color */
+.list--ruled .text-info-emphasis::marker {
+  color: var(--primary);
 }
 
 .cluster {
