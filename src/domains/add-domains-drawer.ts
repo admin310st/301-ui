@@ -9,8 +9,9 @@
 import { showGlobalMessage } from '@ui/notifications';
 import { formatDomainDisplay } from '@utils/idn';
 import { showLoading, hideLoading } from '@ui/loading-indicator';
-import { getIntegrations, type Integration } from '@api/integrations';
+import { getIntegrationKeys, type IntegrationKey } from '@api/integrations';
 import { createZonesBatch, type BatchZoneResponse } from '@api/domains';
+import { getAccountId } from '@state/auth-state';
 
 // Domain matching regex (updated for IDN TLD support)
 // Matches: example.com, xn--domain.net, sub.domain.co.uk, домен.рф (xn--c1ad6a.xn--p1ai)
@@ -32,8 +33,8 @@ let currentState: ParsedDomainsState = {
 
 let currentView: DrawerView = 'input';
 let lastResults: BatchZoneResponse | null = null;
-let selectedIntegration: Integration | null = null;
-let availableIntegrations: Integration[] = [];
+let selectedIntegration: IntegrationKey | null = null;
+let availableIntegrations: IntegrationKey[] = [];
 
 /**
  * Initialize Add Domains Drawer
@@ -128,10 +129,16 @@ export function initAddDomainsDrawer(): void {
     if (!select) return;
 
     try {
-      const allIntegrations = await getIntegrations();
-      availableIntegrations = allIntegrations.filter(
-        (i) => i.provider === 'cloudflare' && i.status === 'active'
-      );
+      const accountId = getAccountId();
+      if (!accountId) {
+        console.error('No account ID found');
+        select.innerHTML = '<option value="">Not authenticated</option>';
+        select.disabled = true;
+        return;
+      }
+
+      const allIntegrations = await getIntegrationKeys(accountId, 'cloudflare');
+      availableIntegrations = allIntegrations.filter((i) => i.status === 'active');
 
       if (availableIntegrations.length === 0) {
         // Show no integrations panel
@@ -149,7 +156,7 @@ export function initAddDomainsDrawer(): void {
       availableIntegrations.forEach((integration) => {
         const option = document.createElement('option');
         option.value = String(integration.id);
-        option.textContent = integration.label || integration.account_name || `Account #${integration.id}`;
+        option.textContent = integration.alias || integration.cf_account_name || `Account #${integration.id}`;
         select.appendChild(option);
       });
 
