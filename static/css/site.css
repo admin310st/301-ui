@@ -2234,7 +2234,7 @@ html[data-theme="light"] .btn--social-github {
   color: var(--primary);
 }
 
-.badge--info {
+.badge.badge--info {
   background-color: var(--primary-soft);
   border-color: rgba(77, 163, 255, 0.5);
   color: var(--primary);
@@ -2312,7 +2312,7 @@ html[data-theme="light"] .btn--social-github {
   color: var(--accent-cf-bg);
 }
 
-:root[data-theme='light'] .badge--info {
+:root[data-theme='light'] .badge.badge--info {
   background-color: rgba(0, 85, 220, 0.12);
   border-color: rgba(0, 85, 220, 0.5);
   color: var(--primary);
