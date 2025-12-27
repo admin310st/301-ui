@@ -1728,6 +1728,22 @@ html[data-theme="light"] .btn--ghost:hover {
   outline-offset: 2px;
 }
 
+/* Recommended tab (Scoped Token) - visually connects to info panel */
+.tabs__trigger[data-tab-trigger="scoped-token"] {
+  background: color-mix(in srgb, var(--primary) 10%, var(--bg-soft));
+  border-color: color-mix(in srgb, var(--primary) 30%, transparent);
+  color: var(--primary);
+}
+
+.tabs__trigger[data-tab-trigger="scoped-token"]:hover {
+  background: color-mix(in srgb, var(--primary) 14%, var(--bg-soft));
+  border-color: color-mix(in srgb, var(--primary) 40%, transparent);
+}
+
+.tabs__trigger[data-tab-trigger="scoped-token"].is-active {
+  background: color-mix(in srgb, var(--primary) 18%, var(--bg-soft));
+  border-color: var(--primary);
+}
 
 .btn-icon--ghost {
   background: transparent;
