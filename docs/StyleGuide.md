@@ -496,43 +496,18 @@ When design system updates are introduced, **ALL** UI components and demo pages 
 
 #### Icon Ring (Promotional Icons)
 
-For larger, visually prominent icons in promotional cards and feature highlights:
-
-```html
-<div class="icon-ring icon-ring--brand">
-  <span class="icon" data-icon="mono/plus"></span>
-</div>
-```
+Larger, visually prominent icons for promotional cards and feature highlights.
 
 **Specifications:**
-- Container: 3rem (48px) × 3rem with `border-radius: var(--r-pill)` (fully circular)
+- Container: 3rem (48px) × 3rem, `border-radius: var(--r-pill)` (circular)
 - Icon inside: 1.5em (scales with font-size)
 - Border: 1px solid with subtle background
-- Matches avatar-ring sizing for consistency
 
-**Variants:**
-- `.icon-ring--brand` - brand color accent (blue)
-- `.icon-ring--cf` - Cloudflare orange accent
-- `.icon-ring--success` - success color accent (green)
+**Variants:** `.icon-ring--brand` (blue) | `.icon-ring--cf` (orange) | `.icon-ring--success` (green)
 
-**Recommended pattern:** Always use with `.cluster--promo` modifier for proper mobile layout (stacks vertically and centers content on screens < 768px)
+**Pattern:** Use with `.cluster--promo` for proper mobile layout (vertical stack + center on < 768px)
 
-**Complete example:**
-```html
-<div class="panel">
-  <div class="cluster cluster--promo">
-    <div class="icon-ring icon-ring--brand">
-      <span class="icon" data-icon="mono/plus"></span>
-    </div>
-    <div class="stack stack--xs">
-      <p class="text-sm"><strong>Title</strong></p>
-      <p class="text-sm text-muted">Description text</p>
-    </div>
-  </div>
-</div>
-```
-
-**Usage:** Dashboard cards, feature highlights, empty states with prominent actions
+**See:** `dashboard.html` (Step 2), `streams.html` (SmartLink, A/B Testing cards)
 
 ### Responsive Design
 
