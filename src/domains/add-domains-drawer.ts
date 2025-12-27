@@ -47,7 +47,7 @@ export function initAddDomainsDrawer(): void {
   const emptyState = document.querySelector<HTMLElement>('[data-add-empty-state]');
   const foundCount = document.querySelector<HTMLElement>('[data-add-found-count]');
   const submitBtn = document.querySelector<HTMLButtonElement>('[data-add-submit]');
-  const integrationSelect = document.querySelector<HTMLSelectElement>('[data-add-integration-select]');
+  const integrationButton = document.querySelector<HTMLButtonElement>('[data-add-integration-select]');
 
   if (!drawer || !rawInput) return;
 
@@ -76,14 +76,6 @@ export function initAddDomainsDrawer(): void {
   // Close drawer on overlay click
   drawer.querySelectorAll('[data-drawer-close]').forEach((el) => {
     el.addEventListener('click', () => closeDrawer());
-  });
-
-  // Integration selection change
-  integrationSelect?.addEventListener('change', (e) => {
-    const target = e.target as HTMLSelectElement;
-    const integrationId = parseInt(target.value, 10);
-    selectedIntegration = availableIntegrations.find(i => i.id === integrationId) || null;
-    updateSubmitButton();
   });
 
   // Auto-parse on input with debounce
@@ -138,15 +130,18 @@ export function initAddDomainsDrawer(): void {
    * Load Cloudflare integrations
    */
   async function loadCloudflareIntegrations(): Promise<void> {
-    const select = integrationSelect;
-    if (!select) return;
+    const button = integrationButton;
+    const label = button?.querySelector('[data-selected-label]');
+    const menu = document.querySelector('[data-add-integration-menu]');
+
+    if (!button || !label || !menu) return;
 
     try {
       const accountId = getAccountId();
       if (!accountId) {
         console.error('No account ID found');
-        select.innerHTML = '<option value="">Not authenticated</option>';
-        select.disabled = true;
+        label.textContent = 'Not authenticated';
+        button.disabled = true;
         return;
       }
 
@@ -159,30 +154,63 @@ export function initAddDomainsDrawer(): void {
         if (noIntegrationsPanel) {
           noIntegrationsPanel.removeAttribute('hidden');
         }
-        select.disabled = true;
-        select.innerHTML = '<option value="">No Cloudflare accounts connected</option>';
+        button.disabled = true;
+        label.textContent = 'No Cloudflare accounts connected';
         return;
       }
 
-      // Populate select
-      select.innerHTML = '<option value="">Select Cloudflare account...</option>';
-      availableIntegrations.forEach((integration) => {
-        const option = document.createElement('option');
-        option.value = String(integration.id);
-        option.textContent = integration.alias || integration.cf_account_name || `Account #${integration.id}`;
-        select.appendChild(option);
+      // Populate dropdown menu
+      label.textContent = 'Select Cloudflare account...';
+      menu.innerHTML = availableIntegrations
+        .map(
+          (integration) => `
+        <button
+          class="dropdown__item"
+          type="button"
+          role="menuitem"
+          data-integration-id="${integration.id}"
+        >
+          ${integration.alias || integration.cf_account_name || `Account #${integration.id}`}
+        </button>
+      `
+        )
+        .join('');
+
+      // Attach handlers to dropdown items
+      menu.querySelectorAll('[data-integration-id]').forEach((item) => {
+        item.addEventListener('click', () => {
+          const integrationId = parseInt(item.getAttribute('data-integration-id') || '0', 10);
+          selectedIntegration = availableIntegrations.find((i) => i.id === integrationId) || null;
+
+          if (selectedIntegration) {
+            label.textContent =
+              selectedIntegration.alias ||
+              selectedIntegration.cf_account_name ||
+              `Account #${selectedIntegration.id}`;
+            button.setAttribute('data-selected-value', String(selectedIntegration.id));
+
+            // Update active state
+            menu.querySelectorAll('.dropdown__item').forEach((i) => i.classList.remove('is-active'));
+            item.classList.add('is-active');
+
+            updateSubmitButton();
+          }
+        });
       });
 
       // Auto-select if only one integration
       if (availableIntegrations.length === 1) {
-        select.value = String(availableIntegrations[0].id);
-        selectedIntegration = availableIntegrations[0];
+        const integration = availableIntegrations[0];
+        selectedIntegration = integration;
+        label.textContent = integration.alias || integration.cf_account_name || `Account #${integration.id}`;
+        button.setAttribute('data-selected-value', String(integration.id));
+        menu.querySelector('[data-integration-id]')?.classList.add('is-active');
         updateSubmitButton();
       }
     } catch (error) {
       console.error('Failed to load integrations:', error);
-      select.innerHTML = '<option value="">Failed to load integrations</option>';
-      select.disabled = true;
+      label.textContent = 'Failed to load integrations';
+      button.disabled = true;
     }
   }
 
