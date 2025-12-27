@@ -13,14 +13,32 @@
         </header>
 
         <div class="drawer__body">
-          <div class="stack-list">
-            <!-- Project/Site Assignment (placeholder for future) -->
+          <!-- Input View -->
+          <div class="stack-list" data-add-input-view>
+            <!-- Cloudflare Account Selection -->
             <div class="field">
-              <label class="field__label">Assign to project / site</label>
-              <select class="input" data-add-project-select disabled>
-                <option>No project (optional)</option>
+              <label class="field__label">Cloudflare account</label>
+              <select class="input" data-add-integration-select required>
+                <option value="">Loading integrations...</option>
               </select>
-              <p class="field__hint text-muted">Project assignment coming soon</p>
+              <p class="field__hint text-muted">Choose which CF account to use for zone creation</p>
+            </div>
+
+            <!-- No Integrations Panel (hidden by default) -->
+            <div class="panel panel--warning" data-add-no-integrations hidden>
+              <p class="text-sm">
+                <span class="icon" data-icon="mono/alert-circle"></span>
+                <strong>No Cloudflare integrations found</strong>
+              </p>
+              <p class="text-sm text-muted">
+                You need to connect a Cloudflare account before adding domains.
+              </p>
+              <div class="cluster">
+                <button class="btn btn--cf btn--sm" data-action="connect-cloudflare">
+                  <span class="icon" data-icon="brand/cloudflare"></span>
+                  <span>Connect Cloudflare</span>
+                </button>
+              </div>
             </div>
 
             <!-- Raw Input -->
@@ -51,14 +69,11 @@
                 </div>
               </div>
             </div>
+          </div>
 
-            <!-- Options (future) -->
-            <div class="field">
-              <label class="checkbox">
-                <input type="checkbox" data-add-skip-existing />
-                <span>Skip domains that already exist in this account</span>
-              </label>
-            </div>
+          <!-- Results View (hidden by default) -->
+          <div class="stack-list" data-add-results-view hidden>
+            <!-- Will be populated after batch operation -->
           </div>
         </div>
 
