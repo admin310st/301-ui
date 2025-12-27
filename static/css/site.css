@@ -789,6 +789,19 @@ h5 .icon[data-icon*="close"] {
   justify-content: center;
 }
 
+/* Promotional card layout - stacks vertically on mobile */
+@media (max-width: 768px) {
+  .cluster--promo {
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .cluster--promo .stack {
+    text-align: center;
+  }
+}
+
 /* Card grid layout */
 .card-grid {
   display: grid;
