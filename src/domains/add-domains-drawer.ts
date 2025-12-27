@@ -35,6 +35,7 @@ let currentView: DrawerView = 'input';
 let lastResults: BatchZoneResponse | null = null;
 let selectedIntegration: IntegrationKey | null = null;
 let availableIntegrations: IntegrationKey[] = [];
+let integrationsLoaded = false;
 
 /**
  * Initialize Add Domains Drawer
@@ -50,8 +51,20 @@ export function initAddDomainsDrawer(): void {
 
   if (!drawer || !rawInput) return;
 
-  // Load CF integrations when drawer opens
-  loadCloudflareIntegrations();
+  // Watch for drawer opening to load integrations lazily
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (mutation.type === 'attributes' && mutation.attributeName === 'hidden') {
+        const isOpen = !drawer.hasAttribute('hidden');
+        if (isOpen && !integrationsLoaded) {
+          loadCloudflareIntegrations();
+          integrationsLoaded = true;
+        }
+      }
+    });
+  });
+
+  observer.observe(drawer, { attributes: true });
 
   // Close drawer on Escape key
   document.addEventListener('keydown', (e) => {
