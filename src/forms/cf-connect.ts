@@ -26,7 +26,7 @@ function getErrorMessage(error: ApiError<unknown>): string {
     'bootstrap_invalid': 'Invalid bootstrap token. Please check your API token and try again.',
     'bootstrap_expired': 'Bootstrap token has expired. Please generate a new token.',
     'bootstrap_not_active': 'Bootstrap token is not active. Please check your token status.',
-    'bootstrap_insufficient': 'Bootstrap token has insufficient permissions. Make sure it has "Account Settings: Edit" and "API Tokens: Edit" permissions.',
+    'bootstrap_insufficient': 'Bootstrap token has insufficient permissions. Make sure it has "Account Settings: Read" and "API Tokens: Edit" permissions.',
     'permissions_missing': 'Bootstrap token has insufficient permissions. Please verify required permissions.',
     'account_mismatch': 'Account ID does not match the token. Please verify both values.',
     'token_rotation_failed': 'Failed to rotate token. Please try again or contact support.',
