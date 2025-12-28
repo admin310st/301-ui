@@ -1644,8 +1644,8 @@ button.btn.btn--primary.sync-indicator-btn .metric-pill__fill {
 
 /* Status-specific colors with higher specificity */
 button.btn.btn--primary.sync-indicator-btn[data-status="pending"] .metric-pill__fill {
-  background: var(--cf-orange);
-  box-shadow: 0 0 12px rgba(255, 142, 26, 0.9);
+  background: var(--accent-cf);
+  box-shadow: 0 0 12px var(--accent-cf);
 }
 
 button.btn.btn--primary.sync-indicator-btn[data-status="synced"] .metric-pill__fill {
@@ -1654,6 +1654,6 @@ button.btn.btn--primary.sync-indicator-btn[data-status="synced"] .metric-pill__f
 }
 
 button.btn.btn--primary.sync-indicator-btn[data-status="error"] .metric-pill__fill {
-  background: var(--danger-color);
-  box-shadow: 0 0 12px rgba(239, 68, 68, 0.9);
+  background: var(--danger);
+  box-shadow: 0 0 12px var(--danger);
 }
