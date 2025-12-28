@@ -97,43 +97,48 @@ export function updateSyncIndicator(stats: SyncStats): void {
  * Initialize sync status dropdown and functionality
  */
 export function initSyncStatus(redirects: Redirect[]): void {
-  const chip = document.querySelector('[data-sync-chip]');
-  const button = chip?.querySelector<HTMLButtonElement>('button');
-  const dropdown = document.getElementById('sync-dropdown-main');
+  const dropdown = document.querySelector('[data-sync-chip]');
+  const button = dropdown?.querySelector<HTMLButtonElement>('.dropdown__trigger');
+  const menu = dropdown?.querySelector<HTMLElement>('.dropdown__menu');
 
-  if (!chip || !button || !dropdown) return;
+  if (!dropdown || !button || !menu) return;
 
   // Calculate and update initial stats
   const stats = calculateSyncStats(redirects);
   updateSyncIndicator(stats);
 
   // Toggle dropdown
-  button.addEventListener('click', () => {
-    const isHidden = dropdown.hasAttribute('hidden');
-    dropdown.toggleAttribute('hidden', !isHidden);
+  button.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const isExpanded = button.getAttribute('aria-expanded') === 'true';
+    button.setAttribute('aria-expanded', (!isExpanded).toString());
+    menu.hidden = isExpanded;
   });
 
   // Close dropdown on outside click
   document.addEventListener('click', (e) => {
-    if (!chip.contains(e.target as Node)) {
-      dropdown.setAttribute('hidden', '');
+    if (!dropdown.contains(e.target as Node)) {
+      button.setAttribute('aria-expanded', 'false');
+      menu.hidden = true;
     }
   });
 
   // Action handlers
-  const syncNowBtn = dropdown.querySelector('[data-action="sync-now"]');
-  const addRedirectsBtn = dropdown.querySelector('[data-action="add-redirects"]');
-  const cancelSyncBtn = dropdown.querySelector('[data-action="cancel-sync"]');
+  const syncNowBtn = menu.querySelector('[data-action="sync-now"]');
+  const addRedirectsBtn = menu.querySelector('[data-action="add-redirects"]');
+  const cancelSyncBtn = menu.querySelector('[data-action="cancel-sync"]');
 
   syncNowBtn?.addEventListener('click', () => {
     console.log('Sync to Cloudflare clicked');
-    dropdown.setAttribute('hidden', '');
+    button.setAttribute('aria-expanded', 'false');
+    menu.hidden = true;
     // TODO: Implement CF sync action
   });
 
   addRedirectsBtn?.addEventListener('click', () => {
     console.log('Add Redirects clicked');
-    dropdown.setAttribute('hidden', '');
+    button.setAttribute('aria-expanded', 'false');
+    menu.hidden = true;
     // TODO: Open redirect drawer (same as existing Add Redirect button)
     const event = new CustomEvent('open-redirect-drawer');
     document.dispatchEvent(event);
@@ -141,7 +146,8 @@ export function initSyncStatus(redirects: Redirect[]): void {
 
   cancelSyncBtn?.addEventListener('click', () => {
     console.log('Cancel sync clicked');
-    dropdown.setAttribute('hidden', '');
+    button.setAttribute('aria-expanded', 'false');
+    menu.hidden = true;
     // TODO: Implement cancel sync action
   });
 }

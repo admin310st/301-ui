@@ -1606,12 +1606,6 @@ html[data-theme="light"] .bulk-actions-bar__actions .btn--ghost:hover {
    Sync Status Primary Button (indicator only)
    ============================================ */
 
-.sync-chip {
-  position: relative;
-  display: inline-flex;
-}
-
-/* Sync indicator button - no text, only metric-pill + chevron */
 .sync-indicator-btn {
   display: inline-flex;
   align-items: center;
@@ -1647,13 +1641,4 @@ html[data-theme="light"] .bulk-actions-bar__actions .btn--ghost:hover {
 .sync-indicator-btn[data-status="error"] .metric-pill__fill {
   background: var(--danger-color);
   box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
-}
-
-/* Dropdown menu positioning */
-.sync-chip .dropdown-menu {
-  position: absolute;
-  top: calc(100% + var(--space-1));
-  right: 0;
-  z-index: 100;
-  min-width: 220px;
 }

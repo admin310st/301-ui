@@ -44,11 +44,12 @@
           </div>
           <div class="controls-row">
             <!-- Sync Status Primary Button with Dropdown -->
-            <div class="sync-chip sync-chip--primary" data-sync-chip>
+            <div class="dropdown" data-sync-chip>
               <button
-                class="btn btn--primary sync-indicator-btn"
+                class="btn btn--primary sync-indicator-btn dropdown__trigger"
                 type="button"
-                data-toggle-dropdown="sync-dropdown-main"
+                aria-haspopup="menu"
+                aria-expanded="false"
                 title="23 synced, 7 pending • Last sync: 5 min ago"
               >
                 <div class="metric-pill" style="width: 100px; height: 6px;">
@@ -60,18 +61,18 @@
               </button>
 
               <!-- Dropdown menu -->
-              <div class="dropdown-menu dropdown-menu--right" id="sync-dropdown-main" hidden>
-                <button class="dropdown-item" type="button" data-action="sync-now">
+              <div class="dropdown__menu" role="menu">
+                <button class="dropdown__item" type="button" data-action="sync-now" role="menuitem">
                   <span class="icon" data-icon="mono/sync"></span>
                   <span>Sync to Cloudflare</span>
                 </button>
-                <div class="dropdown-divider"></div>
-                <button class="dropdown-item" type="button" data-action="add-redirects">
+                <div class="dropdown__divider"></div>
+                <button class="dropdown__item" type="button" data-action="add-redirects" role="menuitem">
                   <span class="icon" data-icon="mono/plus"></span>
                   <span>Add Redirects</span>
                 </button>
-                <div class="dropdown-divider"></div>
-                <button class="dropdown-item dropdown-item--danger" type="button" data-action="cancel-sync">
+                <div class="dropdown__divider"></div>
+                <button class="dropdown__item dropdown__item--danger" type="button" data-action="cancel-sync" role="menuitem">
                   <span class="icon" data-icon="mono/close"></span>
                   <span>Cancel sync</span>
                 </button>
