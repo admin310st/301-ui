@@ -30,6 +30,12 @@ export function initRedirectsPage(): void {
 
   console.log('[Redirects] Initializing page...');
 
+  // Initialize page header dropdowns (sync status button)
+  const pageHeader = document.querySelector('.page-header');
+  if (pageHeader) {
+    initDropdowns(pageHeader as HTMLElement);
+  }
+
   // Load mock data
   loadRedirects();
 

@@ -94,60 +94,44 @@ export function updateSyncIndicator(stats: SyncStats): void {
 }
 
 /**
- * Initialize sync status dropdown and functionality
+ * Initialize sync status indicator and action handlers
+ * Note: Dropdown toggle is handled by initDropdowns() in redirects.ts
  */
 export function initSyncStatus(redirects: Redirect[]): void {
   const dropdown = document.querySelector('[data-sync-chip]');
-  const button = dropdown?.querySelector<HTMLButtonElement>('.dropdown__trigger');
   const menu = dropdown?.querySelector<HTMLElement>('.dropdown__menu');
 
-  if (!dropdown || !button || !menu) return;
+  if (!dropdown || !menu) return;
 
   // Calculate and update initial stats
   const stats = calculateSyncStats(redirects);
   updateSyncIndicator(stats);
 
-  // Toggle dropdown
-  button.addEventListener('click', (e) => {
-    e.stopPropagation();
-    const isExpanded = button.getAttribute('aria-expanded') === 'true';
-    button.setAttribute('aria-expanded', (!isExpanded).toString());
-    menu.hidden = isExpanded;
-  });
+  // Action handlers (dropdown toggle is handled by standard initDropdowns())
+  menu.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    const button = target.closest('[data-action]') as HTMLElement;
+    if (!button) return;
 
-  // Close dropdown on outside click
-  document.addEventListener('click', (e) => {
-    if (!dropdown.contains(e.target as Node)) {
-      button.setAttribute('aria-expanded', 'false');
-      menu.hidden = true;
+    const action = button.dataset.action;
+
+    switch (action) {
+      case 'sync-now':
+        console.log('[Sync] Sync to Cloudflare clicked');
+        // TODO: Implement CF sync action
+        break;
+
+      case 'add-redirects':
+        console.log('[Sync] Add Redirects clicked');
+        // TODO: Open bulk add drawer
+        const event = new CustomEvent('open-redirect-drawer');
+        document.dispatchEvent(event);
+        break;
+
+      case 'cancel-sync':
+        console.log('[Sync] Cancel sync clicked');
+        // TODO: Implement cancel sync action
+        break;
     }
-  });
-
-  // Action handlers
-  const syncNowBtn = menu.querySelector('[data-action="sync-now"]');
-  const addRedirectsBtn = menu.querySelector('[data-action="add-redirects"]');
-  const cancelSyncBtn = menu.querySelector('[data-action="cancel-sync"]');
-
-  syncNowBtn?.addEventListener('click', () => {
-    console.log('Sync to Cloudflare clicked');
-    button.setAttribute('aria-expanded', 'false');
-    menu.hidden = true;
-    // TODO: Implement CF sync action
-  });
-
-  addRedirectsBtn?.addEventListener('click', () => {
-    console.log('Add Redirects clicked');
-    button.setAttribute('aria-expanded', 'false');
-    menu.hidden = true;
-    // TODO: Open redirect drawer (same as existing Add Redirect button)
-    const event = new CustomEvent('open-redirect-drawer');
-    document.dispatchEvent(event);
-  });
-
-  cancelSyncBtn?.addEventListener('click', () => {
-    console.log('Cancel sync clicked');
-    button.setAttribute('aria-expanded', 'false');
-    menu.hidden = true;
-    // TODO: Implement cancel sync action
   });
 }
