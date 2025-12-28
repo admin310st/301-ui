@@ -111,7 +111,7 @@ function renderTable(): void {
     // Project header row (Level 0)
     const projectHeader = `
       <tr class="table__group-header table__row--level-0" data-group-id="${group.project_id}">
-        <td colspan="5">
+        <td colspan="6">
           <button class="table__group-toggle" type="button" data-action="toggle-group" data-group-id="${group.project_id}" aria-expanded="${!isCollapsed}">
             <span class="icon" data-icon="mono/${chevronIcon}"></span>
             <span class="table__group-title">
@@ -246,6 +246,7 @@ function renderPrimaryDomainRow(
         <span>${redirectCount}</span>
       </span>`
     : '';
+  const activityDisplay = getActivityDisplay(redirect);
   const statusDisplay = getStatusDisplay(redirect);
   const actions = getRowActions(redirect);
 
@@ -256,6 +257,9 @@ function renderPrimaryDomainRow(
       </td>
       <td data-priority="critical" class="table__cell-target">
         ${siteBadge} ${redirectBadge}
+      </td>
+      <td data-priority="high" class="table__cell-activity">
+        ${activityDisplay}
       </td>
       <td data-priority="high" class="table__cell-status">
         ${statusDisplay}
@@ -307,6 +311,7 @@ function renderRow(redirect: DomainRedirect, groupId: number, isLastRow: boolean
   const checkbox = getCheckboxDisplay(redirect, isPrimaryDomain);
   const domainDisplay = getDomainDisplay(redirect, isPrimaryDomain, isTopLevel);
   const targetDisplay = getTargetDisplay(redirect, isPrimaryDomain);
+  const activityDisplay = getActivityDisplay(redirect);
   const statusDisplay = getStatusDisplay(redirect);
   const actions = getRowActions(redirect);
 
@@ -317,6 +322,9 @@ function renderRow(redirect: DomainRedirect, groupId: number, isLastRow: boolean
       </td>
       <td data-priority="critical" class="table__cell-target">
         ${targetDisplay}
+      </td>
+      <td data-priority="high" class="table__cell-activity">
+        ${activityDisplay}
       </td>
       <td data-priority="high" class="table__cell-status">
         ${statusDisplay}
@@ -438,6 +446,43 @@ function getTargetDisplay(redirect: DomainRedirect, isPrimaryDomain: boolean): s
     <div class="table-cell-inline">
       ${redirectIcon}
       <span class="table-cell-main" title="${redirect.target_url}">${targetHost}</span>
+    </div>
+  `;
+}
+
+/**
+ * Get activity display (analytics data)
+ * Shows clicks count + trend icon for both acceptor (aggregated) and donor domains
+ */
+function getActivityDisplay(redirect: DomainRedirect): string {
+  if (!redirect.analytics) {
+    return '<span class="text-muted text-xs">—</span>';
+  }
+
+  const { clicks_7d, trend } = redirect.analytics;
+
+  // Format clicks count (e.g., 1847 -> 1.8K, 12847 -> 12.8K)
+  const formatClicks = (count: number): string => {
+    if (count >= 1000) {
+      return `${(count / 1000).toFixed(1)}K`;
+    }
+    return count.toString();
+  };
+
+  // Trend icon and color
+  const trendIcons = {
+    up: '<span class="icon icon--success" data-icon="mono/trending-up" title="Trending up"></span>',
+    down: '<span class="icon icon--danger" data-icon="mono/trending-down" title="Trending down"></span>',
+    neutral: '<span class="icon icon--muted" data-icon="mono/trending-neutral" title="Stable"></span>',
+  };
+
+  const trendIcon = trendIcons[trend] || '';
+  const clicksFormatted = formatClicks(clicks_7d);
+
+  return `
+    <div class="table-cell-inline" style="gap: 0.25rem;">
+      <span class="text-sm">${clicksFormatted}</span>
+      ${trendIcon}
     </div>
   `;
 }
