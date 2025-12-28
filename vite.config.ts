@@ -80,7 +80,6 @@ export default defineConfig({
         domains: resolve(__dirname, 'domains.html'),
         redirects: resolve(__dirname, 'redirects.html'),
         streams: resolve(__dirname, 'streams.html'),
-        guide: resolve(__dirname, 'ui-style-guide.html'),
         about: resolve(__dirname, 'about.html'),
         privacy: resolve(__dirname, 'privacy.html'),
         terms: resolve(__dirname, 'terms.html'),

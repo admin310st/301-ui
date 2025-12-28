@@ -518,7 +518,6 @@ build: {
 ### Инструменты
 
 - **Icon preview:** `/icons-preview.html`
-- **UI Style Guide demo:** `/ui-style-guide` (legacy, not maintained)
 - **Slash commands:** `.claude/commands/uix.md` (UI review)
 
 ---

@@ -216,8 +216,7 @@ static/css/
 ├── layout.css     # Page layout structure (shells, grids, sections)
 ├── site.css       # Core UI components (buttons, forms, cards, dialogs, modals, alerts)
 ├── tables.css     # Table components (data tables, filters, badges, tabs)
-├── drawers.css    # Drawer components (side panels for forms/details/actions)
-└── ui-guide.css   # Style guide specific styles (only loaded on /ui-style-guide)
+└── drawers.css    # Drawer components (side panels for forms/details/actions)
 ```
 
 **Loading order** (must be preserved):
@@ -226,7 +225,6 @@ static/css/
 3. `site.css` - General components
 4. `tables.css` - Table-specific components (when needed)
 5. `drawers.css` - Drawer components (when needed)
-6. `ui-guide.css` - Only on style guide page
 
 **Component separation philosophy:**
 - **site.css** - Universal UI components used across all pages (buttons, forms, dialogs, alerts)
@@ -296,8 +294,6 @@ static/css/
 ## UI Style Guide - Critical Rules
 
 **`docs/StyleGuide.md` is the ONLY source of truth for design system.**
-
-Note: `static/ui-style-guide.html` is LEGACY and should NOT be referenced or updated.
 
 ### Repository Ecology Rule
 > Whenever design system updates are introduced, ALL UI components must be refactored to follow the new rules. No page in the system is allowed to use outdated paddings, heights, or markup. `docs/StyleGuide.md` = single source of truth.
@@ -727,7 +723,6 @@ async function handleSubmit(e: SubmitEvent) {
 
 **Visual Design Reference:**
 - See `docs/StyleGuide.md` for visual specifications
-- See `/ui-style-guide#loading-indicator` for live examples
 - Shimmer animation: 1.5s ease-in-out (infinite during loading, once during flush)
 - Border flash: 600ms solid color hold
 - Colors: `--brand` (blue), `--accent-cf` (orange), `--success` (green), `--danger` (red), `--info` (blue)

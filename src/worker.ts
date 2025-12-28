@@ -57,8 +57,6 @@ export default {
       ['/account.html', '/account.html'],
       ['/domains', '/domains.html'],
       ['/domains.html', '/domains.html'],
-      ['/ui-style-guide', '/ui-style-guide.html'],
-      ['/ui-style-guide.html', '/ui-style-guide.html'],
       ['/about', '/about.html'],
       ['/about.html', '/about.html'],
       ['/privacy', '/privacy.html'],

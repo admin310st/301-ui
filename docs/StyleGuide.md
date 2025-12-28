@@ -224,7 +224,7 @@ When design system updates are introduced, **ALL** UI components and demo pages 
 - Task completion progress
 - Domain health scores
 
-**Production**: Not yet implemented (preserved from legacy ui-style-guide.html)
+**Production**: Not yet implemented
 
 **CSS**: `site.css` → "Metric Pill"
 
@@ -367,7 +367,6 @@ When design system updates are introduced, **ALL** UI components and demo pages 
 - Color not sole indicator (shimmer animation + text message)
 
 **Production Examples**:
-- `/ui-style-guide#loading-indicator` - Interactive demo
 - `index.html` - Login/register forms
 - `integrations.html` - Cloudflare connect drawer
 
