@@ -477,22 +477,23 @@ function getActivityDisplay(redirect: DomainRedirect): string {
     return count.toString();
   };
 
-  // Trend icon and color
-  const trendIcons = {
-    up: '<span class="icon text-ok" data-icon="mono/trending-up" title="Trending up"></span>',
-    down: '<span class="icon text-warning" data-icon="mono/trending-down" title="Trending down"></span>',
-    neutral: '<span class="icon text-muted" data-icon="mono/trending-neutral" title="Stable"></span>',
+  // Trend symbol and color
+  const trendSymbols = {
+    up: '↑',
+    down: '↓',
+    neutral: '→',
+  };
+  const trendClasses = {
+    up: 'text-ok',
+    down: 'text-warning',
+    neutral: 'text-muted',
   };
 
-  const trendIcon = trendIcons[trend] || '';
+  const symbol = trendSymbols[trend] || '';
+  const colorClass = trendClasses[trend] || 'text-muted';
   const clicksFormatted = formatClicks(clicks_7d);
 
-  return `
-    <div class="table-cell-inline" style="gap: 0.25rem;">
-      <span class="text-sm">${clicksFormatted}</span>
-      ${trendIcon}
-    </div>
-  `;
+  return `<span class="text-sm ${colorClass}">${symbol} ${clicksFormatted}</span>`;
 }
 
 /**
