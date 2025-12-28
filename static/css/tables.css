@@ -1613,6 +1613,15 @@ html[data-theme="light"] .bulk-actions-bar__actions .btn--ghost:hover {
   min-width: auto;
 }
 
+/* Compact metric pill for button context */
+.metric-pill--compact {
+  width: calc(var(--space-6) * 3.125); /* 100px = 2rem * 3.125 */
+}
+
+.metric-pill--compact .metric-pill__track {
+  height: calc(var(--space-2) - 2px); /* 6px = 0.5rem - 2px */
+}
+
 /* Metric pill inside primary button - high contrast for visibility */
 button.btn.btn--primary.sync-indicator-btn .metric-pill__track {
   position: relative;
