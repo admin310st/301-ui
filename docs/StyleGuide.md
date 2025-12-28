@@ -21,6 +21,7 @@ Design system for **301.st** (marketing front + member area).
 | **Cards** | `.card.card--panel`, `.card--soft` | `dashboard.html` step cards | `site.css` → "Cards v2" |
 | **Panels** | `.panel.panel--{info\|success\|warning\|danger}` | `dashboard.html` Step 1 info panel | `site.css` → "Panels" |
 | **Badges** | `.badge.badge--{primary\|success\|neutral\|warning\|danger}` | `domains.html` status column | `site.css` → "Badges" |
+| **Metric Pill** | `.metric-pill`, `.metric-pill--{success\|warning\|danger}` | Preserved (not in production) | `site.css` → "Metric Pill" |
 | **Loading Indicator** | `.loading-bar[data-loading][data-type]` | `index.html` login/register | `site.css` → "Loading indicator bar" |
 | **Global Notices** | `.app-alert.app-alert--{success\|error\|info}` | All pages, utility-bar overlay | `site.css` → "Global Notices" |
 | **Layout** | `.cluster`, `.stack`, `.stack--{xs\|sm\|md\|lg\|xl}` | All pages | `site.css` → "Common Patterns" |
@@ -191,6 +192,41 @@ When design system updates are introduced, **ALL** UI components and demo pages 
 - Sidebar: navigation indicators
 
 **CSS**: `site.css` → "Badges"
+
+### Metric Pill
+
+**Purpose**: Compact inline progress/usage indicator with colored fill bar.
+
+**Structure:**
+```html
+<span class="metric-pill">
+  <span class="metric-pill__track">
+    <span class="metric-pill__fill" style="--metric-fill: 0.75"></span>
+  </span>
+</span>
+```
+
+**Variants:**
+- `.metric-pill` (default) - blue/primary color
+- `.metric-pill--success` - green fill
+- `.metric-pill--warning` - orange fill
+- `.metric-pill--danger` - red fill
+
+**Dynamic fill**: Set `--metric-fill` CSS variable (0 to 1):
+```html
+<span style="--metric-fill: 0.5">  <!-- 50% filled -->
+<span style="--metric-fill: 0.85"> <!-- 85% filled -->
+```
+
+**Use cases:**
+- API rate limit indicators (75% of quota used)
+- Storage usage meters
+- Task completion progress
+- Domain health scores
+
+**Production**: Not yet implemented (preserved from legacy ui-style-guide.html)
+
+**CSS**: `site.css` → "Metric Pill"
 
 ### Forms
 
