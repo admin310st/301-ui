@@ -14,40 +14,6 @@
 
         <div class="drawer__body">
           <div class="stack-list">
-            <!-- Instructions Panel -->
-            <div class="card card--panel">
-              <header class="card__header">
-                <h3 class="h5">Getting your NameCheap API Key</h3>
-              </header>
-              <div class="card__body">
-                <div class="step-list">
-                  <div class="step-item">
-                    <span class="badge badge--neutral">1</span>
-                    <span>Go to <a href="https://ap.www.namecheap.com/settings/tools/apiaccess/" target="_blank" rel="noopener">NameCheap API Settings</a></span>
-                  </div>
-                  <div class="step-item">
-                    <span class="badge badge--neutral">2</span>
-                    <span>Enable <strong>API Access</strong> if it's not already enabled</span>
-                  </div>
-                  <div class="step-item">
-                    <span class="badge badge--neutral">3</span>
-                    <span>Copy your <strong>API Key</strong> from the page</span>
-                  </div>
-                  <div class="step-item">
-                    <span class="badge badge--info">4</span>
-                    <span>Add your server's IP addresses to the <strong>Whitelisted IPs</strong> section</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="panel panel--info">
-              <p>
-                <span class="icon" data-icon="mono/info"></span>
-                <strong>Note:</strong> NameCheap requires IP whitelisting. If you see an error, add the listed IP addresses to your API settings.
-              </p>
-            </div>
-
             <!-- Connection Form -->
             <form id="nc-connect-form" class="stack-md" data-form="nc-connect">
               <div class="field">
@@ -96,6 +62,40 @@
               <!-- Status Panel (for errors/success) -->
               <div class="panel" data-nc-status hidden role="status" aria-live="polite"></div>
             </form>
+
+            <div class="panel panel--info">
+              <p>
+                <span class="icon" data-icon="mono/info"></span>
+                <strong>Note:</strong> NameCheap requires IP whitelisting. If you see an error, add the listed IP addresses to your API settings.
+              </p>
+            </div>
+
+            <!-- Instructions Panel -->
+            <div class="card card--panel">
+              <header class="card__header">
+                <h3 class="h5">Getting your NameCheap API Key</h3>
+              </header>
+              <div class="card__body">
+                <div class="step-list">
+                  <div class="step-item">
+                    <span class="badge badge--neutral">1</span>
+                    <span>Go to <a href="https://ap.www.namecheap.com/settings/tools/apiaccess/" target="_blank" rel="noopener">NameCheap API Settings</a></span>
+                  </div>
+                  <div class="step-item">
+                    <span class="badge badge--neutral">2</span>
+                    <span>Enable <strong>API Access</strong> if it's not already enabled</span>
+                  </div>
+                  <div class="step-item">
+                    <span class="badge badge--neutral">3</span>
+                    <span>Copy your <strong>API Key</strong> from the page</span>
+                  </div>
+                  <div class="step-item">
+                    <span class="badge badge--info">4</span>
+                    <span>Add your server's IP addresses to the <strong>Whitelisted IPs</strong> section</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
