@@ -63,8 +63,9 @@ export interface DomainRedirect {
   created_at: string;
   updated_at: string;
 
-  // Analytics (optional - only present when analytics are loaded)
-  analytics?: RedirectAnalytics;
+  // Analytics (optional - requires Worker mode)
+  analytics_enabled: boolean;  // true = Worker redirect (tracks clicks), false = simple Redirect Rule
+  analytics?: RedirectAnalytics;  // Only present when analytics_enabled=true AND data is available
 }
 
 /**
@@ -114,7 +115,8 @@ export const mockDomainRedirects: DomainRedirect[] = [
     project_name: 'CryptoBoss',
     created_at: '2025-01-08T10:00:00Z',
     updated_at: '2025-01-08T10:00:00Z',
-    // Acceptor domain - aggregated clicks from cryptoboss.online (1847) + verylongdomainname20.com (523)
+    // Analytics enabled - Worker mode tracks all incoming redirects
+    analytics_enabled: true,
     analytics: {
       clicks_total: 12847,
       clicks_24h: 142,
@@ -147,7 +149,8 @@ export const mockDomainRedirects: DomainRedirect[] = [
     project_name: 'CryptoBoss',
     created_at: '2025-01-10T12:00:00Z',
     updated_at: '2025-01-13T18:15:27Z',
-    // Donor domain - individual redirect clicks
+    // Analytics enabled for this donor (Worker mode)
+    analytics_enabled: true,
     analytics: {
       clicks_total: 5423,
       clicks_24h: 89,
@@ -179,7 +182,9 @@ export const mockDomainRedirects: DomainRedirect[] = [
     project_id: 17,
     project_name: 'CryptoBoss',
     created_at: '2025-01-05T14:00:00Z',
-    updated_at: '2025-01-05T14:00:00Z'
+    updated_at: '2025-01-05T14:00:00Z',
+    // Disabled domain - no analytics
+    analytics_enabled: false
   },
   {
     id: 24,
@@ -204,15 +209,8 @@ export const mockDomainRedirects: DomainRedirect[] = [
     project_name: 'CryptoBoss',
     created_at: '2025-01-12T08:00:00Z',
     updated_at: '2025-01-14T10:20:30Z',
-    // Donor domain - neutral trend (stable traffic)
-    analytics: {
-      clicks_total: 1892,
-      clicks_24h: 21,
-      clicks_7d: 523,
-      clicks_30d: 1203,
-      trend: 'neutral',
-      last_click_at: '2025-12-28T13:45:12Z'
-    }
+    // Analytics disabled - simple Redirect Rule (no Worker)
+    analytics_enabled: false
   },
 
   // ===== CryptoBoss (Ru) 🇷🇺 =====
@@ -223,6 +221,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     domain_status: 'active',
     role: 'acceptor',  // Primary domain - receives traffic
     target_url: null,  // Main domain, no redirect (primary domain)
+    has_redirect: false,
     redirect_code: 301,
     enabled: true,
     cf_rule_id: null,
@@ -238,15 +237,8 @@ export const mockDomainRedirects: DomainRedirect[] = [
     project_name: 'CryptoBoss',
     created_at: '2025-01-06T09:00:00Z',
     updated_at: '2025-01-06T09:00:00Z',
-    // Acceptor domain - aggregated from cryptoboss.icu + cryptopot.ru + cryptovalve.ru + hitboss.ru
-    analytics: {
-      clicks_total: 28394,
-      clicks_24h: 198,
-      clicks_7d: 3847,    // sum of all donors
-      clicks_30d: 12034,
-      trend: 'down',      // trending down vs previous period
-      last_click_at: '2025-12-28T14:18:52Z'
-    }
+    // Analytics disabled for this acceptor (simple mode, no Worker overhead)
+    analytics_enabled: false
   },
   {
     id: 5,
@@ -271,15 +263,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     project_name: 'CryptoBoss',
     created_at: '2025-01-11T11:00:00Z',
     updated_at: '2025-01-13T18:15:27Z',
-    // Donor domain - trending up
-    analytics: {
-      clicks_total: 8234,
-      clicks_24h: 87,
-      clicks_7d: 1523,
-      clicks_30d: 5102,
-      trend: 'up',
-      last_click_at: '2025-12-28T14:12:33Z'
-    }
+    analytics_enabled: false
   },
   {
     id: 6,
@@ -303,7 +287,8 @@ export const mockDomainRedirects: DomainRedirect[] = [
     project_id: 17,
     project_name: 'CryptoBoss',
     created_at: '2025-01-13T19:00:00Z',
-    updated_at: '2025-01-13T19:00:00Z'
+    updated_at: '2025-01-13T19:00:00Z',
+    analytics_enabled: false
   },
   {
     id: 7,
@@ -327,7 +312,8 @@ export const mockDomainRedirects: DomainRedirect[] = [
     project_id: 17,
     project_name: 'CryptoBoss',
     created_at: '2025-01-12T10:30:00Z',
-    updated_at: '2025-01-13T18:15:27Z'
+    updated_at: '2025-01-13T18:15:27Z',
+    analytics_enabled: false
   },
   {
     id: 8,
@@ -352,15 +338,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     project_name: 'CryptoBoss',
     created_at: '2025-01-12T15:00:00Z',
     updated_at: '2025-01-12T16:20:15Z',
-    // Donor domain with error status - trending down (might be related to sync error)
-    analytics: {
-      clicks_total: 3421,
-      clicks_24h: 12,
-      clicks_7d: 234,
-      clicks_30d: 987,
-      trend: 'down',
-      last_click_at: '2025-12-28T11:23:05Z'
-    }
+    analytics_enabled: false
   },
   {
     id: 9,
@@ -384,7 +362,8 @@ export const mockDomainRedirects: DomainRedirect[] = [
     project_id: 17,
     project_name: 'CryptoBoss',
     created_at: '2025-01-04T13:00:00Z',
-    updated_at: '2025-01-04T13:00:00Z'
+    updated_at: '2025-01-04T13:00:00Z',
+    analytics_enabled: false
   },
 
   // ===== Test Site 🇬🇧 =====
@@ -395,6 +374,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     domain_status: 'active',
     role: 'acceptor',  // Primary domain - receives traffic
     target_url: null,  // Main domain, no redirect
+    has_redirect: false,
     redirect_code: 301,
     enabled: false,
     cf_rule_id: null,
@@ -409,7 +389,8 @@ export const mockDomainRedirects: DomainRedirect[] = [
     project_id: 18,
     project_name: 'TestProject',
     created_at: '2025-01-07T09:00:00Z',
-    updated_at: '2025-01-07T09:00:00Z'
+    updated_at: '2025-01-07T09:00:00Z',
+    analytics_enabled: false
   },
   {
     id: 11,
@@ -433,7 +414,8 @@ export const mockDomainRedirects: DomainRedirect[] = [
     project_id: 18,
     project_name: 'TestProject',
     created_at: '2025-01-09T08:00:00Z',
-    updated_at: '2025-01-13T10:00:00Z'
+    updated_at: '2025-01-13T10:00:00Z',
+    analytics_enabled: false
   },
   {
     id: 12,
@@ -457,7 +439,8 @@ export const mockDomainRedirects: DomainRedirect[] = [
     project_id: 18,
     project_name: 'TestProject',
     created_at: '2025-01-13T20:00:00Z',
-    updated_at: '2025-01-13T20:00:00Z'
+    updated_at: '2025-01-13T20:00:00Z',
+    analytics_enabled: false
   },
   {
     id: 13,
@@ -481,7 +464,8 @@ export const mockDomainRedirects: DomainRedirect[] = [
     project_id: 18,
     project_name: 'TestProject',
     created_at: '2024-12-01T10:00:00Z',
-    updated_at: '2024-12-01T10:00:00Z'
+    updated_at: '2024-12-01T10:00:00Z',
+    analytics_enabled: false
   },
 
   // ===== Vavada (Ru) 🇷🇺 - TDS =====
@@ -492,6 +476,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     domain_status: 'active',
     role: 'acceptor',  // Primary domain - receives traffic
     target_url: null,  // Main domain, no redirect
+    has_redirect: false,
     redirect_code: 301,
     enabled: false,
     cf_rule_id: null,
@@ -506,7 +491,8 @@ export const mockDomainRedirects: DomainRedirect[] = [
     project_id: 19,
     project_name: 'Vavada',
     created_at: '2025-11-20T09:00:00Z',
-    updated_at: '2025-11-20T09:00:00Z'
+    updated_at: '2025-11-20T09:00:00Z',
+    analytics_enabled: false
   },
   {
     id: 15,
@@ -530,7 +516,8 @@ export const mockDomainRedirects: DomainRedirect[] = [
     project_id: 19,
     project_name: 'Vavada',
     created_at: '2025-11-21T08:00:00Z',
-    updated_at: '2025-11-22T10:32:59Z'
+    updated_at: '2025-11-22T10:32:59Z',
+    analytics_enabled: false
   },
   {
     id: 16,
@@ -554,7 +541,8 @@ export const mockDomainRedirects: DomainRedirect[] = [
     project_id: 19,
     project_name: 'Vavada',
     created_at: '2025-11-21T09:00:00Z',
-    updated_at: '2025-11-22T10:19:57Z'
+    updated_at: '2025-11-22T10:19:57Z',
+    analytics_enabled: false
   },
   {
     id: 17,
@@ -578,7 +566,8 @@ export const mockDomainRedirects: DomainRedirect[] = [
     project_id: 19,
     project_name: 'Vavada',
     created_at: '2025-11-21T10:00:00Z',
-    updated_at: '2025-11-22T10:19:57Z'
+    updated_at: '2025-11-22T10:19:57Z',
+    analytics_enabled: false
   },
   {
     id: 18,
@@ -602,7 +591,8 @@ export const mockDomainRedirects: DomainRedirect[] = [
     project_id: 19,
     project_name: 'Vavada',
     created_at: '2025-11-21T11:00:00Z',
-    updated_at: '2025-11-22T10:19:57Z'
+    updated_at: '2025-11-22T10:19:57Z',
+    analytics_enabled: false
   },
   {
     id: 19,
@@ -626,7 +616,8 @@ export const mockDomainRedirects: DomainRedirect[] = [
     project_id: 19,
     project_name: 'Vavada',
     created_at: '2025-11-21T12:00:00Z',
-    updated_at: '2025-11-22T10:19:57Z'
+    updated_at: '2025-11-22T10:19:57Z',
+    analytics_enabled: false
   },
 
   // ===== BetHub (Eu) 🇪🇺 - Hybrid =====
@@ -637,6 +628,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     domain_status: 'active',
     role: 'acceptor',  // Primary domain - receives traffic
     target_url: null,  // Main domain, no redirect
+    has_redirect: false,
     redirect_code: 301,
     enabled: false,
     cf_rule_id: null,
@@ -651,7 +643,8 @@ export const mockDomainRedirects: DomainRedirect[] = [
     project_id: 20,
     project_name: 'BetHub',
     created_at: '2025-12-01T08:00:00Z',
-    updated_at: '2025-12-01T08:00:00Z'
+    updated_at: '2025-12-01T08:00:00Z',
+    analytics_enabled: false
   },
   {
     id: 21,
@@ -675,7 +668,8 @@ export const mockDomainRedirects: DomainRedirect[] = [
     project_id: 20,
     project_name: 'BetHub',
     created_at: '2025-12-10T09:00:00Z',
-    updated_at: '2025-12-15T14:20:00Z'
+    updated_at: '2025-12-15T14:20:00Z',
+    analytics_enabled: false
   },
   {
     id: 22,
@@ -699,7 +693,8 @@ export const mockDomainRedirects: DomainRedirect[] = [
     project_id: 20,
     project_name: 'BetHub',
     created_at: '2025-12-18T10:00:00Z',
-    updated_at: '2025-12-18T10:00:00Z'
+    updated_at: '2025-12-18T10:00:00Z',
+    analytics_enabled: false
   },
   {
     id: 23,
@@ -723,7 +718,8 @@ export const mockDomainRedirects: DomainRedirect[] = [
     project_id: 20,
     project_name: 'BetHub',
     created_at: '2025-12-05T11:00:00Z',
-    updated_at: '2025-12-05T11:00:00Z'
+    updated_at: '2025-12-05T11:00:00Z',
+    analytics_enabled: false
   }
 ];
 

@@ -452,13 +452,34 @@ function getTargetDisplay(redirect: DomainRedirect, isPrimaryDomain: boolean): s
 
 /**
  * Get activity display (analytics data)
- * Shows clicks count + trend icon for both acceptor (aggregated) and donor domains
+ *
+ * Logic:
+ * - analytics_enabled=false → Gray dot "Analytics disabled" (simple Redirect Rule)
+ * - analytics_enabled=true + has data → Show clicks + trend icon (Worker mode active)
+ * - analytics_enabled=true + no data → Green dot "Collecting..." (Worker mode, waiting for traffic)
  */
 function getActivityDisplay(redirect: DomainRedirect): string {
-  if (!redirect.analytics) {
-    return '<span class="text-muted text-xs">—</span>';
+  // Analytics disabled - simple Redirect Rule (no Worker)
+  if (!redirect.analytics_enabled) {
+    return `
+      <div class="table-cell-inline" style="gap: 0.25rem;">
+        <span class="icon text-muted" data-icon="mono/circle" title="Analytics disabled (simple redirect rule)"></span>
+        <span class="text-muted text-xs">Off</span>
+      </div>
+    `;
   }
 
+  // Analytics enabled but no data yet - Worker deployed, waiting for traffic
+  if (!redirect.analytics) {
+    return `
+      <div class="table-cell-inline" style="gap: 0.25rem;">
+        <span class="icon text-ok" data-icon="mono/circle-dot" title="Analytics enabled (collecting data...)"></span>
+        <span class="text-muted text-xs">—</span>
+      </div>
+    `;
+  }
+
+  // Analytics enabled with data - show clicks + trend
   const { clicks_7d, trend } = redirect.analytics;
 
   // Format clicks count (e.g., 1847 -> 1.8K, 12847 -> 12.8K)
@@ -471,9 +492,9 @@ function getActivityDisplay(redirect: DomainRedirect): string {
 
   // Trend icon and color
   const trendIcons = {
-    up: '<span class="icon icon--success" data-icon="mono/trending-up" title="Trending up"></span>',
-    down: '<span class="icon icon--danger" data-icon="mono/trending-down" title="Trending down"></span>',
-    neutral: '<span class="icon icon--muted" data-icon="mono/trending-neutral" title="Stable"></span>',
+    up: '<span class="icon text-ok" data-icon="mono/trending-up" title="Trending up"></span>',
+    down: '<span class="icon text-warning" data-icon="mono/trending-down" title="Trending down"></span>',
+    neutral: '<span class="icon text-muted" data-icon="mono/trending-neutral" title="Stable"></span>',
   };
 
   const trendIcon = trendIcons[trend] || '';
