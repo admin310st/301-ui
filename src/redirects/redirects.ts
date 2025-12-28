@@ -457,27 +457,16 @@ function getTargetDisplay(redirect: DomainRedirect, isPrimaryDomain: boolean): s
  * Data shows 3xx redirect hits (301/302/307/308) aggregated from CF edge logs
  *
  * Logic:
- * - redirect disabled → "Off" (no tracking when disabled)
- * - redirect enabled, no data yet → "—" (waiting for traffic)
- * - redirect enabled, has data → clicks count + trend icon
+ * - Has analytics data → show clicks count + trend icon
+ * - No analytics data → empty cell (clean UI, no visual noise)
  */
 function getActivityDisplay(redirect: DomainRedirect): string {
-  // Redirect disabled - no analytics
-  if (!redirect.enabled) {
-    return `
-      <div class="table-cell-inline" style="gap: 0.25rem;">
-        <span class="icon text-muted" data-icon="mono/circle" title="Redirect disabled (no analytics)"></span>
-        <span class="text-muted text-xs">Off</span>
-      </div>
-    `;
-  }
-
-  // Redirect enabled but no data yet - waiting for traffic
+  // No analytics data - show empty cell
   if (!redirect.analytics) {
-    return '<span class="text-muted text-xs">—</span>';
+    return '';
   }
 
-  // Redirect enabled with data - show clicks + trend
+  // Has analytics data - show clicks + trend
   const { clicks_7d, trend } = redirect.analytics;
 
   // Format clicks count (e.g., 1847 -> 1.8K, 12847 -> 12.8K)

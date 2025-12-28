@@ -481,7 +481,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     target_url: null,  // Main domain, no redirect
     has_redirect: false,
     redirect_code: 301,
-    enabled: false,
+    enabled: false,  // Acceptor disabled, but donors redirect to it
     cf_rule_id: null,
     cf_implementation: null,
     last_sync_at: null,
@@ -494,7 +494,17 @@ export const mockDomainRedirects: DomainRedirect[] = [
     project_id: 19,
     project_name: 'Vavada',
     created_at: '2025-11-20T09:00:00Z',
-    updated_at: '2025-11-20T09:00:00Z'  },
+    updated_at: '2025-11-20T09:00:00Z',
+    // Acceptor analytics: aggregated from bdblogov.ru (5.2K) + clubvavada.ru (1.9K)
+    analytics: {
+      clicks_total: 41339,
+      clicks_24h: 568,
+      clicks_7d: 7126,    // 5234 + 1892
+      clicks_30d: 0,
+      trend: 'up',        // Mixed: one up, one down → overall up
+      last_click_at: '2025-12-28T14:51:33Z'
+    }
+  },
   {
     id: 15,
     domain_id: 402,
@@ -641,7 +651,7 @@ export const mockDomainRedirects: DomainRedirect[] = [
     target_url: null,  // Main domain, no redirect
     has_redirect: false,
     redirect_code: 301,
-    enabled: false,
+    enabled: false,  // Acceptor disabled, but donors redirect to it
     cf_rule_id: null,
     cf_implementation: null,
     last_sync_at: null,
@@ -654,7 +664,17 @@ export const mockDomainRedirects: DomainRedirect[] = [
     project_id: 20,
     project_name: 'BetHub',
     created_at: '2025-12-01T08:00:00Z',
-    updated_at: '2025-12-01T08:00:00Z'  },
+    updated_at: '2025-12-01T08:00:00Z',
+    // Acceptor analytics: aggregated from bet-hub.com (1.5K)
+    analytics: {
+      clicks_total: 6734,
+      clicks_24h: 98,
+      clicks_7d: 1523,
+      clicks_30d: 0,
+      trend: 'neutral',
+      last_click_at: '2025-12-28T14:12:09Z'
+    }
+  },
   {
     id: 21,
     domain_id: 502,
