@@ -7,9 +7,9 @@ import { visualizer } from 'rollup-plugin-visualizer';
 function partialsPlugin(): Plugin {
   const partials = new Map<string, string>();
 
-  // Load partials
-  const loadPartial = (name: string) => {
-    if (!partials.has(name)) {
+  // Load partials (always read fresh in dev mode)
+  const loadPartial = (name: string, isDev: boolean) => {
+    if (isDev || !partials.has(name)) {
       const content = readFileSync(resolve(__dirname, `partials/${name}.hbs`), 'utf-8');
       partials.set(name, content);
     }
@@ -18,18 +18,29 @@ function partialsPlugin(): Plugin {
 
   return {
     name: 'vite-plugin-partials',
-    transformIndexHtml(html) {
+    configureServer(server) {
+      // Watch partials directory and trigger HMR
+      server.watcher.add('partials/**/*.hbs');
+      server.watcher.on('change', (file) => {
+        if (file.includes('partials')) {
+          partials.clear();
+          server.ws.send({ type: 'full-reload' });
+        }
+      });
+    },
+    transformIndexHtml(html, ctx) {
+      const isDev = ctx.server !== undefined;
       // Replace partial includes
       let result = html;
 
       // Replace {{> partial-name}}
       result = result.replace(/\{\{>\s*(\S+)\s*\}\}/g, (match, partial) => {
-        return loadPartial(partial);
+        return loadPartial(partial, isDev);
       });
 
       // Replace {{> sidebar activePage="value"}}
       result = result.replace(/\{\{>\s*sidebar\s+activePage="(\w+)"\s*\}\}/g, (match, activePage) => {
-        const sidebarHtml = loadPartial('sidebar');
+        const sidebarHtml = loadPartial('sidebar', isDev);
         // Replace handlebars conditionals with actual values
         return sidebarHtml.replace(/\{\{#if \(eq activePage '(\w+)'\)\}\} is-active\{\{\/if\}\}/g, (m, page) => {
           return page === activePage ? ' is-active' : '';
