@@ -70,7 +70,24 @@ height = font-size × line-height + padding × 2
 - Pure CSS with custom properties
 - Theme switching via `<html data-theme="dark|light">`
 
-### 4. Repository Ecology Rule
+### 4. Never Use !important
+
+**Rule**: `!important` is banned from the codebase. Always solve specificity through proper selectors.
+
+**Why:**
+- Breaks CSS cascade and makes debugging harder
+- Creates maintenance debt (forces future devs to use more !important)
+- Indicates architectural problem in selector specificity
+
+**How to fix specificity:**
+- Use BEM modifiers: `.btn.btn--primary .icon` not `.btn .icon !important`
+- Chain classes: `.card.card--panel .title` increases specificity
+- Use attribute selectors: `button[data-status="active"]`
+- Leverage element + class: `button.dropdown__trigger`
+
+**If you think you need !important**: You don't. Refactor the cascade instead.
+
+### 5. Repository Ecology Rule
 
 When design system updates are introduced, **ALL** UI components and demo pages must be refactored to follow new rules. No page is allowed to use outdated paddings, heights, or markup.
 

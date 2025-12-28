@@ -1614,39 +1614,37 @@ html[data-theme="light"] .bulk-actions-bar__actions .btn--ghost:hover {
 }
 
 /* Metric pill inside primary button - high contrast for visibility */
-.sync-indicator-btn .metric-pill__track {
+button.btn.btn--primary.sync-indicator-btn .metric-pill__track {
   position: relative;
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.25);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.3);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.5);
   border-radius: var(--r-pill);
 }
 
-.sync-indicator-btn .metric-pill__fill {
+button.btn.btn--primary.sync-indicator-btn .metric-pill__fill {
   position: absolute;
   inset: 1px;
   border-radius: var(--r-pill);
-  background: rgba(255, 255, 255, 1);
-  box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.8);
   transform-origin: left center;
   transform: scaleX(var(--metric-fill));
   transition: transform 0.3s ease;
 }
 
-/* Pending state - orange fill */
-.sync-indicator-btn[data-status="pending"] .metric-pill__fill {
+/* Status-specific colors with higher specificity */
+button.btn.btn--primary.sync-indicator-btn[data-status="pending"] .metric-pill__fill {
   background: var(--cf-orange);
-  box-shadow: 0 0 8px rgba(255, 142, 26, 0.6);
+  box-shadow: 0 0 12px rgba(255, 142, 26, 0.9);
 }
 
-/* Synced state - white fill */
-.sync-indicator-btn[data-status="synced"] .metric-pill__fill {
-  background: rgba(255, 255, 255, 1);
-  box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+button.btn.btn--primary.sync-indicator-btn[data-status="synced"] .metric-pill__fill {
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.8);
 }
 
-/* Error state - red fill */
-.sync-indicator-btn[data-status="error"] .metric-pill__fill {
+button.btn.btn--primary.sync-indicator-btn[data-status="error"] .metric-pill__fill {
   background: var(--danger-color);
-  box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.9);
 }
