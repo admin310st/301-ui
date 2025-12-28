@@ -451,35 +451,33 @@ function getTargetDisplay(redirect: DomainRedirect, isPrimaryDomain: boolean): s
 }
 
 /**
- * Get activity display (analytics data)
+ * Get activity display (analytics data from CF GraphQL Analytics API)
+ *
+ * Analytics available via httpRequestsAdaptiveGroups dataset (Free plan included)
+ * Data shows 3xx redirect hits (301/302/307/308) aggregated from CF edge logs
  *
  * Logic:
- * - analytics_enabled=false → Gray dot "Analytics disabled" (simple Redirect Rule)
- * - analytics_enabled=true + has data → Show clicks + trend icon (Worker mode active)
- * - analytics_enabled=true + no data → Green dot "Collecting..." (Worker mode, waiting for traffic)
+ * - redirect disabled → "Off" (no tracking when disabled)
+ * - redirect enabled, no data yet → "—" (waiting for traffic)
+ * - redirect enabled, has data → clicks count + trend icon
  */
 function getActivityDisplay(redirect: DomainRedirect): string {
-  // Analytics disabled - simple Redirect Rule (no Worker)
-  if (!redirect.analytics_enabled) {
+  // Redirect disabled - no analytics
+  if (!redirect.enabled) {
     return `
       <div class="table-cell-inline" style="gap: 0.25rem;">
-        <span class="icon text-muted" data-icon="mono/circle" title="Analytics disabled (simple redirect rule)"></span>
+        <span class="icon text-muted" data-icon="mono/circle" title="Redirect disabled (no analytics)"></span>
         <span class="text-muted text-xs">Off</span>
       </div>
     `;
   }
 
-  // Analytics enabled but no data yet - Worker deployed, waiting for traffic
+  // Redirect enabled but no data yet - waiting for traffic
   if (!redirect.analytics) {
-    return `
-      <div class="table-cell-inline" style="gap: 0.25rem;">
-        <span class="icon text-ok" data-icon="mono/circle-dot" title="Analytics enabled (collecting data...)"></span>
-        <span class="text-muted text-xs">—</span>
-      </div>
-    `;
+    return '<span class="text-muted text-xs">—</span>';
   }
 
-  // Analytics enabled with data - show clicks + trend
+  // Redirect enabled with data - show clicks + trend
   const { clicks_7d, trend } = redirect.analytics;
 
   // Format clicks count (e.g., 1847 -> 1.8K, 12847 -> 12.8K)

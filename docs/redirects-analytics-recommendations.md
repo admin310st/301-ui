@@ -4,26 +4,36 @@
 **Основано на:**
 - `docs/301-wiki/API.md` (официальная спецификация)
 - `docs/301-wiki/Data_Model.md` (схема БД)
-- Cloudflare Redirect Rules API документация
-- Cloudflare Workers API документация
+- Cloudflare GraphQL Analytics API документация
+- Cloudflare httpRequestsAdaptiveGroups dataset
 
 ---
 
-## ⚠️ КРИТИЧЕСКИ ВАЖНО: Ограничения Cloudflare API
+## ✅ Правильная архитектура: Cloudflare GraphQL Analytics API
 
 **Команде бекенда:**
 
-**Cloudflare Redirect Rules API НЕ ПРЕДОСТАВЛЯЕТ per-rule analytics.**
+**Cloudflare предоставляет аналитику redirect rules через GraphQL Analytics API.**
 
-### Что доступно через CF API:
+### Что доступно через CF GraphQL Analytics API:
 
-- ✅ **EdgeResponseStatus** (301/302/307/308) — факт редиректа
-- ✅ **Logpush** — логи запросов (требует Enterprise план или платную подписку Logpush)
-- ✅ **Workers Analytics Engine** — только если используется Worker redirect
-- ❌ **НЕТ** встроенной аналитики по отдельным Redirect Rules
-- ❌ **НЕТ** счётчиков кликов из коробки
+- ✅ **httpRequestsAdaptiveGroups** dataset — доступен на Free плане (essential dataset)
+- ✅ **3xx redirect hits** (301/302/307/308) — счётчики редиректов
+- ✅ **Breakdown по:**
+  - `clientRequestHTTPHost` (hostname) — какой домен получил запрос
+  - `clientCountryName` (country) — из какой страны пришёл трафик
+  - `clientASN` (AS number) — провайдер пользователя
+  - `clientDeviceType` (device) — mobile/desktop/tablet
+  - `edgeResponseStatus` (response code) — 301, 302, 307, 308
+- ✅ **Временные графики** (time series) — динамика кликов
+- ✅ **Redirect rate** (доля 3xx запросов от общего трафика)
 
-**Вывод:** Для аналитики кликов необходимо использовать **Workers-based подход** или **Logpush**.
+**Ограничения Free плана:**
+- Глубина истории: **до 3 дней** (vs 30 дней на Paid/Enterprise)
+- Количество запросов API: **~1000 запросов/день**
+- Некоторые advanced dimensions могут быть недоступны
+
+**Вывод:** Для простых редиректов НЕ НУЖНЫ Workers! CF уже предоставляет аналитику через GraphQL API.
 
 ---
 
@@ -31,120 +41,140 @@
 
 **Ключевые выводы:**
 
-1. ✅ **Analytics ≠ обязательная фича** — это опциональный режим для каждого сайта
-2. ✅ **Два режима редиректа:**
-   - **Simple Redirect Rule** (CF Redirect Rules) — без аналитики, бесплатно
-   - **Worker Redirect** (CF Workers) — с аналитикой, требует Worker requests (лимиты по плану)
-3. ✅ **Analytics toggles per-site** — включается/выключается для acceptor domain (сайта)
-4. ⚠️ **CF Free plan лимиты** — 100K requests/day на Workers → нельзя включить на всех доменах
-5. ✅ **Data aggregation** — клики по donor domains суммируются на acceptor domain
+1. ✅ **Analytics available for all redirect rules** — данные доступны для всех Redirect Rules на Free плане
+2. ✅ **No Workers needed** — аналитика идёт через CF GraphQL Analytics API (не требует Workers)
+3. ✅ **Simple implementation** — Backend просто запрашивает GraphQL API каждые 5-15 минут
+4. ⚠️ **Free plan лимиты** — 3 дня истории, ~1000 API calls/day
+5. ✅ **Data aggregation** — клики по donor domains можно агрегировать на acceptor domain
 
-**Рекомендация:** Backend должен поддерживать два режима redirect + Worker-based analytics tracking.
+**Рекомендация:** Backend должен использовать GraphQL Analytics API + batch aggregation в D1.
 
 ---
 
-## 📊 Redirect Modes Comparison
-
-### Simple Redirect Rule vs Worker Redirect
-
-| Aspect | Simple Redirect Rule | Worker Redirect |
-|--------|----------------------|-----------------|
-| **Implementation** | CF Redirect Rules API | CF Workers API |
-| **Analytics** | ❌ None | ✅ Полная аналитика |
-| **Free plan** | Unlimited (10 rules limit) | 100K requests/day |
-| **Response time** | ~1-2ms | ~5-15ms |
-| **Use case** | Простые редиректы без аналитики | Редиректы с отслеживанием кликов |
-| **Cost** | Free | Free до 100K/day, потом платно |
-| **Setup complexity** | Low (API call) | Medium (Worker deploy) |
-
-**Важно:** Не все redirect rules должны использовать Workers! Только когда нужна аналитика.
-
----
-
-## 🏗️ Analytics Architecture
+## 📊 Architecture: GraphQL Analytics API → D1 Aggregation
 
 ### Data Flow
 
 ```
-User visits blocked-domain.com
+CF Edge handles 301/302 redirects
   ↓
-If analytics_enabled=false (Simple Redirect Rule):
-  → CF Redirect Rule → 301/302 → target-site.com
-  → NO tracking
-  → NO Worker overhead
-
-If analytics_enabled=true (Worker Redirect):
-  → Worker intercepts request
-  → Worker logs click to Analytics Engine
-  → Worker sends 301/302 → target-site.com
-  → Analytics aggregated in D1 (batch job)
+CF logs 3xx responses to httpRequestsAdaptiveGroups dataset
+  ↓
+Backend batch job (every 5-15 min):
+  - Query CF GraphQL Analytics API
+  - Aggregate clicks by domain/hostname
+  - Calculate trend (compare 7d current vs 7d previous)
+  - Store in D1 table: redirect_analytics
+  ↓
+Frontend API endpoint:
+  - GET /api/sites/:siteId/redirects
+  - Returns aggregated analytics from D1
 ```
 
-### Hierarchy
-
-```
-Account
-  └─ Project (кампания/бренд)
-       └─ Site (acceptor domain - принимающий сайт)
-            └─ Domains (redirect_rules)
-                 ├─ acceptor (role)  ← Analytics aggregated HERE
-                 ├─ donor (role)     ← Individual clicks tracked
-                 └─ disabled         ← No analytics
-```
-
-**Analytics Rules:**
-- **Acceptor domain** (role='acceptor'): аналитика показывает суммарные клики от всех donor domains
-- **Donor domain** (role='donor'): аналитика показывает индивидуальные клики этого домена
-- **analytics_enabled** — глобальный флаг на уровне Site (acceptor domain)
-- Все donor domains этого сайта используют тот же режим (Worker или Redirect Rule)
+**No Workers, no complex tracking — just GraphQL queries!**
 
 ---
 
-## 🗄️ Database Schema Recommendations
+## 🔌 Cloudflare GraphQL Analytics API
 
-### redirect_rules Table Extension
+### GraphQL Query Example
 
-**Existing fields:**
-```sql
-CREATE TABLE redirect_rules (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  account_id INTEGER NOT NULL,
-  site_id INTEGER NOT NULL,
-  domain_id INTEGER NOT NULL,
-
-  role TEXT NOT NULL CHECK(role IN ('acceptor', 'donor', 'reserve')),
-  target_url TEXT,  -- NULL for acceptor
-  redirect_code INTEGER DEFAULT 301,
-  enabled BOOLEAN NOT NULL DEFAULT 1,
-
-  cf_rule_id TEXT,  -- Cloudflare Redirect Rule ID (если Simple mode)
-  cf_worker_name TEXT,  -- Cloudflare Worker name (если Worker mode)
-
-  -- ... другие поля
-
-  FOREIGN KEY (account_id) REFERENCES accounts(id) ON DELETE CASCADE,
-  FOREIGN KEY (site_id) REFERENCES sites(id) ON DELETE CASCADE,
-  FOREIGN KEY (domain_id) REFERENCES domains(id) ON DELETE CASCADE
-);
+```graphql
+query RedirectAnalytics($zoneTag: String!, $filter: ZoneHttpRequestsAdaptiveGroupsFilter_InputObject) {
+  viewer {
+    zones(filter: { zoneTag: $zoneTag }) {
+      httpRequestsAdaptiveGroups(
+        filter: $filter
+        limit: 10000
+        orderBy: [datetimeMinute_DESC]
+      ) {
+        dimensions {
+          datetimeMinute
+          clientRequestHTTPHost
+          edgeResponseStatus
+          clientCountryName
+          clientDeviceType
+        }
+        sum {
+          requests
+        }
+      }
+    }
+  }
+}
 ```
 
-**NEW: Add analytics_enabled field:**
-```sql
-ALTER TABLE redirect_rules ADD COLUMN analytics_enabled BOOLEAN NOT NULL DEFAULT 0;
+### Filter для 3xx редиректов
 
--- Index for queries
-CREATE INDEX idx_redirect_analytics ON redirect_rules(site_id, analytics_enabled, enabled);
+```json
+{
+  "zoneTag": "abc123zone",
+  "filter": {
+    "AND": [
+      {
+        "edgeResponseStatus_geq": 300,
+        "edgeResponseStatus_lt": 400
+      },
+      {
+        "clientRequestHTTPHost_in": ["cryptoboss.pics", "cryptoboss.online", "verylongdomainname20.com"]
+      },
+      {
+        "datetime_geq": "2025-12-21T00:00:00Z",
+        "datetime_lt": "2025-12-28T23:59:59Z"
+      }
+    ]
+  }
+}
 ```
 
-**Правило:**
-- `analytics_enabled=0` → используется CF Redirect Rules API (cf_rule_id заполнен)
-- `analytics_enabled=1` → используется CF Workers API (cf_worker_name заполнен)
+### Response Example
+
+```json
+{
+  "data": {
+    "viewer": {
+      "zones": [
+        {
+          "httpRequestsAdaptiveGroups": [
+            {
+              "dimensions": {
+                "datetimeMinute": "2025-12-28T14:23:00Z",
+                "clientRequestHTTPHost": "cryptoboss.online",
+                "edgeResponseStatus": 301,
+                "clientCountryName": "Russia",
+                "clientDeviceType": "mobile"
+              },
+              "sum": {
+                "requests": 42
+              }
+            },
+            {
+              "dimensions": {
+                "datetimeMinute": "2025-12-28T14:22:00Z",
+                "clientRequestHTTPHost": "cryptoboss.pics",
+                "edgeResponseStatus": 301,
+                "clientCountryName": "Ukraine",
+                "clientDeviceType": "desktop"
+              },
+              "sum": {
+                "requests": 18
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
+```
 
 ---
 
-### redirect_analytics Table (NEW)
+## 🗄️ Database Schema
 
-**Purpose:** Хранение агрегированной аналитики по кликам
+### redirect_analytics Table
+
+**Purpose:** Хранение агрегированной аналитики по кликам (обновляется batch job)
 
 ```sql
 CREATE TABLE redirect_analytics (
@@ -152,83 +182,35 @@ CREATE TABLE redirect_analytics (
   account_id INTEGER NOT NULL,
   redirect_rule_id INTEGER NOT NULL,  -- FK to redirect_rules
 
-  -- Aggregated metrics
-  clicks_total INTEGER NOT NULL DEFAULT 0,
-  clicks_24h INTEGER NOT NULL DEFAULT 0,
-  clicks_7d INTEGER NOT NULL DEFAULT 0,
-  clicks_30d INTEGER NOT NULL DEFAULT 0,
+  -- Aggregated metrics (from CF GraphQL Analytics API)
+  clicks_total INTEGER NOT NULL DEFAULT 0,     -- All-time clicks (limited by CF data retention)
+  clicks_24h INTEGER NOT NULL DEFAULT 0,        -- Last 24 hours
+  clicks_7d INTEGER NOT NULL DEFAULT 0,         -- Last 7 days
+  clicks_30d INTEGER NOT NULL DEFAULT 0,        -- Last 30 days (0 on Free plan if >3 days)
 
-  -- Trend analysis
+  -- Trend analysis (calculated by comparing current 7d vs previous 7d)
   trend TEXT CHECK(trend IN ('up', 'down', 'neutral')),
 
   -- Timestamps
-  last_click_at TIMESTAMP,
+  last_click_at TIMESTAMP,                      -- Most recent click from CF logs
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
   FOREIGN KEY (account_id) REFERENCES accounts(id) ON DELETE CASCADE,
   FOREIGN KEY (redirect_rule_id) REFERENCES redirect_rules(id) ON DELETE CASCADE
 );
 
-CREATE INDEX idx_redirect_analytics_rule ON redirect_analytics(redirect_rule_id);
+CREATE UNIQUE INDEX idx_redirect_analytics_rule ON redirect_analytics(redirect_rule_id);
 CREATE INDEX idx_redirect_analytics_account ON redirect_analytics(account_id);
 ```
 
 **Важно:**
-- Эта таблица содержит **агрегированные данные** (обновляется batch job каждые N минут)
-- **НЕ** хранит каждый клик (для этого используется CF Analytics Engine или Logpush)
-
----
-
-### redirect_clicks_raw Table (Опционально)
-
-**Purpose:** Raw click events (если НЕ используется CF Analytics Engine)
-
-```sql
-CREATE TABLE redirect_clicks_raw (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  account_id INTEGER NOT NULL,
-  redirect_rule_id INTEGER NOT NULL,
-
-  -- Request metadata
-  ip_address TEXT,
-  user_agent TEXT,
-  country TEXT,  -- ISO code from request.cf.country
-  city TEXT,     -- from request.cf.city
-  asn INTEGER,   -- from request.cf.asn
-
-  -- Click metadata
-  referer TEXT,
-  clicked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-  FOREIGN KEY (account_id) REFERENCES accounts(id) ON DELETE CASCADE,
-  FOREIGN KEY (redirect_rule_id) REFERENCES redirect_rules(id) ON DELETE CASCADE
-);
-
-CREATE INDEX idx_redirect_clicks_timestamp ON redirect_clicks_raw(clicked_at);
-CREATE INDEX idx_redirect_clicks_rule ON redirect_clicks_raw(redirect_rule_id, clicked_at);
-```
-
-**Альтернатива:** Вместо `redirect_clicks_raw` использовать **CF Analytics Engine** → batch-импорт в D1 каждые 5-15 минут.
-
-**Рекомендация:** Использовать CF Analytics Engine (проще + дешевле хранение).
+- Эта таблица содержит **агрегированные данные** (обновляется batch job каждые 5-15 минут)
+- **НЕ** хранит каждый клик (это хранится в CF Edge logs)
+- `clicks_30d` будет 0 на Free плане, если данные старше 3 дней
 
 ---
 
 ## 🔌 API Endpoints
-
-### Core Endpoints
-
-```
-GET    /api/sites/:siteId/redirects
-GET    /api/sites/:siteId/redirects/:id
-POST   /api/sites/:siteId/redirects
-PATCH  /api/sites/:siteId/redirects/:id
-DELETE /api/sites/:siteId/redirects/:id
-POST   /api/sites/:siteId/redirects/toggle-analytics
-GET    /api/sites/:siteId/redirects/:id/analytics
-```
-
----
 
 ### GET /api/sites/:siteId/redirects
 
@@ -244,14 +226,11 @@ GET    /api/sites/:siteId/redirects/:id/analytics
       "target_url": null,
       "redirect_code": 301,
       "enabled": true,
-      "analytics_enabled": true,
-      "cf_worker_name": "redirect-cryptoboss-pics",
-      "cf_rule_id": null,
       "analytics": {
         "clicks_total": 12847,
         "clicks_24h": 142,
         "clicks_7d": 2370,
-        "clicks_30d": 8234,
+        "clicks_30d": 0,  // Free plan: limited to 3 days
         "trend": "up",
         "last_click_at": "2025-12-28T14:32:15Z"
       },
@@ -266,16 +245,13 @@ GET    /api/sites/:siteId/redirects/:id/analytics
       "target_url": "https://cryptoboss.pics",
       "redirect_code": 301,
       "enabled": true,
-      "analytics_enabled": true,
-      "cf_worker_name": "redirect-cryptoboss-online",
-      "cf_rule_id": null,
       "analytics": {
         "clicks_total": 5423,
         "clicks_24h": 89,
         "clicks_7d": 1847,
-        "clicks_30d": 3821,
+        "clicks_30d": 0,
         "trend": "up",
-        "last_click_at": "2025-12-28T14:18:45Z"
+        "last_click_at": "2025-12-28T14:19:03Z"
       },
       "created_at": "2025-01-10T12:00:00Z",
       "updated_at": "2025-01-13T18:15:27Z"
@@ -287,11 +263,8 @@ GET    /api/sites/:siteId/redirects/:id/analytics
       "role": "donor",
       "target_url": "https://cryptoboss.pics",
       "redirect_code": 301,
-      "enabled": false,
-      "analytics_enabled": false,
-      "cf_worker_name": null,
-      "cf_rule_id": "abc123def456",
-      "analytics": null,
+      "enabled": false,  // Disabled redirect
+      "analytics": null,  // No analytics when disabled
       "created_at": "2025-01-05T14:00:00Z",
       "updated_at": "2025-01-05T14:00:00Z"
     }
@@ -300,111 +273,32 @@ GET    /api/sites/:siteId/redirects/:id/analytics
 ```
 
 **Правила:**
-- Если `analytics_enabled=false` → поле `analytics` равно `null`
-- Если `analytics_enabled=true` но данных ещё нет → поле `analytics` равно `null` (Worker collecting)
-- Если `analytics_enabled=true` и есть данные → поле `analytics` заполнено
-
----
-
-### POST /api/sites/:siteId/redirects/toggle-analytics
-
-**Purpose:** Включить/выключить аналитику для всего сайта (acceptor + все donor domains)
-
-**Request:**
-```json
-{
-  "analytics_enabled": true
-}
-```
-
-**Response:**
-```json
-{
-  "ok": true,
-  "message": "Analytics enabled for site cryptoboss.pics. Deploying Workers for 3 domains...",
-  "affected_domains": [
-    "cryptoboss.pics",
-    "cryptoboss.online",
-    "verylongdomainname20.com"
-  ],
-  "cf_workers_deployed": [
-    "redirect-cryptoboss-pics",
-    "redirect-cryptoboss-online",
-    "redirect-verylongdomainname20"
-  ]
-}
-```
-
-**Backend Logic:**
-
-**When enabling analytics (`analytics_enabled: true`):**
-1. Найти acceptor domain для site_id
-2. Найти все donor domains с `target_url = acceptor_domain`
-3. Для каждого домена:
-   - Удалить CF Redirect Rule (если есть `cf_rule_id`)
-   - Создать CF Worker redirect
-   - Worker должен:
-     - Логировать клик в CF Analytics Engine
-     - Отправлять 301/302 redirect
-   - Сохранить `cf_worker_name`
-   - Установить `analytics_enabled=1`
-
-**When disabling analytics (`analytics_enabled: false`):**
-1. Найти все domains для site_id
-2. Для каждого домена:
-   - Удалить CF Worker (если есть `cf_worker_name`)
-   - Создать CF Redirect Rule
-   - Сохранить `cf_rule_id`
-   - Установить `analytics_enabled=0`
-
-**CF API calls:**
-```javascript
-// Enable analytics - Create Worker
-await fetch(`https://api.cloudflare.com/client/v4/accounts/${accountId}/workers/scripts/${workerName}`, {
-  method: 'PUT',
-  body: workerScript, // См. Worker Script Template ниже
-});
-
-// Disable analytics - Create Redirect Rule
-await fetch(`https://api.cloudflare.com/client/v4/zones/${zoneId}/rulesets/phases/http_request_dynamic_redirect/entrypoint`, {
-  method: 'PUT',
-  body: JSON.stringify({
-    rules: [
-      {
-        expression: `http.host eq "${domain}"`,
-        action: 'redirect',
-        action_parameters: {
-          from_value: { status_code: 301, target_url: targetUrl }
-        }
-      }
-    ]
-  })
-});
-```
+- Если `enabled=false` → поле `analytics` равно `null` (no tracking when disabled)
+- Если `enabled=true` но данных нет (новый redirect) → поле `analytics` равно `null`
+- Если `enabled=true` и есть данные → поле `analytics` заполнено
 
 ---
 
 ### GET /api/sites/:siteId/redirects/:id/analytics
 
-**Purpose:** Получить детальную аналитику по отдельному redirect rule
+**Purpose:** Детальная аналитика по отдельному redirect rule
 
 **Response:**
 ```json
 {
   "redirect_id": 1,
   "domain": "cryptoboss.pics",
-  "analytics_enabled": true,
   "metrics": {
     "clicks_total": 12847,
     "clicks_24h": 142,
     "clicks_7d": 2370,
-    "clicks_30d": 8234,
+    "clicks_30d": 0,
     "trend": "up",
     "last_click_at": "2025-12-28T14:32:15Z"
   },
   "chart_data": {
-    "labels": ["2025-12-21", "2025-12-22", "2025-12-23", "2025-12-24", "2025-12-25", "2025-12-26", "2025-12-27", "2025-12-28"],
-    "clicks": [312, 298, 341, 329, 354, 387, 349, 142]
+    "labels": ["2025-12-26", "2025-12-27", "2025-12-28"],
+    "clicks": [387, 349, 142]
   },
   "top_countries": [
     { "country": "RU", "clicks": 1523, "percentage": 64.3 },
@@ -421,170 +315,159 @@ await fetch(`https://api.cloudflare.com/client/v4/zones/${zoneId}/rulesets/phase
 
 **Data Source:**
 - **Basic metrics** (`clicks_*`, `trend`) — из таблицы `redirect_analytics`
-- **Chart data** — агрегация из CF Analytics Engine или `redirect_clicks_raw`
-- **Top countries/devices** — агрегация из CF Analytics Engine
-
----
-
-## 💾 Cloudflare Worker Script Template
-
-### Worker Code (TypeScript)
-
-```typescript
-export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
-    const url = new URL(request.url);
-    const domain = url.hostname;
-
-    // Получаем redirect config из KV (или hardcode в Worker)
-    const redirectConfig = await env.KV_REDIRECTS.get(`redirect:${domain}`, 'json');
-
-    if (!redirectConfig) {
-      return new Response('Redirect not configured', { status: 404 });
-    }
-
-    const { target_url, redirect_code, analytics_enabled, redirect_rule_id } = redirectConfig;
-
-    // Если аналитика включена — логируем клик
-    if (analytics_enabled && env.ANALYTICS_ENGINE) {
-      const clickEvent = {
-        indexes: [`redirect_rule_id:${redirect_rule_id}`],
-        doubles: [1], // count=1
-        blobs: [
-          request.cf?.country || 'UNKNOWN',
-          request.cf?.city || '',
-          request.headers.get('user-agent') || '',
-          request.headers.get('referer') || ''
-        ]
-      };
-
-      env.ANALYTICS_ENGINE.writeDataPoint(clickEvent);
-    }
-
-    // Отправляем редирект
-    return Response.redirect(target_url, redirect_code);
-  }
-};
-```
-
-**ENV Bindings:**
-```toml
-# wrangler.toml
-name = "redirect-cryptoboss-pics"
-main = "src/worker.ts"
-compatibility_date = "2025-01-15"
-
-[[analytics_engine_datasets]]
-binding = "ANALYTICS_ENGINE"
-
-[[kv_namespaces]]
-binding = "KV_REDIRECTS"
-id = "your-kv-namespace-id"
-```
+- **Chart data** — агрегация из CF GraphQL Analytics API (group by day)
+- **Top countries/devices** — агрегация из CF GraphQL Analytics API (group by dimension)
 
 ---
 
 ## 📊 Analytics Aggregation (Batch Job)
 
-### Background Job: Aggregate Clicks
+### Background Job: Aggregate Clicks from CF GraphQL API
 
 **Run frequency:** Каждые 5-15 минут (cron schedule)
 
 **Job logic:**
-```sql
--- Query CF Analytics Engine data (last 30 days)
--- Группируем по redirect_rule_id
 
-WITH click_stats AS (
-  SELECT
-    redirect_rule_id,
-    COUNT(*) AS total_clicks,
-    COUNT(CASE WHEN clicked_at >= NOW() - INTERVAL '24 hours' THEN 1 END) AS clicks_24h,
-    COUNT(CASE WHEN clicked_at >= NOW() - INTERVAL '7 days' THEN 1 END) AS clicks_7d,
-    COUNT(CASE WHEN clicked_at >= NOW() - INTERVAL '30 days' THEN 1 END) AS clicks_30d,
-    MAX(clicked_at) AS last_click_at
-  FROM redirect_clicks_raw
-  WHERE clicked_at >= NOW() - INTERVAL '30 days'
-  GROUP BY redirect_rule_id
-),
-trend_calc AS (
-  SELECT
-    redirect_rule_id,
-    clicks_7d,
-    -- Сравниваем с предыдущими 7 днями
-    LAG(clicks_7d) OVER (PARTITION BY redirect_rule_id ORDER BY updated_at) AS prev_clicks_7d,
-    CASE
-      WHEN clicks_7d > prev_clicks_7d * 1.1 THEN 'up'
-      WHEN clicks_7d < prev_clicks_7d * 0.9 THEN 'down'
-      ELSE 'neutral'
-    END AS trend
-  FROM click_stats
-)
--- Обновляем таблицу redirect_analytics
-INSERT INTO redirect_analytics (redirect_rule_id, clicks_total, clicks_24h, clicks_7d, clicks_30d, trend, last_click_at, updated_at)
-SELECT
-  cs.redirect_rule_id,
-  cs.total_clicks,
-  cs.clicks_24h,
-  cs.clicks_7d,
-  cs.clicks_30d,
-  tc.trend,
-  cs.last_click_at,
-  NOW()
-FROM click_stats cs
-JOIN trend_calc tc ON cs.redirect_rule_id = tc.redirect_rule_id
-ON CONFLICT (redirect_rule_id)
-DO UPDATE SET
-  clicks_total = EXCLUDED.clicks_total,
-  clicks_24h = EXCLUDED.clicks_24h,
-  clicks_7d = EXCLUDED.clicks_7d,
-  clicks_30d = EXCLUDED.clicks_30d,
-  trend = EXCLUDED.trend,
-  last_click_at = EXCLUDED.last_click_at,
-  updated_at = NOW();
-```
-
-**Альтернатива (если используется CF Analytics Engine):**
 ```javascript
-// Query CF Analytics Engine via API
-const query = `
-  SELECT
-    index1 AS redirect_rule_id,
-    SUM(double1) AS total_clicks,
-    SUM(CASE WHEN timestamp >= NOW() - INTERVAL '24' HOUR THEN double1 ELSE 0 END) AS clicks_24h,
-    SUM(CASE WHEN timestamp >= NOW() - INTERVAL '7' DAY THEN double1 ELSE 0 END) AS clicks_7d,
-    SUM(CASE WHEN timestamp >= NOW() - INTERVAL '30' DAY THEN double1 ELSE 0 END) AS clicks_30d,
-    MAX(timestamp) AS last_click_at
-  FROM analytics_engine_dataset
-  WHERE timestamp >= NOW() - INTERVAL '30' DAY
-  GROUP BY redirect_rule_id
-`;
+// 1. Get all zones with enabled redirect rules
+const zones = await db.query(`
+  SELECT DISTINCT z.cf_zone_id, z.id AS zone_id
+  FROM zones z
+  JOIN domains d ON d.zone_id = z.id
+  JOIN redirect_rules rr ON rr.domain_id = d.id
+  WHERE rr.enabled = 1
+`);
 
-const response = await fetch(`https://api.cloudflare.com/client/v4/accounts/${accountId}/analytics_engine/sql`, {
-  method: 'POST',
-  headers: {
-    'Authorization': `Bearer ${apiToken}`,
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({ query })
-});
+for (const zone of zones) {
+  // 2. Query CF GraphQL Analytics API for last 7 days
+  const graphqlQuery = `
+    query {
+      viewer {
+        zones(filter: { zoneTag: "${zone.cf_zone_id}" }) {
+          httpRequestsAdaptiveGroups(
+            filter: {
+              AND: [
+                { edgeResponseStatus_geq: 300, edgeResponseStatus_lt: 400 },
+                { datetime_geq: "${sevenDaysAgo}", datetime_lt: "${now}" }
+              ]
+            }
+            limit: 10000
+            orderBy: [datetimeMinute_DESC]
+          ) {
+            dimensions {
+              datetimeMinute
+              clientRequestHTTPHost
+              edgeResponseStatus
+              clientCountryName
+              clientDeviceType
+            }
+            sum {
+              requests
+            }
+          }
+        }
+      }
+    }
+  `;
 
-const results = await response.json();
+  const response = await fetch('https://api.cloudflare.com/client/v4/graphql', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${CF_API_TOKEN}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ query: graphqlQuery })
+  });
 
-// Обновить таблицу redirect_analytics
-for (const row of results.data) {
-  await db.execute(`
-    INSERT INTO redirect_analytics (redirect_rule_id, clicks_total, clicks_24h, clicks_7d, clicks_30d, last_click_at, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, NOW())
-    ON CONFLICT (redirect_rule_id)
-    DO UPDATE SET
-      clicks_total = EXCLUDED.clicks_total,
-      clicks_24h = EXCLUDED.clicks_24h,
-      clicks_7d = EXCLUDED.clicks_7d,
-      clicks_30d = EXCLUDED.clicks_30d,
-      last_click_at = EXCLUDED.last_click_at,
-      updated_at = NOW()
-  `, [row.redirect_rule_id, row.total_clicks, row.clicks_24h, row.clicks_7d, row.clicks_30d, row.last_click_at]);
+  const data = await response.json();
+  const groups = data.data.viewer.zones[0].httpRequestsAdaptiveGroups;
+
+  // 3. Aggregate by hostname (domain)
+  const byHostname = {};
+  for (const group of groups) {
+    const hostname = group.dimensions.clientRequestHTTPHost;
+    const requests = group.sum.requests;
+    const timestamp = new Date(group.dimensions.datetimeMinute);
+
+    if (!byHostname[hostname]) {
+      byHostname[hostname] = {
+        clicks_total: 0,
+        clicks_24h: 0,
+        clicks_7d: 0,
+        last_click_at: null
+      };
+    }
+
+    byHostname[hostname].clicks_total += requests;
+    byHostname[hostname].clicks_7d += requests;
+
+    // Count last 24h
+    if (timestamp >= twentyFourHoursAgo) {
+      byHostname[hostname].clicks_24h += requests;
+    }
+
+    // Track last click
+    if (!byHostname[hostname].last_click_at || timestamp > byHostname[hostname].last_click_at) {
+      byHostname[hostname].last_click_at = timestamp;
+    }
+  }
+
+  // 4. Calculate trend (compare current 7d vs previous 7d)
+  // Query previous 7 days from CF GraphQL API
+  const prevGraphqlQuery = `... same query but datetime_geq: "${fourteenDaysAgo}", datetime_lt: "${sevenDaysAgo}" ...`;
+  const prevResponse = await fetch(...);
+  const prevData = await prevResponse.json();
+  const prevGroups = prevData.data.viewer.zones[0].httpRequestsAdaptiveGroups;
+
+  const prevByHostname = {};
+  for (const group of prevGroups) {
+    const hostname = group.dimensions.clientRequestHTTPHost;
+    const requests = group.sum.requests;
+    if (!prevByHostname[hostname]) prevByHostname[hostname] = 0;
+    prevByHostname[hostname] += requests;
+  }
+
+  // 5. Save to D1 table: redirect_analytics
+  for (const [hostname, metrics] of Object.entries(byHostname)) {
+    // Find redirect_rule_id by hostname
+    const rule = await db.query(`
+      SELECT rr.id
+      FROM redirect_rules rr
+      JOIN domains d ON d.id = rr.domain_id
+      WHERE d.domain = ? AND rr.enabled = 1
+    `, [hostname]);
+
+    if (!rule) continue;
+
+    const prevClicks = prevByHostname[hostname] || 0;
+    const currentClicks = metrics.clicks_7d;
+    let trend = 'neutral';
+    if (currentClicks > prevClicks * 1.1) trend = 'up';
+    else if (currentClicks < prevClicks * 0.9) trend = 'down';
+
+    // Upsert analytics
+    await db.execute(`
+      INSERT INTO redirect_analytics (
+        redirect_rule_id, clicks_total, clicks_24h, clicks_7d, clicks_30d, trend, last_click_at, updated_at
+      )
+      VALUES (?, ?, ?, ?, 0, ?, ?, NOW())
+      ON CONFLICT (redirect_rule_id)
+      DO UPDATE SET
+        clicks_total = EXCLUDED.clicks_total,
+        clicks_24h = EXCLUDED.clicks_24h,
+        clicks_7d = EXCLUDED.clicks_7d,
+        trend = EXCLUDED.trend,
+        last_click_at = EXCLUDED.last_click_at,
+        updated_at = NOW()
+    `, [
+      rule.id,
+      metrics.clicks_total,
+      metrics.clicks_24h,
+      metrics.clicks_7d,
+      trend,
+      metrics.last_click_at
+    ]);
+  }
 }
 ```
 
@@ -592,59 +475,19 @@ for (const row of results.data) {
 
 ## 🔒 Free vs Paid Plan Limits
 
-### Cloudflare Workers Limits
+### Cloudflare GraphQL Analytics Limits
 
-| Plan | Workers Requests | Redirect Rules | Cost |
-|------|------------------|----------------|------|
-| **Free** | 100,000/day | 10 rules | $0 |
-| **Workers Paid** | 10M/month | Unlimited | $5/month + $0.50 per 1M requests |
-| **Enterprise** | Unlimited | Unlimited | Custom pricing |
+| Plan | Data Retention | API Calls/Day | Cost |
+|------|----------------|---------------|------|
+| **Free** | 3 days | ~1000/day | $0 |
+| **Pro** | 30 days | ~10000/day | $20/month |
+| **Business** | 90 days | ~100000/day | $200/month |
+| **Enterprise** | 1 year+ | Unlimited | Custom pricing |
 
 **Recommendation for 301.st:**
-- **Free plan users**: Можно включить аналитику только для 1-2 сайтов с небольшим трафиком
-- **Paid plan users**: Можно включить аналитику для всех сайтов
-- **Enforcement**: Backend должен проверять лимиты и блокировать включение аналитики при превышении
-
----
-
-### API Enforcement
-
-**Before enabling analytics:**
-```sql
--- Подсчитать текущее количество domains с analytics_enabled
-SELECT COUNT(*) AS analytics_enabled_count
-FROM redirect_rules
-WHERE account_id = ? AND analytics_enabled = 1;
-
--- Проверить лимит по плану
-IF analytics_enabled_count >= plan_limit THEN
-  RETURN {
-    ok: false,
-    error: 'analytics_limit_exceeded',
-    message: 'You have reached the maximum number of domains with analytics enabled for your plan. Upgrade to enable analytics for more domains.',
-    current_count: analytics_enabled_count,
-    plan_limit: plan_limit
-  };
-END IF;
-```
-
-**Plan limits:**
-```json
-{
-  "free": {
-    "max_analytics_domains": 2,
-    "max_monthly_requests": 100000
-  },
-  "starter": {
-    "max_analytics_domains": 10,
-    "max_monthly_requests": 1000000
-  },
-  "pro": {
-    "max_analytics_domains": 50,
-    "max_monthly_requests": 10000000
-  }
-}
-```
+- **Free plan users**: 3 days history, достаточно для MVP (показывать clicks_7d как clicks_3d)
+- **Paid plan users**: 30 days history, полная аналитика
+- **No enforcement needed** — CF сам блокирует запросы при превышении лимитов
 
 ---
 
@@ -653,133 +496,144 @@ END IF;
 ### 1. Database Schema
 
 ✅ **Implement:**
-- `analytics_enabled` boolean column in `redirect_rules`
 - `redirect_analytics` table for aggregated metrics
-- `cf_worker_name` column in `redirect_rules` (хранит имя Worker, если analytics enabled)
 - Batch aggregation job (каждые 5-15 минут)
+- Trend calculation: сравнивать `clicks_7d` текущие vs предыдущие 7 дней
 
 ❌ **Don't:**
-- Don't store raw clicks in D1 (используйте CF Analytics Engine)
-- Don't query CF Analytics Engine в real-time из API (используйте кеш в `redirect_analytics`)
+- Don't store raw clicks in D1 (CF хранит в Edge logs)
+- Don't query CF GraphQL API в real-time из API endpoint (используйте кеш в `redirect_analytics`)
 
 ---
 
 ### 2. API Endpoints
 
 ✅ **Implement:**
-- `POST /api/sites/:siteId/redirects/toggle-analytics` — включить/выключить для всего сайта
+- `GET /api/sites/:siteId/redirects` — include `analytics` field (из D1 cache)
 - `GET /api/sites/:siteId/redirects/:id/analytics` — детальная аналитика
-- Include `analytics` field in main `GET /api/sites/:siteId/redirects` response
+- Batch job endpoint для ручного обновления (admin only)
 
 ❌ **Don't:**
-- Don't allow per-redirect analytics toggle (только per-site!)
-- Don't expose raw click events через API (только агрегированные данные)
+- Don't expose raw GraphQL queries через frontend API
+- Don't allow per-redirect analytics toggle (аналитика доступна всегда)
 
 ---
 
-### 3. Cloudflare Workers Deployment
+### 3. Cloudflare GraphQL Analytics
 
 ✅ **Implement:**
-- Автоматическое создание Worker при `analytics_enabled=true`
-- Worker script injection с правильными bindings (Analytics Engine, KV)
-- Удаление Worker при `analytics_enabled=false`
-- Fallback на CF Redirect Rules если Worker deployment failed
+- Query CF GraphQL Analytics API каждые 5-15 минут
+- Filter: `edgeResponseStatus_geq: 300, edgeResponseStatus_lt: 400` (3xx redirects)
+- Group by: `clientRequestHTTPHost` (hostname) для per-domain analytics
+- Calculate trend: compare current 7d vs previous 7d
+- Handle CF API rate limits (retry with exponential backoff)
 
 ❌ **Don't:**
-- Don't hardcode Worker scripts (используйте templates)
-- Don't forget to cleanup Workers при удалении redirect rule
-
----
-
-### 4. Analytics Data Collection
-
-✅ **Implement:**
-- CF Analytics Engine для хранения raw events
-- Batch aggregation job (cron каждые 5-15 минут)
-- Trend calculation: сравнивать `clicks_7d` текущие vs предыдущие 7 дней
-- Top countries/devices aggregation (для детального view)
-
-❌ **Don't:**
-- Don't query CF Analytics Engine on every API request (используйте кеш)
+- Don't query CF API on every frontend request (используйте D1 cache)
 - Don't store PII (IP addresses) — GDPR compliance
+
+---
+
+### 4. Feature Detection (Free vs Paid Plan)
+
+✅ **Implement:**
+```javascript
+// Detect available data retention based on plan
+const dataRetention = {
+  'free': 3,      // days
+  'pro': 30,      // days
+  'business': 90, // days
+  'enterprise': 365 // days
+};
+
+// Query only available data range
+const startDate = new Date();
+startDate.setDate(startDate.getDate() - dataRetention[plan]);
+
+// Update UI labels accordingly
+if (plan === 'free') {
+  // Show "Last 3 days" instead of "Last 7 days"
+  // Set clicks_7d to aggregate only 3 days of data
+}
+```
 
 ---
 
 ## 🚀 Implementation Phases
 
-### Phase 1: Basic Analytics Toggle (MVP)
+### Phase 1: Basic Analytics (MVP)
 
 **Scope:**
-- ✅ Add `analytics_enabled` column to `redirect_rules`
-- ✅ Add `redirect_analytics` table
-- ✅ API endpoint: `POST /api/sites/:siteId/redirects/toggle-analytics`
-- ✅ Worker template creation
-- ✅ CF Workers deployment (create/delete)
-- ✅ Basic metrics aggregation (clicks_7d)
+- ✅ Create `redirect_analytics` table
+- ✅ Batch job: query CF GraphQL Analytics API every 15 minutes
+- ✅ Aggregate clicks by hostname (domain)
+- ✅ Calculate basic metrics: `clicks_24h`, `clicks_7d` (or clicks_3d on Free)
+- ✅ API endpoint: `GET /api/sites/:siteId/redirects` returns `analytics` field
+- ✅ Frontend displays clicks count
 
-**Timeline:** 3-4 дня
+**Timeline:** 2-3 дня
 
 ---
 
-### Phase 2: Analytics Dashboard
+### Phase 2: Trend Analysis
+
+**Scope:**
+- ✅ Query previous 7 days from CF GraphQL API
+- ✅ Calculate trend: compare current vs previous period
+- ✅ Update `redirect_analytics.trend` field
+- ✅ Frontend displays trend icons (up/down/neutral)
+
+**Timeline:** 1-2 дня
+
+---
+
+### Phase 3: Advanced Analytics
 
 **Scope:**
 - ✅ API endpoint: `GET /api/sites/:siteId/redirects/:id/analytics`
-- ✅ Chart data (last 7/30 days)
-- ✅ Top countries/devices breakdown
-- ✅ Trend calculation (up/down/neutral)
-- ✅ Batch aggregation job (cron)
+- ✅ Chart data (daily breakdown)
+- ✅ Top countries (group by `clientCountryName`)
+- ✅ Top devices (group by `clientDeviceType`)
+- ✅ Frontend analytics dashboard
 
 **Timeline:** 3-4 дня
-
----
-
-### Phase 3: Advanced Features
-
-**Scope:**
-- ✅ Plan limits enforcement
-- ✅ Usage warnings (approaching limit)
-- ✅ Analytics export (CSV/JSON)
-- ✅ Real-time click stream (WebSocket, опционально)
-
-**Timeline:** 2-3 дня
 
 ---
 
 ## ✅ Summary Checklist для Backend-команды
 
 ### Базовая инфраструктура
-- [ ] Добавить `analytics_enabled BOOLEAN DEFAULT 0` в `redirect_rules`
-- [ ] Добавить `cf_worker_name TEXT` в `redirect_rules`
-- [ ] Создать таблицу `redirect_analytics` для агрегации
-- [ ] Реализовать API endpoint `POST /api/sites/:siteId/redirects/toggle-analytics`
-- [ ] Реализовать API endpoint `GET /api/sites/:siteId/redirects/:id/analytics`
+- [ ] Создать таблицу `redirect_analytics`
+- [ ] Настроить доступ к CF GraphQL Analytics API (API token)
+- [ ] Реализовать batch job (cron каждые 5-15 минут)
+- [ ] Реализовать API endpoint `GET /api/sites/:siteId/redirects` с полем `analytics`
 
-### Cloudflare Workers
-- [ ] Создать Worker template с Analytics Engine binding
-- [ ] Реализовать Worker deployment via CF API
-- [ ] Реализовать Worker cleanup при disable analytics
-- [ ] Настроить KV namespace для redirect configs
+### Cloudflare GraphQL Analytics
+- [ ] Query CF GraphQL Analytics API для 3xx redirects
+- [ ] Filter: `edgeResponseStatus_geq: 300, edgeResponseStatus_lt: 400`
+- [ ] Group by: `clientRequestHTTPHost` (hostname)
+- [ ] Aggregate: `sum { requests }` (click count)
+- [ ] Handle CF API rate limits (retry logic)
 
-### Analytics Collection
-- [ ] Настроить CF Analytics Engine dataset
-- [ ] Реализовать batch aggregation job (cron каждые 5-15 минут)
-- [ ] Реализовать trend calculation (up/down/neutral)
-- [ ] Реализовать top countries/devices aggregation
+### Analytics Aggregation
+- [ ] Агрегировать клики по hostname/domain
+- [ ] Рассчитывать `clicks_24h`, `clicks_7d` (или clicks_3d на Free)
+- [ ] Рассчитывать trend (current 7d vs previous 7d)
+- [ ] Сохранять в D1 таблицу `redirect_analytics`
 
-### Plan Limits
-- [ ] Проверять `max_analytics_domains` перед enable
-- [ ] Отслеживать usage (monthly requests)
-- [ ] Показывать warnings при приближении к лимиту
+### Plan-specific Features
+- [ ] Определять data retention по плану (Free: 3 дня, Pro: 30 дней)
+- [ ] Корректно обрабатывать clicks_30d (0 на Free плане)
+- [ ] Feature detection для UI (показывать "Last 3 days" на Free)
 
 ### Тестирование
-- [ ] Протестировать Worker deployment
-- [ ] Протестировать Analytics Engine data collection
-- [ ] Протестировать batch aggregation
-- [ ] E2E тест: enable analytics → клики → dashboard показывает данные
+- [ ] Протестировать batch job с реальными данными CF
+- [ ] Протестировать trend calculation
+- [ ] Протестировать API endpoint с mock и production data
+- [ ] E2E тест: создать redirect → получить клики → показать в UI
 
 ---
 
 **Дата обновления:** 2025-12-28
-**Критическое замечание:** CF Redirect Rules API не предоставляет аналитику — используйте Workers
-**Следующий шаг:** Backend review, обсуждение CF Workers architecture
+**Критическое замечание:** Аналитика доступна через CF GraphQL Analytics API, Workers НЕ НУЖНЫ
+**Следующий шаг:** Backend review, обсуждение CF GraphQL Analytics integration
