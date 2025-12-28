@@ -69,10 +69,15 @@ export function updateSyncIndicator(stats: SyncStats): void {
   const button = document.querySelector<HTMLButtonElement>('[data-sync-chip] button');
   const fill = document.querySelector<HTMLElement>('.sync-indicator-btn .metric-pill__fill');
 
-  if (!button || !fill) return;
+  if (!button || !fill) {
+    console.warn('[Sync] Indicator elements not found', { button, fill });
+    return;
+  }
 
   // Update fill ratio
-  fill.style.setProperty('--metric-fill', stats.ratio.toFixed(2));
+  const fillValue = stats.ratio.toFixed(2);
+  fill.style.setProperty('--metric-fill', fillValue);
+  console.log('[Sync] Fill updated to', fillValue);
 
   // Update status attribute for color
   let status: 'synced' | 'pending' | 'error' = 'synced';
@@ -82,6 +87,7 @@ export function updateSyncIndicator(stats: SyncStats): void {
     status = 'pending';
   }
   button.setAttribute('data-status', status);
+  console.log('[Sync] Status set to', status);
 
   // Update tooltip
   const parts: string[] = [];
@@ -90,7 +96,9 @@ export function updateSyncIndicator(stats: SyncStats): void {
   if (stats.error > 0) parts.push(`${stats.error} error`);
   if (stats.lastSync) parts.push(`Last sync: ${stats.lastSync}`);
 
-  button.title = parts.join(' • ') || 'No redirects';
+  const tooltip = parts.join(' • ') || 'No redirects';
+  button.title = tooltip;
+  console.log('[Sync] Tooltip:', tooltip);
 }
 
 /**
@@ -105,6 +113,7 @@ export function initSyncStatus(redirects: Redirect[]): void {
 
   // Calculate and update initial stats
   const stats = calculateSyncStats(redirects);
+  console.log('[Sync] Stats calculated:', stats);
   updateSyncIndicator(stats);
 
   // Action handlers (dropdown toggle is handled by standard initDropdowns())
