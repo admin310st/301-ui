@@ -12,6 +12,7 @@ import { initDropdowns } from '@ui/dropdown';
 import { initDrawer, openDrawer, openBulkAddDrawer } from './drawer';
 import { showDialog, hideDialog } from '@ui/dialog';
 import { formatTooltipTimestamp, initTooltips } from '@ui/tooltip';
+import { initSyncStatus } from './sync-status';
 
 let currentRedirects: DomainRedirect[] = [];
 let filteredRedirects: DomainRedirect[] = [];
@@ -84,6 +85,9 @@ function loadRedirects(): void {
     } else {
       renderTable();
       if (tableShell) tableShell.hidden = false;
+
+      // Initialize sync status indicator
+      initSyncStatus(currentRedirects);
     }
   }, 300);
 }

@@ -43,10 +43,40 @@
             <p class="text-muted">Manage routing rules across your domains and destinations.</p>
           </div>
           <div class="controls-row">
-            <button class="btn btn--primary" type="button" data-action="add-redirects">
-              <span class="icon" data-icon="mono/plus"></span>
-              <span>Add Redirects</span>
-            </button>
+            <!-- Sync Status Primary Button with Dropdown -->
+            <div class="sync-chip sync-chip--primary" data-sync-chip>
+              <button
+                class="btn btn--primary sync-indicator-btn"
+                type="button"
+                data-toggle-dropdown="sync-dropdown-main"
+                title="23 synced, 7 pending • Last sync: 5 min ago"
+              >
+                <div class="metric-pill" style="width: 100px; height: 6px;">
+                  <div class="metric-pill__track">
+                    <div class="metric-pill__fill" style="--metric-fill: 0.7"></div>
+                  </div>
+                </div>
+                <span class="icon icon--sm" data-icon="mono/chevron-down"></span>
+              </button>
+
+              <!-- Dropdown menu -->
+              <div class="dropdown-menu dropdown-menu--right" id="sync-dropdown-main" hidden>
+                <button class="dropdown-item" type="button" data-action="sync-now">
+                  <span class="icon" data-icon="mono/sync"></span>
+                  <span>Sync to Cloudflare</span>
+                </button>
+                <div class="dropdown-divider"></div>
+                <button class="dropdown-item" type="button" data-action="add-redirects">
+                  <span class="icon" data-icon="mono/plus"></span>
+                  <span>Add Redirects</span>
+                </button>
+                <div class="dropdown-divider"></div>
+                <button class="dropdown-item dropdown-item--danger" type="button" data-action="cancel-sync">
+                  <span class="icon" data-icon="mono/close"></span>
+                  <span>Cancel sync</span>
+                </button>
+              </div>
+            </div>
           </div>
         </header>
 
