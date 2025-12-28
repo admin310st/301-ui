@@ -405,7 +405,7 @@
    ============================================ */
 
 :root {
-  --indent-unit: 1.5rem;  /* Base indent step */
+  --indent-unit: 1rem;  /* Base indent step (reduced for compact hierarchy) */
 }
 
 /* Level 0: Project - uses .table__group-toggle padding, no extra rule needed */
@@ -509,7 +509,7 @@
    ============================================ */
 
 .table-cell-stack--child {
-  padding-left: var(--space-4);
+  padding-left: var(--space-3);
   border-left: 2px solid var(--border-strong);
   margin-left: var(--space-2);
 }

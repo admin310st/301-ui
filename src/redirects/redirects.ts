@@ -242,7 +242,7 @@ function renderPrimaryDomainRow(
   const siteBadge = getSiteTypeBadge(siteType);
   const redirectBadge = redirectCount > 0
     ? `<span class="badge badge--sm badge--neutral" title="${redirectCount} domain${redirectCount > 1 ? 's' : ''} redirecting to this primary domain">
-        <span class="icon" data-icon="mono/arrow-top-right"></span>
+        <span class="icon">↗</span>
         <span>${redirectCount}</span>
       </span>`
     : '';
@@ -258,7 +258,7 @@ function renderPrimaryDomainRow(
       <td data-priority="critical" class="table__cell-target">
         ${siteBadge} ${redirectBadge}
       </td>
-      <td data-priority="high" class="table__cell-activity">
+      <td data-priority="medium" class="table__cell-activity">
         ${activityDisplay}
       </td>
       <td data-priority="high" class="table__cell-status">
@@ -323,7 +323,7 @@ function renderRow(redirect: DomainRedirect, groupId: number, isLastRow: boolean
       <td data-priority="critical" class="table__cell-target">
         ${targetDisplay}
       </td>
-      <td data-priority="high" class="table__cell-activity">
+      <td data-priority="medium" class="table__cell-activity">
         ${activityDisplay}
       </td>
       <td data-priority="high" class="table__cell-status">
@@ -378,13 +378,16 @@ function getDomainDisplay(redirect: DomainRedirect, isPrimaryDomain: boolean, is
     ? `<span class="badge badge--sm badge--neutral">${redirect.site_flag}</span>`
     : '';
 
-  // Primary domain (main site domain) receives traffic → arrow-right → in blue
-  // Donor domains (sources) send traffic → arrow-top-right ↗️ in gray
+  // Primary domain (acceptor site) - show landing icon
+  // Donor domains (redirect sources) - show colored unicode arrow based on redirect type
   let icon = '';
   if (isPrimaryDomain) {
-    icon = `<span class="icon text-primary" data-icon="mono/arrow-right" title="Main domain - receives traffic"></span>`;
+    icon = `<span class="icon text-primary" data-icon="mono/landing" title="Acceptor site - receives redirects"></span>`;
   } else if (redirect.target_url) {
-    icon = `<span class="icon text-muted" data-icon="mono/arrow-top-right"></span>`;
+    // Color arrow based on redirect type: 301 = green (permanent), 302 = orange (temporary)
+    const arrowColor = redirect.redirect_code === 301 ? 'text-ok' : 'text-warning';
+    const redirectType = redirect.redirect_code === 301 ? 'Permanent (301)' : 'Temporary (302)';
+    icon = `<span class="${arrowColor}" style="font-size: 1.125rem; line-height: 1;" title="Donor - ${redirectType} redirect">↗</span>`;
   }
 
   return `
@@ -437,14 +440,14 @@ function getTargetDisplay(redirect: DomainRedirect, isPrimaryDomain: boolean): s
   // Redirect configured → show colored arrow icon (code in tooltip)
   const targetHost = redirect.target_url.replace('https://', '').replace('http://', '').split('/')[0];
 
-  // Colored icon with redirect code in tooltip
-  const redirectIcon = redirect.redirect_code === 301
-    ? '<span class="icon text-ok" data-icon="mono/arrow-bottom-right" title="301 Permanent Redirect"></span>'
-    : '<span class="icon text-warning" data-icon="mono/arrow-bottom-right" title="302 Temporary Redirect"></span>';
+  // Colored unicode arrow with redirect code in tooltip
+  const arrowColor = redirect.redirect_code === 301 ? 'text-ok' : 'text-warning';
+  const redirectType = redirect.redirect_code === 301 ? '301 Permanent' : '302 Temporary';
+  const redirectArrow = `<span class="${arrowColor}" style="font-size: 1.125rem; line-height: 1;" title="${redirectType}">↘</span>`;
 
   return `
     <div class="table-cell-inline">
-      ${redirectIcon}
+      ${redirectArrow}
       <span class="table-cell-main" title="${redirect.target_url}">${targetHost}</span>
     </div>
   `;
