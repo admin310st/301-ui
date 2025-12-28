@@ -102,7 +102,7 @@ export function updateSyncIndicator(stats: SyncStats): void {
 }
 
 /**
- * Trigger CF sync animation (orange sweep)
+ * Trigger CF sync animation (orange sweep → green success)
  */
 function triggerSyncAnimation(): void {
   const button = document.querySelector<HTMLButtonElement>('[data-sync-chip] .sync-indicator-btn');
@@ -111,10 +111,17 @@ function triggerSyncAnimation(): void {
   // Add syncing class to trigger animation
   button.classList.add('is-syncing');
 
-  // Remove class after animation completes
+  // After animation completes, set success status
   setTimeout(() => {
     button.classList.remove('is-syncing');
-  }, 1500); // Match animation duration
+    // Simulate successful sync - set status to success (green)
+    button.setAttribute('data-status', 'success');
+
+    // After showing success for 2 seconds, return to normal status
+    setTimeout(() => {
+      button.setAttribute('data-status', 'pending'); // Or recalculate actual status
+    }, 2000);
+  }, 2000); // Match animation duration
 }
 
 /**

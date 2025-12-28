@@ -1658,21 +1658,33 @@ button.btn.btn--primary.sync-indicator-btn[data-status="error"] .metric-pill__fi
   box-shadow: 0 0 12px var(--danger);
 }
 
-/* Syncing animation - CF orange sweep */
-@keyframes cf-sync-sweep {
+/* Success state - green after successful sync */
+button.btn.btn--primary.sync-indicator-btn[data-status="success"] .metric-pill__fill {
+  background: var(--success);
+  box-shadow: 0 0 12px var(--success);
+}
+
+/* Syncing animation - CF orange sweep → green success */
+@keyframes cf-sync-success {
   0% {
+    background: var(--accent-cf);
     transform: scaleX(0);
   }
-  50% {
+  40% {
+    background: var(--accent-cf);
     transform: scaleX(1);
   }
+  70% {
+    background: var(--accent-cf);
+    transform: scaleX(var(--metric-fill));
+  }
   100% {
+    background: var(--success);
     transform: scaleX(var(--metric-fill));
   }
 }
 
 button.btn.btn--primary.sync-indicator-btn.is-syncing .metric-pill__fill {
-  background: var(--accent-cf);
   box-shadow: 0 0 16px var(--accent-cf);
-  animation: cf-sync-sweep 1.5s ease-in-out;
+  animation: cf-sync-success 2s ease-in-out;
 }
