@@ -70,6 +70,12 @@
   max-width: unset;
 }
 
+/* Auto width by widest content */
+.dropdown__menu--auto {
+  width: max-content;
+  min-width: 100%;
+}
+
 .dropdown__item {
   width: 100%;
   background: transparent;

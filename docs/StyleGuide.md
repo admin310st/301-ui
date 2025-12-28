@@ -276,6 +276,27 @@ When design system updates are introduced, **ALL** UI components and demo pages 
 - Provider icons (Cloudflare, GoDaddy, etc.)
 - Domain health indicators
 
+### Dropdowns
+
+**Base classes:**
+- `.dropdown` - Container wrapper
+- `.dropdown__trigger` - Button that opens menu
+- `.dropdown__menu` - Menu panel (hidden by default)
+- `.dropdown__item` - Individual menu items
+
+**Menu width modifiers:**
+- `.dropdown__menu--fit-trigger` - Menu width matches trigger button (mobile filters)
+- `.dropdown__menu--auto` - Width by widest content, min 100% of trigger (plan selector)
+
+**Production examples:**
+- Auto width: `account.html` plan selector
+- Fit trigger: `domains.html` filter dropdowns
+- Smart positioning: `redirects.html` row actions (auto-flip near viewport edge)
+
+**CSS**: `tables.css` → Dropdown section
+
+**Initialization**: Use `initDropdowns(container)` from `@ui/dropdown` for standard toggle/close behavior
+
 ### Loading Indicator & Global Notices
 
 **Purpose**: Unified visual feedback system combining loading states and notifications.

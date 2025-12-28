@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="/css/theme.css" />
     <link rel="stylesheet" href="/css/layout.css" />
     <link rel="stylesheet" href="/css/site.css" />
+    <link rel="stylesheet" href="/css/tables.css" />
   </head>
   <body class="layout-dashboard">
 {{> sidebar-state-loader}}
@@ -59,52 +60,16 @@
               </header>
               <div class="card__body">
                 <dl class="detail-list">
-                  <!-- Email (editable) -->
-                  <div class="detail-row" data-edit-field="email">
+                  <!-- Email (read-only) -->
+                  <div class="detail-row">
                     <dt class="detail-label" data-i18n="account.profile.email">Email</dt>
-                    <dd>
-                      <div class="detail-value" data-view-mode>
-                        <span data-account-email>—</span>
-                        <button class="btn-inline" type="button" data-edit-trigger>
-                          <span class="icon" data-icon="mono/pencil-circle"></span>
-                        </button>
-                      </div>
-                      <div class="detail-edit" data-edit-mode hidden>
-                        <input type="email" class="input" data-edit-input placeholder="user@example.com" />
-                        <div class="btn-group">
-                          <button class="btn btn--sm btn--primary" type="button" data-save-btn>
-                            <span data-i18n="common.save">Save</span>
-                          </button>
-                          <button class="btn btn--sm btn--ghost" type="button" data-cancel-btn>
-                            <span data-i18n="common.cancel">Cancel</span>
-                          </button>
-                        </div>
-                      </div>
-                    </dd>
+                    <dd class="detail-value" data-account-email>—</dd>
                   </div>
 
-                  <!-- Name (editable) -->
-                  <div class="detail-row" data-edit-field="name">
+                  <!-- Name (read-only) -->
+                  <div class="detail-row">
                     <dt class="detail-label" data-i18n="account.profile.name">Name</dt>
-                    <dd>
-                      <div class="detail-value" data-view-mode>
-                        <span data-account-name>—</span>
-                        <button class="btn-inline" type="button" data-edit-trigger>
-                          <span class="icon" data-icon="mono/pencil-circle"></span>
-                        </button>
-                      </div>
-                      <div class="detail-edit" data-edit-mode hidden>
-                        <input type="text" class="input" data-edit-input placeholder="John Doe" />
-                        <div class="btn-group">
-                          <button class="btn btn--sm btn--primary" type="button" data-save-btn>
-                            <span data-i18n="common.save">Save</span>
-                          </button>
-                          <button class="btn btn--sm btn--ghost" type="button" data-cancel-btn>
-                            <span data-i18n="common.cancel">Cancel</span>
-                          </button>
-                        </div>
-                      </div>
-                    </dd>
+                    <dd class="detail-value" data-account-name>—</dd>
                   </div>
 
                   <!-- User ID (read-only) -->
@@ -119,10 +84,50 @@
                     <dd class="detail-value" data-account-role>—</dd>
                   </div>
 
-                  <!-- Plan (read-only) -->
-                  <div class="detail-row">
+                  <!-- Plan (dropdown selector) -->
+                  <div class="detail-row" style="align-items: center;">
                     <dt class="detail-label" data-i18n="account.profile.plan">Plan</dt>
-                    <dd class="detail-value" data-account-plan>—</dd>
+                    <dd class="detail-value">
+                      <div class="dropdown" data-dropdown="user-plan">
+                        <button
+                          class="btn-chip btn-chip--sm btn-chip--dropdown dropdown__trigger"
+                          type="button"
+                          aria-haspopup="menu"
+                          aria-expanded="false"
+                          data-account-plan-selector
+                          data-selected-value="free"
+                        >
+                          <span class="btn-chip__label" data-selected-label>Free</span>
+                          <span class="btn-chip__chevron" data-icon="mono/chevron-down"></span>
+                        </button>
+                        <div class="dropdown__menu dropdown__menu--auto" role="menu">
+                          <button
+                            class="dropdown__item is-active"
+                            type="button"
+                            role="menuitem"
+                            data-value="free"
+                          >
+                            Free
+                          </button>
+                          <button
+                            class="dropdown__item"
+                            type="button"
+                            role="menuitem"
+                            data-value="pro"
+                          >
+                            Pro
+                          </button>
+                          <button
+                            class="dropdown__item"
+                            type="button"
+                            role="menuitem"
+                            data-value="buss"
+                          >
+                            Business
+                          </button>
+                        </div>
+                      </div>
+                    </dd>
                   </div>
 
                   <!-- Telegram ID (read-only) -->
@@ -131,17 +136,6 @@
                     <dd class="detail-value detail-value--mono" data-account-tg-id>—</dd>
                   </div>
                 </dl>
-
-                <div class="card__actions">
-                  <button class="btn btn--primary" type="button" data-edit-profile disabled>
-                    <span class="icon" data-icon="mono/pencil-circle"></span>
-                    <span data-i18n="account.profile.edit">Edit Profile</span>
-                  </button>
-                  <button class="btn btn--ghost" type="button">
-                    <span class="icon" data-icon="mono/arrow-up"></span>
-                    <span data-i18n="account.profile.upgrade">Upgrade Plan</span>
-                  </button>
-                </div>
               </div>
             </div>
 
