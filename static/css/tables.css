@@ -108,6 +108,16 @@
   background: color-mix(in srgb, var(--danger) 12%, transparent);
 }
 
+/* Cloudflare-specific actions - orange hover */
+.dropdown__item--cf {
+  color: var(--text);
+}
+
+.dropdown__item--cf:hover {
+  background: color-mix(in srgb, var(--accent-cf) 12%, transparent);
+  color: var(--accent-cf);
+}
+
 /* When both action and danger are applied, danger wins */
 .dropdown__item--action.dropdown__item--danger {
   color: var(--danger);
