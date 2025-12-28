@@ -1657,3 +1657,22 @@ button.btn.btn--primary.sync-indicator-btn[data-status="error"] .metric-pill__fi
   background: var(--danger);
   box-shadow: 0 0 12px var(--danger);
 }
+
+/* Syncing animation - CF orange sweep */
+@keyframes cf-sync-sweep {
+  0% {
+    transform: scaleX(0);
+  }
+  50% {
+    transform: scaleX(1);
+  }
+  100% {
+    transform: scaleX(var(--metric-fill));
+  }
+}
+
+button.btn.btn--primary.sync-indicator-btn.is-syncing .metric-pill__fill {
+  background: var(--accent-cf);
+  box-shadow: 0 0 16px var(--accent-cf);
+  animation: cf-sync-sweep 1.5s ease-in-out;
+}

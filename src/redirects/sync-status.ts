@@ -102,6 +102,22 @@ export function updateSyncIndicator(stats: SyncStats): void {
 }
 
 /**
+ * Trigger CF sync animation (orange sweep)
+ */
+function triggerSyncAnimation(): void {
+  const button = document.querySelector<HTMLButtonElement>('[data-sync-chip] .sync-indicator-btn');
+  if (!button) return;
+
+  // Add syncing class to trigger animation
+  button.classList.add('is-syncing');
+
+  // Remove class after animation completes
+  setTimeout(() => {
+    button.classList.remove('is-syncing');
+  }, 1500); // Match animation duration
+}
+
+/**
  * Initialize sync status indicator and action handlers
  * Note: Dropdown toggle is handled by initDropdowns() in redirects.ts
  */
@@ -127,7 +143,8 @@ export function initSyncStatus(redirects: Redirect[]): void {
     switch (action) {
       case 'sync-now':
         console.log('[Sync] Sync to Cloudflare clicked');
-        // TODO: Implement CF sync action
+        triggerSyncAnimation();
+        // TODO: Implement actual CF sync API call
         break;
 
       case 'add-redirects':
