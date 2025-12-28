@@ -510,27 +510,29 @@ function escapeHtml(unsafe: string): string {
 /**
  * Get status display (per truth table spec)
  *
- * has_redirect=false:
- * - Disabled (enabled=false)
- * - Enabled (enabled=true) - edge case, no redirect configured
+ * Acceptor domain (role='acceptor'):
+ * - Shows "Target" - this is the destination site, not a redirect
  *
- * has_redirect=true, enabled=false:
- * - Always Disabled (sync irrelevant)
- *
- * has_redirect=true, enabled=true:
- * - Active (sync_status=synced) - show sync date in tooltip
- * - Pending (sync_status=pending)
- * - Error (sync_status=error)
- * - New (sync_status=never)
+ * Donor domain (has_redirect=true):
+ * - Active (sync_status=synced) - redirect is working
+ * - Pending (sync_status=pending) - sync in progress
+ * - Error (sync_status=error) - sync failed
+ * - New (sync_status=never) - not synced yet
+ * - Disabled (enabled=false) - redirect disabled by user
  */
 function getStatusDisplay(redirect: DomainRedirect): string {
-  // Case 1: No redirect configured (has_redirect=false)
+  // Acceptor domain (target site) - show "Target" badge
+  if (redirect.role === 'acceptor') {
+    return '<span class="badge badge--neutral" title="Redirect target (main site domain)">Target</span>';
+  }
+
+  // Donor domain without redirect configured - should not happen in normal flow
   if (!redirect.has_redirect) {
     if (!redirect.enabled) {
       return '<span class="badge badge--neutral" title="Disabled by user">Disabled</span>';
     }
-    // Enabled but no redirect configured - edge case, should prompt user to add redirect
-    return '<span class="badge badge--neutral" title="Enabled by user, but not synced to CDN">Enabled</span>';
+    // Enabled but no redirect configured - edge case
+    return '<span class="badge badge--neutral" title="No redirect configured">Enabled</span>';
   }
 
   // Case 2: Redirect configured but disabled (has_redirect=true, enabled=false)
