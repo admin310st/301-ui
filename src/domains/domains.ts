@@ -7,7 +7,7 @@ import { filterDomains as applyFiltersAndSearch } from './filters';
 import { renderFilterBar, initFilterUI } from './filters-ui';
 import { updateDomainsBadge, updateDomainsHealthIndicator } from '@ui/sidebar-nav';
 import { initBulkActions } from './bulk-actions';
-import { adjustDropdownPosition } from '@ui/dropdown';
+import { initDropdowns, adjustDropdownPosition } from '@ui/dropdown';
 import { queryNSRecords } from '@utils/dns';
 
 let currentDomains: Domain[] = [];
@@ -495,6 +495,9 @@ function renderDomainsTable(domains: Domain[]): void {
       updateSelectAllCheckbox();
     });
   });
+
+  // Initialize dropdown system for kebab menus (auto-flip positioning)
+  initDropdowns(tbody as HTMLElement);
 }
 
 function getStatusChip(status: Domain['status']): string {

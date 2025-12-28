@@ -288,14 +288,28 @@ When design system updates are introduced, **ALL** UI components and demo pages 
 - `.dropdown__menu--fit-trigger` - Menu width matches trigger button (mobile filters)
 - `.dropdown__menu--auto` - Width by widest content, min 100% of trigger (plan selector)
 
+**Smart positioning (auto-flip):**
+- Dropdown menu automatically flips up/down based on available viewport space
+- Prevents menu clipping at top/bottom edges
+- Uses `adjustDropdownPosition()` from `@ui/dropdown`
+- Applied automatically when using `initDropdowns()`
+
+**Z-index behavior:**
+- Menu overlays other elements with `z-index: 100`
+- Prevents clipping by table containers
+- Works correctly with `overflow: hidden` parents
+
 **Production examples:**
 - Auto width: `account.html` plan selector
 - Fit trigger: `domains.html` filter dropdowns
-- Smart positioning: `redirects.html` row actions (auto-flip near viewport edge)
+- Smart positioning: `redirects.html`, `domains.html` row actions (auto-flip near viewport edge)
 
 **CSS**: `tables.css` → Dropdown section
 
-**Initialization**: Use `initDropdowns(container)` from `@ui/dropdown` for standard toggle/close behavior
+**Initialization**:
+- **Required**: Call `initDropdowns(container)` after rendering dynamic content
+- Example: `initDropdowns(tbody as HTMLElement)` after table render
+- Enables toggle/close behavior + auto-flip positioning
 
 ### Loading Indicator & Global Notices
 

@@ -265,12 +265,10 @@
   overflow-wrap: break-word;
 }
 
-/* Center-align Status, Health (data only), Actions, and checkbox columns */
+/* Center-align Status, Health (data only), and checkbox columns */
 .table--domains th:nth-child(2),
 .table--domains td:nth-child(2),  /* Status */
 .table--domains td:nth-child(3),  /* Health data centered, header left-aligned */
-.table--domains th:nth-child(5),
-.table--domains td:nth-child(5),  /* Actions */
 .table--domains th:nth-child(6),
 .table--domains td:nth-child(6) { /* Checkbox */
   text-align: center;
@@ -438,16 +436,21 @@
   text-align: center;
 }
 
-/* Actions column - uses fluid token */
+/* Status column - center-align */
 .table--redirects th:nth-child(4),
 .table--redirects td:nth-child(4) {
-  width: var(--col-actions);
   text-align: center;
 }
 
-/* Checkbox column - uses fluid token */
+/* Actions column - uses fluid token */
 .table--redirects th:nth-child(5),
 .table--redirects td:nth-child(5) {
+  width: var(--col-actions);
+}
+
+/* Checkbox column - uses fluid token */
+.table--redirects th:nth-child(6),
+.table--redirects td:nth-child(6) {
   width: var(--col-check);
   text-align: center;
 }
@@ -719,7 +722,7 @@ input[type="search"]::-webkit-search-cancel-button {
   flex-wrap: wrap;
   align-items: stretch;
   align-content: normal;
-  justify-content: space-around;
+  justify-content: flex-start;
   gap: var(--inline-gap);
 }
 
