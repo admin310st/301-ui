@@ -252,7 +252,7 @@ function renderPrimaryDomainRow(
   const siteBadge = getSiteTypeBadge(siteType);
   const redirectBadge = redirectCount > 0
     ? `<span class="badge badge--sm badge--neutral" title="${redirectCount} domain${redirectCount > 1 ? 's' : ''} redirecting to this primary domain">
-        <span class="icon">↗</span>
+        <span class="icon">→</span>
         <span>${redirectCount}</span>
       </span>`
     : '';
@@ -290,7 +290,7 @@ function renderPrimaryDomainRow(
 function getSiteTypeBadge(siteType: string): string {
   const badges = {
     landing: '<span class="badge badge--sm badge--success">Landing</span>',
-    tds: '<span class="badge badge--sm badge--primary">TDS</span>',
+    tds: '<span class="badge badge--sm badge--brand">TDS</span>',
     hybrid: '<span class="badge badge--sm badge--warning">Hybrid</span>',
   };
   return badges[siteType as keyof typeof badges] || '';
@@ -422,7 +422,7 @@ function getTargetDisplay(redirect: DomainRedirect, isPrimaryDomain: boolean): s
   if (isPrimaryDomain && !redirect.target_url) {
     const siteTypeBadges = {
       landing: `<span class="badge badge--sm badge--success">Landing</span>`,
-      tds: `<span class="badge badge--sm badge--primary">TDS</span>`,
+      tds: `<span class="badge badge--sm badge--brand">TDS</span>`,
       hybrid: `<span class="badge badge--sm badge--warning">Hybrid</span>`,
     };
     return siteTypeBadges[redirect.site_type as keyof typeof siteTypeBadges] || '<span class="text-muted">—</span>';
