@@ -230,6 +230,15 @@ export const mockDomainRedirects: DomainRedirect[] = [
     project_name: 'CryptoBoss',
     created_at: '2025-01-06T09:00:00Z',
     updated_at: '2025-01-06T09:00:00Z',
+    // Acceptor analytics: aggregated from cryptoboss.icu (1.2K) + cryptovalve.ru (890)
+    analytics: {
+      clicks_total: 8934,
+      clicks_24h: 87,
+      clicks_7d: 2090,    // 1200 + 890
+      clicks_30d: 0,      // Free plan: limited to 3 days
+      trend: 'neutral',
+      last_click_at: '2025-12-28T13:52:41Z'
+    }
   },
   {
     id: 5,
@@ -253,7 +262,16 @@ export const mockDomainRedirects: DomainRedirect[] = [
     project_id: 17,
     project_name: 'CryptoBoss',
     created_at: '2025-01-11T11:00:00Z',
-    updated_at: '2025-01-13T18:15:27Z'
+    updated_at: '2025-01-13T18:15:27Z',
+    // Donor domain analytics
+    analytics: {
+      clicks_total: 4283,
+      clicks_24h: 52,
+      clicks_7d: 1200,
+      clicks_30d: 0,
+      trend: 'neutral',
+      last_click_at: '2025-12-28T13:48:22Z'
+    }
   },
   {
     id: 6,
@@ -301,7 +319,16 @@ export const mockDomainRedirects: DomainRedirect[] = [
     project_id: 17,
     project_name: 'CryptoBoss',
     created_at: '2025-01-12T10:30:00Z',
-    updated_at: '2025-01-13T18:15:27Z'
+    updated_at: '2025-01-13T18:15:27Z',
+    // Donor domain analytics (trending down)
+    analytics: {
+      clicks_total: 3102,
+      clicks_24h: 35,
+      clicks_7d: 890,
+      clicks_30d: 0,
+      trend: 'down',
+      last_click_at: '2025-12-28T12:34:18Z'
+    }
   },
   {
     id: 8,
@@ -490,7 +517,17 @@ export const mockDomainRedirects: DomainRedirect[] = [
     project_id: 19,
     project_name: 'Vavada',
     created_at: '2025-11-21T08:00:00Z',
-    updated_at: '2025-11-22T10:32:59Z'  },
+    updated_at: '2025-11-22T10:32:59Z',
+    // High traffic TDS donor domain
+    analytics: {
+      clicks_total: 28492,
+      clicks_24h: 412,
+      clicks_7d: 5234,
+      clicks_30d: 0,
+      trend: 'up',
+      last_click_at: '2025-12-28T14:51:33Z'
+    }
+  },
   {
     id: 16,
     domain_id: 403,
@@ -536,7 +573,17 @@ export const mockDomainRedirects: DomainRedirect[] = [
     project_id: 19,
     project_name: 'Vavada',
     created_at: '2025-11-21T10:00:00Z',
-    updated_at: '2025-11-22T10:19:57Z'  },
+    updated_at: '2025-11-22T10:19:57Z',
+    // Medium traffic, trending down
+    analytics: {
+      clicks_total: 12847,
+      clicks_24h: 156,
+      clicks_7d: 1892,
+      clicks_30d: 0,
+      trend: 'down',
+      last_click_at: '2025-12-28T13:22:47Z'
+    }
+  },
   {
     id: 18,
     domain_id: 405,
@@ -630,7 +677,17 @@ export const mockDomainRedirects: DomainRedirect[] = [
     project_id: 20,
     project_name: 'BetHub',
     created_at: '2025-12-10T09:00:00Z',
-    updated_at: '2025-12-15T14:20:00Z'  },
+    updated_at: '2025-12-15T14:20:00Z',
+    // Moderate traffic, neutral trend
+    analytics: {
+      clicks_total: 6734,
+      clicks_24h: 98,
+      clicks_7d: 1523,
+      clicks_30d: 0,
+      trend: 'neutral',
+      last_click_at: '2025-12-28T14:12:09Z'
+    }
+  },
   {
     id: 22,
     domain_id: 503,
