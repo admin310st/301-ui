@@ -8,6 +8,7 @@ import { initAddDomainsDrawer } from '@domains/add-domains-drawer';
 import { initTabs } from './tabs';
 import { initCfConnectForms } from '@forms/cf-connect';
 import { showDialog, hideDialog } from './dialog';
+import { getDomains } from '@api/domains';
 
 // Store current editing key
 let currentEditingKey: IntegrationKey | null = null;
@@ -160,8 +161,14 @@ export async function loadIntegrations(): Promise<void> {
       throw new Error('Account ID not found. Please log in again.');
     }
 
-    // Fetch all integration keys (all providers)
-    const integrationKeys = await getIntegrationKeys(accountId);
+    // Fetch all integration keys (all providers) and domains in parallel
+    const [integrationKeys, domainsResponse] = await Promise.all([
+      getIntegrationKeys(accountId),
+      getDomains().catch((err) => {
+        console.error('Failed to fetch domains:', err);
+        return null;
+      })
+    ]);
 
     // Store for filtering
     allIntegrations = integrationKeys;
@@ -171,9 +178,30 @@ export async function loadIntegrations(): Promise<void> {
       return;
     }
 
-    // TODO: Fetch domains count from /domains endpoint when ready
-    // For now, domains count is not displayed (shows "—")
-    zonesCountMap = {};
+    // Debug: Log domains response to console for inspection
+    if (domainsResponse) {
+      console.log('📊 Domains API Response:', domainsResponse);
+      console.log('📊 Total domains:', domainsResponse.total);
+      console.log('📊 Groups count:', domainsResponse.groups?.length || 0);
+
+      // Flatten all domains from groups
+      const allDomains = domainsResponse.groups?.flatMap(g => g.domains) || [];
+      console.log('📊 All domains (flattened):', allDomains);
+
+      // Count domains by key_id
+      const domainsCountMap = allDomains.reduce((acc, domain) => {
+        if (domain.key_id) {
+          acc[domain.key_id] = (acc[domain.key_id] || 0) + 1;
+        }
+        return acc;
+      }, {} as Record<number, number>);
+
+      console.log('📊 Domains count by key_id:', domainsCountMap);
+      zonesCountMap = domainsCountMap;
+    } else {
+      console.warn('⚠️ Domains endpoint failed or returned null');
+      zonesCountMap = {};
+    }
 
     // Apply current search filter
     renderFilteredIntegrations();

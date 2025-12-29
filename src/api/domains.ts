@@ -3,6 +3,7 @@
  */
 
 import { apiFetch } from './client';
+import type { GetDomainsResponse } from './types';
 
 /**
  * Batch zone creation request
@@ -41,6 +42,17 @@ export interface BatchZoneResponse {
     success: BatchZoneSuccess[];
     failed: BatchZoneFailed[];
   };
+}
+
+/**
+ * Get all domains for current user
+ *
+ * GET /domains
+ *
+ * @returns List of all domains grouped by root domain
+ */
+export async function getDomains(): Promise<GetDomainsResponse> {
+  return apiFetch<GetDomainsResponse>('/domains');
 }
 
 /**

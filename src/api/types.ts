@@ -145,6 +145,41 @@ export interface IntegrationKey {
   provider_scope?: string; // JSON string from API
 }
 
+// Domain from API (GET /domains)
+export interface APIDomain {
+  id: number;
+  site_id: number | null;
+  zone_id: number;
+  key_id: number;
+  project_id: number | null;
+  domain_name: string;
+  role: 'acceptor' | 'donor' | 'reserve';
+  ns: string;
+  ns_verified: number;
+  proxied: number;
+  blocked: number;
+  blocked_reason: string | null;
+  ssl_status: string;
+  expired_at: string | null;
+  created_at: string;
+  updated_at: string;
+  site_name: string | null;
+  site_status: string | null;
+  project_name: string | null;
+}
+
+export interface DomainsGroup {
+  root: string;
+  zone_id: number;
+  domains: APIDomain[];
+}
+
+export interface GetDomainsResponse {
+  ok: boolean;
+  total: number;
+  groups: DomainsGroup[];
+}
+
 export interface InitCloudflareRequest {
   cf_account_id: string;
   bootstrap_token: string;
