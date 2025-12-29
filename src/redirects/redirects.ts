@@ -218,7 +218,7 @@ function renderTargetSubgroup(target: TargetSubgroup, projectId: number): string
     );
 
     // Render primary domain as target header (Level 1) - enhanced domain row
-    const primaryRow = renderPrimaryDomainRow(primaryDomain, target.site_type!, actualRedirects.length, projectId);
+    const primaryRow = renderPrimaryDomainRow(primaryDomain, target.site_type!, actualRedirects, projectId);
 
     // Render ALL other domains in site (Level 2) - both redirecting and non-redirecting
     const childRows = otherDomains.map((redirect, index) => {
@@ -243,19 +243,30 @@ function renderTargetSubgroup(target: TargetSubgroup, projectId: number): string
 function renderPrimaryDomainRow(
   redirect: DomainRedirect,
   siteType: string,
-  redirectCount: number,
+  actualRedirects: DomainRedirect[],
   groupId: number
 ): string {
   const isSelected = selectedRedirects.has(redirect.id);
   const checkbox = getPrimaryDomainCheckbox(redirect);
   const domainDisplay = getDomainDisplay(redirect, true, true); // isPrimary=true, isTopLevel=true
   const siteBadge = getSiteTypeBadge(siteType);
-  const redirectBadge = redirectCount > 0
-    ? `<span class="badge badge--sm badge--neutral" title="${redirectCount} domain${redirectCount > 1 ? 's' : ''} redirecting to this primary domain">
-        <span class="icon">→</span>
-        <span>${redirectCount}</span>
-      </span>`
-    : '';
+
+  // Determine redirect badge color based on redirect codes
+  let redirectBadge = '';
+  if (actualRedirects.length > 0) {
+    const has301 = actualRedirects.some(r => r.redirect_code === 301);
+    const has302 = actualRedirects.some(r => r.redirect_code === 302);
+
+    // All 301 → green, Mixed or all 302 → orange/yellow
+    const badgeColor = has301 && !has302 ? 'text-ok' : 'text-warning';
+    const redirectType = has301 && !has302 ? 'Permanent (301)' : has302 && !has301 ? 'Temporary (302)' : 'Mixed (301+302)';
+
+    redirectBadge = `<span class="badge badge--sm badge--neutral" title="${actualRedirects.length} domain${actualRedirects.length > 1 ? 's' : ''} redirecting to this primary domain (${redirectType})">
+        <span class="icon ${badgeColor}">←</span>
+        <span>${actualRedirects.length}</span>
+      </span>`;
+  }
+
   const activityDisplay = getActivityDisplay(redirect);
   const statusDisplay = getStatusDisplay(redirect);
   const actions = getRowActions(redirect);
