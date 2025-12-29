@@ -4,6 +4,7 @@
 
 import { showGlobalMessage } from '@ui/notifications';
 import { hideLoading, setPendingNoticeFlash } from '@ui/loading-indicator';
+import { showConfirmDialog } from '@ui/dialog';
 import type { ApiErrorResponse } from '@api/types';
 import type { ApiError } from '@utils/errors';
 
@@ -234,12 +235,12 @@ export function initCfScopedTokenForm(): void {
       // Handle cf_account_conflict - show confirmation dialog
       if (body?.error === 'cf_account_conflict') {
         const context = body.context as { existing_account_id?: string; new_account_id?: string };
-        const confirmed = confirm(
-          `You already have a Cloudflare account connected (${context?.existing_account_id || 'existing account'}).\n\n` +
-          `On the free plan, you can only connect one Cloudflare account. ` +
-          `Replacing it will remove all synced zones and domains.\n\n` +
-          `Do you want to replace the existing account with ${context?.new_account_id || 'this account'}?`
-        );
+
+        // Show custom dialog instead of browser confirm()
+        const confirmed = await showConfirmDialog('replace-cf-account', {
+          'existing-account-id': context?.existing_account_id || 'existing account',
+          'new-account-id': context?.new_account_id || 'this account',
+        });
 
         if (confirmed) {
           // Retry with confirm_replace flag

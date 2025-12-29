@@ -153,6 +153,31 @@
 {{> connect-namecheap-drawer}}
 {{> edit-integration-drawer}}
 
+    <!-- Confirmation Dialog: Replace CF Account (CF variant with orange border) -->
+    <div class="dialog dialog--cf" data-dialog="replace-cf-account" hidden>
+      <div class="dialog__overlay" data-dialog-close></div>
+      <div class="dialog__panel">
+        <header class="dialog__header">
+          <h2 class="dialog__title">Replace Cloudflare account?</h2>
+          <button class="btn-close" type="button" data-dialog-close aria-label="Close">
+            <span class="icon" data-icon="mono/close"></span>
+          </button>
+        </header>
+        <div class="dialog__body">
+          <p>You already have a Cloudflare account connected (<strong data-existing-account-id>existing account</strong>).</p>
+          <p>On the free plan, you can only connect one Cloudflare account. Replacing it will remove all synced zones and domains.</p>
+          <p class="text-muted">Do you want to replace the existing account with <strong data-new-account-id>this account</strong>?</p>
+        </div>
+        <footer class="dialog__footer">
+          <button class="btn btn--cf" type="button" data-confirm-replace>
+            <span class="icon" data-icon="brand/cloudflare"></span>
+            <span>Replace account</span>
+          </button>
+          <button class="btn btn--ghost" type="button" data-dialog-close>Cancel</button>
+        </footer>
+      </div>
+    </div>
+
     <!-- Confirmation Dialog: Delete Integration (danger variant) -->
     <div class="dialog dialog--danger" data-dialog="delete-integration" hidden>
       <div class="dialog__overlay" data-dialog-close></div>
