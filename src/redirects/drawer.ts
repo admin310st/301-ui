@@ -182,9 +182,18 @@ function setupActionButtons(redirect: DomainRedirect): void {
   const copyBtn = drawerElement.querySelector('[data-action="copy-domain-drawer"]');
   if (copyBtn) {
     const copyHandler = () => {
-      navigator.clipboard.writeText(redirect.domain);
-      // TODO: Show toast notification
-      console.log('Copied:', redirect.domain);
+      navigator.clipboard.writeText(redirect.domain).then(() => {
+        // Show success feedback with color change on icon
+        const icon = copyBtn.querySelector('.icon');
+        if (icon) {
+          icon.classList.add('text-ok');
+          setTimeout(() => {
+            icon.classList.remove('text-ok');
+          }, 2000);
+        }
+      }).catch(err => {
+        console.error('Failed to copy domain:', err);
+      });
     };
     copyBtn.removeEventListener('click', copyHandler);
     copyBtn.addEventListener('click', copyHandler);
