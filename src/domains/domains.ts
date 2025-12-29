@@ -7,7 +7,7 @@ import { filterDomains as applyFiltersAndSearch } from './filters';
 import { renderFilterBar, initFilterUI } from './filters-ui';
 import { updateDomainsBadge, updateDomainsHealthIndicator } from '@ui/sidebar-nav';
 import { initBulkActions } from './bulk-actions';
-import { initDropdowns, adjustDropdownPosition } from '@ui/dropdown';
+import { initDropdowns } from '@ui/dropdown';
 import { queryNSRecords } from '@utils/dns';
 
 let currentDomains: Domain[] = [];
@@ -105,52 +105,6 @@ export function initDomainsPage(): void {
   // Drawer close
   document.querySelectorAll('[data-drawer-close]').forEach((btn) => {
     btn.addEventListener('click', () => closeDrawer());
-  });
-
-  // Dropdown toggles (delegated)
-  document.addEventListener('click', (e) => {
-    const target = e.target as HTMLElement;
-    const trigger = target.closest('.dropdown__trigger');
-
-    if (trigger) {
-      e.stopPropagation();
-      const dropdown = trigger.closest('.dropdown');
-      if (!dropdown) return;
-
-      const isOpen = dropdown.classList.contains('dropdown--open');
-
-      // Close all other dropdowns
-      document.querySelectorAll('.dropdown--open').forEach((other) => {
-        if (other !== dropdown) {
-          other.classList.remove('dropdown--open');
-          const otherTrigger = other.querySelector('.dropdown__trigger');
-          if (otherTrigger) otherTrigger.setAttribute('aria-expanded', 'false');
-        }
-      });
-
-      // Toggle current
-      if (isOpen) {
-        dropdown.classList.remove('dropdown--open');
-        trigger.setAttribute('aria-expanded', 'false');
-        // Remove positioning class when closing
-        const menu = dropdown.querySelector('.dropdown__menu');
-        if (menu) menu.classList.remove('dropdown__menu--up');
-      } else {
-        dropdown.classList.add('dropdown--open');
-        trigger.setAttribute('aria-expanded', 'true');
-        // Apply smart positioning after opening
-        requestAnimationFrame(() => {
-          adjustDropdownPosition(dropdown);
-        });
-      }
-    } else {
-      // Close all dropdowns when clicking outside
-      document.querySelectorAll('.dropdown--open').forEach((dropdown) => {
-        dropdown.classList.remove('dropdown--open');
-        const trigger = dropdown.querySelector('.dropdown__trigger');
-        if (trigger) trigger.setAttribute('aria-expanded', 'false');
-      });
-    }
   });
 
   // Dropdown actions (delegated, placeholder handlers)
