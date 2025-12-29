@@ -8,7 +8,6 @@ import { initAddDomainsDrawer } from '@domains/add-domains-drawer';
 import { initTabs } from './tabs';
 import { initCfConnectForms } from '@forms/cf-connect';
 import { showDialog, hideDialog } from './dialog';
-import { getZones } from '@api/zones';
 
 // Store current editing key
 let currentEditingKey: IntegrationKey | null = null;
@@ -161,11 +160,8 @@ export async function loadIntegrations(): Promise<void> {
       throw new Error('Account ID not found. Please log in again.');
     }
 
-    // Fetch all integration keys (all providers) and zones in parallel
-    const [integrationKeys, zones] = await Promise.all([
-      getIntegrationKeys(accountId),
-      getZones().catch(() => []) // Graceful fallback if zones fail
-    ]);
+    // Fetch all integration keys (all providers)
+    const integrationKeys = await getIntegrationKeys(accountId);
 
     // Store for filtering
     allIntegrations = integrationKeys;
@@ -175,13 +171,9 @@ export async function loadIntegrations(): Promise<void> {
       return;
     }
 
-    // Count zones per integration key (requires key_id in API response)
-    zonesCountMap = zones.reduce((acc, zone) => {
-      if (zone.key_id) {
-        acc[zone.key_id] = (acc[zone.key_id] || 0) + 1;
-      }
-      return acc;
-    }, {} as Record<number, number>);
+    // TODO: Fetch domains count from /domains endpoint when ready
+    // For now, domains count is not displayed (shows "—")
+    zonesCountMap = {};
 
     // Apply current search filter
     renderFilteredIntegrations();
@@ -269,7 +261,26 @@ function openEditIntegrationDrawer(key: IntegrationKey): void {
   }
 
   if (accountIdEl) {
-    accountIdEl.textContent = key.external_account_id;
+    // For Cloudflare, show token name and expiry date from provider_scope
+    if (key.provider === 'cloudflare' && key.provider_scope) {
+      try {
+        const scope = JSON.parse(key.provider_scope);
+        const tokenName = scope.cf_token_name || key.external_account_id;
+        const expiryDate = key.expires_at
+          ? new Date(key.expires_at).toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric'
+            })
+          : 'No expiry';
+        accountIdEl.innerHTML = `<strong>Token:</strong> ${tokenName}<br><strong>Expires:</strong> ${expiryDate}`;
+      } catch {
+        // Fallback to account ID if parsing fails
+        accountIdEl.textContent = key.external_account_id;
+      }
+    } else {
+      accountIdEl.textContent = key.external_account_id;
+    }
   }
 
   // Populate form fields
