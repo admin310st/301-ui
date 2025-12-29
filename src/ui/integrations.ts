@@ -8,7 +8,7 @@ import { initAddDomainsDrawer } from '@domains/add-domains-drawer';
 import { initTabs } from './tabs';
 import { initCfConnectForms } from '@forms/cf-connect';
 import { showDialog, hideDialog } from './dialog';
-import { getDomains } from '@api/domains';
+import { getZones } from '@api/zones';
 
 // Store current editing key
 let currentEditingKey: IntegrationKey | null = null;
@@ -163,12 +163,12 @@ export async function loadIntegrations(): Promise<void> {
 
     console.log('🔑 Using account_id:', accountId);
 
-    // Fetch all integration keys (all providers) and domains in parallel
-    const [integrationKeys, domainsResponse] = await Promise.all([
+    // Fetch all integration keys (all providers) and zones in parallel
+    const [integrationKeys, zones] = await Promise.all([
       getIntegrationKeys(accountId),
-      getDomains().catch((err) => {
-        console.error('❌ Failed to fetch domains:', err);
-        return null;
+      getZones().catch((err) => {
+        console.error('❌ Failed to fetch zones:', err);
+        return [];
       })
     ]);
 
@@ -180,35 +180,24 @@ export async function loadIntegrations(): Promise<void> {
       return;
     }
 
-    // Debug: Log domains response to console for inspection
-    if (domainsResponse) {
-      console.log('📊 Domains API Response:', domainsResponse);
-      console.log('📊 Total domains:', domainsResponse.total);
-      console.log('📊 Groups count:', domainsResponse.groups?.length || 0);
+    // Debug: Log zones response to console for inspection
+    console.log('📊 Zones API Response:', zones);
+    console.log('📊 Total zones:', zones.length);
 
-      if (domainsResponse.total === 0) {
-        console.warn('⚠️ No domains found for account_id:', accountId);
-        console.warn('💡 This is normal if you haven\'t created any domains yet via POST /domains/zones/batch');
-      }
-
-      // Flatten all domains from groups
-      const allDomains = domainsResponse.groups?.flatMap(g => g.domains) || [];
-      console.log('📊 All domains (flattened):', allDomains);
-
-      // Count domains by key_id
-      const domainsCountMap = allDomains.reduce((acc, domain) => {
-        if (domain.key_id) {
-          acc[domain.key_id] = (acc[domain.key_id] || 0) + 1;
-        }
-        return acc;
-      }, {} as Record<number, number>);
-
-      console.log('📊 Domains count by key_id:', domainsCountMap);
-      zonesCountMap = domainsCountMap;
-    } else {
-      console.warn('⚠️ Domains endpoint failed or returned null');
-      zonesCountMap = {};
+    if (zones.length === 0) {
+      console.warn('⚠️ No zones found for account_id:', accountId);
+      console.warn('💡 Add zones via POST /domains/zones/batch to see them here');
     }
+
+    // Count zones (root domains) per integration key
+    zonesCountMap = zones.reduce((acc, zone) => {
+      if (zone.key_id) {
+        acc[zone.key_id] = (acc[zone.key_id] || 0) + 1;
+      }
+      return acc;
+    }, {} as Record<number, number>);
+
+    console.log('📊 Zones count by key_id:', zonesCountMap);
 
     // Apply current search filter
     renderFilteredIntegrations();
