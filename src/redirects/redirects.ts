@@ -388,24 +388,27 @@ function getDomainDisplay(redirect: DomainRedirect, isPrimaryDomain: boolean, is
     ? `<span class="badge badge--sm badge--neutral">${redirect.site_flag}</span>`
     : '';
 
-  // Primary domain (acceptor site) - show landing icon
-  // Donor domains (redirect sources) - show colored unicode arrow based on redirect type
-  let icon = '';
+  // Primary domain (acceptor site) - show landing icon before domain
+  // Donor domains (redirect sources) - show colored unicode arrow AFTER domain
+  let iconBefore = '';
+  let iconAfter = '';
+
   if (isPrimaryDomain) {
-    icon = `<span class="icon text-primary" data-icon="mono/landing" title="Acceptor site - receives redirects"></span>`;
+    iconBefore = `<span class="icon text-primary" data-icon="mono/landing" title="Acceptor site - receives redirects"></span>`;
   } else if (redirect.target_url) {
     // Color arrow based on redirect type: 301 = green (permanent), 302 = orange (temporary)
     const arrowColor = redirect.redirect_code === 301 ? 'text-ok' : 'text-warning';
     const redirectType = redirect.redirect_code === 301 ? 'Permanent (301)' : 'Temporary (302)';
-    icon = `<span class="${arrowColor}" style="font-size: 1.125rem; line-height: 1;" title="Donor - ${redirectType} redirect">↗</span>`;
+    iconAfter = `<span class="${arrowColor}" style="font-size: 1.125rem; line-height: 1;" title="Donor - ${redirectType} redirect">→</span>`;
   }
 
   return `
     <div class="table-cell-stack ${!isTopLevel ? 'table-cell-stack--child' : ''}">
-      ${icon}
+      ${iconBefore}
       <span class="table-cell-main">${redirect.domain}</span>
       ${flagBadge}
       ${statusBadge}
+      ${iconAfter}
     </div>
   `;
 }
@@ -447,17 +450,11 @@ function getTargetDisplay(redirect: DomainRedirect, isPrimaryDomain: boolean): s
     `;
   }
 
-  // Redirect configured → show colored arrow icon (code in tooltip)
+  // Redirect configured → show target domain (no arrow, since source domain already has →)
   const targetHost = redirect.target_url.replace('https://', '').replace('http://', '').split('/')[0];
-
-  // Colored unicode arrow with redirect code in tooltip
-  const arrowColor = redirect.redirect_code === 301 ? 'text-ok' : 'text-warning';
-  const redirectType = redirect.redirect_code === 301 ? '301 Permanent' : '302 Temporary';
-  const redirectArrow = `<span class="${arrowColor}" style="font-size: 1.125rem; line-height: 1;" title="${redirectType}">↘</span>`;
 
   return `
     <div class="table-cell-inline">
-      ${redirectArrow}
       <span class="table-cell-main" title="${redirect.target_url}">${targetHost}</span>
     </div>
   `;
