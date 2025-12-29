@@ -18,24 +18,34 @@ function getErrorMessage(error: ApiError<unknown>): string {
   }
 
   // If there's a Cloudflare-specific error in context, show it
-  if (body.context?.cf_message) {
-    return `Cloudflare API error: ${body.context.cf_message}`;
+  if (body.context?.cf_message || body.context?.message) {
+    const contextMessage = body.context.cf_message || body.context.message;
+    return `Cloudflare API error: ${contextMessage}`;
   }
 
-  // Map error codes to user-friendly messages
+  // Map error codes to user-friendly messages (aligned with API_IntegrationsKeys.md)
   const errorMessages: Record<string, string> = {
+    // Bootstrap token errors
     'bootstrap_invalid': 'Invalid bootstrap token. Please check your API token and try again.',
     'bootstrap_expired': 'Bootstrap token has expired. Please generate a new token.',
     'bootstrap_not_active': 'Bootstrap token is not active. Please check your token status.',
-    'bootstrap_insufficient': 'Bootstrap token has insufficient permissions. Make sure it has "Account Settings: Read" and "API Tokens: Edit" permissions.',
-    'permissions_missing': 'Bootstrap token has insufficient permissions. Please verify required permissions.',
-    'account_mismatch': 'Account ID does not match the token. Please verify both values.',
-    'token_rotation_failed': 'Failed to rotate token. Please try again or contact support.',
-    'free_account_limit': 'Free Cloudflare accounts cannot use token rotation. Please upgrade your Cloudflare plan or use the existing integration.',
+    'permissions_missing': 'Bootstrap token has insufficient permissions. Make sure it has "Account Settings: Read" and "API Tokens: Edit" permissions.',
+
+    // Quota and access errors
     'quota_exceeded': 'You have reached the maximum number of Cloudflare accounts for your plan.',
-    'cf_api_error': 'Cloudflare API error. Please check your credentials and try again.',
+    'owner_required': 'Owner role is required to connect Cloudflare integrations.',
+
+    // API communication errors
     'cf_rejected': 'Cloudflare API rejected the request. Please check your credentials.',
     'cf_unavailable': 'Cloudflare API is temporarily unavailable. Please try again later.',
+
+    // Storage errors
+    'storage_failed': 'Failed to save integration. Please try again or contact support.',
+    'cleanup_failed': 'Failed to cleanup old integration. Please contact support.',
+
+    // Request validation errors
+    'invalid_json': 'Invalid request format. Please try again.',
+    'missing_fields': 'Missing required fields. Please fill in all required information.',
   };
 
   const userMessage = errorMessages[body.error] || body.message || body.error;
@@ -141,8 +151,22 @@ export function initCfScopedTokenForm(): void {
 
     console.log('[cf-connect] Data:', { accountId, tokenLength: token?.length });
 
+    // Validate presence
     if (!accountId || !token) {
       showStatus('error', 'Please fill in both Account ID and Bootstrap Token');
+      return;
+    }
+
+    // Validate Account ID format (32 hex characters)
+    if (!/^[a-f0-9]{32}$/i.test(accountId.trim())) {
+      showStatus('error', 'Invalid Account ID format. Must be 32 hexadecimal characters (example: 2465945243a36d6fbbbefef7ca64cccd)');
+      return;
+    }
+
+    // Validate Token format (40 characters: letters, numbers, underscore, dash)
+    const trimmedToken = token.trim();
+    if (!/^[A-Za-z0-9_-]{40}$/.test(trimmedToken)) {
+      showStatus('error', 'Invalid Bootstrap Token format. Must be exactly 40 characters (example: 4JbTBRPa0h4MF3NVB6mVJjTGoKiHgXPw6ppbLI8C)');
       return;
     }
 
@@ -158,8 +182,8 @@ export function initCfScopedTokenForm(): void {
     try {
       const { initCloudflare } = await import('@api/integrations');
       const response = await initCloudflare({
-        cf_account_id: accountId,
-        bootstrap_token: token,
+        cf_account_id: accountId.trim(),
+        bootstrap_token: trimmedToken,
       });
       // Loading indicator (orange shimmer) shown automatically by apiFetch with showLoading: 'cf'
 
@@ -227,8 +251,8 @@ export function initCfScopedTokenForm(): void {
 
             const { initCloudflare } = await import('@api/integrations');
             const response = await initCloudflare({
-              cf_account_id: accountId,
-              bootstrap_token: token,
+              cf_account_id: accountId.trim(),
+              bootstrap_token: trimmedToken,
               confirm_replace: true,
             });
             // Loading indicator (orange shimmer) shown automatically by apiFetch with showLoading: 'cf'
