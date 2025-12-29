@@ -146,6 +146,19 @@ export function initCfScopedTokenForm(): void {
     e.preventDefault();
     console.log('[cf-connect] Scoped Token form submitted');
 
+    // Get button reference and disable immediately to prevent double-submit
+    const submitBtn = document.querySelector<HTMLButtonElement>('button[type="submit"][form="cf-connect-scoped"]');
+    const drawer = document.querySelector<HTMLElement>('[data-drawer="connect-cloudflare"]');
+
+    if (submitBtn) {
+      // Prevent double-click race condition
+      if (submitBtn.disabled) {
+        console.warn('[cf-connect] Submit already in progress, ignoring');
+        return;
+      }
+      submitBtn.disabled = true;
+    }
+
     const formData = new FormData(form);
     const accountId = formData.get('cf_account_id') as string;
     const token = formData.get('cf_bootstrap_token') as string;
@@ -155,12 +168,14 @@ export function initCfScopedTokenForm(): void {
     // Validate presence
     if (!accountId || !token) {
       showStatus('error', 'Please fill in both Account ID and Bootstrap Token');
+      if (submitBtn) submitBtn.disabled = false;
       return;
     }
 
     // Validate Account ID format (32 hex characters)
     if (!/^[a-f0-9]{32}$/i.test(accountId.trim())) {
       showStatus('error', 'Invalid Account ID format. Must be 32 hexadecimal characters (example: 2465945243a36d6fbbbefef7ca64cccd)');
+      if (submitBtn) submitBtn.disabled = false;
       return;
     }
 
@@ -168,15 +183,12 @@ export function initCfScopedTokenForm(): void {
     const trimmedToken = token.trim();
     if (!/^[A-Za-z0-9_-]{40}$/.test(trimmedToken)) {
       showStatus('error', 'Invalid Bootstrap Token format. Must be exactly 40 characters (example: 4JbTBRPa0h4MF3NVB6mVJjTGoKiHgXPw6ppbLI8C)');
+      if (submitBtn) submitBtn.disabled = false;
       return;
     }
 
-    const submitBtn = document.querySelector<HTMLButtonElement>('button[type="submit"][form="cf-connect-scoped"]');
-    const drawer = document.querySelector<HTMLElement>('[data-drawer="connect-cloudflare"]');
-
-    // Show loading state
+    // Show loading state (button already disabled above)
     if (submitBtn) {
-      submitBtn.disabled = true;
       submitBtn.innerHTML = '<span class="icon" data-icon="mono/refresh"></span><span>Verifying...</span>';
     }
 
