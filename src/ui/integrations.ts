@@ -161,11 +161,13 @@ export async function loadIntegrations(): Promise<void> {
       throw new Error('Account ID not found. Please log in again.');
     }
 
+    console.log('🔑 Using account_id:', accountId);
+
     // Fetch all integration keys (all providers) and domains in parallel
     const [integrationKeys, domainsResponse] = await Promise.all([
       getIntegrationKeys(accountId),
       getDomains().catch((err) => {
-        console.error('Failed to fetch domains:', err);
+        console.error('❌ Failed to fetch domains:', err);
         return null;
       })
     ]);
@@ -183,6 +185,11 @@ export async function loadIntegrations(): Promise<void> {
       console.log('📊 Domains API Response:', domainsResponse);
       console.log('📊 Total domains:', domainsResponse.total);
       console.log('📊 Groups count:', domainsResponse.groups?.length || 0);
+
+      if (domainsResponse.total === 0) {
+        console.warn('⚠️ No domains found for account_id:', accountId);
+        console.warn('💡 This is normal if you haven\'t created any domains yet via POST /domains/zones/batch');
+      }
 
       // Flatten all domains from groups
       const allDomains = domainsResponse.groups?.flatMap(g => g.domains) || [];
