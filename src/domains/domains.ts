@@ -21,6 +21,9 @@ export function initDomainsPage(): void {
   const card = document.querySelector('[data-domains-card]');
   if (!card) return;
 
+  // Initialize dropdowns ONCE on stable container (event delegation handles dynamic content)
+  initDropdowns(card as HTMLElement);
+
   // Initialize Add Domains Drawer
   initAddDomainsDrawer();
 
@@ -496,8 +499,7 @@ function renderDomainsTable(domains: Domain[]): void {
     });
   });
 
-  // Initialize dropdown system for kebab menus (auto-flip positioning)
-  initDropdowns(tbody as HTMLElement);
+  // Note: Dropdowns initialized once in initDomainsPage() via event delegation
 }
 
 function getStatusChip(status: Domain['status']): string {
@@ -632,11 +634,7 @@ function applyFiltersAndRender(): void {
   renderDomainsTable(paginated);
   updatePaginationUI(filtered.length);
 
-  // Reinitialize dropdowns after table re-render
-  const tbody = document.querySelector('[data-domains-tbody]');
-  if (tbody) {
-    initDropdowns(tbody as HTMLElement);
-  }
+  // Note: Dropdowns use event delegation, no need to reinitialize
 }
 
 function toggleSelectAll(checked: boolean): void {

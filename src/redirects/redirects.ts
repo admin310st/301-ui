@@ -30,11 +30,12 @@ export function initRedirectsPage(): void {
 
   console.log('[Redirects] Initializing page...');
 
-  // Initialize page header dropdowns (sync status button)
+  // Initialize dropdowns ONCE on stable containers (event delegation handles dynamic content)
   const pageHeader = document.querySelector('.page-header');
   if (pageHeader) {
     initDropdowns(pageHeader as HTMLElement);
   }
+  initDropdowns(card as HTMLElement);
 
   // Load mock data
   loadRedirects();
@@ -164,11 +165,10 @@ function renderTable(): void {
   // Update global select-all checkbox state
   updateGlobalCheckbox();
 
-  // Initialize dropdowns for kebab menus
-  initDropdowns(tbody as HTMLElement);
-
   // Initialize tooltips for status badges
   initTooltips();
+
+  // Note: Dropdowns initialized once in initRedirectsPage() via event delegation
 
   // Update counts
   const shownCount = document.querySelector('[data-shown-count]');
