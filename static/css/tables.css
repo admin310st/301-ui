@@ -1079,12 +1079,6 @@ html[data-theme="light"] .bulk-actions-bar__actions .btn--ghost:hover {
     flex-wrap: wrap;
     width: 100%;
   }
-
-  /* Cancel button takes full width on second row */
-  .bulk-actions-bar__info [data-bulk-cancel] {
-    width: 100%;
-    margin-top: var(--space-2);
-  }
 }
 
 /* Tablet portrait: 3 columns × 2 rows */
