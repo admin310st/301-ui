@@ -3,6 +3,7 @@
  */
 
 import { showGlobalMessage } from '@ui/notifications';
+import { hideLoading, setPendingNoticeFlash } from '@ui/loading-indicator';
 import type { ApiErrorResponse } from '@api/types';
 import type { ApiError } from '@utils/errors';
 
@@ -160,7 +161,7 @@ export function initCfScopedTokenForm(): void {
         cf_account_id: accountId,
         bootstrap_token: token,
       });
-      // Loading indicator managed by initCloudflare() automatically
+      // Loading indicator (orange shimmer) shown automatically by apiFetch with showLoading: 'cf'
 
       // Show success message with sync info
       const syncInfo = response.sync
@@ -169,6 +170,9 @@ export function initCfScopedTokenForm(): void {
       const successMsg = response.is_rotation
         ? `Token rotated successfully.${syncInfo}`
         : `Cloudflare account connected!${syncInfo}`;
+
+      // Set pending notice flash for smooth shimmer → success transition
+      setPendingNoticeFlash('success');
 
       showStatus('success', successMsg);
       showGlobalMessage('success', successMsg);
@@ -198,8 +202,7 @@ export function initCfScopedTokenForm(): void {
       }, 2000);
 
     } catch (error: any) {
-      hideLoading();
-
+      // Loading indicator hidden automatically by apiFetch in finally block
       console.error('[cf-connect] Error:', error);
 
       const body = error.body as ApiErrorResponse | null;
@@ -228,12 +231,15 @@ export function initCfScopedTokenForm(): void {
               bootstrap_token: token,
               confirm_replace: true,
             });
-            // Loading indicator managed by initCloudflare() automatically
+            // Loading indicator (orange shimmer) shown automatically by apiFetch with showLoading: 'cf'
 
             const syncInfo = response.sync
               ? ` Synced ${response.sync.zones} zones and ${response.sync.domains} domains.`
               : '';
             const successMsg = `Cloudflare account replaced successfully!${syncInfo}`;
+
+            // Set pending notice flash for smooth shimmer → success transition
+            setPendingNoticeFlash('success');
 
             showStatus('success', successMsg);
             showGlobalMessage('success', successMsg);
@@ -256,8 +262,12 @@ export function initCfScopedTokenForm(): void {
             }, 2000);
 
           } catch (retryError: any) {
-            hideLoading();
+            // Loading indicator hidden automatically by apiFetch in finally block
             const retryErrorMessage = getErrorMessage(retryError);
+
+            // Set pending notice flash for smooth shimmer → error transition
+            setPendingNoticeFlash('error');
+
             showStatus('error', retryErrorMessage);
             showGlobalMessage('error', retryErrorMessage);
             if (submitBtn) {
@@ -277,6 +287,10 @@ export function initCfScopedTokenForm(): void {
 
       // Handle other errors
       const errorMessage = getErrorMessage(error);
+
+      // Set pending notice flash for smooth shimmer → error transition
+      setPendingNoticeFlash('error');
+
       showStatus('error', errorMessage);
       showGlobalMessage('error', errorMessage);
 
