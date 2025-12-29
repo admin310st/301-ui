@@ -631,6 +631,12 @@ function applyFiltersAndRender(): void {
   const paginated = paginateDomains(filtered, currentPage, PAGE_SIZE);
   renderDomainsTable(paginated);
   updatePaginationUI(filtered.length);
+
+  // Reinitialize dropdowns after table re-render
+  const tbody = document.querySelector('[data-domains-tbody]');
+  if (tbody) {
+    initDropdowns(tbody as HTMLElement);
+  }
 }
 
 function toggleSelectAll(checked: boolean): void {
