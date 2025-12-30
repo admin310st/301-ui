@@ -154,7 +154,12 @@ function renderTable(): void {
     // Calculate domain statistics for tooltip
     const allDomains = group.targets.flatMap(t => t.domains);
     const redirectedCount = allDomains.filter(d => d.has_redirect).length;
-    const reserveCount = allDomains.filter(d => !d.has_redirect).length;
+    // Reserve = domains without redirect, excluding disabled and expired
+    const reserveCount = allDomains.filter(d =>
+      !d.has_redirect &&
+      d.enabled &&
+      d.domain_status !== 'expired'
+    ).length;
     const tooltipText = `${group.totalDomains} domains in project: ${redirectedCount} redirected, ${reserveCount} in reserve`;
 
     // Project header row (Level 0)
