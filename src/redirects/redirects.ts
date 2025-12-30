@@ -1181,7 +1181,7 @@ function updateBulkActionsBar(): void {
   if (!bulkBar || !countEl) return;
 
   const count = selectedRedirects.size;
-  countEl.textContent = String(count);
+  countEl.textContent = `(${count})`;
 
   if (count > 0) {
     bulkBar.hidden = false;

@@ -362,6 +362,7 @@ function isExpiringSoon(expiresAt: string, days: number): boolean {
 function loadDomains(domains: Domain[]): void {
   currentDomains = domains;
   selectedDomains.clear();
+  updateBulkActionsBar();
 
   const loadingState = document.querySelector('[data-loading-state]');
   const emptyState = document.querySelector('[data-empty-state]');
@@ -493,6 +494,7 @@ function renderDomainsTable(domains: Domain[]): void {
         selectedDomains.delete(domainId);
       }
       updateSelectAllCheckbox();
+      updateBulkActionsBar();
     });
   });
 
@@ -644,6 +646,8 @@ function toggleSelectAll(checked: boolean): void {
   checkboxes.forEach((cb) => {
     cb.checked = checked;
   });
+
+  updateBulkActionsBar();
 }
 
 function updateSelectAllCheckbox(): void {
@@ -655,6 +659,25 @@ function updateSelectAllCheckbox(): void {
 
   selectAllCheckbox.checked = selectedCount > 0 && selectedCount === totalVisible;
   selectAllCheckbox.indeterminate = selectedCount > 0 && selectedCount < totalVisible;
+}
+
+/**
+ * Update bulk actions bar visibility and count
+ */
+function updateBulkActionsBar(): void {
+  const bulkBar = document.querySelector('[data-bulk-actions]');
+  const countEl = document.querySelector('[data-selected-count]');
+
+  if (!bulkBar || !countEl) return;
+
+  const count = selectedDomains.size;
+  countEl.textContent = `(${count})`;
+
+  if (count > 0) {
+    bulkBar.hidden = false;
+  } else {
+    bulkBar.hidden = true;
+  }
 }
 
 function updatePaginationUI(totalCount: number): void {
