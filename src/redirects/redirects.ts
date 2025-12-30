@@ -239,7 +239,7 @@ function renderTargetSubgroup(target: TargetSubgroup, projectId: number): string
     );
 
     // Render primary domain as target header (Level 1) - enhanced domain row
-    const primaryRow = renderPrimaryDomainRow(primaryDomain, target.site_type!, actualRedirects, projectId);
+    const primaryRow = renderPrimaryDomainRow(primaryDomain, target.site_type!, actualRedirects, otherDomains, projectId);
 
     // Render ALL other domains in site (Level 2) - both redirecting and non-redirecting
     const childRows = otherDomains.map((redirect, index) => {
@@ -265,11 +265,18 @@ function renderPrimaryDomainRow(
   redirect: DomainRedirect,
   siteType: string,
   actualRedirects: DomainRedirect[],
+  allDonorDomains: DomainRedirect[],
   groupId: number
 ): string {
   const isSelected = selectedRedirects.has(redirect.id);
   const checkbox = getPrimaryDomainCheckbox(redirect);
-  const domainDisplay = getDomainDisplay(redirect, true, true); // isPrimary=true, isTopLevel=true
+
+  // Calculate mass-select checkbox state
+  const selectedDonors = allDonorDomains.filter(d => selectedRedirects.has(d.id));
+  const allDonorsSelected = allDonorDomains.length > 0 && selectedDonors.length === allDonorDomains.length;
+  const someDonorsSelected = selectedDonors.length > 0 && selectedDonors.length < allDonorDomains.length;
+
+  const domainDisplay = getDomainDisplay(redirect, true, true, allDonorsSelected, someDonorsSelected); // isPrimary=true, isTopLevel=true
   const siteBadge = getSiteTypeBadge(siteType);
 
   // Determine redirect badge color based on redirect codes
@@ -329,19 +336,11 @@ function getSiteTypeBadge(siteType: string): string {
 }
 
 /**
- * Get checkbox for primary domain (enabled for mass selection)
+ * Get lock icon for primary domain in checkbox column (sites cannot be individually selected)
  */
 function getPrimaryDomainCheckbox(redirect: DomainRedirect): string {
-  const isSelected = selectedRedirects.has(redirect.id);
   return `
-    <input
-      type="checkbox"
-      class="checkbox"
-      data-redirect-checkbox
-      data-redirect-id="${redirect.id}"
-      ${isSelected ? 'checked' : ''}
-      aria-label="Select ${redirect.domain}"
-    />
+    <span class="icon text-muted" data-icon="mono/lock" title="Primary domain - use mass-select checkbox"></span>
   `;
 }
 
@@ -418,7 +417,13 @@ function getCheckboxDisplay(redirect: DomainRedirect, isPrimaryDomain: boolean):
  * For primary domains, show flag badge after domain name
  * For child rows (level-2), add indentation via CSS class
  */
-function getDomainDisplay(redirect: DomainRedirect, isPrimaryDomain: boolean, isTopLevel: boolean = false): string {
+function getDomainDisplay(
+  redirect: DomainRedirect,
+  isPrimaryDomain: boolean,
+  isTopLevel: boolean = false,
+  allDonorsSelected: boolean = false,
+  someDonorsSelected: boolean = false
+): string {
   const statusBadge = redirect.domain_status !== 'active'
     ? `<span class="badge badge--xs badge--${redirect.domain_status === 'parked' ? 'neutral' : 'danger'}">${redirect.domain_status}</span>`
     : '';
@@ -427,6 +432,21 @@ function getDomainDisplay(redirect: DomainRedirect, isPrimaryDomain: boolean, is
   const flagBadge = isPrimaryDomain
     ? `<span class="badge badge--sm badge--neutral">${redirect.site_flag}</span>`
     : '';
+
+  // Mass-select checkbox for primary domains (before domain name, where landing icon was)
+  let checkboxBefore = '';
+  if (isPrimaryDomain) {
+    checkboxBefore = `
+      <input
+        type="checkbox"
+        class="checkbox"
+        data-select-site-domains="${redirect.site_id}"
+        ${allDonorsSelected ? 'checked' : ''}
+        ${someDonorsSelected ? 'data-indeterminate="true"' : ''}
+        aria-label="Select all domains of ${redirect.domain}"
+      />
+    `;
+  }
 
   // Donor domains (redirect sources) - show colored unicode arrow AFTER domain
   let iconAfter = '';
@@ -440,6 +460,7 @@ function getDomainDisplay(redirect: DomainRedirect, isPrimaryDomain: boolean, is
 
   return `
     <div class="table-cell-stack ${!isTopLevel ? 'table-cell-stack--child' : ''}">
+      ${checkboxBefore}
       <span class="table-cell-main">${redirect.domain}</span>
       ${flagBadge}
       ${statusBadge}
@@ -915,6 +936,13 @@ function setupActions(): void {
       updateBulkActionsBar();
     }
 
+    // Site mass-select checkbox (select all donor domains of this site)
+    if (target.hasAttribute('data-select-site-domains')) {
+      const checkbox = target as HTMLInputElement;
+      const siteId = Number(checkbox.dataset.selectSiteDomains);
+      handleSelectSiteDomains(siteId, checkbox.checked);
+    }
+
     // Global select-all checkbox
     if (target.hasAttribute('data-select-all-global')) {
       const checkbox = target as HTMLInputElement;
@@ -1079,10 +1107,35 @@ function handleAddRedirects(): void {
 }
 
 /**
- * Handle select all redirects globally (all domains on page, including primary)
+ * Handle select all donor domains of a specific site
+ */
+function handleSelectSiteDomains(siteId: number, checked: boolean): void {
+  // Get all domains that belong to this site (excluding the primary domain itself)
+  const siteDomains = filteredRedirects.filter(r =>
+    r.site_id === siteId && !primaryDomains.has(r.domain)
+  );
+
+  if (checked) {
+    // Select all donor domains of this site
+    for (const redirect of siteDomains) {
+      selectedRedirects.add(redirect.id);
+    }
+  } else {
+    // Deselect all donor domains of this site
+    for (const redirect of siteDomains) {
+      selectedRedirects.delete(redirect.id);
+    }
+  }
+
+  renderTable();
+  updateBulkActionsBar();
+}
+
+/**
+ * Handle select all redirects globally (all donor domains, excluding primary)
  */
 function handleSelectAllGlobal(checked: boolean): void {
-  const selectableDomains = filteredRedirects;
+  const selectableDomains = filteredRedirects.filter(r => !primaryDomains.has(r.domain));
 
   if (checked) {
     // Select all selectable domains
