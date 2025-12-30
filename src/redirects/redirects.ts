@@ -298,9 +298,9 @@ function renderPrimaryDomainRow(
 
     // All 301 → green, Mixed or all 302 → orange/yellow
     const badgeColor = has301 && !has302 ? 'text-ok' : 'text-warning';
-    const redirectType = has301 && !has302 ? 'Permanent (301)' : has302 && !has301 ? 'Temporary (302)' : 'Mixed (301+302)';
+    const redirectCode = has301 && !has302 ? '301' : has302 && !has301 ? '302' : 'mixed';
 
-    redirectBadge = `<span class="badge badge--sm badge--neutral" title="${actualRedirects.length} domain${actualRedirects.length > 1 ? 's' : ''} redirecting to this primary domain (${redirectType})">
+    redirectBadge = `<span class="badge badge--sm badge--neutral" title="${actualRedirects.length} domain${actualRedirects.length > 1 ? 's' : ''} → ${redirectCode}">
         <span class="icon ${badgeColor}">←</span>
         <span>${actualRedirects.length}</span>
       </span>`;
