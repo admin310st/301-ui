@@ -13,6 +13,7 @@ import { initDrawer, openDrawer, openBulkAddDrawer } from './drawer';
 import { showDialog, hideDialog } from '@ui/dialog';
 import { formatTooltipTimestamp, initTooltips } from '@ui/tooltip';
 import { initSyncStatus } from './sync-status';
+import { updateBulkActionsBar as updateBulkActions } from '@ui/bulk-actions';
 
 let currentRedirects: DomainRedirect[] = [];
 let filteredRedirects: DomainRedirect[] = [];
@@ -1172,22 +1173,14 @@ function handleClearSelection(): void {
 }
 
 /**
- * Update bulk actions bar visibility and count
+ * Update bulk actions bar visibility and count using shared utility
  */
 function updateBulkActionsBar(): void {
-  const bulkBar = document.querySelector('[data-bulk-actions]');
-  const countEl = document.querySelector('[data-selected-count]');
-
-  if (!bulkBar || !countEl) return;
-
   const count = selectedRedirects.size;
-  countEl.textContent = `(${count})`;
-
-  if (count > 0) {
-    bulkBar.hidden = false;
-  } else {
-    bulkBar.hidden = true;
-  }
+  updateBulkActions(count, {
+    bulkBarSelector: '[data-bulk-actions]',
+    countSelector: '[data-selected-count]',
+  });
 }
 
 /**

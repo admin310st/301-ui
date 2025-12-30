@@ -4,6 +4,7 @@
  */
 
 import { showDialog, hideDialog } from '@ui/dialog';
+import { updateBulkActionsBar } from '@ui/bulk-actions';
 
 /**
  * Initialize bulk actions bar
@@ -15,7 +16,6 @@ export function initBulkActions(): void {
 
   if (!bulkBar || !table || !selectAllCheckbox) return;
 
-  const countElement = bulkBar.querySelector<HTMLElement>('[data-selected-count]');
   const cancelBtn = bulkBar.querySelector<HTMLButtonElement>('[data-bulk-cancel]');
   const exportBtn = bulkBar.querySelector<HTMLButtonElement>('[data-bulk-export]');
   const deleteBtn = bulkBar.querySelector<HTMLButtonElement>('[data-bulk-delete]');
@@ -28,20 +28,17 @@ export function initBulkActions(): void {
   }
 
   /**
-   * Update bulk actions bar visibility and count
+   * Update bulk actions bar visibility and count using shared utility
    */
   function updateBulkBar(): void {
     const checkboxes = getRowCheckboxes();
     const selectedCount = checkboxes.filter(cb => cb.checked).length;
 
-    if (selectedCount > 0) {
-      bulkBar.hidden = false;
-      if (countElement) {
-        countElement.textContent = `(${selectedCount})`;
-      }
-    } else {
-      bulkBar.hidden = true;
-    }
+    // Use shared bulk actions utility
+    updateBulkActionsBar(selectedCount, {
+      bulkBarSelector: '[data-bulk-actions]',
+      countSelector: '[data-selected-count]',
+    });
 
     // Update "select all" checkbox state
     if (checkboxes.length > 0) {
