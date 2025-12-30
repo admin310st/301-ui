@@ -314,10 +314,10 @@ function renderPrimaryDomainRow(
   return `
     <tr data-redirect-id="${redirect.id}" data-group-id="${groupId}" class="table__primary-domain table__row--level-1">
       <td data-priority="critical" class="table__cell-domain">
-        ${domainDisplay}
+        ${domainDisplay} ${redirectBadge}
       </td>
       <td data-priority="critical" class="table__cell-target">
-        ${siteBadge} ${redirectBadge}
+        ${siteBadge}
       </td>
       <td data-priority="medium" class="table__cell-activity">
         ${activityDisplay}
