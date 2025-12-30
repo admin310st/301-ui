@@ -155,8 +155,9 @@ function renderTable(): void {
     // Calculate domain statistics for tooltip
     const allDomains = group.targets.flatMap(t => t.domains);
     const redirectedCount = allDomains.filter(d => d.has_redirect).length;
-    // Reserve = domains without redirect, excluding disabled and expired
+    // Reserve = donor domains attached to a site but without redirect (enabled, not expired)
     const reserveCount = allDomains.filter(d =>
+      d.role === 'donor' &&
       !d.has_redirect &&
       d.enabled &&
       d.domain_status !== 'expired'
