@@ -66,6 +66,11 @@
   .page-header p {
     font-size: var(--fs-sm);
   }
+
+  /* Move action buttons to the right on mobile for thumb reach */
+  .page-header__actions {
+    align-self: flex-end;
+  }
 }
 
 .controls-row {
