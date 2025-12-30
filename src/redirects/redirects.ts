@@ -151,13 +151,6 @@ function renderTable(): void {
     const isCollapsed = collapsedGroups.has(group.project_id);
     const chevronIcon = isCollapsed ? 'chevron-down' : 'chevron-up';
 
-    // Flatten all domains from all targets for selection logic
-    const allDomains = group.targets.flatMap(t => t.domains);
-    const selectableDomains = allDomains.filter(d => !primaryDomains.has(d.domain));
-    const selectedInGroup = selectableDomains.filter(d => selectedRedirects.has(d.id));
-    const allSelected = selectableDomains.length > 0 && selectedInGroup.length === selectableDomains.length;
-    const someSelected = selectedInGroup.length > 0 && selectedInGroup.length < selectableDomains.length;
-
     // Project header row (Level 0)
     const projectHeader = `
       <tr class="table__group-header table__row--level-0" data-group-id="${group.project_id}">
@@ -167,18 +160,7 @@ function renderTable(): void {
             <span class="table__group-title">
               <span class="icon" data-icon="mono/layers"></span>
               <span class="table__group-name">${group.project_name}</span>
-              <span class="table__group-count">
-                ${group.totalDomains} domains
-                <input
-                  type="checkbox"
-                  class="checkbox"
-                  data-select-group="${group.project_id}"
-                  ${allSelected ? 'checked' : ''}
-                  ${someSelected ? 'data-indeterminate="true"' : ''}
-                  aria-label="Select all in ${group.project_name}"
-                  onclick="event.stopPropagation()"
-                />
-              </span>
+              <span class="badge badge--sm badge--neutral">${group.totalDomains}</span>
             </span>
           </button>
         </td>
@@ -347,11 +329,19 @@ function getSiteTypeBadge(siteType: string): string {
 }
 
 /**
- * Get checkbox for primary domain (disabled - can't select primary domains)
+ * Get checkbox for primary domain (enabled for mass selection)
  */
 function getPrimaryDomainCheckbox(redirect: DomainRedirect): string {
+  const isSelected = selectedRedirects.has(redirect.id);
   return `
-    <span class="icon text-muted" data-icon="mono/lock" title="Primary domain - cannot be selected"></span>
+    <input
+      type="checkbox"
+      class="checkbox"
+      data-redirect-checkbox
+      data-redirect-id="${redirect.id}"
+      ${isSelected ? 'checked' : ''}
+      aria-label="Select ${redirect.domain}"
+    />
   `;
 }
 
@@ -438,14 +428,10 @@ function getDomainDisplay(redirect: DomainRedirect, isPrimaryDomain: boolean, is
     ? `<span class="badge badge--sm badge--neutral">${redirect.site_flag}</span>`
     : '';
 
-  // Primary domain (acceptor site) - show landing icon before domain
   // Donor domains (redirect sources) - show colored unicode arrow AFTER domain
-  let iconBefore = '';
   let iconAfter = '';
 
-  if (isPrimaryDomain) {
-    iconBefore = `<span class="icon text-primary" data-icon="mono/landing" title="Acceptor site - receives redirects"></span>`;
-  } else if (redirect.target_url) {
+  if (!isPrimaryDomain && redirect.target_url) {
     // Color arrow based on redirect type: 301 = green (permanent), 302 = orange (temporary)
     const arrowColor = redirect.redirect_code === 301 ? 'text-ok' : 'text-warning';
     const redirectType = redirect.redirect_code === 301 ? 'Permanent (301)' : 'Temporary (302)';
@@ -454,7 +440,6 @@ function getDomainDisplay(redirect: DomainRedirect, isPrimaryDomain: boolean, is
 
   return `
     <div class="table-cell-stack ${!isTopLevel ? 'table-cell-stack--child' : ''}">
-      ${iconBefore}
       <span class="table-cell-main">${redirect.domain}</span>
       ${flagBadge}
       ${statusBadge}
@@ -930,14 +915,6 @@ function setupActions(): void {
       updateBulkActionsBar();
     }
 
-    // Group select checkbox
-    if (target.hasAttribute('data-select-group')) {
-      e.stopPropagation(); // Prevent toggle-group button from firing
-      const checkbox = target as HTMLInputElement;
-      const groupId = Number(checkbox.dataset.selectGroup);
-      handleSelectGroup(groupId, checkbox.checked);
-    }
-
     // Global select-all checkbox
     if (target.hasAttribute('data-select-all-global')) {
       const checkbox = target as HTMLInputElement;
@@ -1102,38 +1079,10 @@ function handleAddRedirects(): void {
 }
 
 /**
- * Handle select all redirects in a group
- */
-function handleSelectGroup(groupId: number, checked: boolean): void {
-  const groups = groupByProject(filteredRedirects);
-  const group = groups.find(g => g.project_id === groupId);
-  if (!group) return;
-
-  // Flatten all domains from all targets in this project
-  const allDomains = group.targets.flatMap(t => t.domains);
-  const selectableDomains = allDomains.filter(d => !primaryDomains.has(d.domain));
-
-  if (checked) {
-    // Select all selectable domains in this group
-    for (const redirect of selectableDomains) {
-      selectedRedirects.add(redirect.id);
-    }
-  } else {
-    // Deselect all domains in this group
-    for (const redirect of selectableDomains) {
-      selectedRedirects.delete(redirect.id);
-    }
-  }
-
-  renderTable();
-  updateBulkActionsBar();
-}
-
-/**
- * Handle select all redirects globally (all selectable domains on page)
+ * Handle select all redirects globally (all domains on page, including primary)
  */
 function handleSelectAllGlobal(checked: boolean): void {
-  const selectableDomains = filteredRedirects.filter(r => !primaryDomains.has(r.domain));
+  const selectableDomains = filteredRedirects;
 
   if (checked) {
     // Select all selectable domains
