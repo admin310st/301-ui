@@ -2970,6 +2970,21 @@ body.layout-dashboard .burger-button {
   }
 }
 
+/* Logo switching: compact on mobile when burger appears */
+.brand--compact {
+  display: none; /* Hidden on desktop */
+}
+
+@media (max-width: 1023px) {
+  .brand--full {
+    display: none; /* Hide full logo on mobile */
+  }
+
+  .brand--compact {
+    display: flex; /* Show compact logo on mobile */
+  }
+}
+
 /* ============================================
    Responsive Layout
    ============================================ */
