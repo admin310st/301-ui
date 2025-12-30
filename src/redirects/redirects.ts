@@ -151,6 +151,12 @@ function renderTable(): void {
     const isCollapsed = collapsedGroups.has(group.project_id);
     const chevronIcon = isCollapsed ? 'chevron-down' : 'chevron-up';
 
+    // Calculate domain statistics for tooltip
+    const allDomains = group.targets.flatMap(t => t.domains);
+    const redirectedCount = allDomains.filter(d => d.has_redirect).length;
+    const reserveCount = allDomains.filter(d => !d.has_redirect).length;
+    const tooltipText = `${group.totalDomains} domains in project: ${redirectedCount} redirected, ${reserveCount} in reserve`;
+
     // Project header row (Level 0)
     const projectHeader = `
       <tr class="table__group-header table__row--level-0" data-group-id="${group.project_id}">
@@ -160,7 +166,7 @@ function renderTable(): void {
             <span class="table__group-title">
               <span class="icon" data-icon="mono/layers"></span>
               <span class="table__group-name">${group.project_name}</span>
-              <span class="badge badge--sm badge--neutral">${group.totalDomains}</span>
+              <span class="badge badge--sm badge--neutral" title="${tooltipText}">${group.totalDomains}</span>
             </span>
           </button>
         </td>
