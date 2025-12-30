@@ -288,7 +288,6 @@ function renderPrimaryDomainRow(
   const allDonorsSelected = allDonorDomains.length > 0 && selectedDonors.length === allDonorDomains.length;
   const someDonorsSelected = selectedDonors.length > 0 && selectedDonors.length < allDonorDomains.length;
 
-  const domainDisplay = getDomainDisplay(redirect, true, true, allDonorsSelected, someDonorsSelected); // isPrimary=true, isTopLevel=true
   const siteBadge = getSiteTypeBadge(siteType);
 
   // Determine redirect badge color based on redirect codes
@@ -307,6 +306,7 @@ function renderPrimaryDomainRow(
       </span>`;
   }
 
+  const domainDisplay = getDomainDisplay(redirect, true, true, allDonorsSelected, someDonorsSelected, redirectBadge); // isPrimary=true, isTopLevel=true
   const activityDisplay = getActivityDisplay(redirect);
   const statusDisplay = getStatusDisplay(redirect);
   const actions = getRowActions(redirect);
@@ -314,7 +314,7 @@ function renderPrimaryDomainRow(
   return `
     <tr data-redirect-id="${redirect.id}" data-group-id="${groupId}" class="table__primary-domain table__row--level-1">
       <td data-priority="critical" class="table__cell-domain">
-        ${domainDisplay} ${redirectBadge}
+        ${domainDisplay}
       </td>
       <td data-priority="critical" class="table__cell-target">
         ${siteBadge}
@@ -434,7 +434,8 @@ function getDomainDisplay(
   isPrimaryDomain: boolean,
   isTopLevel: boolean = false,
   allDonorsSelected: boolean = false,
-  someDonorsSelected: boolean = false
+  someDonorsSelected: boolean = false,
+  redirectCountBadge: string = ''
 ): string {
   const statusBadge = redirect.domain_status !== 'active'
     ? `<span class="badge badge--xs badge--${redirect.domain_status === 'parked' ? 'neutral' : 'danger'}">${redirect.domain_status}</span>`
@@ -475,6 +476,7 @@ function getDomainDisplay(
       ${checkboxBefore}
       <span class="table-cell-main">${redirect.domain}</span>
       ${flagBadge}
+      ${redirectCountBadge}
       ${statusBadge}
       ${iconAfter}
     </div>
