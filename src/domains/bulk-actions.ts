@@ -37,7 +37,7 @@ export function initBulkActions(): void {
     if (selectedCount > 0) {
       bulkBar.hidden = false;
       if (countElement) {
-        countElement.textContent = selectedCount.toString();
+        countElement.textContent = `(${selectedCount})`;
       }
     } else {
       bulkBar.hidden = true;
