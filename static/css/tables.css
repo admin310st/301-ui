@@ -429,6 +429,17 @@
   padding-left: calc(var(--space-3) + var(--indent-unit) * 2);
 }
 
+/* Mobile: Reduce indentation for compact display */
+@media (max-width: 768px) {
+  .table__row--level-1 td:first-child {
+    padding-left: calc(var(--space-2) + var(--indent-unit) * 0.5);
+  }
+
+  .table__row--level-2 td:first-child {
+    padding-left: calc(var(--space-2) + var(--indent-unit));
+  }
+}
+
 /* Column Sizing for Redirects Table */
 /* Status column - center-align */
 .table--redirects th:nth-child(3),
