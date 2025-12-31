@@ -60,11 +60,3 @@ export async function healthcheck(): Promise<boolean> {
     return false;
   }
 }
-
-export async function authFetchBuster(): Promise<void> {
-  try {
-    await apiFetch<unknown>('/auth/me');
-  } catch (error) {
-    logDebug('Auth fetch buster failed', error);
-  }
-}

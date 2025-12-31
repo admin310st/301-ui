@@ -1,7 +1,6 @@
 import { me, refresh } from '@api/auth';
 import type { LoginResponse, MeResponse } from '@api/types';
 import { logDebug, logInfo } from '@utils/logger';
-import { setWSVar, updateFetchBuster } from '@utils/webstudio';
 
 const REFRESH_INTERVAL_MS = 10 * 60 * 1000;
 
@@ -52,8 +51,6 @@ export function getAuthToken(): string | null {
 
 export function setAuthToken(token: string | null): void {
   updateState({ token });
-  updateFetchBuster();
-  setWSVar('authBearer', token ? `Bearer ${token}` : '');
   if (token) {
     scheduleRefresh();
   } else {
