@@ -656,6 +656,13 @@ h5 .icon[data-icon*="close"] {
   color: var(--brand);
 }
 
+/* Provider cell - align icon and label */
+.provider-cell {
+  display: flex;
+  align-items: center;
+  gap: var(--inline-gap);
+}
+
 @media (max-width: 768px) {
   .app-alert__inner {
     padding-inline: var(--page-gutter-mobile);
