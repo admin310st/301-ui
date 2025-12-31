@@ -350,6 +350,45 @@ export function updateDashboardOnboardingIndicator(currentStep: number | null): 
 }
 
 /**
+ * Update projects and sites count badges
+ */
+export async function updateProjectsAndSitesCounts(): Promise<void> {
+  try {
+    const { getAccountId } = await import('@state/auth-state');
+    const accountId = getAccountId();
+    if (!accountId) return;
+
+    // Fetch projects and sites counts in parallel
+    const [projectsModule, sitesModule] = await Promise.all([
+      import('@api/projects'),
+      import('@api/sites'),
+    ]);
+
+    const [projects, sites] = await Promise.all([
+      projectsModule.getProjects(accountId),
+      sitesModule.getSites(accountId),
+    ]);
+
+    // Update badges
+    if (projects.length > 0) {
+      updateNavItemIndicators('projects', {
+        badge: projects.length,
+        badgeClass: 'badge badge--sm',
+      });
+    }
+
+    if (sites.length > 0) {
+      updateNavItemIndicators('sites', {
+        badge: sites.length,
+        badgeClass: 'badge badge--sm',
+      });
+    }
+  } catch (error) {
+    console.error('Failed to update projects/sites counts:', error);
+  }
+}
+
+/**
  * Initialize sidebar navigation
  */
 export function initSidebarNav(): void {
@@ -358,5 +397,21 @@ export function initSidebarNav(): void {
   // Update active state on popstate (browser back/forward)
   window.addEventListener('popstate', () => {
     updateSidebarActive();
+  });
+
+  // Update counts when account ID becomes available
+  import('@state/auth-state').then(({ getAccountId, onAuthChange }) => {
+    if (getAccountId()) {
+      // Account ID already available
+      updateProjectsAndSitesCounts();
+    } else {
+      // Wait for auth to load
+      const unsubscribe = onAuthChange((state) => {
+        if (state.accountId) {
+          updateProjectsAndSitesCounts();
+          unsubscribe();
+        }
+      });
+    }
   });
 }

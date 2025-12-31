@@ -198,6 +198,11 @@ async function handleCreateSite(event: Event): Promise<void> {
     // Close drawer
     closeCreateSiteDrawer();
 
+    // Update sidebar count badge
+    import('@ui/sidebar-nav').then(({ updateProjectsAndSitesCounts }) => {
+      updateProjectsAndSitesCounts();
+    });
+
     // Reload appropriate view
     await reloadSitesView(projectId);
   } catch (error: any) {
