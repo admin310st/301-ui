@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>301.st · Sites</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" href="/css/theme.css" />
+    <link rel="stylesheet" href="/css/layout.css" />
+    <link rel="stylesheet" href="/css/site.css" />
+    <link rel="stylesheet" href="/css/tables.css" />
+    <link rel="stylesheet" href="/css/drawers.css" />
+  </head>
+  <body class="layout-dashboard">
+{{> sidebar-state-loader}}
+    <header class="site-header" role="banner">
+{{> header-top}}
+
+      <div class="utility-bar">
+        <div class="page-shell utility-bar__inner">
+          <div class="utility-left">
+            <span class="badges">
+              <span class="badge badge--neutral">Sites</span>
+            </span>
+          </div>
+
+{{> header-utility}}
+        </div>
+
+{{> global-notice}}
+      </div>
+    </header>
+
+    <main class="page-shell dashboard-shell">
+{{> sidebar activePage="sites"}}
+
+      <section class="dashboard-content">
+        <header class="page-header">
+          <div class="page-header__title">
+            <h1 class="h3" data-i18n="sites.title">Sites</h1>
+            <p class="text-muted" data-i18n="sites.subtitle">
+              Landing pages and whitelists for traffic distribution
+            </p>
+          </div>
+          <div class="page-header__actions">
+            <button
+              class="btn btn--primary"
+              type="button"
+              data-action="create-site"
+            >
+              <span class="icon" data-icon="mono/plus"></span>
+              <span data-i18n="sites.actions.create">Create site</span>
+            </button>
+          </div>
+        </header>
+
+        <!-- Sites Table Card -->
+        <div class="card card--panel">
+          <header class="card__header" data-sites-header>
+            <div class="card__actions">
+              <!-- Search row -->
+              <div class="controls-row">
+                <div class="table-search" data-table-search>
+                  <span class="icon" data-icon="mono/search"></span>
+                  <input
+                    type="text"
+                    class="table-search__input"
+                    placeholder="Search sites..."
+                    data-search-input
+                  />
+                </div>
+              </div>
+            </div>
+          </header>
+
+          <div class="card__body card__body--table">
+            <!-- Loading State -->
+            <div class="table-loading" data-sites-loading>
+              <div class="spinner"></div>
+              <p class="text-muted" data-i18n="sites.loading">Loading sites...</p>
+            </div>
+
+            <!-- Empty State -->
+            <div class="table-empty" data-sites-empty hidden>
+              <div class="empty-state">
+                <div class="empty-state__icon">
+                  <span class="icon icon--xl" data-icon="mono/landing"></span>
+                </div>
+                <h3 class="h4" data-i18n="sites.empty.title">No sites configured</h3>
+                <p class="text-muted" data-i18n="sites.empty.description">
+                  Create landing pages and configure whitelists for your traffic streams.
+                </p>
+                <button
+                  class="btn btn--primary"
+                  type="button"
+                  data-action="create-site"
+                >
+                  <span class="icon" data-icon="mono/plus"></span>
+                  <span data-i18n="sites.empty.cta">Create site</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Sites Table (populated by JS) -->
+            <div class="table-container" data-sites-table-container hidden>
+              <table class="table" data-sites-table>
+                <thead>
+                  <tr>
+                    <th data-i18n="sites.table.columns.name">Name</th>
+                    <th data-i18n="sites.table.columns.tag">Tag</th>
+                    <th data-i18n="sites.table.columns.project">Project</th>
+                    <th class="text-right" data-i18n="sites.table.columns.domains">Domains</th>
+                    <th data-i18n="sites.table.columns.acceptor">Acceptor</th>
+                    <th data-i18n="sites.table.columns.status">Status</th>
+                    <th data-i18n="sites.table.columns.updatedAt">Updated</th>
+                    <th class="th-actions">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Populated by src/ui/sites.ts -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+{{> footer}}
+  </body>
+</html>

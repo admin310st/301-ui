@@ -1,0 +1,128 @@
+<!-- Create Project Drawer -->
+    <aside class="drawer" data-drawer="create-project" hidden>
+      <div class="drawer__overlay" data-drawer-close></div>
+      <div class="drawer__panel">
+        <header class="drawer__header">
+          <div class="drawer__title">
+            <span class="icon" data-icon="mono/project"></span>
+            <h2 class="h4" data-i18n="projects.drawer.createTitle">Create New Project</h2>
+          </div>
+          <button class="btn-close" type="button" data-drawer-close aria-label="Close">
+            <span class="icon" data-icon="mono/close"></span>
+          </button>
+        </header>
+
+        <div class="drawer__body">
+          <div class="stack-list">
+            <p class="text-muted" data-i18n="projects.drawer.createSubtitle">
+              A project groups domains, sites and traffic streams together
+            </p>
+
+            <!-- Project Creation Form -->
+            <form id="create-project-form" class="stack-md" data-form="create-project">
+              <div class="field">
+                <label class="field__label">
+                  <span data-i18n="projects.fields.projectName">Project name</span>
+                  <span class="field__required">*</span>
+                </label>
+                <input
+                  class="input"
+                  type="text"
+                  name="project_name"
+                  placeholder="Black Friday 2025"
+                  data-i18n-placeholder="projects.fields.projectNamePlaceholder"
+                  autocomplete="off"
+                  required
+                />
+              </div>
+
+              <div class="field">
+                <label class="field__label" data-i18n="projects.fields.description">Description</label>
+                <textarea
+                  class="input"
+                  name="description"
+                  rows="3"
+                  placeholder="Optional project description"
+                  data-i18n-placeholder="projects.fields.descriptionPlaceholder"
+                  autocomplete="off"
+                ></textarea>
+              </div>
+
+              <div class="field">
+                <label class="field__label" data-i18n="projects.fields.brandTag">Brand tag</label>
+                <input
+                  class="input"
+                  type="text"
+                  name="brand_tag"
+                  placeholder="e.g., brand-2025"
+                  data-i18n-placeholder="projects.fields.brandTagPlaceholder"
+                  autocomplete="off"
+                />
+                <p class="field__hint text-muted">
+                  A unique identifier for the brand or campaign
+                </p>
+              </div>
+
+              <div class="field">
+                <label class="field__label" data-i18n="projects.fields.commercialTerms">Commercial terms</label>
+                <input
+                  class="input"
+                  type="text"
+                  name="commercial_terms"
+                  placeholder="e.g., CPA $5 or RevShare 30%"
+                  data-i18n-placeholder="projects.fields.commercialTermsPlaceholder"
+                  autocomplete="off"
+                />
+              </div>
+
+              <div class="field-group">
+                <div class="field">
+                  <label class="field__label" data-i18n="projects.fields.startDate">Start date</label>
+                  <input
+                    class="input"
+                    type="date"
+                    name="start_date"
+                    autocomplete="off"
+                  />
+                </div>
+                <div class="field">
+                  <label class="field__label" data-i18n="projects.fields.endDate">End date</label>
+                  <input
+                    class="input"
+                    type="date"
+                    name="end_date"
+                    autocomplete="off"
+                  />
+                </div>
+              </div>
+
+              <div class="field">
+                <label class="field__label" data-i18n="projects.fields.siteName">First site name</label>
+                <input
+                  class="input"
+                  type="text"
+                  name="site_name"
+                  placeholder="Main Landing"
+                  data-i18n-placeholder="projects.fields.siteNamePlaceholder"
+                  autocomplete="off"
+                />
+                <p class="field__hint text-muted">
+                  A default site will be created automatically
+                </p>
+              </div>
+
+              <!-- Status Panel (for errors/success) -->
+              <div class="panel" data-project-status hidden role="status" aria-live="polite"></div>
+            </form>
+          </div>
+        </div>
+
+        <footer class="drawer__footer">
+          <button class="btn btn--ghost" type="button" data-drawer-close>Cancel</button>
+          <button type="submit" form="create-project-form" class="btn btn--primary">
+            <span class="icon" data-icon="mono/plus"></span>
+            <span data-i18n="projects.actions.create">Create project</span>
+          </button>
+        </footer>
+      </div>
+    </aside>

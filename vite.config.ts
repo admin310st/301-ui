@@ -76,6 +76,8 @@ export default defineConfig({
         main: resolve(__dirname, 'index.html'),
         dashboard: resolve(__dirname, 'dashboard.html'),
         integrations: resolve(__dirname, 'integrations.html'),
+        projects: resolve(__dirname, 'projects.html'),
+        sites: resolve(__dirname, 'sites.html'),
         account: resolve(__dirname, 'account.html'),
         domains: resolve(__dirname, 'domains.html'),
         redirects: resolve(__dirname, 'redirects.html'),

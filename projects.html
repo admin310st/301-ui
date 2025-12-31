@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>301.st · Projects</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" href="/css/theme.css" />
+    <link rel="stylesheet" href="/css/layout.css" />
+    <link rel="stylesheet" href="/css/site.css" />
+    <link rel="stylesheet" href="/css/tables.css" />
+    <link rel="stylesheet" href="/css/drawers.css" />
+  </head>
+  <body class="layout-dashboard">
+{{> sidebar-state-loader}}
+    <header class="site-header" role="banner">
+{{> header-top}}
+
+      <div class="utility-bar">
+        <div class="page-shell utility-bar__inner">
+          <div class="utility-left">
+            <span class="badges">
+              <span class="badge badge--neutral">Projects</span>
+            </span>
+          </div>
+
+{{> header-utility}}
+        </div>
+
+{{> global-notice}}
+      </div>
+    </header>
+
+    <main class="page-shell dashboard-shell">
+{{> sidebar activePage="projects"}}
+
+      <section class="dashboard-content">
+        <header class="page-header">
+          <div class="page-header__title">
+            <h1 class="h3" data-i18n="projects.title">Projects</h1>
+            <p class="text-muted" data-i18n="projects.subtitle">
+              Organize your domains, sites and streams into projects
+            </p>
+          </div>
+          <div class="page-header__actions">
+            <button
+              class="btn btn--primary"
+              type="button"
+              data-action="create-project"
+            >
+              <span class="icon" data-icon="mono/plus"></span>
+              <span data-i18n="projects.actions.create">Create project</span>
+            </button>
+          </div>
+        </header>
+
+        <!-- Projects Table Card -->
+        <div class="card card--panel">
+          <header class="card__header" data-projects-header>
+            <div class="card__actions">
+              <!-- Search row -->
+              <div class="controls-row">
+                <div class="table-search" data-table-search>
+                  <span class="icon" data-icon="mono/search"></span>
+                  <input
+                    type="text"
+                    class="table-search__input"
+                    placeholder="Search projects..."
+                    data-search-input
+                  />
+                </div>
+              </div>
+            </div>
+          </header>
+
+          <div class="card__body card__body--table">
+            <!-- Loading State -->
+            <div class="table-loading" data-projects-loading>
+              <div class="spinner"></div>
+              <p class="text-muted" data-i18n="projects.loading">Loading projects...</p>
+            </div>
+
+            <!-- Empty State -->
+            <div class="table-empty" data-projects-empty hidden>
+              <div class="empty-state">
+                <div class="empty-state__icon">
+                  <span class="icon icon--xl" data-icon="mono/project"></span>
+                </div>
+                <h3 class="h4" data-i18n="projects.empty.title">No projects yet</h3>
+                <p class="text-muted" data-i18n="projects.empty.description">
+                  Create your first project to organize domains and manage traffic distribution.
+                </p>
+                <button
+                  class="btn btn--primary"
+                  type="button"
+                  data-action="create-project"
+                >
+                  <span class="icon" data-icon="mono/plus"></span>
+                  <span data-i18n="projects.empty.cta">Create project</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Projects Table (populated by JS) -->
+            <div class="table-container" data-projects-table-container hidden>
+              <table class="table" data-projects-table>
+                <thead>
+                  <tr>
+                    <th data-i18n="projects.table.columns.name">Name</th>
+                    <th data-i18n="projects.table.columns.brandTag">Brand Tag</th>
+                    <th class="text-right" data-i18n="projects.table.columns.domains">Domains</th>
+                    <th class="text-right" data-i18n="projects.table.columns.sites">Sites</th>
+                    <th data-i18n="projects.table.columns.dates">Dates</th>
+                    <th data-i18n="projects.table.columns.createdAt">Created</th>
+                    <th class="th-actions">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Populated by src/ui/projects.ts -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+{{> create-project-drawer}}
+{{> footer}}
+  </body>
+</html>
