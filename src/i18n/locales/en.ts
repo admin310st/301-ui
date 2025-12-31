@@ -298,7 +298,10 @@ export const en = {
       bulkDescription: 'Paste or import a list of domains (TXT, CSV)',
       registrarTitle: 'Import from registrar',
       registrarDescription: 'Auto-sync with GoDaddy, Namecheap, Cloudflare Registrar and others',
+      projectsTitle: 'Organize with Projects',
+      projectsDescription: 'Group domains, sites and streams into projects',
       button: 'Add domains',
+      projectsButton: 'Go to Projects',
       notice: 'This section becomes available after connecting your Cloudflare account.',
     },
     step3: {

@@ -304,7 +304,10 @@ export const ru: Translation = {
       bulkDescription: 'Вставьте или импортируйте список доменов (TXT, CSV)',
       registrarTitle: 'Импорт от регистратора',
       registrarDescription: 'Автоматическая синхронизация с GoDaddy, Namecheap, Cloudflare Registrar и другими',
+      projectsTitle: 'Организуйте в Проекты',
+      projectsDescription: 'Группируйте домены, сайты и потоки в проекты',
       button: 'Добавить домены',
+      projectsButton: 'Перейти в Проекты',
       notice: 'Этот раздел станет доступен после подключения аккаунта Cloudflare.',
     },
     step3: {
