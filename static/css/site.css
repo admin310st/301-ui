@@ -656,13 +656,6 @@ h5 .icon[data-icon*="close"] {
   color: var(--brand);
 }
 
-/* Provider cell - align icon and label */
-.provider-cell {
-  display: flex;
-  align-items: center;
-  gap: var(--inline-gap);
-}
-
 @media (max-width: 768px) {
   .app-alert__inner {
     padding-inline: var(--page-gutter-mobile);
@@ -2199,12 +2192,12 @@ html[data-theme="light"] .btn--social-github {
   justify-content: center;
   padding-inline: 0.75em;
   padding-block: 0.15em;
-  border-radius: 999px;
+  border-radius: var(--r-pill);
   border: 1px solid transparent;
 
-  font-size: 0.75rem;
+  font-size: var(--fs-xs);
   line-height: 1.6;
-  font-weight: 500;
+  font-weight: var(--fw-medium);
   white-space: nowrap;
 
   background-color: rgba(255, 255, 255, 0.03);
@@ -2212,7 +2205,7 @@ html[data-theme="light"] .btn--social-github {
 }
 
 .badge--pill {
-  border-radius: 999px;
+  border-radius: var(--r-pill);
 }
 
 .badge--circle {
@@ -2222,11 +2215,11 @@ html[data-theme="light"] .btn--social-github {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 999px;
+  border-radius: var(--r-pill);
 }
 
 .badge + .badge {
-  margin-left: 0.25rem;
+  margin-left: var(--space-1);
 }
 
 .badge--neutral {
