@@ -226,6 +226,27 @@ export async function loadProjects(): Promise<void> {
 }
 
 /**
+ * Initialize projects list with auth state handling
+ */
+function initProjectsList(): void {
+  const accountId = getAccountId();
+  if (accountId) {
+    // Account ID already available (page reload case)
+    loadProjects();
+  } else {
+    // Wait for account ID to be loaded (fresh login case)
+    import('@state/auth-state').then(({ onAuthChange }) => {
+      const unsubscribe = onAuthChange((state) => {
+        if (state.accountId) {
+          loadProjects();
+          unsubscribe(); // Only load once
+        }
+      });
+    });
+  }
+}
+
+/**
  * Load and render project detail view
  */
 export async function loadProjectDetail(projectId: number): Promise<void> {
@@ -376,8 +397,8 @@ export function initProjectsPage(): void {
     if (listView) listView.hidden = false;
     if (detailView) detailView.hidden = true;
 
-    // Load projects list
-    loadProjects();
+    // Load projects list with auth state handling
+    initProjectsList();
   }
 
   // Event delegation for view-project buttons
