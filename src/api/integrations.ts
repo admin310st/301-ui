@@ -1,4 +1,5 @@
 import { apiFetch } from './client';
+import { getCached, setCache, invalidateCacheByPrefix } from './cache';
 import type {
   IntegrationKey,
   InitCloudflareRequest,
@@ -18,11 +19,22 @@ const BASE_URL = '/integrations';
  * @returns Array of integration keys
  */
 export async function getIntegrationKeys(accountId: number, provider?: string): Promise<IntegrationKey[]> {
+  // Check cache first (30 second TTL)
+  const cacheKey = `integrations:${accountId}${provider ? `:${provider}` : ''}`;
+  const cached = getCached<IntegrationKey[]>(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
+  // Cache miss - fetch from API
   const params = new URLSearchParams({ account_id: accountId.toString() });
   if (provider) {
     params.set('provider', provider);
   }
   const response = await apiFetch<GetKeysResponse>(`${BASE_URL}/keys?${params}`);
+
+  // Store in cache
+  setCache(cacheKey, response.keys);
   return response.keys;
 }
 
@@ -46,6 +58,8 @@ export async function updateIntegrationKey(id: number, data: UpdateKeyRequest): 
     method: 'PATCH',
     body: JSON.stringify(data),
   });
+  // Invalidate integrations cache
+  invalidateCacheByPrefix('integrations:');
 }
 
 /**
@@ -56,6 +70,8 @@ export async function deleteIntegrationKey(id: number): Promise<void> {
   await apiFetch(`${BASE_URL}/keys/${id}`, {
     method: 'DELETE',
   });
+  // Invalidate integrations cache
+  invalidateCacheByPrefix('integrations:');
 }
 
 /**
@@ -69,6 +85,8 @@ export async function initCloudflare(data: InitCloudflareRequest): Promise<InitI
     body: JSON.stringify(data),
     showLoading: 'cf',
   });
+  // Invalidate integrations cache (new integration added)
+  invalidateCacheByPrefix('integrations:');
   return response;
 }
 
@@ -83,5 +101,7 @@ export async function initNamecheap(data: InitNamecheapRequest): Promise<number>
     body: JSON.stringify(data),
     showLoading: 'brand',
   });
+  // Invalidate integrations cache (new integration added)
+  invalidateCacheByPrefix('integrations:');
   return response.key_id;
 }

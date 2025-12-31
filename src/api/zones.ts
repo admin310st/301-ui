@@ -4,6 +4,7 @@
  */
 
 import { apiFetch } from './client';
+import { getCached, setCache, invalidateCache } from './cache';
 
 /**
  * Cloudflare zone object
@@ -48,7 +49,18 @@ export interface SyncZonesResponse {
  * Get all Cloudflare zones for current user
  */
 export async function getZones(): Promise<CloudflareZone[]> {
+  // Check cache first (30 second TTL)
+  const cacheKey = 'zones';
+  const cached = getCached<CloudflareZone[]>(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
+  // Cache miss - fetch from API
   const response = await apiFetch<GetZonesResponse>('/zones');
+
+  // Store in cache
+  setCache(cacheKey, response.zones);
   return response.zones;
 }
 
@@ -62,5 +74,7 @@ export async function syncZones(accountKeyId?: number): Promise<SyncZonesRespons
     method: 'POST',
     body: JSON.stringify(body),
   });
+  // Invalidate zones cache (zones were synced from Cloudflare)
+  invalidateCache('zones');
   return response;
 }
