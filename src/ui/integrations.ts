@@ -70,9 +70,11 @@ function renderIntegrationRow(key: IntegrationKey, zonesCount: number = 0): stri
 
   return `
     <tr data-key-id="${key.id}">
-      <td data-priority="critical" class="provider-cell">
-        <span class="icon" data-icon="${providerInfo.icon}"></span>
-        <span class="provider-label">${providerInfo.name}</span>
+      <td data-priority="critical">
+        <div class="provider-cell">
+          <span class="icon" data-icon="${providerInfo.icon}"></span>
+          <span class="provider-label">${providerInfo.name}</span>
+        </div>
       </td>
       <td data-priority="high" title="Account ID: ${key.external_account_id}">${key.key_alias}</td>
       <td data-priority="medium" class="text-muted">${zonesCount > 0 ? zonesCount : '—'}</td>

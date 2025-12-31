@@ -119,8 +119,10 @@ function renderIntegrationRow(integration: ProjectIntegration): string {
   return `
     <tr data-integration-id="${integration.id}">
       <td data-priority="critical">
-        <span class="icon" data-icon="${providerIcon}"></span>
-        <span class="provider-label">${integration.provider}</span>
+        <div class="provider-cell">
+          <span class="icon" data-icon="${providerIcon}"></span>
+          <span class="provider-label">${integration.provider}</span>
+        </div>
       </td>
       <td data-priority="high">${integration.key_alias}</td>
       <td data-priority="medium" class="text-muted">${integration.external_account_id}</td>
