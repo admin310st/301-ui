@@ -87,6 +87,16 @@ function renderSiteRow(site: Site): string {
         <button
           class="btn-icon"
           type="button"
+          data-action="manage-domains"
+          data-site-id="${site.id}"
+          aria-label="${t('sites.actions.manageDomains')}"
+          title="${t('sites.actions.manageDomains')}"
+        >
+          <span class="icon" data-icon="mono/web"></span>
+        </button>
+        <button
+          class="btn-icon"
+          type="button"
           data-action="edit-site"
           data-site-id="${site.id}"
           aria-label="Edit ${site.site_name}"

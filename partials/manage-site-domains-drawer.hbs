@@ -1,0 +1,112 @@
+<!-- Manage Site Domains Drawer -->
+    <aside class="drawer" data-drawer="manage-site-domains" hidden>
+      <div class="drawer__overlay" data-drawer-close></div>
+      <div class="drawer__panel">
+        <header class="drawer__header">
+          <div class="drawer__title">
+            <span class="icon" data-icon="mono/web"></span>
+            <h2 class="h4" data-i18n="sites.domains.drawerTitle">Manage Domains</h2>
+          </div>
+          <button class="btn-close" type="button" data-drawer-close aria-label="Close">
+            <span class="icon" data-icon="mono/close"></span>
+          </button>
+        </header>
+
+        <div class="drawer__body">
+          <div class="stack-list">
+            <p class="text-muted">
+              <span data-i18n="sites.domains.drawerSubtitle">Attach or detach domains for site</span>
+              <strong data-site-domains-name>—</strong>
+            </p>
+
+            <!-- Attached Domains Section -->
+            <div class="card card--panel">
+              <header class="card__header">
+                <h3 class="h5" data-i18n="sites.domains.attachedTitle">Attached Domains</h3>
+                <div class="card__meta">
+                  <span data-i18n="sites.domains.count">Count:</span>
+                  <strong data-site-domains-count>0</strong>
+                </div>
+              </header>
+              <div class="card__body card__body--table">
+                <!-- Loading State -->
+                <div class="table-loading" data-site-domains-loading hidden>
+                  <div class="spinner"></div>
+                  <p class="text-muted" data-i18n="sites.domains.loading">Loading domains...</p>
+                </div>
+
+                <!-- Empty State -->
+                <div class="empty-state" data-site-domains-empty>
+                  <p class="text-muted" data-i18n="sites.domains.empty">No domains attached to this site yet.</p>
+                </div>
+
+                <!-- Domains Table -->
+                <div class="table-container" data-site-domains-table-container hidden>
+                  <table class="table" data-site-domains-table>
+                    <thead>
+                      <tr>
+                        <th data-i18n="sites.domains.columns.domain">Domain</th>
+                        <th data-i18n="sites.domains.columns.status">Status</th>
+                        <th class="th-actions">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <!-- Populated by JS -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- Attach New Domains Section -->
+            <div class="card card--panel">
+              <header class="card__header">
+                <h3 class="h5" data-i18n="sites.domains.attachNewTitle">Attach New Domains</h3>
+              </header>
+              <div class="card__body">
+                <div class="stack stack--sm">
+                  <!-- Domain Search/Select -->
+                  <div class="field">
+                    <label class="field__label" data-i18n="sites.domains.selectDomain">Select domain</label>
+                    <div class="dropdown" data-dropdown="attach-domain">
+                      <button
+                        class="btn-chip btn-chip--sm btn-chip--dropdown dropdown__trigger"
+                        type="button"
+                        aria-haspopup="menu"
+                        aria-expanded="false"
+                        data-attach-domain-select
+                        data-selected-value=""
+                      >
+                        <span class="btn-chip__label" data-selected-label data-i18n="sites.domains.selectDomainPlaceholder">Choose a domain...</span>
+                        <span class="btn-chip__chevron icon" data-icon="mono/chevron-down"></span>
+                      </button>
+                      <div class="dropdown__menu dropdown__menu--fit-trigger" role="menu" data-attach-domain-menu>
+                        <!-- Options populated by JS -->
+                      </div>
+                    </div>
+                    <p class="field__hint text-muted" data-i18n="sites.domains.selectDomainHint">
+                      Only domains in the same project can be attached
+                    </p>
+                  </div>
+
+                  <!-- Attach Button -->
+                  <div class="cluster">
+                    <button class="btn btn--primary btn--sm" type="button" data-site-attach-domain disabled>
+                      <span class="icon" data-icon="mono/plus"></span>
+                      <span data-i18n="sites.domains.attachButton">Attach domain</span>
+                    </button>
+                  </div>
+
+                  <!-- Status Panel -->
+                  <div class="panel" data-site-domains-status hidden role="status" aria-live="polite"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <footer class="drawer__footer">
+          <button class="btn btn--ghost" type="button" data-drawer-close data-i18n="common.close">Close</button>
+        </footer>
+      </div>
+    </aside>
