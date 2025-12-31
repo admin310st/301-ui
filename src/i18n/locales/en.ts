@@ -487,6 +487,18 @@ export const en = {
       pending: 'Pending',
       error: 'Error',
     },
+    dialogs: {
+      moveToProject: {
+        title: 'Move Domains to Project',
+        description: 'Moving',
+        domainsTo: 'domain(s) to:',
+        selectProject: 'Select project',
+        selectPlaceholder: 'Choose a project...',
+        hint: 'Domains will be reassigned to the selected project',
+        warning: 'This will detach domains from their current sites and set site_id to NULL.',
+        confirm: 'Move domains',
+      },
+    },
   },
   sites: {
     title: 'Sites',

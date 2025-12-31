@@ -70,3 +70,24 @@ export async function createZonesBatch(data: BatchZoneRequest): Promise<BatchZon
     showLoading: 'cf', // Orange shimmer for Cloudflare operations
   });
 }
+
+/**
+ * Move domain to a different project
+ *
+ * PATCH /accounts/:accountId/domains/:domainId
+ *
+ * @param accountId - Account ID
+ * @param domainId - Domain ID
+ * @param projectId - Target project ID
+ * @returns Updated domain data
+ */
+export async function moveDomainToProject(
+  accountId: number,
+  domainId: number,
+  projectId: number
+): Promise<void> {
+  await apiFetch(`/accounts/${accountId}/domains/${domainId}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ project_id: projectId }),
+  });
+}

@@ -339,6 +339,56 @@
       </div>
     </div>
 
+    <!-- Confirmation Dialog: Move Domains to Project -->
+    <div class="dialog" data-dialog="bulk-move-domains" hidden>
+      <div class="dialog__overlay" data-dialog-close></div>
+      <div class="dialog__panel">
+        <header class="dialog__header">
+          <h2 class="h4" data-i18n="domains.dialogs.moveToProject.title">Move Domains to Project</h2>
+          <button class="btn-close" type="button" data-dialog-close aria-label="Close">
+            <span class="icon" data-icon="mono/close"></span>
+          </button>
+        </header>
+        <div class="dialog__body">
+          <div class="stack stack--md">
+            <p>
+              <span data-i18n="domains.dialogs.moveToProject.description">Moving</span>
+              <strong data-bulk-move-count>0</strong>
+              <span data-i18n="domains.dialogs.moveToProject.domainsTo">domain(s) to:</span>
+            </p>
+
+            <div class="field">
+              <label class="field__label">
+                <span data-i18n="domains.dialogs.moveToProject.selectProject">Select project</span>
+                <span class="field__required">*</span>
+              </label>
+              <select class="input" data-bulk-move-project-select required>
+                <option value="" disabled selected data-i18n="domains.dialogs.moveToProject.selectPlaceholder">Choose a project...</option>
+                <!-- Populated by JS -->
+              </select>
+              <p class="field__hint text-muted" data-i18n="domains.dialogs.moveToProject.hint">
+                Domains will be reassigned to the selected project
+              </p>
+            </div>
+
+            <div class="panel panel--warning">
+              <p class="text-sm">
+                <span class="icon" data-icon="mono/alert-circle"></span>
+                <span data-i18n="domains.dialogs.moveToProject.warning">This will detach domains from their current sites and set site_id to NULL.</span>
+              </p>
+            </div>
+          </div>
+        </div>
+        <footer class="dialog__footer">
+          <button class="btn btn--ghost" type="button" data-dialog-close data-i18n="common.cancel">Cancel</button>
+          <button class="btn btn--primary" type="button" data-confirm-bulk-move disabled>
+            <span class="icon" data-icon="mono/layers"></span>
+            <span data-i18n="domains.dialogs.moveToProject.confirm">Move domains</span>
+          </button>
+        </footer>
+      </div>
+    </div>
+
     <!-- Bulk Actions Bar (appears when domains selected) -->
     <div class="bulk-actions-bar" data-bulk-actions hidden>
       <div class="page-shell">

@@ -493,6 +493,18 @@ export const ru: Translation = {
       pending: 'В ожидании',
       error: 'Ошибка',
     },
+    dialogs: {
+      moveToProject: {
+        title: 'Переместить домены в проект',
+        description: 'Перемещение',
+        domainsTo: 'домен(ов) в:',
+        selectProject: 'Выберите проект',
+        selectPlaceholder: 'Выберите проект...',
+        hint: 'Домены будут переназначены на выбранный проект',
+        warning: 'Это отвяжет домены от текущих сайтов и установит site_id в NULL.',
+        confirm: 'Переместить домены',
+      },
+    },
   },
   sites: {
     title: 'Сайты',
