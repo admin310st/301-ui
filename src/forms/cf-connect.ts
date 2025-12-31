@@ -175,22 +175,23 @@ export function initCfScopedTokenForm(): void {
         submitBtn.innerHTML = '<span class="icon" data-icon="mono/check-circle"></span><span>Connected!</span>';
       }
 
-      // Close drawer and refresh integrations after 2 seconds
+      // Close drawer and refresh page after delay (allow time for notification animation)
       setTimeout(async () => {
         if (drawer) {
           drawer.setAttribute('hidden', '');
         }
 
-        // Reload integrations to show new CF integration
+        // Try to reload integrations table (works only on integrations page)
+        // Falls back to full page reload on other pages (dashboard, etc.)
         try {
           const { loadIntegrations } = await import('@ui/integrations');
           await loadIntegrations();
         } catch (error) {
-          // Fallback: reload page
-          console.error('Failed to reload integrations:', error);
+          // Not on integrations page or loadIntegrations failed - reload page to show changes
+          console.log('[cf-connect] Reloading page to show new integration');
           window.location.reload();
         }
-      }, 2000);
+      }, 3500);
 
     } catch (error: any) {
       // Loading indicator hidden automatically by apiFetch in finally block
@@ -243,14 +244,18 @@ export function initCfScopedTokenForm(): void {
 
             setTimeout(async () => {
               if (drawer) drawer.setAttribute('hidden', '');
+
+              // Try to reload integrations table (works only on integrations page)
+              // Falls back to full page reload on other pages (dashboard, etc.)
               try {
                 const { loadIntegrations } = await import('@ui/integrations');
                 await loadIntegrations();
               } catch (error) {
-                console.error('Failed to reload integrations:', error);
+                // Not on integrations page or loadIntegrations failed - reload page to show changes
+                console.log('[cf-connect] Reloading page to show new integration');
                 window.location.reload();
               }
-            }, 2000);
+            }, 3500);
 
           } catch (retryError: any) {
             // Loading indicator hidden automatically by apiFetch in finally block
