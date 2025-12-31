@@ -171,7 +171,6 @@ async function handleCreateSite(event: Event): Promise<void> {
 
   // Build request payload
   const request: CreateSiteRequest = {
-    project_id: projectId,
     site_name: siteName,
   };
 
@@ -189,8 +188,14 @@ async function handleCreateSite(event: Event): Promise<void> {
       submitBtn.textContent = t('common.actions.creating') || 'Creating...';
     }
 
+    // Get account ID
+    const accountId = getAccountId();
+    if (!accountId) {
+      throw new Error('Account ID not found');
+    }
+
     // Create site
-    await createSite(request);
+    await createSite(accountId, projectId, request);
 
     // Show success message
     showGlobalMessage('success', t('sites.messages.created') || 'Site created successfully');
