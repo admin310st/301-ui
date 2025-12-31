@@ -5,53 +5,7 @@
 import { showGlobalMessage } from '@ui/notifications';
 import { hideLoading, setPendingNoticeFlash } from '@ui/loading-indicator';
 import { showConfirmDialog } from '@ui/dialog';
-import type { ApiErrorResponse } from '@api/types';
-import type { ApiError } from '@utils/errors';
-
-/**
- * Get user-friendly error message from API error response
- */
-function getErrorMessage(error: ApiError<unknown>): string {
-  const body = error.body as ApiErrorResponse | null;
-
-  if (!body || typeof body !== 'object') {
-    return error.message || 'Failed to connect Cloudflare account';
-  }
-
-  // If there's a Cloudflare-specific error in context, show it
-  if (body.context?.cf_message || body.context?.message) {
-    const contextMessage = body.context.cf_message || body.context.message;
-    return `Cloudflare API error: ${contextMessage}`;
-  }
-
-  // Map error codes to user-friendly messages (aligned with API_IntegrationsKeys.md)
-  const errorMessages: Record<string, string> = {
-    // Bootstrap token errors
-    'bootstrap_invalid': 'Invalid bootstrap token. Please check your API token and try again.',
-    'bootstrap_expired': 'Bootstrap token has expired. Please generate a new token.',
-    'bootstrap_not_active': 'Bootstrap token is not active. Please check your token status.',
-    'permissions_missing': 'Bootstrap token has insufficient permissions. Make sure it has "Account Settings: Read" and "API Tokens: Edit" permissions.',
-
-    // Quota and access errors
-    'quota_exceeded': 'You have reached the maximum number of Cloudflare accounts for your plan.',
-    'owner_required': 'Owner role is required to connect Cloudflare integrations.',
-
-    // API communication errors
-    'cf_rejected': 'Cloudflare API rejected the request. Please check your credentials.',
-    'cf_unavailable': 'Cloudflare API is temporarily unavailable. Please try again later.',
-
-    // Storage errors
-    'storage_failed': 'Failed to save integration. Please try again or contact support.',
-    'cleanup_failed': 'Failed to cleanup old integration. Please contact support.',
-
-    // Request validation errors
-    'invalid_json': 'Invalid request format. Please try again.',
-    'missing_fields': 'Missing required fields. Please fill in all required information.',
-  };
-
-  const userMessage = errorMessages[body.error] || body.message || body.error;
-  return userMessage;
-}
+import { getIntegrationErrorMessage, isRecoverableError } from '@utils/api-errors';
 
 /**
  * Parse Cloudflare test curl command and extract account ID and token
@@ -300,7 +254,7 @@ export function initCfScopedTokenForm(): void {
 
           } catch (retryError: any) {
             // Loading indicator hidden automatically by apiFetch in finally block
-            const retryErrorMessage = getErrorMessage(retryError);
+            const retryErrorMessage = getIntegrationErrorMessage(retryError);
 
             // Set pending notice flash for smooth shimmer → error transition
             setPendingNoticeFlash('error');
@@ -323,7 +277,7 @@ export function initCfScopedTokenForm(): void {
       }
 
       // Handle other errors
-      const errorMessage = getErrorMessage(error);
+      const errorMessage = getIntegrationErrorMessage(error);
 
       // Set pending notice flash for smooth shimmer → error transition
       setPendingNoticeFlash('error');

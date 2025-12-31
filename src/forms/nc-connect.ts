@@ -3,22 +3,7 @@
  */
 
 import { showGlobalMessage } from '@ui/notifications';
-import type { ApiErrorResponse } from '@api/types';
-import type { ApiError } from '@utils/errors';
-
-/**
- * Get user-friendly error message from API error response
- */
-function getErrorMessage(error: ApiError<unknown>): string {
-  const body = error.body as ApiErrorResponse | null;
-
-  if (!body || typeof body !== 'object') {
-    return error.message || 'Failed to connect NameCheap account';
-  }
-
-  // API returns translated message - use it directly
-  return body.message || error.message || 'Failed to connect NameCheap account';
-}
+import { getIntegrationErrorMessage } from '@utils/api-errors';
 
 /**
  * Format IP whitelist error message
@@ -161,7 +146,7 @@ export function initNcConnectForm(): void {
       }
 
       // Handle other errors
-      const errorMessage = getErrorMessage(error);
+      const errorMessage = getIntegrationErrorMessage(error);
       showStatus('error', errorMessage);
       showGlobalMessage('error', errorMessage);
 

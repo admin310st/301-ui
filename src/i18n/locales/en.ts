@@ -350,6 +350,47 @@ export const en = {
       expired: 'Expired',
       revoked: 'Revoked',
     },
+    errors: {
+      // Bootstrap token errors (Cloudflare)
+      bootstrapInvalid: 'Invalid bootstrap token. Please check your API token and try again.',
+      bootstrapExpired: 'Bootstrap token has expired. Please generate a new token.',
+      bootstrapNotActive: 'Bootstrap token is not active. Please check your token status.',
+      permissionsMissing: 'Bootstrap token has insufficient permissions. Make sure it has "Account Settings: Read" and "API Tokens: Edit" permissions.',
+
+      // Quota and access errors
+      quotaExceeded: 'You have reached the maximum number of integrations for your plan. Upgrade or remove existing integrations.',
+      ownerRequired: 'Owner role is required to connect integrations. Contact your account owner.',
+      unauthorized: 'You are not authorized to perform this action. Please sign in again.',
+
+      // API communication errors
+      cfRejected: 'Cloudflare API rejected the request. Please check your credentials and try again.',
+      cfUnavailable: 'Cloudflare API is temporarily unavailable. Please try again in a few moments.',
+      cfApiError: 'Cloudflare API error: {{message}}',
+
+      // Rate limiting (429)
+      rateLimitExceeded: 'Too many requests. Please wait a moment before trying again.',
+
+      // Conflict errors (409)
+      keyAlreadyExists: 'An integration with this account already exists. Use reconnect to rotate credentials.',
+      cfAccountConflict: 'This Cloudflare account is already connected to a different user.',
+      externalAccountAlreadyUsed: 'This external account is already in use. Remove the existing integration first.',
+      keyCreationInProgress: 'Integration creation is already in progress. Please wait for it to complete.',
+
+      // Storage errors (500)
+      storageFailed: 'Failed to save integration data. Please try again or contact support if the issue persists.',
+      cleanupFailed: 'Failed to cleanup old integration. Please contact support.',
+
+      // Request validation errors (400)
+      invalidJson: 'Invalid request format. Please refresh the page and try again.',
+      missingFields: 'Missing required fields. Please fill in all required information.',
+
+      // NameCheap specific
+      ipWhitelistRequired: 'Your IP address is not whitelisted. Please whitelist the required IPs in your NameCheap dashboard.',
+      invalidApiKey: 'Invalid API key or username. Please check your NameCheap credentials.',
+
+      // Generic fallback
+      fallback: 'Failed to connect integration. Please try again or contact support.',
+    },
   },
   projects: {
     title: 'Projects',

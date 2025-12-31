@@ -98,6 +98,14 @@ export function initBulkActions(): void {
     // TODO: Implement export logic (CSV, JSON, etc.)
   });
 
+  // TODO: Implement bulk action handlers for:
+  // - data-bulk-edit (Change Status) - Open dialog to change domain status (active/parked/etc)
+  // - data-bulk-move (Move to Project) - Open dialog with project dropdown, needs project_id from mock data
+  //   When implementing: get selected domain IDs → look up full domain objects → extract current project_id
+  //   Show dialog with "Move N domains from X projects to: [Project dropdown]"
+  // - data-bulk-monitoring (Toggle Monitoring) - Enable/disable monitoring for selected acceptor domains
+  // - data-bulk-sync (Sync Registrar) - Trigger registrar sync for selected domains
+
   /**
    * Handle Delete button - show confirmation dialog
    */
