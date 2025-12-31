@@ -63,7 +63,7 @@ async function loadSiteAndDomains(siteId: number): Promise<void> {
 
   try {
     // Load site details
-    const site = await getSite(accountId, siteId);
+    const site = await getSite(siteId);
     currentProjectId = site.project_id;
 
     // Update drawer title
@@ -231,7 +231,7 @@ async function handleAttachDomain(): Promise<void> {
       statusPanel.removeAttribute('hidden');
     }
 
-    await attachDomain(accountId, currentSiteId, Number(selectedDomainId));
+    await attachDomain(currentSiteId, Number(selectedDomainId));
 
     if (statusPanel) {
       statusPanel.className = 'panel panel--success';
@@ -279,7 +279,7 @@ async function handleDetachDomain(domainId: number): Promise<void> {
   }
 
   try {
-    await detachDomain(accountId, currentSiteId, domainId);
+    await detachDomain(currentSiteId, domainId);
     showGlobalMessage('success', t('sites.messages.domainDetached'));
 
     // Reload both lists

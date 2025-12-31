@@ -21,46 +21,51 @@ import type {
 const BASE_URL = '/sites';
 
 /**
- * Get all sites for an account (global list across all projects)
+ * Get all sites for an account (aggregates from all projects)
+ * Note: Backend doesn't have a global sites endpoint, so we fetch all projects first
  * @param accountId Account ID
  * @param status Optional status filter (active, paused, archived)
  * @returns Sites list with project info
  */
-export async function getSites(accountId: number, status?: SiteStatus): Promise<GetSitesResponse> {
+export async function getSites(accountId: number, status?: SiteStatus): Promise<Site[]> {
   // Check cache first (30 second TTL)
   const cacheKey = `sites:account:${accountId}${status ? `:${status}` : ''}`;
-  const cached = getCached<GetSitesResponse>(cacheKey);
+  const cached = getCached<Site[]>(cacheKey);
   if (cached) {
     return cached;
   }
 
-  // Cache miss - fetch from API
-  const params = status ? new URLSearchParams({ status }) : undefined;
-  const url = params
-    ? `/accounts/${accountId}/sites?${params}`
-    : `/accounts/${accountId}/sites`;
-  const response = await apiFetch<GetSitesResponse>(url);
+  // Fetch all projects first
+  const { getProjects } = await import('./projects');
+  const projects = await getProjects(accountId);
+
+  // Fetch sites for each project in parallel
+  const allSitesArrays = await Promise.all(
+    projects.map(project => getProjectSites(project.id, status))
+  );
+
+  // Flatten and combine all sites
+  const allSites = allSitesArrays.flat();
 
   // Store in cache
-  setCache(cacheKey, response);
-  return response;
+  setCache(cacheKey, allSites);
+  return allSites;
 }
 
 /**
  * Get sites for a specific project
- * @param accountId Account ID
+ * GET /projects/:id/sites
  * @param projectId Project ID
  * @param status Optional status filter (active, paused, archived)
  * @returns Sites list for the project
  */
 export async function getProjectSites(
-  accountId: number,
   projectId: number,
   status?: SiteStatus
-): Promise<GetSitesResponse> {
+): Promise<Site[]> {
   // Check cache first (30 second TTL)
   const cacheKey = `sites:project:${projectId}${status ? `:${status}` : ''}`;
-  const cached = getCached<GetSitesResponse>(cacheKey);
+  const cached = getCached<Site[]>(cacheKey);
   if (cached) {
     return cached;
   }
@@ -68,9 +73,9 @@ export async function getProjectSites(
   // Cache miss - fetch from API
   const params = status ? new URLSearchParams({ status }) : undefined;
   const url = params
-    ? `/accounts/${accountId}/projects/${projectId}/sites?${params}`
-    : `/accounts/${accountId}/projects/${projectId}/sites`;
-  const response = await apiFetch<GetSitesResponse>(url);
+    ? `/projects/${projectId}/sites?${params}`
+    : `/projects/${projectId}/sites`;
+  const response = await apiFetch<Site[]>(url);
 
   // Store in cache
   setCache(cacheKey, response);
@@ -79,11 +84,11 @@ export async function getProjectSites(
 
 /**
  * Get site details with attached domains
- * @param accountId Account ID
+ * GET /sites/:id
  * @param siteId Site ID
  * @returns Site details with domains list
  */
-export async function getSite(accountId: number, siteId: number): Promise<GetSiteResponse> {
+export async function getSite(siteId: number): Promise<GetSiteResponse> {
   // Check cache first (30 second TTL)
   const cacheKey = `site:${siteId}`;
   const cached = getCached<GetSiteResponse>(cacheKey);
@@ -92,7 +97,7 @@ export async function getSite(accountId: number, siteId: number): Promise<GetSit
   }
 
   // Cache miss - fetch from API
-  const response = await apiFetch<GetSiteResponse>(`/accounts/${accountId}/sites/${siteId}`);
+  const response = await apiFetch<GetSiteResponse>(`/sites/${siteId}`);
 
   // Store in cache
   setCache(cacheKey, response);
@@ -101,27 +106,26 @@ export async function getSite(accountId: number, siteId: number): Promise<GetSit
 
 /**
  * Create a new site in a project
- * @param accountId Account ID
+ * POST /projects/:id/sites
  * @param projectId Project ID
  * @param data Site creation data
  * @returns Created site
  */
 export async function createSite(
-  accountId: number,
   projectId: number,
   data: CreateSiteRequest
 ): Promise<CreateSiteResponse> {
   const response = await apiFetch<CreateSiteResponse>(
-    `/accounts/${accountId}/projects/${projectId}/sites`,
+    `/projects/${projectId}/sites`,
     {
       method: 'POST',
       body: JSON.stringify(data),
     }
   );
 
-  // Invalidate sites cache for this project and account
+  // Invalidate sites cache for this project and all accounts
   invalidateCacheByPrefix(`sites:project:${projectId}`);
-  invalidateCacheByPrefix(`sites:account:${accountId}`);
+  invalidateCacheByPrefix(`sites:account:`); // All account-level caches
   invalidateCacheByPrefix(`project:${projectId}`); // Project details include sites_count
 
   return response;
@@ -129,16 +133,15 @@ export async function createSite(
 
 /**
  * Update site details
- * @param accountId Account ID
+ * PATCH /sites/:id
  * @param siteId Site ID
  * @param data Updated fields
  */
 export async function updateSite(
-  accountId: number,
   siteId: number,
   data: UpdateSiteRequest
 ): Promise<void> {
-  await apiFetch(`/accounts/${accountId}/sites/${siteId}`, {
+  await apiFetch(`/sites/${siteId}`, {
     method: 'PATCH',
     body: JSON.stringify(data),
   });
@@ -150,11 +153,11 @@ export async function updateSite(
 
 /**
  * Delete a site (domains become reserve with site_id = NULL)
- * @param accountId Account ID
+ * DELETE /sites/:id
  * @param siteId Site ID
  */
-export async function deleteSite(accountId: number, siteId: number): Promise<void> {
-  await apiFetch(`/accounts/${accountId}/sites/${siteId}`, {
+export async function deleteSite(siteId: number): Promise<void> {
+  await apiFetch(`/sites/${siteId}`, {
     method: 'DELETE',
   });
 
@@ -166,18 +169,17 @@ export async function deleteSite(accountId: number, siteId: number): Promise<voi
 
 /**
  * Attach a domain to a site (assign tag)
- * @param accountId Account ID
+ * POST /sites/:id/domains
  * @param siteId Site ID
  * @param domainId Domain ID
  * @returns Updated domain
  */
 export async function attachDomain(
-  accountId: number,
   siteId: number,
   domainId: number
 ): Promise<AttachDomainResponse> {
   const response = await apiFetch<AttachDomainResponse>(
-    `/accounts/${accountId}/sites/${siteId}/domains`,
+    `/sites/${siteId}/domains`,
     {
       method: 'POST',
       body: JSON.stringify({ domain_id: domainId }),
@@ -193,16 +195,15 @@ export async function attachDomain(
 
 /**
  * Detach a domain from a site (remove tag, domain becomes reserve)
- * @param accountId Account ID
+ * DELETE /sites/:id/domains/:domainId
  * @param siteId Site ID
  * @param domainId Domain ID
  */
 export async function detachDomain(
-  accountId: number,
   siteId: number,
   domainId: number
 ): Promise<void> {
-  await apiFetch(`/accounts/${accountId}/sites/${siteId}/domains/${domainId}`, {
+  await apiFetch(`/sites/${siteId}/domains/${domainId}`, {
     method: 'DELETE',
   });
 

@@ -188,14 +188,8 @@ async function handleCreateSite(event: Event): Promise<void> {
       submitBtn.textContent = t('common.actions.creating') || 'Creating...';
     }
 
-    // Get account ID
-    const accountId = getAccountId();
-    if (!accountId) {
-      throw new Error('Account ID not found');
-    }
-
     // Create site
-    await createSite(accountId, projectId, request);
+    await createSite(projectId, request);
 
     // Show success message
     showGlobalMessage('success', t('sites.messages.created') || 'Site created successfully');
