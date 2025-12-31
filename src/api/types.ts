@@ -253,3 +253,181 @@ export interface GetKeyResponse {
   ok: true;
   key: IntegrationKey;
 }
+
+// =============================================================================
+// Projects API Types
+// =============================================================================
+
+export interface Project {
+  id: number;
+  account_id: number;
+  project_name: string;
+  description: string | null;
+  brand_tag: string | null;
+  commercial_terms: string | null;
+  start_date: string | null;
+  end_date: string | null;
+  created_at: string;
+  updated_at: string;
+  sites_count: number;
+  domains_count: number;
+}
+
+export interface ProjectIntegration {
+  id: number;
+  account_key_id: number;
+  created_at: string;
+  provider: string;
+  key_alias: string;
+  status: string;
+  external_account_id: string;
+}
+
+export interface GetProjectsResponse {
+  ok: true;
+  total: number;
+  projects: Project[];
+}
+
+export interface GetProjectResponse {
+  ok: true;
+  project: Project;
+  sites: Site[];
+  integrations: ProjectIntegration[];
+}
+
+export interface CreateProjectRequest {
+  project_name: string;
+  description?: string;
+  brand_tag?: string;
+  commercial_terms?: string;
+  start_date?: string;
+  end_date?: string;
+  site_name?: string;
+}
+
+export interface CreateProjectResponse {
+  ok: true;
+  project: {
+    id: number;
+    project_name: string;
+    description: string | null;
+    brand_tag: string | null;
+  };
+  site: {
+    id: number;
+    site_name: string;
+    status: string;
+  };
+}
+
+export interface UpdateProjectRequest {
+  project_name?: string;
+  description?: string;
+  brand_tag?: string;
+  commercial_terms?: string;
+  start_date?: string;
+  end_date?: string;
+}
+
+export interface GetProjectIntegrationsResponse {
+  ok: true;
+  integrations: ProjectIntegration[];
+}
+
+export interface AttachIntegrationRequest {
+  account_key_id: number;
+}
+
+export interface AttachIntegrationResponse {
+  ok: true;
+  integration: {
+    id: number;
+    project_id: number;
+    account_key_id: number;
+    provider: string;
+    key_alias: string;
+  };
+}
+
+// =============================================================================
+// Sites API Types
+// =============================================================================
+
+export type SiteStatus = 'active' | 'paused' | 'archived';
+export type DomainRole = 'acceptor' | 'donor' | 'reserve';
+
+export interface Site {
+  id: number;
+  project_id: number;
+  site_name: string;
+  site_tag: string | null;
+  status: SiteStatus;
+  created_at: string;
+  updated_at: string;
+  domains_count: number;
+  acceptor_domain?: string | null;
+  project_name?: string;
+}
+
+export interface SiteDomain {
+  id: number;
+  domain_name: string;
+  role: DomainRole;
+  blocked: number;
+  blocked_reason: string | null;
+}
+
+export interface GetSitesResponse {
+  ok: true;
+  project: {
+    id: number;
+    project_name: string;
+  };
+  total: number;
+  sites: Site[];
+}
+
+export interface GetSiteResponse {
+  ok: true;
+  site: Site;
+  domains: SiteDomain[];
+}
+
+export interface CreateSiteRequest {
+  site_name: string;
+  site_tag?: string;
+}
+
+export interface CreateSiteResponse {
+  ok: true;
+  site: {
+    id: number;
+    project_id: number;
+    site_name: string;
+    site_tag: string | null;
+    status: SiteStatus;
+  };
+}
+
+export interface UpdateSiteRequest {
+  site_name?: string;
+  site_tag?: string;
+  status?: SiteStatus;
+}
+
+export interface AttachDomainRequest {
+  domain_id: number;
+  role?: DomainRole;
+}
+
+export interface AttachDomainResponse {
+  ok: true;
+  domain: {
+    id: number;
+    domain_name: string;
+    site_id: number;
+    project_id: number;
+    role: DomainRole;
+  };
+}
