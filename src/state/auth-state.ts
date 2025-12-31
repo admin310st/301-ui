@@ -126,6 +126,14 @@ export async function initAuthState(): Promise<void> {
     return;
   }
 
+  // Skip if we already have valid auth state (token + user loaded from previous page)
+  // This prevents redundant API calls when navigating between dashboard pages
+  if (currentState.token && currentState.user) {
+    logDebug('Auth state already loaded (cached), skipping refresh');
+    updateState({ loading: false });
+    return;
+  }
+
   try {
     updateState({ loading: true });
     const refreshed = await refresh();
