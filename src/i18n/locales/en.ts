@@ -521,6 +521,8 @@ export const en = {
       siteNamePlaceholder: 'Enter site name',
       siteTag: 'Site tag',
       siteTagPlaceholder: 'e.g., landing-v1',
+      selectProject: 'Select project',
+      selectProjectPlaceholder: 'Choose a project...',
       status: 'Status',
       selectDomain: 'Select domain',
       domainRole: 'Domain role',
@@ -557,6 +559,9 @@ export const en = {
     },
     errors: {
       siteNotFound: 'Site not found',
+      nameRequired: 'Site name is required',
+      projectRequired: 'Project is required',
+      createFailed: 'Failed to create site',
       missingField: 'Missing required field: {{field}}',
       quotaExceeded: 'You have reached the maximum number of sites ({{limit}}). Upgrade your plan or delete existing sites.',
       invalidStatus: 'Invalid status value',

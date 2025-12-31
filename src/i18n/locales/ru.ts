@@ -527,6 +527,8 @@ export const ru: Translation = {
       siteNamePlaceholder: 'Введите название сайта',
       siteTag: 'Тег сайта',
       siteTagPlaceholder: 'например, landing-v1',
+      selectProject: 'Выберите проект',
+      selectProjectPlaceholder: 'Выберите проект...',
       status: 'Статус',
       selectDomain: 'Выберите домен',
       domainRole: 'Роль домена',
@@ -563,6 +565,9 @@ export const ru: Translation = {
     },
     errors: {
       siteNotFound: 'Сайт не найден',
+      nameRequired: 'Название сайта обязательно',
+      projectRequired: 'Проект обязателен',
+      createFailed: 'Не удалось создать сайт',
       missingField: 'Отсутствует обязательное поле: {{field}}',
       quotaExceeded: 'Вы достигли максимального количества сайтов ({{limit}}). Обновите тариф или удалите существующие сайты.',
       invalidStatus: 'Неверное значение статуса',

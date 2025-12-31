@@ -26,6 +26,10 @@ import { initAccountPage } from '@forms/account';
 import { initAccountEdit } from '@forms/account-edit';
 import { initDomainsPage } from '@domains/domains';
 import { initRedirectsPage } from '@redirects/redirects';
+import { initProjectsPage } from '@ui/projects';
+import { initProjectCreate } from '@forms/project-create';
+import { initSitesPage } from '@ui/sites';
+import { initSiteCreate } from '@forms/site-create';
 import { initDialogCloseHandlers } from '@ui/dialog';
 import { initPageLoadIndicator, showLoading, hideLoading, withLoading } from '@ui/loading-indicator';
 import { initDashboardPage, initSidebarOnboarding } from '@ui/dashboard';
@@ -179,6 +183,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   initAccountEdit();
   initDomainsPage();
   initRedirectsPage();
+  initProjectsPage();
+  initProjectCreate();
+  initSitesPage();
+  initSiteCreate();
   initDialogCloseHandlers();
 
   // Global handler for "Connect Cloudflare" buttons (dashboard, integrations, etc.)
@@ -196,4 +204,5 @@ document.addEventListener('DOMContentLoaded', async () => {
   (window as any).showLoading = showLoading;
   (window as any).hideLoading = hideLoading;
   (window as any).withLoading = withLoading;
+  (window as any).injectIcons = processDataIconAttributes;
 });

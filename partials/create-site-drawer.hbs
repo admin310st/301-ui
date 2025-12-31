@@ -1,0 +1,90 @@
+<!-- Create Site Drawer -->
+    <aside class="drawer" data-drawer="create-site" hidden>
+      <div class="drawer__overlay" data-drawer-close></div>
+      <div class="drawer__panel">
+        <header class="drawer__header">
+          <div class="drawer__title">
+            <span class="icon" data-icon="mono/landing"></span>
+            <h2 class="h4" data-i18n="sites.drawer.createTitle">Create New Site</h2>
+          </div>
+          <button class="btn-close" type="button" data-drawer-close aria-label="Close">
+            <span class="icon" data-icon="mono/close"></span>
+          </button>
+        </header>
+
+        <div class="drawer__body">
+          <div class="stack-list">
+            <p class="text-muted" data-i18n="sites.drawer.createSubtitle">
+              Add a landing page or whitelist to your project
+            </p>
+
+            <!-- Site Creation Form -->
+            <form id="create-site-form" class="stack-md" data-form="create-site">
+              <!-- Project selection (hidden if project_id is pre-set) -->
+              <div class="field" data-site-project-field>
+                <label class="field__label">
+                  <span data-i18n="sites.fields.selectProject">Select project</span>
+                  <span class="field__required">*</span>
+                </label>
+                <select
+                  class="input"
+                  name="project_id"
+                  data-site-project-select
+                  required
+                >
+                  <option value="" disabled selected data-i18n="sites.fields.selectProjectPlaceholder">
+                    Choose a project...
+                  </option>
+                  <!-- Populated by JS -->
+                </select>
+              </div>
+
+              <div class="field">
+                <label class="field__label">
+                  <span data-i18n="sites.fields.siteName">Site name</span>
+                  <span class="field__required">*</span>
+                </label>
+                <input
+                  class="input"
+                  type="text"
+                  name="site_name"
+                  placeholder="Main Landing"
+                  data-i18n-placeholder="sites.fields.siteNamePlaceholder"
+                  autocomplete="off"
+                  required
+                />
+                <p class="field__hint text-muted">
+                  A descriptive name for this landing page or whitelist
+                </p>
+              </div>
+
+              <div class="field">
+                <label class="field__label" data-i18n="sites.fields.siteTag">Site tag</label>
+                <input
+                  class="input"
+                  type="text"
+                  name="site_tag"
+                  placeholder="landing-v1"
+                  data-i18n-placeholder="sites.fields.siteTagPlaceholder"
+                  autocomplete="off"
+                />
+                <p class="field__hint text-muted">
+                  Optional identifier for tracking and automation
+                </p>
+              </div>
+
+              <!-- Status Panel (for errors/success) -->
+              <div class="panel" data-site-status hidden role="status" aria-live="polite"></div>
+            </form>
+          </div>
+        </div>
+
+        <footer class="drawer__footer">
+          <button class="btn btn--ghost" type="button" data-drawer-close>Cancel</button>
+          <button type="submit" form="create-site-form" class="btn btn--primary">
+            <span class="icon" data-icon="mono/plus"></span>
+            <span data-i18n="sites.actions.create">Create site</span>
+          </button>
+        </footer>
+      </div>
+    </aside>
