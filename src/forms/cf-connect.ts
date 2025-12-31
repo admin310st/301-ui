@@ -15,27 +15,19 @@ import { getIntegrationErrorMessage, isRecoverableError } from '@utils/api-error
  */
 function parseCurlCommand(curlText: string): { accountId: string; token: string } | null {
   try {
-    console.log('[parseCurl] Input text length:', curlText.length);
-    console.log('[parseCurl] Input text:', curlText.substring(0, 200));
-
     // Extract account ID from URL (32 hex characters)
     const accountIdMatch = curlText.match(/accounts\/([a-f0-9]{32})/i);
-    console.log('[parseCurl] Account ID match:', accountIdMatch?.[1]);
 
     // Extract token from Authorization header (allow letters, numbers, underscore, dash)
     const tokenMatch = curlText.match(/Bearer\s+([A-Za-z0-9_-]+)/);
-    console.log('[parseCurl] Token match:', tokenMatch?.[1]);
 
     if (accountIdMatch && tokenMatch) {
-      const result = {
+      return {
         accountId: accountIdMatch[1],
         token: tokenMatch[1],
       };
-      console.log('[parseCurl] Successfully parsed:', result);
-      return result;
     }
 
-    console.warn('[parseCurl] Failed to match - accountId:', !!accountIdMatch, 'token:', !!tokenMatch);
     return null;
   } catch (error) {
     console.error('[parseCurl] Error:', error);
@@ -56,25 +48,16 @@ export function initCfScopedTokenForm(): void {
   if (!tokenTextarea || !accountIdInput) return;
 
   // Auto-parse curl command when pasted into token field
-  console.log('[cf-connect] Attaching paste listener to tokenTextarea');
   tokenTextarea.addEventListener('paste', (event) => {
-    console.log('[cf-connect] Paste event fired');
-
     // Give the paste event time to complete
     setTimeout(() => {
       const pastedText = tokenTextarea.value;
-      console.log('[cf-connect] Pasted text length:', pastedText.length);
-      console.log('[cf-connect] Contains curl:', pastedText.includes('curl'));
-      console.log('[cf-connect] Contains accounts/:', pastedText.includes('accounts/'));
-      console.log('[cf-connect] Contains Bearer:', pastedText.includes('Bearer'));
 
       // Check if it looks like a curl command
       if (pastedText.includes('curl') && pastedText.includes('accounts/') && pastedText.includes('Bearer')) {
-        console.log('[cf-connect] Detected curl command, attempting to parse...');
         const parsed = parseCurlCommand(pastedText);
 
         if (parsed) {
-          console.log('[cf-connect] Parse successful, auto-filling fields');
           // Auto-fill the fields
           accountIdInput.value = parsed.accountId;
           tokenTextarea.value = parsed.token;
@@ -86,11 +69,8 @@ export function initCfScopedTokenForm(): void {
           accountIdInput.dispatchEvent(new Event('input', { bubbles: true }));
           tokenTextarea.dispatchEvent(new Event('input', { bubbles: true }));
         } else {
-          console.error('[cf-connect] Parse failed - could not extract account ID and token');
           showGlobalMessage('error', 'Failed to parse curl command. Please paste Account ID and token separately.');
         }
-      } else {
-        console.log('[cf-connect] Not a curl command, treating as plain token');
       }
     }, 10);
   });
@@ -98,7 +78,6 @@ export function initCfScopedTokenForm(): void {
   // Form submit handler
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    console.log('[cf-connect] Scoped Token form submitted');
 
     // Get button reference and disable immediately to prevent double-submit
     const submitBtn = document.querySelector<HTMLButtonElement>('button[type="submit"][form="cf-connect-scoped"]');
@@ -107,7 +86,6 @@ export function initCfScopedTokenForm(): void {
     if (submitBtn) {
       // Prevent double-click race condition
       if (submitBtn.disabled) {
-        console.warn('[cf-connect] Submit already in progress, ignoring');
         return;
       }
       submitBtn.disabled = true;
@@ -116,8 +94,6 @@ export function initCfScopedTokenForm(): void {
     const formData = new FormData(form);
     const accountId = formData.get('cf_account_id') as string;
     const token = formData.get('cf_bootstrap_token') as string;
-
-    console.log('[cf-connect] Data:', { accountId, tokenLength: token?.length });
 
     // Validate presence
     if (!accountId || !token) {
@@ -188,7 +164,6 @@ export function initCfScopedTokenForm(): void {
           await loadIntegrations();
         } catch (error) {
           // Not on integrations page or loadIntegrations failed - reload page to show changes
-          console.log('[cf-connect] Reloading page to show new integration');
           window.location.reload();
         }
       }, 3500);
@@ -252,7 +227,6 @@ export function initCfScopedTokenForm(): void {
                 await loadIntegrations();
               } catch (error) {
                 // Not on integrations page or loadIntegrations failed - reload page to show changes
-                console.log('[cf-connect] Reloading page to show new integration');
                 window.location.reload();
               }
             }, 3500);
@@ -290,11 +264,6 @@ export function initCfScopedTokenForm(): void {
       showStatus('error', errorMessage);
       showGlobalMessage('error', errorMessage);
 
-      // Log additional context for debugging
-      if (body?.context) {
-        console.error('[cf-connect] Error context:', body.context);
-      }
-
       // Reset button
       if (submitBtn) {
         submitBtn.disabled = false;
@@ -327,8 +296,6 @@ export function initCfQuickSetupForm(): void {
     const formData = new FormData(form);
     const email = formData.get('cf_account_email') as string;
     const globalKey = formData.get('cf_global_key') as string;
-
-    console.log('Submitting Quick Setup:', { email, globalKey: globalKey.substring(0, 10) + '...' });
 
     // TODO: Implement API call to backend
     // await connectCloudflareQuick({ email, globalKey });

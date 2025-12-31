@@ -44,14 +44,11 @@ export function initNcConnectForm(): void {
   // Form submit handler
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    console.log('[nc-connect] NameCheap form submitted');
 
     const formData = new FormData(form);
     const username = formData.get('username') as string;
     const apiKey = formData.get('api_key') as string;
     const keyAlias = (formData.get('key_alias') as string) || `${username} - NameCheap`;
-
-    console.log('[nc-connect] Data:', { username, keyAlias, apiKeyLength: apiKey?.length });
 
     if (!username || !apiKey) {
       showStatus('error', 'Please fill in both Username and API Key');
@@ -75,8 +72,6 @@ export function initNcConnectForm(): void {
         key_alias: keyAlias,
       });
       // Loading indicator managed by initNamecheap() automatically
-
-      console.log('[nc-connect] Connected successfully, key_id:', keyId);
 
       const successMsg = 'NameCheap account connected successfully!';
       showStatus('success', successMsg);
@@ -132,7 +127,6 @@ export function initNcConnectForm(): void {
         if (ipsString) {
           const ipMessage = formatIpWhitelistError(ipsString, message);
           showStatus('error', ipMessage);
-          console.error('[nc-connect] IP whitelist required:', ipsString);
         } else {
           showStatus('error', message);
         }
@@ -149,11 +143,6 @@ export function initNcConnectForm(): void {
       const errorMessage = getIntegrationErrorMessage(error);
       showStatus('error', errorMessage);
       showGlobalMessage('error', errorMessage);
-
-      // Log additional context for debugging
-      if (body?.context) {
-        console.error('[nc-connect] Error context:', body.context);
-      }
 
       // Reset button
       if (submitBtn) {
