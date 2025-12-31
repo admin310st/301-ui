@@ -35,7 +35,8 @@
     <main class="page-shell dashboard-shell">
 {{> sidebar activePage="projects"}}
 
-      <section class="dashboard-content">
+      <!-- Projects List View (no ?id parameter) -->
+      <section class="dashboard-content" data-view="projects-list">
         <header class="page-header">
           <div class="page-header__title">
             <h1 class="h3" data-i18n="projects.title">Projects</h1>
@@ -120,6 +121,165 @@
                   <!-- Populated by src/ui/projects.ts -->
                 </tbody>
               </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Project Detail View (with ?id parameter) -->
+      <section class="dashboard-content" data-view="project-detail" hidden>
+        <header class="page-header">
+          <!-- Breadcrumbs -->
+          <nav class="breadcrumbs" aria-label="Breadcrumb">
+            <ol>
+              <li><a href="/projects.html" data-i18n="projects.title">Projects</a></li>
+              <li><span data-project-name>...</span></li>
+            </ol>
+          </nav>
+
+          <div class="page-header__title">
+            <h1 class="h3" data-project-name>...</h1>
+            <p class="text-muted" data-project-description>—</p>
+          </div>
+
+          <div class="page-header__actions">
+            <button class="btn btn--ghost" type="button" data-action="edit-project">
+              <span class="icon" data-icon="mono/pencil-circle"></span>
+              <span data-i18n="projects.actions.edit">Edit</span>
+            </button>
+          </div>
+        </header>
+
+        <!-- Project Stats Overview -->
+        <div class="card card--panel">
+          <div class="card__body">
+            <div class="stats-grid">
+              <div class="stat">
+                <span class="stat__label" data-i18n="projects.table.columns.sites">Sites</span>
+                <span class="stat__value" data-project-sites-count>—</span>
+              </div>
+              <div class="stat">
+                <span class="stat__label" data-i18n="projects.table.columns.domains">Domains</span>
+                <span class="stat__value" data-project-domains-count>—</span>
+              </div>
+              <div class="stat">
+                <span class="stat__label">Integrations</span>
+                <span class="stat__value" data-project-integrations-count>—</span>
+              </div>
+              <div class="stat">
+                <span class="stat__label">Status</span>
+                <span class="stat__value">
+                  <span class="badge badge--success">Active</span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabs Navigation -->
+        <div class="tabs" data-tabs="project-detail">
+          <button class="tab is-active" data-tab="overview" type="button">Overview</button>
+          <button class="tab" data-tab="sites" type="button">Sites</button>
+          <button class="tab" data-tab="integrations" type="button">Integrations</button>
+        </div>
+
+        <!-- Tab: Overview -->
+        <div class="tab-panel" data-tab-panel="overview">
+          <div class="card card--panel">
+            <header class="card__header">
+              <h3 class="h5">Project Information</h3>
+            </header>
+            <div class="card__body">
+              <dl class="info-list">
+                <dt>Project Name</dt>
+                <dd data-project-name>—</dd>
+
+                <dt>Description</dt>
+                <dd data-project-description>—</dd>
+
+                <dt>Brand Tag</dt>
+                <dd><code data-project-brand-tag>—</code></dd>
+
+                <dt>Commercial Terms</dt>
+                <dd data-project-commercial-terms>—</dd>
+
+                <dt>Start Date</dt>
+                <dd data-project-start-date>—</dd>
+
+                <dt>End Date</dt>
+                <dd data-project-end-date>—</dd>
+
+                <dt>Created</dt>
+                <dd data-project-created-at>—</dd>
+
+                <dt>Updated</dt>
+                <dd data-project-updated-at>—</dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab: Sites -->
+        <div class="tab-panel" data-tab-panel="sites" hidden>
+          <div class="card card--panel">
+            <header class="card__header">
+              <h3 class="h5">Sites</h3>
+              <button class="btn btn--primary btn--sm" type="button" data-action="create-site">
+                <span class="icon" data-icon="mono/plus"></span>
+                <span>Create site</span>
+              </button>
+            </header>
+            <div class="card__body card__body--table">
+              <div class="table-container" data-project-sites-container>
+                <table class="table" data-project-sites-table>
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Tag</th>
+                      <th class="text-right">Domains</th>
+                      <th>Acceptor</th>
+                      <th>Status</th>
+                      <th>Updated</th>
+                      <th class="th-actions">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <!-- Populated by JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab: Integrations -->
+        <div class="tab-panel" data-tab-panel="integrations" hidden>
+          <div class="card card--panel">
+            <header class="card__header">
+              <h3 class="h5">Integrations</h3>
+              <button class="btn btn--primary btn--sm" type="button" data-action="attach-integration">
+                <span class="icon" data-icon="mono/puzzle-plus"></span>
+                <span>Attach integration</span>
+              </button>
+            </header>
+            <div class="card__body card__body--table">
+              <div class="table-container" data-project-integrations-container>
+                <table class="table" data-project-integrations-table>
+                  <thead>
+                    <tr>
+                      <th>Provider</th>
+                      <th>Alias</th>
+                      <th>Account ID</th>
+                      <th>Status</th>
+                      <th>Connected</th>
+                      <th class="th-actions">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <!-- Populated by JS -->
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
