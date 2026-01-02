@@ -299,7 +299,7 @@ function updateProjectDateMetric(project: Project): void {
   if (!project.start_date || !project.end_date) {
     textElement.textContent = '—';
     fillElement.style.setProperty('--metric-fill', '0');
-    container.className = 'metric-pill';
+    container.className = 'metric-pill metric-pill--date';
     return;
   }
 
@@ -319,10 +319,10 @@ function updateProjectDateMetric(project: Project): void {
   fillElement.style.setProperty('--metric-fill', String(fillValue));
 
   // Set variant based on status
-  let variant = 'metric-pill';
+  let variant = 'metric-pill metric-pill--date';
   if (now > end) {
     // Project ended
-    variant = 'metric-pill metric-pill--success';
+    variant = 'metric-pill metric-pill--date metric-pill--success';
     fillElement.style.setProperty('--metric-fill', '1');
   } else if (now < start) {
     // Project not started yet
