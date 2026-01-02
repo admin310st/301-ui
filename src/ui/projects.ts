@@ -62,7 +62,7 @@ function renderProjectRow(project: Project): string {
             </button>
             <div class="dropdown__menu dropdown__menu--align-right" role="menu">
               <button class="dropdown__item" type="button" data-action="view-domains" data-project-id="${project.id}">
-                <span class="icon" data-icon="mono/web"></span>
+                <span class="icon" data-icon="mono/web-scan"></span>
                 <span>View domains</span>
               </button>
               <button class="dropdown__item" type="button" data-action="view-sites" data-project-id="${project.id}">
