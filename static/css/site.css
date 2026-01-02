@@ -71,6 +71,7 @@ body {
 .icon[data-icon^="mono/"] use {
   fill: currentColor;
   stroke: none;
+  width:inherit;
 }
 /* Mono icons inherit color automatically via SVG fill="currentColor" */
 
