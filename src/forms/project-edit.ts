@@ -109,12 +109,22 @@ async function handleEditProject(event: Event): Promise<void> {
 
     await updateProject(projectId, request);
 
+    // Show success in drawer
+    showFormStatus(
+      t('projects.messages.updated') || 'Project updated successfully',
+      'success'
+    );
+
+    // Show global success message
     showGlobalMessage(
       'success',
       t('projects.messages.updated') || 'Project updated successfully'
     );
 
-    closeEditProjectDrawer();
+    // Close drawer after brief delay to show success message
+    setTimeout(() => {
+      closeEditProjectDrawer();
+    }, 800);
 
     // Reload appropriate view
     const listView = document.querySelector('[data-view="projects-list"]');
@@ -128,10 +138,28 @@ async function handleEditProject(event: Event): Promise<void> {
     }
   } catch (error: any) {
     console.error('Failed to update project:', error);
-    showFormStatus(
-      error.message || t('projects.errors.updateFailed') || 'Failed to update project',
-      'error'
-    );
+
+    // Map API error codes to user-friendly messages
+    let errorMessage = t('projects.errors.updateFailed') || 'Failed to update project';
+
+    if (error.body?.error) {
+      const errorCode = error.body.error;
+      const errorKey = `projects.errors.${errorCode}`;
+      const translatedError = t(errorKey);
+
+      // If translation exists and is different from the key, use it
+      if (translatedError && translatedError !== errorKey) {
+        errorMessage = translatedError;
+      } else if (error.body.field) {
+        // Handle missing_field error with field name
+        errorMessage = t('projects.errors.missingField', { field: error.body.field }) || `Missing field: ${error.body.field}`;
+      }
+    } else if (error.message && error.message !== 'Request failed') {
+      // Use error message if it's not the generic fallback
+      errorMessage = error.message;
+    }
+
+    showFormStatus(errorMessage, 'error');
   }
 }
 
