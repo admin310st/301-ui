@@ -28,6 +28,7 @@ import { initDomainsPage } from '@domains/domains';
 import { initRedirectsPage } from '@redirects/redirects';
 import { initProjectsPage } from '@ui/projects';
 import { initProjectCreate } from '@forms/project-create';
+import { initProjectEdit } from '@forms/project-edit';
 import { initSitesPage } from '@ui/sites';
 import { initSiteCreate } from '@forms/site-create';
 import { initSiteDomains } from '@domains/site-domains';
@@ -186,6 +187,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initRedirectsPage();
   initProjectsPage();
   initProjectCreate();
+  initProjectEdit();
   initSitesPage();
   initSiteCreate();
   initSiteDomains();
