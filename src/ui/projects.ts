@@ -22,7 +22,9 @@ function formatDate(date: string | null): string {
  * Render a single project row
  */
 function renderProjectRow(project: Project): string {
-  const brandTag = project.brand_tag ? `<code>${project.brand_tag}</code>` : '—';
+  const brandTag = project.brand_tag
+    ? `<code ${project.commercial_terms ? `title="${project.commercial_terms}"` : ''}>${project.brand_tag}</code>`
+    : '—';
 
   return `
     <tr data-project-id="${project.id}">
