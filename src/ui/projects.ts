@@ -4,6 +4,7 @@ import { getSites } from '@api/sites';
 import type { Project, Site, ProjectIntegration } from '@api/types';
 import { getAccountId } from '@state/auth-state';
 import { showGlobalMessage } from './notifications';
+import { initDropdowns } from '@ui/dropdown';
 
 /**
  * Format date to locale string
@@ -18,20 +19,9 @@ function formatDate(date: string | null): string {
 }
 
 /**
- * Format date range for display
- */
-function formatDateRange(startDate: string | null, endDate: string | null): string {
-  if (!startDate && !endDate) return '—';
-  const start = startDate ? formatDate(startDate) : '—';
-  const end = endDate ? formatDate(endDate) : '—';
-  return `${start} → ${end}`;
-}
-
-/**
  * Render a single project row
  */
 function renderProjectRow(project: Project): string {
-  const dateRange = formatDateRange(project.start_date, project.end_date);
   const brandTag = project.brand_tag ? `<code>${project.brand_tag}</code>` : '—';
 
   return `
@@ -45,18 +35,54 @@ function renderProjectRow(project: Project): string {
       <td data-priority="medium">${brandTag}</td>
       <td data-priority="high" class="text-right">${project.domains_count}</td>
       <td data-priority="high" class="text-right">${project.sites_count}</td>
-      <td data-priority="low" class="text-muted">${dateRange}</td>
       <td data-priority="low" class="text-muted">${formatDate(project.created_at)}</td>
-      <td data-priority="critical" class="table-actions">
-        <button
-          class="btn-icon"
-          type="button"
-          data-action="view-project"
-          data-project-id="${project.id}"
-          aria-label="View ${project.project_name}"
-        >
-          <span class="icon" data-icon="mono/details"></span>
-        </button>
+      <td data-priority="critical">
+        <div class="btn-group">
+          <button
+            class="btn-icon"
+            type="button"
+            data-action="edit-project"
+            data-project-id="${project.id}"
+            aria-label="Edit ${project.project_name}"
+          >
+            <span class="icon" data-icon="mono/pencil-circle"></span>
+          </button>
+          <div class="dropdown" data-dropdown>
+            <button
+              class="btn-icon btn-icon--ghost dropdown__trigger"
+              type="button"
+              aria-haspopup="menu"
+              aria-expanded="false"
+              aria-label="More actions for ${project.project_name}"
+            >
+              <span class="icon" data-icon="mono/dots-vertical"></span>
+            </button>
+            <div class="dropdown__menu dropdown__menu--align-right" role="menu">
+              <button class="dropdown__item" type="button" data-action="view-domains" data-project-id="${project.id}">
+                <span class="icon" data-icon="mono/web"></span>
+                <span>View domains</span>
+              </button>
+              <button class="dropdown__item" type="button" data-action="view-sites" data-project-id="${project.id}">
+                <span class="icon" data-icon="mono/package"></span>
+                <span>View sites</span>
+              </button>
+              <hr class="dropdown__divider" />
+              <button class="dropdown__item" type="button" data-action="duplicate-project" data-project-id="${project.id}">
+                <span class="icon" data-icon="mono/copy"></span>
+                <span>Duplicate project</span>
+              </button>
+              <button class="dropdown__item" type="button" data-action="archive-project" data-project-id="${project.id}">
+                <span class="icon" data-icon="mono/briefcase"></span>
+                <span>Archive project</span>
+              </button>
+              <hr class="dropdown__divider" />
+              <button class="dropdown__item dropdown__item--danger" type="button" data-action="delete-project" data-project-id="${project.id}">
+                <span class="icon" data-icon="mono/delete"></span>
+                <span>Delete project</span>
+              </button>
+            </div>
+          </div>
+        </div>
       </td>
     </tr>
   `;
@@ -221,6 +247,12 @@ export async function loadProjects(): Promise<void> {
 
     showTable();
     tbody.innerHTML = projects.map(renderProjectRow).join('');
+
+    // Initialize dropdowns for the table
+    const tableContainer = document.querySelector('[data-projects-table-container]');
+    if (tableContainer) {
+      initDropdowns(tableContainer as HTMLElement);
+    }
 
     // Re-apply icon injection after DOM update
     if (typeof (window as any).injectIcons === 'function') {
@@ -409,6 +441,9 @@ export function initProjectsPage(): void {
     initProjectsList();
   }
 
+  // Initialize action handlers
+  handleProjectActions();
+
   // Event delegation for view-project buttons
   document.addEventListener('click', (e) => {
     const target = e.target as HTMLElement;
@@ -419,6 +454,73 @@ export function initProjectsPage(): void {
       if (projectId) {
         window.location.href = `/projects.html?id=${projectId}`;
       }
+    }
+  });
+}
+
+/**
+ * Handle dropdown action clicks for projects table
+ */
+function handleProjectActions(): void {
+  document.addEventListener('click', async (e) => {
+    const target = e.target as HTMLElement;
+    const actionBtn = target.closest<HTMLElement>('[data-action]');
+
+    if (!actionBtn) return;
+
+    const action = actionBtn.getAttribute('data-action');
+    const projectId = parseInt(actionBtn.getAttribute('data-project-id') || '0', 10);
+
+    if (!projectId) return;
+
+    switch (action) {
+      case 'view-domains':
+        // Navigate to project detail view, domains tab
+        window.location.href = `/projects.html?id=${projectId}#domains`;
+        break;
+
+      case 'view-sites':
+        // Navigate to project detail view, sites tab
+        window.location.href = `/projects.html?id=${projectId}#sites`;
+        break;
+
+      case 'duplicate-project':
+        showGlobalMessage('info', 'Duplicate project feature coming soon');
+        break;
+
+      case 'archive-project':
+        showGlobalMessage('info', 'Archive project feature coming soon');
+        break;
+
+      case 'delete-project':
+        const confirmed = confirm(
+          t('projects.messages.confirmDelete') ||
+          'Are you sure you want to delete this project? This will also delete all sites and streams.'
+        );
+
+        if (!confirmed) return;
+
+        try {
+          showGlobalMessage('info', t('common.messages.deleting') || 'Deleting...');
+
+          await import('@api/projects').then(({ deleteProject }) =>
+            deleteProject(projectId)
+          );
+
+          showGlobalMessage('success', t('projects.messages.deleted') || 'Project deleted successfully');
+
+          // Update sidebar count
+          import('@ui/sidebar-nav').then(({ updateProjectsAndSitesCounts }) => {
+            updateProjectsAndSitesCounts();
+          });
+
+          // Reload projects list
+          await loadProjects();
+        } catch (error: any) {
+          console.error('Failed to delete project:', error);
+          showGlobalMessage('error', error.message || t('projects.errors.deleteFailed') || 'Failed to delete project');
+        }
+        break;
     }
   });
 }
