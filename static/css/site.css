@@ -2953,6 +2953,15 @@ body.sidebar-collapsed .sidebar-search {
   background: var(--danger);
 }
 
+.metric-pill__label {
+  display: inline-block;
+  margin-left: var(--space-2);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
 /* ============================================
    Mobile Menu Button
    ============================================ */

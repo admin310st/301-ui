@@ -286,6 +286,58 @@ function initProjectsList(): void {
 }
 
 /**
+ * Update metric pill with project date range progress
+ */
+function updateProjectDateMetric(project: Project): void {
+  const container = document.querySelector<HTMLElement>('[data-project-date-range]');
+  const fillElement = document.querySelector<HTMLElement>('[data-project-date-fill]');
+  const textElement = document.querySelector<HTMLElement>('[data-project-date-text]');
+
+  if (!container || !fillElement || !textElement) return;
+
+  // If no dates set, show placeholder
+  if (!project.start_date || !project.end_date) {
+    textElement.textContent = '—';
+    fillElement.style.setProperty('--metric-fill', '0');
+    container.className = 'metric-pill';
+    return;
+  }
+
+  const now = new Date();
+  const start = new Date(project.start_date);
+  const end = new Date(project.end_date);
+
+  // Calculate progress (0 to 1)
+  const totalDuration = end.getTime() - start.getTime();
+  const elapsed = now.getTime() - start.getTime();
+  const progress = totalDuration > 0 ? elapsed / totalDuration : 0;
+
+  // Clamp to 0-1 range
+  const fillValue = Math.max(0, Math.min(1, progress));
+
+  // Set fill value
+  fillElement.style.setProperty('--metric-fill', String(fillValue));
+
+  // Set variant based on status
+  let variant = 'metric-pill';
+  if (now > end) {
+    // Project ended
+    variant = 'metric-pill metric-pill--success';
+    fillElement.style.setProperty('--metric-fill', '1');
+  } else if (now < start) {
+    // Project not started yet
+    fillElement.style.setProperty('--metric-fill', '0');
+  }
+
+  container.className = variant;
+
+  // Format date text
+  const startFormatted = formatDate(project.start_date);
+  const endFormatted = formatDate(project.end_date);
+  textElement.textContent = `${startFormatted} — ${endFormatted}`;
+}
+
+/**
  * Load and render project detail view
  */
 export async function loadProjectDetail(projectId: number): Promise<void> {
@@ -317,6 +369,9 @@ export async function loadProjectDetail(projectId: number): Promise<void> {
     document.querySelectorAll<HTMLElement>('[data-project-end-date]').forEach(el => {
       el.textContent = formatDate(project.end_date);
     });
+
+    // Update metric pill with date range progress
+    updateProjectDateMetric(project);
 
     document.querySelectorAll<HTMLElement>('[data-project-created-at]').forEach(el => {
       el.textContent = formatDate(project.created_at);
