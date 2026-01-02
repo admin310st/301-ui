@@ -2997,6 +2997,7 @@ body.sidebar-collapsed .sidebar-search {
   background: transparent;
   border: none;
   border-bottom: 2px solid transparent;
+  border-radius: var(--r-field) var(--r-field) 0 0;
 
   font-size: var(--fs-sm);
   font-weight: var(--fw-medium);
@@ -3005,7 +3006,8 @@ body.sidebar-collapsed .sidebar-search {
   cursor: pointer;
   transition:
     color var(--transition-fast),
-    border-color var(--transition-fast);
+    border-color var(--transition-fast),
+    background var(--transition-fast);
 }
 
 .tab:hover {

@@ -21,6 +21,7 @@ Design system for **301.st** (marketing front + member area).
 | **Cards** | `.card.card--panel`, `.card--soft` | `dashboard.html` step cards | `site.css` → "Cards v2" |
 | **Panels** | `.panel.panel--{info\|success\|warning\|danger}` | `dashboard.html` Step 1 info panel | `site.css` → "Panels" |
 | **Badges** | `.badge.badge--{primary\|success\|neutral\|warning\|danger}` | `domains.html` status column | `site.css` → "Badges" |
+| **Tabs** | `.tabs`, `.tab`, `.tab.is-active` | `projects.html` project detail view | `site.css` → "Tabs Navigation" |
 | **Metric Pill** | `.metric-pill`, `.metric-pill--{success\|warning\|danger}` | Preserved (not in production) | `site.css` → "Metric Pill" |
 | **Loading Indicator** | `.loading-bar[data-loading][data-type]` | `index.html` login/register | `site.css` → "Loading indicator bar" |
 | **Global Notices** | `.app-alert.app-alert--{success\|error\|info}` | All pages, utility-bar overlay | `site.css` → "Global Notices" |
