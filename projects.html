@@ -77,29 +77,29 @@
 
           <div class="card__body card__body--table">
             <!-- Loading State -->
-            <div class="table-loading" data-projects-loading hidden>
+            <div class="loading-state" data-projects-loading hidden>
               <div class="spinner"></div>
               <p class="text-muted" data-i18n="projects.loading">Loading projects...</p>
             </div>
 
             <!-- Empty State -->
-            <div class="table-empty" data-projects-empty hidden>
-              <div class="empty-state">
-                <div class="empty-state__icon">
-                  <span class="icon icon--xl" data-icon="mono/project"></span>
-                </div>
+            <div class="empty-state" data-projects-empty hidden>
+              <div class="stack-md">
+                <span class="icon icon--lg" data-icon="mono/package"></span>
                 <h3 class="h4" data-i18n="projects.empty.title">No projects yet</h3>
                 <p class="text-muted" data-i18n="projects.empty.description">
                   Create your first project to organize domains and manage traffic distribution.
                 </p>
-                <button
-                  class="btn btn--primary"
-                  type="button"
-                  data-action="create-project"
-                >
-                  <span class="icon" data-icon="mono/plus"></span>
-                  <span data-i18n="projects.empty.cta">Create project</span>
-                </button>
+                <div class="btn-group">
+                  <button
+                    class="btn btn--primary"
+                    type="button"
+                    data-action="create-project"
+                  >
+                    <span class="icon" data-icon="mono/plus"></span>
+                    <span data-i18n="projects.empty.cta">Create project</span>
+                  </button>
+                </div>
               </div>
             </div>
 
