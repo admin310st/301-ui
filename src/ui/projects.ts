@@ -66,7 +66,7 @@ function renderProjectRow(project: Project): string {
                 <span>View domains</span>
               </button>
               <button class="dropdown__item" type="button" data-action="view-sites" data-project-id="${project.id}">
-                <span class="icon" data-icon="mono/package"></span>
+                <span class="icon" data-icon="mono/cube-scan"></span>
                 <span>View sites</span>
               </button>
               <hr class="dropdown__divider" />
@@ -75,7 +75,7 @@ function renderProjectRow(project: Project): string {
                 <span>Duplicate project</span>
               </button>
               <button class="dropdown__item" type="button" data-action="archive-project" data-project-id="${project.id}">
-                <span class="icon" data-icon="mono/briefcase"></span>
+                <span class="icon" data-icon="mono/package-closed"></span>
                 <span>Archive project</span>
               </button>
               <hr class="dropdown__divider" />
