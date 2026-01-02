@@ -127,50 +127,60 @@
 
       <!-- Project Detail View (with ?id parameter) -->
       <section class="dashboard-content" data-view="project-detail" hidden>
+        <!-- Utility Bar with Brand Tag and Date Range -->
+        <div class="utility-bar">
+          <div class="page-shell utility-bar__inner">
+            <div class="utility-left">
+              <span class="badges">
+                <code class="badge badge--neutral" data-project-brand-tag>—</code>
+              </span>
+            </div>
+            <div class="utility-right">
+              <div class="metric-pill metric-pill--date" data-project-date-range>
+                <span class="metric-pill__track">
+                  <span class="metric-pill__fill" data-project-date-fill style="--metric-fill: 0"></span>
+                </span>
+                <span class="metric-pill__label" data-project-date-text>—</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <header class="page-header">
           <div class="page-header__title">
             <h1 class="h3" data-project-name>...</h1>
             <p class="text-muted" data-project-description>—</p>
           </div>
-
-          <div class="page-header__actions">
-            <div class="metric-pill" data-project-date-range>
-              <span class="metric-pill__track">
-                <span class="metric-pill__fill" data-project-date-fill style="--metric-fill: 0"></span>
-              </span>
-              <span class="metric-pill__label" data-project-date-text>—</span>
-            </div>
-          </div>
         </header>
 
         <!-- Tabs Navigation -->
         <div class="tabs" data-tabs="project-detail">
-          <button class="tab is-active" data-tab="sites" type="button">Sites</button>
+          <button class="tab is-active" data-tab="integrations" type="button">Integrations</button>
           <button class="tab" data-tab="domains" type="button">Domains</button>
-          <button class="tab" data-tab="integrations" type="button">Integrations</button>
+          <button class="tab" data-tab="sites" type="button">Sites</button>
+          <button class="tab" data-tab="streams" type="button">Streams</button>
         </div>
 
-        <!-- Tab: Sites -->
-        <div class="tab-panel" data-tab-panel="sites">
+        <!-- Tab: Integrations -->
+        <div class="tab-panel" data-tab-panel="integrations">
           <div class="card card--panel">
             <header class="card__header">
-              <h3 class="h5">Sites</h3>
-              <button class="btn btn--primary btn--sm" type="button" data-action="create-site">
-                <span class="icon" data-icon="mono/plus"></span>
-                <span>Create site</span>
+              <h3 class="h5">Integrations</h3>
+              <button class="btn btn--primary btn--sm" type="button" data-action="attach-integration">
+                <span class="icon" data-icon="mono/puzzle-plus"></span>
+                <span>Attach integration</span>
               </button>
             </header>
             <div class="card__body card__body--table">
-              <div class="table-container" data-project-sites-container>
-                <table class="table" data-project-sites-table>
+              <div class="table-container" data-project-integrations-container>
+                <table class="table" data-project-integrations-table>
                   <thead>
                     <tr>
-                      <th>Name</th>
-                      <th>Tag</th>
-                      <th class="text-right">Domains</th>
-                      <th>Acceptor</th>
+                      <th>Provider</th>
+                      <th>Alias</th>
+                      <th>Account ID</th>
                       <th>Status</th>
-                      <th>Updated</th>
+                      <th>Connected</th>
                       <th class="th-actions">Actions</th>
                     </tr>
                   </thead>
@@ -216,26 +226,27 @@
           </div>
         </div>
 
-        <!-- Tab: Integrations -->
-        <div class="tab-panel" data-tab-panel="integrations" hidden>
+        <!-- Tab: Sites -->
+        <div class="tab-panel" data-tab-panel="sites" hidden>
           <div class="card card--panel">
             <header class="card__header">
-              <h3 class="h5">Integrations</h3>
-              <button class="btn btn--primary btn--sm" type="button" data-action="attach-integration">
-                <span class="icon" data-icon="mono/puzzle-plus"></span>
-                <span>Attach integration</span>
+              <h3 class="h5">Sites</h3>
+              <button class="btn btn--primary btn--sm" type="button" data-action="create-site">
+                <span class="icon" data-icon="mono/plus"></span>
+                <span>Create site</span>
               </button>
             </header>
             <div class="card__body card__body--table">
-              <div class="table-container" data-project-integrations-container>
-                <table class="table" data-project-integrations-table>
+              <div class="table-container" data-project-sites-container>
+                <table class="table" data-project-sites-table>
                   <thead>
                     <tr>
-                      <th>Provider</th>
-                      <th>Alias</th>
-                      <th>Account ID</th>
+                      <th>Name</th>
+                      <th>Tag</th>
+                      <th class="text-right">Domains</th>
+                      <th>Acceptor</th>
                       <th>Status</th>
-                      <th>Connected</th>
+                      <th>Updated</th>
                       <th class="th-actions">Actions</th>
                     </tr>
                   </thead>
@@ -244,6 +255,22 @@
                   </tbody>
                 </table>
               </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab: Streams -->
+        <div class="tab-panel" data-tab-panel="streams" hidden>
+          <div class="card card--panel">
+            <header class="card__header">
+              <h3 class="h5">Streams</h3>
+              <button class="btn btn--primary btn--sm" type="button" data-action="create-stream">
+                <span class="icon" data-icon="mono/plus"></span>
+                <span>Create stream</span>
+              </button>
+            </header>
+            <div class="card__body card__body--table">
+              <p class="text-muted">Streams management coming soon...</p>
             </div>
           </div>
         </div>
