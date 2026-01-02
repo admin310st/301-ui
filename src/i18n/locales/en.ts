@@ -7,6 +7,7 @@ export const en = {
       required: 'This field is required',
     },
     messages: {
+      saving: 'Saving...',
       saved: 'Changes saved successfully',
     },
   },

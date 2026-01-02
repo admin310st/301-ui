@@ -2319,6 +2319,33 @@ html[data-theme="light"] .btn--social-github {
   color: var(--brand);
 }
 
+/* ============================================================
+   Date Pill
+   ============================================================ */
+
+.date-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  padding-inline: 1em;
+  padding-block: 0.4em;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--border-subtle);
+  background-color: var(--panel);
+
+  font-size: var(--fs-sm);
+  line-height: 1.5;
+  font-weight: var(--fw-medium);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.date-pill .icon {
+  width: 1em;
+  height: 1em;
+  color: var(--text-muted);
+}
+
 :root[data-theme='light'] .badge--cf {
   background-color: color-mix(in srgb, var(--accent-cf-bg) 14%, #ffffff);
   border-color: color-mix(in srgb, var(--accent-cf-bg) 40%, transparent);

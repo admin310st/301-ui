@@ -9,6 +9,7 @@ export const ru: Translation = {
       required: 'Это поле обязательно',
     },
     messages: {
+      saving: 'Сохранение...',
       saved: 'Изменения успешно сохранены',
     },
   },
