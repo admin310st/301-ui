@@ -6,6 +6,10 @@ import { getAccountId } from '@state/auth-state';
 import { showGlobalMessage } from './notifications';
 import { adjustDropdownPosition } from '@ui/dropdown';
 
+// State
+let allProjects: Project[] = [];
+let searchQuery = '';
+
 /**
  * Format date to locale string
  */
@@ -15,6 +19,26 @@ function formatDate(date: string | null): string {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
+  });
+}
+
+/**
+ * Filter projects by search query (name and brand tag)
+ */
+function filterProjects(projects: Project[], query: string): Project[] {
+  if (!query) return projects;
+
+  const trimmed = query.trim().toLowerCase();
+  return projects.filter((project) => {
+    const searchable = [
+      project.project_name,
+      project.brand_tag || '',
+      project.description || '',
+    ]
+      .join(' ')
+      .toLowerCase();
+
+    return searchable.includes(trimmed);
   });
 }
 
@@ -228,6 +252,40 @@ function showTable() {
 /**
  * Load and render projects list
  */
+/**
+ * Render filtered projects to table
+ */
+function renderProjects(): void {
+  const tbody = document.querySelector<HTMLTableSectionElement>('[data-projects-table] tbody');
+  if (!tbody) return;
+
+  const filtered = filterProjects(allProjects, searchQuery);
+
+  if (filtered.length === 0) {
+    if (searchQuery) {
+      // Show "no results" message for search
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="6" class="text-center text-muted" style="padding: var(--space-6);">
+            No projects found for "${searchQuery}"
+          </td>
+        </tr>
+      `;
+    } else {
+      showEmpty();
+    }
+    return;
+  }
+
+  showTable();
+  tbody.innerHTML = filtered.map(renderProjectRow).join('');
+
+  // Re-apply icon injection after DOM update
+  if (typeof (window as any).injectIcons === 'function') {
+    (window as any).injectIcons();
+  }
+}
+
 export async function loadProjects(): Promise<void> {
   const accountId = getAccountId();
   if (!accountId) {
@@ -235,13 +293,10 @@ export async function loadProjects(): Promise<void> {
     return;
   }
 
-  const tbody = document.querySelector<HTMLTableSectionElement>('[data-projects-table] tbody');
-  if (!tbody) return;
-
   showLoading();
 
   try {
-    const projects = await getProjects(accountId);
+    allProjects = await getProjects(accountId);
 
     hideLoading();
 
@@ -249,18 +304,12 @@ export async function loadProjects(): Promise<void> {
     const brandTag = document.querySelector('[data-project-brand-tag]');
     if (brandTag) brandTag.setAttribute('hidden', '');
 
-    if (projects.length === 0) {
+    if (allProjects.length === 0) {
       showEmpty();
       return;
     }
 
-    showTable();
-    tbody.innerHTML = projects.map(renderProjectRow).join('');
-
-    // Re-apply icon injection after DOM update
-    if (typeof (window as any).injectIcons === 'function') {
-      (window as any).injectIcons();
-    }
+    renderProjects();
   } catch (error) {
     hideLoading();
     console.error('Failed to load projects:', error);
@@ -476,6 +525,42 @@ function initTabs() {
 /**
  * Initialize projects page
  */
+/**
+ * Initialize search functionality for projects table
+ */
+function initProjectsSearch(): void {
+  const searchInput = document.querySelector<HTMLInputElement>('[data-search-input]');
+  const tableSearch = document.querySelector<HTMLElement>('[data-table-search]');
+
+  if (!searchInput) return;
+
+  searchInput.addEventListener('input', (e) => {
+    searchQuery = (e.target as HTMLInputElement).value;
+    renderProjects();
+
+    // Toggle search active state
+    if (tableSearch) {
+      if (searchQuery.length > 0) {
+        tableSearch.classList.add('table-search--active');
+      } else {
+        tableSearch.classList.remove('table-search--active');
+      }
+    }
+  });
+
+  // Clear search on Escape key
+  searchInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      searchInput.value = '';
+      searchQuery = '';
+      renderProjects();
+      if (tableSearch) {
+        tableSearch.classList.remove('table-search--active');
+      }
+    }
+  });
+}
+
 export function initProjectsPage(): void {
   // Check URL parameter to determine view mode
   const urlParams = new URLSearchParams(window.location.search);
@@ -501,6 +586,9 @@ export function initProjectsPage(): void {
 
     // Load projects list with auth state handling
     initProjectsList();
+
+    // Initialize search
+    initProjectsSearch();
   }
 
   // Initialize action handlers
