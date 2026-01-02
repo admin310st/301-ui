@@ -20,9 +20,24 @@
       <div class="utility-bar">
         <div class="page-shell utility-bar__inner">
           <div class="utility-left">
-            <span class="badges">
+            <!-- List view badge -->
+            <span class="badges" data-projects-list-badge>
               <span class="badge badge--neutral">Projects</span>
             </span>
+            <!-- Detail view brand tag -->
+            <span class="badges" data-project-detail-badge hidden>
+              <code class="badge badge--neutral" data-project-brand-tag>—</code>
+            </span>
+          </div>
+
+          <div class="utility-right">
+            <!-- Detail view date range -->
+            <div class="metric-pill metric-pill--date" data-project-date-range hidden>
+              <span class="metric-pill__track">
+                <span class="metric-pill__fill" data-project-date-fill style="--metric-fill: 0"></span>
+              </span>
+              <span class="metric-pill__label" data-project-date-text>—</span>
+            </div>
           </div>
 
 {{> header-utility}}
@@ -127,25 +142,6 @@
 
       <!-- Project Detail View (with ?id parameter) -->
       <section class="dashboard-content" data-view="project-detail" hidden>
-        <!-- Utility Bar with Brand Tag and Date Range -->
-        <div class="utility-bar">
-          <div class="page-shell utility-bar__inner">
-            <div class="utility-left">
-              <span class="badges">
-                <code class="badge badge--neutral" data-project-brand-tag>—</code>
-              </span>
-            </div>
-            <div class="utility-right">
-              <div class="metric-pill metric-pill--date" data-project-date-range>
-                <span class="metric-pill__track">
-                  <span class="metric-pill__fill" data-project-date-fill style="--metric-fill: 0"></span>
-                </span>
-                <span class="metric-pill__label" data-project-date-text>—</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
         <header class="page-header">
           <div class="page-header__title">
             <h1 class="h3" data-project-name>...</h1>

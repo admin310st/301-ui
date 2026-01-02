@@ -245,6 +245,15 @@ export async function loadProjects(): Promise<void> {
 
     hideLoading();
 
+    // Toggle utility bar content: show list badge, hide detail badge and date range
+    const listBadge = document.querySelector('[data-projects-list-badge]');
+    const detailBadge = document.querySelector('[data-project-detail-badge]');
+    const dateRange = document.querySelector('[data-project-date-range]');
+
+    if (listBadge) listBadge.removeAttribute('hidden');
+    if (detailBadge) detailBadge.setAttribute('hidden', '');
+    if (dateRange) dateRange.setAttribute('hidden', '');
+
     if (projects.length === 0) {
       showEmpty();
       return;
@@ -344,6 +353,15 @@ export async function loadProjectDetail(projectId: number): Promise<void> {
   try {
     const data = await getProject(projectId);
     const { project, sites, integrations } = data;
+
+    // Toggle utility bar content: hide list badge, show detail badge and date range
+    const listBadge = document.querySelector('[data-projects-list-badge]');
+    const detailBadge = document.querySelector('[data-project-detail-badge]');
+    const dateRange = document.querySelector('[data-project-date-range]');
+
+    if (listBadge) listBadge.setAttribute('hidden', '');
+    if (detailBadge) detailBadge.removeAttribute('hidden');
+    if (dateRange) dateRange.removeAttribute('hidden');
 
     // Update all project data attributes
     document.querySelectorAll<HTMLElement>('[data-project-name]').forEach(el => {
