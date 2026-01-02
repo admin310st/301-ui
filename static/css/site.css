@@ -1021,7 +1021,7 @@ h5 .icon[data-icon*="close"] {
   z-index: var(--z-base);
   transition: transform 0.3s ease, border-color 300ms ease;
   transform: translateY(0);
-  overflow: hidden; /* Ensure loading bar doesn't overflow on mobile */
+  overflow: visible; /* Allow dropdowns to overflow - was: hidden */
 }
 
 /* Hide utility-bar when scrolling down (first level to hide) */
@@ -2981,10 +2981,16 @@ body.sidebar-collapsed .sidebar-search {
   min-width: 12rem;
 }
 
+/* When inside page-header actions, align to top instead of center */
+.page-header__actions .metric-pill--date {
+  align-self: flex-start;
+}
+
 /* ============================================
-   Tabs Navigation
+   Tabs Navigation (modern system)
+   Uses data-tabs attribute to avoid conflicts with legacy .tabs__nav system
    ============================================ */
-.tabs {
+.tabs[data-tabs] {
   display: flex;
   gap: var(--space-1);
   margin-bottom: var(--space-4);

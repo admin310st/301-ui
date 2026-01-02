@@ -8,7 +8,6 @@
 import { mockDomainRedirects, groupByProject, type DomainRedirect, type ProjectGroup, type TargetSubgroup } from './mock-data';
 import { getDefaultFilters, hasActiveFilters, type ActiveFilters } from './filters-config';
 import { renderFilterBar, initFilterUI } from './filters-ui';
-import { adjustDropdownPosition } from '@ui/dropdown';
 import { initDrawer, openDrawer, openBulkAddDrawer } from './drawer';
 import { showDialog, hideDialog } from '@ui/dialog';
 import { formatTooltipTimestamp, initTooltips } from '@ui/tooltip';
@@ -43,14 +42,73 @@ export function initRedirectsPage(): void {
   // Setup action buttons
   setupActions();
 
-  // Dropdown toggles (delegated)
+  // Initialize dropdown system globally (handles both page-header and table dropdowns)
+  setupGlobalDropdowns();
+
+  // Initialize drawer
+  initDrawer();
+}
+
+/**
+ * Setup global dropdown handler for all dropdowns on the page
+ * Handles both page-header dropdown (sync-chip) and table row dropdowns
+ */
+function setupGlobalDropdowns(): void {
   document.addEventListener('click', (e) => {
     const target = e.target as HTMLElement;
-    const trigger = target.closest('.dropdown__trigger');
 
-    if (trigger) {
+    // Handle sync-chip dropdown specifically
+    const syncChipTrigger = target.closest('[data-sync-chip] .dropdown__trigger');
+    if (syncChipTrigger) {
+      e.preventDefault();
       e.stopPropagation();
-      const dropdown = trigger.closest('.dropdown');
+
+      const syncChipDropdown = document.querySelector('[data-sync-chip]');
+      if (!syncChipDropdown) return;
+
+      // Use display property as single source of truth
+      const menu = syncChipDropdown.querySelector('.dropdown__menu') as HTMLElement;
+      const isOpen = menu ? menu.style.display === 'block' : false;
+
+      // Close all other dropdowns
+      document.querySelectorAll('.dropdown--open').forEach((other) => {
+        if (other !== syncChipDropdown) {
+          other.classList.remove('dropdown--open');
+          const otherTrigger = other.querySelector('.dropdown__trigger');
+          if (otherTrigger) otherTrigger.setAttribute('aria-expanded', 'false');
+          const otherMenu = other.querySelector('.dropdown__menu') as HTMLElement;
+          if (otherMenu) {
+            otherMenu.classList.remove('dropdown__menu--up', 'dropdown__menu--right');
+            otherMenu.style.display = 'none';
+          }
+        }
+      });
+
+      // Toggle sync-chip
+      if (isOpen) {
+        syncChipDropdown.classList.remove('dropdown--open');
+        syncChipTrigger.setAttribute('aria-expanded', 'false');
+        if (menu) {
+          menu.classList.remove('dropdown__menu--up', 'dropdown__menu--right');
+          menu.style.display = 'none';
+        }
+      } else {
+        syncChipDropdown.classList.add('dropdown--open');
+        syncChipTrigger.setAttribute('aria-expanded', 'true');
+        if (menu) {
+          menu.style.display = 'block';
+        }
+      }
+      return;
+    }
+
+    // Handle regular table dropdowns
+    const trigger = target.closest('.dropdown__trigger');
+    if (trigger) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const dropdown = trigger.closest('.dropdown') || trigger.closest('[data-dropdown]');
       if (!dropdown) return;
 
       const isOpen = dropdown.classList.contains('dropdown--open');
@@ -61,36 +119,67 @@ export function initRedirectsPage(): void {
           other.classList.remove('dropdown--open');
           const otherTrigger = other.querySelector('.dropdown__trigger');
           if (otherTrigger) otherTrigger.setAttribute('aria-expanded', 'false');
+          const otherMenu = other.querySelector('.dropdown__menu');
+          if (otherMenu) otherMenu.classList.remove('dropdown__menu--up', 'dropdown__menu--right');
         }
       });
 
-      // Toggle current
+      // Toggle current dropdown
       if (isOpen) {
         dropdown.classList.remove('dropdown--open');
         trigger.setAttribute('aria-expanded', 'false');
-        // Remove positioning class when closing
         const menu = dropdown.querySelector('.dropdown__menu');
-        if (menu) menu.classList.remove('dropdown__menu--up');
+        if (menu) menu.classList.remove('dropdown__menu--up', 'dropdown__menu--right');
       } else {
         dropdown.classList.add('dropdown--open');
         trigger.setAttribute('aria-expanded', 'true');
-        // Apply smart positioning after opening
         requestAnimationFrame(() => {
           adjustDropdownPosition(dropdown);
         });
       }
-    } else {
-      // Close all dropdowns when clicking outside
+      return;
+    }
+
+    // Click outside - close all dropdowns
+    const clickedOutside = !target.closest('.dropdown') && !target.closest('[data-dropdown]');
+    if (clickedOutside) {
       document.querySelectorAll('.dropdown--open').forEach((dropdown) => {
         dropdown.classList.remove('dropdown--open');
         const trigger = dropdown.querySelector('.dropdown__trigger');
         if (trigger) trigger.setAttribute('aria-expanded', 'false');
+        const menu = dropdown.querySelector('.dropdown__menu') as HTMLElement;
+        if (menu) {
+          menu.classList.remove('dropdown__menu--up', 'dropdown__menu--right');
+          // Force hide sync-chip menu
+          if (dropdown.hasAttribute('data-sync-chip')) {
+            menu.style.display = 'none';
+          }
+        }
       });
     }
   });
+}
 
-  // Initialize drawer
-  initDrawer();
+/**
+ * Adjust dropdown position to prevent overflow
+ */
+function adjustDropdownPosition(dropdown: Element): void {
+  const menu = dropdown.querySelector('.dropdown__menu') as HTMLElement;
+  if (!menu) return;
+
+  const menuRect = menu.getBoundingClientRect();
+  const viewportHeight = window.innerHeight;
+  const viewportWidth = window.innerWidth;
+
+  // Check if dropdown would overflow bottom
+  if (menuRect.bottom > viewportHeight - 16) {
+    menu.classList.add('dropdown__menu--up');
+  }
+
+  // Check if dropdown would overflow right
+  if (menuRect.right > viewportWidth - 16) {
+    menu.classList.add('dropdown__menu--right');
+  }
 }
 
 /**
@@ -202,7 +291,7 @@ function renderTable(): void {
   // Initialize tooltips for status badges
   initTooltips();
 
-  // Note: Dropdowns initialized once in initRedirectsPage() via event delegation
+  // Note: Dropdowns handled by global setupGlobalDropdowns() in initRedirectsPage()
 
   // Update counts
   const shownCount = document.querySelector('[data-shown-count]');

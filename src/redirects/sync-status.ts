@@ -149,22 +149,25 @@ export function initSyncStatus(redirects: Redirect[]): void {
 
     switch (action) {
       case 'sync-now':
-        console.log('[Sync] Sync to Cloudflare clicked');
         triggerSyncAnimation();
         // TODO: Implement actual CF sync API call
         break;
 
       case 'add-redirects':
-        console.log('[Sync] Add Redirects clicked');
         // TODO: Open bulk add drawer
         const event = new CustomEvent('open-redirect-drawer');
         document.dispatchEvent(event);
         break;
 
       case 'cancel-sync':
-        console.log('[Sync] Cancel sync clicked');
         // TODO: Implement cancel sync action
         break;
     }
+
+    // Close dropdown after action
+    dropdown.classList.remove('dropdown--open');
+    menu.style.display = 'none';
+    const trigger = dropdown.querySelector('.dropdown__trigger');
+    if (trigger) trigger.setAttribute('aria-expanded', 'false');
   });
 }
