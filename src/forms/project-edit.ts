@@ -1,7 +1,7 @@
 import { updateProject, getProject } from '@api/projects';
 import type { UpdateProjectRequest } from '@api/types';
 import { showGlobalMessage } from '@ui/notifications';
-import { t } from '@i18n';
+import { t, tWithVars } from '@i18n';
 import { loadProjects, loadProjectDetail } from '@ui/projects';
 
 /**
@@ -140,23 +140,33 @@ async function handleEditProject(event: Event): Promise<void> {
     console.error('Failed to update project:', error);
 
     // Map API error codes to user-friendly messages
-    let errorMessage = t('projects.errors.updateFailed') || 'Failed to update project';
+    let errorMessage: string;
 
     if (error.body?.error) {
       const errorCode = error.body.error;
-      const errorKey = `projects.errors.${errorCode}`;
-      const translatedError = t(errorKey);
 
-      // If translation exists and is different from the key, use it
-      if (translatedError && translatedError !== errorKey) {
-        errorMessage = translatedError;
-      } else if (error.body.field) {
-        // Handle missing_field error with field name
-        errorMessage = t('projects.errors.missingField', { field: error.body.field }) || `Missing field: ${error.body.field}`;
+      // Special handling for errors with additional fields
+      if (errorCode === 'missing_field' && error.body.field) {
+        errorMessage = tWithVars('projects.errors.missingField', { field: error.body.field });
+      } else {
+        // Try to find translation for the error code
+        const errorKey = `projects.errors.${errorCode}`;
+        const translatedError = t(errorKey);
+
+        // Check if translation exists (t() returns the key if not found)
+        if (translatedError && !translatedError.startsWith('projects.errors.')) {
+          errorMessage = translatedError;
+        } else {
+          // Fallback to generic error message
+          errorMessage = t('projects.errors.updateFailed') || 'Failed to update project';
+        }
       }
     } else if (error.message && error.message !== 'Request failed') {
       // Use error message if it's not the generic fallback
       errorMessage = error.message;
+    } else {
+      // Final fallback
+      errorMessage = t('projects.errors.updateFailed') || 'Failed to update project';
     }
 
     showFormStatus(errorMessage, 'error');
