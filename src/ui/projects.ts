@@ -152,10 +152,12 @@ function showLoading() {
   const loading = document.querySelector<HTMLElement>('[data-projects-loading]');
   const empty = document.querySelector<HTMLElement>('[data-projects-empty]');
   const container = document.querySelector<HTMLElement>('[data-projects-table-container]');
+  const header = document.querySelector<HTMLElement>('[data-projects-header]');
 
   if (loading) loading.hidden = false;
   if (empty) empty.hidden = true;
   if (container) container.hidden = true;
+  if (header) header.hidden = true;
 }
 
 /**
@@ -172,9 +174,11 @@ function hideLoading() {
 function showEmpty() {
   const empty = document.querySelector<HTMLElement>('[data-projects-empty]');
   const container = document.querySelector<HTMLElement>('[data-projects-table-container]');
+  const header = document.querySelector<HTMLElement>('[data-projects-header]');
 
   if (empty) empty.hidden = false;
   if (container) container.hidden = true;
+  if (header) header.hidden = true;
 }
 
 /**
@@ -183,9 +187,11 @@ function showEmpty() {
 function showTable() {
   const empty = document.querySelector<HTMLElement>('[data-projects-empty]');
   const container = document.querySelector<HTMLElement>('[data-projects-table-container]');
+  const header = document.querySelector<HTMLElement>('[data-projects-header]');
 
   if (empty) empty.hidden = true;
   if (container) container.hidden = false;
+  if (header) header.hidden = false;
 }
 
 /**
