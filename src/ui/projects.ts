@@ -530,6 +530,7 @@ function initTabs() {
  */
 function initProjectsSearch(): void {
   const searchInput = document.querySelector<HTMLInputElement>('[data-search-input]');
+  const searchClear = document.querySelector<HTMLButtonElement>('[data-search-clear]');
   const tableSearch = document.querySelector<HTMLElement>('[data-table-search]');
 
   if (!searchInput) return;
@@ -547,6 +548,17 @@ function initProjectsSearch(): void {
       }
     }
   });
+
+  // Clear button
+  if (searchClear && tableSearch) {
+    searchClear.addEventListener('click', () => {
+      searchInput.value = '';
+      searchQuery = '';
+      renderProjects();
+      tableSearch.classList.remove('table-search--active');
+      searchInput.focus();
+    });
+  }
 
   // Clear search on Escape key
   searchInput.addEventListener('keydown', (e) => {
