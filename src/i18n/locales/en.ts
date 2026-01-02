@@ -458,6 +458,7 @@ export const en = {
     errors: {
       projectNotFound: 'Project not found',
       nameRequired: 'Project name is required',
+      endDateBeforeStart: 'End date must be after start date',
       missingField: 'Missing required field: {{field}}',
       quotaExceeded: 'You have reached the maximum number of projects ({{limit}}). Upgrade your plan or delete existing projects.',
       siteQuotaExceeded: 'Cannot create project: site quota exceeded ({{used}}/{{limit}})',

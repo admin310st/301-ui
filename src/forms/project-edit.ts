@@ -101,6 +101,19 @@ async function handleEditProject(event: Event): Promise<void> {
   const endDate = formData.get('end_date') as string;
   if (endDate) request.end_date = endDate;
 
+  // Validate dates: end_date must be after start_date
+  if (startDate && endDate) {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    if (end <= start) {
+      showFormStatus(
+        t('projects.errors.endDateBeforeStart') || 'End date must be after start date',
+        'error'
+      );
+      return;
+    }
+  }
+
   try {
     showFormStatus(
       t('common.messages.saving') || 'Saving...',

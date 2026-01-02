@@ -101,6 +101,19 @@ async function handleCreateProject(event: Event): Promise<void> {
   const endDate = formData.get('end_date') as string;
   if (endDate) request.end_date = endDate;
 
+  // Validate dates: end_date must be after start_date
+  if (startDate && endDate) {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    if (end <= start) {
+      showFormStatus(
+        t('projects.errors.endDateBeforeStart') || 'End date must be after start date',
+        'error'
+      );
+      return;
+    }
+  }
+
   // Optional: create first site
   const siteName = (formData.get('site_name') as string || '').trim();
   if (siteName) request.site_name = siteName;

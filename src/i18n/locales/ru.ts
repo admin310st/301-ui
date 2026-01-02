@@ -464,6 +464,7 @@ export const ru: Translation = {
     errors: {
       projectNotFound: 'Проект не найден',
       nameRequired: 'Название проекта обязательно',
+      endDateBeforeStart: 'Дата окончания должна быть после даты начала',
       missingField: 'Отсутствует обязательное поле: {{field}}',
       quotaExceeded: 'Вы достигли максимального количества проектов ({{limit}}). Обновите тариф или удалите существующие проекты.',
       siteQuotaExceeded: 'Невозможно создать проект: превышена квота сайтов ({{used}}/{{limit}})',
