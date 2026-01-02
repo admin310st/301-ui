@@ -4,7 +4,7 @@ import { getSites } from '@api/sites';
 import type { Project, Site, ProjectIntegration } from '@api/types';
 import { getAccountId } from '@state/auth-state';
 import { showGlobalMessage } from './notifications';
-import { initDropdowns } from '@ui/dropdown';
+import { adjustDropdownPosition } from '@ui/dropdown';
 
 /**
  * Format date to locale string
@@ -27,10 +27,13 @@ function renderProjectRow(project: Project): string {
   return `
     <tr data-project-id="${project.id}">
       <td data-priority="critical">
-        <a href="/projects.html?id=${project.id}" class="link link--bold">
+        <a
+          href="/projects.html?id=${project.id}"
+          class="link link--bold"
+          ${project.description ? `title="${project.description}"` : ''}
+        >
           ${project.project_name}
         </a>
-        ${project.description ? `<br><span class="text-muted text-sm">${project.description}</span>` : ''}
       </td>
       <td data-priority="medium">${brandTag}</td>
       <td data-priority="high" class="text-right">${project.domains_count}</td>
@@ -248,12 +251,6 @@ export async function loadProjects(): Promise<void> {
     showTable();
     tbody.innerHTML = projects.map(renderProjectRow).join('');
 
-    // Initialize dropdowns for the table
-    const tableContainer = document.querySelector('[data-projects-table-container]');
-    if (tableContainer) {
-      initDropdowns(tableContainer as HTMLElement);
-    }
-
     // Re-apply icon injection after DOM update
     if (typeof (window as any).injectIcons === 'function') {
       (window as any).injectIcons();
@@ -443,6 +440,50 @@ export function initProjectsPage(): void {
 
   // Initialize action handlers
   handleProjectActions();
+
+  // Dropdown toggles (delegated)
+  document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    const trigger = target.closest('.dropdown__trigger');
+
+    if (trigger) {
+      e.stopPropagation();
+      const dropdown = trigger.closest('.dropdown');
+      if (!dropdown) return;
+
+      const isOpen = dropdown.classList.contains('dropdown--open');
+
+      // Close all other dropdowns
+      document.querySelectorAll('.dropdown--open').forEach((other) => {
+        if (other !== dropdown) {
+          other.classList.remove('dropdown--open');
+          const otherTrigger = other.querySelector('.dropdown__trigger');
+          if (otherTrigger) otherTrigger.setAttribute('aria-expanded', 'false');
+        }
+      });
+
+      // Toggle current
+      if (isOpen) {
+        dropdown.classList.remove('dropdown--open');
+        trigger.setAttribute('aria-expanded', 'false');
+        const menu = dropdown.querySelector('.dropdown__menu');
+        if (menu) menu.classList.remove('dropdown__menu--up');
+      } else {
+        dropdown.classList.add('dropdown--open');
+        trigger.setAttribute('aria-expanded', 'true');
+        requestAnimationFrame(() => {
+          adjustDropdownPosition(dropdown);
+        });
+      }
+    } else {
+      // Close all dropdowns when clicking outside
+      document.querySelectorAll('.dropdown--open').forEach((dropdown) => {
+        dropdown.classList.remove('dropdown--open');
+        const trigger = dropdown.querySelector('.dropdown__trigger');
+        if (trigger) trigger.setAttribute('aria-expanded', 'false');
+      });
+    }
+  });
 
   // Event delegation for view-project buttons
   document.addEventListener('click', (e) => {
