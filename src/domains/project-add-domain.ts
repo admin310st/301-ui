@@ -68,10 +68,13 @@ async function loadAvailableDomains(): Promise<void> {
       { retryOn401: true }
     );
 
-    // Flatten groups and filter domains without project
-    availableDomains = response.groups
-      .flatMap(group => group.domains)
-      .filter(domain => !domain.project_id);
+    // Flatten groups
+    const allDomains = response.groups.flatMap(group => group.domains);
+    console.log('[loadAvailableDomains] All domains:', allDomains.map(d => ({ id: d.id, name: d.domain_name, project_id: d.project_id })));
+
+    // Filter domains without project
+    availableDomains = allDomains.filter(domain => !domain.project_id);
+    console.log('[loadAvailableDomains] Available (no project):', availableDomains.map(d => ({ id: d.id, name: d.domain_name, project_id: d.project_id })));
 
     // Hide loading
     if (loadingEl) loadingEl.setAttribute('hidden', '');
