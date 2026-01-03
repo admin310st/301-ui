@@ -3,8 +3,7 @@
  * Handles adding existing domains to a project
  */
 
-import { getDomains } from '@api/domains';
-import { moveDomainToProject } from '@api/domains';
+import { getDomains, assignDomainToSite } from '@api/domains';
 import type { APIDomain } from '@api/types';
 import { getAuthState } from '@state/auth-state';
 import { getCurrentProjectId } from '@state/project-detail-state';
@@ -12,8 +11,10 @@ import { showGlobalMessage } from '@ui/notifications';
 import { t } from '@i18n';
 import { safeCall } from '@api/ui-client';
 import { invalidateCache } from '@api/cache';
+import { getProject } from '@api/projects';
 
 let currentProjectId: number | null = null;
+let currentSiteId: number | null = null;
 let availableDomains: APIDomain[] = [];
 let selectedDomainIds = new Set<number>();
 
@@ -25,8 +26,26 @@ export async function openAddDomainDrawer(projectId: number): Promise<void> {
   const drawer = document.querySelector<HTMLElement>('[data-drawer="add-domain-to-project"]');
   if (!drawer) return;
 
-  drawer.removeAttribute('hidden');
-  await loadAvailableDomains();
+  // Fetch project to get first site
+  try {
+    const projectData = await safeCall(
+      () => getProject(projectId),
+      { retryOn401: true }
+    );
+
+    if (!projectData.sites || projectData.sites.length === 0) {
+      showGlobalMessage('error', 'Project has no sites. Create a site first.');
+      return;
+    }
+
+    currentSiteId = projectData.sites[0].id;
+    console.log('[openAddDomainDrawer]', { projectId, siteId: currentSiteId });
+
+    drawer.removeAttribute('hidden');
+    await loadAvailableDomains();
+  } catch (error: any) {
+    showGlobalMessage('error', error.message || 'Failed to load project data');
+  }
 }
 
 /**
@@ -38,6 +57,7 @@ export function closeAddDomainDrawer(): void {
 
   drawer.setAttribute('hidden', '');
   currentProjectId = null;
+  currentSiteId = null;
   selectedDomainIds.clear();
   updateSubmitButton();
 
@@ -169,10 +189,10 @@ function updateSubmitButton(): void {
 }
 
 /**
- * Handle adding domains to project
+ * Handle adding domains to project (via site assignment)
  */
 async function handleAddDomains(): Promise<void> {
-  if (!currentProjectId || selectedDomainIds.size === 0) return;
+  if (!currentProjectId || !currentSiteId || selectedDomainIds.size === 0) return;
 
   const statusPanel = document.querySelector<HTMLElement>('[data-add-domain-status]');
   const submitBtn = document.querySelector<HTMLButtonElement>('[data-add-domain-submit]');
@@ -185,20 +205,15 @@ async function handleAddDomains(): Promise<void> {
       statusPanel.removeAttribute('hidden');
     }
 
-    const { accountId } = getAuthState();
-    if (!accountId) {
-      throw new Error('Account ID not found');
-    }
+    console.log('[handleAddDomains]', { currentProjectId, currentSiteId, selectedDomainIds: Array.from(selectedDomainIds) });
 
-    console.log('[handleAddDomains]', { currentProjectId, selectedDomainIds: Array.from(selectedDomainIds) });
-
-    // Add each domain to the project
+    // Assign each domain to the site (which automatically sets project_id from site)
     await Promise.all(
       Array.from(selectedDomainIds).map(domainId =>
         safeCall(
-          () => moveDomainToProject(accountId, domainId, currentProjectId!),
+          () => assignDomainToSite(currentSiteId!, domainId, 'reserve'),
           {
-            lockKey: `add-domain-${currentProjectId}-${domainId}`,
+            lockKey: `add-domain-${currentSiteId}-${domainId}`,
             retryOn401: true,
           }
         )
@@ -207,6 +222,7 @@ async function handleAddDomains(): Promise<void> {
 
     // Invalidate cache
     invalidateCache(`project:${currentProjectId}`);
+    invalidateCache(`site:${currentSiteId}`);
     invalidateCache(`domains`);
 
     // Reload domains table

@@ -291,6 +291,7 @@ function renderProjectDomainRow(domain: APIDomain): string {
           type="button"
           data-action="remove-domain-from-project"
           data-domain-id="${domain.id}"
+          data-site-id="${domain.site_id || ''}"
           aria-label="Remove ${domain.domain_name} from project"
         >
           <span class="icon" data-icon="mono/close"></span>
@@ -994,9 +995,10 @@ function handleDomainActions(): void {
     if (!removeBtn) return;
 
     const domainId = parseInt(removeBtn.getAttribute('data-domain-id') || '0', 10);
+    const siteId = parseInt(removeBtn.getAttribute('data-site-id') || '0', 10);
     const projectId = getCurrentProjectId();
 
-    if (!domainId || !projectId) return;
+    if (!domainId || !siteId || !projectId) return;
 
     e.preventDefault();
 
@@ -1007,24 +1009,20 @@ function handleDomainActions(): void {
     if (!confirmed) return;
 
     try {
-      const { accountId } = getAuthState();
-      if (!accountId) {
-        throw new Error('Account ID not found');
-      }
+      const { removeDomainFromSite } = await import('@api/domains');
 
-      const { moveDomainToProject } = await import('@api/domains');
-
-      // Set project_id to null to remove from project
+      // Remove domain from site (sets site_id = null, role = 'reserve')
       await safeCall(
-        () => moveDomainToProject(accountId, domainId, null),
+        () => removeDomainFromSite(siteId, domainId),
         {
-          lockKey: `remove-domain-${projectId}-${domainId}`,
+          lockKey: `remove-domain-${siteId}-${domainId}`,
           retryOn401: true,
         }
       );
 
       // Invalidate cache
       invalidateCache(`project:${projectId}`);
+      invalidateCache(`site:${siteId}`);
       invalidateCache(`domains`);
 
       // Reload domains table

@@ -97,25 +97,61 @@ export async function createZonesBatch(data: BatchZoneRequest): Promise<BatchZon
 }
 
 /**
- * Move domain to a different project
+ * Assign domain to a site (which automatically sets project_id from site)
  *
- * PATCH /domains/:id
+ * POST /sites/:id/domains
  *
- * @param accountId - Account ID (not used in URL, kept for signature compatibility)
+ * @param siteId - Site ID to assign domain to
  * @param domainId - Domain ID
- * @param projectId - Target project ID (null to remove from project)
+ * @param role - Domain role (acceptor, donor, reserve)
  * @returns Updated domain data
+ */
+export async function assignDomainToSite(
+  siteId: number,
+  domainId: number,
+  role?: 'acceptor' | 'donor' | 'reserve'
+): Promise<void> {
+  const payload: { domain_id: number; role?: string } = { domain_id: domainId };
+  if (role) payload.role = role;
+
+  console.log('[assignDomainToSite]', { siteId, domainId, role, payload, body: JSON.stringify(payload) });
+
+  await apiFetch(`/sites/${siteId}/domains`, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+
+/**
+ * Remove domain from site (sets site_id = null, role = 'reserve')
+ *
+ * DELETE /sites/:id/domains/:domainId
+ *
+ * @param siteId - Site ID
+ * @param domainId - Domain ID to remove
+ */
+export async function removeDomainFromSite(
+  siteId: number,
+  domainId: number
+): Promise<void> {
+  console.log('[removeDomainFromSite]', { siteId, domainId });
+
+  await apiFetch(`/sites/${siteId}/domains/${domainId}`, {
+    method: 'DELETE',
+  });
+}
+
+/**
+ * @deprecated Use assignDomainToSite() instead. This is kept for backward compatibility with mock domains page.
+ *
+ * Legacy function for bulk actions on mock domains page.
+ * Real implementation should use POST /sites/:id/domains
  */
 export async function moveDomainToProject(
   accountId: number,
   domainId: number,
   projectId: number | null
 ): Promise<void> {
-  const payload = { project_id: projectId };
-  console.log('[moveDomainToProject]', { domainId, projectId, payload, body: JSON.stringify(payload) });
-
-  await apiFetch(`/domains/${domainId}`, {
-    method: 'PATCH',
-    body: JSON.stringify(payload),
-  });
+  console.warn('[moveDomainToProject] DEPRECATED - Use assignDomainToSite() instead');
+  throw new Error('This function is deprecated. Use assignDomainToSite() for real implementation.');
 }
