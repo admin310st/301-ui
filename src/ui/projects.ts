@@ -798,6 +798,7 @@ export function initProjectsPage(): void {
   // Initialize action handlers
   handleProjectActions();
   handleIntegrationActions();
+  handleDomainActions();
 
   // Dropdown toggles (delegated)
   document.addEventListener('click', (e) => {
@@ -978,6 +979,60 @@ function handleIntegrationActions(): void {
       showGlobalMessage('success', 'Integration detached from project');
     } catch (error: any) {
       showGlobalMessage('error', error.message || 'Failed to detach integration');
+    }
+  });
+}
+
+/**
+ * Handle domain actions (remove from project)
+ */
+function handleDomainActions(): void {
+  document.addEventListener('click', async (e) => {
+    const target = e.target as HTMLElement;
+    const removeBtn = target.closest<HTMLElement>('[data-action="remove-domain-from-project"]');
+
+    if (!removeBtn) return;
+
+    const domainId = parseInt(removeBtn.getAttribute('data-domain-id') || '0', 10);
+    const projectId = getCurrentProjectId();
+
+    if (!domainId || !projectId) return;
+
+    e.preventDefault();
+
+    const confirmed = confirm(
+      'Remove this domain from the project? The domain will remain in your account.'
+    );
+
+    if (!confirmed) return;
+
+    try {
+      const { accountId } = getAuthState();
+      if (!accountId) {
+        throw new Error('Account ID not found');
+      }
+
+      const { moveDomainToProject } = await import('@api/domains');
+
+      // Set project_id to null to remove from project
+      await safeCall(
+        () => moveDomainToProject(accountId, domainId, null as any), // null removes from project
+        {
+          lockKey: `remove-domain-${projectId}-${domainId}`,
+          retryOn401: true,
+        }
+      );
+
+      // Invalidate cache
+      invalidateCache(`project:${projectId}`);
+      invalidateCache(`domains`);
+
+      // Reload domains table
+      await loadProjectDomains(projectId);
+
+      showGlobalMessage('success', 'Domain removed from project');
+    } catch (error: any) {
+      showGlobalMessage('error', error.message || 'Failed to remove domain from project');
     }
   });
 }
