@@ -1,0 +1,68 @@
+<!-- Add Domain to Project Drawer -->
+<aside class="drawer" data-drawer="add-domain-to-project" hidden>
+  <div class="drawer__overlay" data-drawer-close></div>
+  <div class="drawer__panel">
+    <header class="drawer__header">
+      <div class="drawer__title">
+        <div>
+          <h2 class="h4">
+            <span class="icon" data-icon="mono/plus"></span>
+            Add Domains to Project
+          </h2>
+          <p class="text-muted">Select domains to assign to this project</p>
+        </div>
+      </div>
+      <button class="btn-close" type="button" data-drawer-close aria-label="Close">
+        <span class="icon" data-icon="mono/close"></span>
+      </button>
+    </header>
+
+    <div class="drawer__body">
+      <div class="stack-list">
+        <!-- Loading State -->
+        <div class="loading-state" data-add-domain-loading hidden>
+          <div class="spinner"></div>
+          <p class="text-muted">Loading available domains...</p>
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state" data-add-domain-empty hidden>
+          <div class="stack-md">
+            <span class="icon icon--lg" data-icon="mono/dns"></span>
+            <p class="text-muted">
+              No available domains. All domains are already assigned to projects,
+              or you don't have any domains yet.
+            </p>
+            <p class="text-muted">
+              <a href="/integrations.html" class="link">Connect integrations</a> and sync domains first.
+            </p>
+          </div>
+        </div>
+
+        <!-- Domains List (with checkboxes) -->
+        <div class="stack stack--md" data-add-domain-list hidden>
+          <div class="field">
+            <label class="field__label">
+              <span>Available domains</span>
+              <span class="field__hint">Select one or more domains to add</span>
+            </label>
+            <div class="stack-list" data-add-domain-checkboxes>
+              <!-- Populated by JS -->
+            </div>
+          </div>
+
+          <!-- Status Panel -->
+          <div class="panel" data-add-domain-status hidden role="status" aria-live="polite"></div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="drawer__footer">
+      <button class="btn btn--ghost" type="button" data-drawer-close>Cancel</button>
+      <button class="btn btn--primary" type="button" data-add-domain-submit disabled>
+        <span class="icon" data-icon="mono/check"></span>
+        <span>Add <span data-selected-count>0</span> domain(s)</span>
+      </button>
+    </footer>
+  </div>
+</aside>

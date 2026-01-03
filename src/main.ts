@@ -30,6 +30,7 @@ import { initProjectsPage } from '@ui/projects';
 import { initProjectCreate } from '@forms/project-create';
 import { initProjectEdit } from '@forms/project-edit';
 import { initProjectAttachIntegration } from '@forms/project-attach-integration';
+import { initProjectAddDomain } from '@domains/project-add-domain';
 import { initSitesPage } from '@ui/sites';
 import { initSiteCreate } from '@forms/site-create';
 import { initSiteEdit } from '@forms/site-edit';
@@ -191,6 +192,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initProjectCreate();
   initProjectEdit();
   initProjectAttachIntegration();
+  initProjectAddDomain();
   initSitesPage();
   initSiteCreate();
   initSiteEdit();
