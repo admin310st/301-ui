@@ -4,8 +4,13 @@
       <div class="drawer__panel">
         <header class="drawer__header">
           <div class="drawer__title">
-            <span class="icon" data-icon="mono/package"></span>
-            <h2 class="h4">Edit Project</h2>
+            <div>
+              <h2 class="h4">
+                <span class="icon" data-icon="mono/package"></span>
+                Edit Project
+              </h2>
+              <p class="text-muted">Update project details, dates and commercial terms</p>
+            </div>
           </div>
           <button class="btn-close" type="button" data-drawer-close aria-label="Close">
             <span class="icon" data-icon="mono/close"></span>
@@ -13,11 +18,8 @@
         </header>
 
         <div class="drawer__body">
-          <div class="stack-list">
-            <p class="text-muted">Update project details, dates and commercial terms</p>
-
-            <!-- Project Edit Form -->
-            <form id="edit-project-form" class="stack-md" data-form="edit-project">
+          <!-- Project Edit Form -->
+          <form id="edit-project-form" class="stack-md" data-form="edit-project">
               <input type="hidden" name="project_id" data-project-id />
 
               <div class="field">
@@ -91,8 +93,7 @@
 
               <!-- Status Panel (for errors/success) -->
               <div class="panel" data-edit-project-status hidden role="status" aria-live="polite"></div>
-            </form>
-          </div>
+          </form>
         </div>
 
         <footer class="drawer__footer">
