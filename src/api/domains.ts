@@ -99,19 +99,19 @@ export async function createZonesBatch(data: BatchZoneRequest): Promise<BatchZon
 /**
  * Move domain to a different project
  *
- * PATCH /accounts/:accountId/domains/:domainId
+ * PATCH /domains/:id
  *
- * @param accountId - Account ID
+ * @param accountId - Account ID (not used in URL, kept for signature compatibility)
  * @param domainId - Domain ID
- * @param projectId - Target project ID
+ * @param projectId - Target project ID (null to remove from project)
  * @returns Updated domain data
  */
 export async function moveDomainToProject(
   accountId: number,
   domainId: number,
-  projectId: number
+  projectId: number | null
 ): Promise<void> {
-  await apiFetch(`/accounts/${accountId}/domains/${domainId}`, {
+  await apiFetch(`/domains/${domainId}`, {
     method: 'PATCH',
     body: JSON.stringify({ project_id: projectId }),
   });

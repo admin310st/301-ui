@@ -1016,7 +1016,7 @@ function handleDomainActions(): void {
 
       // Set project_id to null to remove from project
       await safeCall(
-        () => moveDomainToProject(accountId, domainId, null as any), // null removes from project
+        () => moveDomainToProject(accountId, domainId, null),
         {
           lockKey: `remove-domain-${projectId}-${domainId}`,
           retryOn401: true,
