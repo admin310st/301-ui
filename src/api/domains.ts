@@ -111,8 +111,11 @@ export async function moveDomainToProject(
   domainId: number,
   projectId: number | null
 ): Promise<void> {
+  const payload = { project_id: projectId };
+  console.log('[moveDomainToProject]', { domainId, projectId, payload, body: JSON.stringify(payload) });
+
   await apiFetch(`/domains/${domainId}`, {
     method: 'PATCH',
-    body: JSON.stringify({ project_id: projectId }),
+    body: JSON.stringify(payload),
   });
 }

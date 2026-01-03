@@ -187,6 +187,8 @@ async function handleAddDomains(): Promise<void> {
       throw new Error('Account ID not found');
     }
 
+    console.log('[handleAddDomains]', { currentProjectId, selectedDomainIds: Array.from(selectedDomainIds) });
+
     // Add each domain to the project
     await Promise.all(
       Array.from(selectedDomainIds).map(domainId =>
