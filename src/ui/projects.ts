@@ -5,6 +5,8 @@ import type { Project, Site, ProjectIntegration } from '@api/types';
 import { getAccountId } from '@state/auth-state';
 import { showGlobalMessage } from './notifications';
 import { adjustDropdownPosition } from '@ui/dropdown';
+import { setProjectData, incrementRequestToken, getRequestToken } from '@state/project-detail-state';
+import { safeCall } from '@api/ui-client';
 
 // State
 let allProjects: Project[] = [];
@@ -394,9 +396,30 @@ function updateProjectDateMetric(project: Project): void {
  * Load and render project detail view
  */
 export async function loadProjectDetail(projectId: number): Promise<void> {
+  // Increment token BEFORE starting request (single source of truth)
+  const token = incrementRequestToken();
+
   try {
-    const data = await getProject(projectId);
+    // Load project data with safeCall
+    // abortKey фиксированный - любой новый load отменяет предыдущий
+    const data = await safeCall(
+      (signal) => getProject(projectId, { signal }),
+      {
+        abortKey: 'project-detail-load', // фиксированный, без projectId
+        retryOn401: true,
+      }
+    );
+
+    // Check if request is stale (another load started)
+    if (token !== getRequestToken()) {
+      console.debug('Discarding stale project load', { projectId, token });
+      return;
+    }
+
     const { project, sites, integrations } = data;
+
+    // Store in state for point updates
+    setProjectData(projectId, { project, sites, integrations });
 
     // Show brand tag in utility bar
     const brandTag = document.querySelector('[data-project-brand-tag]');
@@ -487,9 +510,16 @@ export async function loadProjectDetail(projectId: number): Promise<void> {
     if (typeof (window as any).injectIcons === 'function') {
       (window as any).injectIcons();
     }
-  } catch (error) {
+  } catch (error: any) {
+    // Check if aborted (not an error in this case)
+    if (error.code === 'ABORTED') {
+      console.debug('Project load aborted', { projectId });
+      return;
+    }
+
     console.error('Failed to load project details:', error);
-    showGlobalMessage('error', 'Failed to load project details');
+    showGlobalMessage('error', error.message || 'Failed to load project details');
+
     // Redirect back to list view on error
     window.location.href = '/projects.html';
   }

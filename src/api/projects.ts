@@ -4,6 +4,7 @@
  */
 
 import { apiFetch } from './client';
+import type { ApiFetchOptions } from './client';
 import { getCached, setCache, invalidateCacheByPrefix } from './cache';
 import type {
   Project,
@@ -44,9 +45,13 @@ export async function getProjects(accountId: number): Promise<Project[]> {
 /**
  * Get project details with sites and integrations
  * @param id Project ID
+ * @param options Optional fetch options (signal, showLoading, etc.)
  * @returns Project details with sites and integrations
  */
-export async function getProject(id: number): Promise<GetProjectResponse> {
+export async function getProject(
+  id: number,
+  options: ApiFetchOptions = {}
+): Promise<GetProjectResponse> {
   // Check cache first (30 second TTL)
   const cacheKey = `project:${id}`;
   const cached = getCached<GetProjectResponse>(cacheKey);
@@ -55,7 +60,7 @@ export async function getProject(id: number): Promise<GetProjectResponse> {
   }
 
   // Cache miss - fetch from API
-  const response = await apiFetch<GetProjectResponse>(`${BASE_URL}/${id}`);
+  const response = await apiFetch<GetProjectResponse>(`${BASE_URL}/${id}`, options);
 
   // Store in cache
   setCache(cacheKey, response);
