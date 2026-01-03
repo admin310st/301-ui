@@ -169,7 +169,7 @@ async function handleAttachIntegration(): Promise<void> {
 
     // Attach integration
     const response = await safeCall(
-      () => attachIntegration(currentProjectId!, Number(selectedKeyId)),
+      () => attachIntegration(currentProjectId!, { account_key_id: Number(selectedKeyId) }),
       {
         lockKey: `attach-integration-${currentProjectId}-${selectedKeyId}`,
         retryOn401: true,
