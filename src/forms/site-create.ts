@@ -60,13 +60,17 @@ export function openCreateSiteDrawer(projectId?: number): void {
 
   // Show/hide project selection field based on context
   const projectField = drawer.querySelector<HTMLElement>('[data-site-project-field]');
-  if (projectField) {
+  const projectSelect = drawer.querySelector<HTMLSelectElement>('[data-site-project-select]');
+
+  if (projectField && projectSelect) {
     if (contextProjectId) {
       // Hide project selection when opened from project detail view
       projectField.hidden = true;
+      projectSelect.removeAttribute('required');
     } else {
       // Show project selection when opened from global sites page
       projectField.hidden = false;
+      projectSelect.setAttribute('required', '');
       populateProjectDropdown();
     }
   }
