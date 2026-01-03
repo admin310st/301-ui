@@ -3,7 +3,6 @@
  */
 
 import { apiFetch } from './client';
-import { getCached, setCache, invalidateCacheByPrefix } from './cache';
 import type { GetDomainsResponse } from './types';
 
 /**
@@ -53,19 +52,7 @@ export interface BatchZoneResponse {
  * @returns List of all domains grouped by root domain
  */
 export async function getDomains(): Promise<GetDomainsResponse> {
-  // Check cache first (30 second TTL)
-  const cacheKey = 'domains:all';
-  const cached = getCached<GetDomainsResponse>(cacheKey);
-  if (cached) {
-    return cached;
-  }
-
-  // Cache miss - fetch from API
-  const response = await apiFetch<GetDomainsResponse>('/domains');
-
-  // Store in cache
-  setCache(cacheKey, response);
-  return response;
+  return apiFetch<GetDomainsResponse>('/domains');
 }
 
 /**
@@ -77,16 +64,11 @@ export async function getDomains(): Promise<GetDomainsResponse> {
  * @returns Batch operation results with success/failed lists
  */
 export async function createZonesBatch(data: BatchZoneRequest): Promise<BatchZoneResponse> {
-  const response = await apiFetch<BatchZoneResponse>('/domains/zones/batch', {
+  return apiFetch<BatchZoneResponse>('/domains/zones/batch', {
     method: 'POST',
     body: JSON.stringify(data),
     showLoading: 'cf', // Orange shimmer for Cloudflare operations
   });
-
-  // Invalidate domains cache after zone creation
-  invalidateCacheByPrefix('domains:');
-
-  return response;
 }
 
 /**
@@ -108,9 +90,4 @@ export async function moveDomainToProject(
     method: 'PATCH',
     body: JSON.stringify({ project_id: projectId }),
   });
-
-  // Invalidate domains and projects cache after moving domain
-  invalidateCacheByPrefix('domains:');
-  invalidateCacheByPrefix('projects:');
-  invalidateCacheByPrefix('project:');
 }
