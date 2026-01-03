@@ -136,8 +136,7 @@ export function renderSiteRow(site: Site): string {
         ${site.site_tag ? `<br><code class="text-sm">${site.site_tag}</code>` : ''}
       </td>
       <td data-priority="medium">${site.site_tag || '—'}</td>
-      <td data-priority="high" class="text-right">${site.domains_count}</td>
-      <td data-priority="medium" class="text-muted">${site.acceptor_domain || '—'}</td>
+      <td data-priority="high">${site.acceptor_domain || '—'}</td>
       <td data-priority="high">
         <span class="badge ${statusClass}">${statusLabel}</span>
       </td>
@@ -642,7 +641,7 @@ export async function loadProjectDetail(projectId: number): Promise<void> {
       if (sites.length === 0) {
         sitesTableBody.innerHTML = `
           <tr>
-            <td colspan="7" class="text-center text-muted">
+            <td colspan="6" class="text-center text-muted">
               No sites yet. Create your first site for this project.
             </td>
           </tr>
