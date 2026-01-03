@@ -5,7 +5,7 @@
 
 import { getAuthState } from '@state/auth-state';
 import { getSite, attachDomain, detachDomain } from '@api/sites';
-import type { Site, Domain } from '@api/types';
+import type { Site, APIDomain } from '@api/types';
 import * as domainsAPI from '@api/domains';
 import { t } from '@i18n';
 import { logError, logDebug } from '@utils/logger';
@@ -106,10 +106,13 @@ async function loadAttachedDomains(accountId: number, siteId: number): Promise<v
 
   try {
     // Get all domains and filter by site_id
-    const allDomains = await safeCall(
-      () => domainsAPI.getDomains(accountId),
+    const response = await safeCall(
+      () => domainsAPI.getDomains(),
       { retryOn401: true }
     );
+
+    // Flatten groups into a single array of domains
+    const allDomains = response.groups.flatMap(group => group.domains);
     const attachedDomains = allDomains.filter(d => d.site_id === siteId);
 
     // Update count
@@ -137,7 +140,12 @@ async function loadAttachedDomains(accountId: number, siteId: number): Promise<v
 /**
  * Render a domain table row
  */
-function renderDomainRow(domain: Domain): string {
+function renderDomainRow(domain: APIDomain): string {
+  // Determine status badge based on domain properties
+  const isActive = domain.ns_verified === 1 && domain.blocked === 0;
+  const statusBadge = isActive ? 'success' : 'neutral';
+  const statusText = isActive ? 'Active' : 'Inactive';
+
   return `
     <tr>
       <td>
@@ -146,8 +154,8 @@ function renderDomainRow(domain: Domain): string {
         </div>
       </td>
       <td>
-        <span class="badge badge--${domain.status === 'active' ? 'success' : 'neutral'}">
-          ${domain.status || 'Unknown'}
+        <span class="badge badge--${statusBadge}">
+          ${statusText}
         </span>
       </td>
       <td class="td-actions">
@@ -155,7 +163,7 @@ function renderDomainRow(domain: Domain): string {
           class="btn-icon"
           type="button"
           data-action="detach-domain"
-          data-domain-id="${domain.domain_id}"
+          data-domain-id="${domain.id}"
           aria-label="${t('sites.domains.detachButton')}"
           title="${t('sites.domains.detachButton')}"
         >
@@ -175,10 +183,13 @@ async function loadAvailableDomains(accountId: number, projectId: number): Promi
 
   try {
     // Get all domains in the project
-    const allDomains = await safeCall(
-      () => domainsAPI.getDomains(accountId),
+    const response = await safeCall(
+      () => domainsAPI.getDomains(),
       { retryOn401: true }
     );
+
+    // Flatten groups into a single array of domains
+    const allDomains = response.groups.flatMap(group => group.domains);
     const projectDomains = allDomains.filter(d => d.project_id === projectId);
 
     // Filter out domains already attached to current site
@@ -201,7 +212,7 @@ async function loadAvailableDomains(accountId: number, projectId: number): Promi
         class="dropdown__item"
         type="button"
         role="menuitem"
-        data-value="${domain.domain_id}"
+        data-value="${domain.id}"
       >
         ${domain.domain_name}
       </button>
