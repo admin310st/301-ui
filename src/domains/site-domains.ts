@@ -10,6 +10,9 @@ import * as domainsAPI from '@api/domains';
 import { t } from '@i18n';
 import { logError, logDebug } from '@utils/logger';
 import { showGlobalMessage } from '@ui/notifications';
+import { safeCall } from '@api/ui-client';
+import { invalidateCache } from '@api/cache';
+import { getCurrentProjectId, getCurrentSites, setSites } from '@state/project-detail-state';
 
 let currentSiteId: number | null = null;
 let currentProjectId: number | null = null;
@@ -63,7 +66,11 @@ async function loadSiteAndDomains(siteId: number): Promise<void> {
 
   try {
     // Load site details
-    const site = await getSite(siteId);
+    const data = await safeCall(
+      () => getSite(siteId),
+      { retryOn401: true }
+    );
+    const site = data.site;
     currentProjectId = site.project_id;
 
     // Update drawer title
@@ -75,9 +82,9 @@ async function loadSiteAndDomains(siteId: number): Promise<void> {
 
     // Load available domains for dropdown
     await loadAvailableDomains(accountId, site.project_id);
-  } catch (error) {
+  } catch (error: any) {
     logError('Failed to load site domains:', error);
-    showGlobalMessage('error', 'Failed to load site details');
+    showGlobalMessage('error', error.message || 'Failed to load site details');
   }
 }
 
@@ -99,7 +106,10 @@ async function loadAttachedDomains(accountId: number, siteId: number): Promise<v
 
   try {
     // Get all domains and filter by site_id
-    const allDomains = await domainsAPI.getDomains(accountId);
+    const allDomains = await safeCall(
+      () => domainsAPI.getDomains(accountId),
+      { retryOn401: true }
+    );
     const attachedDomains = allDomains.filter(d => d.site_id === siteId);
 
     // Update count
@@ -117,7 +127,7 @@ async function loadAttachedDomains(accountId: number, siteId: number): Promise<v
     // Render table rows
     tbody.innerHTML = attachedDomains.map(renderDomainRow).join('');
     tableContainer.removeAttribute('hidden');
-  } catch (error) {
+  } catch (error: any) {
     logError('Failed to load attached domains:', error);
     if (loadingEl) loadingEl.setAttribute('hidden', '');
     emptyEl.removeAttribute('hidden');
@@ -165,7 +175,10 @@ async function loadAvailableDomains(accountId: number, projectId: number): Promi
 
   try {
     // Get all domains in the project
-    const allDomains = await domainsAPI.getDomains(accountId);
+    const allDomains = await safeCall(
+      () => domainsAPI.getDomains(accountId),
+      { retryOn401: true }
+    );
     const projectDomains = allDomains.filter(d => d.project_id === projectId);
 
     // Filter out domains already attached to current site
@@ -195,7 +208,7 @@ async function loadAvailableDomains(accountId: number, projectId: number): Promi
     `,
       )
       .join('');
-  } catch (error) {
+  } catch (error: any) {
     logError('Failed to load available domains:', error);
     menu.innerHTML = `
       <div class="dropdown__item dropdown__item--disabled">
@@ -231,7 +244,18 @@ async function handleAttachDomain(): Promise<void> {
       statusPanel.removeAttribute('hidden');
     }
 
-    await attachDomain(currentSiteId, Number(selectedDomainId));
+    await safeCall(
+      () => attachDomain(currentSiteId, Number(selectedDomainId)),
+      {
+        lockKey: `attach-domain-${currentSiteId}-${selectedDomainId}`,
+        retryOn401: true,
+      }
+    );
+
+    // Invalidate cache for the project
+    if (currentProjectId) {
+      invalidateCache(`project:${currentProjectId}`);
+    }
 
     if (statusPanel) {
       statusPanel.className = 'panel panel--success';
@@ -241,6 +265,14 @@ async function handleAttachDomain(): Promise<void> {
     // Reload both lists
     await loadAttachedDomains(accountId, currentSiteId);
     if (currentProjectId) await loadAvailableDomains(accountId, currentProjectId);
+
+    // Update site domains count in project detail state if available
+    const sites = getCurrentSites();
+    const siteToUpdate = sites.find(s => s.id === currentSiteId);
+    if (siteToUpdate && currentProjectId === getCurrentProjectId()) {
+      siteToUpdate.domains_count = (siteToUpdate.domains_count || 0) + 1;
+      setSites(sites);
+    }
 
     // Reset dropdown
     if (selectBtn) {
@@ -254,14 +286,14 @@ async function handleAttachDomain(): Promise<void> {
     setTimeout(() => {
       if (statusPanel) statusPanel.setAttribute('hidden', '');
     }, 3000);
-  } catch (error) {
+  } catch (error: any) {
     logError('Failed to attach domain:', error);
     if (statusPanel) {
       statusPanel.className = 'panel panel--error';
-      statusPanel.textContent = 'Failed to attach domain';
+      statusPanel.textContent = error.message || 'Failed to attach domain';
       statusPanel.removeAttribute('hidden');
     }
-    showGlobalMessage('error', 'Failed to attach domain');
+    showGlobalMessage('error', error.message || 'Failed to attach domain');
   } finally {
     if (attachBtn) attachBtn.disabled = false;
   }
@@ -279,15 +311,35 @@ async function handleDetachDomain(domainId: number): Promise<void> {
   }
 
   try {
-    await detachDomain(currentSiteId, domainId);
+    await safeCall(
+      () => detachDomain(currentSiteId, domainId),
+      {
+        lockKey: `detach-domain-${currentSiteId}-${domainId}`,
+        retryOn401: true,
+      }
+    );
+
+    // Invalidate cache for the project
+    if (currentProjectId) {
+      invalidateCache(`project:${currentProjectId}`);
+    }
+
     showGlobalMessage('success', t('sites.messages.domainDetached'));
 
     // Reload both lists
     await loadAttachedDomains(accountId, currentSiteId);
     if (currentProjectId) await loadAvailableDomains(accountId, currentProjectId);
-  } catch (error) {
+
+    // Update site domains count in project detail state if available
+    const sites = getCurrentSites();
+    const siteToUpdate = sites.find(s => s.id === currentSiteId);
+    if (siteToUpdate && currentProjectId === getCurrentProjectId()) {
+      siteToUpdate.domains_count = Math.max(0, (siteToUpdate.domains_count || 0) - 1);
+      setSites(sites);
+    }
+  } catch (error: any) {
     logError('Failed to detach domain:', error);
-    showGlobalMessage('error', 'Failed to detach domain');
+    showGlobalMessage('error', error.message || 'Failed to detach domain');
   }
 }
 

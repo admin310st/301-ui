@@ -3,6 +3,7 @@ export const en = {
     pleaseWait: 'Please wait...',
     save: 'Save',
     cancel: 'Cancel',
+    close: 'Close',
     validation: {
       required: 'This field is required',
     },
@@ -587,6 +588,7 @@ export const en = {
       nameRequired: 'Site name is required',
       projectRequired: 'Project is required',
       createFailed: 'Failed to create site',
+      updateFailed: 'Failed to update site',
       missingField: 'Missing required field: {{field}}',
       quotaExceeded: 'You have reached the maximum number of sites ({{limit}}). Upgrade your plan or delete existing sites.',
       invalidStatus: 'Invalid status value',

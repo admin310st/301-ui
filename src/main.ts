@@ -31,6 +31,7 @@ import { initProjectCreate } from '@forms/project-create';
 import { initProjectEdit } from '@forms/project-edit';
 import { initSitesPage } from '@ui/sites';
 import { initSiteCreate } from '@forms/site-create';
+import { initSiteEdit } from '@forms/site-edit';
 import { initSiteDomains } from '@domains/site-domains';
 import { initDialogCloseHandlers } from '@ui/dialog';
 import { initPageLoadIndicator, showLoading, hideLoading, withLoading } from '@ui/loading-indicator';
@@ -190,6 +191,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initProjectEdit();
   initSitesPage();
   initSiteCreate();
+  initSiteEdit();
   initSiteDomains();
   initDialogCloseHandlers();
 

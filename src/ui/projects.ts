@@ -122,7 +122,7 @@ function renderProjectRow(project: Project): string {
 /**
  * Render site row (for detail view Sites tab)
  */
-function renderSiteRow(site: Site): string {
+export function renderSiteRow(site: Site): string {
   const statusClass = site.status === 'active' ? 'badge--success' :
                       site.status === 'paused' ? 'badge--warning' : 'badge--neutral';
   const statusLabel = t(`sites.status.${site.status}` as any) || site.status;

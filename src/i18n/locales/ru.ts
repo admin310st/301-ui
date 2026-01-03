@@ -5,6 +5,7 @@ export const ru: Translation = {
     pleaseWait: 'Пожалуйста, подождите...',
     save: 'Сохранить',
     cancel: 'Отмена',
+    close: 'Закрыть',
     validation: {
       required: 'Это поле обязательно',
     },
@@ -593,6 +594,7 @@ export const ru: Translation = {
       nameRequired: 'Название сайта обязательно',
       projectRequired: 'Проект обязателен',
       createFailed: 'Не удалось создать сайт',
+      updateFailed: 'Не удалось обновить сайт',
       missingField: 'Отсутствует обязательное поле: {{field}}',
       quotaExceeded: 'Вы достигли максимального количества сайтов ({{limit}}). Обновите тариф или удалите существующие сайты.',
       invalidStatus: 'Неверное значение статуса',
