@@ -6,6 +6,16 @@ import { apiFetch } from './client';
 import type { GetDomainsResponse } from './types';
 
 /**
+ * Filters for GET /domains
+ */
+export interface GetDomainsFilters {
+  project_id?: number;
+  site_id?: number;
+  role?: 'donor' | 'acceptor';
+  blocked?: boolean;
+}
+
+/**
  * Batch zone creation request
  */
 export interface BatchZoneRequest {
@@ -49,10 +59,25 @@ export interface BatchZoneResponse {
  *
  * GET /domains
  *
+ * @param filters - Optional filters (project_id, site_id, role, blocked)
  * @returns List of all domains grouped by root domain
  */
-export async function getDomains(): Promise<GetDomainsResponse> {
-  return apiFetch<GetDomainsResponse>('/domains');
+export async function getDomains(filters?: GetDomainsFilters): Promise<GetDomainsResponse> {
+  let url = '/domains';
+
+  // Build query string from filters
+  if (filters) {
+    const params = new URLSearchParams();
+    if (filters.project_id !== undefined) params.append('project_id', String(filters.project_id));
+    if (filters.site_id !== undefined) params.append('site_id', String(filters.site_id));
+    if (filters.role) params.append('role', filters.role);
+    if (filters.blocked !== undefined) params.append('blocked', String(filters.blocked));
+
+    const queryString = params.toString();
+    if (queryString) url += `?${queryString}`;
+  }
+
+  return apiFetch<GetDomainsResponse>(url);
 }
 
 /**

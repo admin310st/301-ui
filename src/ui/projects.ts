@@ -1,7 +1,8 @@
 import { t } from '@i18n';
 import { getProjects, getProject } from '@api/projects';
 import { getSites } from '@api/sites';
-import type { Project, Site, ProjectIntegration } from '@api/types';
+import { getDomains } from '@api/domains';
+import type { Project, Site, ProjectIntegration, APIDomain } from '@api/types';
 import { getAccountId } from '@state/auth-state';
 import { showGlobalMessage } from './notifications';
 import { adjustDropdownPosition } from '@ui/dropdown';
@@ -226,6 +227,139 @@ export function renderIntegrationsTable(integrations: ProjectIntegration[]): voi
   // Re-inject icons
   if (typeof (window as any).injectIcons === 'function') {
     (window as any).injectIcons();
+  }
+}
+
+/**
+ * Render a single project domain row
+ */
+function renderProjectDomainRow(domain: APIDomain): string {
+  const roleIcon = domain.role === 'acceptor' ? 'mono/arrow-bottom-right' : 'mono/arrow-top-right';
+  const roleLabel = domain.role === 'acceptor' ? 'Acceptor' : 'Donor';
+
+  // Health badges
+  const sslBadge = domain.ssl_valid
+    ? '<span class="badge badge--success" title="SSL valid">SSL</span>'
+    : '<span class="badge badge--danger" title="SSL invalid">SSL</span>';
+  const nsBadge = domain.ns_valid
+    ? '<span class="badge badge--success" title="NS valid">NS</span>'
+    : '<span class="badge badge--neutral" title="NS not configured">NS</span>';
+  const abuseBadge = domain.abuse_detected
+    ? '<span class="badge badge--danger" title="Abuse detected">Abuse</span>'
+    : '';
+
+  // Status badge
+  const statusClass = domain.blocked ? 'badge--danger' :
+                      domain.expired_at ? 'badge--warning' : 'badge--success';
+  const statusLabel = domain.blocked ? 'Blocked' :
+                      domain.expired_at ? 'Expired' : 'Active';
+
+  const providerIcon = domain.provider === 'cloudflare' ? 'brand/cloudflare' :
+                       domain.provider === 'namecheap' ? 'brand/namecheap' : 'mono/dns';
+
+  return `
+    <tr data-domain-id="${domain.id}">
+      <td data-priority="critical">
+        <div class="domain-cell">
+          <span class="role-icon" data-role="${domain.role}" title="${roleLabel}">
+            <span class="icon" data-icon="${roleIcon}"></span>
+          </span>
+          <strong>${domain.domain_name}</strong>
+        </div>
+      </td>
+      <td data-priority="high">${roleLabel}</td>
+      <td data-priority="medium">
+        <div class="stack-inline stack-inline--xs">
+          ${sslBadge}
+          ${nsBadge}
+          ${abuseBadge}
+        </div>
+      </td>
+      <td data-priority="high">
+        <span class="badge ${statusClass}">${statusLabel}</span>
+      </td>
+      <td data-priority="medium">
+        <div class="provider-cell">
+          <span class="icon" data-icon="${providerIcon}"></span>
+          <span>${domain.provider || '—'}</span>
+        </div>
+      </td>
+      <td data-priority="low" class="text-muted">${formatDate(domain.updated_at)}</td>
+      <td data-priority="critical" class="table-actions">
+        <button
+          class="btn-icon"
+          type="button"
+          data-action="remove-domain-from-project"
+          data-domain-id="${domain.id}"
+          aria-label="Remove ${domain.domain_name} from project"
+        >
+          <span class="icon" data-icon="mono/close"></span>
+        </button>
+      </td>
+    </tr>
+  `;
+}
+
+/**
+ * Render project domains table
+ * Exported for use in add-domain-to-project drawer
+ */
+export function renderProjectDomainsTable(domains: APIDomain[]): void {
+  const tbody = document.querySelector<HTMLTableSectionElement>('[data-project-domains-table] tbody');
+  if (!tbody) return;
+
+  if (domains.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="7" class="text-center text-muted">
+          No domains in this project. Add domains to start managing traffic.
+        </td>
+      </tr>
+    `;
+  } else {
+    tbody.innerHTML = domains.map(renderProjectDomainRow).join('');
+  }
+
+  // Re-inject icons
+  if (typeof (window as any).injectIcons === 'function') {
+    (window as any).injectIcons();
+  }
+}
+
+/**
+ * Load domains for current project
+ */
+export async function loadProjectDomains(projectId: number): Promise<void> {
+  try {
+    const response = await safeCall(
+      () => getDomains({ project_id: projectId }),
+      { retryOn401: true }
+    );
+
+    // Flatten groups to get all domains
+    const domains = response.groups.flatMap(group => group.domains);
+
+    // Render table
+    renderProjectDomainsTable(domains);
+
+    // Update count badge
+    document.querySelectorAll<HTMLElement>('[data-project-domains-count]').forEach(el => {
+      el.textContent = String(domains.length);
+    });
+  } catch (error: any) {
+    showGlobalMessage('error', error.message || 'Failed to load project domains');
+
+    // Show error in table
+    const tbody = document.querySelector<HTMLTableSectionElement>('[data-project-domains-table] tbody');
+    if (tbody) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="7" class="text-center text-danger">
+            Failed to load domains. ${error.message || ''}
+          </td>
+        </tr>
+      `;
+    }
   }
 }
 
@@ -519,6 +653,16 @@ export async function loadProjectDetail(projectId: number): Promise<void> {
 
     // Render integrations table
     renderIntegrationsTable(integrations);
+
+    // Handle hash-based tab activation (e.g., #domains, #sites, #streams)
+    const hash = window.location.hash.slice(1); // Remove '#'
+    if (hash && ['integrations', 'domains', 'sites', 'streams'].includes(hash)) {
+      // Find and click the corresponding tab
+      const targetTab = document.querySelector<HTMLButtonElement>(`[data-tabs="project-detail"] [data-tab="${hash}"]`);
+      if (targetTab) {
+        targetTab.click();
+      }
+    }
   } catch (error: any) {
     // Check if aborted (not an error in this case)
     if (error.code === 'ABORTED') {
@@ -542,8 +686,9 @@ function initTabs() {
   const panels = document.querySelectorAll<HTMLElement>('[data-tab-panel]');
 
   tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
+    tab.addEventListener('click', async () => {
       const targetTab = tab.dataset.tab;
+      const projectId = getCurrentProjectId();
 
       // Update active tab
       tabs.forEach(t => t.classList.remove('is-active'));
@@ -557,6 +702,14 @@ function initTabs() {
           panel.hidden = true;
         }
       });
+
+      // Load data for specific tabs
+      if (projectId) {
+        if (targetTab === 'domains') {
+          await loadProjectDomains(projectId);
+        }
+        // Sites tab already loads on detail view load
+      }
     });
   });
 }
