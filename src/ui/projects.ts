@@ -5,8 +5,9 @@ import type { Project, Site, ProjectIntegration } from '@api/types';
 import { getAccountId } from '@state/auth-state';
 import { showGlobalMessage } from './notifications';
 import { adjustDropdownPosition } from '@ui/dropdown';
-import { setProjectData, incrementRequestToken, getRequestToken } from '@state/project-detail-state';
+import { setProjectData, incrementRequestToken, getRequestToken, getCurrentProjectId, setIntegrations } from '@state/project-detail-state';
 import { safeCall } from '@api/ui-client';
+import { invalidateCache } from '@api/cache';
 
 // State
 let allProjects: Project[] = [];
@@ -192,7 +193,7 @@ function renderIntegrationRow(integration: ProjectIntegration): string {
           class="btn-icon"
           type="button"
           data-action="detach-integration"
-          data-integration-id="${integration.id}"
+          data-key-id="${integration.account_key_id}"
           aria-label="Detach ${integration.key_alias}"
         >
           <span class="icon" data-icon="mono/delete"></span>
@@ -200,6 +201,32 @@ function renderIntegrationRow(integration: ProjectIntegration): string {
       </td>
     </tr>
   `;
+}
+
+/**
+ * Render integrations table from state
+ * Exported for use in project-attach-integration.ts
+ */
+export function renderIntegrationsTable(integrations: ProjectIntegration[]): void {
+  const tbody = document.querySelector<HTMLTableSectionElement>('[data-project-integrations-table] tbody');
+  if (!tbody) return;
+
+  if (integrations.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6" class="text-center text-muted">
+          No integrations attached. Attach a Cloudflare or registrar key to this project.
+        </td>
+      </tr>
+    `;
+  } else {
+    tbody.innerHTML = integrations.map(renderIntegrationRow).join('');
+  }
+
+  // Re-inject icons
+  if (typeof (window as any).injectIcons === 'function') {
+    (window as any).injectIcons();
+  }
 }
 
 /**
@@ -491,25 +518,7 @@ export async function loadProjectDetail(projectId: number): Promise<void> {
     }
 
     // Render integrations table
-    const integrationsTableBody = document.querySelector<HTMLTableSectionElement>('[data-project-integrations-table] tbody');
-    if (integrationsTableBody) {
-      if (integrations.length === 0) {
-        integrationsTableBody.innerHTML = `
-          <tr>
-            <td colspan="6" class="text-center text-muted">
-              No integrations attached. Attach a Cloudflare or registrar key to this project.
-            </td>
-          </tr>
-        `;
-      } else {
-        integrationsTableBody.innerHTML = integrations.map(renderIntegrationRow).join('');
-      }
-    }
-
-    // Re-apply icon injection
-    if (typeof (window as any).injectIcons === 'function') {
-      (window as any).injectIcons();
-    }
+    renderIntegrationsTable(integrations);
   } catch (error: any) {
     // Check if aborted (not an error in this case)
     if (error.code === 'ABORTED') {
@@ -635,6 +644,7 @@ export function initProjectsPage(): void {
 
   // Initialize action handlers
   handleProjectActions();
+  handleIntegrationActions();
 
   // Dropdown toggles (delegated)
   document.addEventListener('click', (e) => {
@@ -757,6 +767,64 @@ function handleProjectActions(): void {
           showGlobalMessage('error', error.message || t('projects.errors.deleteFailed') || 'Failed to delete project');
         }
         break;
+    }
+  });
+}
+
+/**
+ * Handle integration actions (detach)
+ */
+function handleIntegrationActions(): void {
+  document.addEventListener('click', async (e) => {
+    const target = e.target as HTMLElement;
+    const detachBtn = target.closest<HTMLElement>('[data-action="detach-integration"]');
+
+    if (!detachBtn) return;
+
+    const keyId = parseInt(detachBtn.getAttribute('data-key-id') || '0', 10);
+    const projectId = getCurrentProjectId();
+
+    if (!keyId || !projectId) return;
+
+    e.preventDefault();
+
+    const confirmed = confirm(
+      'Are you sure you want to detach this integration from the project?'
+    );
+
+    if (!confirmed) return;
+
+    try {
+      const { detachIntegration } = await import('@api/projects');
+
+      await safeCall(
+        () => detachIntegration(projectId, keyId),
+        {
+          lockKey: `detach-integration-${projectId}-${keyId}`,
+          retryOn401: true,
+        }
+      );
+
+      // Invalidate cache
+      invalidateCache(`project:${projectId}`);
+      invalidateCache(`project:${projectId}:integrations`);
+
+      // Reload integrations
+      const { getProjectIntegrations } = await import('@api/projects');
+      const integrations = await safeCall(
+        () => getProjectIntegrations(projectId),
+        { retryOn401: true }
+      );
+
+      // Update state
+      setIntegrations(integrations);
+
+      // Re-render table
+      renderIntegrationsTable(integrations);
+
+      showGlobalMessage('success', 'Integration detached from project');
+    } catch (error: any) {
+      showGlobalMessage('error', error.message || 'Failed to detach integration');
     }
   });
 }
