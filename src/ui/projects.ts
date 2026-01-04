@@ -560,24 +560,15 @@ export async function loadProjectDetail(projectId: number): Promise<void> {
   const token = incrementRequestToken();
 
   try {
-    // Load project data and sites in parallel
-    // GET /projects/:id returns sites WITHOUT acceptor_domain
-    // GET /projects/:id/sites returns sites WITH acceptor_domain
-    const { getProjectSites } = await import('@api/sites');
-
-    const [projectData, sites] = await Promise.all([
-      safeCall(
-        (signal) => getProject(projectId, { signal }),
-        {
-          abortKey: 'project-detail-load', // фиксированный, без projectId
-          retryOn401: true,
-        }
-      ),
-      safeCall(
-        () => getProjectSites(projectId),
-        { retryOn401: true }
-      )
-    ]);
+    // Load project data with safeCall
+    // abortKey фиксированный - любой новый load отменяет предыдущий
+    const data = await safeCall(
+      (signal) => getProject(projectId, { signal }),
+      {
+        abortKey: 'project-detail-load', // фиксированный, без projectId
+        retryOn401: true,
+      }
+    );
 
     // Check if request is stale (another load started)
     if (token !== getRequestToken()) {
@@ -585,9 +576,9 @@ export async function loadProjectDetail(projectId: number): Promise<void> {
       return;
     }
 
-    const { project, integrations } = projectData;
+    const { project, sites, integrations } = data;
 
-    // Store in state for point updates (use sites from getProjectSites)
+    // Store in state for point updates
     setProjectData(projectId, { project, sites, integrations });
 
     // Show brand tag in utility bar
