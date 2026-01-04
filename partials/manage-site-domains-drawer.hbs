@@ -46,6 +46,7 @@
                     <thead>
                       <tr>
                         <th data-i18n="sites.domains.columns.domain">Domain</th>
+                        <th>Role</th>
                         <th data-i18n="sites.domains.columns.status">Status</th>
                         <th class="th-actions">Actions</th>
                       </tr>
@@ -64,14 +65,30 @@
                 <h3 class="h5">Primary Domain (Acceptor)</h3>
               </header>
               <div class="card__body">
-                <div class="stack-list">
+                <div class="stack stack--sm">
                   <p class="text-sm text-muted">
                     Select which domain will be the main entry point for traffic. Only one domain can be primary.
                   </p>
 
-                  <!-- Radio buttons populated by JS -->
-                  <div class="stack-sm" data-primary-domain-radios>
-                    <!-- Populated by JS -->
+                  <!-- Primary domain dropdown -->
+                  <div class="field">
+                    <label class="field__label">Primary domain</label>
+                    <div class="dropdown" data-dropdown="primary-domain">
+                      <button
+                        class="btn-chip btn-chip--sm btn-chip--dropdown dropdown__trigger"
+                        type="button"
+                        aria-haspopup="menu"
+                        aria-expanded="false"
+                        data-primary-domain-select
+                        data-selected-value=""
+                      >
+                        <span class="btn-chip__label" data-primary-domain-label>Choose primary domain...</span>
+                        <span class="btn-chip__chevron icon" data-icon="mono/chevron-down"></span>
+                      </button>
+                      <div class="dropdown__menu dropdown__menu--fit-trigger" role="menu" data-primary-domain-menu>
+                        <!-- Options populated by JS -->
+                      </div>
+                    </div>
                   </div>
 
                   <!-- Save button -->

@@ -152,12 +152,22 @@ function renderDomainRow(domain: APIDomain): string {
   const statusBadge = isActive ? 'success' : 'neutral';
   const statusText = isActive ? 'Active' : 'Inactive';
 
+  // Role badge
+  const roleLabel = domain.role === 'acceptor' ? 'Primary' :
+                    domain.role === 'donor' ? 'Donor' : 'Reserve';
+  const roleBadge = domain.role === 'acceptor' ? 'badge--success' : 'badge--neutral';
+
   return `
     <tr>
       <td>
         <div class="domain-cell">
           <span class="domain-cell__name">${domain.domain_name}</span>
         </div>
+      </td>
+      <td>
+        <span class="badge badge--sm ${roleBadge}">
+          ${roleLabel}
+        </span>
       </td>
       <td>
         <span class="badge badge--${statusBadge}">
@@ -365,17 +375,25 @@ async function handleDetachDomain(domainId: number): Promise<void> {
  */
 function renderPrimaryDomainSection(): void {
   const section = document.querySelector<HTMLElement>('[data-primary-domain-section]');
-  const radiosContainer = document.querySelector<HTMLElement>('[data-primary-domain-radios]');
+  const menu = document.querySelector<HTMLElement>('[data-primary-domain-menu]');
+  const selectBtn = document.querySelector<HTMLButtonElement>('[data-primary-domain-select]');
+  const label = document.querySelector<HTMLElement>('[data-primary-domain-label]');
   const saveBtn = document.querySelector<HTMLButtonElement>('[data-save-primary-domain]');
 
-  if (!section || !radiosContainer || attachedDomains.length === 0) return;
+  if (!section || !menu || attachedDomains.length === 0) return;
 
   // Find current acceptor
   const currentAcceptor = attachedDomains.find(d => d.role === 'acceptor');
   selectedPrimaryId = currentAcceptor?.id || null;
 
-  // Render radio buttons
-  radiosContainer.innerHTML = attachedDomains.map(renderPrimaryDomainRadio).join('');
+  // Render dropdown options
+  menu.innerHTML = attachedDomains.map(renderPrimaryDomainOption).join('');
+
+  // Set initial label and value
+  if (selectBtn && label && currentAcceptor) {
+    selectBtn.setAttribute('data-selected-value', String(currentAcceptor.id));
+    label.textContent = currentAcceptor.domain_name;
+  }
 
   // Show section
   section.hidden = false;
@@ -398,33 +416,27 @@ function hidePrimaryDomainSection(): void {
 }
 
 /**
- * Render a single primary domain radio button
+ * Render a single primary domain dropdown option
  */
-function renderPrimaryDomainRadio(domain: APIDomain): string {
-  const isChecked = domain.id === selectedPrimaryId;
+function renderPrimaryDomainOption(domain: APIDomain): string {
   const roleLabel = domain.role === 'acceptor' ? 'Primary' :
                     domain.role === 'donor' ? 'Donor' : 'Reserve';
-  const badgeClass = domain.role === 'acceptor' ? 'badge--success' : 'badge--neutral';
 
   return `
-    <label class="radio-label">
-      <input
-        type="radio"
-        name="primary_domain"
-        value="${domain.id}"
-        ${isChecked ? 'checked' : ''}
-        data-domain-id="${domain.id}"
-        data-current-role="${domain.role}"
-      />
-      <div class="radio-label__content">
-        <div class="stack-inline stack-inline--xs">
-          <strong>${domain.domain_name}</strong>
-          <span class="badge badge--sm ${badgeClass}">
-            ${roleLabel}
-          </span>
-        </div>
+    <button
+      class="dropdown__item"
+      type="button"
+      role="menuitem"
+      data-value="${domain.id}"
+      data-primary-domain-option
+    >
+      <div class="stack-inline stack-inline--xs">
+        <span>${domain.domain_name}</span>
+        <span class="badge badge--sm ${domain.role === 'acceptor' ? 'badge--success' : 'badge--neutral'}">
+          ${roleLabel}
+        </span>
       </div>
-    </label>
+    </button>
   `;
 }
 
@@ -591,16 +603,26 @@ export function initSiteDomains(): void {
       e.preventDefault();
       handleSavePrimaryDomain();
     }
-  });
 
-  // Handle primary domain radio changes
-  document.addEventListener('change', (e) => {
-    const target = e.target as HTMLInputElement;
-    const radio = target.closest('[data-primary-domain-radios] input[type="radio"]');
-    if (radio && radio instanceof HTMLInputElement) {
-      const newSelectedId = parseInt(radio.value, 10);
-      if (!isNaN(newSelectedId)) {
-        handlePrimaryDomainChange(newSelectedId);
+    // Primary domain dropdown option selection
+    const primaryDomainOption = target.closest('[data-primary-domain-option]');
+    if (primaryDomainOption) {
+      const value = primaryDomainOption.getAttribute('data-value');
+      const domainName = primaryDomainOption.textContent?.trim() || '';
+      const selectBtn = document.querySelector<HTMLButtonElement>('[data-primary-domain-select]');
+      const label = document.querySelector<HTMLElement>('[data-primary-domain-label]');
+
+      if (selectBtn && label && value) {
+        selectBtn.setAttribute('data-selected-value', value);
+
+        // Extract just the domain name without the badge text
+        const domainText = domainName.split('\n')[0].trim();
+        label.textContent = domainText;
+
+        const newSelectedId = parseInt(value, 10);
+        if (!isNaN(newSelectedId)) {
+          handlePrimaryDomainChange(newSelectedId);
+        }
       }
     }
   });
