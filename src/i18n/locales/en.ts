@@ -600,7 +600,7 @@ export const en = {
     },
     domains: {
       drawerTitle: 'Manage Domains',
-      drawerSubtitle: 'Attach or detach domains for site',
+      drawerSubtitle: 'for site',
       attachedTitle: 'Attached Domains',
       attachNewTitle: 'Attach New Domains',
       count: 'Count',

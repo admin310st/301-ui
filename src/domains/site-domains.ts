@@ -380,7 +380,6 @@ function renderPrimaryDomainSection(): void {
   const menu = document.querySelector<HTMLElement>('[data-primary-domain-menu]');
   const selectBtn = document.querySelector<HTMLButtonElement>('[data-primary-domain-select]');
   const label = document.querySelector<HTMLElement>('[data-primary-domain-label]');
-  const saveBtn = document.querySelector<HTMLButtonElement>('[data-save-primary-domain]');
 
   if (!section || !menu || attachedDomains.length === 0) return;
 
@@ -399,9 +398,6 @@ function renderPrimaryDomainSection(): void {
 
   // Show section
   section.hidden = false;
-
-  // Disable save button initially (no changes yet)
-  if (saveBtn) saveBtn.disabled = true;
 
   // Re-inject icons
   if (typeof (window as any).injectIcons === 'function') {
@@ -445,19 +441,17 @@ function renderPrimaryDomainOption(domain: APIDomain): string {
 /**
  * Handle primary domain radio change
  */
-function handlePrimaryDomainChange(newSelectedId: number): void {
-  const saveBtn = document.querySelector<HTMLButtonElement>('[data-save-primary-domain]');
-
+async function handlePrimaryDomainChange(newSelectedId: number): Promise<void> {
   // Find current acceptor from original data
   const currentAcceptor = attachedDomains.find(d => d.role === 'acceptor');
   const hasChanges = newSelectedId !== currentAcceptor?.id;
 
-  // Enable/disable save button based on changes
-  if (saveBtn) {
-    saveBtn.disabled = !hasChanges;
-  }
-
   selectedPrimaryId = newSelectedId;
+
+  // Auto-save if there are changes
+  if (hasChanges) {
+    await handleSavePrimaryDomain();
+  }
 }
 
 /**
@@ -467,7 +461,6 @@ async function handleSavePrimaryDomain(): Promise<void> {
   if (!currentSiteId || !selectedPrimaryId) return;
 
   const statusEl = document.querySelector<HTMLElement>('[data-primary-domain-status]');
-  const saveBtn = document.querySelector<HTMLButtonElement>('[data-save-primary-domain]');
 
   // Find current acceptor and new acceptor
   const currentAcceptor = attachedDomains.find(d => d.role === 'acceptor');
@@ -481,7 +474,6 @@ async function handleSavePrimaryDomain(): Promise<void> {
   }
 
   try {
-    if (saveBtn) saveBtn.disabled = true;
     if (statusEl) {
       statusEl.textContent = 'Updating primary domain...';
       statusEl.className = 'panel';
@@ -555,7 +547,6 @@ async function handleSavePrimaryDomain(): Promise<void> {
       statusEl.hidden = false;
     }
     showGlobalMessage('error', error.message || 'Failed to update primary domain');
-    if (saveBtn) saveBtn.disabled = false;
   }
 }
 
@@ -610,13 +601,6 @@ export function initSiteDomains(): void {
         // Enable attach button
         if (attachBtn) attachBtn.disabled = false;
       }
-    }
-
-    // Save primary domain button
-    const savePrimaryBtn = target.closest('[data-save-primary-domain]');
-    if (savePrimaryBtn) {
-      e.preventDefault();
-      handleSavePrimaryDomain();
     }
 
     // Primary domain dropdown option selection

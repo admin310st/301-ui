@@ -606,7 +606,7 @@ export const ru: Translation = {
     },
     domains: {
       drawerTitle: 'Управление доменами',
-      drawerSubtitle: 'Привязка и отвязка доменов для сайта',
+      drawerSubtitle: 'для сайта',
       attachedTitle: 'Привязанные домены',
       attachNewTitle: 'Привязать новые домены',
       count: 'Количество',
