@@ -527,7 +527,6 @@ async function handleSavePrimaryDomain(): Promise<void> {
       const { loadProjectDetail } = await import('@ui/projects');
       await loadProjectDetail(projectId);
     }
-
     setTimeout(() => {
       if (statusEl) statusEl.hidden = true;
     }, 3000);
