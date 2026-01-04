@@ -135,7 +135,7 @@ export function renderSiteRow(site: Site): string {
         <strong>${site.site_name}</strong>
       </td>
       <td data-priority="medium">${site.site_tag || '—'}</td>
-      <td data-priority="high">${site.acceptor_domain || '—'}</td>
+      <td data-priority="high" title="DEBUG: acceptor_domain=${site.acceptor_domain}, type=${typeof site.acceptor_domain}">${site.acceptor_domain || '—'}</td>
       <td data-priority="high">
         <span class="badge ${statusClass}">${statusLabel}</span>
       </td>
@@ -576,16 +576,7 @@ export async function loadProjectDetail(projectId: number): Promise<void> {
       return;
     }
 
-    const { project, integrations } = data;
-
-    // Fetch sites separately to get acceptor_domain field
-    // GET /projects/:id returns sites without acceptor_domain
-    // GET /projects/:id/sites returns sites WITH acceptor_domain
-    const { getProjectSites } = await import('@api/sites');
-    const sites = await safeCall(
-      () => getProjectSites(projectId),
-      { retryOn401: true }
-    );
+    const { project, sites, integrations } = data;
 
     // Store in state for point updates
     setProjectData(projectId, { project, sites, integrations });
