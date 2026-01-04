@@ -135,7 +135,7 @@ export function renderSiteRow(site: Site): string {
         <strong>${site.site_name}</strong>
       </td>
       <td data-priority="medium">${site.site_tag || '—'}</td>
-      <td data-priority="high">${site.acceptor_domain || '—'}</td>
+      <td data-priority="high" title="DEBUG: acceptor_domain=${site.acceptor_domain}, type=${typeof site.acceptor_domain}">${site.acceptor_domain || '—'}</td>
       <td data-priority="high">
         <span class="badge ${statusClass}">${statusLabel}</span>
       </td>
