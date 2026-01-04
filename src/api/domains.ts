@@ -142,6 +142,26 @@ export async function removeDomainFromSite(
 }
 
 /**
+ * Update domain role (acceptor, donor, reserve)
+ *
+ * PATCH /domains/:id
+ *
+ * @param domainId - Domain ID
+ * @param role - New role: acceptor, donor, reserve
+ */
+export async function updateDomainRole(
+  domainId: number,
+  role: 'acceptor' | 'donor' | 'reserve'
+): Promise<void> {
+  console.log('[updateDomainRole]', { domainId, role });
+
+  await apiFetch(`/domains/${domainId}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ role }),
+  });
+}
+
+/**
  * @deprecated Use assignDomainToSite() instead. This is kept for backward compatibility with mock domains page.
  *
  * Legacy function for bulk actions on mock domains page.

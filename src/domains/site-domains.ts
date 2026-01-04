@@ -16,6 +16,8 @@ import { getCurrentProjectId, getCurrentSites, setSites } from '@state/project-d
 
 let currentSiteId: number | null = null;
 let currentProjectId: number | null = null;
+let attachedDomains: APIDomain[] = [];
+let selectedPrimaryId: number | null = null;
 
 /**
  * Open manage site domains drawer
@@ -113,7 +115,7 @@ async function loadAttachedDomains(accountId: number, siteId: number): Promise<v
 
     // Flatten groups into a single array of domains
     const allDomains = response.groups.flatMap(group => group.domains);
-    const attachedDomains = allDomains.filter(d => d.site_id === siteId);
+    attachedDomains = allDomains.filter(d => d.site_id === siteId);
 
     // Update count
     const countEl = document.querySelector<HTMLElement>('[data-site-domains-count]');
@@ -124,12 +126,16 @@ async function loadAttachedDomains(accountId: number, siteId: number): Promise<v
 
     if (attachedDomains.length === 0) {
       emptyEl.removeAttribute('hidden');
+      hidePrimaryDomainSection();
       return;
     }
 
     // Render table rows
     tbody.innerHTML = attachedDomains.map(renderDomainRow).join('');
     tableContainer.removeAttribute('hidden');
+
+    // Render primary domain selection
+    renderPrimaryDomainSection();
   } catch (error: any) {
     logError('Failed to load attached domains:', error);
     if (loadingEl) loadingEl.setAttribute('hidden', '');
@@ -355,6 +361,178 @@ async function handleDetachDomain(domainId: number): Promise<void> {
 }
 
 /**
+ * Render primary domain selection section
+ */
+function renderPrimaryDomainSection(): void {
+  const section = document.querySelector<HTMLElement>('[data-primary-domain-section]');
+  const radiosContainer = document.querySelector<HTMLElement>('[data-primary-domain-radios]');
+  const saveBtn = document.querySelector<HTMLButtonElement>('[data-save-primary-domain]');
+
+  if (!section || !radiosContainer || attachedDomains.length === 0) return;
+
+  // Find current acceptor
+  const currentAcceptor = attachedDomains.find(d => d.role === 'acceptor');
+  selectedPrimaryId = currentAcceptor?.id || null;
+
+  // Render radio buttons
+  radiosContainer.innerHTML = attachedDomains.map(renderPrimaryDomainRadio).join('');
+
+  // Show section
+  section.hidden = false;
+
+  // Disable save button initially (no changes yet)
+  if (saveBtn) saveBtn.disabled = true;
+
+  // Re-inject icons
+  if (typeof (window as any).injectIcons === 'function') {
+    (window as any).injectIcons();
+  }
+}
+
+/**
+ * Hide primary domain section
+ */
+function hidePrimaryDomainSection(): void {
+  const section = document.querySelector<HTMLElement>('[data-primary-domain-section]');
+  if (section) section.hidden = true;
+}
+
+/**
+ * Render a single primary domain radio button
+ */
+function renderPrimaryDomainRadio(domain: APIDomain): string {
+  const isChecked = domain.id === selectedPrimaryId;
+  const roleLabel = domain.role === 'acceptor' ? 'Primary' :
+                    domain.role === 'donor' ? 'Donor' : 'Reserve';
+  const badgeClass = domain.role === 'acceptor' ? 'badge--success' : 'badge--neutral';
+
+  return `
+    <label class="radio-label">
+      <input
+        type="radio"
+        name="primary_domain"
+        value="${domain.id}"
+        ${isChecked ? 'checked' : ''}
+        data-domain-id="${domain.id}"
+        data-current-role="${domain.role}"
+      />
+      <div class="radio-label__content">
+        <div class="stack-inline stack-inline--xs">
+          <strong>${domain.domain_name}</strong>
+          <span class="badge badge--sm ${badgeClass}">
+            ${roleLabel}
+          </span>
+        </div>
+      </div>
+    </label>
+  `;
+}
+
+/**
+ * Handle primary domain radio change
+ */
+function handlePrimaryDomainChange(newSelectedId: number): void {
+  const saveBtn = document.querySelector<HTMLButtonElement>('[data-save-primary-domain]');
+
+  // Find current acceptor from original data
+  const currentAcceptor = attachedDomains.find(d => d.role === 'acceptor');
+  const hasChanges = newSelectedId !== currentAcceptor?.id;
+
+  // Enable/disable save button based on changes
+  if (saveBtn) {
+    saveBtn.disabled = !hasChanges;
+  }
+
+  selectedPrimaryId = newSelectedId;
+}
+
+/**
+ * Save primary domain selection
+ */
+async function handleSavePrimaryDomain(): Promise<void> {
+  if (!currentSiteId || !selectedPrimaryId) return;
+
+  const statusEl = document.querySelector<HTMLElement>('[data-primary-domain-status]');
+  const saveBtn = document.querySelector<HTMLButtonElement>('[data-save-primary-domain]');
+
+  // Find current acceptor and new acceptor
+  const currentAcceptor = attachedDomains.find(d => d.role === 'acceptor');
+  const newAcceptor = attachedDomains.find(d => d.id === selectedPrimaryId);
+
+  if (!newAcceptor) return;
+
+  // If no change, just close
+  if (currentAcceptor?.id === selectedPrimaryId) {
+    return;
+  }
+
+  try {
+    if (saveBtn) saveBtn.disabled = true;
+    if (statusEl) {
+      statusEl.textContent = 'Updating primary domain...';
+      statusEl.className = 'panel';
+      statusEl.hidden = false;
+    }
+
+    // Atomic operation:
+    // 1. Set old acceptor to reserve (if exists)
+    // 2. Set new domain to acceptor
+    if (currentAcceptor) {
+      await safeCall(
+        () => domainsAPI.updateDomainRole(currentAcceptor.id, 'reserve'),
+        { lockKey: `update-domain-role-${currentAcceptor.id}`, retryOn401: true }
+      );
+    }
+
+    await safeCall(
+      () => domainsAPI.updateDomainRole(selectedPrimaryId, 'acceptor'),
+      { lockKey: `update-domain-role-${selectedPrimaryId}`, retryOn401: true }
+    );
+
+    // Invalidate cache
+    invalidateCache(`site:${currentSiteId}`);
+    if (currentProjectId) {
+      invalidateCache(`project:${currentProjectId}`);
+    }
+    invalidateCache(`domains`);
+
+    if (statusEl) {
+      statusEl.textContent = 'Primary domain updated successfully';
+      statusEl.className = 'panel panel--success';
+    }
+
+    showGlobalMessage('success', 'Primary domain updated');
+
+    // Reload domains to reflect changes
+    const { accountId } = getAuthState();
+    if (accountId) {
+      await loadAttachedDomains(accountId, currentSiteId);
+    }
+
+    // Update project detail view if we're in it
+    const projectId = getCurrentProjectId();
+    if (projectId) {
+      const { loadProjectDetail } = await import('@ui/projects');
+      await loadProjectDetail(projectId);
+    }
+
+    setTimeout(() => {
+      if (statusEl) statusEl.hidden = true;
+    }, 3000);
+
+  } catch (error: any) {
+    logError('Failed to update primary domain:', error);
+    if (statusEl) {
+      statusEl.textContent = error.message || 'Failed to update primary domain';
+      statusEl.className = 'panel panel--danger';
+      statusEl.hidden = false;
+    }
+    showGlobalMessage('error', error.message || 'Failed to update primary domain');
+    if (saveBtn) saveBtn.disabled = false;
+  }
+}
+
+/**
  * Initialize site domains management
  */
 export function initSiteDomains(): void {
@@ -404,6 +582,25 @@ export function initSiteDomains(): void {
 
         // Enable attach button
         if (attachBtn) attachBtn.disabled = false;
+      }
+    }
+
+    // Save primary domain button
+    const savePrimaryBtn = target.closest('[data-save-primary-domain]');
+    if (savePrimaryBtn) {
+      e.preventDefault();
+      handleSavePrimaryDomain();
+    }
+  });
+
+  // Handle primary domain radio changes
+  document.addEventListener('change', (e) => {
+    const target = e.target as HTMLInputElement;
+    const radio = target.closest('[data-primary-domain-radios] input[type="radio"]');
+    if (radio && radio instanceof HTMLInputElement) {
+      const newSelectedId = parseInt(radio.value, 10);
+      if (!isNaN(newSelectedId)) {
+        handlePrimaryDomainChange(newSelectedId);
       }
     }
   });

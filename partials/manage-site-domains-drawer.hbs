@@ -58,6 +58,36 @@
               </div>
             </div>
 
+            <!-- Primary Domain Selection Section -->
+            <div class="card card--panel" data-primary-domain-section hidden>
+              <header class="card__header">
+                <h3 class="h5">Primary Domain (Acceptor)</h3>
+              </header>
+              <div class="card__body">
+                <div class="stack-list">
+                  <p class="text-sm text-muted">
+                    Select which domain will be the main entry point for traffic. Only one domain can be primary.
+                  </p>
+
+                  <!-- Radio buttons populated by JS -->
+                  <div class="stack-sm" data-primary-domain-radios>
+                    <!-- Populated by JS -->
+                  </div>
+
+                  <!-- Save button -->
+                  <div class="cluster">
+                    <button type="button" class="btn btn--primary btn--sm" data-save-primary-domain disabled>
+                      <span class="icon" data-icon="mono/check"></span>
+                      <span>Save Primary</span>
+                    </button>
+                  </div>
+
+                  <!-- Status panel for primary domain updates -->
+                  <div class="panel" data-primary-domain-status hidden role="status"></div>
+                </div>
+              </div>
+            </div>
+
             <!-- Attach New Domains Section -->
             <div class="card card--panel">
               <header class="card__header">
