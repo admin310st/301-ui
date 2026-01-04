@@ -4,7 +4,7 @@
  */
 
 import { getAuthState } from '@state/auth-state';
-import { getSite, attachDomain, detachDomain } from '@api/sites';
+import { getSite, attachDomain } from '@api/sites';
 import type { Site, APIDomain } from '@api/types';
 import * as domainsAPI from '@api/domains';
 import { t } from '@i18n';
@@ -340,7 +340,7 @@ async function handleDetachDomain(domainId: number): Promise<void> {
 
   try {
     await safeCall(
-      () => detachDomain(currentSiteId, domainId),
+      () => domainsAPI.removeDomainFromSite(currentSiteId, domainId),
       {
         lockKey: `detach-domain-${currentSiteId}-${domainId}`,
         retryOn401: true,
