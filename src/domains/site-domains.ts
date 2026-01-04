@@ -282,6 +282,7 @@ async function handleAttachDomain(): Promise<void> {
     // Invalidate cache for the project
     if (currentProjectId) {
       invalidateCache(`project:${currentProjectId}`);
+      invalidateCache(`sites:project:${currentProjectId}`);
     }
 
     if (statusPanel) {
@@ -349,6 +350,7 @@ async function handleDetachDomain(domainId: number): Promise<void> {
     // Invalidate cache for the project
     if (currentProjectId) {
       invalidateCache(`project:${currentProjectId}`);
+      invalidateCache(`sites:project:${currentProjectId}`);
     }
 
     showGlobalMessage('success', t('sites.messages.domainDetached'));
@@ -512,6 +514,7 @@ async function handleSavePrimaryDomain(): Promise<void> {
     invalidateCache(`site:${currentSiteId}`);
     if (currentProjectId) {
       invalidateCache(`project:${currentProjectId}`);
+      invalidateCache(`sites:project:${currentProjectId}`);
     }
     invalidateCache(`domains`);
 
