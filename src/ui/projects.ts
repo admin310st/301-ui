@@ -265,7 +265,7 @@ function renderProjectDomainRow(domain: APIDomain): string {
           <span class="role-icon" data-role="${domain.role}" title="${roleLabel}">
             <span class="icon" data-icon="${roleIcon}"></span>
           </span>
-          <strong>${domain.domain_name}</strong>
+          <span>${domain.domain_name}</span>
         </div>
       </td>
       <td data-priority="medium">
