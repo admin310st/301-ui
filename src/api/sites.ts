@@ -75,11 +75,11 @@ export async function getProjectSites(
   const url = params
     ? `/projects/${projectId}/sites?${params}`
     : `/projects/${projectId}/sites`;
-  const response = await apiFetch<Site[]>(url);
+  const response = await apiFetch<GetSitesResponse>(url);
 
   // Store in cache
-  setCache(cacheKey, response);
-  return response;
+  setCache(cacheKey, response.sites);
+  return response.sites;
 }
 
 /**
