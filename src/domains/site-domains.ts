@@ -183,7 +183,7 @@ function renderDomainRow(domain: APIDomain): string {
           aria-label="${t('sites.domains.detachButton')}"
           title="${t('sites.domains.detachButton')}"
         >
-          <span class="icon" data-icon="mono/cancel"></span>
+          <span class="icon" data-icon="mono/web-minus"></span>
         </button>
       </td>
     </tr>

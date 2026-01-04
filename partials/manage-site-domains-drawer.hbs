@@ -4,10 +4,12 @@
       <div class="drawer__panel">
         <header class="drawer__header">
           <div class="drawer__title">
-            <span class="icon" data-icon="mono/web"></span>
             <div>
-              <h2 class="h4" data-i18n="sites.domains.drawerTitle">Manage Domains</h2>
-              <p class="text-sm text-muted">
+              <h2 class="h4">
+                <span class="icon" data-icon="mono/web"></span>
+                <span data-i18n="sites.domains.drawerTitle">Manage Domains</span>
+              </h2>
+              <p class="text-muted">
                 <span data-i18n="sites.domains.drawerSubtitle">for site</span>
                 <strong data-site-domains-name>—</strong>
               </p>
@@ -22,15 +24,8 @@
           <div class="stack-list">
             <!-- Primary Domain Selection Section -->
             <div class="card card--panel" data-primary-domain-section hidden>
-              <header class="card__header">
-                <h3 class="h5">Primary Domain</h3>
-              </header>
               <div class="card__body">
                 <div class="stack stack--sm">
-                  <p class="text-sm text-muted">
-                    Main entry point for traffic. Only one domain can be primary.
-                  </p>
-
                   <!-- Primary domain dropdown -->
                   <div class="field">
                     <label class="field__label">Primary domain</label>
@@ -50,6 +45,9 @@
                         <!-- Options populated by JS -->
                       </div>
                     </div>
+                    <p class="field__hint text-muted">
+                      Main entry point for traffic. Only one domain can be primary.
+                    </p>
                   </div>
 
                   <!-- Status panel for primary domain updates -->
