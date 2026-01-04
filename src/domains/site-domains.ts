@@ -515,24 +515,43 @@ async function handleSavePrimaryDomain(): Promise<void> {
 
     showGlobalMessage('success', 'Primary domain updated');
 
-    // Reload domains to reflect changes
+    // Optimistically update acceptor_domain in local state
+    const sites = getCurrentSites();
+    const siteToUpdate = sites.find(s => s.id === currentSiteId);
+    if (siteToUpdate && newAcceptor) {
+      siteToUpdate.acceptor_domain = newAcceptor.domain_name;
+      setSites([...sites]); // Trigger state update
+
+      // Re-render sites table immediately
+      const sitesTableBody = document.querySelector<HTMLTableSectionElement>('[data-project-sites-table] tbody');
+      if (sitesTableBody) {
+        const { renderSiteRow } = await import('@ui/projects');
+        sitesTableBody.innerHTML = sites.map(renderSiteRow).join('');
+
+        // Re-inject icons
+        if (typeof (window as any).injectIcons === 'function') {
+          (window as any).injectIcons();
+        }
+      }
+    }
+
+    // Reload domains to reflect changes in drawer
     const { accountId } = getAuthState();
     if (accountId) {
       await loadAttachedDomains(accountId, currentSiteId);
     }
 
-    // Wait a bit for server to update acceptor_domain on site
-    await new Promise(resolve => setTimeout(resolve, 300));
-
-    // Update project detail view if we're in it
+    // Also reload full project detail in background to sync with server
     const projectId = getCurrentProjectId();
     if (projectId) {
-      // Invalidate cache again before reload to ensure fresh data
-      invalidateCache(`project:${projectId}`);
-      invalidateCache(`site:${currentSiteId}`);
+      // Small delay to let server process
+      setTimeout(async () => {
+        invalidateCache(`project:${projectId}`);
+        invalidateCache(`site:${currentSiteId}`);
 
-      const { loadProjectDetail } = await import('@ui/projects');
-      await loadProjectDetail(projectId);
+        const { loadProjectDetail } = await import('@ui/projects');
+        await loadProjectDetail(projectId);
+      }, 500);
     }
 
     setTimeout(() => {
