@@ -133,7 +133,6 @@ export function renderSiteRow(site: Site): string {
     <tr data-site-id="${site.id}">
       <td data-priority="critical">
         <strong>${site.site_name}</strong>
-        ${site.site_tag ? `<br><code class="text-sm">${site.site_tag}</code>` : ''}
       </td>
       <td data-priority="medium">${site.site_tag || '—'}</td>
       <td data-priority="high">${site.acceptor_domain || '—'}</td>
@@ -150,7 +149,7 @@ export function renderSiteRow(site: Site): string {
           aria-label="${t('sites.actions.manageDomains')}"
           title="${t('sites.actions.manageDomains')}"
         >
-          <span class="icon" data-icon="mono/web"></span>
+          <span class="icon" data-icon="mono/web-scan"></span>
         </button>
         <button
           class="btn-icon"
