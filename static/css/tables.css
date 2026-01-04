@@ -1245,6 +1245,13 @@ html[data-theme="light"] .bulk-actions-bar__actions .btn--ghost:hover {
   color: var(--text-muted);
 }
 
+/* Generic table cell with icon (used in projects table, sites table, etc.) */
+.table-cell-with-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
 /* Role Icon (Acceptor/Donor/Reserve) */
 .role-icon {
   display: inline-flex;

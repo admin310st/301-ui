@@ -57,13 +57,16 @@ function renderProjectRow(project: Project): string {
   return `
     <tr data-project-id="${project.id}">
       <td data-priority="critical">
-        <a
-          href="/projects.html?id=${project.id}"
-          class="link link--bold"
-          ${project.description ? `title="${project.description}"` : ''}
-        >
-          ${project.project_name}
-        </a>
+        <div class="table-cell-with-icon">
+          <span class="icon" data-icon="mono/package"></span>
+          <a
+            href="/projects.html?id=${project.id}"
+            class="link link--bold"
+            ${project.description ? `title="${project.description}"` : ''}
+          >
+            ${project.project_name}
+          </a>
+        </div>
       </td>
       <td data-priority="medium">${brandTag}</td>
       <td data-priority="high" class="text-right">${project.domains_count}</td>
