@@ -519,6 +519,12 @@ async function handleSavePrimaryDomain(): Promise<void> {
     const sites = getCurrentSites();
     const siteToUpdate = sites.find(s => s.id === currentSiteId);
     if (siteToUpdate && newAcceptor) {
+      console.log('[Primary Domain Update]', {
+        siteId: currentSiteId,
+        oldAcceptor: currentAcceptor?.domain_name,
+        newAcceptor: newAcceptor.domain_name,
+      });
+
       siteToUpdate.acceptor_domain = newAcceptor.domain_name;
       setSites([...sites]); // Trigger state update
 
@@ -539,19 +545,6 @@ async function handleSavePrimaryDomain(): Promise<void> {
     const { accountId } = getAuthState();
     if (accountId) {
       await loadAttachedDomains(accountId, currentSiteId);
-    }
-
-    // Also reload full project detail in background to sync with server
-    const projectId = getCurrentProjectId();
-    if (projectId) {
-      // Small delay to let server process
-      setTimeout(async () => {
-        invalidateCache(`project:${projectId}`);
-        invalidateCache(`site:${currentSiteId}`);
-
-        const { loadProjectDetail } = await import('@ui/projects');
-        await loadProjectDetail(projectId);
-      }, 500);
     }
 
     setTimeout(() => {
