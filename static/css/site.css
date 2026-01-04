@@ -995,6 +995,11 @@ h5 .icon[data-icon*="close"] {
   background: color-mix(in srgb, var(--info, var(--primary)) 88%, #000 6%);
 }
 
+/* Danger hover variant (icon turns red on hover, no background change) */
+.btn-icon--danger-hover:hover .icon {
+  color: var(--danger);
+}
+
 .btn .icon,
 .btn-icon .icon,
 .btn-chip .icon,

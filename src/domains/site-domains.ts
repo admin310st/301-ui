@@ -208,8 +208,8 @@ async function loadAvailableDomains(accountId: number, projectId: number): Promi
     const allDomains = response.groups.flatMap(group => group.domains);
     const projectDomains = allDomains.filter(d => d.project_id === projectId);
 
-    // Filter out domains already attached to current site
-    const availableDomains = projectDomains.filter(d => d.site_id !== currentSiteId);
+    // Filter out domains already attached to ANY site
+    const availableDomains = projectDomains.filter(d => !d.site_id);
 
     if (availableDomains.length === 0) {
       menu.innerHTML = `

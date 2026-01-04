@@ -235,16 +235,16 @@ function renderProjectDomainRow(domain: APIDomain): string {
   const roleIcon = domain.role === 'acceptor' ? 'mono/arrow-bottom-right' : 'mono/arrow-top-right';
   const roleLabel = domain.role === 'acceptor' ? 'Acceptor' : 'Donor';
 
-  // Health badges
-  const sslBadge = domain.ssl_valid
-    ? '<span class="badge badge--success" title="SSL valid">SSL</span>'
-    : '<span class="badge badge--danger" title="SSL invalid">SSL</span>';
-  const nsBadge = domain.ns_valid
-    ? '<span class="badge badge--success" title="NS valid">NS</span>'
-    : '<span class="badge badge--neutral" title="NS not configured">NS</span>';
-  const abuseBadge = domain.abuse_detected
-    ? '<span class="badge badge--danger" title="Abuse detected">Abuse</span>'
-    : '';
+  // Health icons (compact colored icons instead of badges)
+  const sslIcon = domain.ssl_valid
+    ? '<span class="icon text-ok" data-icon="mono/lock" title="SSL valid"></span>'
+    : '<span class="icon text-danger" data-icon="mono/lock" title="SSL invalid"></span>';
+  const nsIcon = domain.ns_valid
+    ? '<span class="icon text-ok" data-icon="mono/dns" title="NS valid"></span>'
+    : '<span class="icon text-muted" data-icon="mono/dns" title="NS not configured"></span>';
+  const abuseIcon = domain.abuse_detected
+    ? '<span class="icon text-danger" data-icon="mono/security" title="Abuse detected"></span>'
+    : '<span class="icon text-ok" data-icon="mono/security" title="Clean"></span>';
 
   // Status badge
   const statusClass = domain.blocked ? 'badge--danger' :
@@ -265,12 +265,11 @@ function renderProjectDomainRow(domain: APIDomain): string {
           <strong>${domain.domain_name}</strong>
         </div>
       </td>
-      <td data-priority="high">${roleLabel}</td>
       <td data-priority="medium">
-        <div class="stack-inline stack-inline--xs">
-          ${sslBadge}
-          ${nsBadge}
-          ${abuseBadge}
+        <div class="health-icons">
+          ${sslIcon}
+          ${nsIcon}
+          ${abuseIcon}
         </div>
       </td>
       <td data-priority="high">
@@ -285,14 +284,14 @@ function renderProjectDomainRow(domain: APIDomain): string {
       <td data-priority="low" class="text-muted">${formatDate(domain.updated_at)}</td>
       <td data-priority="critical" class="table-actions">
         <button
-          class="btn-icon"
+          class="btn-icon btn-icon--danger-hover"
           type="button"
           data-action="remove-domain-from-project"
           data-domain-id="${domain.id}"
           data-site-id="${domain.site_id || ''}"
           aria-label="Remove ${domain.domain_name} from project"
         >
-          <span class="icon" data-icon="mono/close"></span>
+          <span class="icon" data-icon="mono/web-minus"></span>
         </button>
       </td>
     </tr>
@@ -310,7 +309,7 @@ export function renderProjectDomainsTable(domains: APIDomain[]): void {
   if (domains.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="7" class="text-center text-muted">
+        <td colspan="6" class="text-center text-muted">
           No domains in this project. Add domains to start managing traffic.
         </td>
       </tr>
@@ -353,7 +352,7 @@ export async function loadProjectDomains(projectId: number): Promise<void> {
     if (tbody) {
       tbody.innerHTML = `
         <tr>
-          <td colspan="7" class="text-center text-danger">
+          <td colspan="6" class="text-center text-danger">
             Failed to load domains. ${error.message || ''}
           </td>
         </tr>
