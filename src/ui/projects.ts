@@ -576,7 +576,17 @@ export async function loadProjectDetail(projectId: number): Promise<void> {
       return;
     }
 
-    const { project, sites, integrations } = data;
+    const { project, integrations } = data;
+
+    // Try to fetch sites with acceptor_domain from dedicated endpoint
+    // Fallback to sites from project data if request fails
+    let sites = data.sites;
+    try {
+      const { getProjectSites } = await import('@api/sites');
+      sites = await getProjectSites(projectId);
+    } catch (error) {
+      console.warn('Failed to fetch sites with acceptor_domain, using basic sites data:', error);
+    }
 
     // Store in state for point updates
     setProjectData(projectId, { project, sites, integrations });
