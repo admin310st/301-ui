@@ -501,13 +501,6 @@ async function handleSavePrimaryDomain(): Promise<void> {
       { lockKey: `update-domain-role-${selectedPrimaryId}`, retryOn401: true }
     );
 
-    // Invalidate cache
-    invalidateCache(`site:${currentSiteId}`);
-    if (currentProjectId) {
-      invalidateCache(`project:${currentProjectId}`);
-    }
-    invalidateCache(`domains`);
-
     if (statusEl) {
       statusEl.textContent = 'Primary domain updated successfully';
       statusEl.className = 'panel panel--success';
@@ -515,13 +508,20 @@ async function handleSavePrimaryDomain(): Promise<void> {
 
     showGlobalMessage('success', 'Primary domain updated');
 
-    // Reload domains to reflect changes
+    // Clear all caches before reload
+    invalidateCache(`site:${currentSiteId}`);
+    if (currentProjectId) {
+      invalidateCache(`project:${currentProjectId}`);
+    }
+    invalidateCache(`domains`);
+
+    // Reload domains to reflect changes in drawer
     const { accountId } = getAuthState();
     if (accountId) {
       await loadAttachedDomains(accountId, currentSiteId);
     }
 
-    // Update project detail view if we're in it
+    // Reload project detail view to update Sites table with fresh data
     const projectId = getCurrentProjectId();
     if (projectId) {
       const { loadProjectDetail } = await import('@ui/projects');
