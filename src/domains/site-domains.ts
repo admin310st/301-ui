@@ -521,9 +521,16 @@ async function handleSavePrimaryDomain(): Promise<void> {
       await loadAttachedDomains(accountId, currentSiteId);
     }
 
+    // Wait a bit for server to update acceptor_domain on site
+    await new Promise(resolve => setTimeout(resolve, 300));
+
     // Update project detail view if we're in it
     const projectId = getCurrentProjectId();
     if (projectId) {
+      // Invalidate cache again before reload to ensure fresh data
+      invalidateCache(`project:${projectId}`);
+      invalidateCache(`site:${currentSiteId}`);
+
       const { loadProjectDetail } = await import('@ui/projects');
       await loadProjectDetail(projectId);
     }
