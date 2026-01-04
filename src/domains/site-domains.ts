@@ -518,17 +518,30 @@ async function handleSavePrimaryDomain(): Promise<void> {
     }
     invalidateCache(`domains`);
 
-    // Reload domains to reflect changes in drawer
+    // Update acceptor_domain in site state
+    const sites = getCurrentSites();
+    const currentSite = sites.find(s => s.id === currentSiteId);
+    if (currentSite) {
+      currentSite.acceptor_domain = newAcceptor.domain_name;
+      setSites([...sites]); // Trigger state update
+    }
+
+    // Re-render sites table with updated data
+    const sitesTableBody = document.querySelector<HTMLTableSectionElement>('[data-project-sites-table] tbody');
+    if (sitesTableBody && sites.length > 0) {
+      const { renderSiteRow } = await import('@ui/projects');
+      sitesTableBody.innerHTML = sites.map(renderSiteRow).join('');
+
+      // Re-inject icons
+      if (typeof (window as any).injectIcons === 'function') {
+        (window as any).injectIcons();
+      }
+    }
+
+    // Reload domains in drawer to reflect role changes
     const { accountId } = getAuthState();
     if (accountId) {
       await loadAttachedDomains(accountId, currentSiteId);
-    }
-
-    // Reload project detail view to update Sites table with fresh data
-    const projectId = getCurrentProjectId();
-    if (projectId) {
-      const { loadProjectDetail } = await import('@ui/projects');
-      await loadProjectDetail(projectId);
     }
     setTimeout(() => {
       if (statusEl) statusEl.hidden = true;
