@@ -11,11 +11,26 @@ import { t } from '@i18n';
 let contextProjectId: number | null = null;
 
 /**
+ * Set project dropdown value
+ */
+function setProjectDropdownValue(projectId: number, projectName: string): void {
+  const label = document.querySelector<HTMLElement>('[data-site-project-label]');
+  const hiddenInput = document.querySelector<HTMLInputElement>('[data-site-project-value]');
+  const trigger = document.querySelector<HTMLButtonElement>('[data-site-project-select]');
+
+  if (!label || !hiddenInput || !trigger) return;
+
+  label.textContent = projectName;
+  hiddenInput.value = String(projectId);
+  trigger.setAttribute('data-selected-value', String(projectId));
+}
+
+/**
  * Populate project dropdown with user's projects
  */
 async function populateProjectDropdown(): Promise<void> {
-  const select = document.querySelector<HTMLSelectElement>('[data-site-project-select]');
-  if (!select) return;
+  const menu = document.querySelector<HTMLElement>('[data-site-project-menu]');
+  if (!menu) return;
 
   const accountId = getAccountId();
   if (!accountId) return;
@@ -23,24 +38,31 @@ async function populateProjectDropdown(): Promise<void> {
   try {
     const projects = await getProjects(accountId);
 
-    // Clear existing options (except placeholder)
-    select.innerHTML = `
-      <option value="" disabled selected data-i18n="sites.fields.selectProjectPlaceholder">
-        Choose a project...
-      </option>
-    `;
+    // Clear existing items
+    menu.innerHTML = '';
 
     // Add project options
     projects.forEach(project => {
-      const option = document.createElement('option');
-      option.value = String(project.id);
-      option.textContent = project.project_name;
-      select.appendChild(option);
+      const item = document.createElement('button');
+      item.className = 'dropdown__item';
+      item.type = 'button';
+      item.setAttribute('data-value', String(project.id));
+      item.textContent = project.project_name;
+
+      // Click handler
+      item.addEventListener('click', () => {
+        setProjectDropdownValue(project.id, project.project_name);
+      });
+
+      menu.appendChild(item);
     });
 
     // If context project ID is set, pre-select it
     if (contextProjectId) {
-      select.value = String(contextProjectId);
+      const selectedProject = projects.find(p => p.id === contextProjectId);
+      if (selectedProject) {
+        setProjectDropdownValue(selectedProject.id, selectedProject.project_name);
+      }
     }
   } catch (error) {
     console.error('Failed to load projects for dropdown:', error);
@@ -60,17 +82,17 @@ export function openCreateSiteDrawer(projectId?: number): void {
 
   // Show/hide project selection field based on context
   const projectField = drawer.querySelector<HTMLElement>('[data-site-project-field]');
-  const projectSelect = drawer.querySelector<HTMLSelectElement>('[data-site-project-select]');
+  const projectValue = drawer.querySelector<HTMLInputElement>('[data-site-project-value]');
 
-  if (projectField && projectSelect) {
+  if (projectField && projectValue) {
     if (contextProjectId) {
       // Hide project selection when opened from project detail view
       projectField.hidden = true;
-      projectSelect.removeAttribute('required');
+      projectValue.removeAttribute('required');
     } else {
       // Show project selection when opened from global sites page
       projectField.hidden = false;
-      projectSelect.setAttribute('required', '');
+      projectValue.setAttribute('required', '');
       populateProjectDropdown();
     }
   }
@@ -79,7 +101,7 @@ export function openCreateSiteDrawer(projectId?: number): void {
 
   // Focus first visible input
   const firstInput = drawer.querySelector<HTMLInputElement>(
-    contextProjectId ? 'input[name="site_name"]' : 'select[name="project_id"]'
+    contextProjectId ? 'input[name="site_name"]' : 'input[name="site_name"]'
   );
   setTimeout(() => firstInput?.focus(), 100);
 }

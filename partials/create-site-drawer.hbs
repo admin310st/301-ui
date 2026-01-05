@@ -26,17 +26,23 @@
                   <span data-i18n="sites.fields.selectProject">Select project</span>
                   <span class="field__required">*</span>
                 </label>
-                <select
-                  class="input"
-                  name="project_id"
-                  data-site-project-select
-                  required
-                >
-                  <option value="" disabled selected data-i18n="sites.fields.selectProjectPlaceholder">
-                    Choose a project...
-                  </option>
-                  <!-- Populated by JS -->
-                </select>
+                <div class="dropdown" data-dropdown="site-project">
+                  <button
+                    class="btn-chip btn-chip--sm btn-chip--dropdown dropdown__trigger"
+                    type="button"
+                    aria-haspopup="menu"
+                    aria-expanded="false"
+                    data-site-project-select
+                    data-selected-value=""
+                  >
+                    <span class="btn-chip__label" data-site-project-label>Choose a project...</span>
+                    <span class="btn-chip__chevron icon" data-icon="mono/chevron-down"></span>
+                  </button>
+                  <div class="dropdown__menu dropdown__menu--fit-trigger" role="menu" data-site-project-menu>
+                    <!-- Populated by JS -->
+                  </div>
+                </div>
+                <input type="hidden" name="project_id" data-site-project-value required />
               </div>
 
               <div class="field">

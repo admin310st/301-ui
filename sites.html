@@ -69,6 +69,9 @@
                     placeholder="Search sites..."
                     data-search-input
                   />
+                  <button class="table-search__clear" type="button" aria-label="Clear" data-search-clear>
+                    <span class="icon" data-icon="mono/close"></span>
+                  </button>
                 </div>
               </div>
             </div>
@@ -76,45 +79,45 @@
 
           <div class="card__body card__body--table">
             <!-- Loading State -->
-            <div class="table-loading" data-sites-loading hidden>
+            <div class="loading-state" data-sites-loading hidden>
               <div class="spinner"></div>
               <p class="text-muted" data-i18n="sites.loading">Loading sites...</p>
             </div>
 
             <!-- Empty State -->
-            <div class="table-empty" data-sites-empty hidden>
-              <div class="empty-state">
-                <div class="empty-state__icon">
-                  <span class="icon icon--xl" data-icon="mono/landing"></span>
-                </div>
+            <div class="empty-state" data-sites-empty hidden>
+              <div class="stack-md">
+                <span class="icon icon--lg" data-icon="mono/landing"></span>
                 <h3 class="h4" data-i18n="sites.empty.title">No sites configured</h3>
                 <p class="text-muted" data-i18n="sites.empty.description">
                   Create landing pages and configure whitelists for your traffic streams.
                 </p>
-                <button
-                  class="btn btn--primary"
-                  type="button"
-                  data-action="create-site"
-                >
-                  <span class="icon" data-icon="mono/plus"></span>
-                  <span data-i18n="sites.empty.cta">Create site</span>
-                </button>
+                <div class="btn-group">
+                  <button
+                    class="btn btn--primary"
+                    type="button"
+                    data-action="create-site"
+                  >
+                    <span class="icon" data-icon="mono/plus"></span>
+                    <span data-i18n="sites.empty.cta">Create site</span>
+                  </button>
+                </div>
               </div>
             </div>
 
             <!-- Sites Table (populated by JS) -->
-            <div class="table-container" data-sites-table-container>
+            <div class="table-scroll" data-sites-table-container>
               <table class="table" data-sites-table>
                 <thead>
                   <tr>
-                    <th data-i18n="sites.table.columns.name">Name</th>
-                    <th data-i18n="sites.table.columns.tag">Tag</th>
-                    <th data-i18n="sites.table.columns.project">Project</th>
-                    <th class="text-right" data-i18n="sites.table.columns.domains">Domains</th>
-                    <th data-i18n="sites.table.columns.acceptor">Acceptor</th>
-                    <th data-i18n="sites.table.columns.status">Status</th>
-                    <th data-i18n="sites.table.columns.updatedAt">Updated</th>
-                    <th class="th-actions">Actions</th>
+                    <th data-priority="critical" data-i18n="sites.table.columns.name">Name</th>
+                    <th data-priority="medium" data-i18n="sites.table.columns.tag">Tag</th>
+                    <th data-priority="high" data-i18n="sites.table.columns.project">Project</th>
+                    <th data-priority="high" class="text-right" data-i18n="sites.table.columns.domains">Domains</th>
+                    <th data-priority="medium" data-i18n="sites.table.columns.acceptor">Acceptor</th>
+                    <th data-priority="high" data-i18n="sites.table.columns.status">Status</th>
+                    <th data-priority="low" data-i18n="sites.table.columns.updatedAt">Updated</th>
+                    <th data-priority="critical" style="width: 120px;">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -128,6 +131,7 @@
     </main>
 
 {{> create-site-drawer}}
+{{> edit-site-drawer}}
 {{> manage-site-domains-drawer}}
 {{> footer}}
     <script type="module" src="/src/main.ts"></script>
