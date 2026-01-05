@@ -5,6 +5,7 @@
 
 import { apiFetch } from './client';
 import { getCached, setCache, invalidateCache } from './cache';
+import { withInFlight } from './ui-client';
 
 /**
  * Cloudflare zone object
@@ -56,12 +57,14 @@ export async function getZones(): Promise<CloudflareZone[]> {
     return cached;
   }
 
-  // Cache miss - fetch from API
-  const response = await apiFetch<GetZonesResponse>('/zones');
+  // Cache miss - fetch from API with in-flight guard to prevent duplicate requests
+  return withInFlight(cacheKey, async () => {
+    const response = await apiFetch<GetZonesResponse>('/zones');
 
-  // Store in cache
-  setCache(cacheKey, response.zones);
-  return response.zones;
+    // Store in cache
+    setCache(cacheKey, response.zones);
+    return response.zones;
+  });
 }
 
 /**

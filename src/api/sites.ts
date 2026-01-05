@@ -5,6 +5,7 @@
 
 import { apiFetch } from './client';
 import { getCached, setCache, invalidateCacheByPrefix } from './cache';
+import { withInFlight } from './ui-client';
 import type {
   Site,
   SiteDomain,
@@ -35,21 +36,24 @@ export async function getSites(accountId: number, status?: SiteStatus): Promise<
     return cached;
   }
 
-  // Fetch all projects first
-  const { getProjects } = await import('./projects');
-  const projects = await getProjects(accountId);
+  // Cache miss - fetch from API with in-flight guard to prevent duplicate requests
+  return withInFlight(cacheKey, async () => {
+    // Fetch all projects first
+    const { getProjects } = await import('./projects');
+    const projects = await getProjects(accountId);
 
-  // Fetch sites for each project in parallel
-  const allSitesArrays = await Promise.all(
-    projects.map(project => getProjectSites(project.id, status))
-  );
+    // Fetch sites for each project in parallel
+    const allSitesArrays = await Promise.all(
+      projects.map(project => getProjectSites(project.id, status))
+    );
 
-  // Flatten and combine all sites
-  const allSites = allSitesArrays.flat();
+    // Flatten and combine all sites
+    const allSites = allSitesArrays.flat();
 
-  // Store in cache
-  setCache(cacheKey, allSites);
-  return allSites;
+    // Store in cache
+    setCache(cacheKey, allSites);
+    return allSites;
+  });
 }
 
 /**
@@ -70,16 +74,18 @@ export async function getProjectSites(
     return cached;
   }
 
-  // Cache miss - fetch from API
-  const params = status ? new URLSearchParams({ status }) : undefined;
-  const url = params
-    ? `/projects/${projectId}/sites?${params}`
-    : `/projects/${projectId}/sites`;
-  const response = await apiFetch<GetSitesResponse>(url);
+  // Cache miss - fetch from API with in-flight guard to prevent duplicate requests
+  return withInFlight(cacheKey, async () => {
+    const params = status ? new URLSearchParams({ status }) : undefined;
+    const url = params
+      ? `/projects/${projectId}/sites?${params}`
+      : `/projects/${projectId}/sites`;
+    const response = await apiFetch<GetSitesResponse>(url);
 
-  // Store in cache
-  setCache(cacheKey, response.sites);
-  return response.sites;
+    // Store in cache
+    setCache(cacheKey, response.sites);
+    return response.sites;
+  });
 }
 
 /**
@@ -96,12 +102,14 @@ export async function getSite(siteId: number): Promise<GetSiteResponse> {
     return cached;
   }
 
-  // Cache miss - fetch from API
-  const response = await apiFetch<GetSiteResponse>(`/sites/${siteId}`);
+  // Cache miss - fetch from API with in-flight guard to prevent duplicate requests
+  return withInFlight(cacheKey, async () => {
+    const response = await apiFetch<GetSiteResponse>(`/sites/${siteId}`);
 
-  // Store in cache
-  setCache(cacheKey, response);
-  return response;
+    // Store in cache
+    setCache(cacheKey, response);
+    return response;
+  });
 }
 
 /**

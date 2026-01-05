@@ -1,5 +1,6 @@
 import { apiFetch } from './client';
 import { getCached, setCache, invalidateCacheByPrefix } from './cache';
+import { withInFlight } from './ui-client';
 import type {
   IntegrationKey,
   InitCloudflareRequest,
@@ -26,16 +27,18 @@ export async function getIntegrationKeys(accountId: number, provider?: string): 
     return cached;
   }
 
-  // Cache miss - fetch from API
-  const params = new URLSearchParams({ account_id: accountId.toString() });
-  if (provider) {
-    params.set('provider', provider);
-  }
-  const response = await apiFetch<GetKeysResponse>(`${BASE_URL}/keys?${params}`);
+  // Cache miss - fetch from API with in-flight guard to prevent duplicate requests
+  return withInFlight(cacheKey, async () => {
+    const params = new URLSearchParams({ account_id: accountId.toString() });
+    if (provider) {
+      params.set('provider', provider);
+    }
+    const response = await apiFetch<GetKeysResponse>(`${BASE_URL}/keys?${params}`);
 
-  // Store in cache
-  setCache(cacheKey, response.keys);
-  return response.keys;
+    // Store in cache
+    setCache(cacheKey, response.keys);
+    return response.keys;
+  });
 }
 
 /**
