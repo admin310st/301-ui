@@ -52,11 +52,25 @@
 
         <div class="field">
           <label class="field__label">Status</label>
-          <select class="input" name="status" required>
-            <option value="active">Active</option>
-            <option value="paused">Paused</option>
-            <option value="archived">Archived</option>
-          </select>
+          <div class="dropdown" data-dropdown="site-status">
+            <button
+              class="btn-chip btn-chip--sm btn-chip--dropdown dropdown__trigger"
+              type="button"
+              aria-haspopup="menu"
+              aria-expanded="false"
+              data-site-status-select
+              data-selected-value=""
+            >
+              <span class="btn-chip__label" data-site-status-label>Choose status...</span>
+              <span class="btn-chip__chevron icon" data-icon="mono/chevron-down"></span>
+            </button>
+            <div class="dropdown__menu dropdown__menu--fit-trigger" role="menu" data-site-status-menu>
+              <button class="dropdown__item" type="button" data-value="active">Active</button>
+              <button class="dropdown__item" type="button" data-value="paused">Paused</button>
+              <button class="dropdown__item" type="button" data-value="archived">Archived</button>
+            </div>
+          </div>
+          <input type="hidden" name="status" data-site-status-value required />
           <p class="field__hint text-muted">Active sites process traffic, paused sites are temporarily disabled</p>
         </div>
 

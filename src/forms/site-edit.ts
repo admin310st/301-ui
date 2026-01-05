@@ -66,7 +66,9 @@ async function openEditSiteDrawer(siteId: number, projectId: number): Promise<vo
     form.querySelector<HTMLInputElement>('[name="project_id"]')!.value = String(projectId);
     form.querySelector<HTMLInputElement>('[name="site_name"]')!.value = site.site_name;
     form.querySelector<HTMLInputElement>('[name="site_tag"]')!.value = site.site_tag || '';
-    form.querySelector<HTMLSelectElement>('[name="status"]')!.value = site.status;
+
+    // Set status dropdown value
+    setStatusDropdownValue(site.status);
 
     // Clear status panel
     hideFormStatus();
@@ -116,6 +118,30 @@ function showFormStatus(message: string, type: 'error' | 'success'): void {
 function hideFormStatus(): void {
   const statusEl = document.querySelector<HTMLElement>('[data-edit-site-status]');
   if (statusEl) statusEl.hidden = true;
+}
+
+/**
+ * Set status dropdown value and label
+ */
+function setStatusDropdownValue(status: string): void {
+  const label = document.querySelector<HTMLElement>('[data-site-status-label]');
+  const hiddenInput = document.querySelector<HTMLInputElement>('[data-site-status-value]');
+  const trigger = document.querySelector<HTMLButtonElement>('[data-site-status-select]');
+
+  if (!label || !hiddenInput || !trigger) return;
+
+  // Map status values to display labels
+  const statusLabels: Record<string, string> = {
+    active: 'Active',
+    paused: 'Paused',
+    archived: 'Archived',
+  };
+
+  const displayLabel = statusLabels[status] || status;
+
+  label.textContent = displayLabel;
+  hiddenInput.value = status;
+  trigger.setAttribute('data-selected-value', status);
 }
 
 /**
@@ -246,4 +272,14 @@ export function initSiteEdit(): void {
   if (form) {
     form.addEventListener('submit', handleEditSiteSubmit);
   }
+
+  // Status dropdown item click handlers
+  document.querySelectorAll<HTMLButtonElement>('[data-site-status-menu] .dropdown__item').forEach(item => {
+    item.addEventListener('click', () => {
+      const value = item.getAttribute('data-value');
+      if (value) {
+        setStatusDropdownValue(value);
+      }
+    });
+  });
 }

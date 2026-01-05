@@ -250,9 +250,14 @@ When design system updates are introduced, **ALL** UI components and demo pages 
 
 **Controls:**
 - `.input` - text inputs
-- `.select` - dropdowns
 - `.checkbox` - checkboxes
 - `.radio` - radio buttons
+
+**Dropdowns/Selects:**
+- ❌ **NEVER use native `<select>` elements** - not styleable, inconsistent across browsers
+- ✅ **Use custom dropdown component** (`.btn-chip--dropdown` + `.dropdown__menu`)
+- Pattern: See `edit-site-drawer.hbs` status selector or `manage-site-domains-drawer.hbs`
+- Hidden `<input type="hidden">` stores form value
 
 **Production**: `index.html` login/register forms
 
