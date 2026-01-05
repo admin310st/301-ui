@@ -1243,6 +1243,7 @@ html[data-theme="light"] .bulk-actions-bar__actions .btn--ghost:hover {
   align-items: center;
   gap: var(--space-2);
   color: var(--text-muted);
+  text-transform: capitalize;
 }
 
 /* Generic table cell with icon (used in projects table, sites table, etc.) */
