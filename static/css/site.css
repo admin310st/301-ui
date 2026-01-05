@@ -2763,34 +2763,27 @@ body.sidebar-collapsed .sidebar .navitem:hover::after {
 
 /* Fill height variant - syncs content height with sidebar */
 .dashboard-content--fill-height {
-  height: calc(100dvh - var(--header-height));
+  min-height: calc(100dvh - var(--header-height)); /* Min-height allows growth */
   display: flex;
   flex-direction: column;
-  overflow: hidden; /* Prevent content from extending beyond */
 }
 
 .dashboard-content--fill-height .page-header {
-  flex-shrink: 0; /* Fixed height header */
+  flex-shrink: 0;
 }
 
 .dashboard-content--fill-height .card {
-  flex: 1;
+  flex: 1 1 auto; /* Allow growth beyond viewport */
   display: flex;
   flex-direction: column;
-  min-height: 0; /* Allow flex child to shrink */
-  overflow: hidden;
 }
 
 .dashboard-content--fill-height .card__body {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto; /* Allow vertical scroll for long tables */
+  flex: 1 1 auto; /* Allow growth */
 }
 
 .dashboard-content--fill-height .table-scroll {
-  height: 100%;
-  min-height: 0; /* Override min-height: 50lvh if set */
-  overflow-y: auto; /* Ensure table can scroll vertically */
+  min-height: 50lvh; /* Minimum space for dropdowns */
 }
 
 /* Mobile: disable fill-height (sidebar is overlay on mobile) */
