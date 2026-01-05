@@ -1382,7 +1382,7 @@ html[data-theme="light"] .bulk-actions-bar__actions .btn--ghost:hover {
 .health-icons {
   display: flex;
   gap: var(--space-2);
-  align-items: center;
+  align-items: baseline;
 }
 
 /* --- Redirects Page --- */

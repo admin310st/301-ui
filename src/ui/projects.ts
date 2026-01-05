@@ -280,7 +280,7 @@ function renderProjectDomainRow(domain: APIDomain): string {
       </td>
       <td data-priority="medium">
         <div class="provider-cell">
-          <span class="icon" data-icon="${providerIcon}"></span>
+          ${domain.provider ? `<span class="icon" data-icon="${providerIcon}"></span>` : ''}
           <span>${domain.provider || '—'}</span>
         </div>
       </td>
@@ -292,6 +292,7 @@ function renderProjectDomainRow(domain: APIDomain): string {
           data-action="remove-domain-from-project"
           data-domain-id="${domain.id}"
           data-site-id="${domain.site_id || ''}"
+          title="Remove ${domain.domain_name} from project"
           aria-label="Remove ${domain.domain_name} from project"
         >
           <span class="icon" data-icon="mono/web-minus"></span>
