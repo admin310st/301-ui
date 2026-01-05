@@ -235,8 +235,12 @@ export function renderIntegrationsTable(integrations: ProjectIntegration[]): voi
  * Render a single project domain row
  */
 function renderProjectDomainRow(domain: APIDomain): string {
-  const roleIcon = domain.role === 'acceptor' ? 'mono/arrow-bottom-right' : 'mono/arrow-top-right';
-  const roleLabel = domain.role === 'acceptor' ? 'Acceptor' : 'Donor';
+  // Map role to notification-icon color and label
+  const iconClass = domain.role === 'acceptor' ? 'notification-icon--success' :
+                    domain.role === 'donor' ? 'notification-icon--primary' :
+                    'notification-icon--warning';
+  const roleLabel = domain.role === 'acceptor' ? 'Acceptor' :
+                    domain.role === 'donor' ? 'Donor' : 'Reserve';
 
   // Health icons (compact colored icons instead of badges)
   const sslIcon = domain.ssl_valid
@@ -262,8 +266,8 @@ function renderProjectDomainRow(domain: APIDomain): string {
     <tr data-domain-id="${domain.id}">
       <td data-priority="critical">
         <div class="domain-cell">
-          <span class="role-icon" data-role="${domain.role}" title="${roleLabel}">
-            <span class="icon" data-icon="${roleIcon}"></span>
+          <span class="notification-icon ${iconClass}" title="${roleLabel}">
+            <span class="icon" data-icon="mono/circle-alert"></span>
           </span>
           <span>${domain.domain_name}</span>
         </div>

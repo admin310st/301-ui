@@ -153,10 +153,12 @@ function renderDomainRow(domain: APIDomain): string {
   const statusBadge = isActive ? 'success' : 'neutral';
   const statusText = isActive ? 'Active' : 'Inactive';
 
-  // Role badge
+  // Map role to notification-icon color and label
+  const iconClass = domain.role === 'acceptor' ? 'notification-icon--success' :
+                    domain.role === 'donor' ? 'notification-icon--primary' :
+                    'notification-icon--warning';
   const roleLabel = domain.role === 'acceptor' ? 'Primary' :
                     domain.role === 'donor' ? 'Donor' : 'Reserve';
-  const roleBadge = domain.role === 'acceptor' ? 'badge--success' : 'badge--neutral';
 
   return `
     <tr>
@@ -166,8 +168,8 @@ function renderDomainRow(domain: APIDomain): string {
         </div>
       </td>
       <td>
-        <span class="badge badge--sm ${roleBadge}">
-          ${roleLabel}
+        <span class="notification-icon ${iconClass}" title="${roleLabel}">
+          <span class="icon" data-icon="mono/circle-alert"></span>
         </span>
       </td>
       <td>
