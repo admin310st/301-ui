@@ -2784,12 +2784,13 @@ body.sidebar-collapsed .sidebar .navitem:hover::after {
 .dashboard-content--fill-height .card__body {
   flex: 1;
   min-height: 0;
-  overflow: hidden;
+  overflow-y: auto; /* Allow vertical scroll for long tables */
 }
 
 .dashboard-content--fill-height .table-scroll {
   height: 100%;
   min-height: 0; /* Override min-height: 50lvh if set */
+  overflow-y: auto; /* Ensure table can scroll vertically */
 }
 
 /* Mobile: disable fill-height (sidebar is overlay on mobile) */
