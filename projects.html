@@ -109,7 +109,7 @@
             </div>
 
             <!-- Projects Table (populated by JS) -->
-            <div class="table-container" data-projects-table-container>
+            <div class="table-scroll" data-projects-table-container>
               <table class="table" data-projects-table>
                 <thead>
                   <tr>
@@ -167,7 +167,7 @@
               </div>
             </header>
             <div class="card__body card__body--table">
-              <div class="table-container" data-project-integrations-container>
+              <div class="table-scroll" data-project-integrations-container>
                 <table class="table" data-project-integrations-table>
                   <thead>
                     <tr>
@@ -200,16 +200,16 @@
               </div>
             </header>
             <div class="card__body card__body--table">
-              <div class="table-container" data-project-domains-container>
+              <div class="table-scroll" data-project-domains-container>
                 <table class="table" data-project-domains-table>
                   <thead>
                     <tr>
-                      <th>Domain</th>
-                      <th>Health</th>
-                      <th>Status</th>
-                      <th>Provider</th>
-                      <th>Updated</th>
-                      <th class="th-actions">Actions</th>
+                      <th data-priority="critical">Domain</th>
+                      <th data-priority="medium">Health</th>
+                      <th data-priority="high">Status</th>
+                      <th data-priority="medium">Provider</th>
+                      <th data-priority="low">Updated</th>
+                      <th data-priority="critical" class="th-actions">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -233,7 +233,7 @@
               </div>
             </header>
             <div class="card__body card__body--table">
-              <div class="table-container" data-project-sites-container>
+              <div class="table-scroll" data-project-sites-container>
                 <table class="table" data-project-sites-table>
                   <thead>
                     <tr>
