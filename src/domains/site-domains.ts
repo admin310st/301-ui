@@ -223,16 +223,28 @@ async function loadAvailableDomains(accountId: number, projectId: number): Promi
     // Render dropdown options
     menu.innerHTML = availableDomains
       .map(
-        domain => `
-      <button
-        class="dropdown__item"
-        type="button"
-        role="menuitem"
-        data-value="${domain.id}"
-      >
-        ${domain.domain_name}
-      </button>
-    `,
+        domain => {
+          // Map role to notification-icon color
+          const iconClass = domain.role === 'acceptor' ? 'notification-icon--success' :
+                            domain.role === 'donor' ? 'notification-icon--primary' :
+                            'notification-icon--warning';
+
+          return `
+            <button
+              class="dropdown__item"
+              type="button"
+              role="menuitem"
+              data-value="${domain.id}"
+            >
+              <div class="stack-inline stack-inline--xs">
+                <span>${domain.domain_name}</span>
+                <span class="notification-icon ${iconClass}">
+                  <span class="icon" data-icon="mono/circle-alert"></span>
+                </span>
+              </div>
+            </button>
+          `;
+        },
       )
       .join('');
   } catch (error: any) {
@@ -417,8 +429,10 @@ function hidePrimaryDomainSection(): void {
  * Render a single primary domain dropdown option
  */
 function renderPrimaryDomainOption(domain: APIDomain): string {
-  const roleLabel = domain.role === 'acceptor' ? 'Primary' :
-                    domain.role === 'donor' ? 'Donor' : 'Reserve';
+  // Map role to notification-icon color
+  const iconClass = domain.role === 'acceptor' ? 'notification-icon--success' :
+                    domain.role === 'donor' ? 'notification-icon--primary' :
+                    'notification-icon--warning';
 
   return `
     <button
@@ -430,8 +444,8 @@ function renderPrimaryDomainOption(domain: APIDomain): string {
     >
       <div class="stack-inline stack-inline--xs">
         <span>${domain.domain_name}</span>
-        <span class="badge badge--sm ${domain.role === 'acceptor' ? 'badge--success' : 'badge--neutral'}">
-          ${roleLabel}
+        <span class="notification-icon ${iconClass}">
+          <span class="icon" data-icon="mono/circle-alert"></span>
         </span>
       </div>
     </button>
