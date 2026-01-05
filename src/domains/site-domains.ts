@@ -13,6 +13,7 @@ import { showGlobalMessage } from '@ui/notifications';
 import { safeCall } from '@api/ui-client';
 import { invalidateCache } from '@api/cache';
 import { getCurrentProjectId, getCurrentSites, setSites } from '@state/project-detail-state';
+import { showConfirmDialog } from '@ui/dialog';
 
 let currentSiteId: number | null = null;
 let currentProjectId: number | null = null;
@@ -176,10 +177,11 @@ function renderDomainRow(domain: APIDomain): string {
       </td>
       <td class="td-actions">
         <button
-          class="btn-icon"
+          class="btn-icon btn-icon--danger-hover"
           type="button"
           data-action="detach-domain"
           data-domain-id="${domain.id}"
+          data-domain-name="${domain.domain_name}"
           aria-label="${t('sites.domains.detachButton')}"
           title="${t('sites.domains.detachButton')}"
         >
@@ -344,11 +346,16 @@ async function handleAttachDomain(): Promise<void> {
 /**
  * Handle detach domain button click
  */
-async function handleDetachDomain(domainId: number): Promise<void> {
+async function handleDetachDomain(domainId: number, domainName: string): Promise<void> {
   const { accountId } = getAuthState();
   if (!accountId || !currentSiteId) return;
 
-  if (!confirm('Detach this domain from the site?')) {
+  // Show confirmation dialog
+  const confirmed = await showConfirmDialog('detach-domain-from-site', {
+    'detach-domain-name': domainName,
+  });
+
+  if (!confirmed) {
     return;
   }
 
@@ -600,7 +607,8 @@ export function initSiteDomains(): void {
     if (detachBtn) {
       e.preventDefault();
       const domainId = detachBtn.getAttribute('data-domain-id');
-      if (domainId) handleDetachDomain(Number(domainId));
+      const domainName = detachBtn.getAttribute('data-domain-name') || 'this domain';
+      if (domainId) handleDetachDomain(Number(domainId), domainName);
     }
 
     // Dropdown option selection
