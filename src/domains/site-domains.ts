@@ -224,10 +224,12 @@ async function loadAvailableDomains(accountId: number, projectId: number): Promi
     menu.innerHTML = availableDomains
       .map(
         domain => {
-          // Map role to notification-icon color
+          // Map role to notification-icon color and label
           const iconClass = domain.role === 'acceptor' ? 'notification-icon--success' :
                             domain.role === 'donor' ? 'notification-icon--primary' :
                             'notification-icon--warning';
+          const roleLabel = domain.role === 'acceptor' ? 'Primary' :
+                            domain.role === 'donor' ? 'Donor' : 'Reserve';
 
           return `
             <button
@@ -237,10 +239,10 @@ async function loadAvailableDomains(accountId: number, projectId: number): Promi
               data-value="${domain.id}"
             >
               <div class="stack-inline stack-inline--xs">
-                <span>${domain.domain_name}</span>
-                <span class="notification-icon ${iconClass}">
+                <span class="notification-icon ${iconClass}" title="${roleLabel}">
                   <span class="icon" data-icon="mono/circle-alert"></span>
                 </span>
+                <span>${domain.domain_name}</span>
               </div>
             </button>
           `;
@@ -429,10 +431,12 @@ function hidePrimaryDomainSection(): void {
  * Render a single primary domain dropdown option
  */
 function renderPrimaryDomainOption(domain: APIDomain): string {
-  // Map role to notification-icon color
+  // Map role to notification-icon color and label
   const iconClass = domain.role === 'acceptor' ? 'notification-icon--success' :
                     domain.role === 'donor' ? 'notification-icon--primary' :
                     'notification-icon--warning';
+  const roleLabel = domain.role === 'acceptor' ? 'Primary' :
+                    domain.role === 'donor' ? 'Donor' : 'Reserve';
 
   return `
     <button
@@ -443,10 +447,10 @@ function renderPrimaryDomainOption(domain: APIDomain): string {
       data-primary-domain-option
     >
       <div class="stack-inline stack-inline--xs">
-        <span>${domain.domain_name}</span>
-        <span class="notification-icon ${iconClass}">
+        <span class="notification-icon ${iconClass}" title="${roleLabel}">
           <span class="icon" data-icon="mono/circle-alert"></span>
         </span>
+        <span>${domain.domain_name}</span>
       </div>
     </button>
   `;

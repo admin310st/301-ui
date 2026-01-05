@@ -2624,6 +2624,35 @@ body.sidebar-collapsed .sidebar .navitem .badge {
   color: var(--primary);
 }
 
+/* Notification icon in dropdowns */
+.dropdown__item .notification-icon {
+  flex-shrink: 0;
+  color: var(--warning);
+  display: flex;
+  align-items: center;
+}
+
+.dropdown__item .notification-icon .icon {
+  width: 0.5rem;
+  height: 0.5rem;
+}
+
+.dropdown__item .notification-icon--danger {
+  color: var(--danger);
+}
+
+.dropdown__item .notification-icon--warning {
+  color: var(--warning);
+}
+
+.dropdown__item .notification-icon--success {
+  color: var(--success);
+}
+
+.dropdown__item .notification-icon--primary {
+  color: var(--primary);
+}
+
 /* Show notification icon in collapsed state */
 body.sidebar-collapsed .sidebar .navitem .notification-icon {
   opacity: 1;
