@@ -135,7 +135,7 @@ export function renderSiteRow(site: Site): string {
 
   return `
     <tr data-site-id="${site.id}">
-      <td data-priority="critical">
+      <td data-priority="critical" style="font-weight: var(--fw-medium)">
         ${site.site_name}
       </td>
       <td data-priority="medium">${site.site_tag || '—'}</td>
@@ -144,7 +144,7 @@ export function renderSiteRow(site: Site): string {
         <span class="badge ${statusClass}">${statusLabel}</span>
       </td>
       <td data-priority="low" class="text-muted">${formatDate(site.updated_at)}</td>
-      <td data-priority="critical" class="table-actions">
+      <td data-priority="critical">
         <button
           class="btn-icon"
           type="button"
