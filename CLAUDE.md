@@ -248,11 +248,117 @@ static/css/
 - State updates trigger UI updates via `auth-dom.ts`
 
 **3. API Communication**
-- Base API URL: `https://api.301.st/auth` (auth endpoints), `https://api.301.st/integrations` (integrations endpoints)
-- `apiFetch()` in `client.ts` automatically adds Bearer token from auth state
-- All responses parsed as JSON; errors thrown with structured `ApiError`
-- **API specification**: `docs/301-wiki/API_Auth.md` and `docs/301-wiki/API_Integrations.md` (local references, always up-to-date)
-- All endpoint contracts, schemas, and auth flows documented in the wiki
+
+Base API URLs:
+- Auth endpoints: `https://api.301.st/auth`
+- Integrations endpoints: `https://api.301.st/integrations`
+- Domains endpoints: `https://api.301.st/domains`
+- Projects endpoints: `https://api.301.st/projects`
+- Sites endpoints: `https://api.301.st/sites`
+
+**API specification**: `docs/301-wiki/` (local references, always up-to-date) - all endpoint contracts, schemas, and auth flows documented in the wiki.
+
+**CRITICAL: API Client Usage Rules**
+
+1. **ALWAYS use `safeCall()` wrapper for ALL API calls**
+   - Located in `@api/ui-client.ts`
+   - Provides error normalization, 401 retry, in-flight guards, abort controllers
+   - NEVER call API functions directly without `safeCall()`
+
+2. **ALWAYS specify `lockKey` for GET requests (data loading)**
+   ```typescript
+   // ✅ CORRECT
+   const response = await safeCall(
+     () => getDomains(),
+     {
+       lockKey: 'domains',
+       retryOn401: true,
+     }
+   );
+
+   // ❌ WRONG - duplicate requests possible
+   const response = await safeCall(
+     () => getDomains(),
+     { retryOn401: true }
+   );
+   ```
+
+3. **lockKey naming conventions**
+   - Unfiltered endpoints: `lockKey: 'domains'`, `lockKey: 'projects'`, `lockKey: 'sites'`
+   - Filtered endpoints: `lockKey: 'domains:project:${projectId}'`, `lockKey: 'sites:project:${projectId}'`
+   - Detail endpoints: `lockKey: 'project:${id}'`, `lockKey: 'site:${id}'`, `lockKey: 'integration:${id}'`
+   - The in-flight guard prevents duplicate requests with the same lockKey
+
+4. **Use `abortKey` for detail/search views (last wins strategy)**
+   ```typescript
+   // Detail views - cancel previous request when ID changes
+   const response = await safeCall(
+     () => getProject(projectId),
+     {
+       abortKey: 'project-detail',
+       retryOn401: true,
+     }
+   );
+   ```
+
+5. **Use `lockKey` for mutations (form submits, creates, updates, deletes)**
+   ```typescript
+   // Form submit - prevent duplicate submissions
+   await safeCall(
+     () => createProject(data),
+     {
+       lockKey: `create-project-${Date.now()}`,
+       retryOn401: true,
+     }
+   );
+
+   // Or use unique lockKey to prevent racing conditions
+   await safeCall(
+     () => attachDomain(siteId, domainId),
+     {
+       lockKey: `attach-domain-${siteId}-${domainId}`,
+       retryOn401: true,
+     }
+   );
+   ```
+
+6. **ALWAYS invalidate cache after mutations**
+   ```typescript
+   import { invalidateCache } from '@api/cache';
+
+   // After creating/updating/deleting
+   await safeCall(() => updateProject(id, data), { lockKey: `update-project-${id}` });
+
+   // Invalidate related caches
+   invalidateCache(`project:${id}`);
+   invalidateCache('projects');
+   invalidateCache(`sites:project:${id}`);
+   ```
+
+7. **Error handling**
+   - `safeCall` automatically normalizes errors to `NormalizedError` type
+   - Handles 401 refresh automatically if `retryOn401: true`
+   - Use try/catch for custom error handling:
+   ```typescript
+   try {
+     await safeCall(() => apiFunction(), { lockKey: 'key', retryOn401: true });
+   } catch (error: any) {
+     // error is NormalizedError with code, message, details
+     showGlobalMessage('error', error.message);
+   }
+   ```
+
+8. **When NOT to use lockKey**
+   - Never use lockKey for independent concurrent requests
+   - Only use lockKey when requests should be deduplicated
+   - Don't use the same lockKey for different endpoints
+
+**Common Mistakes to Avoid:**
+- ❌ Calling `getDomains()` multiple times without lockKey → duplicate API requests
+- ❌ Using `lockKey` for different API endpoints → requests block each other
+- ❌ Forgetting to invalidate cache after mutations → stale data displayed
+- ❌ Not using `retryOn401` → user logged out unnecessarily on token expiration
+- ❌ Using both `lockKey` and `abortKey` together → undefined behavior
 
 **4. Cloudflare Worker & Auth Redirect Strategy**
 - `src/worker.ts` handles routing and serves static assets
