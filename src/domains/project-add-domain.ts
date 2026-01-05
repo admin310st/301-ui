@@ -141,7 +141,7 @@ function renderDomainCheckboxes(): void {
             <span class="notification-icon ${iconClass}" title="${roleLabel}">
               <span class="icon" data-icon="mono/circle-alert"></span>
             </span>
-            <span><strong>${domain.domain_name}</strong></span>
+            <span class="domain-cell__name">${domain.domain_name}</span>
             ${domain.provider ? `<span class="text-muted text-sm">${domain.provider}</span>` : ''}
           </div>
         </label>
