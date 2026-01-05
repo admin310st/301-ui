@@ -82,9 +82,15 @@ export async function getProjectSites(
       : `/projects/${projectId}/sites`;
     const response = await apiFetch<GetSitesResponse>(url);
 
+    // Add project_name to each site from response.project
+    const sitesWithProjectName = response.sites.map(site => ({
+      ...site,
+      project_name: response.project.project_name,
+    }));
+
     // Store in cache
-    setCache(cacheKey, response.sites);
-    return response.sites;
+    setCache(cacheKey, sitesWithProjectName);
+    return sitesWithProjectName;
   });
 }
 
