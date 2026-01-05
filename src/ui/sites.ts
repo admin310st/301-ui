@@ -52,7 +52,7 @@ function renderSiteRow(site: Site): string {
 
   return `
     <tr data-site-id="${site.id}">
-      <td data-priority="critical">
+      <td data-priority="critical" style="font-weight: 500">
         ${site.site_name}
       </td>
       <td data-priority="medium">${site.site_tag ? `<code>${site.site_tag}</code>` : '—'}</td>
