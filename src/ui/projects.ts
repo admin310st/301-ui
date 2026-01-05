@@ -135,7 +135,7 @@ export function renderSiteRow(site: Site): string {
   return `
     <tr data-site-id="${site.id}">
       <td data-priority="critical">
-        <strong>${site.site_name}</strong>
+        ${site.site_name}
       </td>
       <td data-priority="medium">${site.site_tag || '—'}</td>
       <td data-priority="high">${site.acceptor_domain || '—'}</td>
