@@ -605,10 +605,10 @@ export const en = {
       attachNewTitle: 'Attach New Domains',
       count: 'Count',
       loading: 'Loading domains...',
-      empty: 'No domains attached to this site yet.',
+      empty: 'No domains attached to this site.',
       selectDomain: 'Select domain',
       selectDomainPlaceholder: 'Choose a domain...',
-      selectDomainHint: 'Only domains in the same project can be attached',
+      selectDomainHint: 'Only unattached domains from this project can be attached. Add domains to the project first.',
       attachButton: 'Attach domain',
       detachButton: 'Detach',
       columns: {

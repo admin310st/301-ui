@@ -611,10 +611,10 @@ export const ru: Translation = {
       attachNewTitle: 'Привязать новые домены',
       count: 'Количество',
       loading: 'Загрузка доменов...',
-      empty: 'К этому сайту пока не привязаны домены.',
+      empty: 'К этому сайту не привязаны домены.',
       selectDomain: 'Выберите домен',
       selectDomainPlaceholder: 'Выберите домен...',
-      selectDomainHint: 'Можно привязывать только домены из того же проекта',
+      selectDomainHint: 'Можно привязать только свободные домены из этого проекта. Сначала добавьте домены в проект.',
       attachButton: 'Привязать домен',
       detachButton: 'Отвязать',
       columns: {
