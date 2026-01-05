@@ -9,6 +9,7 @@ import { adjustDropdownPosition } from '@ui/dropdown';
 import { setProjectData, incrementRequestToken, getRequestToken, getCurrentProjectId, setIntegrations } from '@state/project-detail-state';
 import { safeCall } from '@api/ui-client';
 import { invalidateCache } from '@api/cache';
+import { showConfirmDialog } from '@ui/dialog';
 
 // State
 let allProjects: Project[] = [];
@@ -296,6 +297,7 @@ function renderProjectDomainRow(domain: APIDomain): string {
           data-action="remove-domain-from-project"
           data-domain-id="${domain.id}"
           data-site-id="${domain.site_id || ''}"
+          data-domain-name="${domain.domain_name}"
           title="Remove ${domain.domain_name} from project"
           aria-label="Remove ${domain.domain_name} from project"
         >
@@ -1011,15 +1013,17 @@ function handleDomainActions(): void {
 
     const domainId = parseInt(removeBtn.getAttribute('data-domain-id') || '0', 10);
     const siteId = parseInt(removeBtn.getAttribute('data-site-id') || '0', 10);
+    const domainName = removeBtn.getAttribute('data-domain-name') || 'this domain';
     const projectId = getCurrentProjectId();
 
     if (!domainId || !siteId || !projectId) return;
 
     e.preventDefault();
 
-    const confirmed = confirm(
-      'Remove this domain from the project? The domain will remain in your account.'
-    );
+    // Show confirmation dialog
+    const confirmed = await showConfirmDialog('remove-domain-from-project', {
+      'remove-domain-name': domainName,
+    });
 
     if (!confirmed) return;
 

@@ -305,6 +305,30 @@
       </div>
     </div>
 
+    <!-- Confirmation Dialog: Remove Domain from Project (danger variant) -->
+    <div class="dialog dialog--danger" data-dialog="remove-domain-from-project" hidden>
+      <div class="dialog__overlay" data-dialog-close></div>
+      <div class="dialog__panel">
+        <header class="dialog__header">
+          <h2 class="dialog__title">Remove domain from project?</h2>
+          <button class="btn-close" type="button" data-dialog-close aria-label="Close">
+            <span class="icon" data-icon="mono/close"></span>
+          </button>
+        </header>
+        <div class="dialog__body">
+          <p>Are you sure you want to remove <strong data-remove-domain-name>—</strong> from the project?</p>
+          <p class="text-muted">The domain will remain in your account and can be re-added later.</p>
+        </div>
+        <footer class="dialog__footer">
+          <button class="btn btn--danger" type="button" data-confirm-remove>
+            <span class="icon" data-icon="mono/web-minus"></span>
+            <span>Remove domain</span>
+          </button>
+          <button class="btn btn--ghost" type="button" data-dialog-close>Cancel</button>
+        </footer>
+      </div>
+    </div>
+
 {{> footer}}
     <script type="module" src="/src/main.ts"></script>
   </body>
