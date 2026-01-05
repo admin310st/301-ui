@@ -123,8 +123,12 @@ function renderDomainCheckboxes(): void {
 
   container.innerHTML = availableDomains
     .map(domain => {
-      const roleIcon = domain.role === 'acceptor' ? 'mono/arrow-bottom-right' : 'mono/arrow-top-right';
-      const roleLabel = domain.role === 'acceptor' ? 'Acceptor' : 'Donor';
+      // Map role to notification-icon color and label
+      const iconClass = domain.role === 'acceptor' ? 'notification-icon--success' :
+                        domain.role === 'donor' ? 'notification-icon--primary' :
+                        'notification-icon--warning';
+      const roleLabel = domain.role === 'acceptor' ? 'Acceptor' :
+                        domain.role === 'donor' ? 'Donor' : 'Reserve';
 
       return `
         <label class="checkbox-field">
@@ -134,8 +138,8 @@ function renderDomainCheckboxes(): void {
             value="${domain.id}"
           />
           <div class="domain-cell">
-            <span class="role-icon" data-role="${domain.role}" title="${roleLabel}">
-              <span class="icon" data-icon="${roleIcon}"></span>
+            <span class="notification-icon ${iconClass}" title="${roleLabel}">
+              <span class="icon" data-icon="mono/circle-alert"></span>
             </span>
             <span><strong>${domain.domain_name}</strong></span>
             ${domain.provider ? `<span class="text-muted text-sm">${domain.provider}</span>` : ''}

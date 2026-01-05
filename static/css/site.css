@@ -2653,6 +2653,41 @@ body.sidebar-collapsed .sidebar .navitem .badge {
   color: var(--primary);
 }
 
+/* Notification icon in tables */
+.table .notification-icon,
+.domain-cell .notification-icon {
+  flex-shrink: 0;
+  color: var(--warning);
+  display: flex;
+  align-items: center;
+}
+
+.table .notification-icon .icon,
+.domain-cell .notification-icon .icon {
+  width: 0.5rem;
+  height: 0.5rem;
+}
+
+.table .notification-icon--danger,
+.domain-cell .notification-icon--danger {
+  color: var(--danger);
+}
+
+.table .notification-icon--warning,
+.domain-cell .notification-icon--warning {
+  color: var(--warning);
+}
+
+.table .notification-icon--success,
+.domain-cell .notification-icon--success {
+  color: var(--success);
+}
+
+.table .notification-icon--primary,
+.domain-cell .notification-icon--primary {
+  color: var(--primary);
+}
+
 /* Show notification icon in collapsed state */
 body.sidebar-collapsed .sidebar .navitem .notification-icon {
   opacity: 1;
