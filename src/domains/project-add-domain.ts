@@ -85,7 +85,10 @@ async function loadAvailableDomains(): Promise<void> {
     // Get all domains (API doesn't support project_id=null filter, so we get all and filter client-side)
     const response = await safeCall(
       () => getDomains(),
-      { retryOn401: true }
+      {
+        lockKey: 'domains',
+        retryOn401: true,
+      }
     );
 
     // Flatten groups

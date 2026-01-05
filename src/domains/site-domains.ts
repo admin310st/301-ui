@@ -111,7 +111,10 @@ async function loadAttachedDomains(accountId: number, siteId: number): Promise<v
     // Get all domains and filter by site_id
     const response = await safeCall(
       () => domainsAPI.getDomains(),
-      { retryOn401: true }
+      {
+        lockKey: 'domains',
+        retryOn401: true,
+      }
     );
 
     // Flatten groups into a single array of domains
@@ -205,7 +208,10 @@ async function loadAvailableDomains(accountId: number, projectId: number): Promi
     // Get all domains in the project
     const response = await safeCall(
       () => domainsAPI.getDomains(),
-      { retryOn401: true }
+      {
+        lockKey: 'domains',
+        retryOn401: true,
+      }
     );
 
     // Flatten groups into a single array of domains

@@ -342,7 +342,10 @@ export async function loadProjectDomains(projectId: number): Promise<void> {
   try {
     const response = await safeCall(
       () => getDomains({ project_id: projectId }),
-      { retryOn401: true }
+      {
+        lockKey: `domains:project:${projectId}`,
+        retryOn401: true,
+      }
     );
 
     // Flatten groups to get all domains
