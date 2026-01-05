@@ -329,6 +329,30 @@
       </div>
     </div>
 
+    <!-- Confirmation Dialog: Detach Integration (danger variant) -->
+    <div class="dialog dialog--danger" data-dialog="detach-integration" hidden>
+      <div class="dialog__overlay" data-dialog-close></div>
+      <div class="dialog__panel">
+        <header class="dialog__header">
+          <h2 class="dialog__title">Detach integration?</h2>
+          <button class="btn-close" type="button" data-dialog-close aria-label="Close">
+            <span class="icon" data-icon="mono/close"></span>
+          </button>
+        </header>
+        <div class="dialog__body">
+          <p>Are you sure you want to detach <strong data-detach-integration-name>—</strong> from this project?</p>
+          <p class="text-muted">The integration will remain in your account and can be re-attached later.</p>
+        </div>
+        <footer class="dialog__footer">
+          <button class="btn btn--danger" type="button" data-confirm-detach>
+            <span class="icon" data-icon="mono/puzzle-minus"></span>
+            <span>Detach integration</span>
+          </button>
+          <button class="btn btn--ghost" type="button" data-dialog-close>Cancel</button>
+        </footer>
+      </div>
+    </div>
+
 {{> footer}}
     <script type="module" src="/src/main.ts"></script>
   </body>

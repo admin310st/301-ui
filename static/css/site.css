@@ -2688,6 +2688,19 @@ body.sidebar-collapsed .sidebar .navitem .badge {
   color: var(--primary);
 }
 
+/* Checkbox field (for checkbox + domain-cell layout) */
+.checkbox-field {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  cursor: pointer;
+}
+
+.checkbox-field input[type="checkbox"] {
+  flex-shrink: 0;
+  margin-top: 0.25em; /* Fine-tune vertical alignment with text baseline */
+}
+
 /* Show notification icon in collapsed state */
 body.sidebar-collapsed .sidebar .navitem .notification-icon {
   opacity: 1;

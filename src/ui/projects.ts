@@ -193,10 +193,11 @@ function renderIntegrationRow(integration: ProjectIntegration): string {
       <td data-priority="low" class="text-muted">${formatDate(integration.created_at)}</td>
       <td data-priority="critical" class="table-actions">
         <button
-          class="btn-icon"
+          class="btn-icon btn-icon--danger-hover"
           type="button"
           data-action="detach-integration"
           data-key-id="${integration.account_key_id}"
+          data-key-alias="${integration.key_alias}"
           aria-label="Detach ${integration.key_alias}"
         >
           <span class="icon" data-icon="mono/delete"></span>
@@ -954,15 +955,16 @@ function handleIntegrationActions(): void {
     if (!detachBtn) return;
 
     const keyId = parseInt(detachBtn.getAttribute('data-key-id') || '0', 10);
+    const keyAlias = detachBtn.getAttribute('data-key-alias') || '';
     const projectId = getCurrentProjectId();
 
     if (!keyId || !projectId) return;
 
     e.preventDefault();
 
-    const confirmed = confirm(
-      'Are you sure you want to detach this integration from the project?'
-    );
+    const confirmed = await showConfirmDialog('detach-integration', {
+      'detach-integration-name': keyAlias,
+    });
 
     if (!confirmed) return;
 
