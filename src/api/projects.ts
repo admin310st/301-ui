@@ -6,6 +6,7 @@
 import { apiFetch } from './client';
 import type { ApiFetchOptions } from './client';
 import { getCached, setCache, invalidateCacheByPrefix } from './cache';
+import { withInFlight } from './ui-client';
 import type {
   Project,
   ProjectIntegration,
@@ -34,12 +35,14 @@ export async function getProjects(accountId: number): Promise<Project[]> {
     return cached;
   }
 
-  // Cache miss - fetch from API
-  const response = await apiFetch<GetProjectsResponse>(BASE_URL);
+  // Cache miss - fetch from API with in-flight guard to prevent duplicate requests
+  return withInFlight(cacheKey, async () => {
+    const response = await apiFetch<GetProjectsResponse>(BASE_URL);
 
-  // Store in cache
-  setCache(cacheKey, response.projects);
-  return response.projects;
+    // Store in cache
+    setCache(cacheKey, response.projects);
+    return response.projects;
+  });
 }
 
 /**
