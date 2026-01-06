@@ -91,9 +91,9 @@ function renderSiteRow(site: Site): string {
 }
 
 /**
- * Show loading state
+ * Show table loading state (local spinner)
  */
-function showLoading() {
+function showTableLoading() {
   const loading = document.querySelector<HTMLElement>('[data-sites-loading]');
   const empty = document.querySelector<HTMLElement>('[data-sites-empty]');
   const container = document.querySelector<HTMLElement>('[data-sites-table-container]');
@@ -104,9 +104,9 @@ function showLoading() {
 }
 
 /**
- * Hide loading state
+ * Hide table loading state (local spinner)
  */
-function hideLoading() {
+function hideTableLoading() {
   const loading = document.querySelector<HTMLElement>('[data-sites-loading]');
   if (loading) loading.hidden = true;
 }
@@ -169,6 +169,7 @@ function renderSitesTable(): void {
 
 /**
  * Load and render sites list (global view across all projects)
+ * Global loading indicator is shown automatically by apiFetch()
  */
 export async function loadSites(): Promise<void> {
   const accountId = getAccountId();
@@ -177,12 +178,12 @@ export async function loadSites(): Promise<void> {
     return;
   }
 
-  showLoading();
+  showTableLoading();
 
   try {
     const sites = await getSites(accountId);
 
-    hideLoading();
+    hideTableLoading();
 
     // Store sites in module state
     allSites = sites;
@@ -195,7 +196,7 @@ export async function loadSites(): Promise<void> {
     // Render sites table with current search filter
     renderSitesTable();
   } catch (error) {
-    hideLoading();
+    hideTableLoading();
     console.error('Failed to load sites:', error);
     showGlobalMessage('error', t('common.messages.error') || 'Failed to load sites');
   }

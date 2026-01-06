@@ -7,14 +7,15 @@ import { showLoading, hideLoading } from '@ui/loading-indicator';
 const API_ROOT = 'https://api.301.st';
 
 export interface ApiFetchOptions extends RequestInit {
-  /** Show loading indicator during request */
+  /** Show loading indicator during request (default: 'brand') */
   showLoading?: 'brand' | 'cf' | false;
 }
 
 export async function apiFetch<T>(path: string, options: ApiFetchOptions = {}): Promise<T> {
   const headers = new Headers(options.headers ?? {});
   const token = getAuthToken();
-  const loadingType = options.showLoading;
+  // Default to 'brand' loading indicator unless explicitly disabled
+  const loadingType = options.showLoading === false ? false : (options.showLoading || 'brand');
 
   if (token && !headers.has('authorization')) {
     headers.set('authorization', `Bearer ${token}`);
