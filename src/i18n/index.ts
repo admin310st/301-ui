@@ -59,15 +59,3 @@ export function tWithVars(path: string, vars: Record<string, string>): string {
 export function getLocales() {
   return locales;
 }
-
-/**
- * Get a random tip from the current locale
- * @returns A random tip string
- */
-export function getRandomTip(): string {
-  const locale = getLocale();
-  const tips = locales[locale].tips;
-  if (!tips || tips.length === 0) return 'Welcome back!';
-  const randomIndex = Math.floor(Math.random() * tips.length);
-  return tips[randomIndex];
-}
