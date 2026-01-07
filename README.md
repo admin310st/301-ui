@@ -8,7 +8,7 @@
 - интеграцию с backend-API (см. `docs/301-wiki/` — локальная документация в виде git submodule);
 - развёртывание всего этого как **Cloudflare Worker** под `app.301.st`.
 
-Текущая кодовая база — это **"Layer 0-2"** из дорожной карты, описанной в `docs/ui-roadmap.ru.md`: фундамент (аутентификация, интеграции, UI Style Guide) + начало работы с доменами (таблица, фильтры, bulk actions, инспектор).
+Текущая кодовая база — это **"Layer 0-3"** из дорожной карты, описанной в `docs/ui-roadmap.ru.md`: фундамент (аутентификация, интеграции, UI Style Guide) + управление доменами (таблица, фильтры, bulk actions, инспектор) + проекты и сайты (CRUD, tabs navigation, attach/detach mechanics).
 
 > **📖 API Документация (git submodule)**
 > Полная спецификация API находится в `docs/301-wiki/` и подключена как git submodule из репозитория [301.wiki](https://github.com/admin310st/301.wiki.git).
@@ -258,9 +258,9 @@ Cloudflare Workers serves `public/` as the origin root.
 
 ## Текущее покрытие по доменам (Layer 2)
 
-Репозиторий начал реализацию управления доменами с UI-первым подходом (mockup data → real API интеграция).
+Репозиторий реализовал управление доменами с полным функционалом фильтров, bulk actions и drawer inspector.
 
-### Реализовано (UI + mock data)
+### Реализовано
 
 - **Domains Table** (`/domains.html`)
   - Таблица доменов с колонками: Domain, Status, Health, Expires, Actions, Checkbox
@@ -330,6 +330,132 @@ Cloudflare Workers serves `public/` as the origin root.
 
 ---
 
+## Текущее покрытие по проектам и сайтам (Layer 3)
+
+Репозиторий реализовал систему проектов и сайтов с полным CRUD функционалом и интеграцией с domains.
+
+### Реализовано (Projects)
+
+- **Projects Page** (`/projects.html`)
+  - Список проектов с таблицей (Name, Brand Tag, Domains #, Sites #, Created, Actions)
+  - Project detail view с табами: Integrations, Domains, Sites, Streams
+  - Responsive layout с data-priority атрибутами
+  - Search functionality по имени проекта
+  - Loading/empty states
+  - Код:
+    - `src/ui/projects.ts` — table rendering, detail view, tabs navigation
+    - `src/api/projects.ts` — API client для projects CRUD
+
+- **Project Management**
+  - Create Project drawer с полями:
+    - Project name (required)
+    - Description (optional)
+    - Brand tag
+    - Commercial terms
+    - Start/End date
+    - First site name (automatically creates site)
+  - Edit Project drawer для обновления деталей
+  - Delete project с cascade удалением sites
+  - Код:
+    - `src/forms/project-create.ts` — create form handler
+    - `src/forms/project-edit.ts` — edit form handler
+    - `partials/create-project-drawer.hbs` — drawer markup
+    - `partials/edit-project-drawer.hbs` — drawer markup
+
+- **Project Detail Tabs**
+  - **Integrations tab**: список подключенных integration keys для проекта
+    - Attach/detach integrations (Cloudflare accounts)
+    - Provider badges, status indicators
+    - Код: `src/forms/project-attach-integration.ts`
+  - **Domains tab**: домены проекта (filtered view)
+    - Add domain to project functionality
+    - Health и status indicators
+    - Код: `src/domains/project-add-domain.ts`
+  - **Sites tab**: сайты проекта
+    - Create site from project
+    - Edit site, manage domains
+    - Код: `src/ui/projects.ts` → `loadProjectSites()`
+  - **Streams tab**: placeholder для будущей реализации
+
+- **API Integration**
+  - `GET /projects` — список проектов для account
+  - `GET /projects/:id` — детали проекта с sites
+  - `POST /projects` — создание проекта (с первым сайтом)
+  - `PATCH /projects/:id` — обновление проекта
+  - `DELETE /projects/:id` — удаление проекта
+  - `GET /projects/:id/integrations` — integrations проекта
+  - `POST /projects/:id/integrations` — attach integration
+  - `DELETE /projects/:id/integrations/:keyId` — detach integration
+  - Код:
+    - `src/api/projects.ts` — все CRUD функции
+    - `src/api/types.ts` — TypeScript types для projects API
+
+- **Caching & State**
+  - Client-side кеширование (30 sec TTL)
+  - In-flight request deduplication
+  - Cache invalidation при CRUD операциях
+  - Project detail state management: `src/state/project-detail-state.ts`
+
+### Реализовано (Sites)
+
+- **Sites Page** (`/sites.html`)
+  - Глобальная таблица сайтов (Name, Tag, Project, Domains #, Acceptor, Status, Updated, Actions)
+  - Search functionality по name/tag/project/acceptor
+  - Responsive layout с data-priority
+  - Loading/empty states
+  - Код:
+    - `src/ui/sites.ts` — table rendering, search, CRUD actions
+    - `src/api/sites.ts` — API client для sites
+
+- **Site Management**
+  - Create Site drawer:
+    - Site name (required)
+    - Site tag (optional)
+    - Project selector (dropdown)
+    - Acceptor domain (optional)
+    - Status (active/paused/archived)
+  - Edit Site drawer для обновления деталей
+  - Manage Site Domains drawer:
+    - Attach domains to site
+    - Detach domains with confirmation
+    - Preview attached domains count
+  - Код:
+    - `src/forms/site-create.ts` — create form handler
+    - `partials/create-site-drawer.hbs` — drawer markup
+    - `partials/edit-site-drawer.hbs` — drawer markup
+    - `partials/manage-site-domains-drawer.hbs` — drawer markup
+
+- **Sites API Integration**
+  - `GET /sites` — список всех сайтов (aggregated from projects)
+  - `GET /projects/:id/sites` — сайты конкретного проекта
+  - `GET /sites/:id` — детали сайта с attached domains
+  - `POST /projects/:id/sites` — создание сайта в проекте
+  - `PATCH /sites/:id` — обновление сайта
+  - `DELETE /sites/:id` — удаление сайта
+  - `POST /sites/:id/domains` — attach domain to site
+  - `DELETE /sites/:id/domains/:domainId` — detach domain
+  - Код:
+    - `src/api/sites.ts` — все CRUD функции
+    - `src/api/types.ts` — TypeScript types для sites API
+
+- **Integration with Projects**
+  - Sites отображаются в project detail view (Sites tab)
+  - Create site button в project detail автоматически привязывает к проекту
+  - Project name показывается в глобальной таблице sites
+  - Sidebar navigation обновляет счетчики sites/projects
+
+### TODO (Layer 3 completion)
+
+- [ ] Implement Streams management (TDS/traffic distribution)
+- [ ] Add real-time stats to project overview tab
+- [ ] Implement project search and filtering (by status, brand tag)
+- [ ] Add project archiving functionality
+- [ ] Project duplication feature
+- [ ] Sites analytics (traffic, performance metrics)
+- [ ] Advanced site configuration (custom headers, SSL settings)
+
+---
+
 ## Известные расхождения с API (backlog для доработки)
 
 По результатам сверки с `docs/301-wiki/API_Auth.md`:
@@ -371,8 +497,17 @@ Cloudflare Workers serves `public/` as the origin root.
 ├── dashboard.html        # Дашборд (с сайдбаром)
 ├── integrations.html     # Integrations Management (with Connect CF drawer)
 ├── domains.html          # Domains Management
+├── projects.html         # Projects Management (list + detail view)
+├── sites.html            # Sites Management (global sites list)
 ├── partials/             # Переиспользуемые компоненты
 │   ├── connect-cloudflare-drawer.hbs  # CF setup drawer (3 methods)
+│   ├── create-project-drawer.hbs      # Create project drawer
+│   ├── edit-project-drawer.hbs        # Edit project drawer
+│   ├── create-site-drawer.hbs         # Create site drawer
+│   ├── edit-site-drawer.hbs           # Edit site drawer
+│   ├── manage-site-domains-drawer.hbs # Manage site domains
+│   ├── attach-integration-drawer.hbs  # Attach integration to project
+│   ├── add-domain-to-project-drawer.hbs # Add domain to project
 │   ├── global-notice.hbs # Global notification banner
 │   ├── header-top.hbs    # Лого, навигация, язык, тема
 │   ├── header-utility.hbs# Помощь, уведомления, user menu
@@ -383,6 +518,10 @@ Cloudflare Workers serves `public/` as the origin root.
 │   ├── api/              # Клиент и типы для API
 │   │   ├── auth.ts       # /auth endpoints
 │   │   ├── integrations.ts # /integrations endpoints
+│   │   ├── projects.ts   # /projects endpoints (CRUD)
+│   │   ├── sites.ts      # /sites endpoints (CRUD)
+│   │   ├── cache.ts      # Client-side caching (30s TTL)
+│   │   ├── ui-client.ts  # In-flight deduplication
 │   │   ├── client.ts     # Base fetch wrapper
 │   │   └── types.ts      # TypeScript types for all API contracts
 │   ├── forms/            # Инициализация и логика форм
@@ -390,12 +529,25 @@ Cloudflare Workers serves `public/` as the origin root.
 │   │   ├── register.ts
 │   │   ├── reset-*.ts
 │   │   ├── verify.ts
-│   │   └── cf-connect.ts # Cloudflare drawer forms (scoped/quick)
+│   │   ├── cf-connect.ts # Cloudflare drawer forms (scoped/quick)
+│   │   ├── project-create.ts # Create project form
+│   │   ├── project-edit.ts   # Edit project form
+│   │   ├── project-attach-integration.ts # Attach integration
+│   │   └── site-create.ts    # Create site form
 │   ├── social/           # OAuth (Google, GitHub)
 │   ├── state/            # Состояние аутентификации
+│   │   ├── auth-state.ts # Auth token, /auth/me, /auth/refresh
+│   │   └── project-detail-state.ts # Project detail view state
 │   ├── ui/               # DOM-утилиты, нотификации, видимость блоков
 │   │   ├── integrations.ts # Integrations page logic
+│   │   ├── projects.ts   # Projects page logic (list + detail)
+│   │   ├── sites.ts      # Sites page logic
+│   │   ├── sidebar-nav.ts # Sidebar navigation rendering
 │   │   └── ...           # Other UI helpers
+│   ├── domains/          # Domains management modules
+│   │   ├── domains.ts    # Domains table rendering
+│   │   ├── project-add-domain.ts # Add domain to project
+│   │   └── ...           # Other domain helpers
 │   ├── i18n/             # Internationalization (EN/RU)
 │   │   └── locales/      # Translation files
 │   ├── utils/            # Общие хелперы + Webstudio интеграция
@@ -466,7 +618,7 @@ Cloudflare Workers serves `public/` as the origin root.
 
 For non-Russian readers:
 
-> 301 UI Worker is a modular frontend for 301.st authentication pages, integrations management, and the shared UI style guide.
+> 301 UI Worker is a modular frontend for 301.st authentication pages, integrations management, projects, sites, domains, and the shared UI style guide.
 > It is built with TypeScript + Vite and deployed as a Cloudflare Worker under `app.301.st`.
 >
 > **Current features:**
@@ -476,6 +628,10 @@ For non-Russian readers:
 > - Full CRUD for integration keys
 > - Cloudflare bootstrap flow via drawer (3 methods: instructions, scoped token, quick setup)
 > - Domains management UI with filters, bulk actions, inspector drawer
+> - **Projects management** (list, detail view with tabs, CRUD operations)
+> - **Sites management** (global list, attach/detach domains, CRUD operations)
+> - Project detail tabs: Integrations, Domains, Sites, Streams (placeholder)
+> - Client-side caching (30s TTL) with in-flight deduplication
 > - UI style guide for consistent design across future features
 >
 > **Documentation:**
@@ -484,5 +640,5 @@ For non-Russian readers:
 > - UI Roadmap: `docs/ui-roadmap.ru.md`
 > - Style Guide: `docs/StyleGuide.md`
 >
-> The repo is currently at **Layer 0-2** of the roadmap: foundation (auth, integrations, UI Style Guide) + domains management UI with filters, bulk actions, and inspector drawer.
+> The repo is currently at **Layer 0-3** of the roadmap: foundation (auth, integrations, UI Style Guide) + domains management UI with filters, bulk actions, and inspector drawer + projects and sites with full CRUD and tab navigation.
 

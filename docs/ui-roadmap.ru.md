@@ -635,9 +635,45 @@ Admin (самый конец, Layer 7)
 
 ### Этап 3 — Projects, Sites, Streams (уровень 2 и 3)
 
-**Цель:** дать пользователю рабочие “папки” (проекты) и два ключевых типа сущностей: сайты и потоки.
+**Цель:** дать пользователю рабочие "папки" (проекты) и два ключевых типа сущностей: сайты и потоки.
 
-#### 3.1. Экран “Projects”
+**Статус:** ✅ Projects реализованы, ✅ Sites реализованы, 🔜 Streams в планах
+
+#### 3.1. Экран "Projects" ✅ РЕАЛИЗОВАНО
+
+**Реализовано:**
+
+- ✅ **Страница `/projects.html`** с unified dashboard layout
+- ✅ **Таблица проектов** с колонками:
+  - Name (с выделением var(--fw-medium))
+  - Brand Tag (в `<code>` теге)
+  - Domains # (счетчик, right-aligned)
+  - Sites # (счетчик, right-aligned)
+  - Created (дата с форматированием)
+  - Actions (Edit button + dropdown menu)
+- ✅ **Create Project drawer** с автоматическим созданием первого сайта
+- ✅ **Edit Project drawer** для обновления деталей
+- ✅ **Search functionality** по имени проекта
+- ✅ **Project detail view** с табами (Integrations, Domains, Sites, Streams)
+- ✅ **Dropdown actions**: Edit, View domains, View sites, Duplicate (placeholder), Archive (placeholder), Delete
+- ✅ **Delete confirmation** с cascade удалением sites
+- ✅ **API client** (`src/api/projects.ts`): getProjects, getProject, createProject, updateProject, deleteProject
+- ✅ **i18n coverage** (EN/RU) для projects раздела
+
+**Файлы:**
+- `projects.html` - главная страница (list + detail views)
+- `src/ui/projects.ts` - UI логика таблицы и detail view (700+ строк)
+- `src/api/projects.ts` - API client для projects CRUD
+- `src/forms/project-create.ts` - create form handler
+- `src/forms/project-edit.ts` - edit form handler
+- `src/forms/project-attach-integration.ts` - attach integration to project
+- `src/domains/project-add-domain.ts` - add domain to project
+- `partials/create-project-drawer.hbs` - drawer markup
+- `partials/edit-project-drawer.hbs` - drawer markup
+- `partials/attach-integration-drawer.hbs` - drawer markup
+- `partials/add-domain-to-project-drawer.hbs` - drawer markup
+
+**Оригинальная спецификация (для справки):**
 
 Список проектов:
 
@@ -669,7 +705,58 @@ Admin (самый конец, Layer 7)
 
   * домены, привязанные к этому проекту (filter поверх глобальных доменов).
 
-#### 3.2. Экран “Sites”
+#### 3.2. Экран "Sites" ✅ РЕАЛИЗОВАНО
+
+**Реализовано:**
+
+- ✅ **Страница `/sites.html`** с глобальным списком всех сайтов
+- ✅ **Таблица сайтов** с колонками:
+  - Name (с выделением var(--fw-medium))
+  - Tag (в `<code>` теге, optional)
+  - Project (ссылка на проект)
+  - Domains # (счетчик доменов)
+  - Acceptor (acceptor domain)
+  - Status (badge: active/paused/archived)
+  - Updated (дата)
+  - Actions (Manage domains + Edit buttons)
+- ✅ **Create Site drawer** с выбором проекта (dropdown pattern)
+- ✅ **Edit Site drawer** для обновления site_name, site_tag, status
+- ✅ **Manage Site Domains drawer**:
+  - Attach domains to site
+  - Detach domains с confirmation dialog
+  - Preview attached domains count
+- ✅ **Search functionality** по name/tag/project/acceptor
+- ✅ **Sites в project detail view** (Sites tab)
+- ✅ **API client** (`src/api/sites.ts`):
+  - getSites (aggregated from all projects)
+  - getProjectSites (sites for specific project)
+  - getSite (site details with attached domains)
+  - createSite, updateSite, deleteSite
+  - attachDomain, detachDomain
+- ✅ **Integration with Projects**:
+  - Sites отображаются в project detail (Sites tab)
+  - Create site from project auto-attaches to project
+  - Project name показывается в глобальной таблице
+- ✅ **i18n coverage** (EN/RU) для sites раздела
+
+**Файлы:**
+- `sites.html` - главная страница (global sites list)
+- `src/ui/sites.ts` - UI логика таблицы (500+ строк)
+- `src/api/sites.ts` - API client для sites CRUD
+- `src/forms/site-create.ts` - create form handler
+- `partials/create-site-drawer.hbs` - drawer markup
+- `partials/edit-site-drawer.hbs` - drawer markup
+- `partials/manage-site-domains-drawer.hbs` - drawer markup
+
+**Known Issues (Backend fixes needed):**
+
+- [ ] **Detach domain from site issue**
+  - **Проблема:** При detach домена от сайта (`DELETE /sites/:id/domains/:domainId`), домен удаляется из проекта целиком вместо того, чтобы остаться в проекте как свободный домен
+  - **Ожидаемое поведение:** Домен должен остаться в проекте, только открепиться от сайта
+  - **Статус:** ⏳ Отдано на доработку backend
+  - **Workaround:** Пока функционал detach не рекомендуется к использованию
+
+**Оригинальная спецификация (для справки):**
 
 Список сайтов (внутри проекта):
 
@@ -949,13 +1036,47 @@ Pinia и Vue оставляем как **опциональный следующ
 
 ## Итог
 
-* Интеграции — фундамент, из которого появляются домены и прочие ресурсы.
-* Домен — расходник, который принадлежит интеграциям, а проекты/сайты/потоки его используют.
-* Проект — рабочая папка.
-* Сайт — конечная площадка (whitepage/лендинг).
-* Поток (Stream/TDS) — логика маршрутизации трафика, которая может:
+**Текущее состояние (Layer 0-3):**
 
-  * работать на “чистом” домене,
+✅ **Layer 0** - Фундамент (auth, UI Style Guide, layout system)
+✅ **Layer 1** - Integrations (Cloudflare accounts, domain registrars)
+✅ **Layer 2** - Domains (table, filters, bulk actions, inspector drawer)
+✅ **Layer 3** - Projects & Sites (CRUD, tabs navigation, attach/detach mechanics)
+🔜 **Layer 4** - Redirects (simple redirect rules) - следующий этап, ожидаем backend API
+📋 **Layer 5** - Streams (TDS/traffic distribution) - в планах
+📋 **Layer 6-7** - Analytics, Admin - в планах
+
+**Реализованные сущности:**
+
+* **Интеграции** — фундамент, из которого появляются домены и прочие ресурсы.
+  - ✅ Cloudflare accounts (bootstrap flow, 3 methods)
+  - ✅ Full CRUD для integration keys
+  - ✅ Attach/detach integrations to projects
+* **Домены** — расходник, который принадлежит интеграциям, а проекты/сайты/потоки его используют.
+  - ✅ Таблица с фильтрами и bulk actions
+  - ✅ Inspector drawer
+  - ✅ Add domains to projects
+  - ✅ Attach domains to sites
+* **Проекты** — рабочая папка.
+  - ✅ List view с search
+  - ✅ Detail view с табами (Integrations, Domains, Sites, Streams)
+  - ✅ Full CRUD operations
+  - ✅ Dropdown actions menu
+* **Сайты** — конечная площадка (whitepage/лендинг).
+  - ✅ Global sites list
+  - ✅ Sites в project detail view
+  - ✅ Manage site domains (attach/detach)
+  - ✅ Full CRUD operations
+
+**Следующие шаги:**
+
+* **Редиректы (Layer 4)** — слой быстрых простых правил (301/302/307).
+  * ⏳ Ожидаем реализацию backend API
+  * Global/Project/Domain scope
+  * Source conditions + Target URL + HTTP code
+  * Sync with Cloudflare
+* **Поток (Stream/TDS, Layer 5)** — логика маршрутизации трафика, которая может:
+  * работать на "чистом" домене,
   * или **сидеть поверх домена, зарезервированного под сайт**, превращая его в клоаку/умный поток.
-* Редиректы — слой быстрых простых правил.
-* Админка и маркет — отдельный слой, складываем позже, когда базовый кабинет готов.
+* **Аналитика** — traffic insights, performance metrics.
+* **Админка и маркет** — отдельный слой, складываем позже, когда базовый кабинет готов.
