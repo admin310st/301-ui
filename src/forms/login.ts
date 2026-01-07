@@ -1,6 +1,6 @@
 import { login } from '@api/auth';
 import type { CommonErrorResponse } from '@api/types';
-import { t, getRandomTip } from '@i18n';
+import { t } from '@i18n';
 import { requireTurnstileToken, resetTurnstile } from '../turnstile';
 import { setFormState, qs } from '@ui/dom';
 import { clearGlobalMessage, showGlobalMessage } from '@ui/notifications';
@@ -59,11 +59,7 @@ async function handleLoginSubmit(event: SubmitEvent): Promise<void> {
     await loadUser();
     const successMessage = res.message || t('auth.login.statusSuccess');
     setFormState(form, 'success', successMessage);
-    // Set random tip for next page (dashboard)
-    try {
-      const notice = { type: 'success', message: getRandomTip() };
-      window.sessionStorage.setItem('globalNotice', JSON.stringify(notice));
-    } catch {}
+    // Note: Random tips disabled (mobile compatibility issue)
     form.reset();
     window.location.hash = '#login';
   } catch (error) {
