@@ -70,7 +70,7 @@
 ### Для начала работы:
 
 1. **Прочитать:** `PLAN-redirects-with-role.md` (раздел "BACKEND REQUIREMENTS")
-2. **Согласовать с backend team:** Добавление `domain_role`
+2. **Согласовать с backend team:** Добавление `domain_role` ([GitHub Issue #10](https://github.com/admin310st/301/issues/10))
 3. **Начать PR-A:** API Layer (можно работать с mock пока backend не готов)
 4. **Параллельно PR-B:** State Management
 5. **После A+B готовы:** PR-C/D/E в любом порядке

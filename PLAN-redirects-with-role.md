@@ -4,6 +4,8 @@
 
 ## 🚨 BACKEND REQUIREMENTS (Critical for Implementation)
 
+**GitHub Issue for Backend:** https://github.com/admin310st/301/issues/10
+
 ### ✅ Минимально необходимо (блокирует frontend разработку):
 
 **1. GET /sites/:siteId/redirects должен возвращать ВСЕ домены сайта**
