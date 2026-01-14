@@ -6,24 +6,52 @@
 
 ### ✅ Минимально необходимо (блокирует frontend разработку):
 
-**1. Добавить поле `domain_role` в GET /sites/:siteId/redirects**
+**1. GET /sites/:siteId/redirects должен возвращать ВСЕ домены сайта**
+
+**КРИТИЧНО:** Endpoint должен возвращать **все домены сайта**, включая acceptor/reserve **БЕЗ редиректа**.
+
+Иначе UI не сможет показать:
+- Acceptor как primary row (target header для группы)
+- Reserve домены как "No redirect" строки
 
 ```typescript
-// Пример response:
+// Пример response (ВСЕ домены сайта):
 {
   "ok": true,
   "site_id": 10,
   "site_name": "Main Landing",
-  "redirects": [
+  "redirects": [  // Можно переименовать в "domains" для ясности
+    // Acceptor БЕЗ редиректа (primary domain)
     {
-      "id": 1,
+      "id": null,  // Нет redirect rule
       "domain_id": 45,
       "domain_name": "cryptoboss.pics",
       "domain_role": "acceptor",  // ← NEW (критично!)
       "zone_id": 12,
       "zone_name": "cryptoboss.pics",
+      "template_id": null,  // ← Нет редиректа
+      "params": null,
+      "status_code": null,
+      "enabled": true,
+      "sync_status": "never",
+      "cf_rule_id": null,
+      "clicks_total": 0,
+      "clicks_today": 0,
+      "clicks_yesterday": 0,
+      "trend": "neutral",
+      "created_at": "2025-01-10T08:00:00Z",
+      "updated_at": "2025-01-12T10:00:00Z"
+    },
+    // Donor С редиректом
+    {
+      "id": 1,
+      "domain_id": 46,
+      "domain_name": "promo.cryptoboss.pics",
+      "domain_role": "donor",
+      "zone_id": 12,
+      "zone_name": "cryptoboss.pics",
       "template_id": "T1",
-      "params": { "target_url": "https://cryptoboss.com" },
+      "params": { "target_url": "https://cryptoboss.pics" },
       "status_code": 301,
       "enabled": true,
       "sync_status": "synced",
@@ -34,29 +62,59 @@
       "trend": "up",
       "created_at": "2025-01-10T08:00:00Z",
       "updated_at": "2025-01-12T10:00:00Z"
+    },
+    // Reserve БЕЗ редиректа
+    {
+      "id": null,  // Нет redirect rule
+      "domain_id": 47,
+      "domain_name": "reserve.cryptoboss.pics",
+      "domain_role": "reserve",
+      "zone_id": 12,
+      "zone_name": "cryptoboss.pics",
+      "template_id": null,  // ← Нет редиректа
+      "params": null,
+      "status_code": null,
+      "enabled": false,
+      "sync_status": "never",
+      "cf_rule_id": null,
+      "clicks_total": 0,
+      "clicks_today": 0,
+      "clicks_yesterday": 0,
+      "trend": "neutral",
+      "created_at": "2025-01-10T08:00:00Z",
+      "updated_at": "2025-01-12T10:00:00Z"
     }
   ],
   "zone_limits": [
     {
       "zone_id": 12,
       "zone_name": "cryptoboss.pics",
-      "used": 2,
+      "used": 1,  // Только donor с редиректом
       "max": 10
     }
   ],
-  "total": 2
+  "total": 3  // Все домены сайта
 }
 ```
 
 **Как вычислять `domain_role`:**
-- `"acceptor"` - домен является target для других доменов (или primary domain сайта без редиректа)
-- `"donor"` - домен имеет настроенный redirect rule (редиректит на другой домен)
-- `"reserve"` - домен привязан к сайту, но НЕ имеет redirect rule (резервный)
+- `"acceptor"` - primary domain сайта (target для других доменов), может быть БЕЗ редиректа
+- `"donor"` - домен С настроенным redirect rule (редиректит на acceptor)
+- `"reserve"` - домен привязан к сайту БЕЗ redirect rule (резервный для замены)
+
+**Поля для доменов БЕЗ редиректа:**
+- `id: null` (нет redirect rule)
+- `template_id: null`
+- `params: null`
+- `status_code: null`
+- `cf_rule_id: null`
+- `sync_status: "never"`
 
 **Зачем это нужно:**
-- UI использует role для группировки, badges, bulk actions logic
-- Без role придется вычислять на фронте (сложнее, менее надежно)
-- С role UI остается почти без изменений (только mock → API)
+- UI использует role для группировки (acceptor = header, donors = children)
+- Reserve домены видны в таблице (важно для управления пулом резервных)
+- Без полного списка доменов придется делать дополнительный GET /domains
+- С полным списком UI остается почти без изменений (только mock → API)
 
 ---
 
@@ -182,10 +240,11 @@ GET /sites/:siteId/redirects → кэшируем (TTL 30s) + withInFlight + abo
 ### Роль определяет:
 
 **Acceptor (target domain):**
-- Рендерится как destination/primary row в группе
+- Рендерится как destination/primary row в группе (site header)
 - Badge "Target" (если такой есть в моках)
-- Действия: ограничены или скрыты (по текущим правилам UI)
-- Не участвует в bulk actions (опционально, по логике UI)
+- **НЕ имеет единичного checkbox** (не селектится как обычный redirect)
+- **НО управляет site-level bulk selection** (checkbox acceptor'а = select all donors сайта)
+- Действия: ограничены (по текущим правилам UI)
 
 **Donor (source domain):**
 - Обычный домен-источник редиректа
@@ -220,14 +279,16 @@ Project: CryptoBoss
 
 ### Текущие колонки сохраняются:
 
+**ВАЖНО:** Порядок колонок соответствует реальному UI: Domain → Target → Activity → Status → Actions → **Checkbox (последний!)**
+
 | Column | Content | Changes |
 |--------|---------|---------|
-| ☑️ Checkbox | Mass-select | No changes |
 | Domain | Domain name + badges | ✅ Добавить Template badge (badge--xs) внутри cell |
 | Target | target_url или "—" | No changes (computed from template/params) |
-| Activity | clicks_total, clicks_today, trend | No changes |
+| Activity | clicks_total, clicks_today, trend | ⚠️ Minor changes (adapter для маппинга полей) |
 | Status | enabled badge + sync_status badge | No changes |
 | Actions | Edit button + dropdown (Enable/Disable/Delete) | No changes |
+| ☑️ Checkbox | Mass-select | No changes (ПОСЛЕДНИЙ!) |
 
 ### Domain cell structure (с role):
 
@@ -255,6 +316,72 @@ Project: CryptoBoss
 - ✅ Не добавляем новую колонку (не ломаем responsive)
 - ✅ Template info видна сразу
 - ✅ Паттерн "несколько badges в ячейке" уже используется
+
+### API-to-UI Field Mapping (Adapter)
+
+**Нейминг:** API использует `domain_role`, `domain_name`, а UI тип `DomainRedirect` использует `role`, `domain`.
+
+**Решение:** Создать adapter на границе API → UI model, чтобы не переписывать половину таблицы/дроуера.
+
+```typescript
+// src/redirects/adapter.ts
+import type { Redirect as ApiRedirect } from '@api/types';
+import type { DomainRedirect } from './types';
+
+/**
+ * Convert API Redirect to UI DomainRedirect
+ */
+export function apiToUiRedirect(apiRedirect: ApiRedirect): DomainRedirect {
+  return {
+    id: apiRedirect.id,
+    domain_id: apiRedirect.domain_id,
+    domain: apiRedirect.domain_name,  // ← Rename
+    domain_status: apiRedirect.domain_status || 'active',
+    role: apiRedirect.domain_role,  // ← Rename
+    target_url: computeTargetUrl(apiRedirect),
+    has_redirect: apiRedirect.template_id !== null,
+    redirect_code: apiRedirect.status_code || 301,
+    enabled: apiRedirect.enabled,
+    cf_rule_id: apiRedirect.cf_rule_id,
+    cf_implementation: apiRedirect.cf_implementation || 'single_redirect',
+    sync_status: apiRedirect.sync_status,
+    site_id: apiRedirect.site_id || 0,  // Если нет в API - получать из контекста
+    site_name: apiRedirect.site_name || '',
+    project_id: apiRedirect.project_id || 0,  // Если нет - из контекста
+    project_name: apiRedirect.project_name || '',
+    analytics: {
+      clicks_total: apiRedirect.clicks_total,
+      clicks_today: apiRedirect.clicks_today,
+      clicks_yesterday: apiRedirect.clicks_yesterday,
+      clicks_7d: apiRedirect.clicks_today * 7,  // Approx, если нет в API
+      trend: apiRedirect.trend,
+    },
+    // NEW from API:
+    template_id: apiRedirect.template_id,
+    preset_id: apiRedirect.preset_id,
+  };
+}
+
+function computeTargetUrl(redirect: ApiRedirect): string | null {
+  if (redirect.params?.target_url) return redirect.params.target_url;
+  if (redirect.template_id === 'T3') return `https://www.${redirect.domain_name}`;
+  if (redirect.template_id === 'T4') return `https://${redirect.domain_name.replace(/^www\./, '')}`;
+  return null;
+}
+```
+
+**Использование:**
+```typescript
+// В state.ts или redirects.ts
+const response = await getSiteRedirects(siteId);
+const uiRedirects = response.redirects.map(apiToUiRedirect);
+state.redirects = uiRedirects;
+```
+
+**Преимущества:**
+- ✅ Минимальные изменения в существующем UI коде
+- ✅ Adapter находится в одном месте (легко поддерживать)
+- ✅ Можно постепенно переходить на API types
 
 ---
 
@@ -341,15 +468,34 @@ async function handleApplyPreset(domainId: number, presetId: string, params: any
   // API call
   const response = await applyPreset(domainId, { preset_id: presetId, params });
 
-  // Optimistic update (добавляем N redirects)
-  response.redirect_ids.forEach(id => {
-    // TODO: fetch details or use partial data
-  });
+  // НЕ делаем N×GET по redirect_ids! (нарушит цель "не дергать API")
+  // Вместо этого: один refresh site list
 
-  // Invalidate cache
+  // Invalidate cache + force refresh
   invalidateCacheByPrefix('redirects:site:');
+  await refreshRedirects(); // Один GET /sites/:siteId/redirects вместо N×GET
 
   closeDrawer();
+
+  // АЛЬТЕРНАТИВА (лучше): попросить backend возвращать created redirects[]
+  // в response POST /domains/:id/redirects/preset, тогда:
+  // response.created_redirects.forEach(redirect => addRedirect(redirect));
+}
+```
+
+**Рекомендация для backend:**
+Добавить в response `POST /domains/:id/redirects/preset` поле `created_redirects[]` с полными объектами:
+```typescript
+{
+  "ok": true,
+  "preset_id": "P3",
+  "created_count": 2,
+  "redirect_ids": [4, 5],
+  "created_redirects": [  // ← NEW (избегаем N×GET на фронте)
+    { /* полный Redirect object */ },
+    { /* полный Redirect object */ }
+  ],
+  "zone_limit": { "used": 5, "max": 10 }
 }
 ```
 
@@ -596,9 +742,6 @@ function renderRedirectRow(redirect: Redirect): string {
 
   return `
     <tr class="${isSelected ? 'is-selected' : ''}" data-redirect-id="${redirect.id}" data-role="${redirect.domain_role}">
-      <td>
-        <input type="checkbox" ${isSelected ? 'checked' : ''} data-checkbox />
-      </td>
       <td data-priority="critical">
         <div class="domain-cell">
           <span class="domain-cell__name">${redirect.domain_name}</span>
@@ -652,6 +795,9 @@ function renderRedirectRow(redirect: Redirect): string {
             </div>
           </div>
         </div>
+      </td>
+      <td>
+        <input type="checkbox" ${isSelected ? 'checked' : ''} data-checkbox />
       </td>
     </tr>
   `;
