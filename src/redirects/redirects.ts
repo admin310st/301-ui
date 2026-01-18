@@ -394,15 +394,38 @@ function renderTable(): void {
 /**
  * Render acceptor (primary target) row
  * Shows domain with "Target" badge, domains count redirecting to it
+ * Includes mass-select checkbox to select all donor domains of this site
  */
 function renderAcceptorRow(redirect: DomainRedirect): string {
-  // Count donors redirecting to this acceptor
-  const donorCount = filteredRedirects.filter(r =>
-    r.role === 'donor' && r.has_redirect
-  ).length;
+  // Get all donor domains for this site (non-acceptor domains)
+  const siteDonors = filteredRedirects.filter(r =>
+    r.site_id === redirect.site_id && r.role !== 'acceptor'
+  );
+
+  // Count donors with redirects
+  const donorCount = siteDonors.filter(r => r.has_redirect).length;
+
+  // Calculate checkbox state for mass-select
+  const selectedDonors = siteDonors.filter(d => selectedRedirects.has(d.id));
+  const allDonorsSelected = siteDonors.length > 0 && selectedDonors.length === siteDonors.length;
+  const someDonorsSelected = selectedDonors.length > 0 && selectedDonors.length < siteDonors.length;
+
+  // Mass-select checkbox before domain name (only if there are donors to select)
+  const massSelectCheckbox = siteDonors.length > 0 ? `
+    <input
+      type="checkbox"
+      class="checkbox"
+      data-select-site-domains="${redirect.site_id}"
+      ${allDonorsSelected ? 'checked' : ''}
+      ${someDonorsSelected ? 'data-indeterminate="true"' : ''}
+      aria-label="Select all domains of ${redirect.domain}"
+      title="Select all ${siteDonors.length} domain${siteDonors.length > 1 ? 's' : ''}"
+    />
+  ` : '';
 
   const domainDisplay = `
     <div class="table-cell-stack">
+      ${massSelectCheckbox}
       <span class="table-cell-main">${redirect.domain}</span>
       ${donorCount > 0 ? `
         <span class="badge badge--sm badge--neutral" title="${donorCount} domain${donorCount > 1 ? 's' : ''} redirect to this target">
@@ -416,7 +439,7 @@ function renderAcceptorRow(redirect: DomainRedirect): string {
   const actions = getRowActions(redirect);
 
   return `
-    <tr data-redirect-id="${redirect.id}" class="table__primary-domain">
+    <tr data-redirect-id="${redirect.id}" data-site-id="${redirect.site_id}" class="table__primary-domain">
       <td data-priority="critical" class="table__cell-domain">
         ${domainDisplay}
       </td>
@@ -433,7 +456,7 @@ function renderAcceptorRow(redirect: DomainRedirect): string {
         ${actions}
       </td>
       <td data-priority="critical" class="table__cell-checkbox">
-        <span class="icon text-muted" data-icon="mono/lock" title="Primary domain cannot be selected"></span>
+        <span class="text-muted text-xs">${siteDonors.length}</span>
       </td>
     </tr>
   `;
