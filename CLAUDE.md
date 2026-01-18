@@ -84,8 +84,8 @@ The documentation is included as a git submodule from [301.wiki repository](http
 npm run dev              # Start Vite dev server on port 5173
 npm run build            # Build for production (outputs to public/)
 npm run preview          # Preview production build locally
-npm run deploy           # Build and deploy to Cloudflare Workers
 npm run build:icons      # Generate icon sprite from static/img/icons-src/
+git push origin main     # Deploy to production (CF Pages auto-builds from Git)
 ```
 
 ### Icon System
@@ -852,12 +852,16 @@ const current = getTheme(); // 'dark' | 'light'
 
 ## Deployment
 
+**Production deployment is automatic via Cloudflare Pages connected to Git.**
+
+Simply push to `main` branch:
 ```bash
-npm run deploy  # Builds and deploys to Cloudflare Workers
+git push origin main  # Triggers automatic build & deploy on CF Pages
 ```
 
-Deployment configuration in `wrangler.toml`:
-- Worker name: `301-app`
+No need to run `npm run deploy` locally - Cloudflare Pages builds from the repository.
+
+Configuration notes:
 - Assets directory: `./public`
 - SPA mode: All 404s serve `index.html`
 - Environment variables: `TURNSTILE_SITEKEY` (set in Cloudflare dashboard)
