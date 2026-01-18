@@ -20,12 +20,6 @@ export function initHeaderScroll(): void {
   const header = document.querySelector<HTMLElement>('.site-header');
   const utilityBar = document.querySelector<HTMLElement>('.utility-bar');
 
-  console.log('[header-scroll] init:', {
-    header: !!header,
-    utilityBar: !!utilityBar,
-    page: window.location.pathname,
-  });
-
   if (!header) return;
 
   // Calculate combined height of header + utility-bar as scroll threshold
@@ -35,14 +29,6 @@ export function initHeaderScroll(): void {
 
   updateScrollThreshold();
   window.addEventListener('resize', updateScrollThreshold);
-
-  // Debug: Log actual header heights vs CSS variable
-  console.log('[header-scroll] heights:', {
-    headerOffset: header?.offsetHeight,
-    utilityBarOffset: utilityBar?.offsetHeight,
-    combined: (header?.offsetHeight || 0) + (utilityBar?.offsetHeight || 0),
-    cssVar: getComputedStyle(document.documentElement).getPropertyValue('--header-height'),
-  });
 
   // Update global notice position to match header height
   function updateGlobalNoticePosition(): void {
