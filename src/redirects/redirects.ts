@@ -17,9 +17,23 @@ import { initSyncStatus } from './sync-status';
 import { updateBulkActionsBar as updateBulkActions } from '@ui/bulk-actions';
 
 // New API integration
-import { onStateChange, getState, refreshRedirects } from './state';
+import {
+  onStateChange,
+  getState,
+  refreshRedirects,
+  updateDomainRedirect,
+  removeRedirectFromDomain,
+  bulkUpdateEnabled,
+  markZoneSynced,
+} from './state';
 import { initSiteSelector, getCurrentSiteId } from './site-selector';
 import { adaptDomainsToLegacy } from './adapter';
+import {
+  updateRedirect,
+  deleteRedirect,
+  applyZoneRedirects,
+} from '@api/redirects';
+import { showGlobalNotice } from '@ui/globalNotice';
 
 // Feature flag: use real API or mock data
 const USE_REAL_API = true;
@@ -1192,7 +1206,7 @@ function setupBulkActions(): void {
 
   // Handle bulk delete confirmation
   const confirmBulkDeleteBtn = document.querySelector('[data-confirm-bulk-delete]');
-  confirmBulkDeleteBtn?.addEventListener('click', () => {
+  confirmBulkDeleteBtn?.addEventListener('click', async () => {
     const count = selectedRedirects.size;
     if (count === 0) {
       hideDialog('bulk-delete-redirects');
@@ -1200,15 +1214,45 @@ function setupBulkActions(): void {
     }
 
     console.log('[Redirects] Confirmed bulk delete:', count, 'redirects');
-    // TODO: Implement actual delete API call
-    // await api.deleteRedirects(Array.from(selectedRedirects));
 
-    // Close dialog and clear selections
+    if (!USE_REAL_API) {
+      hideDialog('bulk-delete-redirects');
+      handleClearSelection();
+      alert(`Successfully deleted ${count} redirect(s)\n\n(API integration coming soon)`);
+      return;
+    }
+
+    // Collect redirect and domain IDs
+    const toDelete: { redirectId: number; domainId: number }[] = [];
+    for (const redirectId of selectedRedirects) {
+      const redirect = currentRedirects.find(r => r.id === redirectId);
+      if (redirect) {
+        toDelete.push({ redirectId, domainId: redirect.domain_id });
+      }
+    }
+
+    // Close dialog immediately for better UX
     hideDialog('bulk-delete-redirects');
-    handleClearSelection();
 
-    // Show success notification (when implemented)
-    alert(`Successfully deleted ${count} redirect(s)\n\n(API integration coming soon)`);
+    try {
+      // Optimistic updates
+      for (const { domainId } of toDelete) {
+        removeRedirectFromDomain(domainId);
+      }
+      renderTable();
+      handleClearSelection();
+
+      // API calls (parallel)
+      await Promise.all(
+        toDelete.map(({ redirectId }) => deleteRedirect(redirectId))
+      );
+
+      showGlobalNotice('success', `Deleted ${toDelete.length} redirect(s)`);
+    } catch (error: any) {
+      // On error, refresh to restore state
+      await refreshRedirects();
+      showGlobalNotice('error', error.message || 'Failed to delete redirects');
+    }
   });
 }
 
@@ -1237,51 +1281,119 @@ function handleEdit(redirectId: number): void {
 /**
  * Handle enable redirect
  */
-function handleEnable(redirectId: number): void {
+async function handleEnable(redirectId: number): Promise<void> {
   const redirect = currentRedirects.find(r => r.id === redirectId);
   if (!redirect) return;
 
   console.log('[Redirects] Enable redirect:', redirect.domain);
-  alert(`▶️ Enable "${redirect.domain}"\n\n(API integration coming soon)`);
+
+  if (!USE_REAL_API) {
+    alert(`▶️ Enable "${redirect.domain}"\n\n(API integration coming soon)`);
+    return;
+  }
+
+  try {
+    // Optimistic update
+    updateDomainRedirect(redirect.domain_id, { enabled: true });
+    renderTable();
+
+    // API call
+    await updateRedirect(redirectId, { enabled: true });
+    showGlobalNotice('success', `Enabled redirect for ${redirect.domain}`);
+  } catch (error: any) {
+    // Rollback optimistic update
+    updateDomainRedirect(redirect.domain_id, { enabled: false });
+    renderTable();
+    showGlobalNotice('error', error.message || 'Failed to enable redirect');
+  }
 }
 
 /**
  * Handle disable redirect
  */
-function handleDisable(redirectId: number): void {
+async function handleDisable(redirectId: number): Promise<void> {
   const redirect = currentRedirects.find(r => r.id === redirectId);
   if (!redirect) return;
 
   console.log('[Redirects] Disable redirect:', redirect.domain);
-  alert(`⏸️ Disable "${redirect.domain}"\n\n(API integration coming soon)`);
+
+  if (!USE_REAL_API) {
+    alert(`⏸️ Disable "${redirect.domain}"\n\n(API integration coming soon)`);
+    return;
+  }
+
+  try {
+    // Optimistic update
+    updateDomainRedirect(redirect.domain_id, { enabled: false });
+    renderTable();
+
+    // API call
+    await updateRedirect(redirectId, { enabled: false });
+    showGlobalNotice('success', `Disabled redirect for ${redirect.domain}`);
+  } catch (error: any) {
+    // Rollback optimistic update
+    updateDomainRedirect(redirect.domain_id, { enabled: true });
+    renderTable();
+    showGlobalNotice('error', error.message || 'Failed to disable redirect');
+  }
 }
 
 /**
- * Handle retry sync
+ * Handle retry sync (same as sync now - triggers zone sync)
  */
-function handleRetrySync(redirectId: number): void {
-  const redirect = currentRedirects.find(r => r.id === redirectId);
-  if (!redirect) return;
-
-  console.log('[Redirects] Retry sync:', redirect.domain);
-  alert(`🔄 Retry sync for "${redirect.domain}"\n\n(API integration coming soon)`);
+async function handleRetrySync(redirectId: number): Promise<void> {
+  // Retry sync is the same as sync now - it triggers zone-level sync
+  await handleSyncNow(redirectId);
 }
 
 /**
- * Handle sync now
+ * Handle sync now - syncs the entire zone containing this redirect
  */
-function handleSyncNow(redirectId: number): void {
+async function handleSyncNow(redirectId: number): Promise<void> {
   const redirect = currentRedirects.find(r => r.id === redirectId);
   if (!redirect) return;
 
   console.log('[Redirects] Sync now:', redirect.domain);
-  alert(`☁️ Sync to Cloudflare for "${redirect.domain}"\n\n(API integration coming soon)`);
+
+  if (!USE_REAL_API) {
+    alert(`☁️ Sync to Cloudflare for "${redirect.domain}"\n\n(API integration coming soon)`);
+    return;
+  }
+
+  // Get zone_id from state
+  const state = getState();
+  const domain = state.domains.find(d => d.domain_id === redirect.domain_id);
+  if (!domain?.zone_id) {
+    showGlobalNotice('error', 'Domain is not associated with a Cloudflare zone');
+    return;
+  }
+
+  try {
+    // Mark as pending in UI
+    updateDomainRedirect(redirect.domain_id, { sync_status: 'pending' });
+    renderTable();
+
+    // API call - sync entire zone
+    const response = await applyZoneRedirects(domain.zone_id);
+
+    // Update state with synced redirects
+    const syncedIds = response.synced_rules?.map(r => r.id) || [];
+    markZoneSynced(domain.zone_id, syncedIds);
+    renderTable();
+
+    showGlobalNotice('success', `Synced ${response.rules_applied || 1} redirect(s) to Cloudflare`);
+  } catch (error: any) {
+    // Mark as error
+    updateDomainRedirect(redirect.domain_id, { sync_status: 'error' });
+    renderTable();
+    showGlobalNotice('error', error.message || 'Failed to sync to Cloudflare');
+  }
 }
 
 /**
  * Handle delete redirect
  */
-function handleDelete(redirectId: number): void {
+async function handleDelete(redirectId: number): Promise<void> {
   const redirect = currentRedirects.find(r => r.id === redirectId);
   if (!redirect) return;
 
@@ -1289,7 +1401,25 @@ function handleDelete(redirectId: number): void {
   if (!confirmed) return;
 
   console.log('[Redirects] Delete redirect:', redirect.domain);
-  alert(`🗑️ Delete "${redirect.domain}"\n\n(API integration coming soon)`);
+
+  if (!USE_REAL_API) {
+    alert(`🗑️ Delete "${redirect.domain}"\n\n(API integration coming soon)`);
+    return;
+  }
+
+  try {
+    // Optimistic update - remove from state
+    removeRedirectFromDomain(redirect.domain_id);
+    renderTable();
+
+    // API call
+    await deleteRedirect(redirectId);
+    showGlobalNotice('success', `Deleted redirect for ${redirect.domain}`);
+  } catch (error: any) {
+    // On error, refresh to restore state
+    await refreshRedirects();
+    showGlobalNotice('error', error.message || 'Failed to delete redirect');
+  }
 }
 
 /**
@@ -1376,29 +1506,164 @@ function updateBulkActionsBar(): void {
 
 /**
  * Handle bulk sync to Cloudflare
+ * Groups selected redirects by zone and syncs each zone
  */
-function handleBulkSync(): void {
+async function handleBulkSync(): Promise<void> {
   const count = selectedRedirects.size;
+  if (count === 0) return;
+
   console.log('[Redirects] Bulk sync:', count, 'redirects');
-  alert(`☁️ Sync ${count} redirect(s) to Cloudflare\n\n(API integration coming soon)`);
+
+  if (!USE_REAL_API) {
+    alert(`☁️ Sync ${count} redirect(s) to Cloudflare\n\n(API integration coming soon)`);
+    return;
+  }
+
+  // Get unique zones for selected redirects
+  const state = getState();
+  const zoneIds = new Set<number>();
+  const selectedDomainIds: number[] = [];
+
+  for (const redirectId of selectedRedirects) {
+    const legacyRedirect = currentRedirects.find(r => r.id === redirectId);
+    if (legacyRedirect) {
+      const domain = state.domains.find(d => d.domain_id === legacyRedirect.domain_id);
+      if (domain?.zone_id) {
+        zoneIds.add(domain.zone_id);
+        selectedDomainIds.push(domain.domain_id);
+      }
+    }
+  }
+
+  if (zoneIds.size === 0) {
+    showGlobalNotice('error', 'Selected domains are not associated with Cloudflare zones');
+    return;
+  }
+
+  try {
+    // Mark all selected as pending
+    for (const domainId of selectedDomainIds) {
+      updateDomainRedirect(domainId, { sync_status: 'pending' });
+    }
+    renderTable();
+
+    // Sync each zone
+    let totalSynced = 0;
+    for (const zoneId of zoneIds) {
+      const response = await applyZoneRedirects(zoneId);
+      const syncedIds = response.synced_rules?.map(r => r.id) || [];
+      markZoneSynced(zoneId, syncedIds);
+      totalSynced += response.rules_applied || 0;
+    }
+
+    renderTable();
+    showGlobalNotice('success', `Synced ${totalSynced} redirect(s) across ${zoneIds.size} zone(s)`);
+    handleClearSelection();
+  } catch (error: any) {
+    // On error, refresh to get actual state
+    await refreshRedirects();
+    showGlobalNotice('error', error.message || 'Failed to sync to Cloudflare');
+  }
 }
 
 /**
  * Handle bulk enable
  */
-function handleBulkEnable(): void {
+async function handleBulkEnable(): Promise<void> {
   const count = selectedRedirects.size;
+  if (count === 0) return;
+
   console.log('[Redirects] Bulk enable:', count, 'redirects');
-  alert(`▶️ Enable ${count} redirect(s)\n\n(API integration coming soon)`);
+
+  if (!USE_REAL_API) {
+    alert(`▶️ Enable ${count} redirect(s)\n\n(API integration coming soon)`);
+    return;
+  }
+
+  // Collect domain IDs for optimistic update
+  const domainIds: number[] = [];
+  const redirectIds: number[] = [];
+  for (const redirectId of selectedRedirects) {
+    const redirect = currentRedirects.find(r => r.id === redirectId);
+    if (redirect && !redirect.enabled) {
+      domainIds.push(redirect.domain_id);
+      redirectIds.push(redirectId);
+    }
+  }
+
+  if (redirectIds.length === 0) {
+    showGlobalNotice('info', 'All selected redirects are already enabled');
+    return;
+  }
+
+  try {
+    // Optimistic update
+    bulkUpdateEnabled(domainIds, true);
+    renderTable();
+
+    // API calls (parallel)
+    await Promise.all(
+      redirectIds.map(id => updateRedirect(id, { enabled: true }))
+    );
+
+    showGlobalNotice('success', `Enabled ${redirectIds.length} redirect(s)`);
+    handleClearSelection();
+  } catch (error: any) {
+    // Rollback
+    bulkUpdateEnabled(domainIds, false);
+    renderTable();
+    showGlobalNotice('error', error.message || 'Failed to enable redirects');
+  }
 }
 
 /**
  * Handle bulk disable
  */
-function handleBulkDisable(): void {
+async function handleBulkDisable(): Promise<void> {
   const count = selectedRedirects.size;
+  if (count === 0) return;
+
   console.log('[Redirects] Bulk disable:', count, 'redirects');
-  alert(`⏸️ Disable ${count} redirect(s)\n\n(API integration coming soon)`);
+
+  if (!USE_REAL_API) {
+    alert(`⏸️ Disable ${count} redirect(s)\n\n(API integration coming soon)`);
+    return;
+  }
+
+  // Collect domain IDs for optimistic update
+  const domainIds: number[] = [];
+  const redirectIds: number[] = [];
+  for (const redirectId of selectedRedirects) {
+    const redirect = currentRedirects.find(r => r.id === redirectId);
+    if (redirect && redirect.enabled) {
+      domainIds.push(redirect.domain_id);
+      redirectIds.push(redirectId);
+    }
+  }
+
+  if (redirectIds.length === 0) {
+    showGlobalNotice('info', 'All selected redirects are already disabled');
+    return;
+  }
+
+  try {
+    // Optimistic update
+    bulkUpdateEnabled(domainIds, false);
+    renderTable();
+
+    // API calls (parallel)
+    await Promise.all(
+      redirectIds.map(id => updateRedirect(id, { enabled: false }))
+    );
+
+    showGlobalNotice('success', `Disabled ${redirectIds.length} redirect(s)`);
+    handleClearSelection();
+  } catch (error: any) {
+    // Rollback
+    bulkUpdateEnabled(domainIds, true);
+    renderTable();
+    showGlobalNotice('error', error.message || 'Failed to disable redirects');
+  }
 }
 
 /**
