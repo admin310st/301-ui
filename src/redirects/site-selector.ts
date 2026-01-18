@@ -124,12 +124,21 @@ function renderSiteOptions(container: HTMLElement): void {
 }
 
 /**
- * Update site name display
+ * Update site name display (filter chip + utility badge)
  */
 function updateSiteNameDisplay(name: string): void {
+  // Update filter chip label
   const nameEl = document.querySelector('[data-site-name]');
   if (nameEl) {
     nameEl.textContent = name;
+  }
+
+  // Update utility badge
+  const badge = document.querySelector('[data-site-badge]');
+  const badgeName = document.querySelector('[data-site-badge-name]');
+  if (badge && badgeName) {
+    badgeName.textContent = name;
+    badge.removeAttribute('hidden');
   }
 }
 

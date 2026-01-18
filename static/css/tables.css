@@ -742,6 +742,13 @@ input[type="search"]::-webkit-search-cancel-button {
   display: contents;
 }
 
+/* Filter ordering: Projects → Site → Configured → Sync → Enabled */
+.table-controls [data-filter-id="project"] { order: 1; }
+.table-controls [data-site-selector] { order: 2; }
+.table-controls [data-filter-id="configured"] { order: 3; }
+.table-controls [data-filter-id="sync"] { order: 4; }
+.table-controls [data-filter-id="enabled"] { order: 5; }
+
 /* Override controls-row column stacking on mobile - filters can wrap horizontally */
 @media (max-width: 768px) {
   .table-controls {
