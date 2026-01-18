@@ -2,8 +2,10 @@
  * Redirects state management
  * Single source of truth for redirects page
  *
- * Works with RedirectDomain[] (domains with nested redirect | null)
- * from GET /sites/:siteId/redirects
+ * Supports multi-site selection:
+ * - Works with RedirectDomain[] from GET /sites/:siteId/redirects
+ * - Aggregates domains from multiple selected sites
+ * - Domains are extended with site_id, site_name for grouping
  */
 
 import type {
@@ -15,21 +17,43 @@ import type {
 import { getSiteRedirects } from '@api/redirects';
 
 // =============================================================================
+// Types
+// =============================================================================
+
+/**
+ * Site context info passed from site selector
+ */
+export interface SiteContext {
+  siteId: number;
+  siteName: string;
+  projectId: number;
+  projectName: string;
+}
+
+/**
+ * Extended domain with site context (for multi-site view)
+ */
+export interface ExtendedRedirectDomain extends RedirectDomain {
+  site_id: number;
+  site_name: string;
+}
+
+// =============================================================================
 // State Interface
 // =============================================================================
 
 export interface RedirectsState {
-  /** Currently selected site ID */
-  currentSiteId: number | null;
-  /** Site name for display */
-  siteName: string;
-  /** Project ID (from site selector) */
+  /** Currently selected site IDs (multi-select) */
+  selectedSiteIds: number[];
+  /** Site contexts for all selected sites */
+  siteContexts: SiteContext[];
+  /** Project ID (from project selector) */
   projectId: number | null;
-  /** Project name (from site selector) */
+  /** Project name (from project selector) */
   projectName: string;
-  /** All domains of the site (with redirect or null) */
-  domains: RedirectDomain[];
-  /** Zone limits for CF redirect rules */
+  /** All domains from ALL selected sites (with site_id, site_name) */
+  domains: ExtendedRedirectDomain[];
+  /** Zone limits for CF redirect rules (aggregated) */
   zoneLimits: RedirectZoneLimit[];
   /** Total domains count */
   totalDomains: number;
@@ -48,8 +72,8 @@ export interface RedirectsState {
 // =============================================================================
 
 let state: RedirectsState = {
-  currentSiteId: null,
-  siteName: '',
+  selectedSiteIds: [],
+  siteContexts: [],
   projectId: null,
   projectName: '',
   domains: [],
@@ -98,46 +122,75 @@ export function getState(): Readonly<RedirectsState> {
 // =============================================================================
 
 /**
- * Site context info passed from site selector
- */
-export interface SiteContext {
-  siteId: number;
-  siteName: string;
-  projectId: number;
-  projectName: string;
-}
-
-/**
- * Load domains/redirects for a site
- * @param context Site context with project info (from site selector)
+ * Load domains/redirects for multiple sites
+ * @param contexts Site contexts with project info (from site selector)
  * @param options.force Skip cache (for explicit Refresh button)
  */
-export async function loadSiteRedirects(
-  context: SiteContext,
+export async function loadSitesRedirects(
+  contexts: SiteContext[],
   options: { force?: boolean } = {}
 ): Promise<void> {
-  // Update loading state with context
+  if (contexts.length === 0) {
+    clearState();
+    return;
+  }
+
+  // Update loading state
   state = {
     ...state,
     loading: true,
     error: null,
-    currentSiteId: context.siteId,
-    siteName: context.siteName,
-    projectId: context.projectId,
-    projectName: context.projectName,
+    selectedSiteIds: contexts.map(c => c.siteId),
+    siteContexts: contexts,
+    projectId: contexts[0].projectId,
+    projectName: contexts[0].projectName,
   };
   notifyListeners();
 
   try {
-    const response = await getSiteRedirects(context.siteId, options);
+    // Load redirects from all sites in parallel
+    const responses = await Promise.all(
+      contexts.map(ctx =>
+        getSiteRedirects(ctx.siteId, options)
+          .then(response => ({
+            ...response,
+            siteContext: ctx,
+          }))
+      )
+    );
+
+    // Aggregate domains from all sites
+    const allDomains: ExtendedRedirectDomain[] = [];
+    const allZoneLimits: RedirectZoneLimit[] = [];
+    let totalDomains = 0;
+    let totalRedirects = 0;
+
+    for (const response of responses) {
+      // Add site_id and site_name to each domain
+      const domainsWithSite = response.domains.map(d => ({
+        ...d,
+        site_id: response.siteContext.siteId,
+        site_name: response.siteContext.siteName,
+      }));
+      allDomains.push(...domainsWithSite);
+
+      // Aggregate zone limits (deduplicate by zone_id)
+      for (const limit of response.zone_limits) {
+        if (!allZoneLimits.find(z => z.zone_id === limit.zone_id)) {
+          allZoneLimits.push(limit);
+        }
+      }
+
+      totalDomains += response.total_domains;
+      totalRedirects += response.total_redirects;
+    }
 
     state = {
       ...state,
-      siteName: response.site_name,
-      domains: response.domains,
-      zoneLimits: response.zone_limits,
-      totalDomains: response.total_domains,
-      totalRedirects: response.total_redirects,
+      domains: allDomains,
+      zoneLimits: allZoneLimits,
+      totalDomains,
+      totalRedirects,
       loading: false,
       lastLoadedAt: Date.now(),
     };
@@ -158,16 +211,21 @@ export async function loadSiteRedirects(
 }
 
 /**
- * Refresh current site redirects (force cache skip)
+ * Legacy single-site load (for backwards compatibility)
+ */
+export async function loadSiteRedirects(
+  context: SiteContext,
+  options: { force?: boolean } = {}
+): Promise<void> {
+  await loadSitesRedirects([context], options);
+}
+
+/**
+ * Refresh current sites redirects (force cache skip)
  */
 export async function refreshRedirects(): Promise<void> {
-  if (!state.currentSiteId || !state.projectId) return;
-  await loadSiteRedirects({
-    siteId: state.currentSiteId,
-    siteName: state.siteName,
-    projectId: state.projectId,
-    projectName: state.projectName,
-  }, { force: true });
+  if (state.siteContexts.length === 0) return;
+  await loadSitesRedirects(state.siteContexts, { force: true });
 }
 
 // =============================================================================
@@ -177,7 +235,7 @@ export async function refreshRedirects(): Promise<void> {
 /**
  * Find domain by ID
  */
-function findDomain(domainId: number): RedirectDomain | undefined {
+function findDomain(domainId: number): ExtendedRedirectDomain | undefined {
   return state.domains.find(d => d.domain_id === domainId);
 }
 
@@ -215,7 +273,6 @@ export function removeRedirectFromDomain(domainId: number): void {
   if (!domain?.redirect) return;
 
   const zoneId = domain.zone_id;
-  const redirectId = domain.redirect.id;
 
   // Clear redirect, set role to reserve
   domain.redirect = null;
@@ -321,8 +378,8 @@ export function markZoneSynced(zoneId: number, syncedRedirectIds: number[]): voi
  */
 export function clearState(): void {
   state = {
-    currentSiteId: null,
-    siteName: '',
+    selectedSiteIds: [],
+    siteContexts: [],
     projectId: null,
     projectName: '',
     domains: [],
@@ -343,28 +400,38 @@ export function clearState(): void {
 /**
  * Get domains with redirects only
  */
-export function getDomainsWithRedirects(): RedirectDomain[] {
+export function getDomainsWithRedirects(): ExtendedRedirectDomain[] {
   return state.domains.filter(d => d.redirect !== null);
 }
 
 /**
  * Get domains without redirects (reserve)
  */
-export function getReserveDomains(): RedirectDomain[] {
+export function getReserveDomains(): ExtendedRedirectDomain[] {
   return state.domains.filter(d => d.redirect === null);
 }
 
 /**
- * Get acceptor domain (primary target)
+ * Get acceptor domains (one per site)
  */
-export function getAcceptorDomain(): RedirectDomain | undefined {
+export function getAcceptorDomains(): ExtendedRedirectDomain[] {
+  return state.domains.filter(d => d.domain_role === 'acceptor');
+}
+
+/**
+ * Get acceptor domain for a specific site
+ */
+export function getAcceptorDomain(siteId?: number): ExtendedRedirectDomain | undefined {
+  if (siteId !== undefined) {
+    return state.domains.find(d => d.site_id === siteId && d.domain_role === 'acceptor');
+  }
   return state.domains.find(d => d.domain_role === 'acceptor');
 }
 
 /**
  * Get donor domains (have redirects)
  */
-export function getDonorDomains(): RedirectDomain[] {
+export function getDonorDomains(): ExtendedRedirectDomain[] {
   return state.domains.filter(d => d.domain_role === 'donor');
 }
 
@@ -390,11 +457,16 @@ export function getSyncedCount(): number {
 }
 
 /**
- * Get domains sorted by role (acceptor first, then donors, then reserve)
+ * Get domains sorted by site, then by role (acceptor first, then donors, then reserve)
  */
-export function getSortedDomains(): RedirectDomain[] {
+export function getSortedDomains(): ExtendedRedirectDomain[] {
   return [...state.domains].sort((a, b) => {
-    // Acceptor first
+    // First sort by site_id to group by site
+    if (a.site_id !== b.site_id) {
+      return a.site_id - b.site_id;
+    }
+
+    // Acceptor first within site
     if (a.domain_role === 'acceptor') return -1;
     if (b.domain_role === 'acceptor') return 1;
 

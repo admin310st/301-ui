@@ -4,10 +4,10 @@
  * Simple 301/302 domain redirects management
  * NOT to be confused with Streams/TDS (complex conditional routing)
  *
- * Now supports both mock-data (legacy) and real API via state.ts
+ * Works with real API via state.ts (multi-site support)
  */
 
-import { mockDomainRedirects, type DomainRedirect } from './mock-data';
+import type { DomainRedirect } from './mock-data';
 import { getDefaultFilters, hasActiveFilters, type ActiveFilters } from './filters-config';
 import { renderFilterBar, initFilterUI } from './filters-ui';
 import { initDrawer, openDrawer, openBulkAddDrawer } from './drawer';
@@ -16,7 +16,7 @@ import { formatTooltipTimestamp, initTooltips } from '@ui/tooltip';
 import { initSyncStatus } from './sync-status';
 import { updateBulkActionsBar as updateBulkActions } from '@ui/bulk-actions';
 
-// New API integration
+// API integration
 import {
   onStateChange,
   getState,
@@ -26,8 +26,9 @@ import {
   bulkUpdateEnabled,
   markZoneSynced,
   getSortedDomains,
+  type SiteContext,
 } from './state';
-import { initSiteSelector, getCurrentSiteId } from './site-selector';
+import { initSiteSelector, getCurrentProjectId } from './site-selector';
 import { adaptDomainsToLegacy } from './adapter';
 import {
   updateRedirect,
@@ -35,9 +36,6 @@ import {
   applyZoneRedirects,
 } from '@api/redirects';
 import { showGlobalNotice } from '@ui/globalNotice';
-
-// Feature flag: use real API or mock data
-const USE_REAL_API = true;
 
 let currentRedirects: DomainRedirect[] = [];
 let filteredRedirects: DomainRedirect[] = [];
@@ -55,45 +53,48 @@ export function initRedirectsPage(): void {
 
   console.log('[Redirects] Initializing page...');
 
-  if (USE_REAL_API) {
-    // Subscribe to state changes
-    onStateChange((state) => {
-      if (state.loading) {
-        showLoadingState();
-      } else if (state.error) {
-        showErrorState(state.error);
-      } else if (state.domains.length === 0 && state.currentSiteId) {
-        showEmptyState();
-      } else if (state.domains.length > 0) {
-        // Convert API data to legacy format using adapter
-        // Use sorted domains (acceptor first, then donors, then reserve)
-        const sortedDomains = getSortedDomains();
-        const adapted = adaptDomainsToLegacy(sortedDomains, {
-          site_id: state.currentSiteId!,
-          site_name: state.siteName,
+  // Subscribe to state changes
+  onStateChange((state) => {
+    if (state.loading) {
+      showLoadingState();
+    } else if (state.error) {
+      showErrorState(state.error);
+    } else if (state.domains.length === 0 && state.selectedSiteIds.length > 0) {
+      showEmptyState();
+    } else if (state.domains.length > 0) {
+      // Convert API data to legacy format using adapter
+      // Domains are already sorted and have site_id, site_name
+      const sortedDomains = getSortedDomains();
+
+      // Adapt each domain with its site context
+      const adapted = sortedDomains.map(domain => {
+        return adaptDomainsToLegacy([domain], {
+          site_id: domain.site_id,
+          site_name: domain.site_name,
           project_id: state.projectId ?? undefined,
           project_name: state.projectName ?? undefined,
-        });
-        currentRedirects = adapted;
-        filteredRedirects = [...currentRedirects];
-        primaryDomains = calculatePrimaryDomains(currentRedirects);
-        hideLoadingState();
-        renderTable();
-        initSyncStatus(currentRedirects);
-      }
-    });
+        })[0];
+      });
 
-    // Initialize site selector (triggers data load on selection)
-    initSiteSelector((siteId) => {
-      console.log('[Redirects] Site changed:', siteId);
-      // Clear selection on site change
-      selectedRedirects.clear();
-      collapsedGroups.clear();
-    });
-  } else {
-    // Legacy: Load mock data
-    loadRedirects();
-  }
+      currentRedirects = adapted;
+      filteredRedirects = [...currentRedirects];
+      primaryDomains = calculatePrimaryDomains(currentRedirects);
+      hideLoadingState();
+      renderTable();
+      initSyncStatus(currentRedirects);
+    } else if (state.selectedSiteIds.length === 0) {
+      // No sites selected
+      showEmptyState();
+    }
+  });
+
+  // Initialize project & site selectors (triggers data load on selection)
+  initSiteSelector((sites: SiteContext[]) => {
+    console.log('[Redirects] Sites changed:', sites.map(s => s.siteId));
+    // Clear selection on site change
+    selectedRedirects.clear();
+    collapsedGroups.clear();
+  });
 
   // Setup search
   setupSearch();
@@ -393,8 +394,7 @@ function renderTable(): void {
 
 /**
  * Render acceptor (primary target) row
- * Shows domain with "Target" badge, domains count redirecting to it
- * Includes mass-select checkbox to select all donor domains of this site
+ * Shows: checkbox | domain | flag | ←N badge | site_type | activity | Target | actions | lock
  */
 function renderAcceptorRow(redirect: DomainRedirect): string {
   // Get all donor domains for this site (non-acceptor domains)
@@ -410,7 +410,7 @@ function renderAcceptorRow(redirect: DomainRedirect): string {
   const allDonorsSelected = siteDonors.length > 0 && selectedDonors.length === siteDonors.length;
   const someDonorsSelected = selectedDonors.length > 0 && selectedDonors.length < siteDonors.length;
 
-  // Mass-select checkbox before domain name (only if there are donors to select)
+  // Mass-select checkbox before domain name
   const massSelectCheckbox = siteDonors.length > 0 ? `
     <input
       type="checkbox"
@@ -423,15 +423,27 @@ function renderAcceptorRow(redirect: DomainRedirect): string {
     />
   ` : '';
 
+  // Flag badge after domain (if available)
+  const flagBadge = redirect.site_flag
+    ? `<span class="badge badge--sm badge--neutral">${redirect.site_flag}</span>`
+    : '';
+
+  // Donor count badge (←N)
+  const donorBadge = donorCount > 0 ? `
+    <span class="badge badge--sm badge--neutral" title="${donorCount} domain${donorCount > 1 ? 's' : ''} redirect here">
+      <span class="text-ok">←</span>${donorCount}
+    </span>
+  ` : '';
+
+  // Site type badge
+  const siteTypeBadge = getSiteTypeBadge(redirect.site_type);
+
   const domainDisplay = `
     <div class="table-cell-stack">
       ${massSelectCheckbox}
       <span class="table-cell-main">${redirect.domain}</span>
-      ${donorCount > 0 ? `
-        <span class="badge badge--sm badge--neutral" title="${donorCount} domain${donorCount > 1 ? 's' : ''} redirect to this target">
-          <span class="text-ok">←</span> ${donorCount}
-        </span>
-      ` : ''}
+      ${flagBadge}
+      ${donorBadge}
     </div>
   `;
 
@@ -444,7 +456,7 @@ function renderAcceptorRow(redirect: DomainRedirect): string {
         ${domainDisplay}
       </td>
       <td data-priority="critical" class="table__cell-target">
-        <span class="text-muted">—</span>
+        ${siteTypeBadge}
       </td>
       <td data-priority="medium" class="table__cell-activity">
         ${activityDisplay}
@@ -456,14 +468,27 @@ function renderAcceptorRow(redirect: DomainRedirect): string {
         ${actions}
       </td>
       <td data-priority="critical" class="table__cell-checkbox">
-        <span class="text-muted text-xs">${siteDonors.length}</span>
+        <span class="icon text-muted" data-icon="mono/lock" title="Primary domain cannot be selected"></span>
       </td>
     </tr>
   `;
 }
 
 /**
+ * Get site type badge HTML
+ */
+function getSiteTypeBadge(siteType: string): string {
+  const badges: Record<string, string> = {
+    landing: '<span class="badge badge--sm badge--success">Landing</span>',
+    tds: '<span class="badge badge--sm badge--brand">TDS</span>',
+    hybrid: '<span class="badge badge--sm badge--warning">Hybrid</span>',
+  };
+  return badges[siteType] || '';
+}
+
+/**
  * Render donor/reserve domain row
+ * Has visual indentation with left border line to show hierarchy under acceptor
  */
 function renderDomainRow(redirect: DomainRedirect, isLastRow: boolean): string {
   const isSelected = selectedRedirects.has(redirect.id);
@@ -479,8 +504,9 @@ function renderDomainRow(redirect: DomainRedirect, isLastRow: boolean): string {
     arrowIndicator = `<span class="${arrowColor}" style="font-size: 1.125rem; line-height: 1;" title="${redirectType} redirect">→</span>`;
   }
 
+  // Child row: indented with left border line
   const domainDisplay = `
-    <div class="table-cell-stack">
+    <div class="table-cell-stack table-cell-stack--child">
       <span class="table-cell-main">${redirect.domain}</span>
       ${statusBadge}
       ${arrowIndicator}
@@ -504,7 +530,7 @@ function renderDomainRow(redirect: DomainRedirect, isLastRow: boolean): string {
   `;
 
   return `
-    <tr data-redirect-id="${redirect.id}" class="table__domain-row">
+    <tr data-redirect-id="${redirect.id}" data-site-id="${redirect.site_id}" class="table__domain-row table__row--child">
       <td data-priority="critical" class="table__cell-domain">
         ${domainDisplay}
       </td>
@@ -652,18 +678,6 @@ function renderPrimaryDomainRow(
       </td>
     </tr>
   `;
-}
-
-/**
- * Get site type badge HTML
- */
-function getSiteTypeBadge(siteType: string): string {
-  const badges = {
-    landing: '<span class="badge badge--sm badge--success">Landing</span>',
-    tds: '<span class="badge badge--sm badge--brand">TDS</span>',
-    hybrid: '<span class="badge badge--sm badge--warning">Hybrid</span>',
-  };
-  return badges[siteType as keyof typeof badges] || '';
 }
 
 /**

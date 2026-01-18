@@ -1,19 +1,28 @@
 /**
- * Site Selector for Redirects page
+ * Project & Site Selectors for Redirects page
  *
- * Loads available sites and handles site switching.
- * When a site is selected, triggers redirect loading via state.
+ * Two-level selection:
+ * 1. Project selector (single-select) - selects working project
+ * 2. Site selector (multi-select) - filters which sites to show within project
+ *
+ * When project changes, all sites are selected by default.
+ * User can then toggle individual sites on/off.
  */
 
 import { safeCall } from '@api/ui-client';
 import { getProjects } from '@api/projects';
 import { getProjectSites } from '@api/sites';
 import type { Site, Project } from '@api/types';
-import { loadSiteRedirects, clearState } from './state';
+import { loadSitesRedirects, clearState, type SiteContext } from './state';
 
 // =============================================================================
-// State
+// Types
 // =============================================================================
+
+interface ProjectOption {
+  id: number;
+  name: string;
+}
 
 interface SiteOption {
   id: number;
@@ -23,46 +32,56 @@ interface SiteOption {
   domainsCount: number;
 }
 
+// =============================================================================
+// State
+// =============================================================================
+
+let availableProjects: ProjectOption[] = [];
 let availableSites: SiteOption[] = [];
-let currentSiteId: number | null = null;
-let onSiteChangeCallback: ((siteId: number) => void) | null = null;
+let currentProjectId: number | null = null;
+let selectedSiteIds: Set<number> = new Set();
+let onSitesChangeCallback: ((sites: SiteContext[]) => void) | null = null;
 
 // =============================================================================
 // API Loading
 // =============================================================================
 
 /**
- * Load all sites from all projects
+ * Load all projects
  */
-async function loadAllSites(): Promise<SiteOption[]> {
+async function loadProjects(): Promise<ProjectOption[]> {
   try {
-    // Get all projects first
     const projects = await safeCall(
-      () => getProjects(0), // accountId 0 for current user
-      { lockKey: 'projects-list', retryOn401: true }
+      () => getProjects(0),
+      { lockKey: 'redirects-projects', retryOn401: true }
     );
+    return projects.map((p: Project) => ({
+      id: p.id,
+      name: p.project_name,
+    }));
+  } catch (error) {
+    console.error('[SiteSelector] Failed to load projects:', error);
+    return [];
+  }
+}
 
-    // Load sites for each project in parallel
-    const sitesPromises = projects.map(async (project: Project) => {
-      try {
-        const sites = await safeCall(
-          () => getProjectSites(project.id),
-          { lockKey: `sites-project-${project.id}`, retryOn401: true }
-        );
-        return sites.map((site: Site) => ({
-          id: site.id,
-          name: site.site_name,
-          projectId: project.id,
-          projectName: project.project_name,
-          domainsCount: site.domains_count,
-        }));
-      } catch {
-        return [];
-      }
-    });
-
-    const sitesArrays = await Promise.all(sitesPromises);
-    return sitesArrays.flat();
+/**
+ * Load sites for a specific project
+ */
+async function loadProjectSites(projectId: number): Promise<SiteOption[]> {
+  try {
+    const project = availableProjects.find(p => p.id === projectId);
+    const sites = await safeCall(
+      () => getProjectSites(projectId),
+      { lockKey: `redirects-sites-${projectId}`, retryOn401: true }
+    );
+    return sites.map((s: Site) => ({
+      id: s.id,
+      name: s.site_name,
+      projectId: projectId,
+      projectName: project?.name || '',
+      domainsCount: s.domains_count,
+    }));
   } catch (error) {
     console.error('[SiteSelector] Failed to load sites:', error);
     return [];
@@ -70,67 +89,152 @@ async function loadAllSites(): Promise<SiteOption[]> {
 }
 
 // =============================================================================
-// UI Rendering
+// UI Rendering - Projects
 // =============================================================================
 
 /**
- * Render site options in dropdown
+ * Render project options in dropdown
  */
-function renderSiteOptions(container: HTMLElement): void {
-  if (availableSites.length === 0) {
-    container.innerHTML = `
-      <div class="dropdown__item text-muted">No sites available</div>
-    `;
+function renderProjectOptions(container: HTMLElement): void {
+  if (availableProjects.length === 0) {
+    container.innerHTML = '<div class="dropdown__item text-muted">No projects</div>';
     return;
   }
 
-  // Group by project
-  const byProject = new Map<string, SiteOption[]>();
-  for (const site of availableSites) {
-    if (!byProject.has(site.projectName)) {
-      byProject.set(site.projectName, []);
-    }
-    byProject.get(site.projectName)!.push(site);
-  }
-
-  let html = '';
-  let isFirst = true;
-
-  for (const [projectName, sites] of byProject) {
-    if (!isFirst) {
-      html += '<div class="dropdown__divider"></div>';
-    }
-    isFirst = false;
-
-    html += `<div class="dropdown__label">${projectName}</div>`;
-
-    for (const site of sites) {
-      const isSelected = site.id === currentSiteId;
-      html += `
-        <button
-          class="dropdown__item ${isSelected ? 'dropdown__item--selected' : ''}"
-          type="button"
-          data-action="select-site"
-          data-site-id="${site.id}"
-          data-site-name="${site.name}"
-        >
-          <span>${site.name}</span>
-          <span class="badge badge--xs badge--neutral">${site.domainsCount}</span>
-        </button>
-      `;
-    }
-  }
-
-  container.innerHTML = html;
+  container.innerHTML = availableProjects.map(project => {
+    const isSelected = project.id === currentProjectId;
+    return `
+      <button
+        class="dropdown__item ${isSelected ? 'dropdown__item--selected' : ''}"
+        type="button"
+        data-action="select-project"
+        data-project-id="${project.id}"
+      >
+        <span class="icon" data-icon="mono/folder"></span>
+        <span>${project.name}</span>
+      </button>
+    `;
+  }).join('');
 }
 
 /**
- * Update site name display in filter chip
+ * Update project name in selector button
  */
-function updateSiteNameDisplay(name: string): void {
+function updateProjectDisplay(name: string): void {
+  const nameEl = document.querySelector('[data-project-name]');
+  if (nameEl) nameEl.textContent = name;
+}
+
+// =============================================================================
+// UI Rendering - Sites (multi-select)
+// =============================================================================
+
+/**
+ * Render site options with checkboxes for multi-select
+ */
+function renderSiteOptions(container: HTMLElement): void {
+  if (availableSites.length === 0) {
+    container.innerHTML = '<div class="dropdown__item text-muted">No sites in project</div>';
+    return;
+  }
+
+  const allSelected = selectedSiteIds.size === availableSites.length;
+  const someSelected = selectedSiteIds.size > 0 && selectedSiteIds.size < availableSites.length;
+
+  let html = `
+    <button
+      class="dropdown__item"
+      type="button"
+      data-action="toggle-all-sites"
+    >
+      <input
+        type="checkbox"
+        class="checkbox"
+        ${allSelected ? 'checked' : ''}
+        ${someSelected ? 'data-indeterminate="true"' : ''}
+        tabindex="-1"
+      />
+      <span>${allSelected ? 'Deselect all' : 'Select all'}</span>
+      <span class="badge badge--xs badge--neutral">${availableSites.length}</span>
+    </button>
+    <div class="dropdown__divider"></div>
+  `;
+
+  for (const site of availableSites) {
+    const isSelected = selectedSiteIds.has(site.id);
+    html += `
+      <button
+        class="dropdown__item"
+        type="button"
+        data-action="toggle-site"
+        data-site-id="${site.id}"
+      >
+        <input
+          type="checkbox"
+          class="checkbox"
+          ${isSelected ? 'checked' : ''}
+          tabindex="-1"
+        />
+        <span>${site.name}</span>
+        <span class="badge badge--xs badge--neutral">${site.domainsCount}</span>
+      </button>
+    `;
+  }
+
+  container.innerHTML = html;
+
+  // Set indeterminate state
+  const toggleAllCheckbox = container.querySelector('[data-action="toggle-all-sites"] input');
+  if (toggleAllCheckbox && someSelected) {
+    (toggleAllCheckbox as HTMLInputElement).indeterminate = true;
+  }
+}
+
+/**
+ * Update sites display in selector button
+ */
+function updateSitesDisplay(): void {
   const nameEl = document.querySelector('[data-site-name]');
-  if (nameEl) {
-    nameEl.textContent = name;
+  if (!nameEl) return;
+
+  if (selectedSiteIds.size === 0) {
+    nameEl.textContent = 'No sites';
+  } else if (selectedSiteIds.size === availableSites.length) {
+    nameEl.textContent = `All sites (${availableSites.length})`;
+  } else if (selectedSiteIds.size === 1) {
+    const site = availableSites.find(s => selectedSiteIds.has(s.id));
+    nameEl.textContent = site?.name || 'Sites';
+  } else {
+    nameEl.textContent = `${selectedSiteIds.size} sites`;
+  }
+}
+
+// =============================================================================
+// Data Loading
+// =============================================================================
+
+/**
+ * Load redirects for all selected sites
+ */
+async function loadSelectedSitesRedirects(): Promise<void> {
+  if (selectedSiteIds.size === 0) {
+    clearState();
+    return;
+  }
+
+  const siteContexts: SiteContext[] = availableSites
+    .filter(s => selectedSiteIds.has(s.id))
+    .map(s => ({
+      siteId: s.id,
+      siteName: s.name,
+      projectId: s.projectId,
+      projectName: s.projectName,
+    }));
+
+  await loadSitesRedirects(siteContexts);
+
+  if (onSitesChangeCallback) {
+    onSitesChangeCallback(siteContexts);
   }
 }
 
@@ -139,44 +243,121 @@ function updateSiteNameDisplay(name: string): void {
 // =============================================================================
 
 /**
- * Handle site selection
+ * Handle project selection
  */
-async function handleSiteSelect(siteId: number): Promise<void> {
-  if (siteId === currentSiteId) return;
+async function handleProjectSelect(projectId: number): Promise<void> {
+  if (projectId === currentProjectId) return;
 
-  // Find site info from available sites
-  const site = availableSites.find(s => s.id === siteId);
-  if (!site) return;
+  currentProjectId = projectId;
+  const project = availableProjects.find(p => p.id === projectId);
+  if (project) updateProjectDisplay(project.name);
 
-  currentSiteId = siteId;
-  updateSiteNameDisplay(site.name);
+  // Close project dropdown
+  closeDropdown('[data-project-selector]');
 
-  // Close dropdown
-  const dropdown = document.querySelector('[data-site-selector]');
+  // Update project options
+  const projectOptions = document.querySelector('[data-project-options]');
+  if (projectOptions) renderProjectOptions(projectOptions as HTMLElement);
+
+  // Load sites for this project
+  availableSites = await loadProjectSites(projectId);
+
+  // Select all sites by default
+  selectedSiteIds = new Set(availableSites.map(s => s.id));
+
+  // Update sites dropdown
+  const siteOptions = document.querySelector('[data-site-options]');
+  if (siteOptions) renderSiteOptions(siteOptions as HTMLElement);
+  updateSitesDisplay();
+
+  // Load redirects
+  await loadSelectedSitesRedirects();
+}
+
+/**
+ * Handle site toggle (multi-select)
+ */
+async function handleSiteToggle(siteId: number): Promise<void> {
+  if (selectedSiteIds.has(siteId)) {
+    selectedSiteIds.delete(siteId);
+  } else {
+    selectedSiteIds.add(siteId);
+  }
+
+  // Update UI
+  const siteOptions = document.querySelector('[data-site-options]');
+  if (siteOptions) renderSiteOptions(siteOptions as HTMLElement);
+  updateSitesDisplay();
+
+  // Load redirects
+  await loadSelectedSitesRedirects();
+}
+
+/**
+ * Handle toggle all sites
+ */
+async function handleToggleAllSites(): Promise<void> {
+  if (selectedSiteIds.size === availableSites.length) {
+    // Deselect all
+    selectedSiteIds.clear();
+  } else {
+    // Select all
+    selectedSiteIds = new Set(availableSites.map(s => s.id));
+  }
+
+  // Update UI
+  const siteOptions = document.querySelector('[data-site-options]');
+  if (siteOptions) renderSiteOptions(siteOptions as HTMLElement);
+  updateSitesDisplay();
+
+  // Load redirects
+  await loadSelectedSitesRedirects();
+}
+
+/**
+ * Close a dropdown by selector
+ */
+function closeDropdown(selector: string): void {
+  const dropdown = document.querySelector(selector);
   if (dropdown) {
     dropdown.classList.remove('dropdown--open');
     const trigger = dropdown.querySelector('.dropdown__trigger');
     if (trigger) trigger.setAttribute('aria-expanded', 'false');
   }
+}
 
-  // Update selected state in options
-  const optionsContainer = document.querySelector('[data-site-options]');
-  if (optionsContainer) {
-    renderSiteOptions(optionsContainer as HTMLElement);
-  }
+/**
+ * Setup dropdown toggle behavior
+ */
+function setupDropdownToggle(selector: string): void {
+  const dropdown = document.querySelector(selector);
+  if (!dropdown) return;
 
-  // Load redirects for selected site (with full context)
-  await loadSiteRedirects({
-    siteId: site.id,
-    siteName: site.name,
-    projectId: site.projectId,
-    projectName: site.projectName,
+  const trigger = dropdown.querySelector('.dropdown__trigger');
+  if (!trigger) return;
+
+  trigger.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const isOpen = dropdown.classList.contains('dropdown--open');
+
+    // Close all other dropdowns
+    document.querySelectorAll('.dropdown--open').forEach(other => {
+      if (other !== dropdown) {
+        other.classList.remove('dropdown--open');
+        other.querySelector('.dropdown__trigger')?.setAttribute('aria-expanded', 'false');
+      }
+    });
+
+    if (isOpen) {
+      dropdown.classList.remove('dropdown--open');
+      trigger.setAttribute('aria-expanded', 'false');
+    } else {
+      dropdown.classList.add('dropdown--open');
+      trigger.setAttribute('aria-expanded', 'true');
+    }
   });
-
-  // Notify callback
-  if (onSiteChangeCallback) {
-    onSiteChangeCallback(siteId);
-  }
 }
 
 // =============================================================================
@@ -184,95 +365,105 @@ async function handleSiteSelect(siteId: number): Promise<void> {
 // =============================================================================
 
 /**
- * Initialize site selector
- * @param onSiteChange Callback when site is changed
+ * Initialize project & site selectors
  */
 export async function initSiteSelector(
-  onSiteChange?: (siteId: number) => void
+  onSitesChange?: (sites: SiteContext[]) => void
 ): Promise<void> {
-  onSiteChangeCallback = onSiteChange ?? null;
+  onSitesChangeCallback = onSitesChange ?? null;
 
-  const selectorDropdown = document.querySelector('[data-site-selector]');
-  const optionsContainer = document.querySelector('[data-site-options]');
+  const projectSelector = document.querySelector('[data-project-selector]');
+  const projectOptions = document.querySelector('[data-project-options]');
+  const siteSelector = document.querySelector('[data-site-selector]');
+  const siteOptions = document.querySelector('[data-site-options]');
 
-  if (!selectorDropdown || !optionsContainer) {
-    console.warn('[SiteSelector] Elements not found');
-    return;
+  // Show loading
+  if (projectOptions) {
+    projectOptions.innerHTML = '<div class="dropdown__item text-muted">Loading...</div>';
+  }
+  if (siteOptions) {
+    siteOptions.innerHTML = '<div class="dropdown__item text-muted">Select project first</div>';
   }
 
-  // Show loading state
-  optionsContainer.innerHTML = '<div class="dropdown__item text-muted">Loading sites...</div>';
+  // Load projects
+  availableProjects = await loadProjects();
 
-  // Load sites
-  availableSites = await loadAllSites();
+  // Render project options
+  if (projectOptions) {
+    renderProjectOptions(projectOptions as HTMLElement);
+  }
 
-  // Render options
-  renderSiteOptions(optionsContainer as HTMLElement);
+  // Setup project dropdown
+  if (projectSelector) {
+    setupDropdownToggle('[data-project-selector]');
 
-  // Setup dropdown toggle
-  const trigger = selectorDropdown.querySelector('.dropdown__trigger');
-  if (trigger) {
-    trigger.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-
-      const isOpen = selectorDropdown.classList.contains('dropdown--open');
-
-      // Close all other dropdowns
-      document.querySelectorAll('.dropdown--open').forEach((other) => {
-        if (other !== selectorDropdown) {
-          other.classList.remove('dropdown--open');
-          const otherTrigger = other.querySelector('.dropdown__trigger');
-          if (otherTrigger) otherTrigger.setAttribute('aria-expanded', 'false');
-        }
-      });
-
-      if (isOpen) {
-        selectorDropdown.classList.remove('dropdown--open');
-        trigger.setAttribute('aria-expanded', 'false');
-      } else {
-        selectorDropdown.classList.add('dropdown--open');
-        trigger.setAttribute('aria-expanded', 'true');
+    projectOptions?.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      const button = target.closest('[data-action="select-project"]') as HTMLElement;
+      if (button) {
+        const projectId = Number(button.dataset.projectId);
+        handleProjectSelect(projectId);
       }
     });
   }
 
-  // Setup site selection via delegation
-  optionsContainer.addEventListener('click', (e) => {
-    const target = e.target as HTMLElement;
-    const button = target.closest('[data-action="select-site"]') as HTMLElement;
-    if (!button) return;
+  // Setup site dropdown (multi-select)
+  if (siteSelector) {
+    setupDropdownToggle('[data-site-selector]');
 
-    const siteId = Number(button.dataset.siteId);
-    handleSiteSelect(siteId);
-  });
+    siteOptions?.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
 
-  // Close dropdown on outside click
+      // Toggle all
+      if (target.closest('[data-action="toggle-all-sites"]')) {
+        e.preventDefault();
+        handleToggleAllSites();
+        return;
+      }
+
+      // Toggle single site
+      const siteButton = target.closest('[data-action="toggle-site"]') as HTMLElement;
+      if (siteButton) {
+        e.preventDefault();
+        const siteId = Number(siteButton.dataset.siteId);
+        handleSiteToggle(siteId);
+      }
+    });
+  }
+
+  // Close dropdowns on outside click
   document.addEventListener('click', (e) => {
     const target = e.target as HTMLElement;
+    if (!target.closest('[data-project-selector]')) {
+      closeDropdown('[data-project-selector]');
+    }
     if (!target.closest('[data-site-selector]')) {
-      selectorDropdown.classList.remove('dropdown--open');
-      const trigger = selectorDropdown.querySelector('.dropdown__trigger');
-      if (trigger) trigger.setAttribute('aria-expanded', 'false');
+      closeDropdown('[data-site-selector]');
     }
   });
 
-  // Auto-select first site if available
-  if (availableSites.length > 0) {
-    const firstSite = availableSites[0];
-    await handleSiteSelect(firstSite.id);
+  // Auto-select first project
+  if (availableProjects.length > 0) {
+    await handleProjectSelect(availableProjects[0].id);
   }
 }
 
 /**
- * Get currently selected site ID
+ * Get currently selected project ID
  */
-export function getCurrentSiteId(): number | null {
-  return currentSiteId;
+export function getCurrentProjectId(): number | null {
+  return currentProjectId;
 }
 
 /**
- * Get available sites
+ * Get currently selected site IDs
+ */
+export function getSelectedSiteIds(): number[] {
+  return Array.from(selectedSiteIds);
+}
+
+/**
+ * Get available sites for current project
  */
 export function getAvailableSites(): SiteOption[] {
   return availableSites;

@@ -40,7 +40,22 @@
         <header class="page-header">
           <div class="page-header__title">
             <h1 class="h3">Redirects</h1>
-            <p class="page-header__subtitle">Configure 301/302 redirects for your domains</p>
+            <!-- Project Selector (single-select) -->
+            <div class="dropdown" data-project-selector>
+              <button
+                class="btn-chip btn-chip--dropdown dropdown__trigger"
+                type="button"
+                aria-haspopup="menu"
+                aria-expanded="false"
+              >
+                <span class="btn-chip__icon" data-icon="mono/folder"></span>
+                <span class="btn-chip__label" data-project-name>Projects</span>
+                <span class="btn-chip__chevron" data-icon="mono/chevron-down"></span>
+              </button>
+              <div class="dropdown__menu" role="menu" data-project-options>
+                <div class="dropdown__item text-muted">Loading...</div>
+              </div>
+            </div>
           </div>
           <div class="page-header__actions">
             <!-- Sync Status Primary Button with Dropdown -->
@@ -105,9 +120,9 @@
                 </button>
               </div>
 
-              <!-- Site selector + Filter chips row -->
+              <!-- Site selector (multi-select) + Filter chips row -->
               <div class="controls-row table-controls">
-                <!-- Site Selector (context switcher) -->
+                <!-- Site Selector (multi-select for sites in selected project) -->
                 <div class="dropdown" data-site-selector>
                   <button
                     class="btn-chip btn-chip--dropdown dropdown__trigger"
@@ -115,13 +130,13 @@
                     aria-haspopup="menu"
                     aria-expanded="false"
                   >
-                    <span class="btn-chip__icon" data-icon="mono/filter"></span>
+                    <span class="btn-chip__icon" data-icon="mono/web"></span>
                     <span class="btn-chip__label" data-site-name>Sites</span>
                     <span class="btn-chip__chevron" data-icon="mono/chevron-down"></span>
                   </button>
                   <div class="dropdown__menu" role="menu" data-site-options>
-                    <!-- Populated dynamically from sites API -->
-                    <div class="dropdown__item text-muted">Loading sites...</div>
+                    <!-- Multi-select: populated after project selection -->
+                    <div class="dropdown__item text-muted">Select project first</div>
                   </div>
                 </div>
 
