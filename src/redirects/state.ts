@@ -23,6 +23,10 @@ export interface RedirectsState {
   currentSiteId: number | null;
   /** Site name for display */
   siteName: string;
+  /** Project ID (from site selector) */
+  projectId: number | null;
+  /** Project name (from site selector) */
+  projectName: string;
   /** All domains of the site (with redirect or null) */
   domains: RedirectDomain[];
   /** Zone limits for CF redirect rules */
@@ -46,6 +50,8 @@ export interface RedirectsState {
 let state: RedirectsState = {
   currentSiteId: null,
   siteName: '',
+  projectId: null,
+  projectName: '',
   domains: [],
   zoneLimits: [],
   totalDomains: 0,
@@ -92,25 +98,38 @@ export function getState(): Readonly<RedirectsState> {
 // =============================================================================
 
 /**
+ * Site context info passed from site selector
+ */
+export interface SiteContext {
+  siteId: number;
+  siteName: string;
+  projectId: number;
+  projectName: string;
+}
+
+/**
  * Load domains/redirects for a site
- * @param siteId Site ID
+ * @param context Site context with project info (from site selector)
  * @param options.force Skip cache (for explicit Refresh button)
  */
 export async function loadSiteRedirects(
-  siteId: number,
+  context: SiteContext,
   options: { force?: boolean } = {}
 ): Promise<void> {
-  // Update loading state
+  // Update loading state with context
   state = {
     ...state,
     loading: true,
     error: null,
-    currentSiteId: siteId,
+    currentSiteId: context.siteId,
+    siteName: context.siteName,
+    projectId: context.projectId,
+    projectName: context.projectName,
   };
   notifyListeners();
 
   try {
-    const response = await getSiteRedirects(siteId, options);
+    const response = await getSiteRedirects(context.siteId, options);
 
     state = {
       ...state,
@@ -142,8 +161,13 @@ export async function loadSiteRedirects(
  * Refresh current site redirects (force cache skip)
  */
 export async function refreshRedirects(): Promise<void> {
-  if (!state.currentSiteId) return;
-  await loadSiteRedirects(state.currentSiteId, { force: true });
+  if (!state.currentSiteId || !state.projectId) return;
+  await loadSiteRedirects({
+    siteId: state.currentSiteId,
+    siteName: state.siteName,
+    projectId: state.projectId,
+    projectName: state.projectName,
+  }, { force: true });
 }
 
 // =============================================================================
@@ -299,6 +323,8 @@ export function clearState(): void {
   state = {
     currentSiteId: null,
     siteName: '',
+    projectId: null,
+    projectName: '',
     domains: [],
     zoneLimits: [],
     totalDomains: 0,

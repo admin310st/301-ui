@@ -75,10 +75,10 @@ export function adaptDomainToLegacy(
     // Grouping (from site info)
     site_id: siteInfo.site_id,
     site_name: siteInfo.site_name,
-    site_flag: siteInfo.site_flag ?? '🌐',
-    site_type: siteInfo.site_type ?? 'landing',
+    site_flag: '', // Not used in real API, kept for type compatibility
+    site_type: 'landing', // Default, not returned by API
     project_id: siteInfo.project_id ?? 0,
-    project_name: siteInfo.project_name ?? 'Unknown Project',
+    project_name: siteInfo.project_name ?? '',
 
     // Metadata
     created_at: redirect?.created_at ?? new Date().toISOString(),

@@ -18,6 +18,7 @@ import { loadSiteRedirects, clearState } from './state';
 interface SiteOption {
   id: number;
   name: string;
+  projectId: number;
   projectName: string;
   domainsCount: number;
 }
@@ -51,6 +52,7 @@ async function loadAllSites(): Promise<SiteOption[]> {
         return sites.map((site: Site) => ({
           id: site.id,
           name: site.site_name,
+          projectId: project.id,
           projectName: project.project_name,
           domainsCount: site.domains_count,
         }));
@@ -139,11 +141,15 @@ function updateSiteNameDisplay(name: string): void {
 /**
  * Handle site selection
  */
-async function handleSiteSelect(siteId: number, siteName: string): Promise<void> {
+async function handleSiteSelect(siteId: number): Promise<void> {
   if (siteId === currentSiteId) return;
 
+  // Find site info from available sites
+  const site = availableSites.find(s => s.id === siteId);
+  if (!site) return;
+
   currentSiteId = siteId;
-  updateSiteNameDisplay(siteName);
+  updateSiteNameDisplay(site.name);
 
   // Close dropdown
   const dropdown = document.querySelector('[data-site-selector]');
@@ -159,8 +165,13 @@ async function handleSiteSelect(siteId: number, siteName: string): Promise<void>
     renderSiteOptions(optionsContainer as HTMLElement);
   }
 
-  // Load redirects for selected site
-  await loadSiteRedirects(siteId);
+  // Load redirects for selected site (with full context)
+  await loadSiteRedirects({
+    siteId: site.id,
+    siteName: site.name,
+    projectId: site.projectId,
+    projectName: site.projectName,
+  });
 
   // Notify callback
   if (onSiteChangeCallback) {
@@ -233,8 +244,7 @@ export async function initSiteSelector(
     if (!button) return;
 
     const siteId = Number(button.dataset.siteId);
-    const siteName = button.dataset.siteName || 'Site';
-    handleSiteSelect(siteId, siteName);
+    handleSiteSelect(siteId);
   });
 
   // Close dropdown on outside click
@@ -250,7 +260,7 @@ export async function initSiteSelector(
   // Auto-select first site if available
   if (availableSites.length > 0) {
     const firstSite = availableSites[0];
-    await handleSiteSelect(firstSite.id, firstSite.name);
+    await handleSiteSelect(firstSite.id);
   }
 }
 

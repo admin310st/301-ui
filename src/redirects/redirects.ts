@@ -7,7 +7,7 @@
  * Now supports both mock-data (legacy) and real API via state.ts
  */
 
-import { mockDomainRedirects, groupByProject, type DomainRedirect, type ProjectGroup, type TargetSubgroup } from './mock-data';
+import { mockDomainRedirects, type DomainRedirect } from './mock-data';
 import { getDefaultFilters, hasActiveFilters, type ActiveFilters } from './filters-config';
 import { renderFilterBar, initFilterUI } from './filters-ui';
 import { initDrawer, openDrawer, openBulkAddDrawer } from './drawer';
@@ -25,6 +25,7 @@ import {
   removeRedirectFromDomain,
   bulkUpdateEnabled,
   markZoneSynced,
+  getSortedDomains,
 } from './state';
 import { initSiteSelector, getCurrentSiteId } from './site-selector';
 import { adaptDomainsToLegacy } from './adapter';
@@ -65,9 +66,13 @@ export function initRedirectsPage(): void {
         showEmptyState();
       } else if (state.domains.length > 0) {
         // Convert API data to legacy format using adapter
-        const adapted = adaptDomainsToLegacy(state.domains, {
+        // Use sorted domains (acceptor first, then donors, then reserve)
+        const sortedDomains = getSortedDomains();
+        const adapted = adaptDomainsToLegacy(sortedDomains, {
           site_id: state.currentSiteId!,
           site_name: state.siteName,
+          project_id: state.projectId ?? undefined,
+          project_name: state.projectName ?? undefined,
         });
         currentRedirects = adapted;
         filteredRedirects = [...currentRedirects];
@@ -342,52 +347,25 @@ function loadRedirects(): void {
 }
 
 /**
- * Render redirects table grouped by project
+ * Render redirects table as flat list (no project grouping)
+ * Domains are already sorted: acceptor first, then donors, then reserve
  */
 function renderTable(): void {
   const tbody = document.querySelector('[data-redirects-tbody]');
   if (!tbody) return;
 
-  const groups = groupByProject(filteredRedirects);
+  // Render flat table - domains are pre-sorted (acceptor → donors → reserve)
+  const html = filteredRedirects.map((redirect, index) => {
+    const isPrimary = redirect.role === 'acceptor';
+    const isLastRow = index === filteredRedirects.length - 1;
 
-  const html = groups.map(group => {
-    const isCollapsed = collapsedGroups.has(group.project_id);
-    const chevronIcon = isCollapsed ? 'chevron-down' : 'chevron-up';
-
-    // Calculate domain statistics for tooltip
-    const allDomains = group.targets.flatMap(t => t.domains);
-    const redirectedCount = allDomains.filter(d => d.has_redirect).length;
-    // Reserve = donor domains attached to a site but without redirect (enabled, not expired)
-    const reserveCount = allDomains.filter(d =>
-      d.role === 'donor' &&
-      !d.has_redirect &&
-      d.enabled &&
-      d.domain_status !== 'expired'
-    ).length;
-    const tooltipText = `${group.totalDomains} domains in project: ${redirectedCount} redirected, ${reserveCount} in reserve`;
-
-    // Project header row (Level 0)
-    const projectHeader = `
-      <tr class="table__group-header table__row--level-0" data-group-id="${group.project_id}">
-        <td colspan="6">
-          <button class="table__group-toggle" type="button" data-action="toggle-group" data-group-id="${group.project_id}" aria-expanded="${!isCollapsed}">
-            <span class="icon" data-icon="mono/${chevronIcon}"></span>
-            <span class="table__group-title">
-              <span class="icon" data-icon="mono/layers"></span>
-              <span class="table__group-name">${group.project_name}</span>
-              <span class="badge badge--sm badge--neutral" title="${tooltipText}">${group.totalDomains}</span>
-            </span>
-          </button>
-        </td>
-      </tr>
-    `;
-
-    // Target subgroups + domain rows (Level 1 & 2)
-    const targetRows = isCollapsed ? '' : group.targets.map(target => {
-      return renderTargetSubgroup(target, group.project_id);
-    }).join('');
-
-    return projectHeader + targetRows;
+    if (isPrimary) {
+      // Acceptor domain (primary target) - special row
+      return renderAcceptorRow(redirect);
+    } else {
+      // Donor or reserve domain
+      return renderDomainRow(redirect, isLastRow);
+    }
   }).join('');
 
   tbody.innerHTML = html;
@@ -411,6 +389,121 @@ function renderTable(): void {
   const totalCount = document.querySelector('[data-total-count]');
   if (shownCount) shownCount.textContent = String(filteredRedirects.length);
   if (totalCount) totalCount.textContent = String(currentRedirects.length);
+}
+
+/**
+ * Render acceptor (primary target) row
+ * Shows domain with "Target" badge, domains count redirecting to it
+ */
+function renderAcceptorRow(redirect: DomainRedirect): string {
+  // Count donors redirecting to this acceptor
+  const donorCount = filteredRedirects.filter(r =>
+    r.role === 'donor' && r.has_redirect
+  ).length;
+
+  const domainDisplay = `
+    <div class="table-cell-stack">
+      <span class="table-cell-main">${redirect.domain}</span>
+      ${donorCount > 0 ? `
+        <span class="badge badge--sm badge--neutral" title="${donorCount} domain${donorCount > 1 ? 's' : ''} redirect to this target">
+          <span class="text-ok">←</span> ${donorCount}
+        </span>
+      ` : ''}
+    </div>
+  `;
+
+  const activityDisplay = getActivityDisplay(redirect);
+  const actions = getRowActions(redirect);
+
+  return `
+    <tr data-redirect-id="${redirect.id}" class="table__primary-domain">
+      <td data-priority="critical" class="table__cell-domain">
+        ${domainDisplay}
+      </td>
+      <td data-priority="critical" class="table__cell-target">
+        <span class="text-muted">—</span>
+      </td>
+      <td data-priority="medium" class="table__cell-activity">
+        ${activityDisplay}
+      </td>
+      <td data-priority="high" class="table__cell-status">
+        <span class="badge badge--neutral" title="Redirect target (main site domain)">Target</span>
+      </td>
+      <td data-priority="critical" class="table__cell-actions">
+        ${actions}
+      </td>
+      <td data-priority="critical" class="table__cell-checkbox">
+        <span class="icon text-muted" data-icon="mono/lock" title="Primary domain cannot be selected"></span>
+      </td>
+    </tr>
+  `;
+}
+
+/**
+ * Render donor/reserve domain row
+ */
+function renderDomainRow(redirect: DomainRedirect, isLastRow: boolean): string {
+  const isSelected = selectedRedirects.has(redirect.id);
+  const statusBadge = redirect.domain_status !== 'active'
+    ? `<span class="badge badge--xs badge--${redirect.domain_status === 'parked' ? 'neutral' : 'danger'}">${redirect.domain_status}</span>`
+    : '';
+
+  // Arrow indicator for donors with redirect
+  let arrowIndicator = '';
+  if (redirect.has_redirect && redirect.target_url) {
+    const arrowColor = redirect.redirect_code === 301 ? 'text-ok' : 'text-warning';
+    const redirectType = redirect.redirect_code === 301 ? 'Permanent (301)' : 'Temporary (302)';
+    arrowIndicator = `<span class="${arrowColor}" style="font-size: 1.125rem; line-height: 1;" title="${redirectType} redirect">→</span>`;
+  }
+
+  const domainDisplay = `
+    <div class="table-cell-stack">
+      <span class="table-cell-main">${redirect.domain}</span>
+      ${statusBadge}
+      ${arrowIndicator}
+    </div>
+  `;
+
+  const targetDisplay = getTargetDisplay(redirect, false);
+  const activityDisplay = getActivityDisplay(redirect);
+  const statusDisplay = getStatusDisplay(redirect);
+  const actions = getRowActions(redirect);
+
+  const checkbox = `
+    <input
+      type="checkbox"
+      class="checkbox"
+      data-redirect-checkbox
+      data-redirect-id="${redirect.id}"
+      ${isSelected ? 'checked' : ''}
+      aria-label="Select ${redirect.domain}"
+    />
+  `;
+
+  return `
+    <tr data-redirect-id="${redirect.id}" class="table__domain-row">
+      <td data-priority="critical" class="table__cell-domain">
+        ${domainDisplay}
+      </td>
+      <td data-priority="critical" class="table__cell-target">
+        ${targetDisplay}
+      </td>
+      <td data-priority="medium" class="table__cell-activity">
+        ${activityDisplay}
+      </td>
+      <td data-priority="high" class="table__cell-status">
+        ${statusDisplay}
+      </td>
+      <td data-priority="critical" class="table__cell-actions">
+        <div class="table-actions table-actions--inline">
+          ${actions}
+        </div>
+      </td>
+      <td data-priority="critical" class="table__cell-checkbox">
+        ${checkbox}
+      </td>
+    </tr>
+  `;
 }
 
 /**
@@ -1039,10 +1132,10 @@ function setupFilters(): void {
 function applyFilters(): void {
   let result = [...currentRedirects];
 
-  // Apply project filter (multi-select)
-  if (activeFilters.project && activeFilters.project.length > 0) {
-    const projectIds = activeFilters.project.map(id => Number(id));
-    result = result.filter(r => projectIds.includes(r.project_id));
+  // Apply project filter (single-select)
+  if (activeFilters.project) {
+    const projectId = Number(activeFilters.project);
+    result = result.filter(r => r.project_id === projectId);
   }
 
   // Apply configured filter (multi-select)
