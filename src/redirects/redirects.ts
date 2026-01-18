@@ -3,6 +3,8 @@
  *
  * Simple 301/302 domain redirects management
  * NOT to be confused with Streams/TDS (complex conditional routing)
+ *
+ * Now supports both mock-data (legacy) and real API via state.ts
  */
 
 import { mockDomainRedirects, groupByProject, type DomainRedirect, type ProjectGroup, type TargetSubgroup } from './mock-data';
@@ -13,6 +15,14 @@ import { showDialog, hideDialog } from '@ui/dialog';
 import { formatTooltipTimestamp, initTooltips } from '@ui/tooltip';
 import { initSyncStatus } from './sync-status';
 import { updateBulkActionsBar as updateBulkActions } from '@ui/bulk-actions';
+
+// New API integration
+import { onStateChange, getState, refreshRedirects } from './state';
+import { initSiteSelector, getCurrentSiteId } from './site-selector';
+import { adaptDomainsToLegacy } from './adapter';
+
+// Feature flag: use real API or mock data
+const USE_REAL_API = true;
 
 let currentRedirects: DomainRedirect[] = [];
 let filteredRedirects: DomainRedirect[] = [];
@@ -30,8 +40,41 @@ export function initRedirectsPage(): void {
 
   console.log('[Redirects] Initializing page...');
 
-  // Load mock data
-  loadRedirects();
+  if (USE_REAL_API) {
+    // Subscribe to state changes
+    onStateChange((state) => {
+      if (state.loading) {
+        showLoadingState();
+      } else if (state.error) {
+        showErrorState(state.error);
+      } else if (state.domains.length === 0 && state.currentSiteId) {
+        showEmptyState();
+      } else if (state.domains.length > 0) {
+        // Convert API data to legacy format using adapter
+        const adapted = adaptDomainsToLegacy(state.domains, {
+          site_id: state.currentSiteId!,
+          site_name: state.siteName,
+        });
+        currentRedirects = adapted;
+        filteredRedirects = [...currentRedirects];
+        primaryDomains = calculatePrimaryDomains(currentRedirects);
+        hideLoadingState();
+        renderTable();
+        initSyncStatus(currentRedirects);
+      }
+    });
+
+    // Initialize site selector (triggers data load on selection)
+    initSiteSelector((siteId) => {
+      console.log('[Redirects] Site changed:', siteId);
+      // Clear selection on site change
+      selectedRedirects.clear();
+      collapsedGroups.clear();
+    });
+  } else {
+    // Legacy: Load mock data
+    loadRedirects();
+  }
 
   // Setup search
   setupSearch();
@@ -47,6 +90,62 @@ export function initRedirectsPage(): void {
 
   // Initialize drawer
   initDrawer();
+}
+
+/**
+ * Show loading state
+ */
+function showLoadingState(): void {
+  const loadingState = document.querySelector('[data-loading-state]');
+  const emptyState = document.querySelector('[data-empty-state]');
+  const tableShell = document.querySelector('[data-table-shell]');
+  const errorState = document.querySelector('[data-error-state]');
+
+  if (loadingState) loadingState.hidden = false;
+  if (emptyState) emptyState.hidden = true;
+  if (tableShell) tableShell.hidden = true;
+  if (errorState) errorState.hidden = true;
+}
+
+/**
+ * Hide loading state
+ */
+function hideLoadingState(): void {
+  const loadingState = document.querySelector('[data-loading-state]');
+  const tableShell = document.querySelector('[data-table-shell]');
+
+  if (loadingState) loadingState.hidden = true;
+  if (tableShell) tableShell.hidden = false;
+}
+
+/**
+ * Show error state
+ */
+function showErrorState(message: string): void {
+  const loadingState = document.querySelector('[data-loading-state]');
+  const emptyState = document.querySelector('[data-empty-state]');
+  const tableShell = document.querySelector('[data-table-shell]');
+  const errorState = document.querySelector('[data-error-state]');
+  const errorMessage = document.querySelector('[data-error-message]');
+
+  if (loadingState) loadingState.hidden = true;
+  if (emptyState) emptyState.hidden = true;
+  if (tableShell) tableShell.hidden = true;
+  if (errorState) errorState.hidden = false;
+  if (errorMessage) errorMessage.textContent = message;
+}
+
+/**
+ * Show empty state
+ */
+function showEmptyState(): void {
+  const loadingState = document.querySelector('[data-loading-state]');
+  const emptyState = document.querySelector('[data-empty-state]');
+  const tableShell = document.querySelector('[data-table-shell]');
+
+  if (loadingState) loadingState.hidden = true;
+  if (emptyState) emptyState.hidden = false;
+  if (tableShell) tableShell.hidden = true;
 }
 
 /**

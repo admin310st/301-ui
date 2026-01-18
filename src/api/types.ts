@@ -431,3 +431,201 @@ export interface AttachDomainResponse {
     role: DomainRole;
   };
 }
+
+// =============================================================================
+// Redirects API Types
+// =============================================================================
+
+export type SyncStatus = 'pending' | 'synced' | 'error';
+export type Trend = 'up' | 'down' | 'neutral';
+
+/**
+ * Redirect rule (nested object inside RedirectDomain)
+ */
+export interface RedirectRule {
+  id: number;
+  template_id: string;
+  preset_id: string | null;
+  preset_order: number | null;
+  rule_name: string;
+  params: Record<string, any>;
+  status_code: 301 | 302;
+  enabled: boolean;
+  sync_status: SyncStatus;
+  cf_rule_id: string | null;
+  clicks_total: number;
+  clicks_today: number;
+  clicks_yesterday: number;
+  trend: Trend;
+  created_at: string;
+  updated_at: string;
+}
+
+/**
+ * Domain with optional redirect (main entity in redirects table)
+ * Note: Different from SiteDomain - this includes full redirect info
+ */
+export interface RedirectDomain {
+  domain_id: number;
+  domain_name: string;
+  domain_role: DomainRole;
+  zone_id: number | null;
+  zone_name: string | null;
+  redirect: RedirectRule | null; // null = domain without redirect
+}
+
+/**
+ * Zone limit info for redirects
+ */
+export interface RedirectZoneLimit {
+  zone_id: number;
+  zone_name: string;
+  used: number;
+  max: number;
+}
+
+/**
+ * GET /sites/:siteId/redirects response
+ */
+export interface GetSiteRedirectsResponse {
+  ok: boolean;
+  site_id: number;
+  site_name: string;
+  domains: RedirectDomain[];
+  zone_limits: RedirectZoneLimit[];
+  total_domains: number;
+  total_redirects: number;
+}
+
+/**
+ * GET /redirects/:id response
+ */
+export interface GetRedirectResponse {
+  ok: boolean;
+  redirect: RedirectRule;
+}
+
+/**
+ * Redirect template (T1-T7)
+ */
+export interface RedirectTemplate {
+  id: string;
+  name: string;
+  description: string;
+  category: 'domain' | 'canonical' | 'path' | 'temporary';
+  preservePath: boolean;
+  preserveQuery: boolean;
+  defaultStatusCode: 301 | 302;
+  params: Array<{
+    name: string;
+    type: 'url' | 'path';
+    required: boolean;
+    description: string;
+  }>;
+}
+
+/**
+ * GET /redirects/templates response
+ */
+export interface GetTemplatesResponse {
+  ok: boolean;
+  templates: RedirectTemplate[];
+}
+
+/**
+ * Redirect preset (P1-P5)
+ */
+export interface RedirectPreset {
+  id: string;
+  name: string;
+  description: string;
+  useCase: string;
+  rulesCount: number | string;
+  rules: Array<{
+    template_id: string;
+    order: number | string;
+    description: string;
+  }>;
+}
+
+/**
+ * GET /redirects/presets response
+ */
+export interface GetPresetsResponse {
+  ok: boolean;
+  presets: RedirectPreset[];
+}
+
+/**
+ * POST /domains/:domainId/redirects request
+ */
+export interface CreateRedirectRequest {
+  template_id: string;
+  rule_name?: string;
+  params: Record<string, any>;
+  status_code?: 301 | 302;
+}
+
+/**
+ * POST /domains/:domainId/redirects response
+ */
+export interface CreateRedirectResponse {
+  ok: boolean;
+  redirect: RedirectRule;
+  zone_limit: RedirectZoneLimit;
+}
+
+/**
+ * PATCH /redirects/:id request
+ */
+export interface UpdateRedirectRequest {
+  rule_name?: string;
+  params?: Record<string, any>;
+  status_code?: 301 | 302;
+  enabled?: boolean;
+}
+
+/**
+ * POST /domains/:domainId/redirects/preset request
+ */
+export interface ApplyPresetRequest {
+  preset_id: string;
+  params: Record<string, any>;
+}
+
+/**
+ * POST /domains/:domainId/redirects/preset response
+ */
+export interface ApplyPresetResponse {
+  ok: boolean;
+  preset_id: string;
+  preset_name: string;
+  created_count: number;
+  redirect_ids: number[];
+  zone_limit: RedirectZoneLimit;
+}
+
+/**
+ * POST /zones/:id/apply-redirects response
+ */
+export interface ApplyRedirectsResponse {
+  ok: boolean;
+  zone_id: number;
+  cf_zone_id: string;
+  cf_ruleset_id: string;
+  rules_applied: number;
+  synced_rules: Array<{ id: number; cf_rule_id: string }>;
+  warnings?: string[];
+}
+
+/**
+ * GET /zones/:id/redirect-limits response
+ */
+export interface GetZoneLimitsResponse {
+  ok: boolean;
+  zone_id: number;
+  zone_name: string;
+  used: number;
+  max: number;
+  available: number;
+}

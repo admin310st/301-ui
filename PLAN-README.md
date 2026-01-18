@@ -6,100 +6,118 @@
 
 ## 📋 Available Plans
 
-### 1. PLAN-redirects-with-role.md ⭐ **RECOMMENDED**
+### 1. PLAN-redirects-FINAL.md ⭐ **ACTIVE**
 
-**Статус:** Active, Ready for Implementation
+**Статус:** Ready for Implementation
+**Дата:** 2026-01-18
 
-**Подход:** Redirects page работает в контексте выбранного Site. Backend добавляет `domain_role` для минимизации изменений в UI.
+**Подход:** Обновлённый план на основе проверки реального кода backend.
 
-**Ключевые особенности:**
-- ✅ Минимальные изменения в UI (только mock → API)
-- ✅ Backend добавляет `domain_role: "acceptor" | "donor" | "reserve"`
-- ✅ Группировка/badges/bulk actions работают как сейчас
-- ✅ Правильное использование cache/inflight/abort
-- ✅ Optimistic updates после мутаций
+**Ключевые факты (подтверждено в коде):**
+- ✅ `domain_role` **УЖЕ реализован** в backend
+- ✅ `domains[]` с вложенной структурой `redirect: {...} | null`
+- ✅ LEFT JOIN — возвращаются ВСЕ домены сайта
+- ✅ `zone_limits[]` включены в response
+- ✅ `total_domains`, `total_redirects` — новые поля
 
-**Backend Requirements:**
-- 🚨 **Критично:** `domain_role` в `GET /sites/:siteId/redirects`
-- 🎯 **Опционально:** `domain_status`, `cf_implementation`
+**TypeScript структура:**
+```typescript
+interface SiteDomain {
+  domain_id: number;
+  domain_name: string;
+  domain_role: 'acceptor' | 'donor' | 'reserve';
+  zone_id: number | null;
+  zone_name: string | null;
+  redirect: RedirectRule | null;  // null = домен без редиректа
+}
+```
 
-**Timeline:** ~21-30 часов (3-4 недели с учетом backend)
+**Implementation Phases:**
+1. PR-A: API Layer (4-6h)
+2. PR-B: State Management (4-6h)
+3. PR-C: UI Integration (6-8h)
+4. PR-D: Bulk Actions (3-4h)
+5. PR-E: Drawer (4-6h)
 
-**PR Structure:**
-- PR-A: API Layer + Cache (4-6h)
-- PR-B: State Management (4-6h)
-- PR-C: Page Wiring (6-8h)
-- PR-D: Bulk Actions (3-4h)
-- PR-E: Drawer (4-6h)
-
----
-
-### 2. PLAN-redirects-site-context.md
-
-**Статус:** Alternative, Deprecated
-
-**Подход:** Redirects page в контексте Site, но БЕЗ role от backend.
-
-**Отличия от recommended:**
-- ❌ Нет `domain_role` от backend
-- ❌ Frontend вычисляет role (сложнее, менее надежно)
-- ❌ Убрана отдельная колонка Template (добавлен badge в Domain cell)
-
-**Рекомендация:** Использовать PLAN-redirects-with-role.md вместо этого.
+**Estimated:** 22-30 hours
 
 ---
 
-### 3. ANALYSIS-redirects-migration.md
+### 2. PLAN-redirects-with-role.md (Deprecated)
+
+**Статус:** Superseded by FINAL
+
+Оригинальный план с требованиями к backend. Backend requirements выполнены, план заменён на FINAL.
+
+---
+
+### 3. PLAN-redirects-site-context.md (Deprecated)
+
+**Статус:** Superseded by FINAL
+
+Альтернативный план без role от backend. Не актуален — role есть в API.
+
+---
+
+### 4. PLAN-redirects-implementation.md (Reference)
+
+**Статус:** Reference Document
+
+Общий план UI реализации: templates, presets, sync, analytics. Используется как reference для Phase 3-5.
+
+---
+
+### 5. ANALYSIS-redirects-migration.md (Reference)
 
 **Статус:** Research Document
 
-**Подход:** Детальный анализ существующей mock реализации vs новый API.
-
-**Содержание:**
-- Что уже есть в UI (на моках)
-- Что предоставляет новый API
-- Gaps analysis
-- Migration strategy (4 фазы)
-
-**Use Case:** Reference document для понимания scope изменений.
+Детальный анализ mock → API migration. Используется как reference.
 
 ---
 
 ## 🚀 Quick Start
 
-### Для начала работы:
+```bash
+# 1. Прочитать финальный план
+cat PLAN-redirects-FINAL.md
 
-1. **Прочитать:** `PLAN-redirects-with-role.md` (раздел "BACKEND REQUIREMENTS")
-2. **Согласовать с backend team:** Добавление `domain_role` ([GitHub Issue #10](https://github.com/admin310st/301/issues/10))
-3. **Начать PR-A:** API Layer (можно работать с mock пока backend не готов)
-4. **Параллельно PR-B:** State Management
-5. **После A+B готовы:** PR-C/D/E в любом порядке
+# 2. Начать с API Layer
+# Создать src/api/redirects.ts
 
----
+# 3. Затем State Management
+# Создать src/redirects/state.ts
 
-## 📊 Comparison Table
-
-| Aspect | with-role (⭐) | site-context | migration |
-|--------|---------------|--------------|-----------|
-| Backend changes | `domain_role` (minimal) | None | Analysis only |
-| UI changes | Minimal (mock → API) | Minimal + compute role | 4 phases |
-| Template display | Badge in Domain cell | Badge in Domain cell | Separate column (deprecated) |
-| Maintenance | Easy | Medium | N/A |
-| Risk | Low (if backend ready) | Medium (frontend logic) | N/A |
+# 4. UI Integration
+# Обновить src/redirects/redirects.ts
+```
 
 ---
 
-## 🎯 Recommendation
+## 📊 Backend API Status
 
-**Use PLAN-redirects-with-role.md** - это самый быстрый и надежный путь к реализации при минимальных изменениях в UI.
+| Requirement | Status | Notes |
+|-------------|--------|-------|
+| `domain_role` in response | ✅ Ready | `d.role as domain_role` in SQL |
+| All domains returned | ✅ Ready | LEFT JOIN on redirect_rules |
+| `zone_limits[]` | ✅ Ready | Included in response |
+| Templates endpoint | ✅ Ready | GET /redirects/templates |
+| Presets endpoint | ✅ Ready | GET /redirects/presets |
+| CRUD endpoints | ✅ Ready | POST/PATCH/DELETE working |
+| Apply sync | ✅ Ready | POST /zones/:id/apply-redirects |
 
-**Критическая зависимость:** Backend добавляет `domain_role` в `GET /sites/:siteId/redirects`.
+**Backend is 100% ready. Frontend can start immediately.**
 
-**Альтернатива:** Если backend не может добавить role - см. раздел 17 в PLAN-redirects-with-role.md для вычисления role на фронте.
+---
+
+## 🎯 Current Focus
+
+**Use PLAN-redirects-FINAL.md** — это единственный актуальный план.
+
+Все остальные планы — либо deprecated, либо reference documents.
 
 ---
 
 ## 📞 Contact
 
-Вопросы по планам: @admin310st
-Backend requirements: См. раздел "BACKEND REQUIREMENTS" в PLAN-redirects-with-role.md
+Questions: @admin310st
+Backend repo: https://github.com/admin310st/301
