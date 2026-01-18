@@ -112,7 +112,6 @@ function renderSiteOptions(container: HTMLElement): void {
           data-site-id="${site.id}"
           data-site-name="${site.name}"
         >
-          <span class="icon" data-icon="mono/web-scan"></span>
           <span>${site.name}</span>
           <span class="badge badge--xs badge--neutral">${site.domainsCount}</span>
         </button>
@@ -124,21 +123,12 @@ function renderSiteOptions(container: HTMLElement): void {
 }
 
 /**
- * Update site name display (filter chip + utility badge)
+ * Update site name display in filter chip
  */
 function updateSiteNameDisplay(name: string): void {
-  // Update filter chip label
   const nameEl = document.querySelector('[data-site-name]');
   if (nameEl) {
     nameEl.textContent = name;
-  }
-
-  // Update utility badge
-  const badge = document.querySelector('[data-site-badge]');
-  const badgeName = document.querySelector('[data-site-badge-name]');
-  if (badge && badgeName) {
-    badgeName.textContent = name;
-    badge.removeAttribute('hidden');
   }
 }
 
