@@ -651,10 +651,14 @@ async function handleSave(): Promise<void> {
 
   console.log('Saving redirect:', {
     id: currentRedirect.id,
+    domain_id: currentRedirect.domain_id,
     domain: currentRedirect.domain,
+    has_redirect: currentRedirect.has_redirect,
     target_url: targetUrl,
     redirect_code: redirectCode,
-    enabled
+    enabled,
+    // Debug: will we UPDATE or CREATE?
+    willUpdate: currentRedirect.has_redirect && currentRedirect.id,
   });
 
   // Validation
