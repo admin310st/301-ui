@@ -17,19 +17,10 @@ export interface FilterConfig {
   priority?: 'critical' | 'high' | 'medium' | 'low';
 }
 
+// Note: Project and Site selectors are now separate dropdowns (data-project-selector, data-site-selector)
+// loaded dynamically from API in site-selector.ts
+
 export const REDIRECT_FILTERS: FilterConfig[] = [
-  {
-    id: 'project',
-    label: 'Projects',
-    type: 'single-select',
-    priority: 'critical', // Always visible - relates to Domain column
-    options: [
-      { value: '17', label: 'CryptoBoss' },
-      { value: '18', label: 'TestProject' },
-      { value: '19', label: 'Vavada' },
-      { value: '20', label: 'BetHub' },
-    ],
-  },
   {
     id: 'configured',
     label: 'Configured',
@@ -66,10 +57,9 @@ export const REDIRECT_FILTERS: FilterConfig[] = [
 
 /**
  * Active filters state
- * Note: project is single-select (string), others are multi-select (string[])
+ * Note: Project/Site selection is handled by separate selectors, not here
  */
 export interface ActiveFilters {
-  project?: string;  // single-select
   configured?: string[];
   sync?: string[];
   enabled?: string[];
@@ -80,7 +70,6 @@ export interface ActiveFilters {
  */
 export function hasActiveFilters(filters: ActiveFilters): boolean {
   return !!(
-    filters.project ||  // single-select: truthy = active
     (filters.configured && filters.configured.length > 0) ||
     (filters.sync && filters.sync.length > 0) ||
     (filters.enabled && filters.enabled.length > 0)
@@ -92,7 +81,6 @@ export function hasActiveFilters(filters: ActiveFilters): boolean {
  */
 export function getDefaultFilters(): ActiveFilters {
   return {
-    project: undefined,  // single-select: undefined = no filter
     configured: [],
     sync: [],
     enabled: [],

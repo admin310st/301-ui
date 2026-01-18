@@ -1165,15 +1165,10 @@ function setupFilters(): void {
 
 /**
  * Apply filters
+ * Note: Project/Site filtering is handled by selectors, not here
  */
 function applyFilters(): void {
   let result = [...currentRedirects];
-
-  // Apply project filter (single-select)
-  if (activeFilters.project) {
-    const projectId = Number(activeFilters.project);
-    result = result.filter(r => r.project_id === projectId);
-  }
 
   // Apply configured filter (multi-select)
   if (activeFilters.configured && activeFilters.configured.length > 0) {
