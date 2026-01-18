@@ -110,7 +110,7 @@ function renderProjectOptions(container: HTMLElement): void {
         data-action="select-project"
         data-project-id="${project.id}"
       >
-        <span class="icon" data-icon="mono/folder"></span>
+        <span class="icon" data-icon="mono/layers"></span>
         <span>${project.name}</span>
       </button>
     `;

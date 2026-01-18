@@ -103,14 +103,15 @@ export async function getSiteRedirects(
     if (cached) return cached;
   }
 
-  // Fetch with in-flight guard + abort support
+  // Fetch with in-flight guard (no shared abort - parallel multi-site loading)
   return withInFlight(cacheKey, async () => {
-    // Abort previous request for this operation (last wins on site change)
-    const signal = abortPrevious('redirects:listSite');
+    // Use site-specific abort key to allow parallel loading of multiple sites
+    // while still aborting on re-request for same site
+    const signal = abortPrevious(`redirects:listSite:${siteId}`);
 
     const response = await apiFetch<GetSiteRedirectsResponse>(
       `/sites/${siteId}/redirects`,
-      { signal, showLoading: 'brand' }
+      { signal, showLoading: false } // No loading - multi-site parallel load
     );
 
     // Store in cache
