@@ -4,14 +4,20 @@
 
 ---
 
-## 📍 Текущий фокус (2025-12-22)
+## 📍 Текущий фокус (2025-01-18)
 
-**Приоритет:** Создание core страниц на мокапах (UI впереди бэкенда)
+**Приоритет:** Real API Integration для Redirects
 
-**Следующие 3 задачи:**
-1. 🎯 **Redirects page** - ключевая функциональность платформы (301.st)
+**Текущие задачи:**
+1. 🚧 **Redirects page** - API integration, drawer save/sync testing
 2. 🎯 **Projects page** - верхний уровень иерархии
 3. 🎯 **Sites page** - управление сайтами/whitepages
+
+**Redirects Progress:**
+- ✅ Table with real API data (multi-site parallel loading)
+- ✅ Project/Site selectors (API-driven)
+- ✅ Drawer pre-fills target URL with acceptor domain
+- 🔄 Testing drawer save (createRedirect API call fixed)
 
 ---
 
@@ -76,9 +82,9 @@ Account (Аккаунт клиента)
 
 ---
 
-### 2. Redirects (NEW, Приоритет #1)
+### 2. Redirects (Приоритет #1)
 
-**Статус:** 📋 Planned (создать `TODO-redirects.md`)
+**Статус:** 🚧 In Progress — Real API Integration (2025-01-18)
 
 **Цель:** Core функциональность 301.st - управление redirect rules
 
@@ -86,48 +92,61 @@ Account (Аккаунт клиента)
 ```
 redirects.html
 src/redirects/
-  ├─ redirects.ts       # UI logic
-  ├─ mock-data.ts       # 20-30 mock rules
-  └─ types.ts           # RedirectRule interface
+  ├─ redirects.ts       # UI logic (table, filters, bulk actions)
+  ├─ drawer.ts          # Redirect inspector/editor drawer
+  ├─ state.ts           # Multi-site state management
+  ├─ site-selector.ts   # Project + Site selectors (API-driven)
+  ├─ filters-config.ts  # Filter definitions
+  ├─ filters-ui.ts      # Filter chips rendering
+  ├─ sync-status.ts     # Cloudflare sync status
+  ├─ adapter.ts         # API → Legacy format adapter
+  └─ mock-data.ts       # Types only (mocks removed)
+src/api/
+  └─ redirects.ts       # API client for redirects endpoints
 ```
 
-**Задачи MVP (Этап 1, ~2-3 дня):**
-- [ ] Создать `redirects.html` с dashboard layout
-- [ ] Создать mock data:
-  - `rule_type`: 301, 302, cloaking, worker
-  - `source_path`, `target_url`
-  - `conditions`: geo, device, utm_source
-  - `priority`, `enabled`
-- [ ] Таблица правил с фильтрами:
-  - By domain
-  - By type (301/302/cloaking/worker)
-  - By status (enabled/disabled)
-- [ ] Drawer для создания/редактирования правила
-- [ ] Form validation (URL format, path format)
-- [ ] Priority ordering (number input)
-- [ ] i18n (EN/RU)
+**Реализовано (Этапы 1-5):**
+- [x] Создать `redirects.html` с dashboard layout
+- [x] API Layer (`src/api/redirects.ts`):
+  - Templates/Presets (long TTL cache)
+  - Site redirects (short TTL, parallel multi-site loading)
+  - CRUD operations (create, update, delete)
+  - Zone sync (apply-redirects)
+- [x] State Management (`src/redirects/state.ts`):
+  - Multi-site selection support
+  - Optimistic updates
+  - Reactive listeners
+- [x] Project/Site selectors (API-driven, not mocks)
+- [x] Table rendering with hierarchy:
+  - Acceptor row: mass-select checkbox, flag, ←N badge, site type, lock icon
+  - Donor rows: indented with vertical line, status badges
+- [x] Filters: Configured, Sync, Enabled (working)
+- [x] Drawer for creating/editing redirects
+- [x] Pre-fill target URL with acceptor domain
+- [x] Bulk actions UI (enable/disable/delete/sync)
 
-**Mock data example:**
-```typescript
-interface RedirectRule {
-  id: number;
-  domain_id: number;
-  domain_name: string;    // денормализация
-  rule_type: '301' | '302' | 'cloaking' | 'worker';
-  source_path: string;    // /promo, /special, *
-  target_url: string;
-  conditions: {
-    geo?: string[];       // ['RU', 'UA']
-    device?: 'mobile' | 'desktop' | 'tablet';
-    utm_source?: string;
-  };
-  priority: number;
-  enabled: boolean;
-  created_at: string;
-}
-```
+**В процессе (Этап 6):**
+- [x] Fix createRedirect API call (removed invalid `enabled` field)
+- [ ] Test drawer save with real API
+- [ ] Test Cloudflare sync
+- [ ] Error handling refinement
 
-**Детали:** Создать детальный `TODO-redirects.md` при старте разработки
+**API Endpoints (из `docs/301-wiki/API_Redirects.md`):**
+| Endpoint | Метод | Описание |
+|----------|-------|----------|
+| `/redirects/templates` | GET | Шаблоны T1-T7 |
+| `/redirects/presets` | GET | Пресеты P1-P5 |
+| `/sites/:siteId/redirects` | GET | Домены сайта с редиректами |
+| `/domains/:domainId/redirects` | POST | Создать редирект (template_id, params) |
+| `/redirects/:id` | PATCH | Обновить редирект |
+| `/redirects/:id` | DELETE | Удалить редирект |
+| `/zones/:id/apply-redirects` | POST | Синхронизация в CF |
+
+**Ключевые паттерны:**
+- Template T1 "Domain → Domain" — основной сценарий (redirect к acceptor домену)
+- Pre-fill target URL с acceptor domain для one-click setup
+- Lимит 10 правил на зону (Free Plan)
+- Sync status: pending → synced | error
 
 ---
 
@@ -592,6 +611,13 @@ build: {
 
 ## 📅 История обновлений
 
+- **2025-01-18**: Redirects Real API Integration
+  - Fixed multi-site parallel loading (site-specific abort keys)
+  - Project/Site selectors fully API-driven (removed mocks)
+  - Drawer pre-fills target URL with acceptor domain for one-click setup
+  - Fixed createRedirect API call (removed invalid `enabled` field)
+  - Updated TODO-index with detailed Redirects progress
+
 - **2025-12-24**: Добавлен TDS/Streams epic
   - Создан детальный `TODO-streams.md` с 6 milestones
   - Mapped все компоненты к existing design patterns
@@ -604,6 +630,6 @@ build: {
 
 ---
 
-**Последнее обновление:** 2025-12-24
+**Последнее обновление:** 2025-01-18
 
-**Next action:** Создать `TODO-redirects.md` и начать разработку Redirects page
+**Next action:** Test drawer save with real API, then Cloudflare sync

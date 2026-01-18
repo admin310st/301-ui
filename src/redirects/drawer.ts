@@ -15,6 +15,7 @@ import {
   addRedirectToDomain,
   markZoneSynced,
   refreshRedirects,
+  getAcceptorDomain,
 } from './state';
 import { showGlobalNotice } from '@ui/globalNotice';
 
@@ -383,6 +384,12 @@ function renderDrawerContent(redirect: DomainRedirect): void {
 
   const isAcceptor = redirect.role === 'acceptor';
 
+  // Get acceptor domain for this site (for pre-filling target URL)
+  const acceptorDomain = getAcceptorDomain(redirect.site_id);
+  const defaultTargetUrl = acceptorDomain
+    ? `https://${acceptorDomain.domain_name}`
+    : '';
+
   const content = `
     <div class="stack-list">
       <!-- Overview -->
@@ -400,24 +407,39 @@ function renderDrawerContent(redirect: DomainRedirect): void {
               <dt class="detail-label">Site</dt>
               <dd class="detail-value">${redirect.site_name || '—'}</dd>
             </div>
-            ${!isAcceptor && redirect.target_url ? `
+            ${isAcceptor ? `
+              <div class="detail-row">
+                <dt class="detail-label">Role</dt>
+                <dd class="detail-value">
+                  <span class="badge badge--sm badge--success">Main domain</span>
+                  <span class="text-muted text-sm">— receives traffic from other domains</span>
+                </dd>
+              </div>
+            ` : redirect.target_url ? `
               <div class="detail-row">
                 <dt class="detail-label">Target</dt>
                 <dd class="detail-value">
                   <span class="detail-value--mono">${redirect.target_url}</span>
                 </dd>
               </div>
-            ` : !isAcceptor ? `
+            ` : acceptorDomain ? `
+              <div class="detail-row">
+                <dt class="detail-label">Target</dt>
+                <dd class="detail-value text-muted">
+                  Will redirect to <strong>${acceptorDomain.domain_name}</strong>
+                </dd>
+              </div>
+            ` : `
               <div class="detail-row">
                 <dt class="detail-label">Target</dt>
                 <dd class="detail-value text-muted">No redirect configured</dd>
               </div>
-            ` : ''}
+            `}
           </dl>
         </div>
       </section>
 
-      ${isAcceptor ? '' : renderRedirectConfigCard(redirect)}
+      ${isAcceptor ? '' : renderRedirectConfigCard(redirect, defaultTargetUrl)}
       ${renderSyncStatusCard(redirect)}
     </div>
   `;
@@ -431,11 +453,17 @@ function renderDrawerContent(redirect: DomainRedirect): void {
 
 /**
  * Render redirect configuration card (for redirect domains)
+ * @param redirect - Domain redirect data
+ * @param defaultTargetUrl - Pre-filled target URL (usually acceptor domain)
  */
-function renderRedirectConfigCard(redirect: DomainRedirect): string {
+function renderRedirectConfigCard(redirect: DomainRedirect, defaultTargetUrl: string = ''): string {
   const redirectCode = redirect.redirect_code || 301;
   const enabled = redirect.enabled ?? true;
   const hasRedirect = redirect.target_url && redirect.target_url.trim() !== '';
+
+  // Use existing target URL or default (acceptor domain)
+  const targetValue = redirect.target_url || defaultTargetUrl;
+  const isNewRedirect = !hasRedirect && defaultTargetUrl;
 
   const redirectCodeLabel = redirectCode === 301 ? '301 - Permanent' : '302 - Temporary';
   const redirectCodeColor = redirectCode === 301 ? 'var(--ok)' : 'var(--warning)';
@@ -443,21 +471,21 @@ function renderRedirectConfigCard(redirect: DomainRedirect): string {
   return `
     <section class="card card--panel">
       <header class="card__header">
-        <h3 class="h5">Redirect Configuration</h3>
+        <h3 class="h5">${isNewRedirect ? 'Create Redirect' : 'Redirect Configuration'}</h3>
       </header>
       <div class="card__body">
         <div class="stack-list">
           <div class="field">
             <label class="field__label" for="drawer-target">
               Target
-              <span class="field__hint">Destination URL or host</span>
+              <span class="field__hint">${isNewRedirect ? 'Pre-filled with main domain' : 'Destination URL or host'}</span>
             </label>
             <input
               type="text"
               id="drawer-target"
               class="input"
               placeholder="https://example.com"
-              value="${redirect.target_url || ''}"
+              value="${targetValue}"
               data-drawer-field="target_url"
             />
           </div>
@@ -667,10 +695,11 @@ async function handleSave(): Promise<void> {
       showGlobalNotice('success', `Updated redirect for ${currentRedirect.domain}`);
     } else {
       // Create new redirect (T1 template = simple redirect)
+      // Note: 'enabled' is NOT a create parameter - new redirects are enabled by default
       const response = await createRedirect(currentRedirect.domain_id, {
         template_id: 'T1',
         params: { target_url: targetUrl },
-        enabled,
+        status_code: redirectCode,
       });
 
       // Add redirect to state
