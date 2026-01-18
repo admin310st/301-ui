@@ -112,7 +112,7 @@ function renderSiteOptions(container: HTMLElement): void {
           data-site-id="${site.id}"
           data-site-name="${site.name}"
         >
-          <span class="icon" data-icon="mono/globe"></span>
+          <span class="icon" data-icon="mono/web-scan"></span>
           <span>${site.name}</span>
           <span class="badge badge--xs badge--neutral">${site.domainsCount}</span>
         </button>
