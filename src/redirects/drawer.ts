@@ -60,6 +60,13 @@ export function openDrawer(redirect: DomainRedirect): void {
 
   currentRedirect = redirect;
 
+  // Reset save button state (in case it was stuck from previous save)
+  const saveBtn = drawerElement.querySelector('[data-drawer-save]') as HTMLButtonElement;
+  if (saveBtn) {
+    saveBtn.disabled = false;
+    saveBtn.textContent = 'Save changes';
+  }
+
   // Update domain name in header
   const domainEl = drawerElement.querySelector('[data-drawer-domain]');
   if (domainEl) {
@@ -696,6 +703,11 @@ async function handleSave(): Promise<void> {
         sync_status: 'pending',
       });
 
+      console.log('[Drawer] Updated redirect, triggering state update:', {
+        domain_id: currentRedirect.domain_id,
+        updates: { target_url: targetUrl, status_code: redirectCode, enabled, sync_status: 'pending' },
+      });
+
       showGlobalNotice('success', `Updated redirect for ${currentRedirect.domain}`);
     } else {
       // Create new redirect (T1 template = simple redirect)
@@ -706,8 +718,18 @@ async function handleSave(): Promise<void> {
         status_code: redirectCode,
       });
 
-      // Add redirect to state
-      addRedirectToDomain(currentRedirect.domain_id, response.redirect, 'donor');
+      // Add redirect to state with 'pending' sync status
+      // (new redirects need to be synced to Cloudflare)
+      const redirectWithPendingStatus = {
+        ...response.redirect,
+        sync_status: 'pending' as const,
+      };
+      addRedirectToDomain(currentRedirect.domain_id, redirectWithPendingStatus, 'donor');
+
+      console.log('[Drawer] Created redirect, triggering state update:', {
+        domain_id: currentRedirect.domain_id,
+        redirect: redirectWithPendingStatus,
+      });
 
       showGlobalNotice('success', `Created redirect for ${currentRedirect.domain}`);
     }

@@ -37,6 +37,9 @@ import {
 } from '@api/redirects';
 import { showGlobalNotice } from '@ui/globalNotice';
 
+// Feature flag for API integration (should match drawer.ts)
+const USE_REAL_API = true;
+
 let currentRedirects: DomainRedirect[] = [];
 let filteredRedirects: DomainRedirect[] = [];
 let collapsedGroups = new Set<number>();  // Set of collapsed site_ids
@@ -55,13 +58,24 @@ export function initRedirectsPage(): void {
 
   // Subscribe to state changes
   onStateChange((state) => {
+    console.log('[Redirects] onStateChange called:', {
+      loading: state.loading,
+      error: state.error,
+      domainsCount: state.domains.length,
+      selectedSiteIds: state.selectedSiteIds,
+    });
+
     if (state.loading) {
+      console.log('[Redirects] -> showLoadingState');
       showLoadingState();
     } else if (state.error) {
+      console.log('[Redirects] -> showErrorState');
       showErrorState(state.error);
     } else if (state.domains.length === 0 && state.selectedSiteIds.length > 0) {
+      console.log('[Redirects] -> showEmptyState (no domains)');
       showEmptyState();
     } else if (state.domains.length > 0) {
+      console.log('[Redirects] -> rendering table');
       // Convert API data to legacy format using adapter
       // Domains are already sorted and have site_id, site_name
       const sortedDomains = getSortedDomains();
@@ -82,7 +96,9 @@ export function initRedirectsPage(): void {
       hideLoadingState();
       renderTable();
       initSyncStatus(currentRedirects);
+      console.log('[Redirects] -> table rendered, redirects count:', currentRedirects.length);
     } else if (state.selectedSiteIds.length === 0) {
+      console.log('[Redirects] -> showEmptyState (no sites selected)');
       // No sites selected
       showEmptyState();
     }

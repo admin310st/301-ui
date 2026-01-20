@@ -93,6 +93,7 @@ type StateListener = (state: RedirectsState) => void;
 const listeners: StateListener[] = [];
 
 function notifyListeners(): void {
+  console.log('[State] notifyListeners called, listeners count:', listeners.length, 'domains count:', state.domains.length);
   listeners.forEach(fn => fn(state));
 }
 
@@ -248,6 +249,7 @@ export function updateDomainRedirect(
   updates: Partial<RedirectRule>
 ): void {
   const domain = findDomain(domainId);
+  console.log('[State] updateDomainRedirect called:', { domainId, found: !!domain, hasRedirect: !!domain?.redirect });
   if (!domain?.redirect) return;
 
   // Apply updates to redirect
@@ -306,6 +308,7 @@ export function addRedirectToDomain(
   newRole: DomainRole = 'donor'
 ): void {
   const domain = findDomain(domainId);
+  console.log('[State] addRedirectToDomain called:', { domainId, found: !!domain, redirect });
   if (!domain) return;
 
   // Set redirect and role
