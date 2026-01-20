@@ -376,10 +376,15 @@ async function handleDetachDomain(domainId: number, domainName: string): Promise
       }
     );
 
-    // Invalidate cache for the project
+    // Invalidate all related caches
+    invalidateCache('domains'); // Clear all domain caches
     if (currentProjectId) {
       invalidateCache(`project:${currentProjectId}`);
       invalidateCache(`sites:project:${currentProjectId}`);
+      invalidateCache(`domains:project:${currentProjectId}`);
+    }
+    if (currentSiteId) {
+      invalidateCache(`site:${currentSiteId}`);
     }
 
     showGlobalMessage('success', t('sites.messages.domainDetached'));

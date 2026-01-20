@@ -127,6 +127,9 @@ export async function assignDomainToSite(
  *
  * DELETE /sites/:id/domains/:domainId
  *
+ * Note: Domain stays in project, only site_id becomes null.
+ * Domain is then available for reassignment to other sites in same project.
+ *
  * @param siteId - Site ID
  * @param domainId - Domain ID to remove
  */
@@ -139,6 +142,13 @@ export async function removeDomainFromSite(
   await apiFetch(`/sites/${siteId}/domains/${domainId}`, {
     method: 'DELETE',
   });
+
+  // Invalidate domain-related caches
+  // Note: We can't invalidate project-specific caches here because we don't have project_id
+  // The caller should handle project-specific cache invalidation
+  const { invalidateCacheByPrefix } = await import('./cache');
+  invalidateCacheByPrefix('domains');
+  invalidateCacheByPrefix(`site:${siteId}`);
 }
 
 /**
