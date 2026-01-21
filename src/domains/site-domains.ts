@@ -109,7 +109,6 @@ async function loadAttachedDomains(accountId: number, siteId: number): Promise<v
 
   try {
     // Get domains attached to the site using API filter
-    console.log('[loadAttachedDomains] fetching domains for site:', siteId);
     const response = await safeCall(
       () => domainsAPI.getDomains({ site_id: siteId }),
       {
@@ -117,11 +116,9 @@ async function loadAttachedDomains(accountId: number, siteId: number): Promise<v
         retryOn401: true,
       }
     );
-    console.log('[loadAttachedDomains] API response:', response);
 
     // Flatten groups into a single array of domains
     attachedDomains = response.groups.flatMap(group => group.domains);
-    console.log('[loadAttachedDomains] attached to site', siteId, ':', attachedDomains.map(d => ({ id: d.id, name: d.domain_name })));
 
     // Update count
     const countEl = document.querySelector<HTMLElement>('[data-site-domains-count]');
@@ -208,7 +205,6 @@ async function loadAvailableDomains(accountId: number, projectId: number): Promi
 
   try {
     // Get domains in the project using API filter
-    console.log('[loadAvailableDomains] fetching domains for project:', projectId);
     const response = await safeCall(
       () => domainsAPI.getDomains({ project_id: projectId }),
       {
@@ -216,15 +212,12 @@ async function loadAvailableDomains(accountId: number, projectId: number): Promi
         retryOn401: true,
       }
     );
-    console.log('[loadAvailableDomains] API response:', response);
 
     // Flatten groups into a single array of domains
     const projectDomains = response.groups.flatMap(group => group.domains);
-    console.log('[loadAvailableDomains] project domains:', projectDomains.map(d => ({ id: d.id, name: d.domain_name, site_id: d.site_id })));
 
     // Filter out domains already attached to ANY site
     const availableDomains = projectDomains.filter(d => !d.site_id);
-    console.log('[loadAvailableDomains] available (no site_id):', availableDomains.map(d => ({ id: d.id, name: d.domain_name })));
 
     if (availableDomains.length === 0) {
       menu.innerHTML = `
@@ -365,25 +358,16 @@ async function handleAttachDomain(): Promise<void> {
  */
 async function handleDetachDomain(domainId: number, domainName: string): Promise<void> {
   const { accountId } = getAuthState();
-  console.log('[handleDetachDomain] start', { accountId, currentSiteId, currentProjectId, domainId, domainName });
-  if (!accountId || !currentSiteId) {
-    console.log('[handleDetachDomain] missing accountId or currentSiteId, aborting');
-    return;
-  }
+  if (!accountId || !currentSiteId) return;
 
   // Show confirmation dialog
-  console.log('[handleDetachDomain] showing confirmation dialog');
   const confirmed = await showConfirmDialog('detach-domain-from-site', {
     'detach-domain-name': domainName,
   });
 
-  console.log('[handleDetachDomain] dialog result:', confirmed);
-  if (!confirmed) {
-    return;
-  }
+  if (!confirmed) return;
 
   try {
-    console.log('[handleDetachDomain] calling removeDomainFromSite', { siteId: currentSiteId, domainId });
     await safeCall(
       () => domainsAPI.removeDomainFromSite(currentSiteId!, domainId),
       {
@@ -391,11 +375,9 @@ async function handleDetachDomain(domainId: number, domainName: string): Promise
         retryOn401: true,
       }
     );
-    console.log('[handleDetachDomain] removeDomainFromSite succeeded');
 
     // Invalidate all related caches
-    console.log('[handleDetachDomain] invalidating caches');
-    invalidateCache('domains'); // Clear general domain caches
+    invalidateCache('domains');
     if (currentProjectId) {
       invalidateCache(`project:${currentProjectId}`);
       invalidateCache(`sites:project:${currentProjectId}`);
@@ -409,11 +391,8 @@ async function handleDetachDomain(domainId: number, domainName: string): Promise
     showGlobalMessage('success', t('sites.messages.domainDetached'));
 
     // Reload both lists
-    console.log('[handleDetachDomain] reloading attached domains', { accountId, siteId: currentSiteId });
     await loadAttachedDomains(accountId, currentSiteId!);
-    console.log('[handleDetachDomain] reloading available domains', { accountId, projectId: currentProjectId });
     if (currentProjectId) await loadAvailableDomains(accountId, currentProjectId);
-    console.log('[handleDetachDomain] reload complete');
 
     // Update site domains count in project detail state if available
     const sites = getCurrentSites();
