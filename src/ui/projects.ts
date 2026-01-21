@@ -245,15 +245,25 @@ function renderProjectDomainRow(domain: APIDomain): string {
                     domain.role === 'donor' ? 'Donor' : 'Reserve';
 
   // Health icons (compact colored icons instead of badges)
-  const sslIcon = domain.ssl_valid
+  // SSL: valid = green, none/pending = gray, error = red
+  const sslIcon = domain.ssl_status === 'valid'
     ? '<span class="icon text-ok" data-icon="mono/lock" title="SSL valid"></span>'
-    : '<span class="icon text-danger" data-icon="mono/lock" title="SSL invalid"></span>';
-  const nsIcon = domain.ns_valid
-    ? '<span class="icon text-ok" data-icon="mono/dns" title="NS valid"></span>'
+    : domain.ssl_status === 'error'
+    ? '<span class="icon text-danger" data-icon="mono/lock" title="SSL error"></span>'
+    : '<span class="icon text-muted" data-icon="mono/lock" title="SSL not configured"></span>';
+
+  // NS: 1 = configured (green), 0 = not configured (gray)
+  const nsIcon = domain.ns_verified === 1
+    ? '<span class="icon text-ok" data-icon="mono/dns" title="NS configured"></span>'
     : '<span class="icon text-muted" data-icon="mono/dns" title="NS not configured"></span>';
-  const abuseIcon = domain.abuse_detected
-    ? '<span class="icon text-danger" data-icon="mono/security" title="Abuse detected"></span>'
-    : '<span class="icon text-ok" data-icon="mono/security" title="Clean"></span>';
+
+  // Health: clean = green, suspicious/malicious = red, unknown/null = gray
+  const healthStatus = domain.health?.status;
+  const abuseIcon = healthStatus === 'clean'
+    ? '<span class="icon text-ok" data-icon="mono/security" title="Clean"></span>'
+    : healthStatus === 'suspicious' || healthStatus === 'malicious'
+    ? '<span class="icon text-danger" data-icon="mono/security" title="Threat detected"></span>'
+    : '<span class="icon text-muted" data-icon="mono/security" title="Not checked"></span>';
 
   // Status badge
   const statusClass = domain.blocked ? 'badge--danger' :

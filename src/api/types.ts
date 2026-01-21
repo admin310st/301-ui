@@ -151,21 +151,28 @@ export interface APIDomain {
   site_id: number | null;
   zone_id: number;
   key_id: number;
+  parent_id: number | null;
   project_id: number | null;
   domain_name: string;
   role: 'acceptor' | 'donor' | 'reserve';
   ns: string;
-  ns_verified: number;
+  ns_verified: number; // 0 = not configured, 1 = configured
   proxied: number;
   blocked: number;
   blocked_reason: string | null;
-  ssl_status: string;
+  ssl_status: string; // "valid", "none", "pending", "error"
   expired_at: string | null;
   created_at: string;
   updated_at: string;
   site_name: string | null;
   site_status: string | null;
   project_name: string | null;
+  health: {
+    status: 'unknown' | 'clean' | 'suspicious' | 'malicious' | null;
+    threat_score: number | null;
+    categories: string[] | null;
+    checked_at: string | null;
+  } | null;
 }
 
 export interface DomainsGroup {
