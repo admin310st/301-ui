@@ -108,21 +108,19 @@ async function loadAttachedDomains(accountId: number, siteId: number): Promise<v
   emptyEl.setAttribute('hidden', '');
 
   try {
-    // Get all domains and filter by site_id
-    console.log('[loadAttachedDomains] fetching domains...');
+    // Get domains attached to the site using API filter
+    console.log('[loadAttachedDomains] fetching domains for site:', siteId);
     const response = await safeCall(
-      () => domainsAPI.getDomains(),
+      () => domainsAPI.getDomains({ site_id: siteId }),
       {
-        lockKey: 'domains',
+        lockKey: `domains:site:${siteId}`,
         retryOn401: true,
       }
     );
     console.log('[loadAttachedDomains] API response:', response);
 
     // Flatten groups into a single array of domains
-    const allDomains = response.groups.flatMap(group => group.domains);
-    console.log('[loadAttachedDomains] all domains:', allDomains.map(d => ({ id: d.id, name: d.domain_name, site_id: d.site_id, project_id: d.project_id })));
-    attachedDomains = allDomains.filter(d => d.site_id === siteId);
+    attachedDomains = response.groups.flatMap(group => group.domains);
     console.log('[loadAttachedDomains] attached to site', siteId, ':', attachedDomains.map(d => ({ id: d.id, name: d.domain_name })));
 
     // Update count
@@ -209,22 +207,20 @@ async function loadAvailableDomains(accountId: number, projectId: number): Promi
   if (!menu) return;
 
   try {
-    // Get all domains in the project
-    console.log('[loadAvailableDomains] fetching domains...');
+    // Get domains in the project using API filter
+    console.log('[loadAvailableDomains] fetching domains for project:', projectId);
     const response = await safeCall(
-      () => domainsAPI.getDomains(),
+      () => domainsAPI.getDomains({ project_id: projectId }),
       {
-        lockKey: 'domains',
+        lockKey: `domains:project:${projectId}`,
         retryOn401: true,
       }
     );
     console.log('[loadAvailableDomains] API response:', response);
 
     // Flatten groups into a single array of domains
-    const allDomains = response.groups.flatMap(group => group.domains);
-    console.log('[loadAvailableDomains] all domains:', allDomains.map(d => ({ id: d.id, name: d.domain_name, site_id: d.site_id, project_id: d.project_id })));
-    const projectDomains = allDomains.filter(d => d.project_id === projectId);
-    console.log('[loadAvailableDomains] project domains (project_id=' + projectId + '):', projectDomains.map(d => ({ id: d.id, name: d.domain_name, site_id: d.site_id })));
+    const projectDomains = response.groups.flatMap(group => group.domains);
+    console.log('[loadAvailableDomains] project domains:', projectDomains.map(d => ({ id: d.id, name: d.domain_name, site_id: d.site_id })));
 
     // Filter out domains already attached to ANY site
     const availableDomains = projectDomains.filter(d => !d.site_id);
@@ -312,10 +308,14 @@ async function handleAttachDomain(): Promise<void> {
       }
     );
 
-    // Invalidate cache for the project
+    // Invalidate related caches
     if (currentProjectId) {
       invalidateCache(`project:${currentProjectId}`);
       invalidateCache(`sites:project:${currentProjectId}`);
+      invalidateCache(`domains:project:${currentProjectId}`);
+    }
+    if (currentSiteId) {
+      invalidateCache(`domains:site:${currentSiteId}`);
     }
 
     if (statusPanel) {
@@ -395,7 +395,7 @@ async function handleDetachDomain(domainId: number, domainName: string): Promise
 
     // Invalidate all related caches
     console.log('[handleDetachDomain] invalidating caches');
-    invalidateCache('domains'); // Clear all domain caches
+    invalidateCache('domains'); // Clear general domain caches
     if (currentProjectId) {
       invalidateCache(`project:${currentProjectId}`);
       invalidateCache(`sites:project:${currentProjectId}`);
@@ -403,6 +403,7 @@ async function handleDetachDomain(domainId: number, domainName: string): Promise
     }
     if (currentSiteId) {
       invalidateCache(`site:${currentSiteId}`);
+      invalidateCache(`domains:site:${currentSiteId}`);
     }
 
     showGlobalMessage('success', t('sites.messages.domainDetached'));
