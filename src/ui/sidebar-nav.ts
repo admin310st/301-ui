@@ -366,7 +366,7 @@ export async function updateSidebarCounts(): Promise<void> {
     ]);
 
     const [keys, projects, sites] = await Promise.all([
-      integrationsModule.getKeys(),
+      integrationsModule.getIntegrationKeys(accountId),
       projectsModule.getProjects(accountId),
       sitesModule.getSites(accountId),
     ]);
