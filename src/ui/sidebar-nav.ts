@@ -350,26 +350,36 @@ export function updateDashboardOnboardingIndicator(currentStep: number | null): 
 }
 
 /**
- * Update projects and sites count badges
+ * Update sidebar count badges (integrations, projects, sites)
  */
-export async function updateProjectsAndSitesCounts(): Promise<void> {
+export async function updateSidebarCounts(): Promise<void> {
   try {
     const { getAccountId } = await import('@state/auth-state');
     const accountId = getAccountId();
     if (!accountId) return;
 
-    // Fetch projects and sites counts in parallel
-    const [projectsModule, sitesModule] = await Promise.all([
+    // Fetch counts in parallel
+    const [integrationsModule, projectsModule, sitesModule] = await Promise.all([
+      import('@api/integrations'),
       import('@api/projects'),
       import('@api/sites'),
     ]);
 
-    const [projects, sites] = await Promise.all([
+    const [keys, projects, sites] = await Promise.all([
+      integrationsModule.getKeys(),
       projectsModule.getProjects(accountId),
       sitesModule.getSites(accountId),
     ]);
 
-    // Update badges
+    // Update integrations badge
+    if (keys.length > 0) {
+      updateNavItemIndicators('integrations', {
+        badge: keys.length,
+        badgeClass: 'badge badge--sm',
+      });
+    }
+
+    // Update projects badge
     if (projects.length > 0) {
       updateNavItemIndicators('projects', {
         badge: projects.length,
@@ -377,6 +387,7 @@ export async function updateProjectsAndSitesCounts(): Promise<void> {
       });
     }
 
+    // Update sites badge
     if (sites.length > 0) {
       updateNavItemIndicators('sites', {
         badge: sites.length,
@@ -384,9 +395,14 @@ export async function updateProjectsAndSitesCounts(): Promise<void> {
       });
     }
   } catch (error) {
-    console.error('Failed to update projects/sites counts:', error);
+    console.error('Failed to update sidebar counts:', error);
   }
 }
+
+/**
+ * @deprecated Use updateSidebarCounts() instead
+ */
+export const updateProjectsAndSitesCounts = updateSidebarCounts;
 
 /**
  * Initialize sidebar navigation
@@ -403,12 +419,12 @@ export function initSidebarNav(): void {
   import('@state/auth-state').then(({ getAccountId, onAuthChange }) => {
     if (getAccountId()) {
       // Account ID already available
-      updateProjectsAndSitesCounts();
+      updateSidebarCounts();
     } else {
       // Wait for auth to load
       const unsubscribe = onAuthChange((state) => {
         if (state.accountId) {
-          updateProjectsAndSitesCounts();
+          updateSidebarCounts();
           unsubscribe();
         }
       });
