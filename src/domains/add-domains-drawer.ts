@@ -12,6 +12,7 @@ import { showLoading, hideLoading } from '@ui/loading-indicator';
 import { getIntegrationKeys, type IntegrationKey } from '@api/integrations';
 import { createZonesBatch, type BatchZoneResponse } from '@api/domains';
 import { getAccountId } from '@state/auth-state';
+import { initDropdowns } from '@ui/dropdown';
 
 // Domain matching regex (updated for IDN TLD support)
 // Matches: example.com, xn--domain.net, sub.domain.co.uk, домен.рф (xn--c1ad6a.xn--p1ai)
@@ -50,6 +51,9 @@ export function initAddDomainsDrawer(): void {
   const integrationButton = document.querySelector<HTMLButtonElement>('[data-add-integration-select]');
 
   if (!drawer || !rawInput) return;
+
+  // Initialize dropdown behavior for integration selector
+  initDropdowns(drawer);
 
   // Watch for drawer opening to load integrations lazily
   const observer = new MutationObserver((mutations) => {
@@ -189,6 +193,13 @@ export function initAddDomainsDrawer(): void {
             // Update active state
             menu.querySelectorAll('.dropdown__item').forEach((i) => i.classList.remove('is-active'));
             item.classList.add('is-active');
+
+            // Close dropdown after selection
+            const dropdown = button.closest('.dropdown, [data-dropdown]');
+            if (dropdown) {
+              dropdown.classList.remove('dropdown--open');
+              button.setAttribute('aria-expanded', 'false');
+            }
 
             updateSubmitButton();
           }
