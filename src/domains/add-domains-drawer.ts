@@ -212,6 +212,17 @@ export function initAddDomainsDrawer(): void {
   }
 
   /**
+   * Check if TLD contains at least one letter (ICANN requirement)
+   * Numeric-only TLDs like "00" or "123" are not valid
+   */
+  function hasValidTLD(domain: string): boolean {
+    const tld = domain.split('.').pop() || '';
+    // TLD must contain at least one letter (a-z)
+    // This also covers IDN TLDs which start with "xn--"
+    return /[a-z]/i.test(tld);
+  }
+
+  /**
    * Parse domains from raw text
    */
   function parseDomains(text: string): void {
@@ -226,8 +237,10 @@ export function initAddDomainsDrawer(): void {
     // Extract all domain matches
     const matches = text.match(DOMAIN_REGEX) || [];
 
-    // Normalize: lowercase, dedupe, sort
-    const normalized = [...new Set(matches.map((d) => d.toLowerCase().trim()))].sort();
+    // Normalize: lowercase, dedupe, filter invalid TLDs, sort
+    const normalized = [...new Set(matches.map((d) => d.toLowerCase().trim()))]
+      .filter(hasValidTLD)
+      .sort();
 
     currentState.domains = normalized;
     currentState.count = normalized.length;
