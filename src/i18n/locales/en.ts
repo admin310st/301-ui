@@ -503,6 +503,36 @@ export const en = {
         confirm: 'Move domains',
       },
     },
+    add: {
+      errors: {
+        // Quota errors
+        quotaExceededZones: 'Zone quota exceeded. Need {{need}} zones, but only {{available}} available. Upgrade your plan or remove unused zones.',
+        quotaExceeded: 'Quota exceeded. Upgrade your plan or remove unused zones.',
+
+        // Validation errors
+        missingField: 'Missing required field: {{field}}',
+        tooManyDomains: 'Too many domains. Maximum {{max}} per request.',
+
+        // Integration errors
+        keyNotFound: 'Integration key not found. Please reconnect your Cloudflare account.',
+        keyNotCloudflare: 'Selected integration is not a Cloudflare account.',
+
+        // Auth errors
+        unauthorized: 'Session expired. Please log in again.',
+        forbidden: 'You do not have permission for this action.',
+
+        // Per-domain errors (hints)
+        zoneAlreadyInCf: 'This domain is already in your Cloudflare account. Check your domains list.',
+        zoneInAnotherAccount: 'Contact Cloudflare support to transfer the zone, or remove it from the other account first.',
+        zoneBanned: 'Contact Cloudflare support to resolve the block.',
+        zoneHeld: 'Check domain status at your registrar.',
+        zoneAlreadyPending: 'This domain is already pending activation in Cloudflare.',
+        notRegistrable: 'This is a subdomain. Add root domain only (e.g., example.com, not www.example.com).',
+
+        // Generic
+        fallback: 'Contact support for assistance.',
+      },
+    },
   },
   sites: {
     title: 'Sites',

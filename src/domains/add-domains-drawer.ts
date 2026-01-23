@@ -123,9 +123,20 @@ export function initAddDomainsDrawer(): void {
       } else {
         showGlobalMessage('info', `Added ${successCount} of ${successCount + failedCount} domains`);
       }
-    } catch (error) {
+    } catch (error: any) {
       hideLoading();
-      showGlobalMessage('danger', error instanceof Error ? error.message : 'Failed to add domains');
+
+      // Extract error code from API error response
+      let errorMessage = 'Failed to add domains';
+
+      if (error?.body?.error) {
+        // API returned structured error
+        errorMessage = getGlobalErrorMessage(error.body.error);
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+
+      showGlobalMessage('danger', errorMessage);
       submitBtn.disabled = false;
     }
   });
@@ -529,20 +540,83 @@ export function initAddDomainsDrawer(): void {
   }
 
   /**
-   * Get user-friendly error hint
+   * Parse parametric error code like "quota_exceeded:zones:need=5:available=2"
+   * Returns { code: string, params: Record<string, string> }
    */
-  function getErrorHint(errorCode: string): string {
-    const hints: Record<string, string> = {
-      zone_already_in_cf: 'This domain is already in your Cloudflare account. Check your domains list.',
-      zone_in_another_account:
-        'Contact Cloudflare support to transfer the zone, or remove it from the other account first.',
-      zone_banned: 'Contact Cloudflare support to resolve the block.',
-      zone_held: 'Check domain status at your registrar.',
-      not_registrable: 'Domain already exists in database or is a subdomain. Add root domain only (e.g., example.com, not www.example.com).',
-      quota_exceeded: 'Upgrade your plan or remove unused zones.',
+  function parseErrorCode(errorCode: string): { code: string; params: Record<string, string> } {
+    const parts = errorCode.split(':');
+    const code = parts[0];
+    const params: Record<string, string> = {};
+
+    for (let i = 1; i < parts.length; i++) {
+      const part = parts[i];
+      if (part.includes('=')) {
+        const [key, value] = part.split('=');
+        params[key] = value;
+      } else {
+        // Handle "quota_exceeded:zones" format
+        params.type = part;
+      }
+    }
+
+    return { code, params };
+  }
+
+  /**
+   * Get user-friendly error message for global errors (non-batch)
+   */
+  function getGlobalErrorMessage(errorCode: string): string {
+    const { code, params } = parseErrorCode(errorCode);
+
+    const messages: Record<string, string | ((p: Record<string, string>) => string)> = {
+      // Quota errors
+      quota_exceeded: (p) => {
+        if (p.type === 'zones' && p.need && p.available) {
+          return `Zone quota exceeded. Need ${p.need} zones, but only ${p.available} available. Upgrade your plan or remove unused zones.`;
+        }
+        return 'Quota exceeded. Upgrade your plan or remove unused zones.';
+      },
+
+      // Validation errors
+      missing_field: (p) => `Missing required field: ${p.field || 'unknown'}`,
+      too_many_domains: (p) => `Too many domains. Maximum ${p.max || 10} per request, received ${p.received || 'more'}.`,
+
+      // Key errors
+      key_not_found: 'Integration key not found. Please reconnect your Cloudflare account.',
+      key_not_cloudflare: 'Selected integration is not a Cloudflare account.',
+
+      // Generic
+      unauthorized: 'Session expired. Please log in again.',
+      forbidden: 'You do not have permission for this action.',
     };
 
-    return hints[errorCode] || 'Contact support for assistance.';
+    const handler = messages[code];
+    if (typeof handler === 'function') {
+      return handler(params);
+    }
+    return handler || `Error: ${errorCode}`;
+  }
+
+  /**
+   * Get user-friendly error hint for per-domain errors
+   */
+  function getErrorHint(errorCode: string): string {
+    const { code } = parseErrorCode(errorCode);
+
+    const hints: Record<string, string> = {
+      // Cloudflare errors
+      zone_already_in_cf: 'This domain is already in your Cloudflare account. Check your domains list.',
+      zone_in_another_account: 'Contact Cloudflare support to transfer the zone, or remove it from the other account first.',
+      zone_banned: 'Contact Cloudflare support to resolve the block.',
+      zone_held: 'Check domain status at your registrar.',
+      zone_already_pending: 'This domain is already pending activation in Cloudflare.',
+      not_registrable: 'This is a subdomain. Add root domain only (e.g., example.com, not www.example.com).',
+
+      // Quota errors (per-domain context)
+      quota_exceeded: 'Zone quota exceeded. Upgrade your plan or remove unused zones.',
+    };
+
+    return hints[code] || 'Contact support for assistance.';
   }
 
   /**
