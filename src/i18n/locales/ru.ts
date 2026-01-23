@@ -510,6 +510,30 @@ export const ru: Translation = {
       },
     },
     add: {
+      drawer: {
+        title: 'Добавить домены',
+        subtitle: 'Вставьте домены или текст — мы автоматически извлечём и очистим их',
+        cfAccountLabel: 'Аккаунт Cloudflare',
+        cfAccountHint: 'Зоны будут созданы в этом аккаунте Cloudflare',
+        cfAccountLoading: 'Загрузка аккаунтов...',
+        cfAccountSelect: 'Выберите аккаунт...',
+        noIntegrations: {
+          title: 'Нет подключённых аккаунтов Cloudflare',
+          description: 'Подключите аккаунт Cloudflare, чтобы добавлять домены.',
+          cta: 'Подключить Cloudflare',
+        },
+        inputLabel: 'Вставьте домены',
+        inputPlaceholder: 'Вставьте домены, текст из писем регистратора или любой текст...',
+        preview: {
+          title: 'Обнаруженные домены',
+          found: 'Найдено',
+          empty: 'Домены пока не обнаружены. Вставьте текст выше.',
+        },
+        submitButton: 'Добавить домены',
+        cancelButton: 'Отмена',
+        notAuthenticated: 'Не авторизован',
+        failedToLoad: 'Не удалось загрузить аккаунты',
+      },
       errors: {
         // Ошибки квот
         quotaExceededZones: 'Превышена квота зон. Нужно {{need}} зон, доступно только {{available}}. Обновите тариф или удалите неиспользуемые зоны.',

@@ -4,8 +4,8 @@
       <div class="drawer__panel">
         <header class="drawer__header">
           <div class="drawer__title">
-            <h2 class="h4">Add domains</h2>
-            <p class="text-muted">Paste domains or raw text — we'll clean it up before importing.</p>
+            <h2 class="h4" data-i18n="domains.add.drawer.title">Add Domains</h2>
+            <p class="text-muted" data-i18n="domains.add.drawer.subtitle">Paste domains or raw text — we'll extract and clean them automatically</p>
           </div>
           <button class="btn-close" type="button" data-drawer-close aria-label="Close">
             <span class="icon" data-icon="mono/close"></span>
@@ -17,7 +17,7 @@
           <div class="stack-list" data-add-input-view>
             <!-- Cloudflare Account Selection -->
             <div class="field">
-              <label class="field__label">Cloudflare account</label>
+              <label class="field__label" data-i18n="domains.add.drawer.cfAccountLabel">Cloudflare account</label>
               <div class="dropdown" data-dropdown="cf-account">
                 <button
                   class="btn-chip btn-chip--sm btn-chip--dropdown dropdown__trigger"
@@ -27,29 +27,29 @@
                   data-add-integration-select
                   data-selected-value=""
                 >
-                  <span class="btn-chip__label" data-selected-label>Loading integrations...</span>
+                  <span class="btn-chip__label" data-selected-label data-i18n="domains.add.drawer.cfAccountLoading">Loading accounts...</span>
                   <span class="btn-chip__chevron icon" data-icon="mono/chevron-down"></span>
                 </button>
                 <div class="dropdown__menu dropdown__menu--fit-trigger" role="menu" data-add-integration-menu>
                   <!-- Options populated by JS -->
                 </div>
               </div>
-              <p class="field__hint text-muted">Choose which CF account to use for zone creation</p>
+              <p class="field__hint text-muted" data-i18n="domains.add.drawer.cfAccountHint">Zones will be created in this Cloudflare account</p>
             </div>
 
             <!-- No Integrations Panel (hidden by default) -->
             <div class="panel panel--warning" data-add-no-integrations hidden>
               <p class="text-sm">
                 <span class="icon" data-icon="mono/alert-circle"></span>
-                <strong>No Cloudflare integrations found</strong>
+                <strong data-i18n="domains.add.drawer.noIntegrations.title">No Cloudflare accounts connected</strong>
               </p>
-              <p class="text-sm text-muted">
-                You need to connect a Cloudflare account before adding domains.
+              <p class="text-sm text-muted" data-i18n="domains.add.drawer.noIntegrations.description">
+                Connect a Cloudflare account to start adding domains.
               </p>
               <div class="cluster">
                 <button class="btn btn--cf btn--sm" data-action="connect-cloudflare">
                   <span class="icon" data-icon="brand/cloudflare"></span>
-                  <span>Connect Cloudflare</span>
+                  <span data-i18n="domains.add.drawer.noIntegrations.cta">Connect Cloudflare</span>
                 </button>
               </div>
             </div>
@@ -65,11 +65,12 @@
 
             <!-- Raw Input -->
             <div class="field">
-              <label class="field__label">Input</label>
+              <label class="field__label" data-i18n="domains.add.drawer.inputLabel">Paste domains</label>
               <textarea
                 class="textarea"
                 rows="6"
-                placeholder="Paste domains, lines from registrar emails, or any raw text here…"
+                data-i18n-placeholder="domains.add.drawer.inputPlaceholder"
+                placeholder="Paste domain names, text from registrar emails, or any raw text..."
                 data-add-raw-input
               ></textarea>
             </div>
@@ -77,14 +78,14 @@
             <!-- Detected Domains Preview -->
             <div class="card card--panel" data-add-preview-card>
               <header class="card__header">
-                <h3 class="h5">Detected domains</h3>
+                <h3 class="h5" data-i18n="domains.add.drawer.preview.title">Detected domains</h3>
                 <div class="card__meta">
-                  <span>Found: <strong data-add-found-count>0</strong></span>
+                  <span><span data-i18n="domains.add.drawer.preview.found">Found</span>: <strong data-add-found-count>0</strong></span>
                 </div>
               </header>
               <div class="card__body">
                 <div class="empty-state" data-add-empty-state>
-                  <p class="text-muted">No domains detected yet.</p>
+                  <p class="text-muted" data-i18n="domains.add.drawer.preview.empty">No domains detected yet. Paste text above.</p>
                 </div>
                 <div class="domain-preview-list" data-add-domain-list hidden>
                   <!-- Populated by JS -->
@@ -102,9 +103,9 @@
         <footer class="drawer__footer">
           <button class="btn btn--primary" type="button" data-add-submit disabled>
             <span class="icon" data-icon="mono/plus"></span>
-            <span>Add domains</span>
+            <span data-i18n="domains.add.drawer.submitButton">Add domains</span>
           </button>
-          <button class="btn btn--ghost" type="button" data-drawer-close>Cancel</button>
+          <button class="btn btn--ghost" type="button" data-drawer-close data-i18n="domains.add.drawer.cancelButton">Cancel</button>
         </footer>
       </div>
     </aside>

@@ -504,6 +504,30 @@ export const en = {
       },
     },
     add: {
+      drawer: {
+        title: 'Add Domains',
+        subtitle: "Paste domains or raw text — we'll extract and clean them automatically",
+        cfAccountLabel: 'Cloudflare account',
+        cfAccountHint: 'Zones will be created in this Cloudflare account',
+        cfAccountLoading: 'Loading accounts...',
+        cfAccountSelect: 'Select account...',
+        noIntegrations: {
+          title: 'No Cloudflare accounts connected',
+          description: 'Connect a Cloudflare account to start adding domains.',
+          cta: 'Connect Cloudflare',
+        },
+        inputLabel: 'Paste domains',
+        inputPlaceholder: 'Paste domain names, text from registrar emails, or any raw text...',
+        preview: {
+          title: 'Detected domains',
+          found: 'Found',
+          empty: 'No domains detected yet. Paste text above.',
+        },
+        submitButton: 'Add domains',
+        cancelButton: 'Cancel',
+        notAuthenticated: 'Not authenticated',
+        failedToLoad: 'Failed to load accounts',
+      },
       errors: {
         // Quota errors
         quotaExceededZones: 'Zone quota exceeded. Need {{need}} zones, but only {{available}} available. Upgrade your plan or remove unused zones.',

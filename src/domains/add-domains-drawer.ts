@@ -160,7 +160,7 @@ export function initAddDomainsDrawer(): void {
       const accountId = getAccountId();
       if (!accountId) {
         console.error('No account ID found');
-        label.textContent = 'Not authenticated';
+        label.textContent = t('domains.add.drawer.notAuthenticated' as any);
         button.disabled = true;
         return;
       }
@@ -175,12 +175,12 @@ export function initAddDomainsDrawer(): void {
           noIntegrationsPanel.removeAttribute('hidden');
         }
         button.disabled = true;
-        label.textContent = 'No Cloudflare accounts connected';
+        label.textContent = t('domains.add.drawer.noIntegrations.title' as any);
         return;
       }
 
       // Populate dropdown menu
-      label.textContent = 'Select Cloudflare account...';
+      label.textContent = t('domains.add.drawer.cfAccountSelect' as any);
       menu.innerHTML = availableIntegrations
         .map(
           (integration) => `
@@ -233,7 +233,7 @@ export function initAddDomainsDrawer(): void {
       }
     } catch (error) {
       console.error('Failed to load integrations:', error);
-      label.textContent = 'Failed to load integrations';
+      label.textContent = t('domains.add.drawer.failedToLoad' as any);
       button.disabled = true;
     }
   }
