@@ -86,6 +86,8 @@ export function initAddDomainsDrawer(): void {
   let parseTimeout: ReturnType<typeof setTimeout>;
   rawInput.addEventListener('input', () => {
     clearTimeout(parseTimeout);
+    // Hide any inline error when user starts typing
+    hideInlineError();
     parseTimeout = setTimeout(() => {
       parseDomains(rawInput.value);
       updatePreview();
@@ -136,7 +138,9 @@ export function initAddDomainsDrawer(): void {
         errorMessage = error.message;
       }
 
+      // Show error in both global notice and inline panel (for mobile)
       showGlobalMessage('danger', errorMessage);
+      showInlineError('Error', errorMessage);
       submitBtn.disabled = false;
     }
   });
@@ -685,6 +689,32 @@ export function initAddDomainsDrawer(): void {
     if (rawInput) rawInput.value = '';
     updatePreview();
     updateSubmitButton();
+    hideInlineError();
+  }
+
+  /**
+   * Show inline error panel (for mobile visibility)
+   */
+  function showInlineError(title: string, message: string): void {
+    const errorPanel = document.querySelector('[data-add-error-panel]');
+    const errorTitle = document.querySelector('[data-add-error-title]');
+    const errorMessage = document.querySelector('[data-add-error-message]');
+
+    if (errorPanel && errorTitle && errorMessage) {
+      errorTitle.textContent = title;
+      errorMessage.textContent = message;
+      errorPanel.removeAttribute('hidden');
+    }
+  }
+
+  /**
+   * Hide inline error panel
+   */
+  function hideInlineError(): void {
+    const errorPanel = document.querySelector('[data-add-error-panel]');
+    if (errorPanel) {
+      errorPanel.setAttribute('hidden', '');
+    }
   }
 
   /**

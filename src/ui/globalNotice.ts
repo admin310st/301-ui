@@ -99,11 +99,12 @@ function showGlobalNoticeImmediate(
   }
   textNode.textContent = message;
 
-  // Small delay to ensure hide transition completes
-  requestAnimationFrame(() => {
+  // Use setTimeout with 50ms delay to ensure CSS transition fully resets
+  // requestAnimationFrame (~16ms) is too fast for the 200ms transition delay in CSS
+  setTimeout(() => {
     root.dataset.state = 'visible';
     root.dataset.notice = 'visible';
-  });
+  }, 50);
 
   if (autoHideMs > 0) {
     hideTimer = window.setTimeout(() => {
