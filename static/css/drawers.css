@@ -59,11 +59,20 @@
 
 .drawer__header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   padding: var(--space-4);
   border-bottom: 1px solid var(--border);
   gap: var(--space-3);
+}
+
+.drawer__header-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.drawer__header-content > .text-muted {
+  margin-top: var(--space-1);
 }
 
 .drawer__title {
