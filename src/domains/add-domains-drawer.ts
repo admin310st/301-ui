@@ -13,6 +13,7 @@ import { getIntegrationKeys, type IntegrationKey } from '@api/integrations';
 import { createZonesBatch, type BatchZoneResponse } from '@api/domains';
 import { getAccountId } from '@state/auth-state';
 import { initDropdowns } from '@ui/dropdown';
+import { t } from '@i18n';
 
 // Domain matching regex (updated for IDN TLD support)
 // Matches: example.com, xn--domain.net, sub.domain.co.uk, домен.рф (xn--c1ad6a.xn--p1ai)
@@ -140,7 +141,7 @@ export function initAddDomainsDrawer(): void {
 
       // Show error in both global notice and inline panel (for mobile)
       showGlobalMessage('danger', errorMessage);
-      showInlineError('Error', errorMessage);
+      showInlineError(t('domains.status.error' as any), errorMessage);
       submitBtn.disabled = false;
     }
   });
@@ -568,59 +569,56 @@ export function initAddDomainsDrawer(): void {
 
   /**
    * Get user-friendly error message for global errors (non-batch)
+   * Uses i18n translations from domains.add.errors.*
    */
   function getGlobalErrorMessage(errorCode: string): string {
     const { code, params } = parseErrorCode(errorCode);
 
-    const messages: Record<string, string | ((p: Record<string, string>) => string)> = {
-      // Quota errors
-      quota_exceeded: (p) => {
-        if (p.type === 'zones' && p.need && p.available) {
-          return `Zone quota exceeded. Need ${p.need} zones, but only ${p.available} available. Upgrade your plan or remove unused zones.`;
-        }
-        return 'Quota exceeded. Upgrade your plan or remove unused zones.';
-      },
-
-      // Validation errors
-      missing_field: (p) => `Missing required field: ${p.field || 'unknown'}`,
-      too_many_domains: (p) => `Too many domains. Maximum ${p.max || 10} per request, received ${p.received || 'more'}.`,
-
-      // Key errors
-      key_not_found: 'Integration key not found. Please reconnect your Cloudflare account.',
-      key_not_cloudflare: 'Selected integration is not a Cloudflare account.',
-
-      // Generic
-      unauthorized: 'Session expired. Please log in again.',
-      forbidden: 'You do not have permission for this action.',
+    // Map API error codes to i18n keys
+    const keyMap: Record<string, string> = {
+      quota_exceeded: params.type === 'zones' ? 'quotaExceededZones' : 'quotaExceeded',
+      missing_field: 'missingField',
+      too_many_domains: 'tooManyDomains',
+      key_not_found: 'keyNotFound',
+      key_not_cloudflare: 'keyNotCloudflare',
+      unauthorized: 'unauthorized',
+      forbidden: 'forbidden',
     };
 
-    const handler = messages[code];
-    if (typeof handler === 'function') {
-      return handler(params);
+    const i18nKey = keyMap[code];
+    if (i18nKey) {
+      // Use t() with interpolation params
+      return t(`domains.add.errors.${i18nKey}` as any, params);
     }
-    return handler || `Error: ${errorCode}`;
+
+    // Fallback for unknown errors
+    return `Error: ${errorCode}`;
   }
 
   /**
    * Get user-friendly error hint for per-domain errors
+   * Uses i18n translations from domains.add.errors.*
    */
   function getErrorHint(errorCode: string): string {
     const { code } = parseErrorCode(errorCode);
 
-    const hints: Record<string, string> = {
-      // Cloudflare errors
-      zone_already_in_cf: 'This domain is already in your Cloudflare account. Check your domains list.',
-      zone_in_another_account: 'Contact Cloudflare support to transfer the zone, or remove it from the other account first.',
-      zone_banned: 'Contact Cloudflare support to resolve the block.',
-      zone_held: 'Check domain status at your registrar.',
-      zone_already_pending: 'This domain is already pending activation in Cloudflare.',
-      not_registrable: 'This is a subdomain. Add root domain only (e.g., example.com, not www.example.com).',
-
-      // Quota errors (per-domain context)
-      quota_exceeded: 'Zone quota exceeded. Upgrade your plan or remove unused zones.',
+    // Map API error codes to i18n keys
+    const keyMap: Record<string, string> = {
+      zone_already_in_cf: 'zoneAlreadyInCf',
+      zone_in_another_account: 'zoneInAnotherAccount',
+      zone_banned: 'zoneBanned',
+      zone_held: 'zoneHeld',
+      zone_already_pending: 'zoneAlreadyPending',
+      not_registrable: 'notRegistrable',
+      quota_exceeded: 'quotaExceeded',
     };
 
-    return hints[code] || 'Contact support for assistance.';
+    const i18nKey = keyMap[code];
+    if (i18nKey) {
+      return t(`domains.add.errors.${i18nKey}` as any);
+    }
+
+    return t('domains.add.errors.fallback' as any);
   }
 
   /**
