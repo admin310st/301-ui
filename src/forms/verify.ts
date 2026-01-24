@@ -2,6 +2,7 @@ import { verifyToken } from '@api/auth';
 import type { CommonErrorResponse, VerifyRequest } from '@api/types';
 import { t } from '@i18n';
 import { applyLoginStateToDOM } from '@ui/auth-dom';
+import { showAuthView } from '@ui/auth-routing';
 import { showGlobalMessage } from '@ui/notifications';
 import type { ApiError } from '@utils/errors';
 
@@ -64,10 +65,15 @@ function shouldHandleVerification(params: VerifyUrlParams): boolean {
 async function handleVerification(params: VerifyUrlParams): Promise<void> {
   if (!shouldHandleVerification(params)) return;
 
+  // Show verify view so user can see status
+  showAuthView('verify');
+
   const payload = buildVerifyPayload(params);
 
   if (!payload) {
-    setVerifyStatus('error', t('auth.verify.missingParams'));
+    const errorMsg = t('auth.verify.missingParams');
+    setVerifyStatus('error', errorMsg);
+    showGlobalMessage('danger', errorMsg);
     return;
   }
 
@@ -84,7 +90,9 @@ async function handleVerification(params: VerifyUrlParams): Promise<void> {
     history.replaceState(null, '', `${basePath}#account`);
     window.location.hash = '#account';
   } catch (error) {
-    setVerifyStatus('error', extractError(error));
+    const errorMsg = extractError(error);
+    setVerifyStatus('error', errorMsg);
+    showGlobalMessage('danger', errorMsg);
   }
 }
 
