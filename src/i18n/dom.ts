@@ -1,6 +1,7 @@
 import type { Locale } from './index';
 import { applyLocaleToDocument } from './helpers';
 import { getLocale, setLocale, t } from './index';
+import { refreshAuthDisplay } from '@ui/visibility';
 
 export function applyTranslations(root: ParentNode = document): void {
   applyLocaleToDocument();
@@ -43,6 +44,8 @@ export function initLangSwitcher(root: ParentNode = document): void {
         .querySelectorAll<HTMLButtonElement>('[data-lang]')
         .forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.lang === lang)));
       applyTranslations(document);
+      // Re-apply auth state after translations (user name/email may have been overwritten)
+      refreshAuthDisplay();
     });
   });
 }

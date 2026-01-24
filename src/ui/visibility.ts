@@ -20,7 +20,7 @@ document.querySelectorAll('[data-onlogout]').forEach((node) => {
   (node as HTMLElement).hidden = false;
 });
 
-function applyAuthDom(state: AuthState): void {
+export function applyAuthDom(state: AuthState): void {
   const loggedIn = Boolean(state?.user);
   const email = state?.user?.email || '';
   const name = state?.user?.name || '';
@@ -56,4 +56,11 @@ export function initVisibilityController(): void {
   onAuthChange((state) => {
     applyAuthDom(state);
   });
+}
+
+/**
+ * Re-apply auth state to DOM (useful after i18n updates)
+ */
+export function refreshAuthDisplay(): void {
+  applyAuthDom(getAuthState());
 }
