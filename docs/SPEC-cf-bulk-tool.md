@@ -13,9 +13,9 @@
 
 1. **Нет CORS ограничений** — расширения могут делать любые HTTP запросы
 2. **Доверие пользователей** — установка из официального магазина расширений
-3. **Безопасность** — `chrome.storage.local` надёжнее чем localStorage
+3. **Безопасность** — `chrome.storage.local` + шифрование надёжнее чем localStorage
 4. **Интеграция с CF** — можно добавить кнопки прямо в Cloudflare Dashboard
-5. **Global API Key без лимитов** — полный доступ к CF API без ограничений
+5. **Global API Key** — поддерживается с соблюдением rate-limits; реализованы очереди и backoff
 6. **Трафик** — приложение приводит пользователей к основному проекту 301.st
 
 ## Архитектура
@@ -26,7 +26,7 @@
 │                  (Cloudflare Tools)                     │
 ├─────────────────────────────────────────────────────────┤
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  │
-│  │   Popup UI   │  │ Background   │  │  Content     │  │
+│  │  Side Panel  │  │ Background   │  │  Content     │  │
 │  │  (main app)  │  │   Worker     │  │  Script      │  │
 │  └──────────────┘  └──────────────┘  └──────────────┘  │
 │         │                │                  │          │
@@ -51,7 +51,8 @@
 
 | Component | Назначение |
 |-----------|------------|
-| **Popup** | Основной UI: auth, bulk create, results |
+| **Side Panel** | Основной UI: auth, bulk create, delete, purge, results |
+| **Popup** | Quick actions + кнопка "Open Panel" |
 | **Background Worker** | API запросы, хранение credentials |
 | **Content Script** | Интеграция с dash.cloudflare.com (опционально) |
 
@@ -60,6 +61,46 @@
 X-Auth-Email: user@example.com
 X-Auth-Key: c2547eb745079dac9320b638f5e225cf483cc5cfdda41
 ```
+
+## Side Panel (Chrome) / Sidebar (Firefox)
+
+### Стратегия: Hybrid
+
+- **Side Panel** — основной интерфейс для bulk операций (Chrome 114+)
+- **Sidebar** — аналог для Firefox
+- **Popup** — quick actions + кнопка "Open Panel" (fallback для старых браузеров)
+
+### Преимущества Side Panel
+
+| Аспект | Popup | Side Panel |
+|--------|-------|------------|
+| **Размер** | 800×600 max | Широкий, высота = окно |
+| **Закрытие** | При клике вне | Остаётся открытым |
+| **Работа параллельно** | ❌ Нет | ✅ Да |
+| **Progress видимость** | ❌ Закрывается | ✅ Всегда виден |
+| **Навигация по вкладкам** | ❌ Теряется контекст | ✅ Сохраняется |
+
+### Сценарий использования
+
+```
+┌─────────────────────────────────────────────┬───────────┐
+│                                             │           │
+│                                             │  CF Tools │
+│         Cloudflare Dashboard                │           │
+│                                             │  [Add]    │
+│         Websites                            │  [Delete] │
+│         ┌─────────────────────┐             │  [Purge]  │
+│         │ example.com         │             │           │
+│         │ site.ru             │             │ ───────── │
+│         │ domain.net          │             │           │
+│         └─────────────────────┘             │  Progress │
+│                                             │  ████░░░  │
+│                                             │  12/50    │
+│                                             │           │
+└─────────────────────────────────────────────┴───────────┘
+```
+
+Пользователь запустил добавление 100 доменов → может переключиться на CF Dashboard и смотреть результаты → Side Panel продолжает работать и показывает прогресс.
 
 ## Переиспользуемый код из 301-ui
 
@@ -96,12 +137,18 @@ import punycode from 'punycode.js';
 // Decode punycode → Unicode (для отображения)
 export function decodeDomain(domain: string): string;
 
+// Encode Unicode → punycode (для API)
+export function encodeDomain(domain: string): string;
+
 // Проверка на punycode
 export function isPunycode(domain: string): boolean;
 
 // Форматирование для UI
 export function formatDomainDisplay(domain: string, mode: 'compact' | 'full'): string;
 ```
+
+**Правило:** API всегда получает ASCII-LDH (punycode), UI показывает Unicode.
+Поиск матчит оба представления: "müller.de" находит `xn--mller-kva.de`.
 
 ### 3. CSS Components (`static/css/`)
 - `theme.css` — design tokens, colors, spacing
@@ -155,27 +202,27 @@ height = font-size × line-height + padding × 2
 --space-6: 2rem;     /* 32px */
 ```
 
-**Drawer layout для Popup:**
+**Panel layout (для Side Panel):**
 ```css
-.popup {
-  width: 400px;
-  max-height: 600px;
+.panel {
+  width: 100%;
+  height: 100vh;
   display: flex;
   flex-direction: column;
 }
 
-.popup__header {
+.panel__header {
   padding: var(--space-4);
   border-bottom: 1px solid var(--border);
 }
 
-.popup__body {
+.panel__body {
   flex: 1;
   overflow-y: auto;
   padding: var(--space-4);
 }
 
-.popup__footer {
+.panel__footer {
   padding: var(--space-4);
   border-top: 1px solid var(--border-subtle);
   background: var(--panel);
@@ -203,7 +250,7 @@ height = font-size × line-height + padding × 2
 - [ ] Ввод CF Account Email + Global API Key
 - [ ] Валидация через `GET /user` (проверка ключа)
 - [ ] Получение списка аккаунтов `GET /accounts`
-- [ ] Хранение в localStorage (encrypted опционально)
+- [ ] Хранение в `chrome.storage.local` (encrypted опционально)
 - [ ] "Remember me" checkbox
 - [ ] Ссылка на инструкцию получения Global API Key
 
@@ -211,14 +258,15 @@ height = font-size × line-height + padding × 2
 - [ ] Textarea для вставки доменов/текста
 - [ ] Парсер доменов (из 301-ui)
 - [ ] Preview с количеством и списком
-- [ ] Выбор CF Account (если несколько)
+- [ ] Выбор CF Account (обязательный `account.id` в body)
 - [ ] Настройки зоны:
-  - [ ] Plan (free/pro/business/enterprise)
-  - [ ] Jump start (auto DNS scan)
-  - [ ] Type (full/partial)
+  - [ ] Jump start (auto DNS scan) — default: true
+  - [ ] Type (full/partial) — default: full
 - [ ] Batch создание с progress bar
 - [ ] Retry logic для failed domains
 - [ ] Results: success/failed/skipped списки
+
+> **Note:** Plan (free/pro/business/enterprise) не указывается при создании — зона создаётся на Free, апгрейд через биллинг CF.
 
 #### Bulk Zone Deletion
 - [ ] Список существующих зон (с поиском)
@@ -226,7 +274,7 @@ height = font-size × line-height + padding × 2
 - [ ] Confirmation dialog
 - [ ] Batch удаление с progress
 
-#### Bulk Purge Cache ⚡ (конкурентное преимущество)
+#### Bulk Purge Cache (конкурентное преимущество)
 - [ ] Список зон с multi-select
 - [ ] Purge Everything (одним кликом)
 - [ ] Progress bar для batch операций
@@ -241,6 +289,24 @@ Body: { "purge_everything": true }
 - [ ] Export results as CSV/JSON
 - [ ] Export zone list
 - [ ] Import domains from CSV
+
+### Preflight / Dry-run
+
+Before any batch run, the tool performs an **automatic preflight** (`GET /zones?name={domain}` for each item) to classify rows:
+
+| Status | Описание |
+|--------|----------|
+| `will-create` | Зона не существует, будет создана |
+| `exists` | Зона уже есть в аккаунте → skip |
+| `invalid` | Невалидный домен (парсер отклонил) |
+| `duplicate` | Дубликат в списке ввода |
+
+**UI:**
+- **"Check first"** — запускает только preflight (без мутаций)
+- **"Start"** — доступен сразу после preflight
+- Preflight results кешируются в сессии; редактирование списка инвалидирует кеш
+
+**Идемпотентность:** повторный запуск не создаёт дублей; `exists` → `skipped`.
 
 ### Phase 2 (Extended)
 
@@ -263,7 +329,7 @@ Body: { "purge_everything": true }
 
 ```
 Manifest:       Manifest V3 (Chrome/Firefox compatible)
-Framework:      Vanilla TS (как 301-ui) или Preact (popup UI)
+Framework:      Vanilla TS (как 301-ui) или Preact (UI)
 Build:          Vite + CRXJS или WXT (extension bundler)
 Styling:        CSS из 301-ui (theme.css, site.css)
 Icons:          Icon sprite из 301-ui
@@ -284,28 +350,41 @@ npm create wxt@latest cloudflare-tools
 cloudflare-tools/
 ├── manifest.json             # Extension manifest
 ├── src/
-│   ├── popup/                # Popup UI (main interface)
+│   ├── panel/                # Общий UI (side panel + sidebar + popup fallback)
 │   │   ├── index.html
 │   │   ├── main.ts
 │   │   └── components/
 │   │       ├── auth-form.ts
 │   │       ├── bulk-create.ts
 │   │       ├── bulk-delete.ts
+│   │       ├── bulk-purge.ts
 │   │       ├── progress.ts
 │   │       └── results.ts
+│   ├── popup/                # Quick actions + "Open Panel"
+│   │   ├── index.html
+│   │   └── main.ts
+│   ├── sidepanel/            # Chrome Side Panel entry
+│   │   └── index.html        # → загружает panel/
+│   ├── sidebar/              # Firefox Sidebar entry
+│   │   └── index.html        # → загружает panel/
 │   ├── background/           # Service Worker
-│   │   └── index.ts          # API calls, credential management
+│   │   ├── index.ts          # Main entry, message routing
+│   │   ├── vault.ts          # Encryption, master password
+│   │   ├── cf-client.ts      # Cloudflare API client
+│   │   ├── queue.ts          # Rate-limited request queues
+│   │   └── ledger.ts         # Task persistence (IndexedDB)
 │   ├── content/              # Content script (optional)
 │   │   └── cf-dashboard.ts   # Inject into dash.cloudflare.com
 │   ├── shared/
-│   │   ├── api/
-│   │   │   ├── cf-client.ts  # Cloudflare API client
-│   │   │   └── types.ts
+│   │   ├── types/
+│   │   │   ├── api.ts        # CF API types
+│   │   │   ├── tasks.ts      # Task/Batch types
+│   │   │   └── errors.ts     # Error taxonomy
 │   │   ├── domains/
-│   │   │   ├── parser.ts     # Copied from 301-ui
-│   │   │   └── idn.ts        # Copied from 301-ui
-│   │   ├── storage/
-│   │   │   └── credentials.ts # chrome.storage.local wrapper
+│   │   │   ├── parser.ts     # Domain extraction
+│   │   │   └── idn.ts        # Punycode utilities
+│   │   ├── messaging/
+│   │   │   └── protocol.ts   # Type-safe message passing
 │   │   └── i18n/
 │   │       └── ...
 │   └── assets/
@@ -315,30 +394,52 @@ cloudflare-tools/
 └── package.json
 ```
 
-### Manifest V3 (упрощённый)
+### Manifest V3
+
 ```json
 {
   "manifest_version": 3,
   "name": "Cloudflare Tools",
   "version": "1.0.0",
   "description": "Bulk operations for Cloudflare zones",
-  "permissions": ["storage"],
+
+  "permissions": ["storage", "sidePanel"],
   "host_permissions": ["https://api.cloudflare.com/*"],
+
   "action": {
     "default_popup": "popup/index.html",
+    "default_title": "Cloudflare Tools",
     "default_icon": {
       "16": "icons/icon-16.png",
       "48": "icons/icon-48.png",
       "128": "icons/icon-128.png"
     }
   },
+
+  "side_panel": {
+    "default_path": "sidepanel/index.html"
+  },
+
   "background": {
     "service_worker": "background/index.js"
   },
+
   "content_scripts": [{
     "matches": ["https://dash.cloudflare.com/*"],
     "js": ["content/cf-dashboard.js"]
   }]
+}
+```
+
+### Firefox Manifest additions
+
+```json
+{
+  "sidebar_action": {
+    "default_panel": "sidebar/index.html",
+    "default_title": "Cloudflare Tools",
+    "default_icon": "icons/icon-48.png"
+  }
 }
 ```
 
@@ -390,32 +491,187 @@ GET    /zones/:id/dns_records    # List DNS records
 DELETE /zones/:id/dns_records/:r # Delete DNS record
 ```
 
+### Rate Limiting & Backoff
+
+Cloudflare API имеет лимиты независимо от метода аутентификации. Реализация:
+
+| Параметр | Default | Описание |
+|----------|---------|----------|
+| `maxConcurrency` | 4 | Параллельные запросы per pool |
+| `rateWindow` | 5 min | Окно rate limit |
+| `maxRetries` | 3 | Максимум повторов |
+| `retryJitter` | 0.1–0.5 | Случайная добавка к delay |
+
+**Очереди per-operation:**
+- `createZonesPool` — создание зон
+- `deleteZonesPool` — удаление зон
+- `purgePool` — очистка кеша
+- `preflightPool` — preflight запросы
+
+**Backoff strategy:**
+```typescript
+delay = baseDelay * (2 ** attempt) + random(jitter)
+// Respect Retry-After header if present
+```
+
+**Конфиг** выносится в Settings для продвинутых пользователей.
+
+### Error Taxonomy
+
+| Категория | Код | Стратегия | UI Action |
+|-----------|-----|-----------|-----------|
+| **Auth** | 10000 | Нет retry | "Check credentials" |
+| **Rate limit** | 429 | Retry с Retry-After | Badge "waiting" |
+| **Validation** | 1061 (zone exists) | Skip | "skipped (exists)" |
+| **Dependency** | 1099 (subscription) | Нет retry | "blocked → go to Dashboard" |
+| **Network** | timeout/5xx | Retry с backoff | Badge "retrying" |
+| **Permission** | 10001 | Нет retry | "Token lacks permission" |
+
+**UI mapping:**
+- Каждой ошибке — понятный текст и рекомендация
+- `blocked` не предлагает retry, а ссылку на Dashboard
+- `failed` (retryable) показывает кнопку "Retry"
+
+### Task Ledger (IndexedDB)
+
+Персистентное хранение состояния batch операций:
+
+```typescript
+interface TaskEntry {
+  id: string;
+  batchId: string;
+  domain: string;
+  operation: 'create' | 'delete' | 'purge';
+  status: 'queued' | 'running' | 'success' | 'failed' | 'skipped' | 'blocked';
+  attempt: number;
+  zoneId?: string;
+  errorCode?: number;
+  errorMessage?: string;
+  latency?: number;
+  createdAt: number;
+  updatedAt: number;
+}
+```
+
+**Возможности:**
+- Resume после перезапуска браузера/расширения
+- "Retry failed only" — перезапуск только упавших
+- Audit log для разбора больших прогонов
+- Export как JSON/CSV
+
 ## Безопасность
 
-1. **Global API Key ТОЛЬКО локально** — хранится в `chrome.storage.local`, никогда не покидает расширение
-2. **Нет внешних серверов** — все запросы идут напрямую к api.cloudflare.com
-3. **Minimal permissions** — только `storage` и `host_permissions` для CF API
-4. **Опциональное шифрование** — AES encryption для credentials (мастер-пароль)
-5. **Auto-lock** — блокировка по таймауту неактивности
-6. **No tracking** — никакой аналитики, никаких внешних скриптов
-7. **Clear credentials** — кнопка полной очистки данных
-8. **Open source** — код открыт для аудита
+### Encrypted Vault
+
+Секреты (email, Global API Key / API Token) хранятся **только в зашифрованном виде**:
+
+| Компонент | Реализация |
+|-----------|------------|
+| **KDF** | Argon2id (per-device salt, parameter versioning) |
+| **Cipher** | AES-256-GCM |
+| **Master Password** | Обязателен при первом запуске |
+
+### Session & Auto-lock
+
+- **"Remember for session"** — включено по умолчанию
+- **Auto-lock** по таймауту бездействия (default 15 min, настраиваемо 1–60)
+- **Immediate lock** при выгрузке Service Worker (MV3)
+- После локировки все API-вызовы блокируются до повторного ввода пароля
+
+### Изоляция
+
+| Компонент | Доступ к секретам |
+|-----------|-------------------|
+| Service Worker | Yes (единственный) |
+| Side Panel / Popup | No (через messaging) |
+| Content Script | No (строго изолирован) |
+
+### UI Settings
+
+- [ ] Set master password (первый запуск)
+- [ ] Change master password
+- [ ] Lock now
+- [ ] Auto-lock timeout (1–60 min)
+- [ ] Clear all data
+
+### Принципы
+
+1. **Global API Key никогда не покидает устройство**
+2. **Нет внешних серверов** — все запросы напрямую к api.cloudflare.com
+3. **Minimal permissions** — только `storage`, `sidePanel` и `host_permissions` для CF API
+4. **No tracking** — никакой аналитики, никаких внешних скриптов
+5. **Open source** — код открыт для аудита
 
 ## UI/UX
 
-### Popup Views (400x600px recommended)
+### Side Panel Views (основной интерфейс)
 
-1. **Auth** — ввод Email + Global API Key
+1. **Auth** — ввод Email + Global API Key + Master Password
 2. **Dashboard** — выбор операции, статус подключения
-3. **Bulk Create** — textarea + preview + progress
+3. **Bulk Create** — textarea + preview + preflight + progress
 4. **Bulk Delete** — список зон + multi-select
-5. **Results** — success/failed списки + export
-6. **Settings** — auto-lock timeout, clear data
+5. **Bulk Purge** — список зон + multi-select + purge
+6. **Results** — success/failed списки + export
+7. **Settings** — auto-lock timeout, change password, clear data
+
+### Batch Runner Controls
+
+| Кнопка | Действие |
+|--------|----------|
+| **Check first** | Только preflight (без мутаций) |
+| **Start** | Запуск batch после preflight |
+| **Pause** | Приостановка (сохранение checkpoint) |
+| **Resume** | Продолжение с checkpoint |
+| **Cancel** | Отмена и сброс |
+| **Retry failed only** | Перезапуск только упавших |
+| **Export failed** | CSV/JSON с domain, operation, error code |
+
+### Status Legend
+
+| Статус | Иконка | Описание |
+|--------|--------|----------|
+| `queued` | (hourglass) | В очереди |
+| `running` | (spinner) | Выполняется |
+| `success` | (check) | Успешно |
+| `failed` | (cross) | Ошибка (retryable) |
+| `skipped` | (skip) | Пропущен (exists/duplicate) |
+| `blocked` | (ban) | Заблокирован (dependency) |
+| `invalid` | (warning) | Невалидный ввод |
+
+### Batch Summary
+
+```
+Processed: 45/100  |  Success: 40  |  Failed: 3  |  Skipped: 2
+ETA: ~2 min (based on moving average)
+```
+
+### Resume после перезапуска
+
+При перезапуске браузера/расширения с незавершённым batch:
+- Показывается диалог "Found incomplete batch. Resume?"
+- Resume продолжает с последнего checkpoint
+- Нет повторов уже выполненных шагов
+
+### Popup Views (quick actions)
+
+```
+┌─────────────────────┐
+│   CF Tools          │
+├─────────────────────┤
+│ Quick Actions       │
+│ [Purge All Cache]   │
+│ [Export Zones]      │
+│                     │
+│ ─────────────────── │
+│ [Open Full Panel →] │
+└─────────────────────┘
+```
 
 ### Дизайн
 
 - CSS из 301-ui (dark theme по умолчанию)
-- Компактный layout для popup (400-600px width)
+- Side Panel использует полную высоту окна
+- Popup — компактный (300px width)
 - Те же компоненты: buttons, inputs, cards, panels
 - Sticky header с navigation tabs
 
@@ -427,6 +683,19 @@ DELETE /zones/:id/dns_records/:r # Delete DNS record
 - Quick actions в контекстном меню
 
 ## Deployment
+
+### Privacy Policy (обязательно для stores)
+
+```
+Cloudflare Tools Privacy Policy:
+- No data collection — we don't collect any user data
+- No external servers — all requests go directly to Cloudflare API
+- Local encryption — credentials encrypted on device with user's master password
+- No tracking — no analytics, no external scripts
+- Open source — code available for audit
+```
+
+URL: `/privacy.html` в расширении + GitHub Pages
 
 ### Chrome Web Store
 ```bash
@@ -486,8 +755,15 @@ For advanced domain management, redirects and TDS — try 301.st"
 | Вопрос | Решение |
 |--------|---------|
 | Название | Cloudflare Tools |
+| Тип | Browser Extension |
 | Репозиторий | Отдельный |
-| Auth метод | Global API Key only |
+| Auth метод | Global API Key (Phase 1), API Token (Phase 2) |
+| Шифрование | Обязательное (Argon2id + AES-GCM) |
+| Основной UI | Side Panel (Chrome) / Sidebar (Firefox) |
+| Fallback UI | Popup с quick actions |
+| Preflight | Автоматический перед batch + "Check first" |
+| Persistence | IndexedDB (Task Ledger) |
+| Rate limiting | Очереди per-operation + backoff |
 | 301.st интеграция | Ссылки, без API |
 
 ---
@@ -495,7 +771,8 @@ For advanced domain management, redirects and TDS — try 301.st"
 ## Следующие шаги
 
 1. [x] ~~Определиться с архитектурой~~ — Global API Key, отдельный repo
-2. [ ] Создать репозиторий `cloudflare-tools`
-3. [ ] Скопировать переиспользуемый код из 301-ui
-4. [ ] Реализовать CF API client (Global API Key auth)
-5. [ ] MVP: Auth + Bulk Zone Create
+2. [x] ~~Добавить Side Panel / Sidebar~~ — Hybrid стратегия
+3. [ ] Создать репозиторий `cloudflare-tools`
+4. [ ] Скопировать переиспользуемый код из 301-ui
+5. [ ] Реализовать CF API client (Global API Key auth)
+6. [ ] MVP: Auth + Bulk Zone Create + Delete + Purge Cache
