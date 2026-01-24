@@ -81,14 +81,23 @@ async function handleVerification(params: VerifyUrlParams): Promise<void> {
     setVerifyStatus('pending', t('auth.verify.pending'));
     const res = await verifyToken(payload);
 
-    const basePath = window.location.pathname;
     const user = ('user' in res ? res.user : null) || null;
     applyLoginStateToDOM(user);
     const successMessage = res.message || t('auth.verify.successRegister');
-    showGlobalMessage('success', successMessage);
     setVerifyStatus('success', successMessage);
-    history.replaceState(null, '', `${basePath}#account`);
-    window.location.hash = '#account';
+
+    // Store success message to show on dashboard after redirect
+    try {
+      sessionStorage.setItem('globalNotice', JSON.stringify({
+        type: 'success',
+        message: successMessage,
+      }));
+    } catch {
+      // Ignore storage errors
+    }
+
+    // Redirect to dashboard
+    window.location.replace('/dashboard.html');
   } catch (error) {
     const errorMsg = extractError(error);
     setVerifyStatus('error', errorMsg);
