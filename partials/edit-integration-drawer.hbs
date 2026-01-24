@@ -68,24 +68,12 @@
           </div>
         </form>
 
-        <!-- Rotate Token Section (Cloudflare only, shown conditionally) -->
-        <div class="card card--panel card--warning" data-rotate-token-section hidden style="margin-top: var(--space-4);">
-          <div class="card__body">
-            <div class="stack-list stack-list--md">
-              <strong>Rotate API Token</strong>
-              <p class="text-sm text-muted">
-                Generate a new scoped token and revoke the current one. This requires a valid bootstrap token.
-              </p>
-              <button
-                type="button"
-                class="btn btn--ghost btn--sm"
-                data-action="rotate-token-submit"
-              >
-                <span class="icon" data-icon="mono/refresh"></span>
-                <span>Rotate Token</span>
-              </button>
-            </div>
-          </div>
+        <!-- Rotate Token Hint (Cloudflare only, shown conditionally) -->
+        <div class="field" data-rotate-token-section hidden>
+          <p class="text-sm text-muted">
+            <span class="icon" data-icon="mono/lightbulb"></span>
+            <span data-i18n="integrations.edit.rotateHint">To rotate the API token, reconnect the Cloudflare account using "Connect Cloudflare". The system will automatically update the token.</span>
+          </p>
         </div>
       </div>
     </div>

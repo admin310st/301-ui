@@ -389,6 +389,9 @@ export const en = {
       // Generic fallback
       fallback: 'Failed to connect integration. Please try again or contact support.',
     },
+    edit: {
+      rotateHint: 'To rotate the API token, reconnect the Cloudflare account using "Connect Cloudflare". The system will automatically update the token.',
+    },
   },
   projects: {
     title: 'Projects',

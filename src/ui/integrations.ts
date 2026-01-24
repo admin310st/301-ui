@@ -545,11 +545,6 @@ function initEditIntegrationDrawer(): void {
     showDialog('delete-integration');
   });
 
-  // Rotate token (Cloudflare)
-  const rotateBtn = drawer.querySelector('[data-action="rotate-token-submit"]');
-  rotateBtn?.addEventListener('click', () => {
-    showGlobalMessage('info', 'Token rotation functionality coming soon');
-  });
 }
 
 /**
