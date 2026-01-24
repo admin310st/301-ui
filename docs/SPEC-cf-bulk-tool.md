@@ -118,6 +118,83 @@ export function formatDomainDisplay(domain: string, mode: 'compact' | 'full'): s
 - Переключатель языков
 - Функция `t()` для переводов
 
+### 6. Style Guide (`docs/StyleGuide.md`)
+
+**ВАЖНО:** UI расширения должен выглядеть как Drawer'ы 301.st
+
+#### Ключевые правила из StyleGuide.md:
+
+**Unified Control Recipe (высота кнопок/инпутов):**
+```css
+height = font-size × line-height + padding × 2
+/* Никаких фиксированных height! */
+```
+
+**Размеры контролов:**
+```css
+--control-sm: 0.875rem font, 0.375rem padding  /* 28px */
+--control-md: 0.875rem font, 0.625rem padding  /* 36px */
+--control-lg: 1rem font, 0.75rem padding       /* 44px */
+```
+
+**Border-radius:**
+```css
+--r-pill: 999px;     /* Buttons, chips */
+--r-field: 0.75rem;  /* Inputs, textareas */
+--radius-lg: 0.75rem; /* Cards, panels */
+--radius: 0.5rem;    /* Dropdowns */
+```
+
+**Spacing tokens:**
+```css
+--space-1: 0.25rem;  /* 4px */
+--space-2: 0.5rem;   /* 8px */
+--space-3: 0.75rem;  /* 12px */
+--space-4: 1rem;     /* 16px */
+--space-5: 1.5rem;   /* 24px */
+--space-6: 2rem;     /* 32px */
+```
+
+**Drawer layout для Popup:**
+```css
+.popup {
+  width: 400px;
+  max-height: 600px;
+  display: flex;
+  flex-direction: column;
+}
+
+.popup__header {
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--border);
+}
+
+.popup__body {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-4);
+}
+
+.popup__footer {
+  padding: var(--space-4);
+  border-top: 1px solid var(--border-subtle);
+  background: var(--panel);
+}
+```
+
+**Цвета (Dark theme):**
+```css
+--bg: #0a0a0b;
+--panel: #141416;
+--border: #2a2a2e;
+--text: #f4f4f5;
+--text-muted: #71717a;
+--brand: #3b82f6;      /* Primary actions */
+--accent-cf: #f6821f;  /* Cloudflare orange */
+--success: #22c55e;
+--danger: #ef4444;
+```
+
 ## Функциональность
 
 ### MVP (Phase 1)
@@ -149,7 +226,18 @@ export function formatDomainDisplay(domain: string, mode: 'compact' | 'full'): s
 - [ ] Confirmation dialog
 - [ ] Batch удаление с progress
 
-#### Export/Import
+#### Bulk Purge Cache ⚡ (конкурентное преимущество)
+- [ ] Список зон с multi-select
+- [ ] Purge Everything (одним кликом)
+- [ ] Progress bar для batch операций
+- [ ] Results: success/failed списки
+
+```
+POST /zones/:zone_id/purge_cache
+Body: { "purge_everything": true }
+```
+
+#### Export/Import (низкий приоритет)
 - [ ] Export results as CSV/JSON
 - [ ] Export zone list
 - [ ] Import domains from CSV
@@ -285,6 +373,16 @@ GET    /zones/:id                # Zone details
 PATCH  /zones/:id                # Update zone settings
 ```
 
+### Cache (Phase 1)
+```
+POST   /zones/:id/purge_cache    # Purge cache
+Body: { "purge_everything": true }
+# или выборочно:
+Body: { "files": ["https://example.com/style.css"] }
+Body: { "tags": ["header", "footer"] }
+Body: { "hosts": ["www.example.com"] }
+```
+
 ### DNS (Phase 2)
 ```
 POST   /zones/:id/dns_records    # Create DNS record
@@ -353,12 +451,13 @@ npm run build
 
 ## Roadmap
 
-| Phase | Scope | Timeline |
-|-------|-------|----------|
-| 1 | Auth + Bulk Create + Results | 1-2 weeks |
-| 2 | Bulk Delete + Export | 1 week |
-| 3 | DNS Management | 1-2 weeks |
-| 4 | 301.st Integration | 1 week |
+| Phase | Scope | Приоритет |
+|-------|-------|-----------|
+| 1 | Auth + Bulk Create + Bulk Delete + **Purge Cache** | MVP |
+| 1.5 | Export/Import (CSV/JSON) | Nice to have |
+| 2 | DNS Management (bulk records) | Extended |
+| 3 | Zone Settings (SSL, security) | Extended |
+| 4 | CF Dashboard Integration (content script) | Bonus |
 
 ## Связь с 301.st
 
