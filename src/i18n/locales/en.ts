@@ -390,7 +390,7 @@ export const en = {
       fallback: 'Failed to connect integration. Please try again or contact support.',
     },
     edit: {
-      rotateHint: 'To rotate the API token, reconnect the Cloudflare account using "Connect Cloudflare". The system will automatically update the token.',
+      rotateHint: 'To rotate the API token, reconnect the Cloudflare account via "Add integration → Cloudflare". The system will automatically update the token.',
     },
   },
   projects: {
