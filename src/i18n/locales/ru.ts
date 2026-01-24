@@ -346,14 +346,6 @@ export const ru: Translation = {
         actions: 'Действия',
       },
     },
-    status: {
-      active: 'Активно',
-      disconnected: 'Отключено',
-      error: 'Ошибка',
-      testing: 'Проверка',
-      expired: 'Истекло',
-      revoked: 'Отозвано',
-    },
     errors: {
       // Ошибки bootstrap-токена (Cloudflare)
       bootstrapInvalid: 'Неверный bootstrap-токен. Проверьте API-токен и попробуйте снова.',
@@ -608,11 +600,6 @@ export const ru: Translation = {
       status: 'Статус',
       selectDomain: 'Выберите домен',
       domainRole: 'Роль домена',
-    },
-    status: {
-      active: 'Активен',
-      paused: 'Приостановлен',
-      archived: 'Архивирован',
     },
     roles: {
       acceptor: 'Акцептор',

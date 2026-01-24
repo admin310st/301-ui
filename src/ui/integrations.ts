@@ -66,7 +66,7 @@ function getStatusClass(status: string): string {
 function renderIntegrationRow(key: IntegrationKey, zonesCount: number = 0): string {
   const providerInfo = getProviderInfo(key.provider);
   const statusClass = getStatusClass(key.status);
-  const statusLabel = t(`integrations.status.${key.status}` as any) || key.status;
+  const statusLabel = key.status.charAt(0).toUpperCase() + key.status.slice(1);
 
   return `
     <tr data-key-id="${key.id}">

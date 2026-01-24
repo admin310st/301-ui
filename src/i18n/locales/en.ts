@@ -340,14 +340,6 @@ export const en = {
         actions: 'Actions',
       },
     },
-    status: {
-      active: 'Active',
-      disconnected: 'Disconnected',
-      error: 'Error',
-      testing: 'Testing',
-      expired: 'Expired',
-      revoked: 'Revoked',
-    },
     errors: {
       // Bootstrap token errors (Cloudflare)
       bootstrapInvalid: 'Invalid bootstrap token. Please check your API token and try again.',
@@ -602,11 +594,6 @@ export const en = {
       status: 'Status',
       selectDomain: 'Select domain',
       domainRole: 'Domain role',
-    },
-    status: {
-      active: 'Active',
-      paused: 'Paused',
-      archived: 'Archived',
     },
     roles: {
       acceptor: 'Acceptor',

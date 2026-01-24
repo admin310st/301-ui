@@ -131,7 +131,7 @@ function renderProjectRow(project: Project): string {
 export function renderSiteRow(site: Site): string {
   const statusClass = site.status === 'active' ? 'badge--success' :
                       site.status === 'paused' ? 'badge--warning' : 'badge--neutral';
-  const statusLabel = t(`sites.status.${site.status}` as any) || site.status;
+  const statusLabel = site.status.charAt(0).toUpperCase() + site.status.slice(1);
 
   return `
     <tr data-site-id="${site.id}">
