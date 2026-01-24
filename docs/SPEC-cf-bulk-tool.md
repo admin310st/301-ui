@@ -2,45 +2,58 @@
 
 ## Концепция
 
-**Standalone браузерное приложение** для массовых операций с Cloudflare, работающее напрямую с CF API через Global API Key. Решает проблему rate-limits и квот при bulk-операциях.
+**Расширение браузера** для массовых операций с Cloudflare, работающее напрямую с CF API через Global API Key. Решает проблему rate-limits и квот при bulk-операциях.
 
 **Название:** Cloudflare Tools
+**Тип:** Browser Extension (Chrome/Firefox)
 **Репозиторий:** Отдельный (не monorepo)
 **Связь с 301.st:** Ссылки на основной проект, без API интеграции
 
-## Почему отдельный продукт?
+## Почему расширение браузера?
 
-1. **Квоты Scoped Tokens** — CF ограничивает операции через API tokens с ограниченными правами
-2. **Global API Key без лимитов** — полный доступ к CF API без ограничений
-3. **Безопасность** — Global API Key не должен покидать браузер пользователя
-4. **Трафик** — приложение приводит пользователей к основному проекту 301.st
+1. **Нет CORS ограничений** — расширения могут делать любые HTTP запросы
+2. **Доверие пользователей** — установка из официального магазина расширений
+3. **Безопасность** — `chrome.storage.local` надёжнее чем localStorage
+4. **Интеграция с CF** — можно добавить кнопки прямо в Cloudflare Dashboard
+5. **Global API Key без лимитов** — полный доступ к CF API без ограничений
+6. **Трафик** — приложение приводит пользователей к основному проекту 301.st
 
 ## Архитектура
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                  Cloudflare Tools                       │
-│                   (Static SPA)                          │
+│                  Browser Extension                      │
+│                  (Cloudflare Tools)                     │
 ├─────────────────────────────────────────────────────────┤
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  │
-│  │ Domain Parser│  │  CF API      │  │  Results     │  │
-│  │ (from 301-ui)│  │  Client      │  │  Export      │  │
+│  │   Popup UI   │  │ Background   │  │  Content     │  │
+│  │  (main app)  │  │   Worker     │  │  Script      │  │
+│  └──────────────┘  └──────────────┘  └──────────────┘  │
+│         │                │                  │          │
+│         ▼                ▼                  ▼          │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  │
+│  │ Domain Parser│  │  CF API      │  │  CF Dashboard│  │
+│  │ (from 301-ui)│  │  Client      │  │  Integration │  │
 │  └──────────────┘  └──────────────┘  └──────────────┘  │
 ├─────────────────────────────────────────────────────────┤
-│                 Browser LocalStorage                    │
-│         (Global API Key never leaves browser)           │
+│              chrome.storage.local                       │
+│       (Global API Key encrypted, never leaves ext)      │
 └─────────────────────────────────────────────────────────┘
                           │
-                          ▼
+                          ▼ (no CORS!)
                    ┌─────────────┐
                    │ Cloudflare  │
                    │ API Direct  │
-                   │             │
-                   │ Headers:    │
-                   │ X-Auth-Email│
-                   │ X-Auth-Key  │
                    └─────────────┘
 ```
+
+### Extension Components
+
+| Component | Назначение |
+|-----------|------------|
+| **Popup** | Основной UI: auth, bulk create, results |
+| **Background Worker** | API запросы, хранение credentials |
+| **Content Script** | Интеграция с dash.cloudflare.com (опционально) |
 
 ### Auth Headers (Global API Key)
 ```
@@ -161,40 +174,84 @@ export function formatDomainDisplay(domain: string, mode: 'compact' | 'full'): s
 ## Технический стек
 
 ```
-Framework:      Vanilla TS (как 301-ui) или Preact (если нужен реактивный UI)
-Build:          Vite
+Manifest:       Manifest V3 (Chrome/Firefox compatible)
+Framework:      Vanilla TS (как 301-ui) или Preact (popup UI)
+Build:          Vite + CRXJS или WXT (extension bundler)
 Styling:        CSS из 301-ui (theme.css, site.css)
 Icons:          Icon sprite из 301-ui
-Deployment:     GitHub Pages / Cloudflare Pages / Static hosting
+Stores:         Chrome Web Store, Firefox Add-ons
 ```
+
+### Рекомендуемый bundler: WXT
+```bash
+npm create wxt@latest cloudflare-tools
+```
+- Поддержка Manifest V3
+- Hot reload при разработке
+- Одновременная сборка для Chrome и Firefox
 
 ## Структура проекта
 
 ```
-cf-bulk-tool/
-├── index.html
+cloudflare-tools/
+├── manifest.json             # Extension manifest
 ├── src/
-│   ├── main.ts
-│   ├── api/
-│   │   ├── cf-client.ts      # Direct Cloudflare API client
-│   │   └── types.ts          # CF API types
-│   ├── domains/
-│   │   ├── parser.ts         # Copied from 301-ui
-│   │   └── validator.ts
-│   ├── ui/
-│   │   ├── auth-form.ts
-│   │   ├── bulk-create.ts
-│   │   ├── bulk-delete.ts
-│   │   ├── progress.ts
-│   │   └── results.ts
-│   ├── storage/
-│   │   └── credentials.ts    # LocalStorage management
-│   └── i18n/
-│       └── ...               # Copied structure from 301-ui
-├── static/
-│   ├── css/                  # From 301-ui
-│   └── icons/                # From 301-ui
+│   ├── popup/                # Popup UI (main interface)
+│   │   ├── index.html
+│   │   ├── main.ts
+│   │   └── components/
+│   │       ├── auth-form.ts
+│   │       ├── bulk-create.ts
+│   │       ├── bulk-delete.ts
+│   │       ├── progress.ts
+│   │       └── results.ts
+│   ├── background/           # Service Worker
+│   │   └── index.ts          # API calls, credential management
+│   ├── content/              # Content script (optional)
+│   │   └── cf-dashboard.ts   # Inject into dash.cloudflare.com
+│   ├── shared/
+│   │   ├── api/
+│   │   │   ├── cf-client.ts  # Cloudflare API client
+│   │   │   └── types.ts
+│   │   ├── domains/
+│   │   │   ├── parser.ts     # Copied from 301-ui
+│   │   │   └── idn.ts        # Copied from 301-ui
+│   │   ├── storage/
+│   │   │   └── credentials.ts # chrome.storage.local wrapper
+│   │   └── i18n/
+│   │       └── ...
+│   └── assets/
+│       ├── css/              # From 301-ui
+│       └── icons/            # Extension icons (16, 48, 128px)
+├── wxt.config.ts             # WXT config
 └── package.json
+```
+
+### Manifest V3 (упрощённый)
+```json
+{
+  "manifest_version": 3,
+  "name": "Cloudflare Tools",
+  "version": "1.0.0",
+  "description": "Bulk operations for Cloudflare zones",
+  "permissions": ["storage"],
+  "host_permissions": ["https://api.cloudflare.com/*"],
+  "action": {
+    "default_popup": "popup/index.html",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    }
+  },
+  "background": {
+    "service_worker": "background/index.js"
+  },
+  "content_scripts": [{
+    "matches": ["https://dash.cloudflare.com/*"],
+    "js": ["content/cf-dashboard.js"]
+  }]
+}
 ```
 
 ## Cloudflare API
@@ -237,48 +294,61 @@ DELETE /zones/:id/dns_records/:r # Delete DNS record
 
 ## Безопасность
 
-1. **Global API Key ТОЛЬКО в браузере** — никогда не отправляется на внешние серверы
-2. **CORS** — CF API поддерживает браузерные запросы с `X-Auth-*` headers
-3. **Опциональное шифрование** — localStorage с AES (пароль при входе)
-4. **Auto-logout** — по таймауту неактивности
-5. **No tracking** — никакой аналитики, никаких внешних скриптов
-6. **Clear credentials** — кнопка полной очистки данных
+1. **Global API Key ТОЛЬКО локально** — хранится в `chrome.storage.local`, никогда не покидает расширение
+2. **Нет внешних серверов** — все запросы идут напрямую к api.cloudflare.com
+3. **Minimal permissions** — только `storage` и `host_permissions` для CF API
+4. **Опциональное шифрование** — AES encryption для credentials (мастер-пароль)
+5. **Auto-lock** — блокировка по таймауту неактивности
+6. **No tracking** — никакой аналитики, никаких внешних скриптов
+7. **Clear credentials** — кнопка полной очистки данных
+8. **Open source** — код открыт для аудита
 
 ## UI/UX
 
-### Страницы
+### Popup Views (400x600px recommended)
 
-1. **Auth** — ввод credentials
-2. **Dashboard** — выбор операции
-3. **Bulk Create** — создание зон
-4. **Bulk Delete** — удаление зон
-5. **Results** — результаты операции
-6. **Settings** — настройки приложения
+1. **Auth** — ввод Email + Global API Key
+2. **Dashboard** — выбор операции, статус подключения
+3. **Bulk Create** — textarea + preview + progress
+4. **Bulk Delete** — список зон + multi-select
+5. **Results** — success/failed списки + export
+6. **Settings** — auto-lock timeout, clear data
 
 ### Дизайн
 
-- Использовать CSS из 301-ui (dark theme по умолчанию)
+- CSS из 301-ui (dark theme по умолчанию)
+- Компактный layout для popup (400-600px width)
 - Те же компоненты: buttons, inputs, cards, panels
-- Адаптивный layout
+- Sticky header с navigation tabs
+
+### Content Script (опционально)
+
+Интеграция с dash.cloudflare.com:
+- Кнопка "Bulk Add" на странице Websites
+- Кнопка "Export Zones" в toolbar
+- Quick actions в контекстном меню
 
 ## Deployment
 
-### Option 1: GitHub Pages
+### Chrome Web Store
 ```bash
 npm run build
-# Deploy dist/ to gh-pages branch
+# Upload dist/chrome.zip to Chrome Web Store Developer Dashboard
+# https://chrome.google.com/webstore/devconsole
 ```
 
-### Option 2: Cloudflare Pages
+### Firefox Add-ons
 ```bash
-# Connect repo to CF Pages
-# Build command: npm run build
-# Output: dist/
+npm run build
+# Upload dist/firefox.zip to Firefox Add-ons
+# https://addons.mozilla.org/developers/
 ```
 
-### Option 3: Subdomain 301.st
-```
-https://bulk.301.st
+### Manual Install (для тестирования)
+```bash
+npm run build
+# Chrome: chrome://extensions → Load unpacked → dist/chrome
+# Firefox: about:debugging → Load Temporary Add-on → dist/firefox/manifest.json
 ```
 
 ## Roadmap
