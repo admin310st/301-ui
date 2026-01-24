@@ -70,6 +70,9 @@ X-Auth-Key: c2547eb745079dac9320b638f5e225cf483cc5cfdda41
 - **Sidebar** — аналог для Firefox
 - **Popup** — quick actions + кнопка "Open Panel" (fallback для старых браузеров)
 
+**Build:** WXT с targets `chrome` + `firefox`, единый UI-бандл (`src/panel/`).
+**Feature detect:** `chrome.sidePanel` vs `browser.sidebarAction` в runtime.
+
 ### Преимущества Side Panel
 
 | Аспект | Popup | Side Panel |
@@ -250,7 +253,7 @@ height = font-size × line-height + padding × 2
 - [ ] Ввод CF Account Email + Global API Key
 - [ ] Валидация через `GET /user` (проверка ключа)
 - [ ] Получение списка аккаунтов `GET /accounts`
-- [ ] Хранение в `chrome.storage.local` (encrypted опционально)
+- [ ] Хранение в `chrome.storage.local` (**encrypted**)
 - [ ] "Remember me" checkbox
 - [ ] Ссылка на инструкцию получения Global API Key
 
@@ -474,6 +477,16 @@ GET    /zones/:id                # Zone details
 PATCH  /zones/:id                # Update zone settings
 ```
 
+**POST /zones** body:
+```typescript
+{
+  name: string;              // Required: domain name
+  account: { id: string };   // Required: CF account ID
+  type?: 'full' | 'partial'; // Optional, default: 'full'
+  jump_start?: boolean;      // Optional, default: true
+}
+```
+
 ### Cache (Phase 1)
 ```
 POST   /zones/:id/purge_cache    # Purge cache
@@ -591,7 +604,9 @@ interface TaskEntry {
 - [ ] Set master password (первый запуск)
 - [ ] Change master password
 - [ ] Lock now
-- [ ] Auto-lock timeout (1–60 min)
+- [ ] Auto-lock timeout (default: **15 min**, range: 1–60)
+- [ ] Remember for session (default: **on**)
+- [ ] Lock on SW unload (default: **on**, MV3 Service Worker termination)
 - [ ] Clear all data
 
 ### Принципы
@@ -624,7 +639,7 @@ interface TaskEntry {
 | **Resume** | Продолжение с checkpoint |
 | **Cancel** | Отмена и сброс |
 | **Retry failed only** | Перезапуск только упавших |
-| **Export failed** | CSV/JSON с domain, operation, error code |
+| **Export failed** | CSV/JSON: `domain, operation, errorCode, errorMessage, attempt, latency, zoneId?` |
 
 ### Status Legend
 
@@ -642,8 +657,10 @@ interface TaskEntry {
 
 ```
 Processed: 45/100  |  Success: 40  |  Failed: 3  |  Skipped: 2
-ETA: ~2 min (based on moving average)
+ETA: ~2 min
 ```
+
+**ETA calculation:** moving average по последним N завершённым задачам (N=30).
 
 ### Resume после перезапуска
 
@@ -695,7 +712,11 @@ Cloudflare Tools Privacy Policy:
 - Open source — code available for audit
 ```
 
-URL: `/privacy.html` в расширении + GitHub Pages
+**Deployment checklist:**
+- [ ] `/privacy.html` включён в сборку расширения
+- [ ] Ссылка на Privacy Policy в Settings UI
+- [ ] GitHub Pages хостинг для CWS/AMO review
+- [ ] Текст Privacy Policy в описании CWS/AMO
 
 ### Chrome Web Store
 ```bash
