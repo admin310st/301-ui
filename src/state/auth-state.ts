@@ -1,5 +1,6 @@
 import { me, refresh } from '@api/auth';
 import type { LoginResponse, MeResponse } from '@api/types';
+import { withInFlight } from '@api/ui-client';
 import { logDebug, logInfo } from '@utils/logger';
 
 const REFRESH_INTERVAL_MS = 10 * 60 * 1000;
@@ -75,33 +76,39 @@ export function setUser(user: MeResponse['user'] | null): void {
 }
 
 export async function loadUser(): Promise<MeResponse['user'] | null> {
-  try {
-    updateState({ loading: true });
-    const profile = await me();
-    setUser(profile.user ?? profile ?? null);
-    if (profile.active_account_id) {
-      updateState({ accountId: profile.active_account_id });
+  // Deduplicate concurrent calls to /auth/me
+  return withInFlight('auth-me', async () => {
+    try {
+      updateState({ loading: true });
+      const profile = await me();
+      setUser(profile.user ?? profile ?? null);
+      if (profile.active_account_id) {
+        updateState({ accountId: profile.active_account_id });
+      }
+      return profile.user ?? profile ?? null;
+    } catch (error) {
+      logDebug('Failed to load user', error);
+      setUser(null);
+      return null;
+    } finally {
+      updateState({ loading: false });
     }
-    return profile.user ?? profile ?? null;
-  } catch (error) {
-    logDebug('Failed to load user', error);
-    setUser(null);
-    return null;
-  } finally {
-    updateState({ loading: false });
-  }
+  });
 }
 
 async function refreshToken(): Promise<void> {
-  try {
-    const res = await refresh();
-    if (res.access_token) setAuthToken(res.access_token);
-    if ((res as MeResponse).user) setUser((res as MeResponse).user ?? null);
-  } catch (error) {
-    logDebug('Refresh failed', error);
-    clearAuthToken();
-    setUser(null);
-  }
+  // Deduplicate concurrent refresh calls
+  return withInFlight('auth-refresh', async () => {
+    try {
+      const res = await refresh();
+      if (res.access_token) setAuthToken(res.access_token);
+      if ((res as MeResponse).user) setUser((res as MeResponse).user ?? null);
+    } catch (error) {
+      logDebug('Refresh failed', error);
+      clearAuthToken();
+      setUser(null);
+    }
+  });
 }
 
 function scheduleRefresh(): void {
@@ -134,31 +141,34 @@ export async function initAuthState(): Promise<void> {
     return;
   }
 
-  try {
-    updateState({ loading: true });
-    const refreshed = await refresh();
+  // Deduplicate concurrent init calls (e.g., multiple components mounting)
+  return withInFlight('auth-init', async () => {
+    try {
+      updateState({ loading: true });
+      const refreshed = await refresh();
 
-    if (refreshed && (refreshed as LoginResponse).access_token) {
-      const accessToken = (refreshed as LoginResponse).access_token;
-      setAuthToken(accessToken ?? null);
-      const profile = await me();
-      setUser(profile.user ?? profile ?? null);
-      // Save account ID from /auth/me response
-      if (profile.active_account_id) {
-        updateState({ accountId: profile.active_account_id });
+      if (refreshed && (refreshed as LoginResponse).access_token) {
+        const accessToken = (refreshed as LoginResponse).access_token;
+        setAuthToken(accessToken ?? null);
+        const profile = await me();
+        setUser(profile.user ?? profile ?? null);
+        // Save account ID from /auth/me response
+        if (profile.active_account_id) {
+          updateState({ accountId: profile.active_account_id });
+        }
+      } else {
+        setAuthToken(null);
+        setUser(null);
       }
-    } else {
+    } catch (error) {
+      logDebug('Auth init failed', error);
       setAuthToken(null);
       setUser(null);
+    } finally {
+      updateState({ loading: false });
+      logInfo('Auth state initialized');
     }
-  } catch (error) {
-    logDebug('Auth init failed', error);
-    setAuthToken(null);
-    setUser(null);
-  } finally {
-    updateState({ loading: false });
-    logInfo('Auth state initialized');
-  }
+  });
 }
 
 export function teardownAuthState(): void {
