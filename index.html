@@ -23,6 +23,15 @@
         // Mark that we already checked auth (prevents duplicate refresh in main.ts)
         window.__authCheckDone = true;
 
+        // Skip redirect for auth flows that need to process tokens from URL
+        // - /auth/verify - email verification, password reset
+        // - /auth/success - OAuth callback
+        const authPath = window.location.pathname;
+        if (authPath.startsWith('/auth/verify') || authPath.startsWith('/auth/success')) {
+          document.body.classList.add('auth-checked');
+          return;
+        }
+
         try {
           // Quick session check via refresh endpoint
           const res = await fetch('https://api.301.st/auth/refresh', {
