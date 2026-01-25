@@ -1245,8 +1245,12 @@ html[data-theme="light"] .bulk-actions-bar__actions .btn--ghost:hover {
 /* Provider Cell (icon + label) */
 .provider-cell {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--space-2);
+}
+
+.provider-cell > .icon {
+  margin-top: 0.125rem; /* Align icon with first line of text */
 }
 
 /* Provider Info Stack (name + email) */
