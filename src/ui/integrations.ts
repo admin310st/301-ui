@@ -61,19 +61,36 @@ function getStatusClass(status: string): string {
 }
 
 /**
+ * Extract cf_account_name from provider_scope JSON
+ */
+function getCfAccountName(key: IntegrationKey): string | null {
+  if (key.provider !== 'cloudflare' || !key.provider_scope) return null;
+  try {
+    const scope = JSON.parse(key.provider_scope);
+    return scope.cf_account_name || null;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Render a single integration row
  */
 function renderIntegrationRow(key: IntegrationKey, zonesCount: number = 0): string {
   const providerInfo = getProviderInfo(key.provider);
   const statusClass = getStatusClass(key.status);
   const statusLabel = key.status.charAt(0).toUpperCase() + key.status.slice(1);
+  const cfAccountName = getCfAccountName(key);
 
   return `
     <tr data-key-id="${key.id}">
       <td data-priority="critical">
         <div class="provider-cell">
           <span class="icon" data-icon="${providerInfo.icon}"></span>
-          <span class="provider-label">${providerInfo.name}</span>
+          <div class="provider-info">
+            <span class="provider-label">${providerInfo.name}</span>
+            ${cfAccountName ? `<span class="provider-email text-muted text-sm">${cfAccountName}</span>` : ''}
+          </div>
         </div>
       </td>
       <td data-priority="high" title="Account ID: ${key.external_account_id}">${key.key_alias}</td>
@@ -287,11 +304,12 @@ function openEditIntegrationDrawer(key: IntegrationKey): void {
   }
 
   if (accountIdEl) {
-    // For Cloudflare, show token name and expiry date from provider_scope
+    // For Cloudflare, show token name, account email, and expiry date from provider_scope
     if (key.provider === 'cloudflare' && key.provider_scope) {
       try {
         const scope = JSON.parse(key.provider_scope);
         const tokenName = scope.cf_token_name || key.external_account_id;
+        const cfAccountName = scope.cf_account_name || null;
         const expiryDate = key.expires_at
           ? new Date(key.expires_at).toLocaleDateString('en-US', {
               year: 'numeric',
@@ -299,7 +317,12 @@ function openEditIntegrationDrawer(key: IntegrationKey): void {
               day: 'numeric'
             })
           : 'No expiry';
-        accountIdEl.innerHTML = `<strong>Token:</strong> ${tokenName}<br><strong>Expires:</strong> ${expiryDate}`;
+        let html = `<strong>Token:</strong> ${tokenName}`;
+        if (cfAccountName) {
+          html += `<br><strong>Account:</strong> ${cfAccountName}`;
+        }
+        html += `<br><strong>Expires:</strong> ${expiryDate}`;
+        accountIdEl.innerHTML = html;
       } catch {
         // Fallback to account ID if parsing fails
         accountIdEl.textContent = key.external_account_id;

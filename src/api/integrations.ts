@@ -11,6 +11,9 @@ import type {
   GetKeyResponse,
 } from './types';
 
+// Re-export types for convenience
+export type { IntegrationKey } from './types';
+
 const BASE_URL = '/integrations';
 
 /**

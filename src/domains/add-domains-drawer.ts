@@ -15,6 +15,28 @@ import { getAccountId } from '@state/auth-state';
 import { initDropdowns } from '@ui/dropdown';
 import { t } from '@i18n';
 
+/**
+ * Extract cf_account_name from provider_scope JSON
+ */
+function getCfAccountName(integration: IntegrationKey): string | null {
+  if (!integration.provider_scope) return null;
+  try {
+    const scope = JSON.parse(integration.provider_scope);
+    return scope.cf_account_name || null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Format integration label with optional email in parentheses
+ */
+function formatIntegrationLabel(integration: IntegrationKey): string {
+  const alias = integration.key_alias || `Account #${integration.id}`;
+  const cfAccountName = getCfAccountName(integration);
+  return cfAccountName ? `${alias} (${cfAccountName})` : alias;
+}
+
 // Domain matching regex (updated for IDN TLD support)
 // Matches: example.com, xn--domain.net, sub.domain.co.uk, домен.рф (xn--c1ad6a.xn--p1ai)
 const DOMAIN_REGEX = /\b((?=[a-z0-9-]{1,63}\.)(?:xn--)?[a-z0-9]+(?:-[a-z0-9]+)*\.)+(?:xn--)?[a-z0-9-]{2,63}\b/gi;
@@ -190,7 +212,7 @@ export function initAddDomainsDrawer(): void {
           role="menuitem"
           data-integration-id="${integration.id}"
         >
-          ${integration.key_alias || `Account #${integration.id}`}
+          ${formatIntegrationLabel(integration)}
         </button>
       `
         )
@@ -203,7 +225,7 @@ export function initAddDomainsDrawer(): void {
           selectedIntegration = availableIntegrations.find((i) => i.id === integrationId) || null;
 
           if (selectedIntegration) {
-            label.textContent = selectedIntegration.key_alias || `Account #${selectedIntegration.id}`;
+            label.textContent = formatIntegrationLabel(selectedIntegration);
             button.setAttribute('data-selected-value', String(selectedIntegration.id));
 
             // Update active state
@@ -226,7 +248,7 @@ export function initAddDomainsDrawer(): void {
       if (availableIntegrations.length === 1) {
         const integration = availableIntegrations[0];
         selectedIntegration = integration;
-        label.textContent = integration.key_alias || `Account #${integration.id}`;
+        label.textContent = formatIntegrationLabel(integration);
         button.setAttribute('data-selected-value', String(integration.id));
         menu.querySelector('[data-integration-id]')?.classList.add('is-active');
         updateSubmitButton();
