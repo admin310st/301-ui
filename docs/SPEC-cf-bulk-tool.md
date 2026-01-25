@@ -272,12 +272,16 @@ height = font-size × line-height + padding × 2
 > **Note:** Plan (free/pro/business/enterprise) не указывается при создании — зона создаётся на Free, апгрейд через биллинг CF.
 
 #### Bulk Zone Deletion
+- [ ] Селект аккаунта (обязателен, фильтрует зоны)
 - [ ] Список существующих зон (с поиском)
+- [ ] Постраничная загрузка зон до исчерпания (с индикатором "Loading zones...")
 - [ ] Multi-select для удаления
 - [ ] Confirmation dialog
 - [ ] Batch удаление с progress
 
 #### Bulk Purge Cache (конкурентное преимущество)
+- [ ] Селект аккаунта (обязателен, фильтрует зоны)
+- [ ] Постраничная загрузка зон до исчерпания (с индикатором "Loading zones...")
 - [ ] Список зон с multi-select
 - [ ] Purge Everything (одним кликом)
 - [ ] Progress bar для batch операций
@@ -508,12 +512,12 @@ DELETE /zones/:id/dns_records/:r # Delete DNS record
 
 Cloudflare API имеет лимиты независимо от метода аутентификации. Реализация:
 
-| Параметр | Default | Описание |
-|----------|---------|----------|
-| `maxConcurrency` | 4 | Параллельные запросы per pool |
-| `rateWindow` | 5 min | Окно rate limit |
-| `maxRetries` | 3 | Максимум повторов |
-| `retryJitter` | 0.1–0.5 | Случайная добавка к delay |
+| Параметр | Default | Cap | Описание |
+|----------|---------|-----|----------|
+| `maxConcurrency` | 4 | 8 | Параллельные запросы per pool |
+| `maxRetries` | 3 | 5 | Максимум повторов |
+| `baseDelay` | 500ms | 20s | Базовая задержка backoff |
+| `jitter` | 0.3 | — | Коэффициент случайной добавки |
 
 **Очереди per-operation:**
 - `createZonesPool` — создание зон
@@ -523,8 +527,8 @@ Cloudflare API имеет лимиты независимо от метода а
 
 **Backoff strategy:**
 ```typescript
-delay = baseDelay * (2 ** attempt) + random(jitter)
-// Respect Retry-After header if present
+delay = min(cap, baseDelay * 2^attempt) + random(0..baseDelay * jitter)
+// Retry-After header has priority over calculated delay
 ```
 
 **Конфиг** выносится в Settings для продвинутых пользователей.
@@ -624,8 +628,8 @@ interface TaskEntry {
 1. **Auth** — ввод Email + Global API Key + Master Password
 2. **Dashboard** — выбор операции, статус подключения
 3. **Bulk Create** — textarea + preview + preflight + progress
-4. **Bulk Delete** — список зон + multi-select
-5. **Bulk Purge** — список зон + multi-select + purge
+4. **Bulk Delete** — селект аккаунта (обязателен) → список зон (с пагинацией) + multi-select
+5. **Bulk Purge** — селект аккаунта (обязателен) → список зон (с пагинацией) + multi-select + purge
 6. **Results** — success/failed списки + export
 7. **Settings** — auto-lock timeout, change password, clear data
 
@@ -639,7 +643,7 @@ interface TaskEntry {
 | **Resume** | Продолжение с checkpoint |
 | **Cancel** | Отмена и сброс |
 | **Retry failed only** | Перезапуск только упавших |
-| **Export failed** | CSV/JSON: `domain, operation, errorCode, errorMessage, attempt, latency, zoneId?` |
+| **Export failed** | CSV/JSON: `domain, operation, status, errorCode, errorMessage, attempt, latencyMs, zoneId?` |
 
 ### Status Legend
 
@@ -660,7 +664,7 @@ Processed: 45/100  |  Success: 40  |  Failed: 3  |  Skipped: 2
 ETA: ~2 min
 ```
 
-**ETA calculation:** moving average по последним N завершённым задачам (N=30).
+**ETA calculation:** moving average по последним N завершённым задачам (N=30); при <10 завершённых — среднее по доступным.
 
 ### Resume после перезапуска
 
@@ -698,6 +702,9 @@ ETA: ~2 min
 - Кнопка "Bulk Add" на странице Websites
 - Кнопка "Export Zones" в toolbar
 - Quick actions в контекстном меню
+
+**Feature flag:** "Enable Dashboard buttons" в Settings (default: **off**).
+Контент-скрипт остаётся в manifest, но инъекция контролируется флагом — упрощает ревью CWS/AMO.
 
 ## Deployment
 
@@ -738,6 +745,22 @@ npm run build
 # Chrome: chrome://extensions → Load unpacked → dist/chrome
 # Firefox: about:debugging → Load Temporary Add-on → dist/firefox/manifest.json
 ```
+
+### Browser Compatibility Matrix
+
+| Browser | Version | UI | Notes |
+|---------|---------|-----|-------|
+| **Chrome** | ≥114 | Side Panel | Primary target |
+| **Edge** | ≥114 | Side Panel | Chromium-based, same as Chrome |
+| **Firefox** | ≥120 | Sidebar | `browser.sidebarAction` API |
+
+**Smoke-test checklist:**
+- [ ] Auth (login, auto-lock, lock now)
+- [ ] Preflight (счётчики will-create/exists/invalid/duplicate)
+- [ ] Create (batch, progress, retry)
+- [ ] Delete (pagination, filter by account)
+- [ ] Purge (batch, progress)
+- [ ] Resume (после перезапуска браузера)
 
 ## Roadmap
 
