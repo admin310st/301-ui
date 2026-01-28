@@ -123,13 +123,9 @@ export function initAddDomainsDrawer(): void {
   submitBtn?.addEventListener('click', async () => {
     if (currentState.count === 0 || !selectedIntegration) return;
 
-    // Store original button content and show loading state
-    const originalContent = submitBtn.innerHTML;
+    // Show loading state with shimmer effect (same as login button)
     submitBtn.disabled = true;
-    submitBtn.innerHTML = `
-      <span class="spinner spinner--sm"></span>
-      <span>${t('common.pleaseWait')}</span>
-    `;
+    submitBtn.setAttribute('data-turnstile-pending', '');
 
     try {
       // Note: createZonesBatch already shows loading via apiFetch
@@ -180,7 +176,7 @@ export function initAddDomainsDrawer(): void {
       showInlineError(t('domains.status.error'), errorMessage);
 
       // Restore button state
-      submitBtn.innerHTML = originalContent;
+      submitBtn.removeAttribute('data-turnstile-pending');
       submitBtn.disabled = false;
     }
   });
@@ -465,13 +461,13 @@ export function initAddDomainsDrawer(): void {
       <div class="panel ${isMixed ? 'panel--warning' : failedCount > 0 ? 'panel--danger' : 'panel--success'}">
         <div class="cluster cluster--xs">
           ${successCount > 0 ? `
-            <span class="cluster cluster--xs">
+            <span class="cluster cluster--xs" style="color: var(--ok);">
               <span class="icon" data-icon="mono/check-circle"></span>
               <strong>${successCount}</strong> added
             </span>
           ` : ''}
           ${failedCount > 0 ? `
-            <span class="cluster cluster--xs">
+            <span class="cluster cluster--xs" style="color: var(--danger);">
               <span class="icon" data-icon="mono/alert-circle"></span>
               <strong>${failedCount}</strong> failed
             </span>
