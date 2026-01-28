@@ -562,8 +562,8 @@ export const en = {
 
         // CF error 1118 - zone limit for new accounts
         zoneLimitHint: 'Activate pending zones to increase your quota. New Cloudflare accounts can only add as many zones as they have active.',
-        zoneLimitExtension: 'For bulk adding, use our browser extension that activates zones automatically.',
-        zoneLimitExtensionCta: 'Install 301 Chrome Extension',
+        zoneLimitExtension: 'Use Cloudflare Tools extension to bypass account limits — it uses your personal auth instead of API token.',
+        zoneLimitExtensionCta: 'Get Cloudflare Tools',
 
         // Error titles for grouped display
         titles: {

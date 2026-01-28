@@ -12,7 +12,7 @@ import { getIntegrationKeys, type IntegrationKey } from '@api/integrations';
 import { createZonesBatch, type BatchZoneResponse, type BatchZoneSuccess, type BatchZoneFailed } from '@api/domains';
 import { getAccountId } from '@state/auth-state';
 import { initDropdowns } from '@ui/dropdown';
-import { t } from '@i18n';
+import { t, tWithVars } from '@i18n';
 import { safeCall, type NormalizedError } from '@api/ui-client';
 import { invalidateCacheByPrefix } from '@api/cache';
 
@@ -539,7 +539,7 @@ export function initAddDomainsDrawer(): void {
       const errorKeys = Object.keys(errorGroups);
 
       html += '<div class="stack-list">';
-      html += `<h3 class="h5">${t('domains.add.results.failedTitle', { count: failedCount })}</h3>`;
+      html += `<h3 class="h5">${tWithVars('domains.add.results.failedTitle', { count: String(failedCount) })}</h3>`;
 
       errorKeys.forEach((errorKey) => {
         const group = errorGroups[errorKey];
@@ -557,18 +557,12 @@ export function initAddDomainsDrawer(): void {
         html += `
           <div class="card card--panel">
             <header class="card__header">
-              <div class="cluster cluster--sm">
-                <span class="icon icon--danger" data-icon="mono/alert-circle"></span>
-                <h4 class="h5">${getErrorTitle(group.error)}</h4>
-                <span class="badge badge--danger">${domainCount} ${t('domains.add.results.failed')}</span>
-              </div>
-            </header>
-            <div class="card__body stack-sm">
-              <p class="text-sm text-muted">${group.error_message}</p>
-
-              <!-- Domains List -->
-              <div class="cluster cluster--space-between">
-                <p class="text-sm"><strong>${t('domains.add.results.domains')}:</strong> ${domainsText}</p>
+              <div class="cluster cluster--sm cluster--space-between" style="width: 100%;">
+                <div class="cluster cluster--sm">
+                  <span class="icon icon--danger" data-icon="mono/alert-circle"></span>
+                  <h4 class="h5">${getErrorTitle(group.error)}</h4>
+                  <span class="badge badge--danger">${domainCount} ${t('domains.add.results.failed')}</span>
+                </div>
                 <button
                   class="btn-icon btn-icon--ghost btn-icon--sm"
                   data-copy-domains="${group.domains.join(',')}"
@@ -577,6 +571,12 @@ export function initAddDomainsDrawer(): void {
                   <span class="icon" data-icon="mono/copy"></span>
                 </button>
               </div>
+            </header>
+            <div class="card__body stack-sm">
+              <p class="text-sm text-muted">${group.error_message}</p>
+
+              <!-- Domains List -->
+              <p class="text-sm"><strong>${t('domains.add.results.domains')}:</strong> ${domainsText}</p>
 
               ${hint ? `
                 <div class="panel panel--warning">
@@ -773,13 +773,15 @@ export function initAddDomainsDrawer(): void {
     try {
       await navigator.clipboard.writeText(ns);
 
-      // Visual feedback - turn button green briefly
+      // Visual feedback - turn icon green briefly
       if (button) {
-        const originalClass = button.className;
-        button.classList.add('btn-icon--success');
-        setTimeout(() => {
-          button.className = originalClass;
-        }, 1500);
+        const icon = button.querySelector('.icon');
+        if (icon) {
+          icon.classList.add('text-ok');
+          setTimeout(() => {
+            icon.classList.remove('text-ok');
+          }, 2000);
+        }
       }
     } catch (error) {
       // Fallback for older browsers
@@ -803,13 +805,15 @@ export function initAddDomainsDrawer(): void {
     try {
       await navigator.clipboard.writeText(text);
 
-      // Visual feedback - turn button green briefly
+      // Visual feedback - turn icon green briefly
       if (button) {
-        const originalClass = button.className;
-        button.classList.add('btn-icon--success');
-        setTimeout(() => {
-          button.className = originalClass;
-        }, 1500);
+        const icon = button.querySelector('.icon');
+        if (icon) {
+          icon.classList.add('text-ok');
+          setTimeout(() => {
+            icon.classList.remove('text-ok');
+          }, 2000);
+        }
       }
     } catch (error) {
       // Fallback for older browsers
