@@ -174,6 +174,30 @@ export async function updateDomainRole(
 }
 
 /**
+ * Remove domain from project (unassign project_id, site_id, reset role to reserve)
+ *
+ * PATCH /domains/:id
+ *
+ * Sets project_id=null, site_id=null, role='reserve'.
+ * Works for domains both with and without site_id.
+ *
+ * @param domainId - Domain ID
+ */
+export async function removeDomainFromProject(
+  domainId: number
+): Promise<void> {
+  console.log('[removeDomainFromProject]', { domainId });
+
+  await apiFetch(`/domains/${domainId}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ project_id: null, site_id: null, role: 'reserve' }),
+  });
+
+  const { invalidateCacheByPrefix } = await import('./cache');
+  invalidateCacheByPrefix('domains');
+}
+
+/**
  * @deprecated Use assignDomainToSite() instead. This is kept for backward compatibility with mock domains page.
  *
  * Legacy function for bulk actions on mock domains page.

@@ -8,7 +8,7 @@ import { showGlobalMessage } from './notifications';
 import { adjustDropdownPosition } from '@ui/dropdown';
 import { setProjectData, incrementRequestToken, getRequestToken, getCurrentProjectId, setIntegrations } from '@state/project-detail-state';
 import { safeCall } from '@api/ui-client';
-import { invalidateCache } from '@api/cache';
+import { invalidateCache, invalidateCacheByPrefix } from '@api/cache';
 import { showConfirmDialog } from '@ui/dialog';
 
 // State
@@ -1027,11 +1027,10 @@ function handleDomainActions(): void {
     if (!removeBtn) return;
 
     const domainId = parseInt(removeBtn.getAttribute('data-domain-id') || '0', 10);
-    const siteId = parseInt(removeBtn.getAttribute('data-site-id') || '0', 10);
     const domainName = removeBtn.getAttribute('data-domain-name') || 'this domain';
     const projectId = getCurrentProjectId();
 
-    if (!domainId || !siteId || !projectId) return;
+    if (!domainId || !projectId) return;
 
     e.preventDefault();
 
@@ -1043,21 +1042,21 @@ function handleDomainActions(): void {
     if (!confirmed) return;
 
     try {
-      const { removeDomainFromSite } = await import('@api/domains');
+      const { removeDomainFromProject } = await import('@api/domains');
 
-      // Remove domain from site (sets site_id = null, role = 'reserve')
+      // Remove domain from project (sets project_id=null, site_id=null, role='reserve')
       await safeCall(
-        () => removeDomainFromSite(siteId, domainId),
+        () => removeDomainFromProject(domainId),
         {
-          lockKey: `remove-domain-${siteId}-${domainId}`,
+          lockKey: `remove-domain-project-${domainId}`,
           retryOn401: true,
         }
       );
 
       // Invalidate cache
       invalidateCache(`project:${projectId}`);
-      invalidateCache(`site:${siteId}`);
-      invalidateCache(`domains`);
+      invalidateCacheByPrefix('domains');
+      invalidateCacheByPrefix('sites');
 
       // Reload domains table
       await loadProjectDomains(projectId);
