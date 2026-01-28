@@ -30,7 +30,9 @@ export interface BatchZoneSuccess {
   domain: string;
   zone_id: number;
   cf_zone_id: string;
-  name_servers: string[];
+  /** Nameservers - API may return as 'ns' or 'name_servers' */
+  ns?: string[];
+  name_servers?: string[];
   status: string;
 }
 

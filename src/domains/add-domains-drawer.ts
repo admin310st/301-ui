@@ -8,12 +8,13 @@
 
 import { showGlobalMessage } from '@ui/notifications';
 import { formatDomainDisplay } from '@utils/idn';
-import { showLoading, hideLoading } from '@ui/loading-indicator';
 import { getIntegrationKeys, type IntegrationKey } from '@api/integrations';
-import { createZonesBatch, type BatchZoneResponse } from '@api/domains';
+import { createZonesBatch, type BatchZoneResponse, type BatchZoneSuccess, type BatchZoneFailed } from '@api/domains';
 import { getAccountId } from '@state/auth-state';
 import { initDropdowns } from '@ui/dropdown';
 import { t } from '@i18n';
+import { safeCall, type NormalizedError } from '@api/ui-client';
+import { invalidateCacheByPrefix } from '@api/cache';
 
 /**
  * Extract cf_account_name from provider_scope JSON
@@ -123,47 +124,54 @@ export function initAddDomainsDrawer(): void {
     if (currentState.count === 0 || !selectedIntegration) return;
 
     submitBtn.disabled = true;
-    showLoading('cf'); // Show orange shimmer for CF operations
 
     try {
-      const results = await createZonesBatch({
-        account_key_id: selectedIntegration.id,
-        domains: currentState.domains,
-      });
-
-      hideLoading(); // Triggers shimmer → notice color transition
+      // Note: createZonesBatch already shows loading via apiFetch
+      const results = await safeCall(
+        () => createZonesBatch({
+          account_key_id: selectedIntegration!.id,
+          domains: currentState.domains,
+        }),
+        {
+          lockKey: `create-zones-batch-${selectedIntegration!.id}`,
+          retryOn401: true,
+        }
+      );
 
       // Switch to results view
       lastResults = results;
       switchToResultsView();
+
+      // Invalidate domains cache
+      invalidateCacheByPrefix('domains');
 
       // Show summary message
       const successCount = results.results.success.length;
       const failedCount = results.results.failed.length;
 
       if (failedCount === 0) {
-        showGlobalMessage('success', `Successfully added ${successCount} domain(s)`);
+        showGlobalMessage('success', t('domains.add.results.allSuccess', { count: successCount }));
       } else if (successCount === 0) {
-        showGlobalMessage('danger', `Failed to add all ${failedCount} domain(s)`);
+        showGlobalMessage('danger', t('domains.add.results.allFailed', { count: failedCount }));
       } else {
-        showGlobalMessage('info', `Added ${successCount} of ${successCount + failedCount} domains`);
+        showGlobalMessage('info', t('domains.add.results.partial', { success: successCount, total: successCount + failedCount }));
       }
-    } catch (error: any) {
-      hideLoading();
+    } catch (error: unknown) {
+      const normalized = error as NormalizedError;
 
-      // Extract error code from API error response
-      let errorMessage = 'Failed to add domains';
+      // Extract error code from NormalizedError details
+      let errorMessage = t('domains.add.errors.fallback');
 
-      if (error?.body?.error) {
-        // API returned structured error
-        errorMessage = getGlobalErrorMessage(error.body.error);
-      } else if (error?.message) {
-        errorMessage = error.message;
+      if (normalized.details && typeof normalized.details === 'object' && 'error' in normalized.details) {
+        // API returned structured error in details
+        errorMessage = getGlobalErrorMessage((normalized.details as { error: string }).error);
+      } else if (normalized.message) {
+        errorMessage = normalized.message;
       }
 
       // Show error in both global notice and inline panel (for mobile)
       showGlobalMessage('danger', errorMessage);
-      showInlineError(t('domains.status.error' as any), errorMessage);
+      showInlineError(t('domains.status.error'), errorMessage);
       submitBtn.disabled = false;
     }
   });
@@ -182,12 +190,18 @@ export function initAddDomainsDrawer(): void {
       const accountId = getAccountId();
       if (!accountId) {
         console.error('No account ID found');
-        label.textContent = t('domains.add.drawer.notAuthenticated' as any);
+        label.textContent = t('domains.add.drawer.notAuthenticated');
         button.disabled = true;
         return;
       }
 
-      const allIntegrations = await getIntegrationKeys(accountId, 'cloudflare');
+      const allIntegrations = await safeCall(
+        () => getIntegrationKeys(accountId, 'cloudflare'),
+        {
+          lockKey: 'integrations:cloudflare',
+          retryOn401: true,
+        }
+      );
       availableIntegrations = allIntegrations.filter((i) => i.status === 'active');
 
       if (availableIntegrations.length === 0) {
@@ -197,12 +211,12 @@ export function initAddDomainsDrawer(): void {
           noIntegrationsPanel.removeAttribute('hidden');
         }
         button.disabled = true;
-        label.textContent = t('domains.add.drawer.noIntegrations.title' as any);
+        label.textContent = t('domains.add.drawer.noIntegrations.title');
         return;
       }
 
       // Populate dropdown menu
-      label.textContent = t('domains.add.drawer.cfAccountSelect' as any);
+      label.textContent = t('domains.add.drawer.cfAccountSelect');
       menu.innerHTML = availableIntegrations
         .map(
           (integration) => `
@@ -255,7 +269,7 @@ export function initAddDomainsDrawer(): void {
       }
     } catch (error) {
       console.error('Failed to load integrations:', error);
-      label.textContent = t('domains.add.drawer.failedToLoad' as any);
+      label.textContent = t('domains.add.drawer.failedToLoad');
       button.disabled = true;
     }
   }
@@ -358,6 +372,13 @@ export function initAddDomainsDrawer(): void {
   }
 
   /**
+   * Get nameservers from domain (supports both 'ns' and 'name_servers' fields)
+   */
+  function getNameservers(domain: BatchZoneSuccess): string[] {
+    return domain.ns || domain.name_servers || [];
+  }
+
+  /**
    * Group domains by nameserver pairs
    */
   function groupByNameservers(
@@ -366,11 +387,12 @@ export function initAddDomainsDrawer(): void {
     const groups: Record<string, { ns: string[]; domains: BatchZoneSuccess[] }> = {};
 
     domains.forEach((domain) => {
-      const nsKey = domain.name_servers.join(',');
+      const ns = getNameservers(domain);
+      const nsKey = ns.join(',');
 
       if (!groups[nsKey]) {
         groups[nsKey] = {
-          ns: domain.name_servers,
+          ns: ns,
           domains: [],
         };
       }
@@ -385,6 +407,35 @@ export function initAddDomainsDrawer(): void {
         sorted[key] = groups[key];
         return sorted;
       }, {} as Record<string, { ns: string[]; domains: BatchZoneSuccess[] }>);
+  }
+
+  /**
+   * Group failed domains by error code
+   */
+  function groupByErrorCode(
+    failed: BatchZoneFailed[]
+  ): Record<string, { error: string; error_message: string; domains: string[] }> {
+    const groups: Record<string, { error: string; error_message: string; domains: string[] }> = {};
+
+    failed.forEach((item) => {
+      if (!groups[item.error]) {
+        groups[item.error] = {
+          error: item.error,
+          error_message: item.error_message,
+          domains: [],
+        };
+      }
+
+      groups[item.error].domains.push(item.domain);
+    });
+
+    // Sort groups by domain count (largest first)
+    return Object.keys(groups)
+      .sort((a, b) => groups[b].domains.length - groups[a].domains.length)
+      .reduce((sorted, key) => {
+        sorted[key] = groups[key];
+        return sorted;
+      }, {} as Record<string, { error: string; error_message: string; domains: string[] }>);
   }
 
   /**
@@ -482,33 +533,76 @@ export function initAddDomainsDrawer(): void {
       `;
     }
 
-    // Failed list
+    // Failed list - grouped by error code
     if (failedCount > 0) {
-      html += '<div class="stack-list">';
-      html += '<h3 class="h5">❌ FAILED (' + failedCount + ')</h3>';
+      const errorGroups = groupByErrorCode(results.results.failed);
+      const errorKeys = Object.keys(errorGroups);
 
-      results.results.failed.forEach((item) => {
-        const hint = getErrorHint(item.error);
+      html += '<div class="stack-list">';
+      html += `<h3 class="h5">${t('domains.add.results.failedTitle', { count: failedCount })}</h3>`;
+
+      errorKeys.forEach((errorKey) => {
+        const group = errorGroups[errorKey];
+        const hint = getErrorHint(group.error);
+        const domainCount = group.domains.length;
+        const isZoneLimitError = group.error === 'cf_error_1118';
+
+        // Format domains list with truncation for large groups
+        const maxDisplayDomains = 5;
+        const displayDomains = group.domains.slice(0, maxDisplayDomains);
+        const remainingCount = domainCount - maxDisplayDomains;
+        const domainsText = displayDomains.map(d => formatDomainDisplay(d)).join(', ') +
+          (remainingCount > 0 ? ` (+${remainingCount} ${t('domains.add.results.more')})` : '');
 
         html += `
           <div class="card card--panel">
             <header class="card__header">
               <div class="cluster cluster--sm">
                 <span class="icon icon--danger" data-icon="mono/alert-circle"></span>
-                <h4 class="h5">${formatDomainDisplay(item.domain)}</h4>
-                <span class="badge badge--danger">Failed</span>
+                <h4 class="h5">${getErrorTitle(group.error)}</h4>
+                <span class="badge badge--danger">${domainCount} ${t('domains.add.results.failed')}</span>
               </div>
             </header>
             <div class="card__body stack-sm">
-              <p class="text-sm"><strong>Error:</strong> ${item.error}</p>
-              <p class="text-sm text-muted">${item.error_message}</p>
+              <p class="text-sm text-muted">${group.error_message}</p>
+
+              <!-- Domains List -->
+              <div class="cluster cluster--space-between">
+                <p class="text-sm"><strong>${t('domains.add.results.domains')}:</strong> ${domainsText}</p>
+                <button
+                  class="btn-icon btn-icon--ghost btn-icon--sm"
+                  data-copy-domains="${group.domains.join(',')}"
+                  title="${t('domains.add.results.copyDomains')}"
+                >
+                  <span class="icon" data-icon="mono/copy"></span>
+                </button>
+              </div>
 
               ${hint ? `
                 <div class="panel panel--warning">
-                  <p class="text-xs">
+                  <p class="text-sm">
                     <span class="icon" data-icon="mono/lightbulb"></span>
-                    <strong>Resolution:</strong> ${hint}
+                    <strong>${t('domains.add.results.resolution')}:</strong> ${hint}
                   </p>
+                </div>
+              ` : ''}
+
+              ${isZoneLimitError ? `
+                <div class="panel panel--info">
+                  <p class="text-sm">
+                    <span class="icon" data-icon="mono/info"></span>
+                    ${t('domains.add.errors.zoneLimitExtension')}
+                  </p>
+                  <a
+                    href="https://chromewebstore.google.com/detail/gncbekdjakchefiiahjbjlbhhfijoikp?utm_source=301.st"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="btn btn--sm btn--ghost"
+                    style="margin-top: var(--space-2);"
+                  >
+                    <span class="icon" data-icon="brand/cws"></span>
+                    <span>${t('domains.add.errors.zoneLimitExtensionCta')}</span>
+                  </a>
                 </div>
               ` : ''}
             </div>
@@ -610,7 +704,7 @@ export function initAddDomainsDrawer(): void {
     const i18nKey = keyMap[code];
     if (i18nKey) {
       // Use t() with interpolation params
-      return t(`domains.add.errors.${i18nKey}` as any, params);
+      return t(`domains.add.errors.${i18nKey}` as keyof typeof import('@i18n/locales/en').en, params);
     }
 
     // Fallback for unknown errors
@@ -624,7 +718,7 @@ export function initAddDomainsDrawer(): void {
   function getErrorHint(errorCode: string): string {
     const { code } = parseErrorCode(errorCode);
 
-    // Map API error codes to i18n keys
+    // Map API error codes to i18n keys for hints
     const keyMap: Record<string, string> = {
       zone_already_in_cf: 'zoneAlreadyInCf',
       zone_in_another_account: 'zoneInAnotherAccount',
@@ -633,14 +727,43 @@ export function initAddDomainsDrawer(): void {
       zone_already_pending: 'zoneAlreadyPending',
       not_registrable: 'notRegistrable',
       quota_exceeded: 'quotaExceeded',
+      cf_error_1118: 'zoneLimitHint',
     };
 
     const i18nKey = keyMap[code];
     if (i18nKey) {
-      return t(`domains.add.errors.${i18nKey}` as any);
+      return t(`domains.add.errors.${i18nKey}` as keyof typeof import('@i18n/locales/en').en);
     }
 
-    return t('domains.add.errors.fallback' as any);
+    return t('domains.add.errors.fallback');
+  }
+
+  /**
+   * Get user-friendly error title for grouped errors
+   * Uses i18n translations from domains.add.errors.titles.*
+   */
+  function getErrorTitle(errorCode: string): string {
+    const { code } = parseErrorCode(errorCode);
+
+    // Map API error codes to i18n keys for titles
+    const keyMap: Record<string, string> = {
+      zone_already_in_cf: 'zoneAlreadyInCf',
+      zone_in_another_account: 'zoneInAnotherAccount',
+      zone_banned: 'zoneBanned',
+      zone_held: 'zoneHeld',
+      zone_already_pending: 'zoneAlreadyPending',
+      not_registrable: 'notRegistrable',
+      quota_exceeded: 'quotaExceeded',
+      cf_error_1118: 'zoneLimit',
+    };
+
+    const i18nKey = keyMap[code];
+    if (i18nKey) {
+      return t(`domains.add.errors.titles.${i18nKey}` as keyof typeof import('@i18n/locales/en').en);
+    }
+
+    // Return the error code itself if no translation
+    return errorCode;
   }
 
   /**

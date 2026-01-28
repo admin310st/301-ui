@@ -523,6 +523,18 @@ export const en = {
         notAuthenticated: 'Not authenticated',
         failedToLoad: 'Failed to load accounts',
       },
+      results: {
+        allSuccess: 'Successfully added {{count}} domain(s)',
+        allFailed: 'Failed to add all {{count}} domain(s)',
+        partial: 'Added {{success}} of {{total}} domains',
+        failedTitle: 'Failed ({{count}})',
+        failed: 'failed',
+        more: 'more',
+        domains: 'Domains',
+        copyDomains: 'Copy domain list',
+        resolution: 'Resolution',
+        goToDomains: 'Go to Domains',
+      },
       errors: {
         // Quota errors
         quotaExceededZones: 'Zone quota exceeded. Need {{need}} zones, but only {{available}} available. Upgrade your plan or remove unused zones.',
@@ -547,6 +559,23 @@ export const en = {
         zoneHeld: 'Check domain status at your registrar.',
         zoneAlreadyPending: 'This domain is already pending activation in Cloudflare.',
         notRegistrable: 'This is a subdomain. Add root domain only (e.g., example.com, not www.example.com).',
+
+        // CF error 1118 - zone limit for new accounts
+        zoneLimitHint: 'Activate pending zones to increase your quota. New Cloudflare accounts can only add as many zones as they have active.',
+        zoneLimitExtension: 'For bulk adding, use our browser extension that activates zones automatically.',
+        zoneLimitExtensionCta: 'Install 301 Chrome Extension',
+
+        // Error titles for grouped display
+        titles: {
+          zoneAlreadyInCf: 'Already in Cloudflare',
+          zoneInAnotherAccount: 'Zone in another account',
+          zoneBanned: 'Domain banned',
+          zoneHeld: 'Domain held',
+          zoneAlreadyPending: 'Already pending',
+          notRegistrable: 'Not a root domain',
+          quotaExceeded: 'Quota exceeded',
+          zoneLimit: 'Zone limit exceeded',
+        },
 
         // Generic
         fallback: 'Contact support for assistance.',

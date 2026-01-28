@@ -529,6 +529,18 @@ export const ru: Translation = {
         notAuthenticated: 'Не авторизован',
         failedToLoad: 'Не удалось загрузить аккаунты',
       },
+      results: {
+        allSuccess: 'Успешно добавлено {{count}} домен(ов)',
+        allFailed: 'Не удалось добавить {{count}} домен(ов)',
+        partial: 'Добавлено {{success}} из {{total}} доменов',
+        failedTitle: 'Ошибки ({{count}})',
+        failed: 'с ошибкой',
+        more: 'ещё',
+        domains: 'Домены',
+        copyDomains: 'Копировать список доменов',
+        resolution: 'Решение',
+        goToDomains: 'Перейти к доменам',
+      },
       errors: {
         // Ошибки квот
         quotaExceededZones: 'Превышена квота зон. Нужно {{need}} зон, доступно только {{available}}. Обновите тариф или удалите неиспользуемые зоны.',
@@ -553,6 +565,23 @@ export const ru: Translation = {
         zoneHeld: 'Проверьте статус домена у вашего регистратора.',
         zoneAlreadyPending: 'Этот домен уже ожидает активации в Cloudflare.',
         notRegistrable: 'Это поддомен. Добавляйте только корневые домены (например, example.com, а не www.example.com).',
+
+        // CF error 1118 - лимит зон для новых аккаунтов
+        zoneLimitHint: 'Активируйте ожидающие зоны, чтобы увеличить квоту. Новые аккаунты Cloudflare могут добавить столько зон, сколько у них активных.',
+        zoneLimitExtension: 'Для массового добавления используйте наше браузерное расширение, которое активирует зоны автоматически.',
+        zoneLimitExtensionCta: 'Установить 301 Chrome Extension',
+
+        // Заголовки ошибок для группированного отображения
+        titles: {
+          zoneAlreadyInCf: 'Уже в Cloudflare',
+          zoneInAnotherAccount: 'Зона в другом аккаунте',
+          zoneBanned: 'Домен заблокирован',
+          zoneHeld: 'Домен на удержании',
+          zoneAlreadyPending: 'Уже ожидает активации',
+          notRegistrable: 'Не корневой домен',
+          quotaExceeded: 'Квота превышена',
+          zoneLimit: 'Превышен лимит зон',
+        },
 
         // Общая ошибка
         fallback: 'Обратитесь в поддержку за помощью.',
