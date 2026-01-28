@@ -123,7 +123,13 @@ export function initAddDomainsDrawer(): void {
   submitBtn?.addEventListener('click', async () => {
     if (currentState.count === 0 || !selectedIntegration) return;
 
+    // Store original button content and show loading state
+    const originalContent = submitBtn.innerHTML;
     submitBtn.disabled = true;
+    submitBtn.innerHTML = `
+      <span class="spinner spinner--sm"></span>
+      <span>${t('common.pleaseWait')}</span>
+    `;
 
     try {
       // Note: createZonesBatch already shows loading via apiFetch
@@ -150,11 +156,11 @@ export function initAddDomainsDrawer(): void {
       const failedCount = results.results.failed.length;
 
       if (failedCount === 0) {
-        showGlobalMessage('success', t('domains.add.results.allSuccess', { count: successCount }));
+        showGlobalMessage('success', tWithVars('domains.add.results.allSuccess', { count: String(successCount) }));
       } else if (successCount === 0) {
-        showGlobalMessage('danger', t('domains.add.results.allFailed', { count: failedCount }));
+        showGlobalMessage('danger', tWithVars('domains.add.results.allFailed', { count: String(failedCount) }));
       } else {
-        showGlobalMessage('info', t('domains.add.results.partial', { success: successCount, total: successCount + failedCount }));
+        showGlobalMessage('info', tWithVars('domains.add.results.partial', { success: String(successCount), total: String(successCount + failedCount) }));
       }
     } catch (error: unknown) {
       const normalized = error as NormalizedError;
@@ -172,6 +178,9 @@ export function initAddDomainsDrawer(): void {
       // Show error in both global notice and inline panel (for mobile)
       showGlobalMessage('danger', errorMessage);
       showInlineError(t('domains.status.error'), errorMessage);
+
+      // Restore button state
+      submitBtn.innerHTML = originalContent;
       submitBtn.disabled = false;
     }
   });
@@ -588,7 +597,7 @@ export function initAddDomainsDrawer(): void {
               ` : ''}
 
               ${isZoneLimitError ? `
-                <div class="panel panel--info">
+                <div class="panel panel--info"${hint ? ' style="margin-top: var(--space-2);"' : ''}>
                   <p class="text-sm">
                     <span class="icon" data-icon="mono/info"></span>
                     ${t('domains.add.errors.zoneLimitExtension')}
