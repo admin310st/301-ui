@@ -346,6 +346,9 @@ export const en = {
       bootstrapExpired: 'Bootstrap token has expired. Please generate a new token.',
       bootstrapNotActive: 'Bootstrap token is not active. Please check your token status.',
       permissionsMissing: 'Bootstrap token has insufficient permissions. Make sure it has "Account Settings: Read" and "API Tokens: Edit" permissions.',
+      permissionGroupsFailed: 'Failed to fetch permission groups. Please check your token permissions.',
+      tokenCreationFailed: 'Failed to create working token. Please try again.',
+      workingTokenInvalid: 'Created token validation failed. Please try again.',
 
       // Quota and access errors
       quotaExceeded: 'You have reached the maximum number of integrations for your plan. Upgrade or remove existing integrations.',
@@ -362,7 +365,7 @@ export const en = {
 
       // Conflict errors (409)
       keyAlreadyExists: 'An integration with this account already exists. Use reconnect to rotate credentials.',
-      cfAccountConflict: 'This Cloudflare account is already connected to a different user.',
+      cfAccountConflict: 'On the free plan, you can only connect one Cloudflare account. Replace the existing one?',
       externalAccountAlreadyUsed: 'This external account is already in use. Remove the existing integration first.',
       keyCreationInProgress: 'Integration creation is already in progress. Please wait for it to complete.',
 

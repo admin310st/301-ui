@@ -1734,17 +1734,11 @@ html[data-theme="light"] .btn--ghost:hover {
   outline-offset: 2px;
 }
 
-/* Tab hover colors - indicate method type */
-.tabs__trigger[data-tab-trigger="scoped-token"]:hover {
+/* Tab hover colors - Connect tab uses primary color */
+.tabs__trigger[data-tab-trigger="connect"]:hover {
   background: color-mix(in srgb, var(--primary) 12%, var(--bg-soft));
   border-color: color-mix(in srgb, var(--primary) 35%, transparent);
   color: var(--primary);
-}
-
-.tabs__trigger[data-tab-trigger="quick-setup"]:hover {
-  background: color-mix(in srgb, var(--danger) 12%, var(--bg-soft));
-  border-color: color-mix(in srgb, var(--danger) 35%, transparent);
-  color: var(--danger);
 }
 
 .btn-icon--ghost {

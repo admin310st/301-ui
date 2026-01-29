@@ -1,11 +1,12 @@
 /**
- * Cloudflare Connect forms (Scoped Token & Quick Setup)
+ * Cloudflare Connect form handler
  */
 
 import { showGlobalMessage } from '@ui/notifications';
-import { hideLoading, setPendingNoticeFlash } from '@ui/loading-indicator';
+import { setPendingNoticeFlash } from '@ui/loading-indicator';
 import { showConfirmDialog } from '@ui/dialog';
-import { getIntegrationErrorMessage, isRecoverableError } from '@utils/api-errors';
+import { safeCall, type NormalizedError } from '@api/ui-client';
+import { getIntegrationErrorMessage } from '@utils/api-errors';
 
 /**
  * Parse Cloudflare test curl command and extract account ID and token
@@ -18,8 +19,8 @@ function parseCurlCommand(curlText: string): { accountId: string; token: string 
     // Extract account ID from URL (32 hex characters)
     const accountIdMatch = curlText.match(/accounts\/([a-f0-9]{32})/i);
 
-    // Extract token from Authorization header (allow letters, numbers, underscore, dash)
-    const tokenMatch = curlText.match(/Bearer\s+([A-Za-z0-9_-]+)/);
+    // Extract token from Authorization header (40 characters: letters, numbers, underscore, dash)
+    const tokenMatch = curlText.match(/Bearer\s+([A-Za-z0-9_-]{40})/);
 
     if (accountIdMatch && tokenMatch) {
       return {
@@ -36,10 +37,10 @@ function parseCurlCommand(curlText: string): { accountId: string; token: string 
 }
 
 /**
- * Initialize Scoped Token form
+ * Initialize Cloudflare Connect form
  */
-export function initCfScopedTokenForm(): void {
-  const form = document.querySelector<HTMLFormElement>('[data-form="cf-connect-scoped"]');
+export function initCfConnectForm(): void {
+  const form = document.querySelector<HTMLFormElement>('[data-form="cf-connect"]');
   if (!form) return;
 
   const accountIdInput = form.querySelector<HTMLInputElement>('[name="cf_account_id"]');
@@ -80,7 +81,7 @@ export function initCfScopedTokenForm(): void {
     e.preventDefault();
 
     // Get button reference and disable immediately to prevent double-submit
-    const submitBtn = document.querySelector<HTMLButtonElement>('button[type="submit"][form="cf-connect-scoped"]');
+    const submitBtn = document.querySelector<HTMLButtonElement>('button[type="submit"][form="cf-connect"]');
     const drawer = document.querySelector<HTMLElement>('[data-drawer="connect-cloudflare"]');
 
     if (submitBtn) {
@@ -89,6 +90,7 @@ export function initCfScopedTokenForm(): void {
         return;
       }
       submitBtn.disabled = true;
+      submitBtn.setAttribute('data-turnstile-pending', '');
     }
 
     const formData = new FormData(form);
@@ -98,14 +100,14 @@ export function initCfScopedTokenForm(): void {
     // Validate presence
     if (!accountId || !token) {
       showStatus('error', 'Please fill in both Account ID and Bootstrap Token');
-      if (submitBtn) submitBtn.disabled = false;
+      resetButton(submitBtn);
       return;
     }
 
     // Validate Account ID format (32 hex characters)
     if (!/^[a-f0-9]{32}$/i.test(accountId.trim())) {
       showStatus('error', 'Invalid Account ID format. Must be 32 hexadecimal characters (example: 2465945243a36d6fbbbefef7ca64cccd)');
-      if (submitBtn) submitBtn.disabled = false;
+      resetButton(submitBtn);
       return;
     }
 
@@ -113,22 +115,22 @@ export function initCfScopedTokenForm(): void {
     const trimmedToken = token.trim();
     if (!/^[A-Za-z0-9_-]{40}$/.test(trimmedToken)) {
       showStatus('error', 'Invalid Bootstrap Token format. Must be exactly 40 characters (example: 4JbTBRPa0h4MF3NVB6mVJjTGoKiHgXPw6ppbLI8C)');
-      if (submitBtn) submitBtn.disabled = false;
+      resetButton(submitBtn);
       return;
-    }
-
-    // Show loading state (button already disabled above)
-    if (submitBtn) {
-      submitBtn.innerHTML = '<span class="icon" data-icon="mono/refresh"></span><span>Verifying...</span>';
     }
 
     try {
       const { initCloudflare } = await import('@api/integrations');
-      const response = await initCloudflare({
-        cf_account_id: accountId.trim(),
-        bootstrap_token: trimmedToken,
-      });
-      // Loading indicator (orange shimmer) shown automatically by apiFetch with showLoading: 'cf'
+      const response = await safeCall(
+        () => initCloudflare({
+          cf_account_id: accountId.trim(),
+          bootstrap_token: trimmedToken,
+        }),
+        {
+          lockKey: 'cf-init',
+          retryOn401: true,
+        }
+      );
 
       // Show success message with sync info
       const syncInfo = response.sync
@@ -146,6 +148,7 @@ export function initCfScopedTokenForm(): void {
 
       // Update button to success state
       if (submitBtn) {
+        submitBtn.removeAttribute('data-turnstile-pending');
         submitBtn.classList.remove('btn--cf');
         submitBtn.classList.add('btn--success');
         submitBtn.innerHTML = '<span class="icon" data-icon="mono/check-circle"></span><span>Connected!</span>';
@@ -168,91 +171,33 @@ export function initCfScopedTokenForm(): void {
         }
       }, 3500);
 
-    } catch (error: any) {
-      // Loading indicator hidden automatically by apiFetch in finally block
+    } catch (error: unknown) {
       console.error('[cf-connect] Error:', error);
 
-      const body = error.body as ApiErrorResponse | null;
+      const normalized = error as NormalizedError;
 
-      // Handle cf_account_conflict - show confirmation dialog
-      if (body?.error === 'cf_account_conflict') {
-        const context = body.context as { existing_account_id?: string; new_account_id?: string };
+      // Check for cf_account_conflict in details
+      if (normalized.details && typeof normalized.details === 'object') {
+        const details = normalized.details as { error?: string; context?: { existing_account_id?: string; new_account_id?: string } };
 
-        // Show custom dialog instead of browser confirm()
-        const confirmed = await showConfirmDialog('replace-cf-account', {
-          'existing-account-id': context?.existing_account_id || 'existing account',
-          'new-account-id': context?.new_account_id || 'this account',
-        });
+        if (details.error === 'cf_account_conflict') {
+          const context = details.context || {};
 
-        if (confirmed) {
-          // Retry with confirm_replace flag
-          try {
-            if (submitBtn) {
-              submitBtn.disabled = true;
-              submitBtn.innerHTML = '<span class="icon" data-icon="mono/refresh"></span><span>Replacing...</span>';
-            }
+          // Show custom dialog instead of browser confirm()
+          const confirmed = await showConfirmDialog('replace-cf-account', {
+            'existing-account-id': context.existing_account_id || 'existing account',
+            'new-account-id': context.new_account_id || 'this account',
+          });
 
-            const { initCloudflare } = await import('@api/integrations');
-            const response = await initCloudflare({
-              cf_account_id: accountId.trim(),
-              bootstrap_token: trimmedToken,
-              confirm_replace: true,
-            });
-            // Loading indicator (orange shimmer) shown automatically by apiFetch with showLoading: 'cf'
-
-            const syncInfo = response.sync
-              ? ` Synced ${response.sync.zones} zones and ${response.sync.domains} domains.`
-              : '';
-            const successMsg = `Cloudflare account replaced successfully!${syncInfo}`;
-
-            // Set pending notice flash for smooth shimmer → success transition
-            setPendingNoticeFlash('success');
-
-            showStatus('success', successMsg);
-            showGlobalMessage('success', successMsg);
-
-            if (submitBtn) {
-              submitBtn.classList.remove('btn--cf');
-              submitBtn.classList.add('btn--success');
-              submitBtn.innerHTML = '<span class="icon" data-icon="mono/check-circle"></span><span>Connected!</span>';
-            }
-
-            setTimeout(async () => {
-              if (drawer) drawer.setAttribute('hidden', '');
-
-              // Try to reload integrations table (works only on integrations page)
-              // Falls back to full page reload on other pages (dashboard, etc.)
-              try {
-                const { loadIntegrations } = await import('@ui/integrations');
-                await loadIntegrations();
-              } catch (error) {
-                // Not on integrations page or loadIntegrations failed - reload page to show changes
-                window.location.reload();
-              }
-            }, 3500);
-
-          } catch (retryError: any) {
-            // Loading indicator hidden automatically by apiFetch in finally block
-            const retryErrorMessage = getIntegrationErrorMessage(retryError);
-
-            // Set pending notice flash for smooth shimmer → error transition
-            setPendingNoticeFlash('error');
-
-            showStatus('error', retryErrorMessage);
-            showGlobalMessage('error', retryErrorMessage);
-            if (submitBtn) {
-              submitBtn.disabled = false;
-              submitBtn.innerHTML = '<span class="icon" data-icon="brand/cloudflare"></span><span>Save &amp; verify token</span>';
-            }
+          if (confirmed) {
+            // Retry with confirm_replace flag
+            await handleReplaceConfirmation(accountId.trim(), trimmedToken, submitBtn, drawer);
+          } else {
+            // User cancelled
+            resetButton(submitBtn);
           }
-        } else {
-          // User cancelled
-          if (submitBtn) {
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = '<span class="icon" data-icon="brand/cloudflare"></span><span>Save &amp; verify token</span>';
-          }
+          return;
         }
-        return;
       }
 
       // Handle other errors
@@ -264,15 +209,12 @@ export function initCfScopedTokenForm(): void {
       showStatus('error', errorMessage);
       showGlobalMessage('error', errorMessage);
 
-      // Reset button
-      if (submitBtn) {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '<span class="icon" data-icon="brand/cloudflare"></span><span>Save &amp; verify token</span>';
-      }
+      resetButton(submitBtn);
     }
   });
 
   function showStatus(type: 'error' | 'success', message: string) {
+    if (!form) return;
     const statusEl = form.querySelector('[data-cf-status]');
     if (!statusEl) return;
 
@@ -281,40 +223,97 @@ export function initCfScopedTokenForm(): void {
     statusEl.textContent = message;
     statusEl.removeAttribute('hidden');
   }
+
+  function resetButton(btn: HTMLButtonElement | null) {
+    if (!btn) return;
+    btn.removeAttribute('data-turnstile-pending');
+    btn.disabled = false;
+    btn.classList.remove('btn--success');
+    btn.classList.add('btn--cf');
+    btn.innerHTML = '<span class="icon" data-icon="brand/cloudflare"></span><span>Save &amp; verify token</span>';
+  }
 }
 
 /**
- * Initialize Quick Setup form
+ * Handle confirm_replace retry after cf_account_conflict
  */
-export function initCfQuickSetupForm(): void {
-  const form = document.querySelector<HTMLFormElement>('[data-form="cf-connect-quick"]');
-  if (!form) return;
+async function handleReplaceConfirmation(
+  accountId: string,
+  token: string,
+  submitBtn: HTMLButtonElement | null,
+  drawer: HTMLElement | null
+): Promise<void> {
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.setAttribute('data-turnstile-pending', '');
+  }
 
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
+  try {
+    const { initCloudflare } = await import('@api/integrations');
+    const response = await safeCall(
+      () => initCloudflare({
+        cf_account_id: accountId,
+        bootstrap_token: token,
+        confirm_replace: true,
+      }),
+      {
+        lockKey: 'cf-init-replace',
+        retryOn401: true,
+      }
+    );
 
-    const formData = new FormData(form);
-    const email = formData.get('cf_account_email') as string;
-    const globalKey = formData.get('cf_global_key') as string;
+    const syncInfo = response.sync
+      ? ` Synced ${response.sync.zones} zones and ${response.sync.domains} domains.`
+      : '';
+    const successMsg = `Cloudflare account replaced successfully!${syncInfo}`;
 
-    // TODO: Implement API call to backend
-    // await connectCloudflareQuick({ email, globalKey });
+    // Set pending notice flash for smooth shimmer → success transition
+    setPendingNoticeFlash('success');
 
-    // Show success message
-    const statusEl = form.querySelector('[data-cf-status]');
-    if (statusEl) {
-      statusEl.classList.remove('panel--danger');
-      statusEl.classList.add('panel--success');
-      statusEl.textContent = 'Scoped token created successfully! Global API Key has been discarded.';
-      statusEl.removeAttribute('hidden');
+    showGlobalMessage('success', successMsg);
+
+    if (submitBtn) {
+      submitBtn.removeAttribute('data-turnstile-pending');
+      submitBtn.classList.remove('btn--cf');
+      submitBtn.classList.add('btn--success');
+      submitBtn.innerHTML = '<span class="icon" data-icon="mono/check-circle"></span><span>Connected!</span>';
     }
-  });
+
+    setTimeout(async () => {
+      if (drawer) drawer.setAttribute('hidden', '');
+
+      // Try to reload integrations table (works only on integrations page)
+      // Falls back to full page reload on other pages (dashboard, etc.)
+      try {
+        const { loadIntegrations } = await import('@ui/integrations');
+        await loadIntegrations();
+      } catch (error) {
+        // Not on integrations page or loadIntegrations failed - reload page to show changes
+        window.location.reload();
+      }
+    }, 3500);
+
+  } catch (retryError: unknown) {
+    const retryErrorMessage = getIntegrationErrorMessage(retryError);
+
+    // Set pending notice flash for smooth shimmer → error transition
+    setPendingNoticeFlash('error');
+
+    showGlobalMessage('error', retryErrorMessage);
+
+    if (submitBtn) {
+      submitBtn.removeAttribute('data-turnstile-pending');
+      submitBtn.disabled = false;
+      submitBtn.classList.remove('btn--success');
+      submitBtn.classList.add('btn--cf');
+      submitBtn.innerHTML = '<span class="icon" data-icon="brand/cloudflare"></span><span>Save &amp; verify token</span>';
+    }
+  }
 }
 
 /**
- * Initialize all CF connect forms
+ * Initialize CF connect form (main entry point)
  */
 export function initCfConnectForms(): void {
-  initCfScopedTokenForm();
-  initCfQuickSetupForm();
+  initCfConnectForm();
 }

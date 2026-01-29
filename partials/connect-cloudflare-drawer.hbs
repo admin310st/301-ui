@@ -29,19 +29,10 @@
                 class="tabs__trigger"
                 role="tab"
                 aria-selected="false"
-                data-tab-trigger="scoped-token"
+                data-tab-trigger="connect"
               >
-                <span class="icon" data-icon="mono/shield-account"></span>
-                <span>Scoped Token</span>
-              </button>
-              <button
-                class="tabs__trigger"
-                role="tab"
-                aria-selected="false"
-                data-tab-trigger="quick-setup"
-              >
-                <span class="icon" data-icon="mono/zap"></span>
-                <span>Quick Setup</span>
+                <span class="icon" data-icon="mono/puzzle-plus"></span>
+                <span>Connect</span>
               </button>
             </div>
 
@@ -50,14 +41,6 @@
               <!-- Instructions Tab -->
               <div class="tabs__panel is-active" data-tab-panel="instructions" role="tabpanel">
                 <div class="stack-list">
-                  <div class="panel panel--info">
-                    <p><strong>Choose your method:</strong></p>
-                    <ul class="list--spaced">
-                      <li><strong>Scoped Token</strong> (Recommended) — Secure, minimal permissions</li>
-                      <li><strong>Quick Setup</strong> — Fast but uses Global API Key temporarily</li>
-                    </ul>
-                  </div>
-
                   <div class="card card--panel">
                     <header class="card__header">
                       <h3 class="h5">Creating Bootstrap Token</h3>
@@ -107,9 +90,9 @@
                 </div>
               </div>
 
-              <!-- Scoped Token Tab -->
-              <div class="tabs__panel" data-tab-panel="scoped-token" role="tabpanel">
-                <form id="cf-connect-scoped" class="stack-list" data-form="cf-connect-scoped">
+              <!-- Connect Tab -->
+              <div class="tabs__panel" data-tab-panel="connect" role="tabpanel">
+                <form id="cf-connect" class="stack-list" data-form="cf-connect">
                   <div class="field">
                     <label class="field__label">Cloudflare Account ID</label>
                     <input
@@ -152,48 +135,6 @@
                   <div class="panel" data-cf-status hidden role="status" aria-live="polite"></div>
                 </form>
               </div>
-
-              <!-- Quick Setup Tab -->
-              <div class="tabs__panel" data-tab-panel="quick-setup" role="tabpanel">
-                <form id="cf-connect-quick" class="stack-list" data-form="cf-connect-quick">
-                  <div class="field">
-                    <label class="field__label">Cloudflare Account Email</label>
-                    <input
-                      class="input"
-                      type="email"
-                      name="cf_account_email"
-                      placeholder="your-email@example.com"
-                      autocomplete="email"
-                      required
-                    />
-                    <p class="field__hint text-muted">
-                      The email address associated with your Cloudflare account.
-                    </p>
-                  </div>
-
-                  <div class="field">
-                    <label class="field__label">Global API Key</label>
-                    <textarea
-                      class="textarea"
-                      name="cf_global_key"
-                      rows="3"
-                      placeholder="Paste your Global API Key…"
-                      autocomplete="off"
-                      spellcheck="false"
-                      required
-                    ></textarea>
-                    <p class="field__hint text-muted">
-                      Found in Cloudflare dashboard: <strong>My Profile → API Tokens → Global API Key → View</strong>
-                    </p>
-                  </div>
-
-                  <div class="panel panel--warn">
-                    <p><strong>Warning:</strong> This method uses your Global API Key temporarily. We'll create a scoped token and immediately discard the Global API Key.</p>
-                  </div>
-
-                  <div class="panel" data-cf-status hidden role="status" aria-live="polite"></div>
-                </form>
-              </div>
             </div>
           </div>
         </div>
@@ -202,21 +143,15 @@
           <button class="btn btn--ghost" type="button" data-drawer-close>Cancel</button>
 
           <!-- Instructions tab action -->
-          <button type="button" class="btn btn--primary" data-tab-trigger="scoped-token" data-footer-action="instructions">
+          <button type="button" class="btn btn--primary" data-tab-trigger="connect" data-footer-action="instructions">
             <span class="icon" data-icon="mono/play"></span>
             <span>Start setup</span>
           </button>
 
-          <!-- Scoped Token form action -->
-          <button type="submit" form="cf-connect-scoped" class="btn btn--cf" data-footer-action="scoped-token" hidden>
+          <!-- Connect form action -->
+          <button type="submit" form="cf-connect" class="btn btn--cf" data-footer-action="connect" hidden>
             <span class="icon" data-icon="brand/cloudflare"></span>
             <span>Save &amp; verify token</span>
-          </button>
-
-          <!-- Quick Setup form action -->
-          <button type="submit" form="cf-connect-quick" class="btn btn--danger" data-footer-action="quick-setup" hidden>
-            <span class="icon" data-icon="mono/zap"></span>
-            <span>Create scoped token</span>
           </button>
         </footer>
       </div>
