@@ -1688,32 +1688,27 @@ async function handleBulkSync(): Promise<void> {
     return;
   }
 
-  // Filter: only enabled redirects can be synced
+  // Collect zones from ALL selected redirects
+  // - Enabled redirects will be applied to CF
+  // - Disabled redirects will be removed from CF (not in ruleset)
   const state = getState();
   const zoneIds = new Set<number>();
-  const selectedDomainIds: number[] = [];
-  let skippedDisabled = 0;
+  const enabledDomainIds: number[] = [];
+  const disabledDomainIds: number[] = [];
 
   for (const redirectId of selectedRedirects) {
     const legacyRedirect = currentRedirects.find(r => r.id === redirectId);
     if (legacyRedirect) {
-      // Skip disabled redirects
-      if (!legacyRedirect.enabled) {
-        skippedDisabled++;
-        continue;
-      }
       const domain = state.domains.find(d => d.domain_id === legacyRedirect.domain_id);
       if (domain?.zone_id) {
         zoneIds.add(domain.zone_id);
-        selectedDomainIds.push(domain.domain_id);
+        if (legacyRedirect.enabled) {
+          enabledDomainIds.push(domain.domain_id);
+        } else {
+          disabledDomainIds.push(domain.domain_id);
+        }
       }
     }
-  }
-
-  // All selected redirects are disabled
-  if (selectedDomainIds.length === 0) {
-    showGlobalNotice('info', 'All selected redirects are disabled. Enable them first or delete.');
-    return;
   }
 
   if (zoneIds.size === 0) {
@@ -1722,13 +1717,13 @@ async function handleBulkSync(): Promise<void> {
   }
 
   try {
-    // Mark all selected as pending
-    for (const domainId of selectedDomainIds) {
+    // Mark enabled as pending (they will be synced)
+    for (const domainId of enabledDomainIds) {
       updateDomainRedirect(domainId, { sync_status: 'pending' });
     }
     renderTable();
 
-    // Sync each zone
+    // Sync each zone (applies enabled, removes disabled from CF)
     let totalSynced = 0;
     for (const zoneId of zoneIds) {
       const response = await applyZoneRedirects(zoneId);
@@ -1738,8 +1733,16 @@ async function handleBulkSync(): Promise<void> {
     }
 
     renderTable();
-    const skippedNote = skippedDisabled > 0 ? ` (${skippedDisabled} disabled skipped)` : '';
-    showGlobalNotice('success', `Synced ${totalSynced} redirect(s) across ${zoneIds.size} zone(s)${skippedNote}`);
+
+    // Build result message
+    const parts: string[] = [];
+    if (enabledDomainIds.length > 0) {
+      parts.push(`${totalSynced} applied`);
+    }
+    if (disabledDomainIds.length > 0) {
+      parts.push(`${disabledDomainIds.length} removed`);
+    }
+    showGlobalNotice('success', `Synced ${zoneIds.size} zone(s): ${parts.join(', ')}`);
     handleClearSelection();
   } catch (error: any) {
     // On error, refresh to get actual state
