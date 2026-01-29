@@ -213,7 +213,8 @@ function setupActionButtons(redirect: DomainRedirect): void {
   // Copy button
   const copyBtn = drawerElement.querySelector('[data-action="copy-domain-drawer"]');
   if (copyBtn) {
-    const copyHandler = () => {
+    // Use onclick to replace any previous handler (prevents accumulation)
+    (copyBtn as HTMLButtonElement).onclick = () => {
       navigator.clipboard.writeText(redirect.domain).then(() => {
         // Show success feedback with color change on icon
         const icon = copyBtn.querySelector('.icon');
@@ -227,18 +228,15 @@ function setupActionButtons(redirect: DomainRedirect): void {
         console.error('Failed to copy domain:', err);
       });
     };
-    copyBtn.removeEventListener('click', copyHandler);
-    copyBtn.addEventListener('click', copyHandler);
   }
 
-  // Open in new tab button
-  const openBtn = drawerElement.querySelector('[data-action="open-domain-drawer"]');
+  // Open in new tab button (test redirect)
+  const openBtn = drawerElement.querySelector<HTMLButtonElement>('[data-action="open-domain-drawer"]');
   if (openBtn) {
-    const openHandler = () => {
+    // Use onclick to replace any previous handler (prevents multiple tabs)
+    openBtn.onclick = () => {
       window.open(`https://${redirect.domain}`, '_blank', 'noopener,noreferrer');
     };
-    openBtn.removeEventListener('click', openHandler);
-    openBtn.addEventListener('click', openHandler);
 
     // Color icon based on redirect code
     const icon = openBtn.querySelector('.icon');
