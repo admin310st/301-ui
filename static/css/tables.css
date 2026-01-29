@@ -1141,6 +1141,11 @@ html[data-theme="light"] .bulk-actions-bar__actions .btn--ghost:hover {
   text-align: center;
 }
 
+.empty-state .stack,
+.empty-state .stack-md {
+  align-items: center;
+}
+
 .empty-state .icon--lg {
   width: 64px;
   height: 64px;
