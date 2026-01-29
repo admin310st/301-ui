@@ -571,6 +571,124 @@ function updateSyncButtonState(redirect?: DomainRedirect): void {
 }
 
 /**
+ * Render content for acceptor (target/primary) domain
+ */
+function renderAcceptorContent(redirect: DomainRedirect): string {
+  const projectLink = redirect.project_id
+    ? `<a href="/projects.html" class="link">${redirect.project_name}</a>`
+    : '—';
+  const siteLink = redirect.site_id
+    ? `<a href="/projects.html" class="link">${redirect.site_name}</a>`
+    : '—';
+
+  return `
+    <div class="stack-list">
+      <section class="card card--panel">
+        <header class="card__header">
+          <h3 class="h5">Overview</h3>
+        </header>
+        <div class="card__body">
+          <dl class="detail-list">
+            <div class="detail-row">
+              <dt class="detail-label">Project</dt>
+              <dd class="detail-value">${projectLink}</dd>
+            </div>
+            <div class="detail-row">
+              <dt class="detail-label">Site</dt>
+              <dd class="detail-value">${siteLink}</dd>
+            </div>
+            <div class="detail-row">
+              <dt class="detail-label">Role</dt>
+              <dd class="detail-value">
+                <span class="badge badge--sm badge--success">Target</span>
+              </dd>
+            </div>
+          </dl>
+        </div>
+      </section>
+
+      <div class="panel panel--info">
+        <p>
+          <span class="icon" data-icon="mono/info-circle"></span>
+          This is the <strong>primary domain</strong> for the site. Other domains redirect traffic here.
+        </p>
+      </div>
+    </div>
+  `;
+}
+
+/**
+ * Render content for donor (redirect) domain
+ */
+function renderDonorContent(
+  redirect: DomainRedirect,
+  acceptorDomain: ReturnType<typeof getAcceptorDomain>,
+  defaultTargetUrl: string
+): string {
+  const projectLink = redirect.project_id
+    ? `<a href="/projects.html" class="link">${redirect.project_name}</a>`
+    : '—';
+  const siteLink = redirect.site_id
+    ? `<a href="/projects.html" class="link">${redirect.site_name}</a>`
+    : '—';
+
+  // Target row content
+  let targetRow = '';
+  if (redirect.target_url) {
+    targetRow = `
+      <div class="detail-row">
+        <dt class="detail-label">Target</dt>
+        <dd class="detail-value">
+          <span class="detail-value--mono">${redirect.target_url}</span>
+        </dd>
+      </div>
+    `;
+  } else if (acceptorDomain) {
+    targetRow = `
+      <div class="detail-row">
+        <dt class="detail-label">Target</dt>
+        <dd class="detail-value text-muted">
+          Will redirect to <strong>${acceptorDomain.domain_name}</strong>
+        </dd>
+      </div>
+    `;
+  } else {
+    targetRow = `
+      <div class="detail-row">
+        <dt class="detail-label">Target</dt>
+        <dd class="detail-value text-muted">No redirect configured</dd>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="stack-list">
+      <section class="card card--panel">
+        <header class="card__header">
+          <h3 class="h5">Overview</h3>
+        </header>
+        <div class="card__body">
+          <dl class="detail-list">
+            <div class="detail-row">
+              <dt class="detail-label">Project</dt>
+              <dd class="detail-value">${projectLink}</dd>
+            </div>
+            <div class="detail-row">
+              <dt class="detail-label">Site</dt>
+              <dd class="detail-value">${siteLink}</dd>
+            </div>
+            ${targetRow}
+          </dl>
+        </div>
+      </section>
+
+      ${renderRedirectConfigCard(redirect, defaultTargetUrl)}
+      ${renderSyncStatusCard(redirect)}
+    </div>
+  `;
+}
+
+/**
  * Render drawer content with cards and detail-list
  */
 function renderDrawerContent(redirect: DomainRedirect): void {
@@ -585,63 +703,13 @@ function renderDrawerContent(redirect: DomainRedirect): void {
     ? `https://${acceptorDomain.domain_name}`
     : '';
 
-  const content = `
-    <div class="stack-list">
-      <!-- Overview -->
-      <section class="card card--panel">
-        <header class="card__header">
-          <h3 class="h5">Overview</h3>
-        </header>
-        <div class="card__body">
-          <dl class="detail-list">
-            <div class="detail-row">
-              <dt class="detail-label">Project</dt>
-              <dd class="detail-value">${redirect.project_name || '—'}</dd>
-            </div>
-            <div class="detail-row">
-              <dt class="detail-label">Site</dt>
-              <dd class="detail-value">${redirect.site_name || '—'}</dd>
-            </div>
-            ${isAcceptor ? `
-              <div class="detail-row">
-                <dt class="detail-label">Role</dt>
-                <dd class="detail-value">
-                  <span class="badge badge--sm badge--success">Main domain</span>
-                  <span class="text-muted text-sm">— receives traffic from other domains</span>
-                </dd>
-              </div>
-            ` : redirect.target_url ? `
-              <div class="detail-row">
-                <dt class="detail-label">Target</dt>
-                <dd class="detail-value">
-                  <span class="detail-value--mono">${redirect.target_url}</span>
-                </dd>
-              </div>
-            ` : acceptorDomain ? `
-              <div class="detail-row">
-                <dt class="detail-label">Target</dt>
-                <dd class="detail-value text-muted">
-                  Will redirect to <strong>${acceptorDomain.domain_name}</strong>
-                </dd>
-              </div>
-            ` : `
-              <div class="detail-row">
-                <dt class="detail-label">Target</dt>
-                <dd class="detail-value text-muted">No redirect configured</dd>
-              </div>
-            `}
-          </dl>
-        </div>
-      </section>
-
-      ${isAcceptor ? '' : renderRedirectConfigCard(redirect, defaultTargetUrl)}
-      ${renderSyncStatusCard(redirect)}
-    </div>
-  `;
+  const content = isAcceptor
+    ? renderAcceptorContent(redirect)
+    : renderDonorContent(redirect, acceptorDomain, defaultTargetUrl);
 
   contentEl.innerHTML = content;
 
-  // Setup dropdown, toggle, and input handlers after content is rendered
+  // Setup dropdown, toggle, and input handlers after content is rendered (donor only)
   setupDropdownHandlers();
   setupToggleHandlers();
   setupTargetUrlHandlers();
