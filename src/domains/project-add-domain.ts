@@ -56,7 +56,7 @@ export function closeAddDomainDrawer(): void {
   if (!drawer) return;
 
   drawer.setAttribute('hidden', '');
-  currentProjectId = null;
+  // Note: Don't reset currentProjectId - it's the global project filter for navigation
   currentSiteId = null;
   selectedDomainIds.clear();
   updateSubmitButton();

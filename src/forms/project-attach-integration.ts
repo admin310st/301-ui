@@ -34,7 +34,7 @@ export function closeAttachIntegrationDrawer(): void {
   if (!drawer) return;
 
   drawer.setAttribute('hidden', '');
-  currentProjectId = null;
+  // Note: Don't reset currentProjectId - it's the global project filter for navigation
 
   // Reset selection
   const selectBtn = document.querySelector<HTMLButtonElement>('[data-attach-integration-select]');
