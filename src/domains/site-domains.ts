@@ -53,7 +53,7 @@ export function closeManageSiteDomainsDrawer(): void {
 
   drawer.setAttribute('hidden', '');
   currentSiteId = null;
-  currentProjectId = null;
+  // Note: Don't reset currentProjectId - it's the global project filter for navigation
 
   // Reset UI
   const nameEl = drawer.querySelector<HTMLElement>('[data-site-domains-name]');
@@ -682,13 +682,11 @@ export function initSiteDomains(): void {
     if (openAddDomainsBtn) {
       e.preventDefault();
       if (!currentProjectId) return;
-      // Save projectId before closing (closeManageSiteDomainsDrawer resets it)
-      const projectId = currentProjectId;
       // Close manage-site-domains drawer
       closeManageSiteDomainsDrawer();
       // Open add-domain-to-project drawer
       const { openAddDomainDrawer } = await import('@domains/project-add-domain');
-      await openAddDomainDrawer(projectId);
+      await openAddDomainDrawer(currentProjectId);
     }
 
     // Primary domain dropdown option selection
