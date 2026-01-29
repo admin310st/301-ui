@@ -376,6 +376,9 @@ function setupToggleHandlers(): void {
     // Store value
     toggleBtn.setAttribute('data-enabled', newEnabled.toString());
 
+    // Update sync button state
+    updateSyncButtonState(currentRedirect || undefined);
+
     // Auto-save if redirect exists
     if (currentRedirect?.has_redirect && currentRedirect.id && USE_REAL_API) {
       await autoSaveField('enabled', newEnabled);
@@ -393,6 +396,11 @@ function setupTargetUrlHandlers(): void {
   if (!targetInput) return;
 
   let originalValue = targetInput.value;
+
+  // Update sync button on input change
+  targetInput.addEventListener('input', () => {
+    updateSyncButtonState(currentRedirect || undefined);
+  });
 
   // Save on blur if value changed
   targetInput.addEventListener('blur', async () => {
@@ -501,27 +509,33 @@ async function autoSaveField(field: 'enabled' | 'status_code', value: boolean | 
 }
 
 /**
- * Update sync button state in footer based on redirect status
+ * Update sync button state in footer based on current form state
+ * Checks both saved redirect AND current input values
  */
-function updateSyncButtonState(redirect: DomainRedirect): void {
+function updateSyncButtonState(redirect?: DomainRedirect): void {
   if (!drawerElement) return;
 
   const syncBtn = drawerElement.querySelector('[data-drawer-sync]') as HTMLButtonElement;
   if (!syncBtn) return;
 
-  const hasRedirect = redirect.target_url && redirect.target_url.trim() !== '';
-  const enabled = redirect.enabled ?? true;
+  // Check current input value (may be different from saved state)
+  const targetInput = drawerElement.querySelector('[data-drawer-field="target_url"]') as HTMLInputElement;
+  const currentTargetUrl = targetInput?.value?.trim() || '';
 
-  // Disable sync if no redirect configured or redirect is disabled
-  if (!redirect.has_redirect || !hasRedirect) {
+  // Check current toggle state
+  const toggleBtn = drawerElement.querySelector('[data-drawer-toggle="enabled"]');
+  const currentEnabled = toggleBtn?.getAttribute('data-enabled') !== 'false';
+
+  // Enable sync if there's a target URL and redirect is enabled
+  if (!currentTargetUrl) {
     syncBtn.disabled = true;
-    syncBtn.title = 'Configure redirect first';
-  } else if (!enabled) {
+    syncBtn.title = 'Enter target URL first';
+  } else if (!currentEnabled) {
     syncBtn.disabled = true;
     syncBtn.title = 'Enable redirect to sync';
   } else {
     syncBtn.disabled = false;
-    syncBtn.title = '';
+    syncBtn.title = redirect?.has_redirect ? '' : 'Create and sync redirect';
   }
 }
 
@@ -751,14 +765,28 @@ function renderSyncStatusCard(redirect: DomainRedirect): string {
 
 /**
  * Handle sync button click (footer button)
+ * Creates redirect if doesn't exist, then syncs to Cloudflare
  */
 async function handleSync(redirect: DomainRedirect): Promise<void> {
   if (!drawerElement) return;
 
+  // Get current form values
+  const targetInput = drawerElement.querySelector('[data-drawer-field="target_url"]') as HTMLInputElement;
+  const targetUrl = targetInput?.value?.trim() || '';
+
+  const redirectCodeTrigger = drawerElement.querySelector('[data-drawer-dropdown="redirect_code"]');
+  const redirectCode = parseInt(redirectCodeTrigger?.getAttribute('data-selected-value') || '301') as 301 | 302;
+
+  if (!targetUrl) {
+    showGlobalNotice('error', 'Enter target URL first');
+    return;
+  }
+
   console.log('Syncing redirect:', {
     id: redirect.id,
     domain: redirect.domain,
-    target_url: redirect.target_url
+    has_redirect: redirect.has_redirect,
+    target_url: targetUrl
   });
 
   if (!USE_REAL_API) {
@@ -778,14 +806,43 @@ async function handleSync(redirect: DomainRedirect): Promise<void> {
   if (syncBtn) {
     syncBtn.disabled = true;
     const textSpan = syncBtn.querySelector('span:last-child');
-    if (textSpan) textSpan.textContent = 'Syncing...';
+    if (textSpan) textSpan.textContent = redirect.has_redirect ? 'Syncing...' : 'Creating...';
   }
 
   try {
-    // Mark as pending in state
-    updateDomainRedirect(redirect.domain_id, { sync_status: 'pending' });
+    // Step 1: Create redirect if doesn't exist
+    if (!redirect.has_redirect) {
+      const response = await createRedirect(redirect.domain_id, {
+        template_id: 'T1',
+        params: { target_url: targetUrl },
+        status_code: redirectCode,
+      });
 
-    // API call - sync entire zone
+      // Update current redirect with new data
+      redirect.id = response.redirect.id;
+      redirect.has_redirect = true;
+      if (currentRedirect) {
+        currentRedirect.id = response.redirect.id;
+        currentRedirect.has_redirect = true;
+      }
+
+      // Add redirect to state
+      addRedirectToDomain(redirect.domain_id, {
+        ...response.redirect,
+        sync_status: 'pending' as const,
+      }, 'donor');
+
+      // Update button text
+      if (syncBtn) {
+        const textSpan = syncBtn.querySelector('span:last-child');
+        if (textSpan) textSpan.textContent = 'Syncing...';
+      }
+    } else {
+      // Mark as pending in state
+      updateDomainRedirect(redirect.domain_id, { sync_status: 'pending' });
+    }
+
+    // Step 2: Sync to Cloudflare
     const response = await applyZoneRedirects(domain.zone_id);
 
     // Update state with synced redirects
@@ -794,17 +851,16 @@ async function handleSync(redirect: DomainRedirect): Promise<void> {
 
     showGlobalNotice('success', `Synced ${response.rules_applied || 1} redirect(s) to Cloudflare`);
 
-    // Refresh drawer content to show updated sync status
-    if (currentRedirect) {
-      // Refresh state to get latest data
-      await refreshRedirects();
-    }
+    // Refresh state to get latest data
+    await refreshRedirects();
 
     // Close drawer after successful sync
     closeDrawer();
   } catch (error: any) {
-    // Mark as error
-    updateDomainRedirect(redirect.domain_id, { sync_status: 'error' });
+    // Mark as error if redirect exists
+    if (redirect.has_redirect) {
+      updateDomainRedirect(redirect.domain_id, { sync_status: 'error' });
+    }
 
     showGlobalNotice('error', error.message || 'Failed to sync to Cloudflare');
 
@@ -812,7 +868,7 @@ async function handleSync(redirect: DomainRedirect): Promise<void> {
     if (syncBtn) {
       syncBtn.disabled = false;
       const textSpan = syncBtn.querySelector('span:last-child');
-      if (textSpan) textSpan.textContent = 'Retry sync';
+      if (textSpan) textSpan.textContent = 'Retry';
     }
   }
 }
