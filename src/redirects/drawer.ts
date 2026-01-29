@@ -783,8 +783,17 @@ async function handleSync(redirect: DomainRedirect): Promise<void> {
   const redirectCodeTrigger = drawerElement.querySelector('[data-drawer-dropdown="redirect_code"]');
   const redirectCode = parseInt(redirectCodeTrigger?.getAttribute('data-selected-value') || '301') as 301 | 302;
 
+  // Check if redirect is enabled
+  const toggleBtn = drawerElement.querySelector('[data-drawer-toggle="enabled"]');
+  const isEnabled = toggleBtn?.getAttribute('data-enabled') !== 'false';
+
   if (!targetUrl) {
     showGlobalNotice('error', 'Enter target URL first');
+    return;
+  }
+
+  if (!isEnabled) {
+    showGlobalNotice('error', 'Enable redirect before syncing');
     return;
   }
 
@@ -882,12 +891,13 @@ async function handleSync(redirect: DomainRedirect): Promise<void> {
 
     showGlobalNotice('error', error.message || 'Failed to sync to Cloudflare');
 
-    // Re-enable sync button and remove shimmer
+    // Remove shimmer and update button state based on form
     if (syncBtn) {
-      syncBtn.disabled = false;
       syncBtn.removeAttribute('data-turnstile-pending');
       const textSpan = syncBtn.querySelector('span:last-child');
       if (textSpan) textSpan.textContent = 'Retry';
     }
+    // Respect form state (e.g. disabled redirect should keep button disabled)
+    updateSyncButtonState(redirect);
   }
 }
