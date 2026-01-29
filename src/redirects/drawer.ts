@@ -7,12 +7,14 @@ import type { DomainRedirect } from './mock-data';
 import {
   updateRedirect,
   createRedirect,
+  deleteRedirect,
   applyZoneRedirects,
 } from '@api/redirects';
 import {
   getState,
   updateDomainRedirect,
   addRedirectToDomain,
+  removeRedirectFromDomain,
   markZoneSynced,
   refreshRedirects,
   getAcceptorDomain,
@@ -44,6 +46,16 @@ export function initDrawer(): void {
     syncButton.addEventListener('click', () => {
       if (currentRedirect) {
         handleSync(currentRedirect);
+      }
+    });
+  }
+
+  // Delete button in footer (shown when redirect is disabled)
+  const deleteButton = drawerElement.querySelector('[data-drawer-delete]');
+  if (deleteButton) {
+    deleteButton.addEventListener('click', () => {
+      if (currentRedirect) {
+        handleDelete(currentRedirect);
       }
     });
   }
@@ -515,14 +527,16 @@ async function autoSaveField(field: 'enabled' | 'status_code', value: boolean | 
 }
 
 /**
- * Update sync button state in footer based on current form state
- * Checks both saved redirect AND current input values
+ * Update footer buttons based on current form state
+ * - Enabled redirect: show Sync button
+ * - Disabled redirect: show Delete button
  */
 function updateSyncButtonState(redirect?: DomainRedirect): void {
   if (!drawerElement) return;
 
   const syncBtn = drawerElement.querySelector('[data-drawer-sync]') as HTMLButtonElement;
-  if (!syncBtn) return;
+  const deleteBtn = drawerElement.querySelector('[data-drawer-delete]') as HTMLButtonElement;
+  if (!syncBtn || !deleteBtn) return;
 
   // Check current input value (may be different from saved state)
   const targetInput = drawerElement.querySelector('[data-drawer-field="target_url"]') as HTMLInputElement;
@@ -532,16 +546,27 @@ function updateSyncButtonState(redirect?: DomainRedirect): void {
   const toggleBtn = drawerElement.querySelector('[data-drawer-toggle="enabled"]');
   const currentEnabled = toggleBtn?.getAttribute('data-enabled') !== 'false';
 
-  // Enable sync if there's a target URL and redirect is enabled
-  if (!currentTargetUrl) {
-    syncBtn.disabled = true;
-    syncBtn.title = 'Enter target URL first';
-  } else if (!currentEnabled) {
-    syncBtn.disabled = true;
-    syncBtn.title = 'Enable redirect to sync';
+  // Check if redirect exists in DB
+  const hasRedirect = redirect?.has_redirect || false;
+
+  if (!currentEnabled && hasRedirect) {
+    // Disabled redirect with existing record → show Delete button
+    syncBtn.setAttribute('hidden', '');
+    deleteBtn.removeAttribute('hidden');
+    deleteBtn.disabled = false;
   } else {
-    syncBtn.disabled = false;
-    syncBtn.title = redirect?.has_redirect ? '' : 'Create and sync redirect';
+    // Enabled or no redirect yet → show Sync button
+    deleteBtn.setAttribute('hidden', '');
+    syncBtn.removeAttribute('hidden');
+
+    // Enable sync if there's a target URL
+    if (!currentTargetUrl) {
+      syncBtn.disabled = true;
+      syncBtn.title = 'Enter target URL first';
+    } else {
+      syncBtn.disabled = false;
+      syncBtn.title = hasRedirect ? '' : 'Create and sync redirect';
+    }
   }
 }
 
@@ -783,17 +808,8 @@ async function handleSync(redirect: DomainRedirect): Promise<void> {
   const redirectCodeTrigger = drawerElement.querySelector('[data-drawer-dropdown="redirect_code"]');
   const redirectCode = parseInt(redirectCodeTrigger?.getAttribute('data-selected-value') || '301') as 301 | 302;
 
-  // Check if redirect is enabled
-  const toggleBtn = drawerElement.querySelector('[data-drawer-toggle="enabled"]');
-  const isEnabled = toggleBtn?.getAttribute('data-enabled') !== 'false';
-
   if (!targetUrl) {
     showGlobalNotice('error', 'Enter target URL first');
-    return;
-  }
-
-  if (!isEnabled) {
-    showGlobalNotice('error', 'Enable redirect before syncing');
     return;
   }
 
@@ -899,5 +915,66 @@ async function handleSync(redirect: DomainRedirect): Promise<void> {
     }
     // Respect form state (e.g. disabled redirect should keep button disabled)
     updateSyncButtonState(redirect);
+  }
+}
+
+/**
+ * Handle delete button click (footer button)
+ * Deletes disabled redirect from DB, then syncs zone to remove from CF
+ */
+async function handleDelete(redirect: DomainRedirect): Promise<void> {
+  if (!drawerElement || !redirect.id) return;
+
+  if (!USE_REAL_API) {
+    showGlobalNotice('info', 'Delete not available in mock mode');
+    return;
+  }
+
+  // Get zone_id from state
+  const state = getState();
+  const domain = state.domains.find(d => d.domain_id === redirect.domain_id);
+
+  // Update delete button to show progress with shimmer
+  const deleteBtn = drawerElement.querySelector('[data-drawer-delete]') as HTMLButtonElement;
+  if (deleteBtn) {
+    deleteBtn.disabled = true;
+    deleteBtn.setAttribute('data-turnstile-pending', '');
+    const textSpan = deleteBtn.querySelector('span:last-child');
+    if (textSpan) textSpan.textContent = 'Deleting...';
+  }
+
+  try {
+    // Step 1: Delete redirect from DB
+    await deleteRedirect(redirect.id);
+
+    // Remove from local state
+    removeRedirectFromDomain(redirect.domain_id);
+
+    showGlobalNotice('success', 'Redirect deleted');
+
+    // Step 2: If zone exists, sync to remove from CF
+    if (domain?.zone_id) {
+      try {
+        await applyZoneRedirects(domain.zone_id);
+      } catch (syncError) {
+        // Non-critical: redirect is deleted from DB, CF sync can be retried
+        console.warn('[handleDelete] Zone sync failed:', syncError);
+      }
+    }
+
+    // Refresh state and close drawer
+    await refreshRedirects();
+    closeDrawer();
+  } catch (error: any) {
+    console.error('[handleDelete] Error:', error);
+    showGlobalNotice('error', error.message || 'Failed to delete redirect');
+
+    // Reset delete button
+    if (deleteBtn) {
+      deleteBtn.removeAttribute('data-turnstile-pending');
+      deleteBtn.disabled = false;
+      const textSpan = deleteBtn.querySelector('span:last-child');
+      if (textSpan) textSpan.textContent = 'Delete redirect';
+    }
   }
 }

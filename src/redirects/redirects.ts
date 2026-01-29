@@ -1688,20 +1688,32 @@ async function handleBulkSync(): Promise<void> {
     return;
   }
 
-  // Get unique zones for selected redirects
+  // Filter: only enabled redirects can be synced
   const state = getState();
   const zoneIds = new Set<number>();
   const selectedDomainIds: number[] = [];
+  let skippedDisabled = 0;
 
   for (const redirectId of selectedRedirects) {
     const legacyRedirect = currentRedirects.find(r => r.id === redirectId);
     if (legacyRedirect) {
+      // Skip disabled redirects
+      if (!legacyRedirect.enabled) {
+        skippedDisabled++;
+        continue;
+      }
       const domain = state.domains.find(d => d.domain_id === legacyRedirect.domain_id);
       if (domain?.zone_id) {
         zoneIds.add(domain.zone_id);
         selectedDomainIds.push(domain.domain_id);
       }
     }
+  }
+
+  // All selected redirects are disabled
+  if (selectedDomainIds.length === 0) {
+    showGlobalNotice('info', 'All selected redirects are disabled. Enable them first or delete.');
+    return;
   }
 
   if (zoneIds.size === 0) {
@@ -1726,7 +1738,8 @@ async function handleBulkSync(): Promise<void> {
     }
 
     renderTable();
-    showGlobalNotice('success', `Synced ${totalSynced} redirect(s) across ${zoneIds.size} zone(s)`);
+    const skippedNote = skippedDisabled > 0 ? ` (${skippedDisabled} disabled skipped)` : '';
+    showGlobalNotice('success', `Synced ${totalSynced} redirect(s) across ${zoneIds.size} zone(s)${skippedNote}`);
     handleClearSelection();
   } catch (error: any) {
     // On error, refresh to get actual state

@@ -287,9 +287,15 @@
         </div>
 
         <footer class="drawer__footer">
+          <!-- Sync button (shown when redirect is enabled) -->
           <button class="btn btn--cf" type="button" data-drawer-sync>
             <span class="icon" data-icon="brand/cloudflare"></span>
             <span>Sync to Cloudflare</span>
+          </button>
+          <!-- Delete button (shown when redirect is disabled) -->
+          <button class="btn btn--danger" type="button" data-drawer-delete hidden>
+            <span class="icon" data-icon="mono/trash"></span>
+            <span>Delete redirect</span>
           </button>
           <button class="btn btn--ghost" type="button" data-drawer-close>Close</button>
         </footer>
