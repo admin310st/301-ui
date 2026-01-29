@@ -137,6 +137,11 @@ async function loadAttachedDomains(accountId: number, siteId: number): Promise<v
     tbody.innerHTML = attachedDomains.map(renderDomainRow).join('');
     tableContainer.removeAttribute('hidden');
 
+    // Re-inject icons for the newly rendered rows
+    if (typeof (window as any).injectIcons === 'function') {
+      (window as any).injectIcons();
+    }
+
     // Render primary domain selection
     renderPrimaryDomainSection();
   } catch (error: any) {
@@ -257,6 +262,11 @@ async function loadAvailableDomains(accountId: number, projectId: number): Promi
         },
       )
       .join('');
+
+    // Re-inject icons for the dropdown items
+    if (typeof (window as any).injectIcons === 'function') {
+      (window as any).injectIcons();
+    }
   } catch (error: any) {
     logError('Failed to load available domains:', error);
     menu.innerHTML = `

@@ -171,6 +171,12 @@ export async function updateDomainRole(
     method: 'PATCH',
     body: JSON.stringify({ role }),
   });
+
+  // Invalidate all domain-related caches since role affects multiple views
+  const { invalidateCacheByPrefix } = await import('./cache');
+  invalidateCacheByPrefix('domains');
+  invalidateCacheByPrefix('sites');
+  invalidateCacheByPrefix('project');
 }
 
 /**
@@ -193,8 +199,11 @@ export async function removeDomainFromProject(
     body: JSON.stringify({ project_id: null, site_id: null, role: 'reserve' }),
   });
 
+  // Invalidate all related caches
   const { invalidateCacheByPrefix } = await import('./cache');
   invalidateCacheByPrefix('domains');
+  invalidateCacheByPrefix('sites');
+  invalidateCacheByPrefix('project');
 }
 
 /**
