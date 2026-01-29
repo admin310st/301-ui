@@ -108,26 +108,33 @@ CTA: [+ Add redirect]
 **Basic redirect setup:**
 
 1. **Source Domain**
-   - Dropdown: Select from user's domains
-   - Shows domain status (active/parked)
+   - Domain name in drawer header
+   - Copy/open buttons for quick actions
 
 2. **Target URL**
    - Input field: Full URL (https://target-domain.com)
-   - Validation: Must be valid URL
+   - Auto-save on blur or Enter key
+   - Pre-filled with acceptor domain for new redirects
 
-3. **Redirect Type**
-   - Radio buttons:
-     - 301 (Permanent) - default
-     - 302 (Temporary)
+3. **Redirect Code** (dropdown)
+   - 301 (Permanent) - default
+   - 302 (Temporary)
+   - Auto-save on change
 
-4. **Enable/Disable**
-   - Toggle: Active / Disabled
-   - Default: Active
+4. **Enable/Disable** (toggle)
+   - Toggle button: Enabled / Disabled
+   - Auto-save on click
 
-5. **Actions**
-   - [Save] button (primary)
-   - [Cancel] button (ghost)
-   - [Delete] button (danger, only for existing redirects)
+5. **Sync Status** (info card)
+   - Shows sync status (Synced/Not synced/Failed)
+   - Shows last sync timestamp
+   - Shows error message if sync failed
+
+6. **Footer Actions**
+   - [Sync to Cloudflare] button (CF orange, primary action)
+   - [Close] button (ghost)
+
+**UX principle:** All changes auto-save immediately. Sync button in footer for deploying to Cloudflare.
 
 **No conditions, no weights, no complex rules** - just simple domain → URL mapping.
 
@@ -431,12 +438,14 @@ src/redirects/
 4. ✅ Rewrite redirects.ts with routing rules rendering
 5. ✅ Add condition chips rendering (CSS + display logic)
 6. ✅ Add weighted destinations display
-7. [ ] Create drawer structure (7 tabs)
-8. [ ] Implement Test URL preview logic
-9. [ ] Add "Add Redirect" wizard
+7. ✅ Create drawer with auto-save (toggle, dropdown, target URL on blur)
+8. ✅ Move Sync button to drawer footer
+9. [ ] Add "Add Redirect" wizard/modal
+10. [ ] Implement Test URL preview logic
+11. [ ] i18n for drawer content
 
 ---
 
-**Last updated:** 2025-12-22
+**Last updated:** 2026-01-29
 
-**Status:** ✅ MVP table complete, ready for drawer/wizard implementation
+**Status:** ✅ MVP table + drawer complete with auto-save UX
