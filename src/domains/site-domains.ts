@@ -456,13 +456,18 @@ function renderPrimaryDomainSection(): void {
   const currentAcceptor = attachedDomains.find(d => d.role === 'acceptor');
   selectedPrimaryId = currentAcceptor?.id || null;
 
-  // Render dropdown options
-  menu.innerHTML = attachedDomains.map(renderPrimaryDomainOption).join('');
+  // Render dropdown options with current acceptor marked
+  menu.innerHTML = attachedDomains.map(domain => renderPrimaryDomainOption(domain, currentAcceptor?.id)).join('');
 
   // Set initial label and value
-  if (selectBtn && label && currentAcceptor) {
-    selectBtn.setAttribute('data-selected-value', String(currentAcceptor.id));
-    label.textContent = currentAcceptor.domain_name;
+  if (selectBtn && label) {
+    if (currentAcceptor) {
+      selectBtn.setAttribute('data-selected-value', String(currentAcceptor.id));
+      label.textContent = currentAcceptor.domain_name;
+    } else {
+      selectBtn.setAttribute('data-selected-value', '');
+      label.textContent = 'No primary domain set';
+    }
   }
 
   // Show section
@@ -485,7 +490,9 @@ function hidePrimaryDomainSection(): void {
 /**
  * Render a single primary domain dropdown option
  */
-function renderPrimaryDomainOption(domain: APIDomain): string {
+function renderPrimaryDomainOption(domain: APIDomain, currentAcceptorId?: number): string {
+  const isCurrent = domain.id === currentAcceptorId;
+
   // Map role to notification-icon color and label
   const iconClass = domain.role === 'acceptor' ? 'notification-icon--success' :
                     domain.role === 'donor' ? 'notification-icon--primary' :
@@ -495,17 +502,20 @@ function renderPrimaryDomainOption(domain: APIDomain): string {
 
   return `
     <button
-      class="dropdown__item"
+      class="dropdown__item${isCurrent ? ' dropdown__item--selected' : ''}"
       type="button"
       role="menuitem"
       data-value="${domain.id}"
       data-primary-domain-option
+      ${isCurrent ? 'aria-current="true"' : ''}
     >
       <div class="stack-inline stack-inline--xs">
+        ${isCurrent ? '<span class="icon" data-icon="mono/check"></span>' : ''}
         <span class="notification-icon ${iconClass}" title="${roleLabel}">
           <span class="icon" data-icon="mono/circle-alert"></span>
         </span>
         <span>${domain.domain_name}</span>
+        ${isCurrent ? '<span class="text-muted text-sm">(current)</span>' : ''}
       </div>
     </button>
   `;
