@@ -1,4 +1,5 @@
 import type { Redirect } from './mock-data';
+import { updateNavItemIndicators } from '@ui/sidebar-nav';
 
 export interface SyncStats {
   synced: number;
@@ -67,7 +68,7 @@ export function calculateSyncStats(redirects: Redirect[]): SyncStats {
 }
 
 /**
- * Update sync status indicator UI
+ * Update sync status indicator UI (header button with progress bar)
  */
 export function updateSyncIndicator(stats: SyncStats): void {
   const button = document.querySelector<HTMLButtonElement>('[data-sync-chip] button');
@@ -84,8 +85,8 @@ export function updateSyncIndicator(stats: SyncStats): void {
   console.log('[Sync] Fill updated to', fillValue);
 
   // Update status attribute for color
-  // success = green (100% synced), synced = white, pending = orange, error = red
-  let status: 'success' | 'synced' | 'pending' | 'error' = 'synced';
+  // success = green (100% synced), pending = orange, error = red
+  let status: 'success' | 'pending' | 'error' = 'pending';
   if (stats.error > 0) {
     status = 'error';
   } else if (stats.pending > 0) {
@@ -103,9 +104,41 @@ export function updateSyncIndicator(stats: SyncStats): void {
   if (stats.error > 0) parts.push(`${stats.error} error`);
   if (stats.lastSync) parts.push(`Last sync: ${stats.lastSync}`);
 
-  const tooltip = parts.join(' • ') || 'No redirects';
+  const tooltip = parts.join(' • ') || 'No redirects configured';
   button.title = tooltip;
   console.log('[Sync] Tooltip:', tooltip);
+
+  // Also update sidebar indicator
+  updateSidebarSyncIndicator(stats);
+}
+
+/**
+ * Update sidebar navigation indicator for redirects
+ */
+export function updateSidebarSyncIndicator(stats: SyncStats): void {
+  // Determine notification icon color based on sync status
+  let iconColor: 'success' | 'warning' | 'danger' | null = null;
+  let title = '';
+
+  if (stats.total === 0) {
+    // No redirects configured - no indicator
+    iconColor = null;
+  } else if (stats.error > 0) {
+    iconColor = 'danger';
+    title = `${stats.error} redirect${stats.error > 1 ? 's' : ''} failed to sync`;
+  } else if (stats.pending > 0) {
+    iconColor = 'warning';
+    title = `${stats.pending} redirect${stats.pending > 1 ? 's' : ''} pending sync`;
+  } else if (stats.ratio === 1) {
+    iconColor = 'success';
+    title = 'All redirects synced';
+  }
+
+  updateNavItemIndicators('redirects', {
+    badge: stats.total > 0 ? stats.total : null,
+    notificationIcon: iconColor,
+    notificationTitle: title,
+  });
 }
 
 /**
