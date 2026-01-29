@@ -526,22 +526,6 @@ body {
   background: color-mix(in srgb, var(--card-bg) 70%, var(--primary-soft));
 }
 
-/* Highlighted card variants for state indication */
-.card--highlight-success {
-  border-color: color-mix(in srgb, var(--ok) 40%, transparent);
-  background: color-mix(in srgb, var(--card-bg) 85%, var(--ok) 10%);
-}
-
-.card--highlight-warning {
-  border-color: color-mix(in srgb, var(--warning) 40%, transparent);
-  background: color-mix(in srgb, var(--card-bg) 85%, var(--warning) 10%);
-}
-
-.card--highlight-danger {
-  border-color: color-mix(in srgb, var(--danger) 40%, transparent);
-  background: color-mix(in srgb, var(--card-bg) 85%, var(--danger) 10%);
-}
-
 .card--accent {
   position: relative;
   overflow: hidden;
