@@ -334,6 +334,37 @@ function calculatePrimaryDomains(redirects: DomainRedirect[]): Set<string> {
 }
 
 /**
+ * Get arrow indicator color and title for redirect
+ * - Standard redirect (to acceptor): green (301) or orange (302)
+ * - Custom redirect (to different URL): pink (danger)
+ */
+function getArrowStyle(redirect: DomainRedirect): { color: string; title: string } {
+  if (!redirect.target_url) {
+    return { color: 'text-muted', title: 'No redirect' };
+  }
+
+  // Extract host from target URL
+  const targetHost = redirect.target_url
+    .replace('https://', '')
+    .replace('http://', '')
+    .split('/')[0];
+
+  // Check if target is a primary domain (standard redirect)
+  const isStandardRedirect = primaryDomains.has(targetHost);
+
+  if (isStandardRedirect) {
+    // Standard redirect to acceptor
+    const redirectType = redirect.redirect_code === 301 ? 'Permanent (301)' : 'Temporary (302)';
+    const color = redirect.redirect_code === 301 ? 'text-ok' : 'text-warning';
+    return { color, title: redirectType };
+  } else {
+    // Custom redirect to different URL
+    const redirectType = redirect.redirect_code === 301 ? 'Custom (301)' : 'Custom (302)';
+    return { color: 'text-danger', title: `${redirectType} - ${targetHost}` };
+  }
+}
+
+/**
  * Load domain redirects (mock data for now)
  */
 function loadRedirects(): void {
@@ -515,9 +546,8 @@ function renderDomainRow(redirect: DomainRedirect, isLastRow: boolean): string {
   // Arrow indicator for donors with redirect
   let arrowIndicator = '';
   if (redirect.has_redirect && redirect.target_url) {
-    const arrowColor = redirect.redirect_code === 301 ? 'text-ok' : 'text-warning';
-    const redirectType = redirect.redirect_code === 301 ? 'Permanent (301)' : 'Temporary (302)';
-    arrowIndicator = `<span class="${arrowColor}" style="font-size: 1.125rem; line-height: 1;" title="${redirectType} redirect">→</span>`;
+    const { color: arrowColor, title: arrowTitle } = getArrowStyle(redirect);
+    arrowIndicator = `<span class="${arrowColor}" style="font-size: 1.125rem; line-height: 1;" title="${arrowTitle}">→</span>`;
   }
 
   // Child row: indented with left border line
@@ -814,10 +844,8 @@ function getDomainDisplay(
   let iconAfter = '';
 
   if (!isPrimaryDomain && redirect.target_url) {
-    // Color arrow based on redirect type: 301 = green (permanent), 302 = orange (temporary)
-    const arrowColor = redirect.redirect_code === 301 ? 'text-ok' : 'text-warning';
-    const redirectType = redirect.redirect_code === 301 ? 'Permanent (301)' : 'Temporary (302)';
-    iconAfter = `<span class="${arrowColor}" style="font-size: 1.125rem; line-height: 1;" title="Donor - ${redirectType} redirect">→</span>`;
+    const { color: arrowColor, title: arrowTitle } = getArrowStyle(redirect);
+    iconAfter = `<span class="${arrowColor}" style="font-size: 1.125rem; line-height: 1;" title="${arrowTitle}">→</span>`;
   }
 
   return `
