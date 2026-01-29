@@ -160,13 +160,15 @@ export function initCfConnectForm(): void {
           drawer.setAttribute('hidden', '');
         }
 
-        // Try to reload integrations table (works only on integrations page)
-        // Falls back to full page reload on other pages (dashboard, etc.)
-        try {
+        // Check if we're on integrations page (has integrations table)
+        const isIntegrationsPage = document.querySelector('[data-integrations-tbody]');
+
+        if (isIntegrationsPage) {
+          // Reload integrations table
           const { loadIntegrations } = await import('@ui/integrations');
           await loadIntegrations();
-        } catch (error) {
-          // Not on integrations page or loadIntegrations failed - reload page to show changes
+        } else {
+          // On other pages (dashboard, etc.) - full reload to show updated state
           window.location.reload();
         }
       }, 3500);
@@ -282,13 +284,15 @@ async function handleReplaceConfirmation(
     setTimeout(async () => {
       if (drawer) drawer.setAttribute('hidden', '');
 
-      // Try to reload integrations table (works only on integrations page)
-      // Falls back to full page reload on other pages (dashboard, etc.)
-      try {
+      // Check if we're on integrations page (has integrations table)
+      const isIntegrationsPage = document.querySelector('[data-integrations-tbody]');
+
+      if (isIntegrationsPage) {
+        // Reload integrations table
         const { loadIntegrations } = await import('@ui/integrations');
         await loadIntegrations();
-      } catch (error) {
-        // Not on integrations page or loadIntegrations failed - reload page to show changes
+      } else {
+        // On other pages (dashboard, etc.) - full reload to show updated state
         window.location.reload();
       }
     }, 3500);
