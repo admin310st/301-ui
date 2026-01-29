@@ -628,7 +628,7 @@ async function handleSavePrimaryDomain(): Promise<void> {
  */
 export function initSiteDomains(): void {
   // Drawer close buttons
-  document.addEventListener('click', (e) => {
+  document.addEventListener('click', async (e) => {
     const target = e.target as HTMLElement;
     const closeBtn = target.closest('[data-drawer="manage-site-domains"] [data-drawer-close]');
     if (closeBtn) {
