@@ -514,15 +514,43 @@ async function autoSaveField(field: 'enabled' | 'status_code', value: boolean | 
 
     await updateRedirect(currentRedirect.id, updateData);
 
+    // Update local redirect object
+    if (field === 'status_code') {
+      currentRedirect.redirect_code = value as 301 | 302;
+    }
+    currentRedirect.sync_status = 'pending';
+
     // Optimistic state update
     updateDomainRedirect(currentRedirect.domain_id, {
       ...updateData,
       sync_status: 'pending',
     });
 
+    // Update Sync Status card in drawer to show "pending"
+    updateSyncStatusDisplay('pending');
+
     showGlobalNotice('success', field === 'enabled' ? 'Status updated' : 'Redirect code updated');
   } catch (error: any) {
     showGlobalNotice('error', error.message || 'Failed to save');
+  }
+}
+
+/**
+ * Update Sync Status display in drawer without re-rendering entire card
+ */
+function updateSyncStatusDisplay(status: 'pending' | 'synced' | 'error' | 'never'): void {
+  if (!drawerElement) return;
+
+  const statusRow = drawerElement.querySelector('[data-sync-status-value]');
+  if (statusRow) {
+    const statusText = status === 'pending' ? 'Pending' :
+                       status === 'synced' ? 'Synced' :
+                       status === 'error' ? 'Failed' : 'Not synced';
+    const statusColor = status === 'pending' ? 'text-warning' :
+                        status === 'synced' ? 'text-success' :
+                        status === 'error' ? 'text-danger' : 'text-muted';
+    statusRow.className = statusColor;
+    statusRow.textContent = statusText;
   }
 }
 
@@ -827,9 +855,16 @@ function renderSyncStatusCard(redirect: DomainRedirect): string {
       })
     : 'Never';
 
+  // Use sync_status field for accurate status display
+  const syncStatus = redirect.sync_status || 'never';
+  const syncStatusText = syncStatus === 'synced' ? 'Synced' :
+                         syncStatus === 'pending' ? 'Pending' :
+                         syncStatus === 'error' ? 'Failed' : 'Not synced';
+  const syncStatusColor = syncStatus === 'synced' ? 'text-success' :
+                          syncStatus === 'pending' ? 'text-warning' :
+                          syncStatus === 'error' ? 'text-danger' : 'text-muted';
+
   const syncError = redirect.sync_error;
-  const syncStatusText = syncError ? 'Failed' : (redirect.last_sync_at ? 'Synced' : 'Not synced');
-  const syncStatusColor = syncError ? 'text-danger' : (redirect.last_sync_at ? 'text-success' : 'text-muted');
 
   return `
     <section class="card card--panel">
@@ -841,7 +876,7 @@ function renderSyncStatusCard(redirect: DomainRedirect): string {
           <div class="detail-row">
             <dt class="detail-label">Status</dt>
             <dd class="detail-value">
-              <span class="${syncStatusColor}">${syncStatusText}</span>
+              <span class="${syncStatusColor}" data-sync-status-value>${syncStatusText}</span>
             </dd>
           </div>
           <div class="detail-row">
