@@ -64,6 +64,14 @@ export function openDrawer(redirect: DomainRedirect): void {
 
   currentRedirect = redirect;
 
+  // Reset sync button to default state
+  const syncBtn = drawerElement.querySelector('[data-drawer-sync]') as HTMLButtonElement;
+  if (syncBtn) {
+    syncBtn.removeAttribute('data-turnstile-pending');
+    const textSpan = syncBtn.querySelector('span:last-child');
+    if (textSpan) textSpan.textContent = 'Sync to Cloudflare';
+  }
+
   // Update sync button state based on redirect status
   updateSyncButtonState(redirect);
 
