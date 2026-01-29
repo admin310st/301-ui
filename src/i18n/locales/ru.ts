@@ -686,6 +686,9 @@ export const ru: Translation = {
       selectDomainHint: 'Можно привязать только свободные домены из этого проекта. Сначала добавьте домены в проект.',
       attachButton: 'Привязать домен',
       detachButton: 'Отвязать',
+      noAvailableTitle: 'Нет доступных доменов',
+      noAvailableDescription: 'Все домены этого проекта уже привязаны к сайтам. Сначала добавьте новые домены в проект.',
+      addDomainsButton: 'Добавить домены в проект',
       columns: {
         domain: 'Домен',
         status: 'Статус',

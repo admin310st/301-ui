@@ -680,6 +680,9 @@ export const en = {
       selectDomainHint: 'Only unattached domains from this project can be attached. Add domains to the project first.',
       attachButton: 'Attach domain',
       detachButton: 'Detach',
+      noAvailableTitle: 'No available domains',
+      noAvailableDescription: 'All domains in this project are already attached to sites. Add more domains to the project first.',
+      addDomainsButton: 'Add domains to project',
       columns: {
         domain: 'Domain',
         status: 'Status',

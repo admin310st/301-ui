@@ -215,6 +215,9 @@ function renderDomainRow(domain: APIDomain): string {
  */
 async function loadAvailableDomains(accountId: number, projectId: number): Promise<void> {
   const menu = document.querySelector<HTMLElement>('[data-attach-domain-menu]');
+  const emptyState = document.querySelector<HTMLElement>('[data-attach-domains-empty]');
+  const formState = document.querySelector<HTMLElement>('[data-attach-domains-form]');
+
   if (!menu) return;
 
   try {
@@ -234,13 +237,20 @@ async function loadAvailableDomains(accountId: number, projectId: number): Promi
     const availableDomains = projectDomains.filter(d => !d.site_id);
 
     if (availableDomains.length === 0) {
-      menu.innerHTML = `
-        <div class="dropdown__item dropdown__item--disabled">
-          <span class="text-muted">${t('sites.domains.empty')}</span>
-        </div>
-      `;
+      // Show empty state, hide form
+      if (emptyState) emptyState.removeAttribute('hidden');
+      if (formState) formState.setAttribute('hidden', '');
+
+      // Re-inject icons for empty state
+      if (typeof (window as any).injectIcons === 'function') {
+        (window as any).injectIcons();
+      }
       return;
     }
+
+    // Show form, hide empty state
+    if (emptyState) emptyState.setAttribute('hidden', '');
+    if (formState) formState.removeAttribute('hidden');
 
     // Render dropdown options
     menu.innerHTML = availableDomains
@@ -278,6 +288,11 @@ async function loadAvailableDomains(accountId: number, projectId: number): Promi
     }
   } catch (error: any) {
     logError('Failed to load available domains:', error);
+
+    // Show form with error in dropdown
+    if (emptyState) emptyState.setAttribute('hidden', '');
+    if (formState) formState.removeAttribute('hidden');
+
     menu.innerHTML = `
       <div class="dropdown__item dropdown__item--disabled">
         <span class="text-muted">Error loading domains</span>
@@ -659,6 +674,19 @@ export function initSiteDomains(): void {
 
         // Enable attach button
         if (attachBtn) attachBtn.disabled = false;
+      }
+    }
+
+    // Open add-domains drawer from empty state CTA
+    const openAddDomainsBtn = target.closest('[data-action="open-add-domains"]');
+    if (openAddDomainsBtn) {
+      e.preventDefault();
+      // Close manage-site-domains drawer
+      closeManageSiteDomainsDrawer();
+      // Open add-domains drawer
+      const addDomainsDrawer = document.querySelector<HTMLElement>('[data-drawer="add-domains"]');
+      if (addDomainsDrawer) {
+        addDomainsDrawer.removeAttribute('hidden');
       }
     }
 

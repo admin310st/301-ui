@@ -103,7 +103,25 @@
                 <h3 class="h5" data-i18n="sites.domains.attachNewTitle">Attach New Domains</h3>
               </header>
               <div class="card__body">
-                <div class="stack stack--sm">
+                <!-- Empty state: no available domains -->
+                <div class="panel panel--info" data-attach-domains-empty hidden>
+                  <div class="stack stack--sm">
+                    <p>
+                      <span class="icon" data-icon="mono/info-circle"></span>
+                      <strong data-i18n="sites.domains.noAvailableTitle">No available domains</strong>
+                    </p>
+                    <p class="text-muted" data-i18n="sites.domains.noAvailableDescription">
+                      All domains in this project are already attached to sites. Add more domains to the project first.
+                    </p>
+                    <button class="btn btn--primary btn--sm" type="button" data-action="open-add-domains">
+                      <span class="icon" data-icon="mono/plus"></span>
+                      <span data-i18n="sites.domains.addDomainsButton">Add domains to project</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Normal state: domains available -->
+                <div class="stack stack--sm" data-attach-domains-form>
                   <!-- Domain dropdown -->
                   <div class="dropdown" data-dropdown="attach-domain">
                     <button
