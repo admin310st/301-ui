@@ -677,17 +677,16 @@ export function initSiteDomains(): void {
       }
     }
 
-    // Open add-domains drawer from empty state CTA
+    // Open add-domain-to-project drawer from empty state CTA
     const openAddDomainsBtn = target.closest('[data-action="open-add-domains"]');
     if (openAddDomainsBtn) {
       e.preventDefault();
+      if (!currentProjectId) return;
       // Close manage-site-domains drawer
       closeManageSiteDomainsDrawer();
-      // Open add-domains drawer
-      const addDomainsDrawer = document.querySelector<HTMLElement>('[data-drawer="add-domains"]');
-      if (addDomainsDrawer) {
-        addDomainsDrawer.removeAttribute('hidden');
-      }
+      // Open add-domain-to-project drawer
+      const { openAddDomainDrawer } = await import('@domains/project-add-domain');
+      await openAddDomainDrawer(currentProjectId);
     }
 
     // Primary domain dropdown option selection

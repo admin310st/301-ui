@@ -687,7 +687,7 @@ export const ru: Translation = {
       attachButton: 'Привязать домен',
       detachButton: 'Отвязать',
       noAvailableTitle: 'Нет доступных доменов',
-      noAvailableDescription: 'Все домены этого проекта уже привязаны к сайтам. Сначала добавьте новые домены в проект.',
+      noAvailableDescription: 'Все домены проекта уже привязаны к сайтам. Добавьте свободные домены в проект.',
       addDomainsButton: 'Добавить домены в проект',
       columns: {
         domain: 'Домен',

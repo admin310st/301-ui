@@ -681,7 +681,7 @@ export const en = {
       attachButton: 'Attach domain',
       detachButton: 'Detach',
       noAvailableTitle: 'No available domains',
-      noAvailableDescription: 'All domains in this project are already attached to sites. Add more domains to the project first.',
+      noAvailableDescription: 'All project domains are already attached to sites. Add unassigned domains to this project.',
       addDomainsButton: 'Add domains to project',
       columns: {
         domain: 'Domain',
