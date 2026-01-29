@@ -13,7 +13,7 @@ import { safeCall } from '@api/ui-client';
 import { getProjects } from '@api/projects';
 import { getProjectSites } from '@api/sites';
 import type { Site, Project } from '@api/types';
-import { loadSitesRedirects, clearState, type SiteContext } from './state';
+import { loadSitesRedirects, clearState, finishLoading, type SiteContext } from './state';
 
 // =============================================================================
 // Types
@@ -442,9 +442,12 @@ export async function initSiteSelector(
     }
   });
 
-  // Auto-select first project
+  // Auto-select first project or finish loading if none
   if (availableProjects.length > 0) {
     await handleProjectSelect(availableProjects[0].id);
+  } else {
+    // No projects available - finish loading to show empty state
+    finishLoading();
   }
 }
 

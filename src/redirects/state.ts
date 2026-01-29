@@ -80,7 +80,7 @@ let state: RedirectsState = {
   zoneLimits: [],
   totalDomains: 0,
   totalRedirects: 0,
-  loading: false,
+  loading: true, // Start with loading to prevent empty state flash
   error: null,
   lastLoadedAt: null,
 };
@@ -116,6 +116,17 @@ export function onStateChange(fn: StateListener): () => void {
  */
 export function getState(): Readonly<RedirectsState> {
   return state;
+}
+
+/**
+ * Finish loading phase (when no data to load)
+ * Used when initialization completes but no project/sites to load
+ */
+export function finishLoading(): void {
+  if (state.loading) {
+    state = { ...state, loading: false };
+    notifyListeners();
+  }
 }
 
 // =============================================================================
