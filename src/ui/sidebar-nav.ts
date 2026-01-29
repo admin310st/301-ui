@@ -395,8 +395,85 @@ export async function updateSidebarCounts(): Promise<void> {
         badgeClass: 'badge badge--sm',
       });
     }
+
+    // Update redirects indicator (fetch redirect stats for all sites)
+    await updateRedirectsIndicator(sites);
   } catch (error) {
     console.error('Failed to update sidebar counts:', error);
+  }
+}
+
+/**
+ * Update redirects sidebar indicator based on sync status across all sites
+ */
+async function updateRedirectsIndicator(sites: any[]): Promise<void> {
+  if (sites.length === 0) {
+    updateNavItemIndicators('redirects', {
+      badge: null,
+      notificationIcon: null,
+    });
+    return;
+  }
+
+  try {
+    const { safeCall } = await import('@api/ui-client');
+    const { getSiteRedirects } = await import('@api/redirects');
+
+    // Fetch redirects for all sites in parallel (limit to first 10 sites)
+    const sitesToFetch = sites.slice(0, 10);
+    const results = await Promise.allSettled(
+      sitesToFetch.map(site =>
+        safeCall(
+          () => getSiteRedirects(site.id),
+          { lockKey: `redirects:site:${site.id}`, retryOn401: true }
+        )
+      )
+    );
+
+    // Aggregate stats
+    let totalRedirects = 0;
+    let synced = 0;
+    let pending = 0;
+    let errors = 0;
+
+    for (const result of results) {
+      if (result.status === 'fulfilled' && result.value) {
+        const data = result.value;
+        for (const domain of data.domains) {
+          if (domain.redirect) {
+            totalRedirects++;
+            if (domain.redirect.sync_status === 'synced') synced++;
+            else if (domain.redirect.sync_status === 'pending') pending++;
+            else if (domain.redirect.sync_status === 'error') errors++;
+          }
+        }
+      }
+    }
+
+    // Determine notification icon
+    let iconColor: 'success' | 'warning' | 'danger' | null = null;
+    let title = '';
+
+    if (totalRedirects === 0) {
+      iconColor = null;
+    } else if (errors > 0) {
+      iconColor = 'danger';
+      title = `${errors} redirect${errors > 1 ? 's' : ''} failed to sync`;
+    } else if (pending > 0) {
+      iconColor = 'warning';
+      title = `${pending} redirect${pending > 1 ? 's' : ''} pending sync`;
+    } else if (synced === totalRedirects) {
+      iconColor = 'success';
+      title = 'All redirects synced';
+    }
+
+    updateNavItemIndicators('redirects', {
+      badge: totalRedirects > 0 ? totalRedirects : null,
+      notificationIcon: iconColor,
+      notificationTitle: title,
+    });
+  } catch (error) {
+    console.error('Failed to update redirects indicator:', error);
   }
 }
 
