@@ -1059,13 +1059,31 @@ function getRowActions(redirect: DomainRedirect): string {
     return editButton;
   }
 
-  // Kebab menu for donor domains
+  // Donor domains without redirect: show "Add redirect" option
+  if (!redirect.has_redirect) {
+    const kebabMenu = `
+      <div class="dropdown" data-dropdown>
+        <button class="btn-icon btn-icon--sm btn-icon--ghost dropdown__trigger" type="button" aria-haspopup="menu" title="More actions">
+          <span class="icon" data-icon="mono/dots-vertical"></span>
+        </button>
+        <div class="dropdown__menu" role="menu">
+          <button class="dropdown__item" type="button" data-action="add-redirect" data-redirect-id="${redirect.domain_id}">
+            <span class="icon" data-icon="mono/plus"></span>
+            <span>Add redirect</span>
+          </button>
+        </div>
+      </div>
+    `;
+    return `${editButton} ${kebabMenu}`;
+  }
+
+  // Kebab menu for donor domains WITH redirect
   const isDisabled = !redirect.enabled;
   const toggleLabel = isDisabled ? 'Enable' : 'Disable';
   const toggleAction = isDisabled ? 'enable' : 'disable';
 
-  // Retry sync: only for error and never states (when enabled and has redirect)
-  const canRetrySync = redirect.has_redirect && redirect.enabled &&
+  // Retry sync: only for error and never states (when enabled)
+  const canRetrySync = redirect.enabled &&
     (redirect.sync_status === 'error' || redirect.sync_status === 'never');
   const retryOption = canRetrySync ? `
     <button class="dropdown__item" type="button" data-action="retry-sync" data-redirect-id="${redirect.id}">
@@ -1074,8 +1092,8 @@ function getRowActions(redirect: DomainRedirect): string {
     </button>
   ` : '';
 
-  // Sync now: available when enabled, has redirect, and not currently pending
-  const canSyncNow = redirect.has_redirect && redirect.enabled && redirect.sync_status !== 'pending';
+  // Sync now: available when enabled and not currently pending
+  const canSyncNow = redirect.enabled && redirect.sync_status !== 'pending';
   const syncNowOption = canSyncNow ? `
     <button class="dropdown__item" type="button" data-action="sync-now" data-redirect-id="${redirect.id}">
       <span class="icon" data-icon="brand/cloudflare"></span>
