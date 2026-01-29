@@ -440,9 +440,14 @@ src/redirects/
 6. ✅ Add weighted destinations display
 7. ✅ Create drawer with auto-save (toggle, dropdown, target URL on blur)
 8. ✅ Move Sync button to drawer footer
-9. [ ] Add "Add Redirect" wizard/modal
-10. [ ] Implement Test URL preview logic
-11. [ ] i18n for drawer content
+9. [ ] Bulk actions (sticky panel at bottom)
+   - [ ] Enable selected redirects
+   - [ ] Disable selected redirects
+   - [ ] Delete selected redirects
+   - [ ] Sync selected to Cloudflare
+10. [ ] Add "Add Redirect" wizard/modal
+11. [ ] Implement Test URL preview logic
+12. [ ] i18n for drawer content and bulk actions
 
 ---
 
