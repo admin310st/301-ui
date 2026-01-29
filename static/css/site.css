@@ -2358,11 +2358,11 @@ html[data-theme="light"] .btn--social-github {
 .link {
   color: var(--primary);
   text-decoration: none;
-  transition: text-decoration 150ms ease;
+  transition: color 150ms ease;
 }
 
 .link:hover {
-  text-decoration: underline;
+  color: var(--primary-hover);
 }
 
 .link--sm {
