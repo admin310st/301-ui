@@ -84,11 +84,14 @@ export function updateSyncIndicator(stats: SyncStats): void {
   console.log('[Sync] Fill updated to', fillValue);
 
   // Update status attribute for color
-  let status: 'synced' | 'pending' | 'error' = 'synced';
+  // success = green (100% synced), synced = white, pending = orange, error = red
+  let status: 'success' | 'synced' | 'pending' | 'error' = 'synced';
   if (stats.error > 0) {
     status = 'error';
   } else if (stats.pending > 0) {
     status = 'pending';
+  } else if (stats.ratio === 1 && stats.total > 0) {
+    status = 'success'; // All donors synced → green
   }
   button.setAttribute('data-status', status);
   console.log('[Sync] Status set to', status);
