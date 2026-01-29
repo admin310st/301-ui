@@ -1,5 +1,8 @@
 import type { Redirect } from './mock-data';
 import { updateNavItemIndicators } from '@ui/sidebar-nav';
+import { applyZoneRedirects } from '@api/redirects';
+import { getState, markZoneSynced, refreshRedirects } from './state';
+import { showGlobalNotice } from '@ui/globalNotice';
 
 export interface SyncStats {
   synced: number;
@@ -180,34 +183,96 @@ export function initSyncStatus(redirects: Redirect[]): void {
   updateSyncIndicator(stats);
 
   // Action handlers (dropdown toggle is handled by standard initDropdowns())
-  menu.addEventListener('click', (e) => {
+  menu.addEventListener('click', async (e) => {
     const target = e.target as HTMLElement;
     const button = target.closest('[data-action]') as HTMLElement;
     if (!button) return;
 
     const action = button.dataset.action;
 
-    switch (action) {
-      case 'sync-now':
-        triggerSyncAnimation();
-        // TODO: Implement actual CF sync API call
-        break;
-
-      case 'add-redirects':
-        // TODO: Open bulk add drawer
-        const event = new CustomEvent('open-redirect-drawer');
-        document.dispatchEvent(event);
-        break;
-
-      case 'cancel-sync':
-        // TODO: Implement cancel sync action
-        break;
-    }
-
     // Close dropdown after action
     dropdown.classList.remove('dropdown--open');
     menu.style.display = 'none';
     const trigger = dropdown.querySelector('.dropdown__trigger');
     if (trigger) trigger.setAttribute('aria-expanded', 'false');
+
+    switch (action) {
+      case 'sync-now':
+        await handleSyncAll();
+        break;
+
+      case 'add-redirects':
+        const event = new CustomEvent('open-redirect-drawer');
+        document.dispatchEvent(event);
+        break;
+
+      case 'cancel-sync':
+        // Not implemented - sync is fast enough
+        break;
+    }
   });
+}
+
+/**
+ * Sync all zones to Cloudflare
+ * Collects unique zones and applies redirects to each
+ */
+async function handleSyncAll(): Promise<void> {
+  const state = getState();
+
+  // Collect unique zone IDs from all domains
+  const zoneIds = new Set<number>();
+  for (const domain of state.domains) {
+    if (domain.zone_id) {
+      zoneIds.add(domain.zone_id);
+    }
+  }
+
+  if (zoneIds.size === 0) {
+    showGlobalNotice('info', 'No zones to sync');
+    return;
+  }
+
+  // Update button to show syncing state
+  const button = document.querySelector<HTMLButtonElement>('[data-sync-chip] .sync-indicator-btn');
+  if (button) {
+    button.classList.add('is-syncing');
+  }
+
+  try {
+    let totalSynced = 0;
+    let totalRemoved = 0;
+
+    for (const zoneId of zoneIds) {
+      const response = await applyZoneRedirects(zoneId);
+      const syncedIds = response.synced_rules?.map(r => r.id) || [];
+      markZoneSynced(zoneId, syncedIds);
+      totalSynced += response.rules_applied || 0;
+    }
+
+    // Refresh state to get latest data
+    await refreshRedirects();
+
+    // Show success
+    if (button) {
+      button.classList.remove('is-syncing');
+      button.setAttribute('data-status', 'success');
+      setTimeout(() => {
+        // Recalculate status after showing success
+        const newStats = calculateSyncStats(state.domains as unknown as Redirect[]);
+        updateSyncIndicator(newStats);
+      }, 2000);
+    }
+
+    showGlobalNotice('success', `Synced ${zoneIds.size} zone(s): ${totalSynced} redirect(s) applied`);
+  } catch (error: any) {
+    console.error('[Sync] Error:', error);
+
+    if (button) {
+      button.classList.remove('is-syncing');
+      button.setAttribute('data-status', 'error');
+    }
+
+    showGlobalNotice('error', error.message || 'Failed to sync to Cloudflare');
+  }
 }
