@@ -507,15 +507,14 @@ function renderPrimaryDomainOption(domain: APIDomain, currentAcceptorId?: number
       role="menuitem"
       data-value="${domain.id}"
       data-primary-domain-option
-      ${isCurrent ? 'aria-current="true"' : ''}
+      ${isCurrent ? 'aria-current="true" title="Current primary domain"' : ''}
     >
       <div class="stack-inline stack-inline--xs">
-        ${isCurrent ? '<span class="icon" data-icon="mono/check"></span>' : ''}
         <span class="notification-icon ${iconClass}" title="${roleLabel}">
           <span class="icon" data-icon="mono/circle-alert"></span>
         </span>
         <span>${domain.domain_name}</span>
-        ${isCurrent ? '<span class="text-muted text-sm">(current)</span>' : ''}
+        ${isCurrent ? '<span class="icon text-success" data-icon="mono/check"></span>' : ''}
       </div>
     </button>
   `;
