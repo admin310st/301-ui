@@ -64,6 +64,15 @@ export function closeManageSiteDomainsDrawer(): void {
 
   const tbody = drawer.querySelector<HTMLTableSectionElement>('[data-site-domains-table] tbody');
   if (tbody) tbody.innerHTML = '';
+
+  // Reset states for next open (loading shows by default)
+  const loadingEl = drawer.querySelector<HTMLElement>('[data-site-domains-loading]');
+  const emptyEl = drawer.querySelector<HTMLElement>('[data-site-domains-empty]');
+  const tableContainer = drawer.querySelector<HTMLElement>('[data-site-domains-table-container]');
+
+  if (loadingEl) loadingEl.removeAttribute('hidden');
+  if (emptyEl) emptyEl.setAttribute('hidden', '');
+  if (tableContainer) tableContainer.setAttribute('hidden', '');
 }
 
 /**

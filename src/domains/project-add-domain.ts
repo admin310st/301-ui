@@ -64,6 +64,15 @@ export function closeAddDomainDrawer(): void {
   // Hide status panel
   const statusPanel = document.querySelector<HTMLElement>('[data-add-domain-status]');
   if (statusPanel) statusPanel.setAttribute('hidden', '');
+
+  // Reset states for next open (loading shows by default)
+  const loadingEl = drawer.querySelector<HTMLElement>('[data-add-domain-loading]');
+  const emptyEl = drawer.querySelector<HTMLElement>('[data-add-domain-empty]');
+  const listEl = drawer.querySelector<HTMLElement>('[data-add-domain-list]');
+
+  if (loadingEl) loadingEl.removeAttribute('hidden');
+  if (emptyEl) emptyEl.setAttribute('hidden', '');
+  if (listEl) listEl.setAttribute('hidden', '');
 }
 
 /**

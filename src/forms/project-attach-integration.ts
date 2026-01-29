@@ -51,6 +51,15 @@ export function closeAttachIntegrationDrawer(): void {
   // Hide status panel
   const statusPanel = document.querySelector<HTMLElement>('[data-attach-integration-status]');
   if (statusPanel) statusPanel.setAttribute('hidden', '');
+
+  // Reset states for next open (loading shows by default)
+  const loadingEl = drawer.querySelector<HTMLElement>('[data-attach-integration-loading]');
+  const emptyEl = drawer.querySelector<HTMLElement>('[data-attach-integration-empty]');
+  const formEl = drawer.querySelector<HTMLElement>('[data-attach-integration-form]');
+
+  if (loadingEl) loadingEl.removeAttribute('hidden');
+  if (emptyEl) emptyEl.setAttribute('hidden', '');
+  if (formEl) formEl.setAttribute('hidden', '');
 }
 
 /**

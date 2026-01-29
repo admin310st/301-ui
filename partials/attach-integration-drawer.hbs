@@ -19,8 +19,8 @@
 
     <div class="drawer__body">
       <div class="stack-list">
-        <!-- Loading State -->
-        <div class="loading-state" data-attach-integration-loading hidden>
+        <!-- Loading State (shown by default) -->
+        <div class="loading-state" data-attach-integration-loading>
           <div class="spinner"></div>
           <p class="text-muted">Loading available integrations...</p>
         </div>
@@ -39,8 +39,8 @@
           </div>
         </div>
 
-        <!-- Selection Form -->
-        <div class="stack stack--md" data-attach-integration-form>
+        <!-- Selection Form (hidden until loaded) -->
+        <div class="stack stack--md" data-attach-integration-form hidden>
           <div class="field">
             <label class="field__label">
               <span>Select integration</span>

@@ -67,14 +67,14 @@
                 </div>
               </header>
               <div class="card__body card__body--table">
-                <!-- Loading State -->
-                <div class="table-loading" data-site-domains-loading hidden>
+                <!-- Loading State (shown by default) -->
+                <div class="table-loading" data-site-domains-loading>
                   <div class="spinner"></div>
                   <p class="text-muted" data-i18n="sites.domains.loading">Loading domains...</p>
                 </div>
 
-                <!-- Empty State -->
-                <div class="empty-state" data-site-domains-empty>
+                <!-- Empty State (hidden until data loads) -->
+                <div class="empty-state" data-site-domains-empty hidden>
                   <p class="text-muted" data-i18n="sites.domains.empty">No domains attached to this site yet.</p>
                 </div>
 

@@ -27,6 +27,9 @@ export function initDomainsPage(): void {
   // Initialize Bulk Actions Bar
   initBulkActions();
 
+  // Show loading state immediately
+  showLoadingState();
+
   // Load mock data after short delay (simulate API)
   setTimeout(() => {
     loadDomains(mockDomains);
