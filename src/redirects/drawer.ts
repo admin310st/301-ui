@@ -38,10 +38,14 @@ export function initDrawer(): void {
     el.addEventListener('click', closeDrawer);
   });
 
-  // Save button
-  const saveButton = drawerElement.querySelector('[data-drawer-save]');
-  if (saveButton) {
-    saveButton.addEventListener('click', handleSave);
+  // Sync button in footer
+  const syncButton = drawerElement.querySelector('[data-drawer-sync]');
+  if (syncButton) {
+    syncButton.addEventListener('click', () => {
+      if (currentRedirect) {
+        handleSync(currentRedirect);
+      }
+    });
   }
 
   // Close on Escape key
@@ -60,12 +64,8 @@ export function openDrawer(redirect: DomainRedirect): void {
 
   currentRedirect = redirect;
 
-  // Reset save button state (in case it was stuck from previous save)
-  const saveBtn = drawerElement.querySelector('[data-drawer-save]') as HTMLButtonElement;
-  if (saveBtn) {
-    saveBtn.disabled = false;
-    saveBtn.textContent = 'Save changes';
-  }
+  // Update sync button state based on redirect status
+  updateSyncButtonState(redirect);
 
   // Update domain name in header
   const domainEl = drawerElement.querySelector('[data-drawer-domain]');
@@ -256,15 +256,6 @@ function setupActionButtons(redirect: DomainRedirect): void {
     }
   }
 
-  // Sync button
-  const syncBtn = drawerElement.querySelector('[data-action="sync-redirect"]');
-  if (syncBtn) {
-    const syncHandler = () => {
-      handleSync(redirect);
-    };
-    syncBtn.removeEventListener('click', syncHandler);
-    syncBtn.addEventListener('click', syncHandler);
-  }
 }
 
 /**
@@ -291,9 +282,9 @@ function setupDropdownHandlers(): void {
     trigger.setAttribute('aria-expanded', (!isOpen).toString());
   });
 
-  // Handle item selection
+  // Handle item selection with auto-save
   items.forEach((item) => {
-    item.addEventListener('click', () => {
+    item.addEventListener('click', async () => {
       const value = item.getAttribute('data-value');
       const text = item.textContent?.trim();
 
@@ -306,7 +297,7 @@ function setupDropdownHandlers(): void {
         label.textContent = text;
       }
 
-      // Store value for save
+      // Store value
       if (trigger) {
         trigger.setAttribute('data-selected-value', value || '301');
 
@@ -318,6 +309,11 @@ function setupDropdownHandlers(): void {
       // Close dropdown
       dropdown.classList.remove('dropdown--open');
       trigger.setAttribute('aria-expanded', 'false');
+
+      // Auto-save if redirect exists
+      if (currentRedirect?.has_redirect && currentRedirect.id && USE_REAL_API) {
+        await autoSaveField('status_code', parseInt(value || '301') as 301 | 302);
+      }
     });
   });
 
@@ -331,7 +327,7 @@ function setupDropdownHandlers(): void {
 }
 
 /**
- * Setup toggle handlers for enable/disable button
+ * Setup toggle handlers for enable/disable button with auto-save
  */
 function setupToggleHandlers(): void {
   if (!drawerElement) return;
@@ -339,7 +335,7 @@ function setupToggleHandlers(): void {
   const toggleBtn = drawerElement.querySelector('[data-drawer-toggle="enabled"]');
   if (!toggleBtn) return;
 
-  toggleBtn.addEventListener('click', () => {
+  toggleBtn.addEventListener('click', async () => {
     const currentEnabled = toggleBtn.getAttribute('data-enabled') === 'true';
     const newEnabled = !currentEnabled;
 
@@ -377,9 +373,156 @@ function setupToggleHandlers(): void {
       textSpan.textContent = newEnabled ? 'Enabled' : 'Disabled';
     }
 
-    // Store value for save
+    // Store value
     toggleBtn.setAttribute('data-enabled', newEnabled.toString());
+
+    // Auto-save if redirect exists
+    if (currentRedirect?.has_redirect && currentRedirect.id && USE_REAL_API) {
+      await autoSaveField('enabled', newEnabled);
+    }
   });
+}
+
+/**
+ * Setup target URL input handlers (blur and Enter key)
+ */
+function setupTargetUrlHandlers(): void {
+  if (!drawerElement) return;
+
+  const targetInput = drawerElement.querySelector('[data-drawer-field="target_url"]') as HTMLInputElement;
+  if (!targetInput) return;
+
+  let originalValue = targetInput.value;
+
+  // Save on blur if value changed
+  targetInput.addEventListener('blur', async () => {
+    const newValue = targetInput.value.trim();
+    if (newValue !== originalValue && newValue !== '') {
+      originalValue = newValue;
+      await handleTargetUrlSave(newValue);
+    }
+  });
+
+  // Save on Enter key
+  targetInput.addEventListener('keydown', async (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      targetInput.blur();
+    }
+  });
+}
+
+/**
+ * Handle target URL save (create or update redirect)
+ */
+async function handleTargetUrlSave(targetUrl: string): Promise<void> {
+  if (!currentRedirect || !USE_REAL_API) return;
+
+  // Get current dropdown values
+  const redirectCodeTrigger = drawerElement?.querySelector('[data-drawer-dropdown="redirect_code"]');
+  const redirectCode = parseInt(redirectCodeTrigger?.getAttribute('data-selected-value') || '301') as 301 | 302;
+
+  const toggleBtn = drawerElement?.querySelector('[data-drawer-toggle="enabled"]');
+  const enabled = toggleBtn?.getAttribute('data-enabled') === 'true';
+
+  try {
+    if (currentRedirect.has_redirect && currentRedirect.id) {
+      // Update existing redirect
+      await updateRedirect(currentRedirect.id, {
+        params: { target_url: targetUrl },
+        status_code: redirectCode,
+        enabled,
+      });
+
+      // Optimistic state update
+      updateDomainRedirect(currentRedirect.domain_id, {
+        params: { target_url: targetUrl },
+        status_code: redirectCode,
+        enabled,
+        sync_status: 'pending',
+      });
+
+      showGlobalNotice('success', 'Redirect updated');
+    } else {
+      // Create new redirect (T1 template = simple redirect)
+      const response = await createRedirect(currentRedirect.domain_id, {
+        template_id: 'T1',
+        params: { target_url: targetUrl },
+        status_code: redirectCode,
+      });
+
+      // Update current redirect with new data
+      currentRedirect.id = response.redirect.id;
+      currentRedirect.has_redirect = true;
+
+      // Add redirect to state
+      const redirectWithPendingStatus = {
+        ...response.redirect,
+        sync_status: 'pending' as const,
+      };
+      addRedirectToDomain(currentRedirect.domain_id, redirectWithPendingStatus, 'donor');
+
+      showGlobalNotice('success', 'Redirect created');
+
+      // Update sync button state
+      updateSyncButtonState(currentRedirect);
+    }
+  } catch (error: any) {
+    showGlobalNotice('error', error.message || 'Failed to save redirect');
+  }
+}
+
+/**
+ * Auto-save a single field (enabled or status_code)
+ */
+async function autoSaveField(field: 'enabled' | 'status_code', value: boolean | 301 | 302): Promise<void> {
+  if (!currentRedirect?.has_redirect || !currentRedirect.id) return;
+
+  try {
+    const updateData: { enabled?: boolean; status_code?: 301 | 302 } = {};
+    if (field === 'enabled') {
+      updateData.enabled = value as boolean;
+    } else {
+      updateData.status_code = value as 301 | 302;
+    }
+
+    await updateRedirect(currentRedirect.id, updateData);
+
+    // Optimistic state update
+    updateDomainRedirect(currentRedirect.domain_id, {
+      ...updateData,
+      sync_status: 'pending',
+    });
+
+    showGlobalNotice('success', field === 'enabled' ? 'Status updated' : 'Redirect code updated');
+  } catch (error: any) {
+    showGlobalNotice('error', error.message || 'Failed to save');
+  }
+}
+
+/**
+ * Update sync button state in footer based on redirect status
+ */
+function updateSyncButtonState(redirect: DomainRedirect): void {
+  if (!drawerElement) return;
+
+  const syncBtn = drawerElement.querySelector('[data-drawer-sync]') as HTMLButtonElement;
+  if (!syncBtn) return;
+
+  const hasRedirect = redirect.target_url && redirect.target_url.trim() !== '';
+  const enabled = redirect.enabled ?? true;
+
+  // Disable sync if no redirect configured or redirect is disabled
+  if (!redirect.has_redirect || !hasRedirect) {
+    syncBtn.disabled = true;
+    syncBtn.title = 'Configure redirect first';
+  } else if (!enabled) {
+    syncBtn.disabled = true;
+    syncBtn.title = 'Enable redirect to sync';
+  } else {
+    syncBtn.disabled = false;
+    syncBtn.title = '';
+  }
 }
 
 /**
@@ -453,9 +596,10 @@ function renderDrawerContent(redirect: DomainRedirect): void {
 
   contentEl.innerHTML = content;
 
-  // Setup dropdown and toggle handlers after content is rendered
+  // Setup dropdown, toggle, and input handlers after content is rendered
   setupDropdownHandlers();
   setupToggleHandlers();
+  setupTargetUrlHandlers();
 }
 
 /**
@@ -560,8 +704,8 @@ function renderRedirectConfigCard(redirect: DomainRedirect, defaultTargetUrl: st
  * Render sync status card
  */
 function renderSyncStatusCard(redirect: DomainRedirect): string {
-  const lastSync = redirect.last_sync
-    ? new Date(redirect.last_sync).toLocaleString('en-US', {
+  const lastSync = redirect.last_sync_at
+    ? new Date(redirect.last_sync_at).toLocaleString('en-US', {
         year: 'numeric',
         month: 'short',
         day: 'numeric',
@@ -570,48 +714,14 @@ function renderSyncStatusCard(redirect: DomainRedirect): string {
       })
     : 'Never';
 
-  const hasRedirect = redirect.target_url && redirect.target_url.trim() !== '';
-  const enabled = redirect.enabled ?? true;
   const syncError = redirect.sync_error;
-  const syncPending = false; // TODO: Add sync_pending field to DomainRedirect type
-
-  // Determine sync button state
-  let syncButtonLabel = 'Sync now';
-  let syncButtonDisabled = false;
-  let syncButtonTooltip = '';
-
-  if (syncPending) {
-    syncButtonLabel = 'Syncing...';
-    syncButtonDisabled = true;
-  } else if (syncError) {
-    syncButtonLabel = 'Retry sync';
-  } else if (!hasRedirect) {
-    syncButtonDisabled = true;
-    syncButtonTooltip = 'Configure redirect first';
-  } else if (!enabled) {
-    syncButtonDisabled = true;
-    syncButtonTooltip = 'Enable redirect to sync';
-  }
-
-  const syncStatusText = syncError ? 'Failed' : (redirect.last_sync ? 'Synced' : 'Not synced');
-  const syncStatusColor = syncError ? 'text-danger' : (redirect.last_sync ? 'text-success' : 'text-muted');
+  const syncStatusText = syncError ? 'Failed' : (redirect.last_sync_at ? 'Synced' : 'Not synced');
+  const syncStatusColor = syncError ? 'text-danger' : (redirect.last_sync_at ? 'text-success' : 'text-muted');
 
   return `
     <section class="card card--panel">
       <header class="card__header">
-        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-          <h3 class="h5">Sync Status</h3>
-          <button
-            class="btn btn--sm btn--cf"
-            type="button"
-            data-action="sync-redirect"
-            ${syncButtonDisabled ? 'disabled' : ''}
-            ${syncButtonTooltip ? `title="${syncButtonTooltip}"` : ''}
-          >
-            ${syncPending ? '<span class="spinner spinner--sm"></span>' : '<span class="icon" data-icon="brand/cloudflare"></span>'}
-            <span>${syncButtonLabel}</span>
-          </button>
-        </div>
+        <h3 class="h5">Sync Status</h3>
       </header>
       <div class="card__body">
         <dl class="detail-list">
@@ -640,113 +750,7 @@ function renderSyncStatusCard(redirect: DomainRedirect): string {
 }
 
 /**
- * Handle save button click
- */
-async function handleSave(): Promise<void> {
-  if (!currentRedirect || !drawerElement) return;
-
-  // Collect form data
-  const targetUrl = (drawerElement.querySelector('[data-drawer-field="target_url"]') as HTMLInputElement)?.value?.trim() || '';
-
-  // Get redirect code from dropdown
-  const redirectCodeTrigger = drawerElement.querySelector('[data-drawer-dropdown="redirect_code"]');
-  const redirectCode = parseInt(redirectCodeTrigger?.getAttribute('data-selected-value') || '301') as 301 | 302;
-
-  // Get enabled state from toggle button
-  const toggleBtn = drawerElement.querySelector('[data-drawer-toggle="enabled"]');
-  const enabled = toggleBtn?.getAttribute('data-enabled') === 'true';
-
-  console.log('Saving redirect:', {
-    id: currentRedirect.id,
-    domain_id: currentRedirect.domain_id,
-    domain: currentRedirect.domain,
-    has_redirect: currentRedirect.has_redirect,
-    target_url: targetUrl,
-    redirect_code: redirectCode,
-    enabled,
-    // Debug: will we UPDATE or CREATE?
-    willUpdate: currentRedirect.has_redirect && currentRedirect.id,
-  });
-
-  // Validation
-  if (!targetUrl) {
-    showGlobalNotice('error', 'Target URL is required');
-    return;
-  }
-
-  if (!USE_REAL_API) {
-    closeDrawer();
-    return;
-  }
-
-  // Disable save button to prevent double-clicks
-  const saveBtn = drawerElement.querySelector('[data-drawer-save]') as HTMLButtonElement;
-  if (saveBtn) {
-    saveBtn.disabled = true;
-    saveBtn.textContent = 'Saving...';
-  }
-
-  try {
-    if (currentRedirect.has_redirect && currentRedirect.id) {
-      // Update existing redirect
-      await updateRedirect(currentRedirect.id, {
-        params: { target_url: targetUrl },
-        status_code: redirectCode,
-        enabled,
-      });
-
-      // Optimistic state update
-      updateDomainRedirect(currentRedirect.domain_id, {
-        params: { target_url: targetUrl },
-        status_code: redirectCode,
-        enabled,
-        sync_status: 'pending',
-      });
-
-      console.log('[Drawer] Updated redirect, triggering state update:', {
-        domain_id: currentRedirect.domain_id,
-        updates: { target_url: targetUrl, status_code: redirectCode, enabled, sync_status: 'pending' },
-      });
-
-      showGlobalNotice('success', `Updated redirect for ${currentRedirect.domain}`);
-    } else {
-      // Create new redirect (T1 template = simple redirect)
-      // Note: 'enabled' is NOT a create parameter - new redirects are enabled by default
-      const response = await createRedirect(currentRedirect.domain_id, {
-        template_id: 'T1',
-        params: { target_url: targetUrl },
-        status_code: redirectCode,
-      });
-
-      // Add redirect to state with 'pending' sync status
-      // (new redirects need to be synced to Cloudflare)
-      const redirectWithPendingStatus = {
-        ...response.redirect,
-        sync_status: 'pending' as const,
-      };
-      addRedirectToDomain(currentRedirect.domain_id, redirectWithPendingStatus, 'donor');
-
-      console.log('[Drawer] Created redirect, triggering state update:', {
-        domain_id: currentRedirect.domain_id,
-        redirect: redirectWithPendingStatus,
-      });
-
-      showGlobalNotice('success', `Created redirect for ${currentRedirect.domain}`);
-    }
-
-    closeDrawer();
-  } catch (error: any) {
-    showGlobalNotice('error', error.message || 'Failed to save redirect');
-    // Re-enable save button on error
-    if (saveBtn) {
-      saveBtn.disabled = false;
-      saveBtn.textContent = 'Save changes';
-    }
-  }
-}
-
-/**
- * Handle sync button click
+ * Handle sync button click (footer button)
  */
 async function handleSync(redirect: DomainRedirect): Promise<void> {
   if (!drawerElement) return;
@@ -770,7 +774,7 @@ async function handleSync(redirect: DomainRedirect): Promise<void> {
   }
 
   // Update sync button to show progress
-  const syncBtn = drawerElement.querySelector('[data-action="sync-redirect"]') as HTMLButtonElement;
+  const syncBtn = drawerElement.querySelector('[data-drawer-sync]') as HTMLButtonElement;
   if (syncBtn) {
     syncBtn.disabled = true;
     const textSpan = syncBtn.querySelector('span:last-child');
