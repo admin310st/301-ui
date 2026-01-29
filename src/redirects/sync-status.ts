@@ -197,7 +197,7 @@ export function initSyncStatus(redirects: Redirect[]): void {
     if (trigger) trigger.setAttribute('aria-expanded', 'false');
 
     switch (action) {
-      case 'sync-now':
+      case 'sync-all':
         await handleSyncAll();
         break;
 
