@@ -801,10 +801,11 @@ async function handleSync(redirect: DomainRedirect): Promise<void> {
     return;
   }
 
-  // Update sync button to show progress
+  // Update sync button to show progress with shimmer
   const syncBtn = drawerElement.querySelector('[data-drawer-sync]') as HTMLButtonElement;
   if (syncBtn) {
     syncBtn.disabled = true;
+    syncBtn.setAttribute('data-turnstile-pending', '');
     const textSpan = syncBtn.querySelector('span:last-child');
     if (textSpan) textSpan.textContent = redirect.has_redirect ? 'Syncing...' : 'Creating...';
   }
@@ -812,11 +813,13 @@ async function handleSync(redirect: DomainRedirect): Promise<void> {
   try {
     // Step 1: Create redirect if doesn't exist
     if (!redirect.has_redirect) {
+      console.log('[handleSync] Creating redirect for domain:', redirect.domain_id);
       const response = await createRedirect(redirect.domain_id, {
         template_id: 'T1',
         params: { target_url: targetUrl },
         status_code: redirectCode,
       });
+      console.log('[handleSync] Redirect created:', response);
 
       // Update current redirect with new data
       redirect.id = response.redirect.id;
@@ -843,7 +846,9 @@ async function handleSync(redirect: DomainRedirect): Promise<void> {
     }
 
     // Step 2: Sync to Cloudflare
+    console.log('[handleSync] Applying redirects to zone:', domain.zone_id);
     const response = await applyZoneRedirects(domain.zone_id);
+    console.log('[handleSync] Zone sync response:', response);
 
     // Update state with synced redirects
     const syncedIds = response.synced_rules?.map(r => r.id) || [];
@@ -851,12 +856,19 @@ async function handleSync(redirect: DomainRedirect): Promise<void> {
 
     showGlobalNotice('success', `Synced ${response.rules_applied || 1} redirect(s) to Cloudflare`);
 
+    // Remove shimmer
+    if (syncBtn) {
+      syncBtn.removeAttribute('data-turnstile-pending');
+    }
+
     // Refresh state to get latest data
     await refreshRedirects();
 
     // Close drawer after successful sync
     closeDrawer();
   } catch (error: any) {
+    console.error('[handleSync] Error:', error);
+
     // Mark as error if redirect exists
     if (redirect.has_redirect) {
       updateDomainRedirect(redirect.domain_id, { sync_status: 'error' });
@@ -864,9 +876,10 @@ async function handleSync(redirect: DomainRedirect): Promise<void> {
 
     showGlobalNotice('error', error.message || 'Failed to sync to Cloudflare');
 
-    // Re-enable sync button
+    // Re-enable sync button and remove shimmer
     if (syncBtn) {
       syncBtn.disabled = false;
+      syncBtn.removeAttribute('data-turnstile-pending');
       const textSpan = syncBtn.querySelector('span:last-child');
       if (textSpan) textSpan.textContent = 'Retry';
     }
