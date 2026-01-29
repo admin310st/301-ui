@@ -676,6 +676,8 @@ export const ru: Translation = {
     domains: {
       drawerTitle: 'Управление доменами',
       drawerSubtitle: 'для сайта',
+      primaryDomainTitle: 'Главный домен',
+      primaryDomainHint: 'Основная точка входа для трафика. Только один домен может быть главным.',
       attachedTitle: 'Привязанные домены',
       attachNewTitle: 'Привязать новые домены',
       count: 'Количество',

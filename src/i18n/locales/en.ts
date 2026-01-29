@@ -670,6 +670,8 @@ export const en = {
     domains: {
       drawerTitle: 'Manage Domains',
       drawerSubtitle: 'for site',
+      primaryDomainTitle: 'Primary Domain',
+      primaryDomainHint: 'Main entry point for traffic. Only one domain can be primary.',
       attachedTitle: 'Attached Domains',
       attachNewTitle: 'Attach New Domains',
       count: 'Count',
