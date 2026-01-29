@@ -529,6 +529,9 @@ async function autoSaveField(field: 'enabled' | 'status_code', value: boolean | 
     // Update Sync Status card in drawer to show "pending"
     updateSyncStatusDisplay('pending');
 
+    // Update footer button state
+    updateSyncButtonState(currentRedirect);
+
     showGlobalNotice('success', field === 'enabled' ? 'Status updated' : 'Redirect code updated');
   } catch (error: any) {
     showGlobalNotice('error', error.message || 'Failed to save');
