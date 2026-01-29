@@ -14,11 +14,13 @@ import { safeCall } from '@api/ui-client';
 import { invalidateCache } from '@api/cache';
 import { getCurrentProjectId, getCurrentSites, setSites } from '@state/project-detail-state';
 import { showConfirmDialog } from '@ui/dialog';
+import { initDropdowns } from '@ui/dropdown';
 
 let currentSiteId: number | null = null;
 let currentProjectId: number | null = null;
 let attachedDomains: APIDomain[] = [];
 let selectedPrimaryId: number | null = null;
+let dropdownsInitialized = false;
 
 /**
  * Open manage site domains drawer
@@ -32,6 +34,13 @@ export function openManageSiteDomainsDrawer(siteId: number): void {
   }
 
   drawer.removeAttribute('hidden');
+
+  // Initialize dropdowns in the drawer (only once)
+  if (!dropdownsInitialized) {
+    initDropdowns(drawer);
+    dropdownsInitialized = true;
+  }
+
   loadSiteAndDomains(siteId);
 }
 
