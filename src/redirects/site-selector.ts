@@ -53,7 +53,7 @@ async function loadProjects(): Promise<ProjectOption[]> {
   try {
     const projects = await safeCall(
       () => getProjects(0),
-      { lockKey: 'redirects-projects', retryOn401: true }
+      { lockKey: 'projects', retryOn401: true }
     );
     return projects.map((p: Project) => ({
       id: p.id,

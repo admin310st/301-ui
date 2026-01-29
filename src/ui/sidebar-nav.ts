@@ -355,10 +355,11 @@ export function updateDashboardOnboardingIndicator(currentStep: number | null): 
 export async function updateSidebarCounts(): Promise<void> {
   try {
     const { getAccountId } = await import('@state/auth-state');
+    const { safeCall } = await import('@api/ui-client');
     const accountId = getAccountId();
     if (!accountId) return;
 
-    // Fetch counts in parallel
+    // Fetch counts in parallel with lockKeys to prevent duplicate requests
     const [integrationsModule, projectsModule, sitesModule] = await Promise.all([
       import('@api/integrations'),
       import('@api/projects'),
@@ -366,9 +367,9 @@ export async function updateSidebarCounts(): Promise<void> {
     ]);
 
     const [keys, projects, sites] = await Promise.all([
-      integrationsModule.getIntegrationKeys(accountId),
-      projectsModule.getProjects(accountId),
-      sitesModule.getSites(accountId),
+      safeCall(() => integrationsModule.getIntegrationKeys(accountId), { lockKey: 'integrations', retryOn401: true }),
+      safeCall(() => projectsModule.getProjects(accountId), { lockKey: 'projects', retryOn401: true }),
+      safeCall(() => sitesModule.getSites(accountId), { lockKey: 'sites', retryOn401: true }),
     ]);
 
     // Update integrations badge
