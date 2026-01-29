@@ -11,20 +11,24 @@ export interface SyncStats {
 
 /**
  * Calculate sync statistics from redirect data
+ * Only counts donors (domains with has_redirect: true)
  */
 export function calculateSyncStats(redirects: Redirect[]): SyncStats {
+  // Filter to only count donors (domains with configured redirects)
+  const donors = redirects.filter((r) => r.has_redirect);
+
   const stats = {
     synced: 0,
     pending: 0,
     error: 0,
-    total: redirects.length,
+    total: donors.length,
     ratio: 0,
     lastSync: undefined as string | undefined,
   };
 
   let mostRecentSync: Date | null = null;
 
-  redirects.forEach((redirect) => {
+  donors.forEach((redirect) => {
     if (redirect.sync_status === 'synced') {
       stats.synced++;
       if (redirect.last_sync_at) {
