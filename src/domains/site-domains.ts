@@ -682,11 +682,13 @@ export function initSiteDomains(): void {
     if (openAddDomainsBtn) {
       e.preventDefault();
       if (!currentProjectId) return;
+      // Save projectId before closing (closeManageSiteDomainsDrawer resets it)
+      const projectId = currentProjectId;
       // Close manage-site-domains drawer
       closeManageSiteDomainsDrawer();
       // Open add-domain-to-project drawer
       const { openAddDomainDrawer } = await import('@domains/project-add-domain');
-      await openAddDomainDrawer(currentProjectId);
+      await openAddDomainDrawer(projectId);
     }
 
     // Primary domain dropdown option selection
