@@ -98,15 +98,12 @@ async function loadSiteAndDomains(siteId: number): Promise<void> {
     const nameEl = document.querySelector<HTMLElement>('[data-site-domains-name]');
     if (nameEl) nameEl.textContent = site.site_name;
 
-    // Update primary domain panel color based on site status
-    const primaryPanel = document.querySelector<HTMLElement>('[data-primary-domain-panel]');
-    if (primaryPanel) {
-      // Remove any existing status classes
-      primaryPanel.classList.remove('panel--success', 'panel--warn', 'panel--danger');
-      // Add class based on site status
-      const statusClass = site.status === 'active' ? 'panel--success' :
-                          site.status === 'paused' ? 'panel--warn' : 'panel--danger';
-      primaryPanel.classList.add(statusClass);
+    // Update primary domain selector border color based on site status
+    const primarySelect = document.querySelector<HTMLElement>('[data-primary-domain-select]');
+    if (primarySelect) {
+      const borderColor = site.status === 'active' ? 'var(--success)' :
+                          site.status === 'paused' ? 'var(--warning)' : 'var(--danger)';
+      primarySelect.style.borderColor = borderColor;
     }
 
     // Load attached domains
