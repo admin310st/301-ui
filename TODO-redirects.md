@@ -441,13 +441,15 @@ src/redirects/
 7. ✅ Create drawer with auto-save (toggle, dropdown, target URL on blur)
 8. ✅ Move Sync button to drawer footer
 9. [ ] Bulk actions (sticky panel at bottom)
+   - [ ] Add redirect to main domain (T1 → acceptor URL, auto-detect)
    - [ ] Enable selected redirects
    - [ ] Disable selected redirects
    - [ ] Delete selected redirects
    - [ ] Sync selected to Cloudflare
-10. [ ] Add "Add Redirect" wizard/modal
-11. [ ] Implement Test URL preview logic
-12. [ ] i18n for drawer content and bulk actions
+10. [ ] Drawer: template selector for advanced redirects (T3, T4, T5, T7)
+11. [ ] Add "Add Redirect" wizard/modal (for new domains)
+12. [ ] Implement Test URL preview logic
+13. [ ] i18n for drawer content and bulk actions
 
 ---
 
