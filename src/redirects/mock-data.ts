@@ -54,8 +54,10 @@ export interface DomainRedirect {
   // Grouping
   site_id: number;
   site_name: string;  // e.g., "CryptoBoss (En)"
+  site_tag?: string;  // e.g., "crypto-en"
   site_flag: string;  // emoji flag for display
   site_type: SiteType;  // 'landing' | 'tds' | 'hybrid'
+  site_status?: 'active' | 'paused' | 'archived';  // Site status
   project_id: number;
   project_name: string;
 

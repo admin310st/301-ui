@@ -287,17 +287,29 @@
         </div>
 
         <footer class="drawer__footer">
-          <!-- Sync button (shown when redirect is enabled) -->
-          <button class="btn btn--cf" type="button" data-drawer-sync>
-            <span class="icon" data-icon="brand/cloudflare"></span>
-            <span>Sync to Cloudflare</span>
-          </button>
-          <!-- Delete button (shown when redirect is disabled) -->
-          <button class="btn btn--danger" type="button" data-drawer-delete hidden>
-            <span class="icon" data-icon="mono/trash"></span>
-            <span>Delete redirect</span>
-          </button>
-          <button class="btn btn--ghost" type="button" data-drawer-close>Close</button>
+          <!-- Donor footer: Sync/Delete + Close -->
+          <div class="drawer__footer-donor" data-footer-donor>
+            <button class="btn btn--cf" type="button" data-drawer-sync>
+              <span class="icon" data-icon="brand/cloudflare"></span>
+              <span>Sync to Cloudflare</span>
+            </button>
+            <button class="btn btn--danger" type="button" data-drawer-delete hidden>
+              <span class="icon" data-icon="mono/trash"></span>
+              <span>Delete redirect</span>
+            </button>
+            <button class="btn btn--ghost" type="button" data-drawer-close>Close</button>
+          </div>
+          <!-- Acceptor footer: Manage domains + Save -->
+          <div class="drawer__footer-acceptor" data-footer-acceptor hidden>
+            <button class="btn btn--ghost" type="button" data-action="manage-domains-drawer">
+              <span class="icon" data-icon="mono/web"></span>
+              <span>Manage domains</span>
+            </button>
+            <button class="btn btn--primary" type="button" data-drawer-save-site>
+              <span class="icon" data-icon="mono/check"></span>
+              <span>Save</span>
+            </button>
+          </div>
         </footer>
       </div>
     </aside>

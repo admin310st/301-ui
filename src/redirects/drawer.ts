@@ -10,6 +10,8 @@ import {
   deleteRedirect,
   applyZoneRedirects,
 } from '@api/redirects';
+import { updateSite } from '@api/sites';
+import { safeCall } from '@api/ui-client';
 import {
   getState,
   updateDomainRedirect,
@@ -20,6 +22,7 @@ import {
   getAcceptorDomain,
 } from './state';
 import { showGlobalNotice } from '@ui/globalNotice';
+import { openManageSiteDomainsDrawer } from '@domains/site-domains';
 
 // Feature flag (should match redirects.ts)
 const USE_REAL_API = true;
@@ -58,6 +61,22 @@ export function initDrawer(): void {
         handleDelete(currentRedirect);
       }
     });
+  }
+
+  // Manage domains button in acceptor footer
+  const manageDomainsBtn = drawerElement.querySelector('[data-action="manage-domains-drawer"]');
+  if (manageDomainsBtn) {
+    manageDomainsBtn.addEventListener('click', () => {
+      if (currentRedirect?.site_id) {
+        openManageSiteDomainsDrawer(currentRedirect.site_id);
+      }
+    });
+  }
+
+  // Save site button in acceptor footer
+  const saveSiteBtn = drawerElement.querySelector('[data-drawer-save-site]');
+  if (saveSiteBtn) {
+    saveSiteBtn.addEventListener('click', handleSaveSite);
   }
 
   // Close on Escape key
@@ -131,6 +150,18 @@ export function openDrawer(redirect: DomainRedirect): void {
 
   // Render drawer content
   renderDrawerContent(redirect);
+
+  // Toggle footer based on role
+  const isAcceptor = redirect.role === 'acceptor';
+  const donorFooter = drawerElement.querySelector('[data-footer-donor]');
+  const acceptorFooter = drawerElement.querySelector('[data-footer-acceptor]');
+  if (donorFooter) donorFooter.toggleAttribute('hidden', isAcceptor);
+  if (acceptorFooter) acceptorFooter.toggleAttribute('hidden', !isAcceptor);
+
+  // Setup acceptor form handlers if needed
+  if (isAcceptor) {
+    setupAcceptorFormHandlers();
+  }
 
   // Show drawer
   drawerElement.removeAttribute('hidden');
@@ -602,17 +633,117 @@ function updateSyncButtonState(redirect?: DomainRedirect): void {
 }
 
 /**
+ * Setup acceptor form handlers (status dropdown)
+ */
+function setupAcceptorFormHandlers(): void {
+  if (!drawerElement) return;
+
+  const dropdown = drawerElement.querySelector('[data-dropdown="site-status-inline"]');
+  if (!dropdown) return;
+
+  const trigger = dropdown.querySelector('.dropdown__trigger');
+  const menu = dropdown.querySelector('.dropdown__menu');
+  const items = dropdown.querySelectorAll('.dropdown__item');
+  const label = dropdown.querySelector('[data-status-label]');
+  const hiddenInput = drawerElement.querySelector('[data-status-value]') as HTMLInputElement;
+
+  if (!trigger || !menu) return;
+
+  // Toggle dropdown
+  trigger.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const isOpen = dropdown.classList.contains('dropdown--open');
+    dropdown.classList.toggle('dropdown--open', !isOpen);
+    trigger.setAttribute('aria-expanded', (!isOpen).toString());
+  });
+
+  // Handle item selection
+  items.forEach((item) => {
+    item.addEventListener('click', () => {
+      const value = item.getAttribute('data-value') || 'active';
+      const text = item.textContent?.trim() || 'Active';
+
+      // Update selected state
+      items.forEach((i) => i.classList.remove('is-active'));
+      item.classList.add('is-active');
+
+      // Update label and hidden input
+      if (label) label.textContent = text;
+      if (hiddenInput) hiddenInput.value = value;
+      if (trigger) trigger.setAttribute('data-selected-value', value);
+
+      // Close dropdown
+      dropdown.classList.remove('dropdown--open');
+      trigger.setAttribute('aria-expanded', 'false');
+    });
+  });
+
+  // Close on outside click
+  const closeHandler = (e: Event) => {
+    if (!dropdown.contains(e.target as Node)) {
+      dropdown.classList.remove('dropdown--open');
+      trigger.setAttribute('aria-expanded', 'false');
+    }
+  };
+  document.addEventListener('click', closeHandler);
+}
+
+/**
+ * Handle save site (acceptor form submission)
+ */
+async function handleSaveSite(): Promise<void> {
+  if (!drawerElement || !currentRedirect) return;
+
+  const form = drawerElement.querySelector('[data-form="edit-site-inline"]') as HTMLFormElement;
+  if (!form) return;
+
+  const siteId = currentRedirect.site_id;
+  const siteName = (form.querySelector('[name="site_name"]') as HTMLInputElement)?.value?.trim();
+  const siteTag = (form.querySelector('[name="site_tag"]') as HTMLInputElement)?.value?.trim();
+  const status = (form.querySelector('[data-status-value]') as HTMLInputElement)?.value || 'active';
+
+  if (!siteName) {
+    showGlobalNotice('error', 'Site name is required');
+    return;
+  }
+
+  const saveBtn = drawerElement.querySelector('[data-drawer-save-site]') as HTMLButtonElement;
+  if (saveBtn) {
+    saveBtn.disabled = true;
+    saveBtn.setAttribute('data-turnstile-pending', '');
+  }
+
+  try {
+    await safeCall(
+      () => updateSite(siteId, {
+        site_name: siteName,
+        site_tag: siteTag || undefined,
+        status: status as 'active' | 'paused' | 'archived',
+      }),
+      { retryOn401: true }
+    );
+
+    showGlobalNotice('success', 'Site updated');
+
+    // Refresh redirects to get updated site info
+    await refreshRedirects();
+    closeDrawer();
+  } catch (error: any) {
+    showGlobalNotice('error', error.message || 'Failed to update site');
+  } finally {
+    if (saveBtn) {
+      saveBtn.disabled = false;
+      saveBtn.removeAttribute('data-turnstile-pending');
+    }
+  }
+}
+
+/**
  * Render content for acceptor (target/primary) domain
+ * Shows site overview and edit form
  */
 function renderAcceptorContent(redirect: DomainRedirect): string {
-  const projectLink = redirect.project_id
-    ? `<a href="/projects.html?id=${redirect.project_id}" class="link">${redirect.project_name}</a>`
-    : '—';
-  const siteLink = redirect.site_id
-    ? `<a href="/projects.html?site=${redirect.site_id}" class="link">${redirect.site_name}</a>`
-    : '—';
-
-  // Site type badge
+  // Site type labels
   const siteTypeLabels: Record<string, string> = {
     landing: 'Landing',
     tds: 'TDS',
@@ -620,49 +751,88 @@ function renderAcceptorContent(redirect: DomainRedirect): string {
   };
   const siteTypeLabel = siteTypeLabels[redirect.site_type || 'landing'] || 'Landing';
 
+  // Current status for dropdown
+  const siteStatus = redirect.site_status || 'active';
+  const statusLabels: Record<string, string> = {
+    active: 'Active',
+    paused: 'Paused',
+    archived: 'Archived',
+  };
+
   return `
-    <div class="stack-list">
-      <section class="card card--panel">
-        <header class="card__header">
-          <h3 class="h5">Site Overview</h3>
-        </header>
-        <div class="card__body">
-          <dl class="detail-list">
-            <div class="detail-row">
-              <dt class="detail-label">Project</dt>
-              <dd class="detail-value">${projectLink}</dd>
-            </div>
-            <div class="detail-row">
-              <dt class="detail-label">Site</dt>
-              <dd class="detail-value">${siteLink}</dd>
-            </div>
-            <div class="detail-row">
-              <dt class="detail-label">Type</dt>
-              <dd class="detail-value">
-                <span class="badge badge--sm badge--neutral">${siteTypeLabel}</span>
-              </dd>
-            </div>
-            <div class="detail-row">
-              <dt class="detail-label">Role</dt>
-              <dd class="detail-value">
-                <span class="badge badge--sm badge--success">Target</span>
-              </dd>
-            </div>
-          </dl>
+    <div class="stack-md">
+      <!-- Overview (read-only info) -->
+      <dl class="detail-list">
+        <div class="detail-row">
+          <dt class="detail-label">Project</dt>
+          <dd class="detail-value">${redirect.project_name || '—'}</dd>
         </div>
-      </section>
+        <div class="detail-row">
+          <dt class="detail-label">Site</dt>
+          <dd class="detail-value">${redirect.site_name || '—'}</dd>
+        </div>
+        <div class="detail-row">
+          <dt class="detail-label">Type</dt>
+          <dd class="detail-value">${siteTypeLabel}</dd>
+        </div>
+      </dl>
 
-      <div class="panel panel--info">
-        <p>
-          <span class="icon" data-icon="mono/landing"></span>
-          This is the <strong>primary domain</strong> for the site. Other domains redirect traffic here.
-        </p>
-      </div>
+      <hr class="divider" />
 
-      <a href="/domains.html?site=${redirect.site_id}" class="btn btn--ghost btn--sm" style="width: 100%;">
-        <span class="icon" data-icon="mono/web"></span>
-        <span>Manage site domains</span>
-      </a>
+      <!-- Site Settings Form -->
+      <form class="stack-sm" data-form="edit-site-inline">
+        <input type="hidden" name="site_id" value="${redirect.site_id}" />
+
+        <div class="field">
+          <label class="field__label">
+            <span>Site name</span>
+            <span class="field__required">*</span>
+          </label>
+          <input
+            class="input"
+            type="text"
+            name="site_name"
+            value="${redirect.site_name || ''}"
+            placeholder="My Landing Page"
+            autocomplete="off"
+            required
+          />
+        </div>
+
+        <div class="field">
+          <label class="field__label">Site tag</label>
+          <input
+            class="input"
+            type="text"
+            name="site_tag"
+            value="${redirect.site_tag || ''}"
+            placeholder="e.g., promo-2025"
+            autocomplete="off"
+          />
+        </div>
+
+        <div class="field">
+          <label class="field__label">Status</label>
+          <div class="dropdown" data-dropdown="site-status-inline">
+            <button
+              class="btn-chip btn-chip--dropdown dropdown__trigger"
+              type="button"
+              aria-haspopup="menu"
+              aria-expanded="false"
+              data-selected-value="${siteStatus}"
+            >
+              <span class="btn-chip__label" data-status-label>${statusLabels[siteStatus]}</span>
+              <span class="btn-chip__chevron icon" data-icon="mono/chevron-down"></span>
+            </button>
+            <div class="dropdown__menu dropdown__menu--fit-trigger" role="menu">
+              <button class="dropdown__item ${siteStatus === 'active' ? 'is-active' : ''}" type="button" data-value="active">Active</button>
+              <button class="dropdown__item ${siteStatus === 'paused' ? 'is-active' : ''}" type="button" data-value="paused">Paused</button>
+              <button class="dropdown__item ${siteStatus === 'archived' ? 'is-active' : ''}" type="button" data-value="archived">Archived</button>
+            </div>
+          </div>
+          <input type="hidden" name="status" value="${siteStatus}" data-status-value />
+        </div>
+      </form>
     </div>
   `;
 }
