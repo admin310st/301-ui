@@ -75,8 +75,10 @@ export function initDrawer(): void {
 
   // Save site button in acceptor footer
   const saveSiteBtn = drawerElement.querySelector('[data-drawer-save-site]');
+  console.log('[Drawer] Save site button found:', saveSiteBtn);
   if (saveSiteBtn) {
     saveSiteBtn.addEventListener('click', handleSaveSite);
+    console.log('[Drawer] Save site button listener attached');
   }
 
   // Close on Escape key
@@ -692,10 +694,19 @@ function setupAcceptorFormHandlers(): void {
  * Handle save site (acceptor form submission)
  */
 async function handleSaveSite(): Promise<void> {
-  if (!drawerElement || !currentRedirect) return;
+  console.log('[Drawer] handleSaveSite called', { drawerElement, currentRedirect });
+
+  if (!drawerElement || !currentRedirect) {
+    console.warn('[Drawer] Missing drawerElement or currentRedirect');
+    return;
+  }
 
   const form = drawerElement.querySelector('[data-form="edit-site-inline"]') as HTMLFormElement;
-  if (!form) return;
+  console.log('[Drawer] Form found:', form);
+  if (!form) {
+    console.warn('[Drawer] Form not found');
+    return;
+  }
 
   const siteId = currentRedirect.site_id;
   const siteName = (form.querySelector('[name="site_name"]') as HTMLInputElement)?.value?.trim();
