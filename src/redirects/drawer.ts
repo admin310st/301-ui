@@ -21,6 +21,7 @@ import {
   markZoneSynced,
   refreshRedirects,
   getAcceptorDomain,
+  updateSiteContext,
 } from './state';
 import { showGlobalNotice } from '@ui/globalNotice';
 import { openManageSiteDomainsDrawer } from '@domains/site-domains';
@@ -763,10 +764,14 @@ async function handleSaveSite(): Promise<void> {
       }
     );
 
-    showGlobalNotice('success', 'Site updated');
+    // Update site context in state (optimistic, triggers re-render)
+    updateSiteContext(siteId, {
+      siteName: siteName,
+      siteTag: siteTag || null,
+      siteStatus: status as 'active' | 'paused' | 'archived',
+    });
 
-    // Refresh redirects to get updated site info
-    await refreshRedirects();
+    showGlobalNotice('success', 'Site updated');
     closeDrawer();
   } catch (error: any) {
     showGlobalNotice('error', error.message || 'Failed to update site');

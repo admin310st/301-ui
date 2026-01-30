@@ -396,6 +396,41 @@ export function markZoneSynced(zoneId: number, syncedRedirectIds: number[]): voi
 }
 
 /**
+ * Update site context (after site edit)
+ * Updates both siteContexts and all domains belonging to the site
+ */
+export function updateSiteContext(
+  siteId: number,
+  updates: Partial<Pick<SiteContext, 'siteName' | 'siteTag' | 'siteStatus'>>
+): void {
+  // Update siteContexts
+  const contextIndex = state.siteContexts.findIndex(c => c.siteId === siteId);
+  if (contextIndex >= 0) {
+    state.siteContexts[contextIndex] = {
+      ...state.siteContexts[contextIndex],
+      ...updates,
+    };
+  }
+
+  // Update all domains belonging to this site
+  state.domains = state.domains.map(domain => {
+    if (domain.site_id === siteId) {
+      return {
+        ...domain,
+        site_name: updates.siteName ?? domain.site_name,
+        site_tag: updates.siteTag !== undefined ? updates.siteTag : domain.site_tag,
+        site_status: updates.siteStatus ?? domain.site_status,
+      };
+    }
+    return domain;
+  });
+
+  // Trigger re-render
+  state = { ...state, siteContexts: [...state.siteContexts] };
+  notifyListeners();
+}
+
+/**
  * Clear state (on logout or page leave)
  */
 export function clearState(): void {
