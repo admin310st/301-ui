@@ -495,7 +495,7 @@ function renderAcceptorRow(redirect: DomainRedirect): string {
   `;
 
   const activityDisplay = getActivityDisplay(redirect);
-  const actions = getRowActions(redirect);
+  const actions = getSiteHeaderActions(redirect); // Site-level actions for primary domain
 
   return `
     <tr data-redirect-id="${redirect.id}" data-site-id="${redirect.site_id}" class="table__primary-domain">
@@ -512,7 +512,9 @@ function renderAcceptorRow(redirect: DomainRedirect): string {
         <span class="badge badge--neutral" title="Redirect target (main site domain)">Target</span>
       </td>
       <td data-priority="critical" class="table__cell-actions">
-        ${actions}
+        <div class="table-actions table-actions--inline">
+          ${actions}
+        </div>
       </td>
       <td data-priority="critical" class="table__cell-checkbox">
         <span class="icon text-muted" data-icon="mono/lock" title="Primary domain cannot be selected"></span>
