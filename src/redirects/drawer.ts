@@ -889,69 +889,15 @@ function renderAcceptorContent(redirect: DomainRedirect): string {
 
 /**
  * Render content for donor (redirect) domain
+ * Simple layout: Redirect Configuration + Sync Status
  */
 function renderDonorContent(
   redirect: DomainRedirect,
   acceptorDomain: ReturnType<typeof getAcceptorDomain>,
   defaultTargetUrl: string
 ): string {
-  const projectLink = redirect.project_id
-    ? `<a href="/projects.html" class="link">${redirect.project_name}</a>`
-    : '—';
-  const siteLink = redirect.site_id
-    ? `<a href="/projects.html" class="link">${redirect.site_name}</a>`
-    : '—';
-
-  // Target row content
-  let targetRow = '';
-  if (redirect.target_url) {
-    targetRow = `
-      <div class="detail-row">
-        <dt class="detail-label">Target</dt>
-        <dd class="detail-value">
-          <span class="detail-value--mono">${redirect.target_url}</span>
-        </dd>
-      </div>
-    `;
-  } else if (acceptorDomain) {
-    targetRow = `
-      <div class="detail-row">
-        <dt class="detail-label">Target</dt>
-        <dd class="detail-value text-muted">
-          Will redirect to <strong>${acceptorDomain.domain_name}</strong>
-        </dd>
-      </div>
-    `;
-  } else {
-    targetRow = `
-      <div class="detail-row">
-        <dt class="detail-label">Target</dt>
-        <dd class="detail-value text-muted">No redirect configured</dd>
-      </div>
-    `;
-  }
-
   return `
     <div class="stack-list">
-      <section class="card card--panel">
-        <header class="card__header">
-          <h3 class="h5">Overview</h3>
-        </header>
-        <div class="card__body">
-          <dl class="detail-list">
-            <div class="detail-row">
-              <dt class="detail-label">Project</dt>
-              <dd class="detail-value">${projectLink}</dd>
-            </div>
-            <div class="detail-row">
-              <dt class="detail-label">Site</dt>
-              <dd class="detail-value">${siteLink}</dd>
-            </div>
-            ${targetRow}
-          </dl>
-        </div>
-      </section>
-
       ${renderRedirectConfigCard(redirect, defaultTargetUrl)}
       ${renderSyncStatusCard(redirect)}
     </div>
