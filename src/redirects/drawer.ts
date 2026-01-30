@@ -672,6 +672,13 @@ function setupAcceptorFormHandlers(): void {
     trigger.setAttribute('aria-expanded', (!isOpen).toString());
   });
 
+  // Status colors for border
+  const statusColors: Record<string, string> = {
+    active: 'var(--ok)',
+    paused: 'var(--warning)',
+    archived: 'var(--muted)',
+  };
+
   // Handle item selection
   items.forEach((item) => {
     item.addEventListener('click', () => {
@@ -685,7 +692,11 @@ function setupAcceptorFormHandlers(): void {
       // Update label and hidden input
       if (label) label.textContent = text;
       if (hiddenInput) hiddenInput.value = value;
-      if (trigger) trigger.setAttribute('data-selected-value', value);
+      if (trigger) {
+        trigger.setAttribute('data-selected-value', value);
+        // Update border color
+        (trigger as HTMLElement).style.borderColor = statusColors[value] || statusColors.active;
+      }
 
       // Close dropdown
       dropdown.classList.remove('dropdown--open');
@@ -776,14 +787,14 @@ function renderAcceptorContent(redirect: DomainRedirect): string {
   // Use fetched site data if available, otherwise fall back to redirect data
   const site = currentSite;
 
-  // Site type labels
-  const siteTypeLabels: Record<string, string> = {
-    landing: 'Landing',
-    tds: 'TDS',
-    hybrid: 'Hybrid',
+  // Site type config (label and badge style)
+  const siteTypeConfig: Record<string, { label: string; badge: string }> = {
+    landing: { label: 'Landing', badge: 'badge--primary' },
+    tds: { label: 'TDS', badge: 'badge--warning' },
+    hybrid: { label: 'Hybrid', badge: 'badge--neutral' },
   };
   const siteType = site?.site_type || redirect.site_type || 'landing';
-  const siteTypeLabel = siteTypeLabels[siteType] || 'Landing';
+  const typeConfig = siteTypeConfig[siteType] || siteTypeConfig.landing;
 
   // Site data from API (preferred) or redirect data (fallback)
   const siteName = site?.site_name || redirect.site_name || '';
@@ -791,11 +802,13 @@ function renderAcceptorContent(redirect: DomainRedirect): string {
   const siteStatus = site?.status || 'active';
   const siteId = site?.id || redirect.site_id;
 
-  const statusLabels: Record<string, string> = {
-    active: 'Active',
-    paused: 'Paused',
-    archived: 'Archived',
+  // Status config (label and border color)
+  const statusConfig: Record<string, { label: string; color: string }> = {
+    active: { label: 'Active', color: 'var(--ok)' },
+    paused: { label: 'Paused', color: 'var(--warning)' },
+    archived: { label: 'Archived', color: 'var(--muted)' },
   };
+  const currentStatusConfig = statusConfig[siteStatus] || statusConfig.active;
 
   return `
     <div class="stack-list">
@@ -807,16 +820,10 @@ function renderAcceptorContent(redirect: DomainRedirect): string {
         <div class="card__body">
           <dl class="detail-list">
             <div class="detail-row">
-              <dt class="detail-label">Project</dt>
-              <dd class="detail-value">${redirect.project_name || '—'}</dd>
-            </div>
-            <div class="detail-row">
-              <dt class="detail-label">Site</dt>
-              <dd class="detail-value">${siteName || '—'}</dd>
-            </div>
-            <div class="detail-row">
               <dt class="detail-label">Type</dt>
-              <dd class="detail-value">${siteTypeLabel}</dd>
+              <dd class="detail-value">
+                <span class="badge badge--sm ${typeConfig.badge}">${typeConfig.label}</span>
+              </dd>
             </div>
           </dl>
         </div>
@@ -868,8 +875,9 @@ function renderAcceptorContent(redirect: DomainRedirect): string {
                   aria-haspopup="menu"
                   aria-expanded="false"
                   data-selected-value="${siteStatus}"
+                  style="border-color: ${currentStatusConfig.color};"
                 >
-                  <span class="btn-chip__label" data-status-label>${statusLabels[siteStatus]}</span>
+                  <span class="btn-chip__label" data-status-label>${currentStatusConfig.label}</span>
                   <span class="btn-chip__chevron icon" data-icon="mono/chevron-down"></span>
                 </button>
                 <div class="dropdown__menu dropdown__menu--fit-trigger" role="menu">
