@@ -606,17 +606,25 @@ function updateSyncButtonState(redirect?: DomainRedirect): void {
  */
 function renderAcceptorContent(redirect: DomainRedirect): string {
   const projectLink = redirect.project_id
-    ? `<a href="/projects.html" class="link">${redirect.project_name}</a>`
+    ? `<a href="/projects.html?id=${redirect.project_id}" class="link">${redirect.project_name}</a>`
     : '—';
   const siteLink = redirect.site_id
-    ? `<a href="/projects.html" class="link">${redirect.site_name}</a>`
+    ? `<a href="/sites.html?id=${redirect.site_id}" class="link">${redirect.site_name}</a>`
     : '—';
+
+  // Site type badge
+  const siteTypeLabels: Record<string, string> = {
+    landing: 'Landing',
+    tds: 'TDS',
+    hybrid: 'Hybrid',
+  };
+  const siteTypeLabel = siteTypeLabels[redirect.site_type || 'landing'] || 'Landing';
 
   return `
     <div class="stack-list">
       <section class="card card--panel">
         <header class="card__header">
-          <h3 class="h5">Overview</h3>
+          <h3 class="h5">Site Overview</h3>
         </header>
         <div class="card__body">
           <dl class="detail-list">
@@ -627,6 +635,12 @@ function renderAcceptorContent(redirect: DomainRedirect): string {
             <div class="detail-row">
               <dt class="detail-label">Site</dt>
               <dd class="detail-value">${siteLink}</dd>
+            </div>
+            <div class="detail-row">
+              <dt class="detail-label">Type</dt>
+              <dd class="detail-value">
+                <span class="badge badge--sm badge--neutral">${siteTypeLabel}</span>
+              </dd>
             </div>
             <div class="detail-row">
               <dt class="detail-label">Role</dt>
@@ -644,6 +658,11 @@ function renderAcceptorContent(redirect: DomainRedirect): string {
           This is the <strong>primary domain</strong> for the site. Other domains redirect traffic here.
         </p>
       </div>
+
+      <a href="/domains.html?site=${redirect.site_id}" class="btn btn--ghost btn--sm" style="width: 100%;">
+        <span class="icon" data-icon="mono/web"></span>
+        <span>Manage site domains</span>
+      </a>
     </div>
   `;
 }

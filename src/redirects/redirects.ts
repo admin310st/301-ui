@@ -700,10 +700,10 @@ function renderPrimaryDomainRow(
   const domainDisplay = getDomainDisplay(redirect, true, true, allDonorsSelected, someDonorsSelected, redirectBadge); // isPrimary=true, isTopLevel=true
   const activityDisplay = getActivityDisplay(redirect);
   const statusDisplay = getStatusDisplay(redirect);
-  const actions = getRowActions(redirect);
+  const actions = getSiteHeaderActions(redirect); // Site-level actions for primary domain
 
   return `
-    <tr data-redirect-id="${redirect.id}" data-group-id="${groupId}" class="table__primary-domain table__row--level-1">
+    <tr data-redirect-id="${redirect.id}" data-group-id="${groupId}" data-site-id="${redirect.site_id}" class="table__primary-domain table__row--level-1">
       <td data-priority="critical" class="table__cell-domain">
         ${domainDisplay}
       </td>
@@ -1132,6 +1132,50 @@ function getRowActions(redirect: DomainRedirect): string {
 }
 
 /**
+ * Get actions for site header row (primary domain row)
+ * Two icons: Edit Site + Kebab with site-level actions
+ */
+function getSiteHeaderActions(redirect: DomainRedirect): string {
+  // Edit Site button (opens drawer with site info)
+  const editButton = `
+    <button class="btn-icon btn-icon--sm btn-icon--ghost" type="button" data-action="edit-site" data-site-id="${redirect.site_id}" data-redirect-id="${redirect.id}" title="Edit site">
+      <span class="icon" data-icon="mono/pencil-circle"></span>
+    </button>
+  `;
+
+  // Kebab menu with site-level actions
+  const kebabMenu = `
+    <div class="dropdown" data-dropdown>
+      <button class="btn-icon btn-icon--sm btn-icon--ghost dropdown__trigger" type="button" aria-haspopup="menu" title="Site actions">
+        <span class="icon" data-icon="mono/dots-vertical"></span>
+      </button>
+      <div class="dropdown__menu" role="menu">
+        <button class="dropdown__item" type="button" data-action="manage-domains" data-site-id="${redirect.site_id}">
+          <span class="icon" data-icon="mono/web"></span>
+          <span>Manage domains</span>
+        </button>
+        <div class="dropdown__divider"></div>
+        <button class="dropdown__item" type="button" data-action="apply-t4" data-site-id="${redirect.site_id}">
+          <span class="icon" data-icon="mono/directions-fork"></span>
+          <span>Apply: www → apex</span>
+        </button>
+        <button class="dropdown__item" type="button" data-action="apply-t3" data-site-id="${redirect.site_id}">
+          <span class="icon" data-icon="mono/directions-fork"></span>
+          <span>Apply: apex → www</span>
+        </button>
+        <div class="dropdown__divider"></div>
+        <button class="dropdown__item dropdown__item--danger" type="button" data-action="clear-site-redirects" data-site-id="${redirect.site_id}">
+          <span class="icon" data-icon="mono/delete"></span>
+          <span>Clear site redirects</span>
+        </button>
+      </div>
+    </div>
+  `;
+
+  return `${editButton} ${kebabMenu}`;
+}
+
+/**
  * Setup search
  */
 function setupSearch(): void {
@@ -1289,12 +1333,29 @@ function setupActions(): void {
 
     console.log('[Redirects] Action:', action, 'Redirect ID:', redirectId, 'Group ID:', groupId);
 
+    const siteId = button.dataset.siteId ? Number(button.dataset.siteId) : null;
+
     switch (action) {
       case 'toggle-group':
         if (groupId !== null) handleToggleGroup(groupId);
         break;
       case 'edit':
         if (redirectId) handleEdit(redirectId);
+        break;
+      case 'edit-site':
+        if (redirectId) handleEditSite(redirectId);
+        break;
+      case 'manage-domains':
+        if (siteId) handleManageDomains(siteId);
+        break;
+      case 'apply-t3':
+        if (siteId) handleApplyTemplate(siteId, 't3');
+        break;
+      case 'apply-t4':
+        if (siteId) handleApplyTemplate(siteId, 't4');
+        break;
+      case 'clear-site-redirects':
+        if (siteId) handleClearSiteRedirects(siteId);
         break;
       case 'enable':
         if (redirectId) handleEnable(redirectId);
@@ -1463,6 +1524,81 @@ function handleEdit(redirectId: number): void {
   if (!redirect) return;
 
   openDrawer(redirect);
+}
+
+/**
+ * Handle edit site (opens drawer with site info)
+ */
+function handleEditSite(redirectId: number): void {
+  const redirect = currentRedirects.find(r => r.id === redirectId);
+  if (!redirect) return;
+
+  // Open drawer showing site/acceptor info
+  openDrawer(redirect);
+}
+
+/**
+ * Handle manage domains - redirect to domains page with site filter
+ */
+function handleManageDomains(siteId: number): void {
+  const site = currentRedirects.find(r => r.site_id === siteId);
+  if (!site) return;
+
+  // Navigate to domains page with site filter
+  window.location.href = `/domains.html?site=${siteId}`;
+}
+
+/**
+ * Handle apply template (T3 = apex→www, T4 = www→apex)
+ */
+async function handleApplyTemplate(siteId: number, template: 't3' | 't4'): Promise<void> {
+  const siteDomains = currentRedirects.filter(r => r.site_id === siteId);
+  const site = siteDomains[0];
+  if (!site) return;
+
+  const templateName = template === 't3' ? 'apex → www' : 'www → apex';
+  console.log(`[Redirects] Applying ${templateName} template to site:`, site.site_name);
+
+  if (!USE_REAL_API) {
+    alert(`🔀 Apply "${templateName}" to "${site.site_name}"\n\n(API integration coming soon)`);
+    return;
+  }
+
+  // TODO: Implement API call to apply template
+  // This will set up redirects for all domains in the site based on the template:
+  // T3: non-www domains redirect to www variant
+  // T4: www domains redirect to apex variant
+  showGlobalNotice('info', `Template "${templateName}" will be applied to ${site.site_name}`);
+}
+
+/**
+ * Handle clear site redirects - removes all redirect configurations for the site
+ */
+async function handleClearSiteRedirects(siteId: number): Promise<void> {
+  const siteDomains = currentRedirects.filter(r => r.site_id === siteId);
+  const site = siteDomains[0];
+  if (!site) return;
+
+  const donorDomains = siteDomains.filter(d => d.has_redirect && !primaryDomains.has(d.domain));
+
+  if (donorDomains.length === 0) {
+    showGlobalNotice('info', 'No redirects to clear for this site');
+    return;
+  }
+
+  const confirmed = confirm(`Clear ${donorDomains.length} redirect(s) from "${site.site_name}"?\n\nThis will remove redirect configurations but keep the domains.`);
+  if (!confirmed) return;
+
+  console.log('[Redirects] Clearing redirects for site:', site.site_name, 'Domains:', donorDomains.length);
+
+  if (!USE_REAL_API) {
+    alert(`🗑️ Clear ${donorDomains.length} redirects from "${site.site_name}"\n\n(API integration coming soon)`);
+    return;
+  }
+
+  // TODO: Implement API call to delete all redirects for the site
+  // This would call deleteRedirect for each domain_id
+  showGlobalNotice('info', `Clearing ${donorDomains.length} redirects from ${site.site_name}...`);
 }
 
 /**
