@@ -740,7 +740,7 @@ async function handleSaveSite(): Promise<void> {
 
 /**
  * Render content for acceptor (target/primary) domain
- * Shows site overview and edit form
+ * Shows site overview and edit form in card sections
  */
 function renderAcceptorContent(redirect: DomainRedirect): string {
   // Site type labels
@@ -760,79 +760,91 @@ function renderAcceptorContent(redirect: DomainRedirect): string {
   };
 
   return `
-    <div class="stack-md">
-      <!-- Overview (read-only info) -->
-      <dl class="detail-list">
-        <div class="detail-row">
-          <dt class="detail-label">Project</dt>
-          <dd class="detail-value">${redirect.project_name || '—'}</dd>
-        </div>
-        <div class="detail-row">
-          <dt class="detail-label">Site</dt>
-          <dd class="detail-value">${redirect.site_name || '—'}</dd>
-        </div>
-        <div class="detail-row">
-          <dt class="detail-label">Type</dt>
-          <dd class="detail-value">${siteTypeLabel}</dd>
-        </div>
-      </dl>
-
-      <hr class="divider" />
-
-      <!-- Site Settings Form -->
-      <form class="stack-sm" data-form="edit-site-inline">
-        <input type="hidden" name="site_id" value="${redirect.site_id}" />
-
-        <div class="field">
-          <label class="field__label">
-            <span>Site name</span>
-            <span class="field__required">*</span>
-          </label>
-          <input
-            class="input"
-            type="text"
-            name="site_name"
-            value="${redirect.site_name || ''}"
-            placeholder="My Landing Page"
-            autocomplete="off"
-            required
-          />
-        </div>
-
-        <div class="field">
-          <label class="field__label">Site tag</label>
-          <input
-            class="input"
-            type="text"
-            name="site_tag"
-            value="${redirect.site_tag || ''}"
-            placeholder="e.g., promo-2025"
-            autocomplete="off"
-          />
-        </div>
-
-        <div class="field">
-          <label class="field__label">Status</label>
-          <div class="dropdown" data-dropdown="site-status-inline">
-            <button
-              class="btn-chip btn-chip--dropdown dropdown__trigger"
-              type="button"
-              aria-haspopup="menu"
-              aria-expanded="false"
-              data-selected-value="${siteStatus}"
-            >
-              <span class="btn-chip__label" data-status-label>${statusLabels[siteStatus]}</span>
-              <span class="btn-chip__chevron icon" data-icon="mono/chevron-down"></span>
-            </button>
-            <div class="dropdown__menu dropdown__menu--fit-trigger" role="menu">
-              <button class="dropdown__item ${siteStatus === 'active' ? 'is-active' : ''}" type="button" data-value="active">Active</button>
-              <button class="dropdown__item ${siteStatus === 'paused' ? 'is-active' : ''}" type="button" data-value="paused">Paused</button>
-              <button class="dropdown__item ${siteStatus === 'archived' ? 'is-active' : ''}" type="button" data-value="archived">Archived</button>
+    <div class="stack-list">
+      <!-- Overview Card -->
+      <section class="card card--panel">
+        <header class="card__header">
+          <h3 class="h5">Overview</h3>
+        </header>
+        <div class="card__body">
+          <dl class="detail-list">
+            <div class="detail-row">
+              <dt class="detail-label">Project</dt>
+              <dd class="detail-value">${redirect.project_name || '—'}</dd>
             </div>
-          </div>
-          <input type="hidden" name="status" value="${siteStatus}" data-status-value />
+            <div class="detail-row">
+              <dt class="detail-label">Site</dt>
+              <dd class="detail-value">${redirect.site_name || '—'}</dd>
+            </div>
+            <div class="detail-row">
+              <dt class="detail-label">Type</dt>
+              <dd class="detail-value">${siteTypeLabel}</dd>
+            </div>
+          </dl>
         </div>
-      </form>
+      </section>
+
+      <!-- Site Settings Card -->
+      <section class="card card--panel">
+        <header class="card__header">
+          <h3 class="h5">Site Settings</h3>
+        </header>
+        <div class="card__body">
+          <form class="stack-list" data-form="edit-site-inline">
+            <input type="hidden" name="site_id" value="${redirect.site_id}" />
+
+            <div class="field">
+              <label class="field__label">
+                <span>Site name</span>
+                <span class="field__required">*</span>
+              </label>
+              <input
+                class="input"
+                type="text"
+                name="site_name"
+                value="${redirect.site_name || ''}"
+                placeholder="My Landing Page"
+                autocomplete="off"
+                required
+              />
+            </div>
+
+            <div class="field">
+              <label class="field__label">Site tag</label>
+              <input
+                class="input"
+                type="text"
+                name="site_tag"
+                value="${redirect.site_tag || ''}"
+                placeholder="e.g., promo-2025"
+                autocomplete="off"
+              />
+            </div>
+
+            <div class="field">
+              <label class="field__label">Status</label>
+              <div class="dropdown" data-dropdown="site-status-inline">
+                <button
+                  class="btn-chip btn-chip--dropdown dropdown__trigger"
+                  type="button"
+                  aria-haspopup="menu"
+                  aria-expanded="false"
+                  data-selected-value="${siteStatus}"
+                >
+                  <span class="btn-chip__label" data-status-label>${statusLabels[siteStatus]}</span>
+                  <span class="btn-chip__chevron icon" data-icon="mono/chevron-down"></span>
+                </button>
+                <div class="dropdown__menu dropdown__menu--fit-trigger" role="menu">
+                  <button class="dropdown__item ${siteStatus === 'active' ? 'is-active' : ''}" type="button" data-value="active">Active</button>
+                  <button class="dropdown__item ${siteStatus === 'paused' ? 'is-active' : ''}" type="button" data-value="paused">Paused</button>
+                  <button class="dropdown__item ${siteStatus === 'archived' ? 'is-active' : ''}" type="button" data-value="archived">Archived</button>
+                </div>
+              </div>
+              <input type="hidden" name="status" value="${siteStatus}" data-status-value />
+            </div>
+          </form>
+        </div>
+      </section>
     </div>
   `;
 }
