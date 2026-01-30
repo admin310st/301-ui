@@ -11,6 +11,7 @@ import type { DomainRedirect } from './mock-data';
 import { getDefaultFilters, hasActiveFilters, type ActiveFilters } from './filters-config';
 import { renderFilterBar, initFilterUI } from './filters-ui';
 import { initDrawer, openDrawer, openBulkAddDrawer } from './drawer';
+import { openManageSiteDomainsDrawer } from '@domains/site-domains';
 import { showDialog, hideDialog } from '@ui/dialog';
 import { formatTooltipTimestamp, initTooltips } from '@ui/tooltip';
 import { initSyncStatus } from './sync-status';
@@ -408,8 +409,8 @@ function renderTable(): void {
     const isLastRow = index === filteredRedirects.length - 1;
 
     if (isPrimary) {
-      // Acceptor domain (primary target) - special row
-      return renderAcceptorRow(redirect);
+      // Primary domain (acceptor/target) - site header row
+      return renderPrimaryDomainRow(redirect);
     } else {
       // Donor or reserve domain
       return renderDomainRow(redirect, isLastRow);
@@ -440,76 +441,78 @@ function renderTable(): void {
 }
 
 /**
- * Render acceptor (primary target) row
- * Shows: checkbox | domain | flag | ←N badge | site_type | activity | Target | actions | lock
+ * Render primary domain (acceptor/target) row
+ * Unified function for both flat and grouped views
+ *
+ * @param redirect - Primary domain data
+ * @param options - Optional params for grouped view (groupId, donorDomains for pre-computed data)
  */
-function renderAcceptorRow(redirect: DomainRedirect): string {
-  // Get all donor domains for this site (non-acceptor domains)
-  const siteDonors = filteredRedirects.filter(r =>
+function renderPrimaryDomainRow(
+  redirect: DomainRedirect,
+  options?: {
+    groupId?: number;
+    donorDomains?: DomainRedirect[];  // Pre-computed donors (grouped view)
+  }
+): string {
+  const { groupId, donorDomains } = options || {};
+
+  // Get donor domains: use pre-computed if provided, otherwise compute from filtered
+  const siteDonors = donorDomains || filteredRedirects.filter(r =>
     r.site_id === redirect.site_id && r.role !== 'acceptor'
   );
-
-  // Count donors with redirects
-  const donorCount = siteDonors.filter(r => r.has_redirect).length;
 
   // Calculate checkbox state for mass-select
   const selectedDonors = siteDonors.filter(d => selectedRedirects.has(d.id));
   const allDonorsSelected = siteDonors.length > 0 && selectedDonors.length === siteDonors.length;
   const someDonorsSelected = selectedDonors.length > 0 && selectedDonors.length < siteDonors.length;
 
-  // Mass-select checkbox before domain name
-  const massSelectCheckbox = siteDonors.length > 0 ? `
-    <input
-      type="checkbox"
-      class="checkbox"
-      data-select-site-domains="${redirect.site_id}"
-      ${allDonorsSelected ? 'checked' : ''}
-      ${someDonorsSelected ? 'data-indeterminate="true"' : ''}
-      aria-label="Select all domains of ${redirect.domain}"
-      title="Select all ${siteDonors.length} domain${siteDonors.length > 1 ? 's' : ''}"
-    />
-  ` : '';
+  // Count donors with redirects for badge
+  const actualRedirects = siteDonors.filter(r => r.has_redirect);
 
-  // Flag badge after domain (if available)
-  const flagBadge = redirect.site_flag
-    ? `<span class="badge badge--sm badge--neutral">${redirect.site_flag}</span>`
-    : '';
+  // Redirect badge with color coding
+  let redirectBadge = '';
+  if (actualRedirects.length > 0) {
+    const has301 = actualRedirects.some(r => r.redirect_code === 301);
+    const has302 = actualRedirects.some(r => r.redirect_code === 302);
+    const badgeColor = has301 && !has302 ? 'text-ok' : 'text-warning';
 
-  // Donor count badge (←N)
-  const donorBadge = donorCount > 0 ? `
-    <span class="badge badge--sm badge--neutral" title="${donorCount} domain${donorCount > 1 ? 's' : ''} redirect here">
-      <span class="text-ok">←</span>${donorCount}
-    </span>
-  ` : '';
+    redirectBadge = `<span class="badge badge--sm badge--neutral" title="${actualRedirects.length} domain${actualRedirects.length > 1 ? 's' : ''} redirect here">
+      <span class="icon ${badgeColor}">←</span>
+      <span>${actualRedirects.length}</span>
+    </span>`;
+  }
 
   // Site type badge
-  const siteTypeBadge = getSiteTypeBadge(redirect.site_type);
+  const siteBadge = getSiteTypeBadge(redirect.site_type);
 
-  const domainDisplay = `
-    <div class="table-cell-stack">
-      ${massSelectCheckbox}
-      <span class="table-cell-main">${redirect.domain}</span>
-      ${flagBadge}
-      ${donorBadge}
-    </div>
-  `;
+  // Domain display with mass-select checkbox
+  const domainDisplay = getDomainDisplay(redirect, true, true, allDonorsSelected, someDonorsSelected, redirectBadge);
 
   const activityDisplay = getActivityDisplay(redirect);
-  const actions = getSiteHeaderActions(redirect); // Site-level actions for primary domain
+  const statusDisplay = getStatusDisplay(redirect);
+  const actions = getSiteHeaderActions(redirect);
+
+  // Row classes: add level-1 for grouped view
+  const rowClass = groupId !== undefined
+    ? 'table__primary-domain table__row--level-1'
+    : 'table__primary-domain';
+
+  // Group ID attribute for grouped view
+  const groupAttr = groupId !== undefined ? `data-group-id="${groupId}"` : '';
 
   return `
-    <tr data-redirect-id="${redirect.id}" data-site-id="${redirect.site_id}" class="table__primary-domain">
+    <tr data-redirect-id="${redirect.id}" ${groupAttr} data-site-id="${redirect.site_id}" class="${rowClass}">
       <td data-priority="critical" class="table__cell-domain">
         ${domainDisplay}
       </td>
       <td data-priority="critical" class="table__cell-target">
-        ${siteTypeBadge}
+        ${siteBadge}
       </td>
       <td data-priority="medium" class="table__cell-activity">
         ${activityDisplay}
       </td>
       <td data-priority="high" class="table__cell-status">
-        <span class="badge badge--neutral" title="Redirect target (main site domain)">Target</span>
+        ${statusDisplay}
       </td>
       <td data-priority="critical" class="table__cell-actions">
         <div class="table-actions table-actions--inline">
@@ -644,7 +647,10 @@ function renderTargetSubgroup(target: TargetSubgroup, projectId: number): string
     );
 
     // Render primary domain as target header (Level 1) - enhanced domain row
-    const primaryRow = renderPrimaryDomainRow(primaryDomain, target.site_type!, actualRedirects, otherDomains, projectId);
+    const primaryRow = renderPrimaryDomainRow(primaryDomain, {
+      groupId: projectId,
+      donorDomains: otherDomains,
+    });
 
     // Render ALL other domains in site (Level 2) - both redirecting and non-redirecting
     const childRows = otherDomains.map((redirect, index) => {
@@ -660,83 +666,6 @@ function renderTargetSubgroup(target: TargetSubgroup, projectId: number): string
       return renderRow(redirect, projectId, isLastRow, false, true); // isTopLevel = true
     }).join('');
   }
-}
-
-/**
- * Render primary domain row (enhanced - acts as target subgroup header)
- * Shows site type badge + count of domains redirecting to it
- */
-function renderPrimaryDomainRow(
-  redirect: DomainRedirect,
-  siteType: string,
-  actualRedirects: DomainRedirect[],
-  allDonorDomains: DomainRedirect[],
-  groupId: number
-): string {
-  const isSelected = selectedRedirects.has(redirect.id);
-  const checkbox = getPrimaryDomainCheckbox(redirect);
-
-  // Calculate mass-select checkbox state
-  const selectedDonors = allDonorDomains.filter(d => selectedRedirects.has(d.id));
-  const allDonorsSelected = allDonorDomains.length > 0 && selectedDonors.length === allDonorDomains.length;
-  const someDonorsSelected = selectedDonors.length > 0 && selectedDonors.length < allDonorDomains.length;
-
-  const siteBadge = getSiteTypeBadge(siteType);
-
-  // Determine redirect badge color based on redirect codes
-  let redirectBadge = '';
-  if (actualRedirects.length > 0) {
-    const has301 = actualRedirects.some(r => r.redirect_code === 301);
-    const has302 = actualRedirects.some(r => r.redirect_code === 302);
-
-    // All 301 → green, Mixed or all 302 → orange/yellow
-    const badgeColor = has301 && !has302 ? 'text-ok' : 'text-warning';
-    const redirectCode = has301 && !has302 ? '301' : has302 && !has301 ? '302' : 'mixed';
-
-    redirectBadge = `<span class="badge badge--sm badge--neutral" title="${actualRedirects.length} domain${actualRedirects.length > 1 ? 's' : ''} → ${redirectCode}">
-        <span class="icon ${badgeColor}">←</span>
-        <span>${actualRedirects.length}</span>
-      </span>`;
-  }
-
-  const domainDisplay = getDomainDisplay(redirect, true, true, allDonorsSelected, someDonorsSelected, redirectBadge); // isPrimary=true, isTopLevel=true
-  const activityDisplay = getActivityDisplay(redirect);
-  const statusDisplay = getStatusDisplay(redirect);
-  const actions = getSiteHeaderActions(redirect); // Site-level actions for primary domain
-
-  return `
-    <tr data-redirect-id="${redirect.id}" data-group-id="${groupId}" data-site-id="${redirect.site_id}" class="table__primary-domain table__row--level-1">
-      <td data-priority="critical" class="table__cell-domain">
-        ${domainDisplay}
-      </td>
-      <td data-priority="critical" class="table__cell-target">
-        ${siteBadge}
-      </td>
-      <td data-priority="medium" class="table__cell-activity">
-        ${activityDisplay}
-      </td>
-      <td data-priority="high" class="table__cell-status">
-        ${statusDisplay}
-      </td>
-      <td data-priority="critical" class="table__cell-actions">
-        <div class="table-actions table-actions--inline">
-          ${actions}
-        </div>
-      </td>
-      <td data-priority="critical" class="table__cell-checkbox">
-        ${checkbox}
-      </td>
-    </tr>
-  `;
-}
-
-/**
- * Get lock icon for primary domain in checkbox column (sites cannot be individually selected)
- */
-function getPrimaryDomainCheckbox(redirect: DomainRedirect): string {
-  return `
-    <span class="icon text-muted" data-icon="mono/lock" title="Primary domain - use mass-select checkbox"></span>
-  `;
 }
 
 /**
@@ -1545,11 +1474,8 @@ function handleEditSite(redirectId: number): void {
  * Handle manage domains - redirect to domains page with site filter
  */
 function handleManageDomains(siteId: number): void {
-  const site = currentRedirects.find(r => r.site_id === siteId);
-  if (!site) return;
-
-  // Navigate to domains page with site filter
-  window.location.href = `/domains.html?site=${siteId}`;
+  // Open manage site domains drawer
+  openManageSiteDomainsDrawer(siteId);
 }
 
 /**
