@@ -609,7 +609,7 @@ function renderAcceptorContent(redirect: DomainRedirect): string {
     ? `<a href="/projects.html?id=${redirect.project_id}" class="link">${redirect.project_name}</a>`
     : '—';
   const siteLink = redirect.site_id
-    ? `<a href="/sites.html?id=${redirect.site_id}" class="link">${redirect.site_name}</a>`
+    ? `<a href="/projects.html?site=${redirect.site_id}" class="link">${redirect.site_name}</a>`
     : '—';
 
   // Site type badge

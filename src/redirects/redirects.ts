@@ -717,7 +717,9 @@ function renderPrimaryDomainRow(
         ${statusDisplay}
       </td>
       <td data-priority="critical" class="table__cell-actions">
-        ${actions}
+        <div class="table-actions table-actions--inline">
+          ${actions}
+        </div>
       </td>
       <td data-priority="critical" class="table__cell-checkbox">
         ${checkbox}
