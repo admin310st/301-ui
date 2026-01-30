@@ -4,13 +4,14 @@
  */
 
 import type { DomainRedirect } from './mock-data';
+import type { Site } from '@api/types';
 import {
   updateRedirect,
   createRedirect,
   deleteRedirect,
   applyZoneRedirects,
 } from '@api/redirects';
-import { updateSite } from '@api/sites';
+import { getSite, updateSite } from '@api/sites';
 import { safeCall } from '@api/ui-client';
 import {
   getState,
@@ -26,6 +27,7 @@ import { openManageSiteDomainsDrawer } from '@domains/site-domains';
 
 let drawerElement: HTMLElement | null = null;
 let currentRedirect: DomainRedirect | null = null;
+let currentSite: Site | null = null; // Fetched site data for acceptor form
 
 /**
  * Initialize drawer functionality
@@ -87,10 +89,27 @@ export function initDrawer(): void {
 /**
  * Open drawer for editing a redirect
  */
-export function openDrawer(redirect: DomainRedirect): void {
+export async function openDrawer(redirect: DomainRedirect): Promise<void> {
   if (!drawerElement) return;
 
   currentRedirect = redirect;
+  currentSite = null;
+
+  const isAcceptor = redirect.role === 'acceptor';
+
+  // For acceptor domains, fetch full site data from API
+  if (isAcceptor && redirect.site_id) {
+    try {
+      const response = await safeCall(
+        () => getSite(redirect.site_id),
+        { retryOn401: true }
+      );
+      currentSite = response.site;
+    } catch (error: any) {
+      // Continue without site data - form will show redirect data as fallback
+      console.warn('[Drawer] Failed to fetch site data:', error);
+    }
+  }
 
   // Reset sync button to default state
   const syncBtn = drawerElement.querySelector('[data-drawer-sync]') as HTMLButtonElement;
@@ -112,7 +131,7 @@ export function openDrawer(redirect: DomainRedirect): void {
   // Update role icon based on domain role
   const roleIcon = drawerElement.querySelector('[data-redirect-icon] .icon');
   if (roleIcon) {
-    if (redirect.role === 'acceptor') {
+    if (isAcceptor) {
       // Primary domain (acceptor) - receives traffic
       roleIcon.setAttribute('data-icon', 'mono/arrow-right');
       roleIcon.classList.remove('text-muted');
@@ -149,7 +168,6 @@ export function openDrawer(redirect: DomainRedirect): void {
   renderDrawerContent(redirect);
 
   // Toggle footer based on role
-  const isAcceptor = redirect.role === 'acceptor';
   const donorFooter = drawerElement.querySelector('[data-footer-donor]');
   const acceptorFooter = drawerElement.querySelector('[data-footer-acceptor]');
   if (donorFooter) donorFooter.toggleAttribute('hidden', isAcceptor);
@@ -689,7 +707,7 @@ function setupAcceptorFormHandlers(): void {
  * Handle save site (acceptor form submission)
  */
 async function handleSaveSite(): Promise<void> {
-  if (!drawerElement || !currentRedirect) {
+  if (!drawerElement) {
     return;
   }
 
@@ -698,7 +716,9 @@ async function handleSaveSite(): Promise<void> {
     return;
   }
 
-  const siteId = currentRedirect.site_id;
+  // Get site ID from form (set from fetched site data)
+  const siteIdInput = form.querySelector('[name="site_id"]') as HTMLInputElement;
+  const siteId = siteIdInput ? parseInt(siteIdInput.value, 10) : 0;
   if (!siteId) {
     showGlobalNotice('error', 'No site ID found');
     return;
@@ -750,18 +770,27 @@ async function handleSaveSite(): Promise<void> {
 /**
  * Render content for acceptor (target/primary) domain
  * Shows site overview and edit form in card sections
+ * Uses currentSite (fetched from API) for accurate site data
  */
 function renderAcceptorContent(redirect: DomainRedirect): string {
+  // Use fetched site data if available, otherwise fall back to redirect data
+  const site = currentSite;
+
   // Site type labels
   const siteTypeLabels: Record<string, string> = {
     landing: 'Landing',
     tds: 'TDS',
     hybrid: 'Hybrid',
   };
-  const siteTypeLabel = siteTypeLabels[redirect.site_type || 'landing'] || 'Landing';
+  const siteType = site?.site_type || redirect.site_type || 'landing';
+  const siteTypeLabel = siteTypeLabels[siteType] || 'Landing';
 
-  // Current status for dropdown
-  const siteStatus = redirect.site_status || 'active';
+  // Site data from API (preferred) or redirect data (fallback)
+  const siteName = site?.site_name || redirect.site_name || '';
+  const siteTag = site?.site_tag || '';
+  const siteStatus = site?.status || 'active';
+  const siteId = site?.id || redirect.site_id;
+
   const statusLabels: Record<string, string> = {
     active: 'Active',
     paused: 'Paused',
@@ -783,7 +812,7 @@ function renderAcceptorContent(redirect: DomainRedirect): string {
             </div>
             <div class="detail-row">
               <dt class="detail-label">Site</dt>
-              <dd class="detail-value">${redirect.site_name || '—'}</dd>
+              <dd class="detail-value">${siteName || '—'}</dd>
             </div>
             <div class="detail-row">
               <dt class="detail-label">Type</dt>
@@ -800,7 +829,7 @@ function renderAcceptorContent(redirect: DomainRedirect): string {
         </header>
         <div class="card__body">
           <form class="stack-list" data-form="edit-site-inline">
-            <input type="hidden" name="site_id" value="${redirect.site_id}" />
+            <input type="hidden" name="site_id" value="${siteId}" />
 
             <div class="field">
               <label class="field__label">
@@ -811,7 +840,7 @@ function renderAcceptorContent(redirect: DomainRedirect): string {
                 class="input"
                 type="text"
                 name="site_name"
-                value="${redirect.site_name || ''}"
+                value="${siteName}"
                 placeholder="My Landing Page"
                 autocomplete="off"
                 required
@@ -824,7 +853,7 @@ function renderAcceptorContent(redirect: DomainRedirect): string {
                 class="input"
                 type="text"
                 name="site_tag"
-                value="${redirect.site_tag || ''}"
+                value="${siteTag}"
                 placeholder="e.g., promo-2025"
                 autocomplete="off"
               />
