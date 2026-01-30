@@ -27,6 +27,7 @@ interface ProjectOption {
 interface SiteOption {
   id: number;
   name: string;
+  tag: string | null;
   projectId: number;
   projectName: string;
   domainsCount: number;
@@ -78,6 +79,7 @@ async function loadProjectSites(projectId: number): Promise<SiteOption[]> {
     return sites.map((s: Site) => ({
       id: s.id,
       name: s.site_name,
+      tag: s.site_tag,
       projectId: projectId,
       projectName: project?.name || '',
       domainsCount: s.domains_count,
@@ -227,6 +229,7 @@ async function loadSelectedSitesRedirects(): Promise<void> {
     .map(s => ({
       siteId: s.id,
       siteName: s.name,
+      siteTag: s.tag,
       projectId: s.projectId,
       projectName: s.projectName,
     }));

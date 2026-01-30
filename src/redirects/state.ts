@@ -26,6 +26,7 @@ import { getSiteRedirects } from '@api/redirects';
 export interface SiteContext {
   siteId: number;
   siteName: string;
+  siteTag: string | null;
   projectId: number;
   projectName: string;
 }
@@ -36,6 +37,7 @@ export interface SiteContext {
 export interface ExtendedRedirectDomain extends RedirectDomain {
   site_id: number;
   site_name: string;
+  site_tag: string | null;
 }
 
 // =============================================================================
@@ -177,11 +179,12 @@ export async function loadSitesRedirects(
     let totalRedirects = 0;
 
     for (const response of responses) {
-      // Add site_id and site_name to each domain
+      // Add site_id, site_name, site_tag to each domain
       const domainsWithSite = response.domains.map(d => ({
         ...d,
         site_id: response.siteContext.siteId,
         site_name: response.siteContext.siteName,
+        site_tag: response.siteContext.siteTag,
       }));
       allDomains.push(...domainsWithSite);
 

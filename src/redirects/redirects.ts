@@ -70,6 +70,7 @@ export function initRedirectsPage(): void {
         return adaptDomainsToLegacy([domain], {
           site_id: domain.site_id,
           site_name: domain.site_name,
+          site_tag: domain.site_tag,
           project_id: state.projectId ?? undefined,
           project_name: state.projectName ?? undefined,
         })[0];
@@ -734,10 +735,20 @@ function getDomainDisplay(
     ? `<span class="badge badge--xs badge--${redirect.domain_status === 'parked' ? 'neutral' : 'danger'}">${redirect.domain_status}</span>`
     : '';
 
-  // Flag badge for primary domains (sites) - shown after domain name (only if flag exists)
-  const flagBadge = isPrimaryDomain && redirect.site_flag
-    ? `<span class="badge badge--sm badge--neutral">${redirect.site_flag}</span>`
-    : '';
+  // Flag and tag badges for primary domains (sites) - shown after domain name
+  let flagBadge = '';
+  if (isPrimaryDomain) {
+    const parts: string[] = [];
+    if (redirect.site_flag) {
+      parts.push(redirect.site_flag);
+    }
+    if (redirect.site_tag) {
+      parts.push(redirect.site_tag);
+    }
+    if (parts.length > 0) {
+      flagBadge = `<span class="badge badge--sm badge--neutral">${parts.join(' ')}</span>`;
+    }
+  }
 
   // Mass-select checkbox for primary domains (before domain name, where landing icon was)
   let checkboxBefore = '';
