@@ -753,8 +753,8 @@ function getDomainDisplay(
     ? `<span class="badge badge--xs badge--${redirect.domain_status === 'parked' ? 'neutral' : 'danger'}">${redirect.domain_status}</span>`
     : '';
 
-  // Flag badge for primary domains (sites) - shown after domain name
-  const flagBadge = isPrimaryDomain
+  // Flag badge for primary domains (sites) - shown after domain name (only if flag exists)
+  const flagBadge = isPrimaryDomain && redirect.site_flag
     ? `<span class="badge badge--sm badge--neutral">${redirect.site_flag}</span>`
     : '';
 
