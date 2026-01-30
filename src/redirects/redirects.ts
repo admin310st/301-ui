@@ -71,6 +71,7 @@ export function initRedirectsPage(): void {
           site_id: domain.site_id,
           site_name: domain.site_name,
           site_tag: domain.site_tag,
+          site_status: domain.site_status,
           project_id: state.projectId ?? undefined,
           project_name: state.projectName ?? undefined,
         })[0];
@@ -474,10 +475,12 @@ function renderPrimaryDomainRow(
   const statusDisplay = getStatusDisplay(redirect);
   const actions = getSiteHeaderActions(redirect);
 
-  // Row classes: add level-1 for grouped view
-  const rowClass = groupId !== undefined
+  // Row classes: add level-1 for grouped view, paused for paused/archived sites
+  const isPaused = redirect.site_status === 'paused' || redirect.site_status === 'archived';
+  const baseClass = groupId !== undefined
     ? 'table__primary-domain table__row--level-1'
     : 'table__primary-domain';
+  const rowClass = isPaused ? `${baseClass} table__row--paused` : baseClass;
 
   // Group ID attribute for grouped view
   const groupAttr = groupId !== undefined ? `data-group-id="${groupId}"` : '';
@@ -526,6 +529,7 @@ function getSiteTypeBadge(siteType: string): string {
  */
 function renderDomainRow(redirect: DomainRedirect, isLastRow: boolean): string {
   const isSelected = selectedRedirects.has(redirect.id);
+  const isPaused = redirect.site_status === 'paused' || redirect.site_status === 'archived';
   const statusBadge = redirect.domain_status !== 'active'
     ? `<span class="badge badge--xs badge--${redirect.domain_status === 'parked' ? 'neutral' : 'danger'}">${redirect.domain_status}</span>`
     : '';
@@ -551,19 +555,35 @@ function renderDomainRow(redirect: DomainRedirect, isLastRow: boolean): string {
   const statusDisplay = getStatusDisplay(redirect);
   const actions = getRowActions(redirect);
 
-  const checkbox = `
-    <input
-      type="checkbox"
-      class="checkbox"
-      data-redirect-checkbox
-      data-redirect-id="${redirect.id}"
-      ${isSelected ? 'checked' : ''}
-      aria-label="Select ${redirect.domain}"
-    />
-  `;
+  // Paused sites: show disabled checkbox with tooltip
+  const checkbox = isPaused
+    ? `
+      <input
+        type="checkbox"
+        class="checkbox"
+        disabled
+        title="Site is ${redirect.site_status} — excluded from bulk actions"
+        aria-label="${redirect.domain} (${redirect.site_status})"
+      />
+    `
+    : `
+      <input
+        type="checkbox"
+        class="checkbox"
+        data-redirect-checkbox
+        data-redirect-id="${redirect.id}"
+        ${isSelected ? 'checked' : ''}
+        aria-label="Select ${redirect.domain}"
+      />
+    `;
+
+  // Row classes: add muted styling for paused sites
+  const rowClass = isPaused
+    ? 'table__domain-row table__row--child table__row--paused'
+    : 'table__domain-row table__row--child';
 
   return `
-    <tr data-redirect-id="${redirect.id}" data-site-id="${redirect.site_id}" class="table__domain-row table__row--child">
+    <tr data-redirect-id="${redirect.id}" data-site-id="${redirect.site_id}" class="${rowClass}">
       <td data-priority="critical" class="table__cell-domain">
         ${domainDisplay}
       </td>
@@ -590,12 +610,18 @@ function renderDomainRow(redirect: DomainRedirect, isLastRow: boolean): string {
 
 /**
  * Update global select-all checkbox state
+ * Note: Paused/archived sites are excluded from selection count
  */
 function updateGlobalCheckbox(): void {
   const globalCheckbox = document.querySelector('[data-select-all-global]') as HTMLInputElement;
   if (!globalCheckbox) return;
 
-  const selectableDomains = filteredRedirects.filter(r => !primaryDomains.has(r.domain));
+  // Exclude primary domains and paused/archived sites
+  const selectableDomains = filteredRedirects.filter(r =>
+    !primaryDomains.has(r.domain) &&
+    r.site_status !== 'paused' &&
+    r.site_status !== 'archived'
+  );
   const selectedCount = selectableDomains.filter(r => selectedRedirects.has(r.id)).length;
 
   if (selectedCount === 0) {
@@ -750,19 +776,31 @@ function getDomainDisplay(
     }
   }
 
-  // Mass-select checkbox for primary domains (before domain name, where landing icon was)
+  // Mass-select checkbox or pause icon for primary domains
   let checkboxBefore = '';
   if (isPrimaryDomain) {
-    checkboxBefore = `
-      <input
-        type="checkbox"
-        class="checkbox"
-        data-select-site-domains="${redirect.site_id}"
-        ${allDonorsSelected ? 'checked' : ''}
-        ${someDonorsSelected ? 'data-indeterminate="true"' : ''}
-        aria-label="Select all domains of ${redirect.domain}"
-      />
-    `;
+    const isPaused = redirect.site_status === 'paused' || redirect.site_status === 'archived';
+    if (isPaused) {
+      // Show pause icon instead of checkbox for paused/archived sites
+      checkboxBefore = `
+        <span
+          class="icon icon--sm text-warning"
+          data-icon="mono/pause"
+          title="Site is ${redirect.site_status} — excluded from bulk actions"
+        ></span>
+      `;
+    } else {
+      checkboxBefore = `
+        <input
+          type="checkbox"
+          class="checkbox"
+          data-select-site-domains="${redirect.site_id}"
+          ${allDonorsSelected ? 'checked' : ''}
+          ${someDonorsSelected ? 'data-indeterminate="true"' : ''}
+          aria-label="Select all domains of ${redirect.domain}"
+        />
+      `;
+    }
   }
 
   // Donor domains (redirect sources) - show colored unicode arrow AFTER domain
@@ -1664,11 +1702,16 @@ function handleAddRedirects(): void {
 
 /**
  * Handle select all donor domains of a specific site
+ * Note: Paused sites are excluded (checkbox disabled in UI)
  */
 function handleSelectSiteDomains(siteId: number, checked: boolean): void {
   // Get all domains that belong to this site (excluding the primary domain itself)
+  // Also exclude paused/archived sites from selection
   const siteDomains = filteredRedirects.filter(r =>
-    r.site_id === siteId && !primaryDomains.has(r.domain)
+    r.site_id === siteId &&
+    !primaryDomains.has(r.domain) &&
+    r.site_status !== 'paused' &&
+    r.site_status !== 'archived'
   );
 
   if (checked) {
@@ -1689,9 +1732,15 @@ function handleSelectSiteDomains(siteId: number, checked: boolean): void {
 
 /**
  * Handle select all redirects globally (all donor domains, excluding primary)
+ * Note: Paused/archived sites are excluded from selection
  */
 function handleSelectAllGlobal(checked: boolean): void {
-  const selectableDomains = filteredRedirects.filter(r => !primaryDomains.has(r.domain));
+  // Exclude primary domains and paused/archived sites
+  const selectableDomains = filteredRedirects.filter(r =>
+    !primaryDomains.has(r.domain) &&
+    r.site_status !== 'paused' &&
+    r.site_status !== 'archived'
+  );
 
   if (checked) {
     // Select all selectable domains

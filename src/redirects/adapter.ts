@@ -19,6 +19,7 @@ export function adaptDomainToLegacy(
     site_id: number;
     site_name: string;
     site_tag?: string | null;
+    site_status?: 'active' | 'paused' | 'archived';
     site_flag?: string;
     site_type?: SiteType;
     project_id?: number;
@@ -77,6 +78,7 @@ export function adaptDomainToLegacy(
     site_id: siteInfo.site_id,
     site_name: siteInfo.site_name,
     site_tag: siteInfo.site_tag ?? undefined,
+    site_status: siteInfo.site_status ?? 'active',
     site_flag: '', // Not used in real API, kept for type compatibility
     site_type: 'landing', // Default, not returned by API
     project_id: siteInfo.project_id ?? 0,
@@ -100,6 +102,7 @@ export function adaptDomainsToLegacy(
     site_id: number;
     site_name: string;
     site_tag?: string | null;
+    site_status?: 'active' | 'paused' | 'archived';
     site_flag?: string;
     site_type?: SiteType;
     project_id?: number;

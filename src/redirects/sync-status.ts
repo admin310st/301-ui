@@ -1,4 +1,4 @@
-import type { Redirect } from './mock-data';
+import type { DomainRedirect } from './mock-data';
 import { updateNavItemIndicators } from '@ui/sidebar-nav';
 import { applyZoneRedirects } from '@api/redirects';
 import { getState, markZoneSynced, refreshRedirects } from './state';
@@ -16,10 +16,16 @@ export interface SyncStats {
 /**
  * Calculate sync statistics from redirect data
  * Only counts donors (domains with has_redirect: true)
+ * Excludes paused/archived sites from counts
  */
-export function calculateSyncStats(redirects: Redirect[]): SyncStats {
+export function calculateSyncStats(redirects: DomainRedirect[]): SyncStats {
   // Filter to only count donors (domains with configured redirects)
-  const donors = redirects.filter((r) => r.has_redirect);
+  // Exclude paused/archived sites from sync statistics
+  const donors = redirects.filter((r) =>
+    r.has_redirect &&
+    r.site_status !== 'paused' &&
+    r.site_status !== 'archived'
+  );
 
   const stats = {
     synced: 0,
@@ -168,7 +174,7 @@ function triggerSyncAnimation(): void {
  * Initialize sync status indicator and action handlers
  * Note: Dropdown toggle is handled by initDropdowns() in redirects.ts
  */
-export function initSyncStatus(redirects: Redirect[]): void {
+export function initSyncStatus(redirects: DomainRedirect[]): void {
   const dropdown = document.querySelector('[data-sync-chip]');
   const menu = dropdown?.querySelector<HTMLElement>('.dropdown__menu');
 
@@ -212,14 +218,15 @@ export function initSyncStatus(redirects: Redirect[]): void {
 /**
  * Sync all zones to Cloudflare
  * Collects unique zones and applies redirects to each
+ * Note: Paused/archived sites are excluded from sync
  */
 async function handleSyncAll(): Promise<void> {
   const state = getState();
 
-  // Collect unique zone IDs from all domains
+  // Collect unique zone IDs from active domains only (exclude paused/archived sites)
   const zoneIds = new Set<number>();
   for (const domain of state.domains) {
-    if (domain.zone_id) {
+    if (domain.zone_id && domain.site_status !== 'paused' && domain.site_status !== 'archived') {
       zoneIds.add(domain.zone_id);
     }
   }
@@ -255,7 +262,7 @@ async function handleSyncAll(): Promise<void> {
       button.setAttribute('data-status', 'success');
       setTimeout(() => {
         // Recalculate status after showing success
-        const newStats = calculateSyncStats(state.domains as unknown as Redirect[]);
+        const newStats = calculateSyncStats(state.domains as unknown as DomainRedirect[]);
         updateSyncIndicator(newStats);
       }, 2000);
     }

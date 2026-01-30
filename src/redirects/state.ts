@@ -21,12 +21,18 @@ import { getSiteRedirects } from '@api/redirects';
 // =============================================================================
 
 /**
+ * Site status type
+ */
+export type SiteStatus = 'active' | 'paused' | 'archived';
+
+/**
  * Site context info passed from site selector
  */
 export interface SiteContext {
   siteId: number;
   siteName: string;
   siteTag: string | null;
+  siteStatus: SiteStatus;
   projectId: number;
   projectName: string;
 }
@@ -38,6 +44,7 @@ export interface ExtendedRedirectDomain extends RedirectDomain {
   site_id: number;
   site_name: string;
   site_tag: string | null;
+  site_status: SiteStatus;
 }
 
 // =============================================================================
@@ -179,12 +186,13 @@ export async function loadSitesRedirects(
     let totalRedirects = 0;
 
     for (const response of responses) {
-      // Add site_id, site_name, site_tag to each domain
+      // Add site context to each domain
       const domainsWithSite = response.domains.map(d => ({
         ...d,
         site_id: response.siteContext.siteId,
         site_name: response.siteContext.siteName,
         site_tag: response.siteContext.siteTag,
+        site_status: response.siteContext.siteStatus,
       }));
       allDomains.push(...domainsWithSite);
 

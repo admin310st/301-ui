@@ -28,6 +28,7 @@ interface SiteOption {
   id: number;
   name: string;
   tag: string | null;
+  status: 'active' | 'paused' | 'archived';
   projectId: number;
   projectName: string;
   domainsCount: number;
@@ -80,6 +81,7 @@ async function loadProjectSites(projectId: number): Promise<SiteOption[]> {
       id: s.id,
       name: s.site_name,
       tag: s.site_tag,
+      status: s.status,
       projectId: projectId,
       projectName: project?.name || '',
       domainsCount: s.domains_count,
@@ -230,6 +232,7 @@ async function loadSelectedSitesRedirects(): Promise<void> {
       siteId: s.id,
       siteName: s.name,
       siteTag: s.tag,
+      siteStatus: s.status,
       projectId: s.projectId,
       projectName: s.projectName,
     }));

@@ -583,6 +583,15 @@ tr:hover .table-cell-quick-action {
   opacity: 0.5;
 }
 
+/* Paused/Archived Site Row */
+.table__row--paused {
+  opacity: 0.6;
+}
+
+.table__row--paused:hover {
+  opacity: 0.8;
+}
+
 /* Target Domain Row */
 .table__row--target {
   background: color-mix(in srgb, var(--primary) 3%, transparent);
