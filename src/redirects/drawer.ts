@@ -640,7 +640,7 @@ function renderAcceptorContent(redirect: DomainRedirect): string {
 
       <div class="panel panel--info">
         <p>
-          <span class="icon" data-icon="mono/info-circle"></span>
+          <span class="icon" data-icon="mono/landing"></span>
           This is the <strong>primary domain</strong> for the site. Other domains redirect traffic here.
         </p>
       </div>
