@@ -787,11 +787,11 @@ function renderAcceptorContent(redirect: DomainRedirect): string {
   // Use fetched site data if available, otherwise fall back to redirect data
   const site = currentSite;
 
-  // Site type config (label and badge style)
+  // Site type config (label and badge style) - matches table badges
   const siteTypeConfig: Record<string, { label: string; badge: string }> = {
-    landing: { label: 'Landing', badge: 'badge--primary' },
-    tds: { label: 'TDS', badge: 'badge--warning' },
-    hybrid: { label: 'Hybrid', badge: 'badge--neutral' },
+    landing: { label: 'Landing', badge: 'badge--success' },
+    tds: { label: 'TDS', badge: 'badge--brand' },
+    hybrid: { label: 'Hybrid', badge: 'badge--warning' },
   };
   const siteType = site?.site_type || redirect.site_type || 'landing';
   const typeConfig = siteTypeConfig[siteType] || siteTypeConfig.landing;
