@@ -1415,6 +1415,12 @@ function setupBulkActions(): void {
       showGlobalNotice('error', error.message || 'Failed to delete redirects');
     }
   });
+
+  // Handle single delete confirmation
+  const confirmDeleteBtn = document.querySelector('[data-confirm-delete]');
+  confirmDeleteBtn?.addEventListener('click', () => {
+    confirmDeleteRedirect();
+  });
 }
 
 /**
@@ -1589,15 +1595,40 @@ async function handleSyncNow(redirectId: number): Promise<void> {
   }
 }
 
+// Pending delete redirect for confirmation dialog
+let pendingDeleteRedirect: DomainRedirect | null = null;
+
 /**
- * Handle delete redirect
+ * Handle delete redirect - shows confirmation dialog
  */
-async function handleDelete(redirectId: number): Promise<void> {
+function handleDelete(redirectId: number): void {
   const redirect = currentRedirects.find(r => r.id === redirectId);
   if (!redirect) return;
 
-  const confirmed = confirm(`Delete redirect for "${redirect.domain}"?\n\nThis action cannot be undone.`);
-  if (!confirmed) return;
+  // Store redirect for confirmation
+  pendingDeleteRedirect = redirect;
+
+  // Update dialog with domain name
+  const domainEl = document.querySelector('[data-delete-domain]');
+  if (domainEl) {
+    domainEl.textContent = redirect.domain;
+  }
+
+  // Show confirmation dialog
+  showDialog('delete-redirect');
+}
+
+/**
+ * Confirm and execute delete redirect
+ */
+async function confirmDeleteRedirect(): Promise<void> {
+  if (!pendingDeleteRedirect) return;
+
+  const redirect = pendingDeleteRedirect;
+  pendingDeleteRedirect = null;
+
+  // Hide dialog immediately
+  hideDialog('delete-redirect');
 
   try {
     // Optimistic update - remove from state
@@ -1605,7 +1636,7 @@ async function handleDelete(redirectId: number): Promise<void> {
     renderTable();
 
     // API call
-    await deleteRedirect(redirectId);
+    await deleteRedirect(redirect.id);
     showGlobalNotice('success', `Deleted redirect for ${redirect.domain}`);
   } catch (error: any) {
     // On error, refresh to restore state
