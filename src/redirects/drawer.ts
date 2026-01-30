@@ -24,9 +24,6 @@ import {
 import { showGlobalNotice } from '@ui/globalNotice';
 import { openManageSiteDomainsDrawer } from '@domains/site-domains';
 
-// Feature flag (should match redirects.ts)
-const USE_REAL_API = true;
-
 let drawerElement: HTMLElement | null = null;
 let currentRedirect: DomainRedirect | null = null;
 
@@ -75,10 +72,8 @@ export function initDrawer(): void {
 
   // Save site button in acceptor footer
   const saveSiteBtn = drawerElement.querySelector('[data-drawer-save-site]');
-  console.log('[Drawer] Save site button found:', saveSiteBtn);
   if (saveSiteBtn) {
     saveSiteBtn.addEventListener('click', handleSaveSite);
-    console.log('[Drawer] Save site button listener attached');
   }
 
   // Close on Escape key
@@ -362,7 +357,7 @@ function setupDropdownHandlers(): void {
       trigger.setAttribute('aria-expanded', 'false');
 
       // Auto-save if redirect exists
-      if (currentRedirect?.has_redirect && currentRedirect.id && USE_REAL_API) {
+      if (currentRedirect?.has_redirect && currentRedirect.id) {
         await autoSaveField('status_code', parseInt(value || '301') as 301 | 302);
       }
     });
@@ -431,7 +426,7 @@ function setupToggleHandlers(): void {
     updateSyncButtonState(currentRedirect || undefined);
 
     // Auto-save if redirect exists
-    if (currentRedirect?.has_redirect && currentRedirect.id && USE_REAL_API) {
+    if (currentRedirect?.has_redirect && currentRedirect.id) {
       await autoSaveField('enabled', newEnabled);
     }
   });
@@ -475,7 +470,7 @@ function setupTargetUrlHandlers(): void {
  * Handle target URL save (create or update redirect)
  */
 async function handleTargetUrlSave(targetUrl: string): Promise<void> {
-  if (!currentRedirect || !USE_REAL_API) return;
+  if (!currentRedirect) return;
 
   // Get current dropdown values
   const redirectCodeTrigger = drawerElement?.querySelector('[data-drawer-dropdown="redirect_code"]');
@@ -694,21 +689,21 @@ function setupAcceptorFormHandlers(): void {
  * Handle save site (acceptor form submission)
  */
 async function handleSaveSite(): Promise<void> {
-  console.log('[Drawer] handleSaveSite called', { drawerElement, currentRedirect });
-
   if (!drawerElement || !currentRedirect) {
-    console.warn('[Drawer] Missing drawerElement or currentRedirect');
     return;
   }
 
   const form = drawerElement.querySelector('[data-form="edit-site-inline"]') as HTMLFormElement;
-  console.log('[Drawer] Form found:', form);
   if (!form) {
-    console.warn('[Drawer] Form not found');
     return;
   }
 
   const siteId = currentRedirect.site_id;
+  if (!siteId) {
+    showGlobalNotice('error', 'No site ID found');
+    return;
+  }
+
   const siteName = (form.querySelector('[name="site_name"]') as HTMLInputElement)?.value?.trim();
   const siteTag = (form.querySelector('[name="site_tag"]') as HTMLInputElement)?.value?.trim();
   const status = (form.querySelector('[data-status-value]') as HTMLInputElement)?.value || 'active';
@@ -731,7 +726,10 @@ async function handleSaveSite(): Promise<void> {
         site_tag: siteTag || undefined,
         status: status as 'active' | 'paused' | 'archived',
       }),
-      { retryOn401: true }
+      {
+        lockKey: `update-site-${siteId}`,
+        retryOn401: true,
+      }
     );
 
     showGlobalNotice('success', 'Site updated');
@@ -1131,17 +1129,6 @@ async function handleSync(redirect: DomainRedirect): Promise<void> {
     return;
   }
 
-  console.log('Syncing redirect:', {
-    id: redirect.id,
-    domain: redirect.domain,
-    has_redirect: redirect.has_redirect,
-    target_url: targetUrl
-  });
-
-  if (!USE_REAL_API) {
-    return;
-  }
-
   // Get zone_id from state
   const state = getState();
   const domain = state.domains.find(d => d.domain_id === redirect.domain_id);
@@ -1162,13 +1149,11 @@ async function handleSync(redirect: DomainRedirect): Promise<void> {
   try {
     // Step 1: Create redirect if doesn't exist
     if (!redirect.has_redirect) {
-      console.log('[handleSync] Creating redirect for domain:', redirect.domain_id);
       const response = await createRedirect(redirect.domain_id, {
         template_id: 'T1',
         params: { target_url: targetUrl },
         status_code: redirectCode,
       });
-      console.log('[handleSync] Redirect created:', response);
 
       // Update current redirect with new data
       redirect.id = response.redirect.id;
@@ -1195,9 +1180,7 @@ async function handleSync(redirect: DomainRedirect): Promise<void> {
     }
 
     // Step 2: Sync to Cloudflare
-    console.log('[handleSync] Applying redirects to zone:', domain.zone_id);
     const response = await applyZoneRedirects(domain.zone_id);
-    console.log('[handleSync] Zone sync response:', response);
 
     // Update state with synced redirects
     const syncedIds = response.synced_rules?.map(r => r.id) || [];
@@ -1242,11 +1225,6 @@ async function handleSync(redirect: DomainRedirect): Promise<void> {
  */
 async function handleDelete(redirect: DomainRedirect): Promise<void> {
   if (!drawerElement || !redirect.id) return;
-
-  if (!USE_REAL_API) {
-    showGlobalNotice('info', 'Delete not available in mock mode');
-    return;
-  }
 
   // Get zone_id from state
   const state = getState();

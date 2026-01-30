@@ -38,9 +38,6 @@ import {
 } from '@api/redirects';
 import { showGlobalNotice } from '@ui/globalNotice';
 
-// Feature flag for API integration (should match drawer.ts)
-const USE_REAL_API = true;
-
 let currentRedirects: DomainRedirect[] = [];
 let filteredRedirects: DomainRedirect[] = [];
 let collapsedGroups = new Set<number>();  // Set of collapsed site_ids
@@ -55,28 +52,15 @@ export function initRedirectsPage(): void {
   const card = document.querySelector('[data-redirects-card]');
   if (!card) return;
 
-  console.log('[Redirects] Initializing page...');
-
   // Subscribe to state changes
   onStateChange((state) => {
-    console.log('[Redirects] onStateChange called:', {
-      loading: state.loading,
-      error: state.error,
-      domainsCount: state.domains.length,
-      selectedSiteIds: state.selectedSiteIds,
-    });
-
     if (state.loading) {
-      console.log('[Redirects] -> showLoadingState');
       showLoadingState();
     } else if (state.error) {
-      console.log('[Redirects] -> showErrorState');
       showErrorState(state.error);
     } else if (state.domains.length === 0 && state.selectedSiteIds.length > 0) {
-      console.log('[Redirects] -> showEmptyState (no domains)');
       showEmptyState();
     } else if (state.domains.length > 0) {
-      console.log('[Redirects] -> rendering table');
       // Convert API data to legacy format using adapter
       // Domains are already sorted and have site_id, site_name
       const sortedDomains = getSortedDomains();
@@ -97,9 +81,7 @@ export function initRedirectsPage(): void {
       hideLoadingState();
       renderTable();
       initSyncStatus(currentRedirects);
-      console.log('[Redirects] -> table rendered, redirects count:', currentRedirects.length);
     } else if (state.selectedSiteIds.length === 0) {
-      console.log('[Redirects] -> showEmptyState (no sites selected)');
       // No sites selected
       showEmptyState();
     }
@@ -107,7 +89,6 @@ export function initRedirectsPage(): void {
 
   // Initialize project & site selectors (triggers data load on selection)
   initSiteSelector((sites: SiteContext[]) => {
-    console.log('[Redirects] Sites changed:', sites.map(s => s.siteId));
     // Clear selection on site change
     selectedRedirects.clear();
     collapsedGroups.clear();
@@ -1263,9 +1244,6 @@ function setupActions(): void {
     const action = button.dataset.action;
     const redirectId = button.dataset.redirectId ? Number(button.dataset.redirectId) : null;
     const groupId = button.dataset.groupId ? Number(button.dataset.groupId) : null;
-
-    console.log('[Redirects] Action:', action, 'Redirect ID:', redirectId, 'Group ID:', groupId);
-
     const siteId = button.dataset.siteId ? Number(button.dataset.siteId) : null;
 
     switch (action) {
@@ -1394,15 +1372,6 @@ function setupBulkActions(): void {
       return;
     }
 
-    console.log('[Redirects] Confirmed bulk delete:', count, 'redirects');
-
-    if (!USE_REAL_API) {
-      hideDialog('bulk-delete-redirects');
-      handleClearSelection();
-      alert(`Successfully deleted ${count} redirect(s)\n\n(API integration coming soon)`);
-      return;
-    }
-
     // Collect redirect and domain IDs
     const toDelete: { redirectId: number; domainId: number }[] = [];
     for (const redirectId of selectedRedirects) {
@@ -1487,12 +1456,6 @@ async function handleApplyTemplate(siteId: number, template: 't3' | 't4'): Promi
   if (!site) return;
 
   const templateName = template === 't3' ? 'apex → www' : 'www → apex';
-  console.log(`[Redirects] Applying ${templateName} template to site:`, site.site_name);
-
-  if (!USE_REAL_API) {
-    alert(`🔀 Apply "${templateName}" to "${site.site_name}"\n\n(API integration coming soon)`);
-    return;
-  }
 
   // TODO: Implement API call to apply template
   // This will set up redirects for all domains in the site based on the template:
@@ -1519,13 +1482,6 @@ async function handleClearSiteRedirects(siteId: number): Promise<void> {
   const confirmed = confirm(`Clear ${donorDomains.length} redirect(s) from "${site.site_name}"?\n\nThis will remove redirect configurations but keep the domains.`);
   if (!confirmed) return;
 
-  console.log('[Redirects] Clearing redirects for site:', site.site_name, 'Domains:', donorDomains.length);
-
-  if (!USE_REAL_API) {
-    alert(`🗑️ Clear ${donorDomains.length} redirects from "${site.site_name}"\n\n(API integration coming soon)`);
-    return;
-  }
-
   // TODO: Implement API call to delete all redirects for the site
   // This would call deleteRedirect for each domain_id
   showGlobalNotice('info', `Clearing ${donorDomains.length} redirects from ${site.site_name}...`);
@@ -1537,13 +1493,6 @@ async function handleClearSiteRedirects(siteId: number): Promise<void> {
 async function handleEnable(redirectId: number): Promise<void> {
   const redirect = currentRedirects.find(r => r.id === redirectId);
   if (!redirect) return;
-
-  console.log('[Redirects] Enable redirect:', redirect.domain);
-
-  if (!USE_REAL_API) {
-    alert(`▶️ Enable "${redirect.domain}"\n\n(API integration coming soon)`);
-    return;
-  }
 
   try {
     // Optimistic update
@@ -1567,13 +1516,6 @@ async function handleEnable(redirectId: number): Promise<void> {
 async function handleDisable(redirectId: number): Promise<void> {
   const redirect = currentRedirects.find(r => r.id === redirectId);
   if (!redirect) return;
-
-  console.log('[Redirects] Disable redirect:', redirect.domain);
-
-  if (!USE_REAL_API) {
-    alert(`⏸️ Disable "${redirect.domain}"\n\n(API integration coming soon)`);
-    return;
-  }
 
   try {
     // Optimistic update
@@ -1605,13 +1547,6 @@ async function handleRetrySync(redirectId: number): Promise<void> {
 async function handleSyncNow(redirectId: number): Promise<void> {
   const redirect = currentRedirects.find(r => r.id === redirectId);
   if (!redirect) return;
-
-  console.log('[Redirects] Sync now:', redirect.domain);
-
-  if (!USE_REAL_API) {
-    alert(`☁️ Sync to Cloudflare for "${redirect.domain}"\n\n(API integration coming soon)`);
-    return;
-  }
 
   // Get zone_id from state
   const state = getState();
@@ -1652,13 +1587,6 @@ async function handleDelete(redirectId: number): Promise<void> {
 
   const confirmed = confirm(`Delete redirect for "${redirect.domain}"?\n\nThis action cannot be undone.`);
   if (!confirmed) return;
-
-  console.log('[Redirects] Delete redirect:', redirect.domain);
-
-  if (!USE_REAL_API) {
-    alert(`🗑️ Delete "${redirect.domain}"\n\n(API integration coming soon)`);
-    return;
-  }
 
   try {
     // Optimistic update - remove from state
@@ -1765,13 +1693,6 @@ async function handleBulkSync(): Promise<void> {
   const count = selectedRedirects.size;
   if (count === 0) return;
 
-  console.log('[Redirects] Bulk sync:', count, 'redirects');
-
-  if (!USE_REAL_API) {
-    alert(`☁️ Sync ${count} redirect(s) to Cloudflare\n\n(API integration coming soon)`);
-    return;
-  }
-
   // Collect zones from ALL selected redirects
   // - Enabled redirects will be applied to CF
   // - Disabled redirects will be removed from CF (not in ruleset)
@@ -1842,13 +1763,6 @@ async function handleBulkEnable(): Promise<void> {
   const count = selectedRedirects.size;
   if (count === 0) return;
 
-  console.log('[Redirects] Bulk enable:', count, 'redirects');
-
-  if (!USE_REAL_API) {
-    alert(`▶️ Enable ${count} redirect(s)\n\n(API integration coming soon)`);
-    return;
-  }
-
   // Collect domain IDs for optimistic update
   const domainIds: number[] = [];
   const redirectIds: number[] = [];
@@ -1891,13 +1805,6 @@ async function handleBulkEnable(): Promise<void> {
 async function handleBulkDisable(): Promise<void> {
   const count = selectedRedirects.size;
   if (count === 0) return;
-
-  console.log('[Redirects] Bulk disable:', count, 'redirects');
-
-  if (!USE_REAL_API) {
-    alert(`⏸️ Disable ${count} redirect(s)\n\n(API integration coming soon)`);
-    return;
-  }
 
   // Collect domain IDs for optimistic update
   const domainIds: number[] = [];

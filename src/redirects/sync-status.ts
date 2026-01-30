@@ -85,7 +85,6 @@ export function updateSyncIndicator(stats: SyncStats): void {
   // Update fill ratio
   const fillValue = stats.ratio.toFixed(2);
   fill.style.setProperty('--metric-fill', fillValue);
-  console.log('[Sync] Fill updated to', fillValue);
 
   // Update status attribute for color
   // success = green (100% synced), pending = orange, error = red
@@ -98,7 +97,6 @@ export function updateSyncIndicator(stats: SyncStats): void {
     status = 'success'; // All donors synced → green
   }
   button.setAttribute('data-status', status);
-  console.log('[Sync] Status set to', status);
 
   // Update tooltip
   const parts: string[] = [];
@@ -109,7 +107,6 @@ export function updateSyncIndicator(stats: SyncStats): void {
 
   const tooltip = parts.join(' • ') || 'No redirects configured';
   button.title = tooltip;
-  console.log('[Sync] Tooltip:', tooltip);
 
   // Also update sidebar indicator
   updateSidebarSyncIndicator(stats);
@@ -179,7 +176,6 @@ export function initSyncStatus(redirects: Redirect[]): void {
 
   // Calculate and update initial stats
   const stats = calculateSyncStats(redirects);
-  console.log('[Sync] Stats calculated:', stats);
   updateSyncIndicator(stats);
 
   // Action handlers (dropdown toggle is handled by standard initDropdowns())
