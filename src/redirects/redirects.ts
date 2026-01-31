@@ -1732,8 +1732,8 @@ async function handleClearPrimaryRedirect(redirectId: number, domainId: number):
   if (!redirect) return;
 
   try {
-    // Optimistic update - remove from state
-    removeRedirectFromDomain(domainId);
+    // Optimistic update - remove redirect but keep acceptor role
+    removeRedirectFromDomain(domainId, true);
     renderTable();
 
     // API call

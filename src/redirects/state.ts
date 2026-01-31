@@ -290,15 +290,17 @@ export function updateDomainRedirect(
  * Used after DELETE /redirects/:id
  * Domain stays in list with redirect: null, role: 'reserve'
  */
-export function removeRedirectFromDomain(domainId: number): void {
+export function removeRedirectFromDomain(domainId: number, keepRole: boolean = false): void {
   const domain = findDomain(domainId);
   if (!domain?.redirect) return;
 
   const zoneId = domain.zone_id;
 
-  // Clear redirect, set role to reserve
+  // Clear redirect, optionally keep role (for acceptor domains)
   domain.redirect = null;
-  domain.domain_role = 'reserve';
+  if (!keepRole) {
+    domain.domain_role = 'reserve';
+  }
 
   // Update zone limit (decrement used)
   if (zoneId) {
