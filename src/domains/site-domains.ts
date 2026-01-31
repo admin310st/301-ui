@@ -728,16 +728,12 @@ export function initSiteDomains(): void {
       }
     }
 
-    // Open add-domain-to-project drawer from empty state CTA
+    // Navigate to domains page from empty state CTA
     const openAddDomainsBtn = target.closest('[data-action="open-add-domains"]');
     if (openAddDomainsBtn) {
       e.preventDefault();
-      if (!currentProjectId) return;
-      // Close manage-site-domains drawer
-      closeManageSiteDomainsDrawer();
-      // Open add-domain-to-project drawer
-      const { openAddDomainDrawer } = await import('@domains/project-add-domain');
-      await openAddDomainDrawer(currentProjectId);
+      // Redirect to domains page instead of opening another drawer
+      window.location.href = '/domains.html';
     }
 
     // Primary domain dropdown option selection
