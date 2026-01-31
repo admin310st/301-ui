@@ -388,6 +388,14 @@ async function handleAttachDomain(): Promise<void> {
 
     showGlobalMessage('success', t('sites.messages.domainAttached'));
 
+    // Refresh redirects table if on redirects page
+    try {
+      const { refreshRedirects } = await import('@redirects/state');
+      await refreshRedirects();
+    } catch {
+      // Not on redirects page or module not loaded - ignore
+    }
+
     setTimeout(() => {
       if (statusPanel) statusPanel.setAttribute('hidden', '');
     }, 3000);
@@ -451,6 +459,14 @@ async function handleDetachDomain(domainId: number, domainName: string): Promise
     if (siteToUpdate && currentProjectId === getCurrentProjectId()) {
       siteToUpdate.domains_count = Math.max(0, (siteToUpdate.domains_count || 0) - 1);
       setSites(sites);
+    }
+
+    // Refresh redirects table if on redirects page
+    try {
+      const { refreshRedirects } = await import('@redirects/state');
+      await refreshRedirects();
+    } catch {
+      // Not on redirects page or module not loaded - ignore
     }
   } catch (error: any) {
     logError('Failed to detach domain:', error);
@@ -634,6 +650,15 @@ async function handleSavePrimaryDomain(): Promise<void> {
     if (accountId) {
       await loadAttachedDomains(accountId, currentSiteId);
     }
+
+    // Refresh redirects table if on redirects page
+    try {
+      const { refreshRedirects } = await import('@redirects/state');
+      await refreshRedirects();
+    } catch {
+      // Not on redirects page or module not loaded - ignore
+    }
+
     setTimeout(() => {
       if (statusEl) statusEl.hidden = true;
     }, 3000);
