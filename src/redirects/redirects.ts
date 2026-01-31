@@ -955,8 +955,12 @@ function escapeHtml(unsafe: string): string {
  * - Disabled (enabled=false) - redirect disabled by user
  */
 function getStatusDisplay(redirect: DomainRedirect): string {
-  // Acceptor domain (target site) - show "Target" badge
+  // Acceptor domain (target site)
   if (redirect.role === 'acceptor') {
+    // Check if acceptor has redirect configured (problematic state)
+    if (redirect.has_redirect && redirect.target_url) {
+      return '<span class="badge badge--danger" title="Primary domain has redirect configured! Use &quot;Clear primary redirect&quot; to fix.">Alert</span>';
+    }
     return '<span class="badge badge--neutral" title="Redirect target (main site domain)">Target</span>';
   }
 
