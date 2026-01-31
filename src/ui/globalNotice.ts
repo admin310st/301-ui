@@ -1,18 +1,20 @@
 import { t } from '@i18n';
 import { isLoading, setPendingNoticeFlash } from './loading-indicator';
 
-export type NoticeType = 'success' | 'error' | 'info';
+export type NoticeType = 'success' | 'error' | 'info' | 'cf';
 
 const ICON_BY_TYPE: Record<NoticeType, string> = {
   success: '#i-mono-success',
   error: '#i-mono-alert',
   info: '#i-mono-info',
+  cf: '#i-mono-success',
 };
 
 const TYPE_CLASSNAME: Record<NoticeType, string> = {
   success: 'app-alert--success',
   error: 'app-alert--error',
   info: 'app-alert--info',
+  cf: 'app-alert--cf',
 };
 
 let hideTimer: number | null = null;

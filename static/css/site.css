@@ -657,6 +657,10 @@ h5 .icon[data-icon*="close"] {
   color: var(--brand);
 }
 
+.app-alert--cf .app-alert__icon {
+  color: var(--accent-cf);
+}
+
 @media (max-width: 768px) {
   .app-alert__inner {
     padding-inline: var(--page-gutter-mobile);

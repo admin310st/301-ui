@@ -141,11 +141,11 @@ export function initAddDomainsDrawer(): void {
       // Invalidate domains cache so table refreshes
       invalidateCacheByPrefix('domains');
 
-      // Show success message with counts
+      // Show success message with counts (CF orange for Cloudflare actions)
       if (result.zones_synced > 0 || result.domains_synced > 0) {
-        showGlobalMessage('success', `Synced! +${result.zones_synced} zones, +${result.domains_synced} domains`);
+        showGlobalMessage('cf', `Synced! +${result.zones_synced} zones, +${result.domains_synced} domains`);
       } else {
-        showGlobalMessage('info', 'No new zones found in this Cloudflare account');
+        showGlobalMessage('cf', 'No new zones found in this Cloudflare account');
       }
     } catch (error: unknown) {
       const normalized = error as NormalizedError;
