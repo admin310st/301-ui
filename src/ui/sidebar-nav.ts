@@ -350,7 +350,43 @@ export function updateDashboardOnboardingIndicator(currentStep: number | null): 
 }
 
 /**
- * Update sidebar count badges (integrations, projects, sites)
+ * Calculate health status from APIDomain array
+ * Returns: 'danger' | 'warning' | 'success' | null
+ */
+function calculateDomainsHealthStatus(domains: any[]): 'danger' | 'warning' | 'success' | null {
+  if (domains.length === 0) return null;
+
+  let hasDanger = false;
+  let hasWarning = false;
+
+  for (const domain of domains) {
+    // Danger: blocked, SSL error, health blocked
+    if (
+      domain.blocked === 1 ||
+      domain.ssl_status === 'error' ||
+      domain.health?.status === 'blocked'
+    ) {
+      hasDanger = true;
+      break;
+    }
+
+    // Warning: SSL pending, NS not verified, health warning
+    if (
+      domain.ssl_status === 'pending' ||
+      domain.ns_verified === 0 ||
+      domain.health?.status === 'warning'
+    ) {
+      hasWarning = true;
+    }
+  }
+
+  if (hasDanger) return 'danger';
+  if (hasWarning) return 'warning';
+  return 'success';
+}
+
+/**
+ * Update sidebar count badges (integrations, projects, sites, domains)
  */
 export async function updateSidebarCounts(): Promise<void> {
   try {
@@ -360,16 +396,18 @@ export async function updateSidebarCounts(): Promise<void> {
     if (!accountId) return;
 
     // Fetch counts in parallel with lockKeys to prevent duplicate requests
-    const [integrationsModule, projectsModule, sitesModule] = await Promise.all([
+    const [integrationsModule, projectsModule, sitesModule, domainsModule] = await Promise.all([
       import('@api/integrations'),
       import('@api/projects'),
       import('@api/sites'),
+      import('@api/domains'),
     ]);
 
-    const [keys, projects, sites] = await Promise.all([
+    const [keys, projects, sites, domainsResponse] = await Promise.all([
       safeCall(() => integrationsModule.getIntegrationKeys(accountId), { lockKey: 'integrations', retryOn401: true }),
       safeCall(() => projectsModule.getProjects(accountId), { lockKey: 'projects', retryOn401: true }),
       safeCall(() => sitesModule.getSites(accountId), { lockKey: 'sites', retryOn401: true }),
+      safeCall(() => domainsModule.getDomains(), { lockKey: 'domains', retryOn401: true }),
     ]);
 
     // Update integrations badge
@@ -394,6 +432,16 @@ export async function updateSidebarCounts(): Promise<void> {
         badge: sites.length,
         badgeClass: 'badge badge--sm',
       });
+    }
+
+    // Update domains badge and health indicator
+    const allDomains = domainsResponse.groups.flatMap((group: any) => group.domains);
+    if (allDomains.length > 0) {
+      updateDomainsBadge(allDomains.length);
+
+      // Calculate health status
+      const healthStatus = calculateDomainsHealthStatus(allDomains);
+      updateDomainsHealthIndicator(healthStatus);
     }
 
     // Update redirects indicator (fetch redirect stats for all sites)
