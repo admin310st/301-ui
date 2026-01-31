@@ -221,7 +221,7 @@ export function renderIntegrationsTable(integrations: ProjectIntegration[]): voi
         <td colspan="6">
           <div class="panel panel--info stack stack--sm">
             <p class="stack-inline stack-inline--sm">
-              <span class="icon" data-icon="mono/info"></span>
+              <span class="icon" data-icon="mono/lightbulb-alert"></span>
               <strong>${t('projects.integrations.experimentalTitle')}</strong>
             </p>
             <p>${t('projects.integrations.experimentalDescription')}</p>
