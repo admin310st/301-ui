@@ -476,11 +476,7 @@ function renderPrimaryDomainRow(
   if (acceptorHasRedirect) {
     // Show where the acceptor redirects to (problematic state)
     const targetHost = redirect.target_url!.replace('https://', '').replace('http://', '').split('/')[0];
-    targetDisplay = `
-      <div class="table-cell-inline">
-        <span class="badge badge--sm badge--danger" title="Primary domain redirects to ${redirect.target_url}">→ ${targetHost}</span>
-      </div>
-    `;
+    targetDisplay = `<span class="text-danger" title="Primary domain redirects to ${redirect.target_url}">${targetHost}</span>`;
   } else {
     targetDisplay = getSiteTypeBadge(redirect.site_type);
   }
