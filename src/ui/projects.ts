@@ -219,13 +219,16 @@ export function renderIntegrationsTable(integrations: ProjectIntegration[]): voi
     tbody.innerHTML = `
       <tr>
         <td colspan="6">
-          <div class="panel panel--info">
+          <div class="panel panel--info stack stack--sm">
             <p>
               <span class="icon" data-icon="mono/info"></span>
-              <strong>Experimental mode:</strong> All integrations (including Cloudflare accounts)
-              are shared across projects. This screen is for your reference only.
+              <strong>Experimental mode</strong>
             </p>
-            <p class="text-sm text-muted" style="margin-top: var(--space-2);">
+            <p>
+              All integrations (including Cloudflare accounts) are shared across projects.
+              This screen is for your reference only.
+            </p>
+            <p class="text-sm text-muted">
               You can attach integrations here for organizational purposes, but it won't affect
               how interfaces display data. Use <strong>Projects</strong> as the main folder for domains,
               and optionally create <strong>Sites</strong> (traffic streams) for easier redirect management.
