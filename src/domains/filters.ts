@@ -87,19 +87,24 @@ export function matchesFilters(domain: Domain, filters: ActiveFilters): boolean 
   }
 
   // Health filter (multi-select)
+  // Supports both mock format (clean/warning/blocked) and API format (healthy/warning/blocked/unknown)
   if (filters.health && filters.health.length > 0) {
     const hasMatch = filters.health.some((healthType) => {
       if (healthType === 'ok') {
-        // All healthy: valid SSL, clean abuse status, no errors
-        return (
-          domain.ssl_status === 'valid' &&
-          domain.abuse_status === 'clean' &&
-          !domain.has_errors
-        );
+        // All healthy: valid SSL, clean/healthy abuse status, no errors
+        const isHealthy = domain.abuse_status === 'clean' || domain.abuse_status === 'healthy';
+        return domain.ssl_status === 'valid' && isHealthy && !domain.has_errors;
       }
       if (healthType === 'ssl_bad') {
-        // SSL issues: invalid, expiring, or off
-        return domain.ssl_status === 'invalid' || domain.ssl_status === 'expiring' || domain.ssl_status === 'off';
+        // SSL issues: invalid/error, expiring/pending, or off/none
+        return (
+          domain.ssl_status === 'invalid' ||
+          domain.ssl_status === 'error' ||
+          domain.ssl_status === 'expiring' ||
+          domain.ssl_status === 'pending' ||
+          domain.ssl_status === 'off' ||
+          domain.ssl_status === 'none'
+        );
       }
       if (healthType === 'dns_bad') {
         // DNS/general errors

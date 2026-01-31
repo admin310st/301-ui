@@ -1,4 +1,4 @@
-import { mockDomains, type Domain } from './mock-data';
+import { type Domain } from './mock-data';
 import { initAddDomainsDrawer } from './add-domains-drawer';
 import { formatDomainDisplay } from '@utils/idn';
 import { showDialog } from '@ui/dialog';
@@ -6,9 +6,14 @@ import { getDefaultFilters, hasActiveFilters, type ActiveFilters } from './filte
 import { filterDomains as applyFiltersAndSearch } from './filters';
 import { renderFilterBar, initFilterUI } from './filters-ui';
 import { updateDomainsBadge, updateDomainsHealthIndicator } from '@ui/sidebar-nav';
-import { initBulkActions } from './bulk-actions';
+import { initBulkActions, setReloadDomainsCallback } from './bulk-actions';
 import { adjustDropdownPosition } from '@ui/dropdown';
 import { queryNSRecords } from '@utils/dns';
+import { getDomains, updateDomainRole, blockDomain, unblockDomain, deleteDomain } from '@api/domains';
+import { safeCall } from '@api/ui-client';
+import { adaptDomainsResponseToUI } from './adapter';
+import { showGlobalMessage } from '@ui/notifications';
+import { hideDialog } from '@ui/dialog';
 
 let currentDomains: Domain[] = [];
 let selectedDomains = new Set<number>();
@@ -27,13 +32,17 @@ export function initDomainsPage(): void {
   // Initialize Bulk Actions Bar
   initBulkActions();
 
+  // Register reload callback for bulk actions
+  setReloadDomainsCallback(async () => {
+    showLoadingState();
+    await loadDomainsFromAPI();
+  });
+
   // Show loading state immediately
   showLoadingState();
 
-  // Load mock data after short delay (simulate API)
-  setTimeout(() => {
-    loadDomains(mockDomains);
-  }, 500);
+  // Load domains from API
+  loadDomainsFromAPI();
 
   // Add domains button
   document.querySelectorAll('[data-action="add-domains"]').forEach((btn) => {
@@ -45,7 +54,7 @@ export function initDomainsPage(): void {
   if (retryBtn) {
     retryBtn.addEventListener('click', () => {
       showLoadingState();
-      setTimeout(() => loadDomains(mockDomains), 500);
+      loadDomainsFromAPI();
     });
   }
 
@@ -168,24 +177,14 @@ export function initDomainsPage(): void {
     if (!domain) return;
 
     switch (action) {
-      case 'recheck-health':
-        alert(`Re-checking health for ${domain.domain_name}...\n(API integration coming soon)`);
+      case 'block-domain':
+        handleBlockDomain(domain);
         break;
-      case 'recheck-abuse':
-        alert(`Re-checking abuse status for ${domain.domain_name}...\n(API integration coming soon)`);
+      case 'unblock-domain':
+        handleUnblockDomain(domain);
         break;
-      case 'sync-registrar':
-        alert(`Syncing expiration data with registrar for ${domain.domain_name}...\n(API integration coming soon)`);
-        break;
-      case 'toggle-monitoring':
-        alert(`${domain.monitoring_enabled ? 'Disabling' : 'Enabling'} monitoring for ${domain.domain_name}\n(API integration coming soon)`);
-        break;
-      case 'apply-security-preset':
-        alert(`Apply security preset for ${domain.domain_name}\n(Will open drawer→Security tab or apply default preset)`);
-        break;
-      case 'view-analytics':
-        alert(`Redirecting to /analytics?domain=${domain.domain_name}\n(Analytics page coming soon)`);
-        // Future: window.location.href = `/analytics?domain=${encodeURIComponent(domain.domain_name)}`;
+      case 'change-role':
+        handleChangeRole(domain, actionBtn.getAttribute('data-role') as Domain['role']);
         break;
       case 'delete-domain':
         // Update dialog with domain name
@@ -209,18 +208,30 @@ export function initDomainsPage(): void {
   // Delete domain confirmation handler
   const confirmDeleteBtn = document.querySelector('[data-confirm-delete]');
   if (confirmDeleteBtn) {
-    confirmDeleteBtn.addEventListener('click', () => {
+    confirmDeleteBtn.addEventListener('click', async () => {
       const deleteDialog = document.querySelector('[data-dialog="delete-domain"]');
       const domainId = deleteDialog?.getAttribute('data-domain-id');
 
       if (domainId) {
         const domain = currentDomains.find((d) => d.id === parseInt(domainId));
         if (domain) {
-          alert(`Delete ${domain.domain_name}\n(API integration coming soon)`);
+          try {
+            await safeCall(
+              () => deleteDomain(domain.id),
+              { lockKey: `delete-domain-${domain.id}`, retryOn401: true }
+            );
 
-          // Hide dialog
-          if (deleteDialog) {
-            deleteDialog.setAttribute('hidden', '');
+            showGlobalMessage('success', `Deleted ${domain.domain_name}`);
+
+            // Hide dialog and reload
+            hideDialog('delete-domain');
+            showLoadingState();
+            await loadDomainsFromAPI();
+          } catch (error: unknown) {
+            console.error('Failed to delete domain:', error);
+            const errorMessage = error instanceof Error ? error.message : 'Failed to delete domain';
+            showGlobalMessage('error', errorMessage);
+            hideDialog('delete-domain');
           }
         }
       }
@@ -317,6 +328,60 @@ function showLoadingState(): void {
 }
 
 /**
+ * Show error state UI
+ */
+function showErrorState(message?: string): void {
+  const loadingState = document.querySelector('[data-loading-state]');
+  const emptyState = document.querySelector('[data-empty-state]');
+  const errorState = document.querySelector('[data-error-state]');
+  const tableShell = document.querySelector('[data-table-shell]');
+  const tableFooter = document.querySelector('[data-table-footer]');
+
+  if (loadingState) loadingState.setAttribute('hidden', '');
+  if (emptyState) emptyState.setAttribute('hidden', '');
+  if (errorState) {
+    errorState.removeAttribute('hidden');
+    // Update error message if provided
+    const errorText = errorState.querySelector('p');
+    if (errorText && message) {
+      errorText.textContent = message;
+    }
+  }
+  if (tableShell) tableShell.setAttribute('hidden', '');
+  if (tableFooter) tableFooter.setAttribute('hidden', '');
+}
+
+/**
+ * Load domains from API
+ */
+async function loadDomainsFromAPI(): Promise<void> {
+  try {
+    const response = await safeCall(
+      () => getDomains(),
+      {
+        lockKey: 'domains',
+        retryOn401: true,
+      }
+    );
+
+    // Adapt API response to UI format
+    const uiDomains = adaptDomainsResponseToUI(response.groups);
+
+    // Load into table
+    loadDomains(uiDomains);
+  } catch (error: unknown) {
+    console.error('Failed to load domains:', error);
+
+    const errorMessage = error instanceof Error
+      ? error.message
+      : 'Failed to load domains. Please retry or check your connection.';
+
+    showErrorState(errorMessage);
+    showGlobalMessage('error', 'Failed to load domains');
+  }
+}
+
+/**
  * Calculate health status from domains
  * Returns: 'danger' | 'warning' | 'success' | null
  */
@@ -327,22 +392,24 @@ function calculateDomainsHealth(domains: Domain[]): 'danger' | 'warning' | 'succ
   let hasWarning = false;
 
   for (const domain of domains) {
-    // Danger: blocked, expired, SSL invalid, abuse
+    // Danger: blocked status, expired, SSL invalid/error, abuse not clean/healthy
     if (
-      domain.blocked ||
-      (domain.expired_at && new Date(domain.expired_at) < new Date()) ||
+      domain.status === 'blocked' ||
+      domain.status === 'expired' ||
       domain.ssl_status === 'invalid' ||
-      domain.abuse_status !== 'clean'
+      domain.ssl_status === 'error' ||
+      (domain.abuse_status !== 'clean' && domain.abuse_status !== 'healthy')
     ) {
       hasDanger = true;
       break; // Highest priority, stop checking
     }
 
-    // Warning: expiring soon, NS not verified, no SSL
+    // Warning: expiring soon, SSL pending, abuse warning
     if (
-      (domain.expired_at && isExpiringSoon(domain.expired_at, 30)) ||
-      !domain.ns_verified ||
-      !domain.ssl_status
+      domain.status === 'expiring' ||
+      domain.ssl_status === 'expiring' ||
+      domain.ssl_status === 'pending' ||
+      domain.abuse_status === 'warning'
     ) {
       hasWarning = true;
     }
@@ -412,7 +479,7 @@ function renderDomainsTable(domains: Domain[]): void {
                 <strong>${formatDomainDisplay(domain.domain_name, 'compact')}</strong>
               </div>
               <div class="text-muted text-sm">
-                ${domain.project_name}${domain.project_lang ? ` (${domain.project_lang})` : ''}
+                ${domain.project_name}
               </div>
             </div>
           </td>
@@ -441,37 +508,23 @@ function renderDomainsTable(domains: Domain[]): void {
                   <span class="icon" data-icon="mono/dots-vertical"></span>
                 </button>
                 <div class="dropdown__menu dropdown__menu--align-right" role="menu">
-                  <button class="dropdown__item" type="button" data-action="recheck-health" data-domain-id="${domain.id}">
-                    <span class="icon" data-icon="mono/refresh"></span>
-                    <span>Re-check health</span>
-                  </button>
-                  <button class="dropdown__item" type="button" data-action="recheck-abuse" data-domain-id="${domain.id}">
-                    <span class="icon" data-icon="mono/alert-triangle"></span>
-                    <span>Re-check abuse status</span>
-                  </button>
-                  <button class="dropdown__item" type="button" data-action="sync-registrar" data-domain-id="${domain.id}">
-                    <span class="icon" data-icon="mono/sync"></span>
-                    <span>Sync with registrar</span>
-                  </button>
-                  ${domain.role === 'acceptor' ? `
-                  <button class="dropdown__item" type="button" data-action="toggle-monitoring" data-domain-id="${domain.id}">
-                    <span class="icon" data-icon="mono/bell"></span>
-                    <span>${domain.monitoring_enabled ? 'Disable' : 'Enable'} monitoring</span>
-                  </button>
-                  ` : ''}
-                  <button class="dropdown__item" type="button" data-action="apply-security-preset" data-domain-id="${domain.id}">
-                    <span class="icon" data-icon="mono/security"></span>
-                    <span>Apply security preset</span>
-                  </button>
+                  ${getRoleMenuItems(domain)}
                   <hr class="dropdown__divider" />
-                  <button class="dropdown__item" type="button" data-action="view-analytics" data-domain-id="${domain.id}">
-                    <span class="icon" data-icon="mono/analytics"></span>
-                    <span>View analytics</span>
+                  ${domain.status === 'blocked' ? `
+                  <button class="dropdown__item" type="button" data-action="unblock-domain" data-domain-id="${domain.id}">
+                    <span class="icon" data-icon="mono/shield-check"></span>
+                    <span>Unblock domain</span>
                   </button>
+                  ` : `
+                  <button class="dropdown__item dropdown__item--warning" type="button" data-action="block-domain" data-domain-id="${domain.id}">
+                    <span class="icon" data-icon="mono/cancel"></span>
+                    <span>Block domain</span>
+                  </button>
+                  `}
                   <hr class="dropdown__divider" />
                   <button class="dropdown__item dropdown__item--danger" type="button" data-action="delete-domain" data-domain-id="${domain.id}">
                     <span class="icon" data-icon="mono/delete"></span>
-                    <span>Delete domain</span>
+                    <span>Delete subdomain</span>
                   </button>
                 </div>
               </div>
@@ -534,24 +587,30 @@ function getStatusColor(status: Domain['status']): string {
 function getHealthIcons(domain: Domain): string {
   const icons: string[] = [];
 
-  // SSL icon
-  if (domain.ssl_status === 'valid') {
+  // SSL icon - API returns: valid, pending, none, error
+  // Mock data returns: valid, expiring, invalid, off
+  const sslStatus = domain.ssl_status;
+  if (sslStatus === 'valid') {
     icons.push('<span class="icon text-ok" data-icon="mono/lock" title="SSL valid"></span>');
-  } else if (domain.ssl_status === 'expiring') {
-    icons.push('<span class="icon text-warning" data-icon="mono/lock" title="SSL expiring soon"></span>');
-  } else if (domain.ssl_status === 'invalid') {
-    icons.push('<span class="icon text-danger" data-icon="mono/lock" title="SSL invalid"></span>');
+  } else if (sslStatus === 'expiring' || sslStatus === 'pending') {
+    icons.push('<span class="icon text-warning" data-icon="mono/lock" title="SSL pending"></span>');
+  } else if (sslStatus === 'invalid' || sslStatus === 'error') {
+    icons.push('<span class="icon text-danger" data-icon="mono/lock" title="SSL error"></span>');
   } else {
-    icons.push('<span class="icon text-muted" data-icon="mono/lock" title="SSL off"></span>');
+    icons.push('<span class="icon text-muted" data-icon="mono/lock" title="No SSL"></span>');
   }
 
-  // Abuse icon
-  if (domain.abuse_status === 'clean') {
-    icons.push('<span class="icon text-ok" data-icon="mono/security" title="Clean"></span>');
-  } else if (domain.abuse_status === 'warning') {
-    icons.push('<span class="icon text-warning" data-icon="mono/security" title="Warning"></span>');
-  } else {
+  // Health/Abuse icon - API returns health.status: healthy, warning, blocked, unknown
+  // Mock data returns abuse_status: clean, warning, blocked
+  const healthStatus = domain.abuse_status;
+  if (healthStatus === 'clean' || healthStatus === 'healthy') {
+    icons.push('<span class="icon text-ok" data-icon="mono/shield-check" title="Healthy"></span>');
+  } else if (healthStatus === 'warning') {
+    icons.push('<span class="icon text-warning" data-icon="mono/alert-triangle" title="Warning"></span>');
+  } else if (healthStatus === 'blocked') {
     icons.push('<span class="icon text-danger" data-icon="mono/security" title="Blocked"></span>');
+  } else {
+    icons.push('<span class="icon text-muted" data-icon="mono/help-circle" title="Unknown"></span>');
   }
 
   return `<div class="health-icons">${icons.join(' ')}</div>`;
@@ -715,7 +774,6 @@ function openInspector(domainId: number): void {
   const providerEl = drawer.querySelector('[data-inspector-provider]');
   const sslEl = drawer.querySelector('[data-inspector-ssl]');
   const abuseEl = drawer.querySelector('[data-inspector-abuse]');
-  const monitoringEl = drawer.querySelector('[data-inspector-monitoring]');
   const nsEl = drawer.querySelector('[data-inspector-ns]');
   const nsStatusEl = drawer.querySelector('[data-inspector-ns-status]');
 
@@ -725,7 +783,7 @@ function openInspector(domainId: number): void {
     const statusColor = getStatusColor(domain.status);
     statusEl.innerHTML = `<span class="${statusColor}">${statusText}</span>`;
   }
-  if (projectEl) projectEl.textContent = `${domain.project_name}${domain.project_lang ? ` (${domain.project_lang})` : ''}`;
+  if (projectEl) projectEl.textContent = domain.project_name;
 
   // Update role icon in header
   if (roleIconEl) {
@@ -757,16 +815,6 @@ function openInspector(domainId: number): void {
   if (providerEl) providerEl.textContent = domain.registrar.charAt(0).toUpperCase() + domain.registrar.slice(1);
   if (sslEl) sslEl.textContent = `${domain.ssl_status.charAt(0).toUpperCase() + domain.ssl_status.slice(1)}${domain.ssl_valid_to ? ` (until ${domain.ssl_valid_to})` : ''}`;
   if (abuseEl) abuseEl.textContent = domain.abuse_status.charAt(0).toUpperCase() + domain.abuse_status.slice(1);
-  if (monitoringEl) {
-    // Monitoring only applicable to acceptor domains
-    if (domain.role === 'acceptor') {
-      const monitoringText = domain.monitoring_enabled ? 'Enabled' : 'Disabled';
-      const monitoringColor = domain.monitoring_enabled ? 'text-ok' : 'text-muted';
-      monitoringEl.innerHTML = `<span class="${monitoringColor}">${monitoringText}</span>`;
-    } else {
-      monitoringEl.innerHTML = '<span class="text-muted">N/A</span>';
-    }
-  }
 
   // Load NS records asynchronously
   if (nsEl && nsStatusEl) {
@@ -853,4 +901,108 @@ function openInspector(domainId: number): void {
 function closeDrawer(): void {
   const drawer = document.querySelector('[data-drawer="domain-inspector"]');
   if (drawer) drawer.setAttribute('hidden', '');
+}
+
+/**
+ * Generate role change menu items based on current role
+ */
+function getRoleMenuItems(domain: Domain): string {
+  const roles: { value: Domain['role']; label: string; icon: string }[] = [
+    { value: 'acceptor', label: 'Set as Acceptor', icon: 'mono/arrow-bottom-right' },
+    { value: 'donor', label: 'Set as Donor', icon: 'mono/arrow-top-right' },
+    { value: 'reserve', label: 'Set as Reserve', icon: 'mono/cog-pause' },
+  ];
+
+  return roles
+    .filter((r) => r.value !== domain.role)
+    .map(
+      (r) => `
+      <button class="dropdown__item" type="button" data-action="change-role" data-domain-id="${domain.id}" data-role="${r.value}">
+        <span class="icon" data-icon="${r.icon}"></span>
+        <span>${r.label}</span>
+      </button>
+    `
+    )
+    .join('');
+}
+
+/**
+ * Handle block domain action
+ * PATCH /domains/:id { blocked: true, blocked_reason: ... }
+ */
+async function handleBlockDomain(domain: Domain): Promise<void> {
+  const reason = prompt(`Block ${domain.domain_name}?\n\nEnter reason (optional):`);
+  if (reason === null) return; // User cancelled
+
+  try {
+    await safeCall(
+      () => blockDomain(domain.id, reason || 'manual'),
+      { lockKey: `block-domain-${domain.id}`, retryOn401: true }
+    );
+
+    showGlobalMessage('success', `Blocked ${domain.domain_name}`);
+
+    // Reload domains to reflect changes
+    showLoadingState();
+    await loadDomainsFromAPI();
+  } catch (error: unknown) {
+    console.error('Failed to block domain:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Failed to block domain';
+    showGlobalMessage('error', errorMessage);
+  }
+}
+
+/**
+ * Handle unblock domain action
+ * PATCH /domains/:id { blocked: false, blocked_reason: null }
+ */
+async function handleUnblockDomain(domain: Domain): Promise<void> {
+  if (!confirm(`Unblock ${domain.domain_name}?`)) return;
+
+  try {
+    await safeCall(
+      () => unblockDomain(domain.id),
+      { lockKey: `unblock-domain-${domain.id}`, retryOn401: true }
+    );
+
+    showGlobalMessage('success', `Unblocked ${domain.domain_name}`);
+
+    // Reload domains to reflect changes
+    showLoadingState();
+    await loadDomainsFromAPI();
+  } catch (error: unknown) {
+    console.error('Failed to unblock domain:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Failed to unblock domain';
+    showGlobalMessage('error', errorMessage);
+  }
+}
+
+/**
+ * Handle change role action
+ * PATCH /domains/:id { role: newRole }
+ */
+async function handleChangeRole(domain: Domain, newRole: Domain['role']): Promise<void> {
+  if (!newRole) return;
+
+  try {
+    await safeCall(
+      () => updateDomainRole(domain.id, newRole),
+      { lockKey: `change-role-${domain.id}`, retryOn401: true }
+    );
+
+    const roleLabels = {
+      acceptor: 'Acceptor',
+      donor: 'Donor',
+      reserve: 'Reserve',
+    };
+    showGlobalMessage('success', `Changed ${domain.domain_name} to ${roleLabels[newRole]}`);
+
+    // Reload domains to reflect changes
+    showLoadingState();
+    await loadDomainsFromAPI();
+  } catch (error: unknown) {
+    console.error('Failed to change role:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Failed to change role';
+    showGlobalMessage('error', errorMessage);
+  }
 }

@@ -477,16 +477,44 @@ PR 3 (Remove UI-only) ───────────────────�
 
 ## Definition of Done
 
-- [ ] Таблица загружает данные из реального API
-- [ ] Все статусы отображаются корректно
-- [ ] Фильтры работают (project, role, status)
-- [ ] Поиск работает
-- [ ] Пагинация работает
-- [ ] Actions выполняют реальные API вызовы
-- [ ] Bulk actions работают
-- [ ] Error states показываются при ошибках
-- [ ] Loading states при загрузке
+- [x] Таблица загружает данные из реального API *(PR 4 - Done)*
+- [x] Все статусы отображаются корректно *(PR 3 - Done)*
+- [x] Фильтры работают (project, role, status) *(Client-side, working)*
+- [x] Поиск работает *(Client-side, working)*
+- [ ] Пагинация работает *(Needs API feature request)*
+- [ ] Actions выполняют реальные API вызовы *(PR 7)*
+- [ ] Bulk actions работают *(PR 8)*
+- [x] Error states показываются при ошибках *(PR 4 - Done)*
+- [x] Loading states при загрузке *(PR 4 - Done)*
 - [ ] Mock data удалён или помечен deprecated
+
+## Progress
+
+| PR | Status | Date |
+|----|--------|------|
+| PR 1: Types & Adapter | ✅ Done | 2026-01-31 |
+| PR 2: API Client | ✅ Done | 2026-01-31 |
+| PR 3: Remove UI-Only | ✅ Done | 2026-01-31 |
+| PR 4: Data Loading | ✅ Done | 2026-01-31 |
+| PR 5: Provider Display | ✅ Done | 2026-01-31 (using CF icon as default) |
+| PR 6: Filters | ✅ Done | 2026-01-31 (client-side, working) |
+| PR 7: Actions | ✅ Done | 2026-01-31 |
+| PR 8: Bulk Actions | ✅ Done | 2026-01-31 |
+| PR 9: Detail Drawer | 🔲 Optional | — |
+
+### Implementation Summary
+
+**PR 1-2:** Created adapter layer (`src/domains/adapter.ts`) and added API functions for domain operations (block, unblock, delete, updateRole, getDomainHealth).
+
+**PR 3:** Removed UI-only features: `monitoring_enabled`, `project_lang`, fake dropdown actions. Updated health icons to use API health.status values. Updated bulk actions UI.
+
+**PR 4:** Switched from `mockDomains` to `loadDomainsFromAPI()` using `safeCall()` wrapper. Added error state handling.
+
+**PR 5-6:** Provider display uses CF icon by default (all domains come via CF zones). Filters work client-side.
+
+**PR 7:** Connected dropdown actions to real API: `handleBlockDomain`, `handleUnblockDomain`, `handleChangeRole`, delete confirmation.
+
+**PR 8:** Updated bulk actions to use real API with sequential processing for safety. Added reload callback pattern.
 
 ---
 

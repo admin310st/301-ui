@@ -5,11 +5,29 @@
 
 import { showDialog, hideDialog } from '@ui/dialog';
 import { updateBulkActionsBar } from '@ui/bulk-actions';
-import { getProjects } from '@api/projects';
-import { moveDomainToProject } from '@api/domains';
-import { getAuthState } from '@state/auth-state';
 import { showGlobalMessage } from '@ui/notifications';
-import { t } from '@i18n';
+import { updateDomainRole, blockDomain, deleteDomain } from '@api/domains';
+import { safeCall } from '@api/ui-client';
+import type { DomainRole } from '@api/types';
+
+// Callback to reload domains after bulk operations
+let reloadDomainsCallback: (() => Promise<void>) | null = null;
+
+/**
+ * Set the callback function to reload domains after bulk operations
+ */
+export function setReloadDomainsCallback(callback: () => Promise<void>): void {
+  reloadDomainsCallback = callback;
+}
+
+/**
+ * Trigger domains reload
+ */
+async function reloadDomains(): Promise<void> {
+  if (reloadDomainsCallback) {
+    await reloadDomainsCallback();
+  }
+}
 
 /**
  * Initialize bulk actions bar
@@ -22,9 +40,10 @@ export function initBulkActions(): void {
   if (!bulkBar || !table || !selectAllCheckbox) return;
 
   const cancelBtn = bulkBar.querySelector<HTMLButtonElement>('[data-bulk-cancel]');
-  const exportBtn = bulkBar.querySelector<HTMLButtonElement>('[data-bulk-export]');
   const deleteBtn = bulkBar.querySelector<HTMLButtonElement>('[data-bulk-delete]');
+  const roleBtn = bulkBar.querySelector<HTMLButtonElement>('[data-bulk-role]');
   const moveBtn = bulkBar.querySelector<HTMLButtonElement>('[data-bulk-move]');
+  const blockBtn = bulkBar.querySelector<HTMLButtonElement>('[data-bulk-block]');
 
   /**
    * Get all row checkboxes (excluding "select all")
@@ -91,101 +110,100 @@ export function initBulkActions(): void {
   });
 
   /**
-   * Handle Export button
+   * Handle Change Role button
+   * Sequential PATCH /domains/:id { role } for each domain
    */
-  exportBtn?.addEventListener('click', () => {
-    const checkboxes = getRowCheckboxes();
-    const selectedIds = checkboxes
-      .filter(cb => cb.checked)
-      .map(cb => cb.closest('tr')?.dataset.domainId)
-      .filter(Boolean);
-
-    console.log('Export domains:', selectedIds);
-    // TODO: Implement export logic (CSV, JSON, etc.)
-  });
-
-  /**
-   * Handle Move to Project button - show project selection dialog
-   */
-  moveBtn?.addEventListener('click', async () => {
+  roleBtn?.addEventListener('click', async () => {
     const selectedIds = getSelectedDomainIds();
     if (selectedIds.length === 0) return;
 
-    // Update count in dialog
-    const countElement = document.querySelector('[data-bulk-move-count]');
-    if (countElement) {
-      countElement.textContent = selectedIds.length.toString();
-    }
+    const newRole = prompt(
+      `Change role for ${selectedIds.length} domain(s)?\n\nEnter new role: acceptor, donor, or reserve`
+    );
+    if (!newRole || !['acceptor', 'donor', 'reserve'].includes(newRole)) return;
 
-    // Load projects and populate dropdown
-    await loadProjectsForMoveDialog();
+    let successCount = 0;
+    let errorCount = 0;
 
-    // Show dialog
-    showDialog('bulk-move-domains');
-  });
-
-  /**
-   * Handle project selection in move dialog
-   */
-  const projectSelect = document.querySelector<HTMLSelectElement>('[data-bulk-move-project-select]');
-  const confirmMoveBtn = document.querySelector<HTMLButtonElement>('[data-confirm-bulk-move]');
-
-  projectSelect?.addEventListener('change', () => {
-    if (confirmMoveBtn) {
-      confirmMoveBtn.disabled = !projectSelect.value;
-    }
-  });
-
-  /**
-   * Handle bulk move confirmation
-   */
-  confirmMoveBtn?.addEventListener('click', async () => {
-    const selectedIds = getSelectedDomainIds();
-    const projectId = projectSelect?.value;
-
-    if (!projectId || selectedIds.length === 0) {
-      hideDialog('bulk-move-domains');
-      return;
-    }
-
-    try {
-      const { accountId } = getAuthState();
-      if (!accountId) {
-        showGlobalMessage('error', 'Account ID not found');
-        return;
+    // Process sequentially
+    for (const idStr of selectedIds) {
+      const domainId = parseInt(idStr);
+      try {
+        await safeCall(
+          () => updateDomainRole(domainId, newRole as DomainRole),
+          { lockKey: `bulk-role-${domainId}`, retryOn401: true }
+        );
+        successCount++;
+      } catch (error) {
+        console.error(`Failed to change role for domain ${domainId}:`, error);
+        errorCount++;
       }
-
-      // Move each domain to the new project
-      await Promise.all(
-        selectedIds.map((domainIdStr) => {
-          const domainId = Number(domainIdStr);
-          return moveDomainToProject(accountId, domainId, Number(projectId));
-        })
-      );
-
-      // Show success message
-      showGlobalMessage('success', `Moved ${selectedIds.length} domain(s) to project`);
-
-      // Close dialog and clear selections
-      hideDialog('bulk-move-domains');
-      clearSelection();
-
-      // Reset dropdown
-      if (projectSelect) projectSelect.value = '';
-      if (confirmMoveBtn) confirmMoveBtn.disabled = true;
-
-      // Reload domains (when implemented with real API)
-      // window.location.reload();
-    } catch (error) {
-      console.error('Failed to move domains:', error);
-      showGlobalMessage('error', 'Failed to move domains to project');
     }
+
+    // Show result
+    if (errorCount === 0) {
+      showGlobalMessage('success', `Changed role to ${newRole} for ${successCount} domain(s)`);
+    } else {
+      showGlobalMessage('warning', `Changed ${successCount} domain(s), ${errorCount} failed`);
+    }
+
+    clearSelection();
+    await reloadDomains();
   });
 
-  // TODO: Implement bulk action handlers for:
-  // - data-bulk-edit (Change Status) - Open dialog to change domain status (active/parked/etc)
-  // - data-bulk-monitoring (Toggle Monitoring) - Enable/disable monitoring for selected acceptor domains
-  // - data-bulk-sync (Sync Registrar) - Trigger registrar sync for selected domains
+  /**
+   * Handle Assign to Site button
+   * TODO: Requires site selection dialog
+   */
+  moveBtn?.addEventListener('click', () => {
+    const selectedIds = getSelectedDomainIds();
+    if (selectedIds.length === 0) return;
+
+    showGlobalMessage('info', 'Site assignment requires selecting a target site first');
+    // TODO: Open site selection dialog
+  });
+
+  /**
+   * Handle Block button
+   * Sequential PATCH /domains/:id { blocked: true } for each domain
+   */
+  blockBtn?.addEventListener('click', async () => {
+    const selectedIds = getSelectedDomainIds();
+    if (selectedIds.length === 0) return;
+
+    const reason = prompt(
+      `Block ${selectedIds.length} domain(s)?\n\nEnter reason (optional):`
+    );
+    if (reason === null) return; // User cancelled
+
+    let successCount = 0;
+    let errorCount = 0;
+
+    // Process sequentially
+    for (const idStr of selectedIds) {
+      const domainId = parseInt(idStr);
+      try {
+        await safeCall(
+          () => blockDomain(domainId, reason || 'manual'),
+          { lockKey: `bulk-block-${domainId}`, retryOn401: true }
+        );
+        successCount++;
+      } catch (error) {
+        console.error(`Failed to block domain ${domainId}:`, error);
+        errorCount++;
+      }
+    }
+
+    // Show result
+    if (errorCount === 0) {
+      showGlobalMessage('success', `Blocked ${successCount} domain(s)`);
+    } else {
+      showGlobalMessage('warning', `Blocked ${successCount} domain(s), ${errorCount} failed`);
+    }
+
+    clearSelection();
+    await reloadDomains();
+  });
 
   /**
    * Handle Delete button - show confirmation dialog
@@ -211,9 +229,12 @@ export function initBulkActions(): void {
 
   /**
    * Handle bulk delete confirmation
+   * NOTE: Only subdomains (3rd+ level) can be deleted via API.
+   * Root domains are managed by zones.
+   * Sequential DELETE /domains/:id for safety
    */
   const confirmBulkDeleteBtn = document.querySelector('[data-confirm-bulk-delete]');
-  confirmBulkDeleteBtn?.addEventListener('click', () => {
+  confirmBulkDeleteBtn?.addEventListener('click', async () => {
     const selectedIds = getSelectedDomainIds();
 
     if (selectedIds.length === 0) {
@@ -221,15 +242,42 @@ export function initBulkActions(): void {
       return;
     }
 
-    console.log('Delete domains:', selectedIds);
-    // TODO: Implement actual delete API call
-
-    // Close dialog and clear selections
     hideDialog('bulk-delete-domains');
-    clearSelection();
 
-    // Show success notification (when implemented)
-    console.log(`Successfully deleted ${selectedIds.length} domains`);
+    let successCount = 0;
+    let errorCount = 0;
+    const errors: string[] = [];
+
+    // Process sequentially (safer for deletion)
+    for (const idStr of selectedIds) {
+      const domainId = parseInt(idStr);
+      try {
+        await safeCall(
+          () => deleteDomain(domainId),
+          { lockKey: `bulk-delete-${domainId}`, retryOn401: true }
+        );
+        successCount++;
+      } catch (error: unknown) {
+        console.error(`Failed to delete domain ${domainId}:`, error);
+        errorCount++;
+        const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+        if (errorMsg.includes('root domain') || errorMsg.includes('cannot be deleted')) {
+          errors.push(`Domain ${domainId}: Only subdomains can be deleted`);
+        }
+      }
+    }
+
+    // Show result
+    if (errorCount === 0) {
+      showGlobalMessage('success', `Deleted ${successCount} subdomain(s)`);
+    } else if (successCount === 0) {
+      showGlobalMessage('error', `Failed to delete domains. ${errors[0] || 'Unknown error'}`);
+    } else {
+      showGlobalMessage('warning', `Deleted ${successCount} subdomain(s), ${errorCount} failed`);
+    }
+
+    clearSelection();
+    await reloadDomains();
   });
 
   // Initial state
@@ -276,36 +324,3 @@ export function clearSelection(): void {
   }
 }
 
-/**
- * Load projects and populate move dialog dropdown
- */
-async function loadProjectsForMoveDialog(): Promise<void> {
-  const select = document.querySelector<HTMLSelectElement>('[data-bulk-move-project-select]');
-  if (!select) return;
-
-  const { accountId } = getAuthState();
-  if (!accountId) {
-    console.error('Account ID not found');
-    return;
-  }
-
-  try {
-    const projects = await getProjects(accountId);
-
-    // Clear existing options (except the placeholder)
-    const placeholder = select.querySelector('option[disabled]');
-    select.innerHTML = '';
-    if (placeholder) select.appendChild(placeholder);
-
-    // Add project options
-    projects.forEach((project) => {
-      const option = document.createElement('option');
-      option.value = String(project.id);
-      option.textContent = project.project_name;
-      select.appendChild(option);
-    });
-  } catch (error) {
-    console.error('Failed to load projects:', error);
-    showGlobalMessage('error', 'Failed to load projects');
-  }
-}

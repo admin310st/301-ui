@@ -219,16 +219,10 @@
                     <dd class="detail-value" data-inspector-ssl>—</dd>
                   </div>
 
-                  <!-- Abuse Status: вычисляемое, не редактируется -->
+                  <!-- Health Status: computed from API health.status -->
                   <div class="detail-row">
-                    <dt class="detail-label">Abuse Status</dt>
+                    <dt class="detail-label">Health</dt>
                     <dd class="detail-value" data-inspector-abuse>—</dd>
-                  </div>
-
-                  <!-- Monitoring: только для acceptor доменов (view-only, toggle через dropdown) -->
-                  <div class="detail-row">
-                    <dt class="detail-label">Monitoring</dt>
-                    <dd class="detail-value" data-inspector-monitoring>—</dd>
                   </div>
                 </dl>
               </div>
@@ -393,13 +387,12 @@
         <div class="bulk-actions-bar__content">
           <div class="bulk-actions-bar__actions">
             <button class="btn btn--danger btn--sm" type="button" data-bulk-delete>Delete</button>
-            <button class="btn btn--ghost btn--sm" type="button" data-bulk-export>Export</button>
-            <button class="btn btn--ghost btn--sm" type="button" data-bulk-edit>Change Status</button>
-            <button class="btn btn--ghost btn--sm" type="button" data-bulk-move>Move to Project</button>
-            <button class="btn btn--ghost btn--sm" type="button" data-bulk-monitoring>Toggle Monitoring</button>
+            <button class="btn btn--ghost btn--sm" type="button" data-bulk-role>Change Role</button>
+            <button class="btn btn--ghost btn--sm" type="button" data-bulk-move>Assign to Site</button>
+            <button class="btn btn--danger btn--sm" type="button" data-bulk-block>Block</button>
           </div>
           <div class="bulk-actions-bar__info">
-            <button class="btn btn--primary btn--sm" type="button" data-bulk-sync>Sync Registrar</button>
+            <button class="btn btn--ghost btn--sm" type="button" data-bulk-delete>Delete</button>
             <button class="btn btn--ghost btn--sm" type="button" data-bulk-cancel>
               <span>Cancel</span>
               <span data-selected-count>(0)</span>
