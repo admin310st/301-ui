@@ -610,6 +610,7 @@ tr:hover .table-cell-quick-action {
   background: color-mix(in srgb, var(--primary) 5%, var(--bg-soft));
 }
 
+.th-actions,
 .table__th-actions,
 .table__cell-actions {
   width: var(--col-actions);
