@@ -969,7 +969,7 @@ function getStatusDisplay(redirect: DomainRedirect): string {
       `.trim();
       return `<span class="badge badge--danger" data-tooltip data-tooltip-content="${escapeHtml(tooltipContent)}">Alert</span>`;
     }
-    return '<span class="badge badge--neutral" title="Redirect target (main site domain)">Target</span>';
+    return '<span class="badge badge--brand" title="Redirect target (main site domain)">Target</span>';
   }
 
   // Donor domain without redirect configured - should not happen in normal flow
