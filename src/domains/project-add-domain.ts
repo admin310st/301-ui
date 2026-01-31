@@ -271,25 +271,13 @@ async function handleAddDomains(): Promise<void> {
 export function initProjectAddDomain(): void {
   // Event delegation for add domain button
   document.addEventListener('click', async (e) => {
-    const target = e.target as HTMLElement;
-
-    // Open add-domain-to-project drawer
-    const addBtn = target.closest('[data-action="add-domain"]');
+    const addBtn = (e.target as HTMLElement).closest('[data-action="add-domain"]');
     if (addBtn) {
       e.preventDefault();
       const projectId = getCurrentProjectId();
       if (projectId) {
         await openAddDomainDrawer(projectId);
       }
-      return;
-    }
-
-    // Open add-domains drawer (4th layer - from empty state)
-    const addDomainsBtn = target.closest('[data-action="open-add-domains-drawer"]');
-    if (addDomainsBtn) {
-      e.preventDefault();
-      // Open add-domains drawer as 4th layer
-      drawerManager.open('add-domains');
     }
   });
 
