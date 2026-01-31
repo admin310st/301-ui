@@ -13,6 +13,7 @@ import { getDomains, updateDomainRole, blockDomain, unblockDomain, deleteDomain 
 import { getProjects } from '@api/projects';
 import { safeCall } from '@api/ui-client';
 import { getAccountId } from '@state/auth-state';
+import { getSelectedProject, setSelectedProject } from '@state/ui-preferences';
 import { adaptDomainsResponseToUI } from './adapter';
 import { showGlobalMessage } from '@ui/notifications';
 import { hideDialog } from '@ui/dialog';
@@ -27,6 +28,12 @@ const PAGE_SIZE = 25;
 export function initDomainsPage(): void {
   const card = document.querySelector('[data-domains-card]');
   if (!card) return;
+
+  // Restore saved project filter
+  const savedProject = getSelectedProject();
+  if (savedProject) {
+    activeFilters.project = savedProject;
+  }
 
   // Initialize Add Domains Drawer
   initAddDomainsDrawer();
@@ -255,6 +262,10 @@ export function initDomainsPage(): void {
   // Filter change handler (only re-renders, no listener re-init)
   const onFilterChange = () => {
     currentPage = 1; // Reset to first page on filter change
+
+    // Persist project selection across pages
+    setSelectedProject(activeFilters.project || null);
+
     renderFilters();
     applyFiltersAndRender();
     updateResetButton();
@@ -280,6 +291,9 @@ export function initDomainsPage(): void {
       activeFilters.project = defaults.project;
       activeFilters.role = defaults.role;
       activeFilters.expiry = defaults.expiry;
+
+      // Clear persisted project
+      setSelectedProject(null);
 
       onFilterChange();
     });
