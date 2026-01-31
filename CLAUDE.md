@@ -411,6 +411,37 @@ Base API URLs:
 4. **Never** create alternative versions of existing components with different markup
 5. All changes to UI require updating: (a) styles, (b) StyleGuide.md documentation
 
+### Reuse First Principle
+**CRITICAL: Before writing ANY new CSS, search for existing solutions.**
+
+1. **Check existing classes first:**
+   - Search CSS files: `Grep` for the property you need (e.g., `width:`, `text-align:`)
+   - Check `docs/StyleGuide.md` for documented patterns
+   - Look at similar pages for how they solve the same problem
+
+2. **Common existing utilities:**
+   | Need | Use | NOT |
+   |------|-----|-----|
+   | Actions column width | `.th-actions` | `style="width: 120px;"` |
+   | Checkbox column width | `.th-checkbox` | `style="width: 40px;"` |
+   | Centered text | `.text-center` | `style="text-align: center;"` |
+   | Right-aligned text | `.text-right` | `style="text-align: right;"` |
+   | Muted text | `.text-muted` | `style="color: var(--text-muted);"` |
+   | Vertical spacing | `.stack`, `.stack--sm`, `.stack--md` | `style="margin-top: ..."` |
+   | Horizontal spacing | `.stack-inline`, `.cluster` | `style="margin-right: ..."` |
+   | Fluid column widths | `--col-actions`, `--col-check` | hardcoded px values |
+
+3. **When NOT to create new CSS:**
+   - ❌ Table variants per page (`.table--projects`, `.table--sites`) — use shared classes
+   - ❌ Duplicate selectors with same properties — add alias to existing rule
+   - ❌ Inline styles for values that exist as CSS variables
+   - ❌ New utility classes when existing ones work
+
+4. **When new CSS IS appropriate:**
+   - Truly unique component not covered by existing patterns
+   - After confirming no existing solution via search
+   - Documented in StyleGuide.md before implementation
+
 ### Design System Constraints
 - **No Tailwind** - Use vanilla CSS with custom properties (CSS variables)
 - **No fixed heights** - All interactive controls use formula: `height = font-size × line-height + padding × 2`

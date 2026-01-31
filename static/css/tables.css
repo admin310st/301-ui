@@ -311,6 +311,7 @@
 /* Redirects Table - auto-sizing with container queries */
 
 /* Checkbox Column - rightmost */
+.th-checkbox,
 .table__th-checkbox,
 .table__cell-checkbox {
   width: var(--col-check);
