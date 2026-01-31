@@ -21,21 +21,32 @@
             <!-- Cloudflare Account Selection -->
             <div class="field">
               <label class="field__label" data-i18n="domains.add.drawer.cfAccountLabel">Cloudflare account</label>
-              <div class="dropdown" data-dropdown="cf-account">
-                <button
-                  class="btn-chip btn-chip--sm btn-chip--dropdown dropdown__trigger"
-                  type="button"
-                  aria-haspopup="menu"
-                  aria-expanded="false"
-                  data-add-integration-select
-                  data-selected-value=""
-                >
-                  <span class="btn-chip__label" data-selected-label data-i18n="domains.add.drawer.cfAccountLoading">Loading accounts...</span>
-                  <span class="btn-chip__chevron icon" data-icon="mono/chevron-down"></span>
-                </button>
-                <div class="dropdown__menu dropdown__menu--fit-trigger" role="menu" data-add-integration-menu>
-                  <!-- Options populated by JS -->
+              <div class="cluster cluster--sm">
+                <div class="dropdown" data-dropdown="cf-account">
+                  <button
+                    class="btn-chip btn-chip--sm btn-chip--dropdown dropdown__trigger"
+                    type="button"
+                    aria-haspopup="menu"
+                    aria-expanded="false"
+                    data-add-integration-select
+                    data-selected-value=""
+                  >
+                    <span class="btn-chip__label" data-selected-label data-i18n="domains.add.drawer.cfAccountLoading">Loading accounts...</span>
+                    <span class="btn-chip__chevron icon" data-icon="mono/chevron-down"></span>
+                  </button>
+                  <div class="dropdown__menu dropdown__menu--fit-trigger" role="menu" data-add-integration-menu>
+                    <!-- Options populated by JS -->
+                  </div>
                 </div>
+                <button
+                  class="btn-icon btn-icon--ghost"
+                  type="button"
+                  data-sync-zones
+                  disabled
+                  title="Sync zones from Cloudflare"
+                >
+                  <span class="icon" data-icon="mono/web-sync"></span>
+                </button>
               </div>
               <p class="field__hint text-muted" data-i18n="domains.add.drawer.cfAccountHint">Zones will be created in this Cloudflare account</p>
             </div>

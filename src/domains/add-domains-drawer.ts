@@ -10,6 +10,7 @@ import { showGlobalMessage } from '@ui/notifications';
 import { formatDomainDisplay } from '@utils/idn';
 import { getIntegrationKeys, type IntegrationKey } from '@api/integrations';
 import { createZonesBatch, type BatchZoneResponse, type BatchZoneSuccess, type BatchZoneFailed } from '@api/domains';
+import { syncZones, type SyncZonesResponse } from '@api/zones';
 import { getAccountId } from '@state/auth-state';
 import { initDropdowns } from '@ui/dropdown';
 import { t, tWithVars } from '@i18n';
@@ -73,6 +74,7 @@ export function initAddDomainsDrawer(): void {
   const foundCount = document.querySelector<HTMLElement>('[data-add-found-count]');
   const submitBtn = document.querySelector<HTMLButtonElement>('[data-add-submit]');
   const integrationButton = document.querySelector<HTMLButtonElement>('[data-add-integration-select]');
+  const syncBtn = document.querySelector<HTMLButtonElement>('[data-sync-zones]');
 
   if (!drawer || !rawInput) return;
 
@@ -117,6 +119,42 @@ export function initAddDomainsDrawer(): void {
       updatePreview();
       updateSubmitButton();
     }, 300);
+  });
+
+  // Sync button handler
+  syncBtn?.addEventListener('click', async () => {
+    if (!selectedIntegration) return;
+
+    // Show loading state
+    syncBtn.disabled = true;
+    syncBtn.setAttribute('data-turnstile-pending', '');
+
+    try {
+      const result = await safeCall(
+        () => syncZones(selectedIntegration!.id),
+        {
+          lockKey: `sync-zones-${selectedIntegration!.id}`,
+          retryOn401: true,
+        }
+      );
+
+      // Invalidate domains cache so table refreshes
+      invalidateCacheByPrefix('domains');
+
+      // Show success message with counts
+      if (result.zones_synced > 0 || result.domains_synced > 0) {
+        showGlobalMessage('success', `Synced! +${result.zones_synced} zones, +${result.domains_synced} domains`);
+      } else {
+        showGlobalMessage('info', 'No new zones found in this Cloudflare account');
+      }
+    } catch (error: unknown) {
+      const normalized = error as NormalizedError;
+      showGlobalMessage('danger', normalized.message || 'Failed to sync zones');
+    } finally {
+      // Restore button state
+      syncBtn.removeAttribute('data-turnstile-pending');
+      syncBtn.disabled = false;
+    }
   });
 
   // Submit handler
@@ -258,6 +296,9 @@ export function initAddDomainsDrawer(): void {
               button.setAttribute('aria-expanded', 'false');
             }
 
+            // Enable sync button
+            if (syncBtn) syncBtn.disabled = false;
+
             updateSubmitButton();
           }
         });
@@ -270,6 +311,8 @@ export function initAddDomainsDrawer(): void {
         label.textContent = formatIntegrationLabel(integration);
         button.setAttribute('data-selected-value', String(integration.id));
         menu.querySelector('[data-integration-id]')?.classList.add('is-active');
+        // Enable sync button
+        if (syncBtn) syncBtn.disabled = false;
         updateSubmitButton();
       }
     } catch (error) {
