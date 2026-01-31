@@ -221,7 +221,7 @@ export function renderIntegrationsTable(integrations: ProjectIntegration[]): voi
         <td colspan="6">
           <div class="panel panel--info">
             <p>
-              <span class="icon" data-icon="mono/info-circle"></span>
+              <span class="icon" data-icon="mono/info"></span>
               <strong>Experimental mode:</strong> All integrations (including Cloudflare accounts)
               are shared across projects. This screen is for your reference only.
             </p>
