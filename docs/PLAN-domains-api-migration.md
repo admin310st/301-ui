@@ -174,22 +174,54 @@ export async function deleteDomain(domainId: number): Promise<{ dns_deleted: boo
 
 ---
 
-### PR 3: Remove UI-Only Features
+### PR 3: Remove UI-Only Features & Align Health
 
-**Цель:** Убрать фичи, которых нет в API
+**Цель:** Убрать фичи без API, внедрить Health
 
 **Файлы:**
 - `src/domains/domains.ts`
 - `src/domains/mock-data.ts` (keep for reference, mark deprecated)
 
 **Убрать из UI:**
-1. `monitoring_enabled` toggle и связанный UI
-2. `project_lang` badge
-3. `ssl_valid_to` детали
+1. `monitoring_enabled` toggle — нет в API
+2. `project_lang` badge — нет в API
+3. `ssl_valid_to` детали — только `ssl_status` в API
+4. Fake dropdown actions (recheck-abuse, sync-registrar, toggle-monitoring, apply-security-preset, view-analytics)
 
-**Заменить:**
-1. `abuse_status` → `health.status` визуализация
-2. `last_check_at` → `health.checked_at`
+**Заменить на Health (как в projects.ts):**
+
+Использовать реализацию из `src/ui/projects.ts:247-266`:
+```typescript
+// Health icons (compact colored icons)
+// SSL: valid = green, pending = gray, error = red
+const sslIcon = domain.ssl_status === 'valid'
+  ? '<span class="icon text-ok" data-icon="mono/lock" title="SSL valid"></span>'
+  : '<span class="icon text-muted" data-icon="mono/lock" title="SSL pending"></span>';
+
+// NS: verified = green, not verified = gray
+const nsIcon = domain.ns_verified
+  ? '<span class="icon text-ok" data-icon="mono/dns" title="NS configured"></span>'
+  : '<span class="icon text-muted" data-icon="mono/dns" title="NS not configured"></span>';
+
+// Health status from API
+const healthStatus = domain.health?.status;
+const healthIcon = healthStatus === 'healthy'
+  ? '<span class="icon text-ok" data-icon="mono/security" title="Healthy"></span>'
+  : healthStatus === 'warning'
+  ? '<span class="icon text-warning" data-icon="mono/security" title="Warning"></span>'
+  : healthStatus === 'blocked'
+  ? '<span class="icon text-danger" data-icon="mono/security" title="Blocked"></span>'
+  : '<span class="icon text-muted" data-icon="mono/security" title="Unknown"></span>';
+```
+
+**Health column вместо abuse_status:**
+```html
+<td class="health-icons">
+  ${sslIcon}
+  ${nsIcon}
+  ${healthIcon}
+</td>
+```
 
 ---
 
@@ -298,15 +330,71 @@ const providerCell = keyId
 
 **Цель:** Подключить действия к реальному API
 
-**Действия в таблице:**
-| Action | Mock | Real API |
-|--------|------|----------|
-| View details | ✅ | Drawer → `getDomainDetail()` |
-| Copy domain | ✅ | Client-side (no API) |
-| Block domain | ❌ | `updateDomain(id, { blocked: true })` |
-| Unblock domain | ❌ | `updateDomain(id, { blocked: false })` |
-| Delete domain | ❌ | `deleteDomain(id)` |
-| Change role | ❌ | `updateDomainRole(id, role)` |
+**Текущие dropdown actions в UI vs API:**
+
+| UI Action | API Endpoint | Статус |
+|-----------|--------------|--------|
+| `inspect` (drawer) | GET /domains/:id | ✅ Реализовать |
+| `copy-domain` | — | ✅ Client-side |
+| `delete-domain` | DELETE /domains/:id | ✅ Только subdomains! |
+| `recheck-health` | GET /domains/:id/health | ⚠️ Read-only, нет trigger |
+| `recheck-abuse` | — | ❌ **Убрать** - нет в API |
+| `sync-registrar` | — | ❌ **Убрать** - нет в API |
+| `toggle-monitoring` | — | ❌ **Убрать** - нет в API |
+| `apply-security-preset` | — | ❌ **Убрать** - нет в API |
+| `view-analytics` | — | ❌ **Убрать** - отдельная система |
+
+**Добавить новые actions (есть в API):**
+
+| Action | API Endpoint | UI |
+|--------|--------------|-----|
+| Block domain | PATCH /domains/:id `{blocked: true}` | Dropdown item |
+| Unblock domain | PATCH /domains/:id `{blocked: false}` | Dropdown item |
+| Change role | PATCH /domains/:id `{role: ...}` | Dropdown submenu |
+| Detach from site | PATCH /domains/:id `{site_id: null}` | Dropdown item |
+| Detach from project | PATCH /domains/:id `{project_id: null, site_id: null}` | Dropdown item |
+
+**Обновлённый dropdown:**
+```html
+<div class="dropdown__menu" role="menu">
+  <!-- Health (read-only view) -->
+  <button class="dropdown__item" data-action="view-health">
+    <span class="icon" data-icon="mono/security"></span>
+    View health details
+  </button>
+
+  <hr class="dropdown__divider" />
+
+  <!-- Role management -->
+  <button class="dropdown__item" data-action="change-role" data-role="acceptor">
+    Set as Acceptor
+  </button>
+  <button class="dropdown__item" data-action="change-role" data-role="donor">
+    Set as Donor
+  </button>
+  <button class="dropdown__item" data-action="change-role" data-role="reserve">
+    Set as Reserve
+  </button>
+
+  <hr class="dropdown__divider" />
+
+  <!-- Blocking -->
+  <button class="dropdown__item" data-action="block-domain">
+    <span class="icon" data-icon="mono/ban"></span>
+    Block domain
+  </button>
+
+  <hr class="dropdown__divider" />
+
+  <!-- Danger zone -->
+  <button class="dropdown__item dropdown__item--danger" data-action="delete-domain">
+    <span class="icon" data-icon="mono/delete"></span>
+    Delete domain
+  </button>
+</div>
+```
+
+**Важно:** DELETE работает только для subdomains (3+ level). Root domains удаляются через zones.
 
 ---
 
@@ -422,9 +510,17 @@ PR 3 (Remove UI-only) ───────────────────�
 ## Open Questions
 
 1. ~~**Registrar field:**~~ ✅ Решено: временно показываем "—" с title=key_id, ждём интеграцию провайдеров
-2. **Monitoring feature:** Удалять полностью или показывать как "coming soon"?
-3. **Pagination:** API поддерживает? Нужен ли offset/limit?
-4. **Bulk delete:** Нужен batch endpoint или делаем последовательно?
+2. ~~**Monitoring feature:**~~ ✅ Решено: заменяем на Health (SSL + NS + health.status icons)
+3. **Pagination:** API поддерживает? Нужен ли offset/limit? → **Запросить фичу у backend**
+4. ~~**Bulk delete:**~~ ✅ Решено: последовательно (опасная операция)
+
+## Backend Feature Requests
+
+| Feature | Priority | Description |
+|---------|----------|-------------|
+| Pagination | High | `GET /domains?offset=0&limit=50` для больших списков |
+| Trigger health check | Medium | `POST /domains/:id/health/check` для ручного recheck |
+| Registrar in response | Low | Добавить `registrar` или `provider` в domain object |
 
 ---
 
