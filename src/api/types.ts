@@ -150,25 +150,31 @@ export interface APIDomain {
   id: number;
   site_id: number | null;
   zone_id: number;
-  key_id: number;
+  key_id: number | null;
   parent_id: number | null;
   project_id: number | null;
   domain_name: string;
-  role: 'acceptor' | 'donor' | 'reserve';
+  role: DomainRole;
   ns: string;
-  ns_verified: number; // 0 = not configured, 1 = configured
-  proxied: number;
-  blocked: number;
-  blocked_reason: string | null;
-  ssl_status: string; // "valid", "none", "pending", "error"
-  expired_at: string | null;
+  ns_verified: number; // 0 = not verified, 1 = verified
+  proxied: number; // 0 = DNS only, 1 = proxied
+  blocked: number; // 0 = active, 1 = blocked
+  blocked_reason: string | null; // phishing, ad_network, manual, etc.
+  ssl_status: 'valid' | 'pending' | 'none' | 'error' | string;
+  expired_at: string | null; // ISO timestamp
   created_at: string;
   updated_at: string;
+  // Denormalized from related tables
   site_name: string | null;
-  site_status: string | null;
+  site_status: 'active' | 'paused' | 'archived' | null;
   project_name: string | null;
+  // Only in GET /domains/:id (detail response)
+  cf_zone_id?: string;
+  zone_status?: string;
+  ns_expected?: string;
+  // Health data (from list response)
   health: {
-    status: 'unknown' | 'clean' | 'suspicious' | 'malicious' | null;
+    status: 'healthy' | 'warning' | 'blocked' | 'unknown';
     threat_score: number | null;
     categories: string[] | null;
     checked_at: string | null;
