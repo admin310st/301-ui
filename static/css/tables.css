@@ -114,6 +114,15 @@
   background: color-mix(in srgb, var(--danger) 12%, transparent);
 }
 
+/* Warning actions - orange text */
+.dropdown__item--warning {
+  color: var(--warning);
+}
+
+.dropdown__item--warning:hover {
+  background: color-mix(in srgb, var(--warning) 12%, transparent);
+}
+
 /* Cloudflare-specific actions - orange hover */
 .dropdown__item--cf:hover {
   background: color-mix(in srgb, var(--accent-cf) 12%, transparent);

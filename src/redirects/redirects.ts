@@ -452,9 +452,15 @@ function renderPrimaryDomainRow(
   // Count donors with redirects for badge
   const actualRedirects = siteDonors.filter(r => r.has_redirect);
 
-  // Redirect badge with color coding
+  // Check if the acceptor itself has a redirect configured (problematic state after primary change)
+  const acceptorHasRedirect = redirect.has_redirect && redirect.target_url;
+
+  // Redirect badge with color coding OR red arrow if acceptor has redirect
   let redirectBadge = '';
-  if (actualRedirects.length > 0) {
+  if (acceptorHasRedirect) {
+    // Acceptor has its own redirect - show red danger arrow (needs attention)
+    redirectBadge = `<span class="text-danger" style="font-size: 1.125rem; line-height: 1;" title="Primary domain has redirect configured! Click to clear.">→</span>`;
+  } else if (actualRedirects.length > 0) {
     const has301 = actualRedirects.some(r => r.redirect_code === 301);
     const has302 = actualRedirects.some(r => r.redirect_code === 302);
     const badgeColor = has301 && !has302 ? 'text-ok' : 'text-warning';
@@ -465,15 +471,26 @@ function renderPrimaryDomainRow(
     </span>`;
   }
 
-  // Site type badge
-  const siteBadge = getSiteTypeBadge(redirect.site_type);
+  // Site type badge OR redirect target if acceptor has redirect
+  let targetDisplay = '';
+  if (acceptorHasRedirect) {
+    // Show where the acceptor redirects to (problematic state)
+    const targetHost = redirect.target_url!.replace('https://', '').replace('http://', '').split('/')[0];
+    targetDisplay = `
+      <div class="table-cell-inline">
+        <span class="badge badge--sm badge--danger" title="Primary domain redirects to ${redirect.target_url}">→ ${targetHost}</span>
+      </div>
+    `;
+  } else {
+    targetDisplay = getSiteTypeBadge(redirect.site_type);
+  }
 
   // Domain display with mass-select checkbox
   const domainDisplay = getDomainDisplay(redirect, true, true, allDonorsSelected, someDonorsSelected, redirectBadge);
 
   const activityDisplay = getActivityDisplay(redirect);
   const statusDisplay = getStatusDisplay(redirect);
-  const actions = getSiteHeaderActions(redirect);
+  const actions = getSiteHeaderActions(redirect, acceptorHasRedirect);
 
   // Row classes: add level-1 for grouped view, paused for paused/archived sites
   const isPaused = redirect.site_status === 'paused' || redirect.site_status === 'archived';
@@ -491,7 +508,7 @@ function renderPrimaryDomainRow(
         ${domainDisplay}
       </td>
       <td data-priority="critical" class="table__cell-target">
-        ${siteBadge}
+        ${targetDisplay}
       </td>
       <td data-priority="medium" class="table__cell-activity">
         ${activityDisplay}
@@ -1097,14 +1114,24 @@ function getRowActions(redirect: DomainRedirect): string {
 /**
  * Get actions for site header row (primary domain row)
  * Two icons: Edit Site + Kebab with site-level actions
+ * @param acceptorHasRedirect - true if acceptor has its own redirect (problematic state)
  */
-function getSiteHeaderActions(redirect: DomainRedirect): string {
+function getSiteHeaderActions(redirect: DomainRedirect, acceptorHasRedirect: boolean = false): string {
   // Edit Site button (opens drawer with site info)
   const editButton = `
     <button class="btn-icon btn-icon--sm btn-icon--ghost" type="button" data-action="edit-site" data-site-id="${redirect.site_id}" data-redirect-id="${redirect.id}" title="Edit site">
       <span class="icon" data-icon="mono/pencil-circle"></span>
     </button>
   `;
+
+  // Clear primary redirect action (only if acceptor has redirect configured)
+  const clearPrimaryRedirectAction = acceptorHasRedirect ? `
+    <button class="dropdown__item dropdown__item--warning" type="button" data-action="clear-primary-redirect" data-redirect-id="${redirect.id}" data-domain-id="${redirect.domain_id}">
+      <span class="icon" data-icon="mono/close-circle"></span>
+      <span>Clear primary redirect</span>
+    </button>
+    <div class="dropdown__divider"></div>
+  ` : '';
 
   // Kebab menu with site-level actions
   const kebabMenu = `
@@ -1113,6 +1140,7 @@ function getSiteHeaderActions(redirect: DomainRedirect): string {
         <span class="icon" data-icon="mono/dots-vertical"></span>
       </button>
       <div class="dropdown__menu" role="menu">
+        ${clearPrimaryRedirectAction}
         <button class="dropdown__item" type="button" data-action="manage-domains" data-site-id="${redirect.site_id}">
           <span class="icon" data-icon="mono/web"></span>
           <span>Manage domains</span>
@@ -1294,6 +1322,7 @@ function setupActions(): void {
     const redirectId = button.dataset.redirectId ? Number(button.dataset.redirectId) : null;
     const groupId = button.dataset.groupId ? Number(button.dataset.groupId) : null;
     const siteId = button.dataset.siteId ? Number(button.dataset.siteId) : null;
+    const domainId = button.dataset.domainId ? Number(button.dataset.domainId) : null;
 
     switch (action) {
       case 'toggle-group':
@@ -1316,6 +1345,9 @@ function setupActions(): void {
         break;
       case 'clear-site-redirects':
         if (siteId) handleClearSiteRedirects(siteId);
+        break;
+      case 'clear-primary-redirect':
+        if (redirectId && domainId) handleClearPrimaryRedirect(redirectId, domainId);
         break;
       case 'enable':
         if (redirectId) handleEnable(redirectId);
@@ -1680,6 +1712,29 @@ async function confirmDeleteRedirect(): Promise<void> {
     // On error, refresh to restore state
     await refreshRedirects();
     showGlobalNotice('error', error.message || 'Failed to delete redirect');
+  }
+}
+
+/**
+ * Handle clear primary redirect (for acceptor that has redirect configured)
+ * This is a problematic state after changing primary domain - acceptor shouldn't have redirect
+ */
+async function handleClearPrimaryRedirect(redirectId: number, domainId: number): Promise<void> {
+  const redirect = currentRedirects.find(r => r.id === redirectId);
+  if (!redirect) return;
+
+  try {
+    // Optimistic update - remove from state
+    removeRedirectFromDomain(domainId);
+    renderTable();
+
+    // API call
+    await deleteRedirect(redirectId);
+    showGlobalNotice('success', `Cleared redirect from primary domain ${redirect.domain}`);
+  } catch (error: any) {
+    // On error, refresh to restore state
+    await refreshRedirects();
+    showGlobalNotice('error', error.message || 'Failed to clear redirect');
   }
 }
 
