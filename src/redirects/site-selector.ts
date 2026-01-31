@@ -123,11 +123,28 @@ function renderProjectOptions(container: HTMLElement): void {
 }
 
 /**
+ * Truncate text to max length with ellipsis
+ */
+function truncateText(text: string, maxLength: number): string {
+  if (text.length <= maxLength) return text;
+  return text.slice(0, maxLength - 1) + '…';
+}
+
+/**
  * Update project name in selector button
  */
 function updateProjectDisplay(name: string): void {
   const nameEl = document.querySelector('[data-project-name]');
-  if (nameEl) nameEl.textContent = name;
+  if (nameEl) {
+    // Truncate long project names to prevent UI breakage
+    nameEl.textContent = truncateText(name, 20);
+    // Show full name in title for hover
+    if (name.length > 20) {
+      nameEl.setAttribute('title', name);
+    } else {
+      nameEl.removeAttribute('title');
+    }
+  }
 }
 
 // =============================================================================

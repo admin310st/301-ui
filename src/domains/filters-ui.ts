@@ -28,6 +28,14 @@ function getFilterTooltip(config: FilterConfig, activeValue: string | string[] |
 }
 
 /**
+ * Truncate text to max length with ellipsis
+ */
+function truncateText(text: string, maxLength: number): string {
+  if (text.length <= maxLength) return text;
+  return text.slice(0, maxLength - 1) + '…';
+}
+
+/**
  * Render filter chip with dropdown (matches UI Style Guide pattern)
  */
 function renderFilterChip(config: FilterConfig, activeValue: string | string[] | undefined): string {
@@ -45,16 +53,39 @@ function renderFilterChip(config: FilterConfig, activeValue: string | string[] |
   // Add priority attribute for responsive hiding (matches table column priorities)
   const priorityAttr = config.priority ? ` data-priority="${config.priority}"` : '';
 
+  // Special handling for project filter: show selected project name
+  const isProjectFilter = config.id === 'project';
+  let chipLabel = config.label;
+  let chipIcon = 'mono/filter';
+  let projectTitleAttr = '';
+
+  if (isProjectFilter) {
+    chipIcon = 'mono/layers'; // Same icon as redirects
+    if (isActive && typeof activeValue === 'string') {
+      // Show selected project name (truncated)
+      chipLabel = truncateText(activeValue, 20);
+      // Add title for full name on hover if truncated
+      if (activeValue.length > 20) {
+        projectTitleAttr = ` title="${activeValue}"`;
+      }
+    } else {
+      chipLabel = 'All projects';
+    }
+  }
+
+  // Use project title if set, otherwise use tooltip
+  const finalTitleAttr = projectTitleAttr || titleAttr;
+
   return `
     <div class="dropdown" data-dropdown data-filter-id="${config.id}"${priorityAttr}>
       <button
         class="btn-chip btn-chip--dropdown dropdown__trigger ${isActive ? 'is-active' : ''}"
         type="button"
         aria-haspopup="menu"
-        aria-expanded="false"${titleAttr}
+        aria-expanded="false"${finalTitleAttr}
       >
-        <span class="btn-chip__icon" data-icon="mono/filter"></span>
-        <span class="btn-chip__label">${config.label}</span>
+        <span class="btn-chip__icon" data-icon="${chipIcon}"></span>
+        <span class="btn-chip__label">${chipLabel}</span>
         ${countBadge}
         <span class="btn-chip__chevron" data-icon="mono/chevron-down"></span>
       </button>
