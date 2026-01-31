@@ -220,7 +220,7 @@ export function renderIntegrationsTable(integrations: ProjectIntegration[]): voi
       <tr>
         <td colspan="6">
           <div class="panel panel--info stack stack--sm">
-            <p>
+            <p class="stack-inline stack-inline--sm">
               <span class="icon" data-icon="mono/info"></span>
               <strong>Experimental mode</strong>
             </p>
@@ -231,7 +231,7 @@ export function renderIntegrationsTable(integrations: ProjectIntegration[]): voi
             <p class="text-sm text-muted">
               You can attach integrations here for organizational purposes, but it won't affect
               how interfaces display data. Use <strong>Projects</strong> as the main folder for domains,
-              and optionally create <strong>Sites</strong> (traffic streams) for easier redirect management.
+              and optionally create <strong>Sites</strong> (traffic streams) for granular traffic control.
             </p>
           </div>
         </td>
