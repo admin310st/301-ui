@@ -751,8 +751,8 @@ export function initAddDomainsDrawer(): void {
 
     const i18nKey = keyMap[code];
     if (i18nKey) {
-      // Use t() with interpolation params
-      return t(`domains.add.errors.${i18nKey}` as keyof typeof import('@i18n/locales/en').en, params);
+      // Use tWithVars() for interpolation
+      return tWithVars(`domains.add.errors.${i18nKey}`, params);
     }
 
     // Fallback for unknown errors
