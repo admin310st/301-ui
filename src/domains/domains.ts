@@ -2,7 +2,7 @@ import { type Domain } from './mock-data';
 import { initAddDomainsDrawer } from './add-domains-drawer';
 import { formatDomainDisplay } from '@utils/idn';
 import { showDialog } from '@ui/dialog';
-import { getDefaultFilters, hasActiveFilters, type ActiveFilters } from './filters-config';
+import { getDefaultFilters, hasActiveFilters, updateProjectFilterOptions, type ActiveFilters } from './filters-config';
 import { filterDomains as applyFiltersAndSearch } from './filters';
 import { renderFilterBar, initFilterUI } from './filters-ui';
 import { updateDomainsBadge, updateDomainsHealthIndicator } from '@ui/sidebar-nav';
@@ -10,7 +10,9 @@ import { initBulkActions, setReloadDomainsCallback } from './bulk-actions';
 import { adjustDropdownPosition } from '@ui/dropdown';
 import { queryNSRecords } from '@utils/dns';
 import { getDomains, updateDomainRole, blockDomain, unblockDomain, deleteDomain } from '@api/domains';
+import { getProjects } from '@api/projects';
 import { safeCall } from '@api/ui-client';
+import { getAccountId } from '@state/auth-state';
 import { adaptDomainsResponseToUI } from './adapter';
 import { showGlobalMessage } from '@ui/notifications';
 import { hideDialog } from '@ui/dialog';
@@ -356,16 +358,38 @@ function showErrorState(message?: string): void {
  */
 async function loadDomainsFromAPI(): Promise<void> {
   try {
-    const response = await safeCall(
-      () => getDomains(),
-      {
-        lockKey: 'domains',
-        retryOn401: true,
-      }
-    );
+    // Load domains and projects in parallel
+    const accountId = getAccountId();
+
+    const [domainsResponse, projects] = await Promise.all([
+      safeCall(
+        () => getDomains(),
+        {
+          lockKey: 'domains',
+          retryOn401: true,
+        }
+      ),
+      // Only load projects if we have accountId
+      accountId
+        ? safeCall(
+            () => getProjects(accountId),
+            {
+              lockKey: 'projects',
+              retryOn401: true,
+            }
+          )
+        : Promise.resolve([]),
+    ]);
+
+    // Update project filter options with real data
+    if (projects.length > 0) {
+      updateProjectFilterOptions(projects);
+      // Re-render filters to show updated project options
+      renderFilters();
+    }
 
     // Adapt API response to UI format
-    const uiDomains = adaptDomainsResponseToUI(response.groups);
+    const uiDomains = adaptDomainsResponseToUI(domainsResponse.groups);
 
     // Load into table
     loadDomains(uiDomains);

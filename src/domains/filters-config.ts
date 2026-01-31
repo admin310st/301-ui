@@ -129,3 +129,18 @@ export function getDefaultFilters(): ActiveFilters {
     expiry: 'any',
   };
 }
+
+/**
+ * Update project filter options with real data from API
+ * @param projects Array of projects from API
+ */
+export function updateProjectFilterOptions(projects: Array<{ id: number; name: string }>): void {
+  const projectFilter = DOMAIN_FILTERS.find((f) => f.id === 'project');
+  if (!projectFilter) return;
+
+  // Reset to "All" + dynamic project options
+  projectFilter.options = [
+    { value: 'all', label: 'All' },
+    ...projects.map((p) => ({ value: p.id.toString(), label: p.name })),
+  ];
+}
