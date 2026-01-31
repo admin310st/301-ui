@@ -5,9 +5,14 @@
 
 const STORAGE_KEY = 'ui.preferences';
 
+export interface SelectedProject {
+  id: number;
+  name: string;
+}
+
 export interface UIPreferences {
-  /** Selected project name for filtering (persists across Domains, Redirects, etc.) */
-  selectedProject: string | null;
+  /** Selected project for filtering (persists across Domains, Redirects, etc.) */
+  selectedProject: SelectedProject | null;
 }
 
 const defaults: UIPreferences = {
@@ -43,15 +48,36 @@ function saveUIPreferences(prefs: UIPreferences): void {
 /**
  * Get selected project
  */
-export function getSelectedProject(): string | null {
+export function getSelectedProject(): SelectedProject | null {
   return getUIPreferences().selectedProject;
 }
 
 /**
- * Set selected project (null = "All")
+ * Get selected project name (for filters that use name)
  */
-export function setSelectedProject(projectName: string | null): void {
+export function getSelectedProjectName(): string | null {
+  return getUIPreferences().selectedProject?.name ?? null;
+}
+
+/**
+ * Get selected project ID (for selectors that use ID)
+ */
+export function getSelectedProjectId(): number | null {
+  return getUIPreferences().selectedProject?.id ?? null;
+}
+
+/**
+ * Set selected project (null = "All" / no selection)
+ */
+export function setSelectedProject(project: SelectedProject | null): void {
   const prefs = getUIPreferences();
-  prefs.selectedProject = projectName === 'all' ? null : projectName;
+  prefs.selectedProject = project;
   saveUIPreferences(prefs);
+}
+
+/**
+ * Clear selected project
+ */
+export function clearSelectedProject(): void {
+  setSelectedProject(null);
 }

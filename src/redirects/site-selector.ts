@@ -14,6 +14,7 @@ import { getProjects } from '@api/projects';
 import { getProjectSites } from '@api/sites';
 import type { Site, Project } from '@api/types';
 import { loadSitesRedirects, clearState, finishLoading, type SiteContext } from './state';
+import { getSelectedProjectId, setSelectedProject } from '@state/ui-preferences';
 
 // =============================================================================
 // Types
@@ -256,7 +257,11 @@ async function handleProjectSelect(projectId: number): Promise<void> {
 
   currentProjectId = projectId;
   const project = availableProjects.find(p => p.id === projectId);
-  if (project) updateProjectDisplay(project.name);
+  if (project) {
+    updateProjectDisplay(project.name);
+    // Persist project selection across pages
+    setSelectedProject({ id: project.id, name: project.name });
+  }
 
   // Close project dropdown
   closeDropdown('[data-project-selector]');
@@ -448,9 +453,15 @@ export async function initSiteSelector(
     }
   });
 
-  // Auto-select first project or finish loading if none
+  // Auto-select saved project or first project or finish loading if none
   if (availableProjects.length > 0) {
-    await handleProjectSelect(availableProjects[0].id);
+    const savedProjectId = getSelectedProjectId();
+    const projectToSelect = savedProjectId
+      ? availableProjects.find(p => p.id === savedProjectId)
+      : null;
+
+    // Use saved project if found, otherwise fall back to first project
+    await handleProjectSelect(projectToSelect?.id ?? availableProjects[0].id);
   } else {
     // No projects available - finish loading to show empty state
     finishLoading();

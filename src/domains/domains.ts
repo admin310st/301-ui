@@ -13,7 +13,7 @@ import { getDomains, updateDomainRole, blockDomain, unblockDomain, deleteDomain 
 import { getProjects } from '@api/projects';
 import { safeCall } from '@api/ui-client';
 import { getAccountId } from '@state/auth-state';
-import { getSelectedProject, setSelectedProject } from '@state/ui-preferences';
+import { getSelectedProjectName, setSelectedProject, clearSelectedProject } from '@state/ui-preferences';
 import { adaptDomainsResponseToUI } from './adapter';
 import { showGlobalMessage } from '@ui/notifications';
 import { hideDialog } from '@ui/dialog';
@@ -25,14 +25,17 @@ let searchQuery = '';
 let currentPage = 1;
 const PAGE_SIZE = 25;
 
+// Loaded projects for filter (used to get id by name when saving)
+let loadedProjects: Array<{ id: number; project_name: string }> = [];
+
 export function initDomainsPage(): void {
   const card = document.querySelector('[data-domains-card]');
   if (!card) return;
 
   // Restore saved project filter
-  const savedProject = getSelectedProject();
-  if (savedProject) {
-    activeFilters.project = savedProject;
+  const savedProjectName = getSelectedProjectName();
+  if (savedProjectName) {
+    activeFilters.project = savedProjectName;
   }
 
   // Initialize Add Domains Drawer
@@ -264,7 +267,14 @@ export function initDomainsPage(): void {
     currentPage = 1; // Reset to first page on filter change
 
     // Persist project selection across pages
-    setSelectedProject(activeFilters.project || null);
+    if (activeFilters.project && activeFilters.project !== 'all') {
+      const project = loadedProjects.find(p => p.project_name === activeFilters.project);
+      if (project) {
+        setSelectedProject({ id: project.id, name: project.project_name });
+      }
+    } else {
+      clearSelectedProject();
+    }
 
     renderFilters();
     applyFiltersAndRender();
@@ -293,7 +303,7 @@ export function initDomainsPage(): void {
       activeFilters.expiry = defaults.expiry;
 
       // Clear persisted project
-      setSelectedProject(null);
+      clearSelectedProject();
 
       onFilterChange();
     });
@@ -397,6 +407,7 @@ async function loadDomainsFromAPI(): Promise<void> {
 
     // Update project filter options with real data
     if (projects.length > 0) {
+      loadedProjects = projects;
       updateProjectFilterOptions(projects);
       // Re-render filters to show updated project options
       renderFilters();
