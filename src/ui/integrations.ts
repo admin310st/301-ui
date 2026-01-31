@@ -290,7 +290,7 @@ async function handleEditKey(event: Event): Promise<void> {
 /**
  * Open edit integration drawer and populate with key data
  */
-function openEditIntegrationDrawer(key: IntegrationKey): void {
+async function openEditIntegrationDrawer(key: IntegrationKey): Promise<void> {
   const drawer = document.querySelector<HTMLElement>('[data-drawer="edit-integration"]');
   if (!drawer) return;
 
@@ -306,7 +306,7 @@ function openEditIntegrationDrawer(key: IntegrationKey): void {
   }
 
   if (accountIdEl) {
-    // For Cloudflare, show token name, account email, and expiry date from provider_scope
+    // For Cloudflare, show token name, account email, expiry date, and last sync from provider_scope
     if (key.provider === 'cloudflare' && key.provider_scope) {
       try {
         const scope = JSON.parse(key.provider_scope);
@@ -319,11 +319,34 @@ function openEditIntegrationDrawer(key: IntegrationKey): void {
               day: 'numeric'
             })
           : 'No expiry';
+
+        // Get last sync date from zones
+        let lastSyncDate = '—';
+        try {
+          const zones = await getZones();
+          const keyZones = zones.filter(z => z.key_id === key.id);
+          if (keyZones.length > 0) {
+            const mostRecent = keyZones.reduce((latest, zone) =>
+              new Date(zone.last_sync_at) > new Date(latest.last_sync_at) ? zone : latest
+            );
+            lastSyncDate = new Date(mostRecent.last_sync_at).toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            });
+          }
+        } catch {
+          // Ignore errors fetching zones
+        }
+
         let html = `<strong>Token:</strong> ${tokenName}`;
         if (cfAccountName) {
           html += `<br><strong>Account:</strong> ${cfAccountName}`;
         }
         html += `<br><strong>Expires:</strong> ${expiryDate}`;
+        html += `<br><strong>Last Synced:</strong> <span data-last-synced>${lastSyncDate}</span>`;
         accountIdEl.innerHTML = html;
       } catch {
         // Fallback to account ID if parsing fails
@@ -579,6 +602,18 @@ function initEditIntegrationDrawer(): void {
         showGlobalMessage('success', `Synced! +${result.zones_synced} zones, +${result.domains_synced} domains`);
       } else {
         showGlobalMessage('info', 'No new zones found in this Cloudflare account');
+      }
+
+      // Update "Last Synced" display
+      const lastSyncedEl = drawer.querySelector('[data-last-synced]');
+      if (lastSyncedEl) {
+        lastSyncedEl.textContent = new Date().toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
       }
     } catch (error: any) {
       showGlobalMessage('error', error.message || 'Failed to sync zones');
