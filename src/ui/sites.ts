@@ -4,6 +4,7 @@ import type { Site, UpdateSiteRequest } from '@api/types';
 import { getAccountId } from '@state/auth-state';
 import { showGlobalMessage } from './notifications';
 import { safeCall } from '@api/ui-client';
+import { openManageSiteDomainsDrawer } from '@domains/site-domains';
 
 // State
 let allSites: Site[] = [];
@@ -457,15 +458,26 @@ export function initSitesPage(): void {
     });
   }
 
-  // Event delegation for edit-site buttons
+  // Event delegation for action buttons
   document.addEventListener('click', async (e) => {
     const target = e.target as HTMLElement;
-    const editBtn = target.closest<HTMLButtonElement>('[data-action="edit-site"]');
 
+    // Edit site button
+    const editBtn = target.closest<HTMLButtonElement>('[data-action="edit-site"]');
     if (editBtn) {
       const siteId = editBtn.dataset.siteId;
       if (siteId) {
         await openEditSiteDrawer(parseInt(siteId, 10));
+      }
+      return;
+    }
+
+    // Manage domains button
+    const manageDomainsBtn = target.closest<HTMLButtonElement>('[data-action="manage-domains"]');
+    if (manageDomainsBtn) {
+      const siteId = manageDomainsBtn.dataset.siteId;
+      if (siteId) {
+        openManageSiteDomainsDrawer(parseInt(siteId, 10));
       }
     }
   });
