@@ -7,6 +7,7 @@
  */
 
 import { showGlobalMessage } from '@ui/notifications';
+import { showLoading, hideLoading } from '@ui/loading-indicator';
 import { formatDomainDisplay } from '@utils/idn';
 import { getIntegrationKeys, type IntegrationKey } from '@api/integrations';
 import { createZonesBatch, type BatchZoneResponse, type BatchZoneSuccess, type BatchZoneFailed } from '@api/domains';
@@ -125,9 +126,10 @@ export function initAddDomainsDrawer(): void {
   syncBtn?.addEventListener('click', async () => {
     if (!selectedIntegration) return;
 
-    // Show loading state
+    // Show loading state (CF orange shimmer)
     syncBtn.disabled = true;
     syncBtn.setAttribute('data-turnstile-pending', '');
+    showLoading('cf');
 
     try {
       const result = await safeCall(
@@ -152,6 +154,7 @@ export function initAddDomainsDrawer(): void {
       showGlobalMessage('danger', normalized.message || 'Failed to sync zones');
     } finally {
       // Restore button state
+      hideLoading();
       syncBtn.removeAttribute('data-turnstile-pending');
       syncBtn.disabled = false;
     }
