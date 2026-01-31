@@ -139,8 +139,9 @@ export function updateProjectFilterOptions(projects: Array<{ id: number; project
   if (!projectFilter) return;
 
   // Reset to "All" + dynamic project options
+  // Use project_name as value since filters.ts compares against domain.project_name
   projectFilter.options = [
     { value: 'all', label: 'All' },
-    ...projects.map((p) => ({ value: p.id.toString(), label: p.project_name })),
+    ...projects.map((p) => ({ value: p.project_name, label: p.project_name })),
   ];
 }
