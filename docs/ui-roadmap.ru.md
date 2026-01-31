@@ -748,13 +748,12 @@ Admin (самый конец, Layer 7)
 - `partials/edit-site-drawer.hbs` - drawer markup
 - `partials/manage-site-domains-drawer.hbs` - drawer markup
 
-**Known Issues (Backend fixes needed):**
+**Known Issues (GitHub):**
 
-- [ ] **Detach domain from site issue**
-  - **Проблема:** При detach домена от сайта (`DELETE /sites/:id/domains/:domainId`), домен удаляется из проекта целиком вместо того, чтобы остаться в проекте как свободный домен
-  - **Ожидаемое поведение:** Домен должен остаться в проекте, только открепиться от сайта
-  - **Статус:** ⏳ Отдано на доработку backend
-  - **Workaround:** Пока функционал detach не рекомендуется к использованию
+- ⚠️ **[#7](https://github.com/admin310st/301/issues/7)** — DELETE /sites/:id/domains/:id должен открепить от сайта, а не от проекта
+  - **Проблема:** При detach домена от сайта, домен удаляется из проекта целиком
+  - **Ожидаемое:** Домен должен остаться в проекте с `role: 'reserve'`
+  - **Статус:** OPEN
 
 **Оригинальная спецификация (для справки):**
 
@@ -852,11 +851,45 @@ Admin (самый конец, Layer 7)
 
 ---
 
-### Этап 4 — Traffic Rules: Redirects и TDS-логика
+### Этап 4 — Traffic Rules: Redirects и TDS-логика ✅ ЧАСТИЧНО РЕАЛИЗОВАНО
 
-**Цель:** отрисовать работу “движка трафика”.
+**Цель:** отрисовать работу "движка трафика".
 
-#### 4.1. Redirect Rules (глобально и/или по проекту)
+#### 4.1. Redirect Rules ✅ РЕАЛИЗОВАНО (базовые 301/302)
+
+**Реализовано:**
+
+- ✅ **Страница `/redirects.html`** с unified dashboard layout
+- ✅ **Таблица редиректов** с иерархической структурой:
+  - Acceptor row: mass-select checkbox, флаг, ←N badge, site type, lock icon
+  - Donor rows: с отступом и вертикальной линией, status badges
+- ✅ **Project/Site селекторы** (API-driven, не моки)
+- ✅ **Мульти-сайт параллельная загрузка** данных
+- ✅ **Create/Edit Redirect drawer**:
+  - Source domain (donor)
+  - Target URL (pre-filled с acceptor domain)
+  - Template selection (T1-T7)
+  - Parameters (preserve_path, preserve_query, etc.)
+- ✅ **Bulk actions**: Enable/Disable/Delete/Sync
+- ✅ **Cloudflare Sync** через `POST /zones/:id/apply-redirects`
+- ✅ **Sync status tracking** (pending/synced/error)
+- ✅ **Filters**: Configured, Sync status, Enabled/Disabled
+- ✅ **Project selection persistence** между страницами (Domains ↔ Redirects)
+
+**Файлы:**
+- `redirects.html` - главная страница
+- `src/redirects/redirects.ts` - UI logic, table rendering
+- `src/redirects/state.ts` - multi-site state management
+- `src/redirects/site-selector.ts` - project/site selectors
+- `src/redirects/drawer.ts` - drawer logic
+- `src/api/redirects.ts` - API client
+
+**Known Issues (GitHub):**
+
+- ⚠️ **[#14](https://github.com/admin310st/301/issues/14)** — 500 ошибка при apply-redirects для зоны с disabled редиректом
+- ⚠️ **[#10](https://github.com/admin310st/301/issues/10)** — API должен возвращать все домены сайта (включая без редиректов)
+
+**Оригинальная спецификация (для справки):**
 
 Список redirect-правил:
 
@@ -1070,13 +1103,17 @@ Pinia и Vue оставляем как **опциональный следующ
 
 **Следующие шаги:**
 
-* **Редиректы (Layer 4)** — слой быстрых простых правил (301/302/307).
-  * ⏳ Ожидаем реализацию backend API
-  * Global/Project/Domain scope
-  * Source conditions + Target URL + HTTP code
-  * Sync with Cloudflare
 * **Поток (Stream/TDS, Layer 5)** — логика маршрутизации трафика, которая может:
   * работать на "чистом" домене,
   * или **сидеть поверх домена, зарезервированного под сайт**, превращая его в клоаку/умный поток.
 * **Аналитика** — traffic insights, performance metrics.
 * **Админка и маркет** — отдельный слой, складываем позже, когда базовый кабинет готов.
+
+**Открытые issues (блокеры/баги):**
+
+| Issue | Описание | Статус |
+|-------|----------|--------|
+| [#7](https://github.com/admin310st/301/issues/7) | Detach domain from site удаляет из проекта | OPEN |
+| [#10](https://github.com/admin310st/301/issues/10) | Redirects API: вернуть все домены сайта | OPEN |
+| [#14](https://github.com/admin310st/301/issues/14) | 500 при apply-redirects с disabled редиректом | OPEN |
+| [#9](https://github.com/admin310st/301/issues/9) | Нельзя добавить второй CF аккаунт | OPEN |
