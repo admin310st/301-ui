@@ -243,32 +243,30 @@ loadDomainsFromAPI();
 
 **Проблема:** API не возвращает `registrar`, только `key_id`
 
-**Варианты решения:**
+**Решение (временное):**
 
-**A) Lookup через integrations (рекомендуется):**
+Показывать прочерк "—" с `title="key_id: ${keyId}"` пока не будет интеграция провайдеров.
+
 ```typescript
-// Cache integrations on page load
-let integrationsMap: Map<number, string> = new Map();
-
-async function loadIntegrations() {
-  const response = await safeCall(
-    () => getIntegrations(),
-    { lockKey: 'integrations', retryOn401: true }
-  );
-  response.forEach(i => integrationsMap.set(i.id, i.provider));
+// adapter.ts
+function getRegistrarDisplay(keyId: number | null): { icon: string | null; title: string } {
+  if (!keyId) {
+    return { icon: null, title: 'Manual' };
+  }
+  // TODO: После интеграции провайдеров - lookup через integrations API
+  return { icon: null, title: `Integration #${keyId}` };
 }
 
-function getRegistrar(keyId: number | null): Domain['registrar'] {
-  if (!keyId) return 'manual';
-  return (integrationsMap.get(keyId) as Domain['registrar']) ?? 'cloudflare';
-}
+// В рендере таблицы
+const providerCell = keyId
+  ? `<span class="text-muted" title="Integration #${keyId}">—</span>`
+  : `<span class="text-muted">—</span>`;
 ```
 
-**B) Убрать provider column:**
-- Проще, но теряем информацию
-
-**C) Запросить поле в API:**
-- Лучшее решение, но требует backend изменения
+**TODO (после интеграции провайдеров):**
+- Загружать integrations при инициализации страницы
+- Маппить `key_id` → `provider` (cloudflare, namecheap, etc.)
+- Показывать иконку провайдера как сейчас в mock
 
 ---
 
@@ -423,7 +421,7 @@ PR 3 (Remove UI-only) ───────────────────�
 
 ## Open Questions
 
-1. **Registrar field:** Запрашивать добавление в API или использовать lookup?
+1. ~~**Registrar field:**~~ ✅ Решено: временно показываем "—" с title=key_id, ждём интеграцию провайдеров
 2. **Monitoring feature:** Удалять полностью или показывать как "coming soon"?
 3. **Pagination:** API поддерживает? Нужен ли offset/limit?
 4. **Bulk delete:** Нужен batch endpoint или делаем последовательно?
