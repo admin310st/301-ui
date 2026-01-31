@@ -1036,14 +1036,14 @@ Pinia и Vue оставляем как **опциональный следующ
 
 ## Итог
 
-**Текущее состояние (Layer 0-3):**
+**Текущее состояние (Layer 0-4):**
 
 ✅ **Layer 0** - Фундамент (auth, UI Style Guide, layout system)
 ✅ **Layer 1** - Integrations (Cloudflare accounts, domain registrars)
 ✅ **Layer 2** - Domains (table, filters, bulk actions, inspector drawer)
 ✅ **Layer 3** - Projects & Sites (CRUD, tabs navigation, attach/detach mechanics)
-🔜 **Layer 4** - Redirects (simple redirect rules) - следующий этап, ожидаем backend API
-📋 **Layer 5** - Streams (TDS/traffic distribution) - в планах
+✅ **Layer 4** - Redirects (full API integration, Cloudflare sync, multi-site support)
+🔜 **Layer 5** - Streams (TDS/traffic distribution) - следующий этап
 📋 **Layer 6-7** - Analytics, Admin - в планах
 
 **Реализованные сущности:**

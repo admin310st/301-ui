@@ -8,7 +8,7 @@
 - интеграцию с backend-API (см. `docs/301-wiki/` — локальная документация в виде git submodule);
 - развёртывание всего этого как **Cloudflare Worker** под `app.301.st`.
 
-Текущая кодовая база — это **"Layer 0-3"** из дорожной карты, описанной в `docs/ui-roadmap.ru.md`: фундамент (аутентификация, интеграции, UI Style Guide) + управление доменами (таблица, фильтры, bulk actions, инспектор) + проекты и сайты (CRUD, tabs navigation, attach/detach mechanics).
+Текущая кодовая база — это **"Layer 0-4"** из дорожной карты, описанной в `docs/ui-roadmap.ru.md`: фундамент (аутентификация, интеграции, UI Style Guide) + управление доменами (таблица, фильтры, bulk actions, инспектор) + проекты и сайты (CRUD, tabs navigation, attach/detach mechanics) + редиректы (полная интеграция с API, синхронизация с Cloudflare).
 
 > **📖 API Документация (git submodule)**
 > Полная спецификация API находится в `docs/301-wiki/` и подключена как git submodule из репозитория [301.wiki](https://github.com/admin310st/301.wiki.git).
@@ -456,6 +456,71 @@ Cloudflare Workers serves `public/` as the origin root.
 
 ---
 
+## Текущее покрытие по редиректам (Layer 4)
+
+Репозиторий реализовал полное управление редиректами с API интеграцией и синхронизацией с Cloudflare.
+
+### Реализовано
+
+- **Redirects Page** (`/redirects.html`)
+  - Таблица редиректов с иерархической структурой (acceptor → donors)
+  - Project/Site селекторы (API-driven)
+  - Мульти-сайт параллельная загрузка данных
+  - Responsive layout с data-priority атрибутами
+  - Search functionality
+  - Loading/empty states
+  - Код:
+    - `src/redirects/redirects.ts` — UI logic, table rendering
+    - `src/redirects/state.ts` — multi-site state management
+    - `src/redirects/site-selector.ts` — project/site selectors
+
+- **Redirect Management**
+  - Create Redirect drawer с полями:
+    - Source domain (donor)
+    - Target URL (pre-filled с acceptor domain)
+    - Template selection (T1-T7)
+    - Parameters (preserve_path, preserve_query, etc.)
+  - Edit Redirect drawer
+  - Delete redirect с confirmation
+  - Bulk actions: Enable/Disable/Delete/Sync
+  - Код:
+    - `src/redirects/drawer.ts` — drawer logic
+    - `src/api/redirects.ts` — API client
+
+- **Cloudflare Sync**
+  - Sync status tracking (pending/synced/error)
+  - Zone-level sync via `POST /zones/:id/apply-redirects`
+  - Sync status badges в таблице
+  - Код:
+    - `src/redirects/sync-status.ts`
+
+- **API Integration**
+  - `GET /redirects/templates` — шаблоны T1-T7
+  - `GET /redirects/presets` — пресеты P1-P5
+  - `GET /sites/:siteId/redirects` — домены сайта с редиректами
+  - `POST /domains/:domainId/redirects` — создание редиректа
+  - `PATCH /redirects/:id` — обновление редиректа
+  - `DELETE /redirects/:id` — удаление редиректа
+  - `POST /zones/:id/apply-redirects` — синхронизация с CF
+  - Код:
+    - `src/api/redirects.ts` — все API функции
+    - `src/api/types.ts` — TypeScript types
+
+- **Filters**
+  - Configured (has redirect / no redirect)
+  - Sync status (synced / pending / error)
+  - Enabled/Disabled
+  - Код:
+    - `src/redirects/filters-config.ts`
+    - `src/redirects/filters-ui.ts`
+
+- **UI State Persistence**
+  - Selected project persisted across pages (Domains ↔ Redirects)
+  - Код:
+    - `src/state/ui-preferences.ts`
+
+---
+
 ## Известные расхождения с API (backlog для доработки)
 
 По результатам сверки с `docs/301-wiki/API_Auth.md`:
@@ -640,5 +705,5 @@ For non-Russian readers:
 > - UI Roadmap: `docs/ui-roadmap.ru.md`
 > - Style Guide: `docs/StyleGuide.md`
 >
-> The repo is currently at **Layer 0-3** of the roadmap: foundation (auth, integrations, UI Style Guide) + domains management UI with filters, bulk actions, and inspector drawer + projects and sites with full CRUD and tab navigation.
+> The repo is currently at **Layer 0-4** of the roadmap: foundation (auth, integrations, UI Style Guide) + domains management UI with filters, bulk actions, and inspector drawer + projects and sites with full CRUD and tab navigation + redirects with full API integration and Cloudflare sync.
 

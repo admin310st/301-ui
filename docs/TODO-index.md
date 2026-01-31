@@ -4,20 +4,20 @@
 
 ---
 
-## 📍 Текущий фокус (2025-01-18)
+## 📍 Текущий фокус (2025-01-31)
 
-**Приоритет:** Real API Integration для Redirects
+**Приоритет:** Domains API migration, UI polish
 
 **Текущие задачи:**
-1. 🚧 **Redirects page** - API integration, drawer save/sync testing
-2. 🎯 **Projects page** - верхний уровень иерархии
-3. 🎯 **Sites page** - управление сайтами/whitepages
+1. ✅ **Redirects page** - COMPLETED (full API integration, Cloudflare sync)
+2. ✅ **Domains page** - COMPLETED (real API, filters, project selector)
+3. 🎯 **Streams/TDS page** - следующий этап (см. TODO-streams.md)
 
-**Redirects Progress:**
-- ✅ Table with real API data (multi-site parallel loading)
-- ✅ Project/Site selectors (API-driven)
-- ✅ Drawer pre-fills target URL with acceptor domain
-- 🔄 Testing drawer save (createRedirect API call fixed)
+**Domains Progress (завершено 2025-01-31):**
+- ✅ Real API integration (GET /domains)
+- ✅ Project filter with real projects from API
+- ✅ Project selection persistence across pages (Domains ↔ Redirects)
+- ✅ Pagination with real data
 
 ---
 
@@ -38,10 +38,10 @@ Account (Аккаунт клиента)
 ```
 ✅ Layer 0: Auth pages, UI Style Guide
 ✅ Layer 1: Integrations (Cloudflare, Namecheap)
-✅ Layer 2: Domains MVP
-🎯 Layer 3: Projects, Sites, Streams (CURRENT)
-🎯 Layer 4: Redirects, TDS logic
-⏳ Layer 5: Global state management
+✅ Layer 2: Domains (real API, filters, bulk actions)
+✅ Layer 3: Projects, Sites (CRUD, tabs navigation)
+✅ Layer 4: Redirects (full API, Cloudflare sync)
+🎯 Layer 5: Streams/TDS (NEXT)
 ⏳ Layer 6: UX enhancements, bulk actions
 ⏳ Layer 7: Admin tools (System, Jobs, Market)
 ```
@@ -82,9 +82,9 @@ Account (Аккаунт клиента)
 
 ---
 
-### 2. Redirects (Приоритет #1)
+### 2. Redirects
 
-**Статус:** 🚧 In Progress — Real API Integration (2025-01-18)
+**Статус:** ✅ COMPLETED (2025-01-31)
 
 **Цель:** Core функциональность 301.st - управление redirect rules
 
@@ -125,11 +125,11 @@ src/api/
 - [x] Pre-fill target URL with acceptor domain
 - [x] Bulk actions UI (enable/disable/delete/sync)
 
-**В процессе (Этап 6):**
+**Завершено:**
 - [x] Fix createRedirect API call (removed invalid `enabled` field)
-- [ ] Test drawer save with real API
-- [ ] Test Cloudflare sync
-- [ ] Error handling refinement
+- [x] Drawer save with real API
+- [x] Cloudflare sync
+- [x] Error handling
 
 **API Endpoints (из `docs/301-wiki/API_Redirects.md`):**
 | Endpoint | Метод | Описание |
@@ -150,9 +150,9 @@ src/api/
 
 ---
 
-### 3. Projects (NEW, Приоритет #2)
+### 3. Projects
 
-**Статус:** 📋 Planned (создать `TODO-projects.md`)
+**Статус:** ✅ COMPLETED (Layer 3)
 
 **Цель:** Верхний уровень иерархии - управление проектами/кампаниями
 
@@ -198,9 +198,9 @@ interface Project {
 
 ---
 
-### 4. Sites (NEW, Приоритет #3)
+### 4. Sites
 
-**Статус:** 📋 Planned (создать `TODO-sites.md`)
+**Статус:** ✅ COMPLETED (Layer 3)
 
 **Цель:** Управление сайтами/whitepages, связь с проектами
 
@@ -288,53 +288,44 @@ interface Site {
 
 ---
 
-## 🎯 Порядок разработки (согласовано 2025-12-22)
+## 🎯 Порядок разработки
 
-### Фаза 1: Core Pages на мокапах (UI впереди бэкенда)
-
-**Вариант A - По функциональной важности (ВЫБРАН):**
+### Фаза 1: Core Pages ✅ COMPLETED
 
 ```
-1. Redirects page     ⭐ ПРИОРИТЕТ (core продукта)
+1. Redirects page     ✅ DONE (full API integration, CF sync)
    └─ Типы: 301, 302, cloaking, worker
    └─ Условия: geo, device, UTM
    └─ Priority ordering
 
-2. Projects page
+2. Projects page      ✅ DONE (CRUD, tabs, integrations)
    └─ Таблица проектов
-   └─ Stat-cards
-   └─ Drawer inspector
+   └─ Detail view с табами
+   └─ Attach/detach integrations и domains
 
-3. Sites page
+3. Sites page         ✅ DONE (CRUD, domain management)
    └─ Связь с Projects
-   └─ Primary domain selector
-   └─ Languages, TDS toggle
+   └─ Manage site domains
+   └─ Attach/detach domains
 
-4. Streams/TDS page (позже)
+4. Streams/TDS page   🎯 NEXT (см. TODO-streams.md)
    └─ Visual stream editor
    └─ GEO targeting с flag-icons
 ```
 
-**Почему Redirects первыми:**
-- ✅ Это ключевая фича платформы (301.st)
-- ✅ Можно показать без полной иерархии
-- ✅ UI-паттерны применимы к другим страницам
-- ✅ Сразу видна ценность продукта
+### Фаза 2: API Integration ✅ COMPLETED
 
-### Фаза 2: API Integration
+- ✅ Real API для Redirects
+- ✅ Real API для Projects
+- ✅ Real API для Sites
+- ✅ Real API для Domains (миграция завершена 2025-01-31)
 
-**После создания всех UI на мокапах:**
-- Real API для Redirects
-- Real API для Projects
-- Real API для Sites
-- Real API для Domains (блокер: поле `registrar`)
+### Фаза 3: Advanced Features (in progress)
 
-### Фаза 3: Advanced Features
-
-- Drawer tabs для Domains (7 tabs)
-- Bulk actions
-- Advanced filters
-- Analytics integration
+- 🎯 Streams/TDS page (следующий этап)
+- [ ] Drawer tabs для Domains (7 tabs)
+- [ ] Advanced bulk actions
+- [ ] Analytics integration
 
 ---
 
@@ -611,6 +602,13 @@ build: {
 
 ## 📅 История обновлений
 
+- **2025-01-31**: Domains API Migration Complete
+  - Real API integration for domains (GET /domains)
+  - Project filter with real projects from API
+  - Project selection persistence across pages (Domains ↔ Redirects)
+  - Cleaned up completed PLAN files from repository
+  - Updated README.md, ui-roadmap.ru.md, TODO-index.md with current status
+
 - **2025-01-18**: Redirects Real API Integration
   - Fixed multi-site parallel loading (site-specific abort keys)
   - Project/Site selectors fully API-driven (removed mocks)
@@ -630,6 +628,6 @@ build: {
 
 ---
 
-**Последнее обновление:** 2025-01-18
+**Последнее обновление:** 2025-01-31
 
-**Next action:** Test drawer save with real API, then Cloudflare sync
+**Next action:** Streams/TDS page implementation (Layer 5)
