@@ -959,7 +959,15 @@ function getStatusDisplay(redirect: DomainRedirect): string {
   if (redirect.role === 'acceptor') {
     // Check if acceptor has redirect configured (problematic state)
     if (redirect.has_redirect && redirect.target_url) {
-      return '<span class="badge badge--danger" title="Primary domain has redirect configured! Use &quot;Clear primary redirect&quot; to fix.">Alert</span>';
+      const targetHost = redirect.target_url.replace('https://', '').replace('http://', '').split('/')[0];
+      const tooltipContent = `
+        <div class="tooltip tooltip--danger">
+          <div class="tooltip__header">Misconfigured Primary</div>
+          <div class="tooltip__body">This domain redirects to ${targetHost}</div>
+          <div class="tooltip__footer">Use "Clear primary redirect" to fix</div>
+        </div>
+      `.trim();
+      return `<span class="badge badge--danger" data-tooltip data-tooltip-content="${escapeHtml(tooltipContent)}">Alert</span>`;
     }
     return '<span class="badge badge--neutral" title="Redirect target (main site domain)">Target</span>';
   }
