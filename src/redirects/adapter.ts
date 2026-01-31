@@ -42,13 +42,13 @@ export function adaptDomainToLegacy(
     reserve: 'reserve',
   };
 
-  // Build analytics from redirect data
+  // Build analytics from redirect data (with safe defaults)
   const analytics = redirect ? {
-    clicks_total: redirect.clicks_total,
-    clicks_24h: redirect.clicks_today,
-    clicks_7d: redirect.clicks_total, // API doesn't have 7d, use total
+    clicks_total: redirect.clicks_total ?? 0,
+    clicks_24h: redirect.clicks_today ?? 0,
+    clicks_7d: redirect.clicks_total ?? 0, // API doesn't have 7d, use total
     clicks_30d: 0, // Not available
-    trend: redirect.trend as AnalyticsTrend,
+    trend: (redirect.trend as AnalyticsTrend) ?? 'neutral',
     last_click_at: null, // Not available
   } : undefined;
 
