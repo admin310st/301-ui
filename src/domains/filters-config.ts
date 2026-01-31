@@ -18,6 +18,16 @@ export interface FilterConfig {
 
 export const DOMAIN_FILTERS: FilterConfig[] = [
   {
+    id: 'project',
+    label: 'Project',
+    type: 'single-select',
+    priority: 'critical', // Always visible - primary grouping/filtering, state persisted
+    options: [
+      { value: 'all', label: 'All' },
+      // Dynamic options populated from API
+    ],
+  },
+  {
     id: 'status',
     label: 'Status',
     type: 'single-select',
@@ -52,16 +62,6 @@ export const DOMAIN_FILTERS: FilterConfig[] = [
       { value: 'namecheap', label: 'Namecheap' },
       { value: 'namesilo', label: 'NameSilo' },
       { value: 'other', label: 'Other' },
-    ],
-  },
-  {
-    id: 'project',
-    label: 'Project',
-    type: 'single-select',
-    priority: 'critical', // Always visible - primary grouping/filtering
-    options: [
-      { value: 'all', label: 'All' },
-      // Dynamic options populated from API
     ],
   },
   {
