@@ -218,8 +218,21 @@ export function renderIntegrationsTable(integrations: ProjectIntegration[]): voi
   if (integrations.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="6" class="text-center text-muted">
-          No integrations attached. Attach a Cloudflare or registrar key to this project.
+        <td colspan="6">
+          <div class="empty-state empty-state--compact">
+            <span class="icon icon--lg text-info" data-icon="mono/info-circle"></span>
+            <div class="stack-sm">
+              <p class="text-muted">
+                <strong>Experimental mode:</strong> All integrations (including Cloudflare accounts)
+                are shared across projects. This screen is for your reference only.
+              </p>
+              <p class="text-muted text-sm">
+                You can attach integrations here for organizational purposes, but it won't affect
+                how interfaces display data. Use <strong>Projects</strong> as the main folder for domains,
+                and optionally create <strong>Sites</strong> (traffic streams) for easier redirect management.
+              </p>
+            </div>
+          </div>
         </td>
       </tr>
     `;
