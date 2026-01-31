@@ -714,6 +714,76 @@ All major component sections in `site.css` are marked with comments:
 
 **CSS**: `site.css` → "Confirmation Dialogs"
 
+### Drawers & Drawer Manager
+
+**Definition:** Drawers are side panels that slide in from the right for detailed forms, inspectors, and multi-step flows. They overlay the main content with a semi-transparent backdrop.
+
+**HTML Structure:**
+```html
+<aside class="drawer" data-drawer="drawer-id" hidden>
+  <div class="drawer__overlay" data-drawer-close></div>
+  <div class="drawer__panel">
+    <header class="drawer__header">
+      <h2 class="drawer__title">Title</h2>
+      <button class="drawer__close" data-drawer-close>×</button>
+    </header>
+    <div class="drawer__body" data-drawer-content>
+      <!-- Content -->
+    </div>
+    <footer class="drawer__footer">
+      <!-- Action buttons -->
+    </footer>
+  </div>
+</aside>
+```
+
+**Drawer Manager (`@ui/drawer-manager`):**
+
+For multi-layer drawer workflows (e.g., Inspector → Manage Domains → Add Domains), use the centralized drawer manager:
+
+```typescript
+import { drawerManager } from '@ui/drawer-manager';
+
+// Open drawer (adds to stack with proper z-index)
+drawerManager.open('drawer-id');
+
+// Close specific drawer
+drawerManager.close('drawer-id');
+
+// Close topmost drawer (Escape key does this automatically)
+drawerManager.closeTop();
+
+// Close all drawers
+drawerManager.closeAll();
+
+// Check if drawer is open
+if (drawerManager.isOpen('drawer-id')) { ... }
+
+// Get current stack depth
+const depth = drawerManager.getStackDepth();
+```
+
+**Key features:**
+- **Z-index stacking**: Each drawer level gets +10 z-index (base: 1000)
+- **Escape key handling**: Centralized - closes topmost drawer only
+- **Focus trapping**: Focuses first focusable element when drawer opens
+- **Overlay click**: Closes only the topmost drawer
+
+**Rules:**
+1. Always use `data-drawer="unique-id"` attribute on drawer elements
+2. Use `drawerManager.open()/close()` instead of manual `hidden` attribute manipulation
+3. Remove manual Escape key handlers from drawer modules (manager handles it)
+4. Use `data-drawer-close` on overlay and close buttons
+
+**Stacking example (Redirects page):**
+1. Layer 1: `redirect-inspector` - Domain redirect details
+2. Layer 2: `manage-site-domains` - Manage domains for site
+3. Layer 3: `add-domain-to-project` - Add unassigned domains
+
+**CSS**: `drawers.css`
+
+**Production**: `redirects.html`, `projects.html`, `integrations.html`
+
 ---
 
 ## Cloudflare-Specific Rules

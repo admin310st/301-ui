@@ -25,6 +25,7 @@ import {
 } from './state';
 import { showGlobalNotice } from '@ui/globalNotice';
 import { openManageSiteDomainsDrawer } from '@domains/site-domains';
+import { drawerManager } from '@ui/drawer-manager';
 
 let drawerElement: HTMLElement | null = null;
 let currentRedirect: DomainRedirect | null = null;
@@ -34,7 +35,7 @@ let currentSite: Site | null = null; // Fetched site data for acceptor form
  * Initialize drawer functionality
  */
 export function initDrawer(): void {
-  drawerElement = document.querySelector('[data-redirect-drawer]');
+  drawerElement = document.querySelector('[data-drawer="redirect-inspector"]');
   if (!drawerElement) return;
 
   // Close drawer on overlay click
@@ -79,12 +80,7 @@ export function initDrawer(): void {
     saveSiteBtn.addEventListener('click', handleSaveSite);
   }
 
-  // Close on Escape key
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && drawerElement && !drawerElement.hasAttribute('hidden')) {
-      closeDrawer();
-    }
-  });
+  // Note: Escape key is handled centrally by drawerManager
 }
 
 /**
@@ -179,9 +175,8 @@ export async function openDrawer(redirect: DomainRedirect): Promise<void> {
     setupAcceptorFormHandlers();
   }
 
-  // Show drawer
-  drawerElement.removeAttribute('hidden');
-  document.body.style.overflow = 'hidden'; // Prevent background scroll
+  // Show drawer via drawer manager (handles z-index stacking, escape key)
+  drawerManager.open('redirect-inspector');
 }
 
 /**
@@ -247,19 +242,16 @@ export function openBulkAddDrawer(): void {
     `;
   }
 
-  // Show drawer
-  drawerElement.removeAttribute('hidden');
-  document.body.style.overflow = 'hidden';
+  // Show drawer via drawer manager
+  drawerManager.open('redirect-inspector');
 }
 
 /**
  * Close drawer
  */
 export function closeDrawer(): void {
-  if (!drawerElement) return;
-
-  drawerElement.setAttribute('hidden', '');
-  document.body.style.overflow = ''; // Restore scroll
+  // Close via drawer manager (handles z-index stacking)
+  drawerManager.close('redirect-inspector');
   currentRedirect = null;
 }
 

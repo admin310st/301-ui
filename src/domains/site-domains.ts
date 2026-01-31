@@ -15,6 +15,7 @@ import { invalidateCache } from '@api/cache';
 import { getCurrentProjectId, getCurrentSites, setSites } from '@state/project-detail-state';
 import { showConfirmDialog } from '@ui/dialog';
 import { initDropdowns } from '@ui/dropdown';
+import { drawerManager } from '@ui/drawer-manager';
 
 let currentSiteId: number | null = null;
 let currentProjectId: number | null = null;
@@ -27,13 +28,15 @@ let dropdownsInitialized = false;
  */
 export function openManageSiteDomainsDrawer(siteId: number): void {
   currentSiteId = siteId;
+
+  // Use drawer manager to handle stacking
+  drawerManager.open('manage-site-domains');
+
   const drawer = document.querySelector<HTMLElement>('[data-drawer="manage-site-domains"]');
   if (!drawer) {
     logDebug('Manage site domains drawer not found');
     return;
   }
-
-  drawer.removeAttribute('hidden');
 
   // Initialize dropdowns in the drawer (only once)
   if (!dropdownsInitialized) {
@@ -48,10 +51,12 @@ export function openManageSiteDomainsDrawer(siteId: number): void {
  * Close manage site domains drawer
  */
 export function closeManageSiteDomainsDrawer(): void {
+  // Use drawer manager to handle stacking
+  drawerManager.close('manage-site-domains');
+
   const drawer = document.querySelector<HTMLElement>('[data-drawer="manage-site-domains"]');
   if (!drawer) return;
 
-  drawer.setAttribute('hidden', '');
   currentSiteId = null;
   // Note: Don't reset currentProjectId - it's the global project filter for navigation
 
@@ -728,12 +733,14 @@ export function initSiteDomains(): void {
       }
     }
 
-    // Navigate to domains page from empty state CTA
+    // Open add-domain-to-project drawer (third layer)
     const openAddDomainsBtn = target.closest('[data-action="open-add-domains"]');
     if (openAddDomainsBtn) {
       e.preventDefault();
-      // Redirect to domains page instead of opening another drawer
-      window.location.href = '/domains.html';
+      if (!currentProjectId) return;
+      // Open third drawer using drawer manager (stacks on top)
+      const { openAddDomainDrawer } = await import('@domains/project-add-domain');
+      await openAddDomainDrawer(currentProjectId);
     }
 
     // Primary domain dropdown option selection

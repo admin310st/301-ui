@@ -12,6 +12,7 @@ import { t } from '@i18n';
 import { safeCall } from '@api/ui-client';
 import { invalidateCache } from '@api/cache';
 import { getProject } from '@api/projects';
+import { drawerManager } from '@ui/drawer-manager';
 
 let currentProjectId: number | null = null;
 let currentSiteId: number | null = null;
@@ -39,9 +40,9 @@ export async function openAddDomainDrawer(projectId: number): Promise<void> {
     }
 
     currentSiteId = projectData.sites[0].id;
-    console.log('[openAddDomainDrawer]', { projectId, siteId: currentSiteId });
 
-    drawer.removeAttribute('hidden');
+    // Use drawer manager to handle stacking (third layer)
+    drawerManager.open('add-domain-to-project');
     await loadAvailableDomains();
   } catch (error: any) {
     showGlobalMessage('error', error.message || 'Failed to load project data');
@@ -52,10 +53,11 @@ export async function openAddDomainDrawer(projectId: number): Promise<void> {
  * Close add domain drawer
  */
 export function closeAddDomainDrawer(): void {
+  // Use drawer manager to handle stacking
+  drawerManager.close('add-domain-to-project');
+
   const drawer = document.querySelector<HTMLElement>('[data-drawer="add-domain-to-project"]');
   if (!drawer) return;
-
-  drawer.setAttribute('hidden', '');
   // Note: Don't reset currentProjectId - it's the global project filter for navigation
   currentSiteId = null;
   selectedDomainIds.clear();
@@ -284,15 +286,7 @@ export function initProjectAddDomain(): void {
     btn.addEventListener('click', closeAddDomainDrawer);
   });
 
-  // Escape key
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      const drawer = document.querySelector<HTMLElement>('[data-drawer="add-domain-to-project"]');
-      if (drawer && !drawer.hasAttribute('hidden')) {
-        closeAddDomainDrawer();
-      }
-    }
-  });
+  // Note: Escape key is handled centrally by drawerManager
 
   // Submit handler
   const submitBtn = document.querySelector<HTMLButtonElement>('[data-add-domain-submit]');
