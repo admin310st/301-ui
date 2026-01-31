@@ -8,7 +8,9 @@ import { initAddDomainsDrawer } from '@domains/add-domains-drawer';
 import { initTabs } from './tabs';
 import { initCfConnectForms } from '@forms/cf-connect';
 import { showDialog, hideDialog } from './dialog';
-import { getZones } from '@api/zones';
+import { getZones, syncZones } from '@api/zones';
+import { showLoading, hideLoading } from './loading-indicator';
+import { invalidateCacheByPrefix } from '@api/cache';
 
 // Store current editing key
 let currentEditingKey: IntegrationKey | null = null;
@@ -366,6 +368,16 @@ function openEditIntegrationDrawer(key: IntegrationKey): void {
     }
   }
 
+  // Show/hide sync button (Cloudflare only)
+  const syncBtn = drawer.querySelector('[data-action="sync-integration"]');
+  if (syncBtn) {
+    if (key.provider === 'cloudflare' && key.status === 'active') {
+      syncBtn.removeAttribute('hidden');
+    } else {
+      syncBtn.setAttribute('hidden', '');
+    }
+  }
+
   // Show drawer
   drawer.removeAttribute('hidden');
 }
@@ -543,6 +555,37 @@ function initEditIntegrationDrawer(): void {
       await loadIntegrations();
     } catch (error: any) {
       showGlobalMessage('error', error.message || 'Failed to update integration');
+    }
+  });
+
+  // Sync integration (Cloudflare only)
+  const syncBtn = drawer.querySelector('[data-action="sync-integration"]');
+  syncBtn?.addEventListener('click', async () => {
+    if (!currentEditingKey || currentEditingKey.provider !== 'cloudflare') return;
+
+    // Show loading state (CF orange shimmer)
+    (syncBtn as HTMLButtonElement).disabled = true;
+    syncBtn.setAttribute('data-turnstile-pending', '');
+    showLoading('cf');
+
+    try {
+      const result = await syncZones(currentEditingKey.id);
+
+      // Invalidate domains cache
+      invalidateCacheByPrefix('domains');
+
+      // Show success message
+      if (result.zones_synced > 0 || result.domains_synced > 0) {
+        showGlobalMessage('success', `Synced! +${result.zones_synced} zones, +${result.domains_synced} domains`);
+      } else {
+        showGlobalMessage('info', 'No new zones found in this Cloudflare account');
+      }
+    } catch (error: any) {
+      showGlobalMessage('error', error.message || 'Failed to sync zones');
+    } finally {
+      hideLoading();
+      (syncBtn as HTMLButtonElement).disabled = false;
+      syncBtn.removeAttribute('data-turnstile-pending');
     }
   });
 

@@ -80,7 +80,17 @@
 
     <footer class="drawer__footer">
       <button type="submit" form="edit-integration-form" class="btn btn--primary">
-        Save Changes
+        <span class="icon" data-icon="mono/check"></span>
+        <span>Save</span>
+      </button>
+      <button
+        type="button"
+        class="btn btn--cf"
+        data-action="sync-integration"
+        hidden
+      >
+        <span class="icon" data-icon="mono/web-sync"></span>
+        <span>Sync</span>
       </button>
       <button
         type="button"
@@ -88,7 +98,7 @@
         data-action="delete-integration"
       >
         <span class="icon" data-icon="mono/delete"></span>
-        <span>Delete Integration</span>
+        <span>Delete</span>
       </button>
       <button type="button" class="btn btn--ghost" data-drawer-close>Cancel</button>
     </footer>
