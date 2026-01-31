@@ -20,7 +20,8 @@
  *   drawerManager.closeAll();
  */
 
-// Base z-index for drawers (from --z-modal)
+// Base z-index for drawers (matches --z-drawer in theme.css)
+// Dialogs use --z-modal: 2000, so they always appear above drawers
 const BASE_Z_INDEX = 1000;
 const Z_INDEX_STEP = 10;
 

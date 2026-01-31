@@ -158,9 +158,10 @@
   --z-sidebar: 100;      /* Sidebar navigation */
   --z-sidebar-overlay: 99; /* Sidebar backdrop */
   --z-header: 200;       /* Main header (above sidebar) */
-  --z-modal: 1000;       /* Modals, dialogs */
-  --z-toast: 1100;       /* Toast notifications (above modals) */
-  --z-tooltip: 1200;     /* Tooltips (topmost) */
+  --z-drawer: 1000;      /* Drawers base (stacked: +10 per level via drawer-manager) */
+  --z-modal: 2000;       /* Modals, dialogs (above all drawers) */
+  --z-toast: 2100;       /* Toast notifications (above modals) */
+  --z-tooltip: 2200;     /* Tooltips (topmost) */
 
   /* High-contrast text for buttons / chips on dark backgrounds */
   --btn-text-on-dark: #FFFFFF;
