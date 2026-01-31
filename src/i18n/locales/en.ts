@@ -447,6 +447,11 @@ export const en = {
       deleted: 'Project deleted successfully',
       confirmDelete: 'Are you sure you want to delete this project? This will also delete all sites and streams.',
     },
+    integrations: {
+      experimentalTitle: 'Experimental mode',
+      experimentalDescription: 'All integrations (including Cloudflare accounts) are shared across projects. This screen is for your reference only.',
+      experimentalHint: 'You can attach integrations here for organizational purposes, but it won\'t affect how interfaces display data. Use <strong>Projects</strong> as the main folder for domains, and optionally create <strong>Sites</strong> (traffic streams) for granular traffic control.',
+    },
     errors: {
       projectNotFound: 'Project not found',
       nameRequired: 'Project name is required',

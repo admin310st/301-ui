@@ -222,17 +222,10 @@ export function renderIntegrationsTable(integrations: ProjectIntegration[]): voi
           <div class="panel panel--info stack stack--sm">
             <p class="stack-inline stack-inline--sm">
               <span class="icon" data-icon="mono/info"></span>
-              <strong>Experimental mode</strong>
+              <strong>${t('projects.integrations.experimentalTitle')}</strong>
             </p>
-            <p>
-              All integrations (including Cloudflare accounts) are shared across projects.
-              This screen is for your reference only.
-            </p>
-            <p class="text-sm text-muted">
-              You can attach integrations here for organizational purposes, but it won't affect
-              how interfaces display data. Use <strong>Projects</strong> as the main folder for domains,
-              and optionally create <strong>Sites</strong> (traffic streams) for granular traffic control.
-            </p>
+            <p>${t('projects.integrations.experimentalDescription')}</p>
+            <p class="text-sm text-muted">${t('projects.integrations.experimentalHint')}</p>
           </div>
         </td>
       </tr>
