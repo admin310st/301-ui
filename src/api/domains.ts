@@ -11,7 +11,8 @@ import type { GetDomainsResponse } from './types';
 export interface GetDomainsFilters {
   project_id?: number;
   site_id?: number;
-  role?: 'donor' | 'acceptor';
+  zone_id?: number;
+  role?: 'acceptor' | 'donor' | 'reserve';
   blocked?: boolean;
 }
 
@@ -72,6 +73,7 @@ export async function getDomains(filters?: GetDomainsFilters): Promise<GetDomain
     const params = new URLSearchParams();
     if (filters.project_id !== undefined) params.append('project_id', String(filters.project_id));
     if (filters.site_id !== undefined) params.append('site_id', String(filters.site_id));
+    if (filters.zone_id !== undefined) params.append('zone_id', String(filters.zone_id));
     if (filters.role) params.append('role', filters.role);
     if (filters.blocked !== undefined) params.append('blocked', String(filters.blocked));
 
@@ -219,4 +221,178 @@ export async function moveDomainToProject(
 ): Promise<void> {
   console.warn('[moveDomainToProject] DEPRECATED - Use assignDomainToSite() instead');
   throw new Error('This function is deprecated. Use assignDomainToSite() for real implementation.');
+}
+
+// ============================================================================
+// PR 2: Additional API functions for domains migration
+// ============================================================================
+
+import type { APIDomain } from './types';
+
+/**
+ * Domain detail response
+ */
+export interface DomainDetailResponse {
+  ok: boolean;
+  domain: APIDomain;
+}
+
+/**
+ * Domain health response (for Security tab in drawer)
+ */
+export interface DomainHealthResponse {
+  ok: boolean;
+  health: {
+    status: 'healthy' | 'warning' | 'blocked' | 'unknown';
+    blocked: boolean;
+    blocked_reason: string | null;
+    threats: {
+      score: number;
+      categories: string[];
+      reputation: number;
+      source: string;
+      checked_at: string;
+    } | null;
+    traffic: {
+      yesterday: number;
+      today: number;
+      change_percent: number;
+      anomaly: boolean;
+    } | null;
+  };
+}
+
+/**
+ * Domain update payload
+ */
+export interface UpdateDomainPayload {
+  role?: 'acceptor' | 'donor' | 'reserve';
+  site_id?: number | null;
+  project_id?: number | null;
+  blocked?: boolean;
+  blocked_reason?: string | null;
+}
+
+/**
+ * Domain delete response
+ */
+export interface DeleteDomainResponse {
+  ok: boolean;
+  dns_deleted: boolean;
+}
+
+/**
+ * Get domain details
+ *
+ * GET /domains/:id
+ *
+ * Returns full domain info including cf_zone_id, zone_status, ns_expected
+ *
+ * @param domainId - Domain ID
+ * @returns Domain details
+ */
+export async function getDomainDetail(domainId: number): Promise<APIDomain> {
+  const response = await apiFetch<DomainDetailResponse>(`/domains/${domainId}`);
+  return response.domain;
+}
+
+/**
+ * Get domain health info (for Security tab)
+ *
+ * GET /domains/:id/health
+ *
+ * Returns detailed health info including threats, traffic anomalies
+ *
+ * @param domainId - Domain ID
+ * @returns Health details
+ */
+export async function getDomainHealth(domainId: number): Promise<DomainHealthResponse['health']> {
+  const response = await apiFetch<DomainHealthResponse>(`/domains/${domainId}/health`);
+  return response.health;
+}
+
+/**
+ * Update domain (generic)
+ *
+ * PATCH /domains/:id
+ *
+ * Can update: role, site_id, project_id, blocked, blocked_reason
+ *
+ * @param domainId - Domain ID
+ * @param data - Fields to update
+ */
+export async function updateDomain(
+  domainId: number,
+  data: UpdateDomainPayload
+): Promise<void> {
+  await apiFetch(`/domains/${domainId}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  });
+
+  // Invalidate caches
+  const { invalidateCache, invalidateCacheByPrefix } = await import('./cache');
+  invalidateCache(`domain:${domainId}`);
+  invalidateCacheByPrefix('domains');
+}
+
+/**
+ * Delete domain (subdomain only)
+ *
+ * DELETE /domains/:id
+ *
+ * Note: Root domains (2nd level) cannot be deleted - they are managed by zones.
+ * Only subdomains (3rd+ level) can be deleted.
+ * DNS record in Cloudflare is also deleted.
+ *
+ * @param domainId - Domain ID (must be subdomain)
+ * @returns Result with dns_deleted flag
+ */
+export async function deleteDomain(domainId: number): Promise<DeleteDomainResponse> {
+  const response = await apiFetch<DeleteDomainResponse>(`/domains/${domainId}`, {
+    method: 'DELETE',
+  });
+
+  // Invalidate caches
+  const { invalidateCache, invalidateCacheByPrefix } = await import('./cache');
+  invalidateCache(`domain:${domainId}`);
+  invalidateCacheByPrefix('domains');
+
+  return response;
+}
+
+/**
+ * Block domain
+ *
+ * PATCH /domains/:id { blocked: true, blocked_reason: ... }
+ *
+ * Shorthand for updateDomain with blocked=true
+ *
+ * @param domainId - Domain ID
+ * @param reason - Block reason (optional)
+ */
+export async function blockDomain(
+  domainId: number,
+  reason?: string
+): Promise<void> {
+  await updateDomain(domainId, {
+    blocked: true,
+    blocked_reason: reason ?? 'manual',
+  });
+}
+
+/**
+ * Unblock domain
+ *
+ * PATCH /domains/:id { blocked: false, blocked_reason: null }
+ *
+ * Shorthand for updateDomain with blocked=false
+ *
+ * @param domainId - Domain ID
+ */
+export async function unblockDomain(domainId: number): Promise<void> {
+  await updateDomain(domainId, {
+    blocked: false,
+    blocked_reason: null,
+  });
 }
