@@ -68,6 +68,7 @@ export function matchesSearch(domain: Domain, query: string): boolean {
   const searchable = [
     domain.domain_name,
     domain.project_name || '',
+    domain.site_name || '',
     domain.registrar || '',
     domain.role || '',
   ]
