@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - Authentication pages (login, registration, password reset)
 - Integration with backend API at `https://api.301.st/auth`
-- Cloudflare account connection via drawer (Instructions, Scoped Token, Quick Setup)
+- Cloudflare account connection via drawer (Instructions, Connect)
 - Domains management UI with filters, bulk actions, inspector drawer
 - Foundation for user cabinet and TDS/streams functionality
 
@@ -20,7 +20,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is your single source of truth for all project tasks, priorities, and roadmap:
 
-- **Current focus:** What to work on next (Redirects → Projects → Sites)
+- **Current focus:** What to work on next
 - **Detailed TODOs:** Links to page-specific TODO files (e.g., `TODO-domains.md`)
 - **Roadmap phases:** Layer-by-layer progress (Auth → Integrations → Domains → Projects/Sites/Streams → Redirects/TDS → Admin)
 - **Known blockers:** API gaps, missing fields, dependencies
@@ -32,8 +32,10 @@ This is your single source of truth for all project tasks, priorities, and roadm
 3. Update index with progress and status
 4. Follow established patterns (dashboard layout, table + drawer, mock-first)
 
-**Detailed TODO files:**
-- `TODO-domains.md` - Domains page development (MVP complete, API integration pending)
+**Detailed TODO files** (in `docs/`):
+- `TODO-domains.md` - Domains page tasks
+- `TODO-redirects.md` - Redirects page tasks
+- `TODO-streams.md` - Streams page tasks (future)
 
 ## API Reference Documentation
 
@@ -75,7 +77,7 @@ The documentation is included as a git submodule from [301.wiki repository](http
 3. **Known discrepancies** are tracked in README.md under "Известные расхождения с API"
 4. **When in doubt**: The wiki specification overrides current code implementation
 
-**Example:** The wiki specifies that `/auth/verify` accepts only `{token}` (type embedded), but current code sends `{type, token}`. The wiki is correct; code needs updating.
+**Example:** When implementing a new endpoint, always check the wiki first for the correct request/response schema.
 
 ## Development Commands
 
@@ -171,7 +173,7 @@ src/
 │   ├── reset-verify.ts
 │   ├── reset-confirm.ts
 │   ├── verify.ts     # Email/omni-token verification
-│   └── cf-connect.ts # Cloudflare drawer forms (scoped/quick)
+│   └── cf-connect.ts # Cloudflare drawer form (connect)
 ├── social/           # OAuth integrations (@social/*)
 │   ├── google.ts
 │   └── github.ts
@@ -374,10 +376,9 @@ Base API URLs:
 - Static assets served from `public/` directory via Wrangler's asset binding
 
 **5. Icon System**
-- Icons referenced via `data-icon="mono/icon-name"` or `data-icon="brand/provider"`
-- Two categories: `mono/` (monochrome UI icons) and `brand/` (provider logos)
-- Icons use `currentColor` for automatic theme compatibility
-- Injected as SVG sprite on page load via `injectIconSprite()` in `main.ts`
+- See "Icon System" under Development Commands for full details
+- Icons use `data-icon="mono/icon-name"` or `data-icon="brand/provider"`
+- Always verify icon exists before use
 
 **6. Dashboard Layout**
 - **Desktop (≥1024px)**: Two-column CSS Grid with sticky sidebar
@@ -903,24 +904,22 @@ See `CHANGELOG.md` for detailed version history and changes. Notable milestones:
 - **v0.2.0** (2025-12-12): Cards v2, unified controls, partials system, PR review bot
 - **v0.1.0** (2025-12-11): Initial auth pages, Style Guide foundation, Turnstile integration
 
-## Future Development Roadmap
+## Development Roadmap
 
-See `docs/ui-roadmap.ru.md` for the complete roadmap. Key upcoming features:
+See `docs/ui-roadmap.ru.md` for the complete roadmap.
 
-**Layer 0 (Current):** Auth pages + UI Style Guide foundation
+**Completed (Layers 0-4):**
+- ✅ Auth pages + UI Style Guide foundation
+- ✅ Integrations management (Cloudflare, Namecheap)
+- ✅ Domains management (sync, filters, bulk actions)
+- ✅ Projects (grouping domains, sites, streams)
+- ✅ Sites management (landing pages, domain attachment)
+- ✅ Redirects (rules, grouped by site/target)
 
-**Layer 1:** Integrations management (Cloudflare accounts, domain registrars)
+**In Progress (Layer 5):**
+- TDS/Streams (traffic distribution system)
 
-**Layer 2:** Domain management (sync from providers, status monitoring)
+**Future (Layers 6-7):**
+- Admin tools (jobs, monitoring, marketplace)
 
-**Layer 3:** Projects (logical grouping of domains, sites, streams)
-
-**Layer 4:** Sites management (landing pages, whitelists)
-
-**Layer 5:** TDS/Streams (traffic distribution system)
-
-**Layer 6:** Redirect rules
-
-**Layer 7:** Admin tools (jobs, system monitoring, marketplace)
-
-All future screens must follow the existing Style Guide patterns and component library.
+All screens follow the Style Guide patterns in `docs/StyleGuide.md`.
