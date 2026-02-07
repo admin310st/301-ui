@@ -109,10 +109,28 @@ Icons are built from SVG sources in `static/img/icons-src/` into:
 
 **Icon naming convention:** Use `data-icon="mono/icon-name"` or `data-icon="brand/provider"` in HTML.
 
-### Testing Utilities
+### Linting & Testing
 ```bash
+npm run lint             # ESLint — catch real bugs (unused vars, shadowing, const)
+npm run test             # Vitest — run all tests once
+npm run test:watch       # Vitest — watch mode for development
 npm run purge:report     # Analyze unused CSS (output to build/purge-report, not committed)
 ```
+
+**ESLint** (`eslint.config.mjs`): Flat config with typescript-eslint in soft mode — only bug-catching rules, no formatter, no style enforcement. Currently at **0 errors, 0 warnings** — CI blocks on any new errors.
+
+**Vitest** (config in `vite.config.ts` `test` block): Tests live in `tests/` and reuse Vite path aliases (`@utils/*`, etc).
+
+**When writing new code:**
+- Run `npm run lint` before committing — CI will reject ESLint errors
+- Prefix intentionally unused params with `_` (e.g., `_event`, `_index`)
+- Wrap `case` blocks with lexical declarations in `{}` braces
+- Prefer `const` over `let` for variables that aren't reassigned (Sets/Maps included)
+
+**When adding tests:**
+- Place tests in `tests/` mirroring `src/` structure (e.g., `tests/utils/errors.test.ts`)
+- Prioritize pure functions and worker routing logic
+- Mock external dependencies (i18n, DOM, fetch) only when necessary
 
 ## HTML Partials System
 
@@ -879,6 +897,8 @@ const current = getTheme(); // 'dark' | 'light'
 2. **Access**: http://localhost:5173
 3. **Test auth flows**: Use forms at `/#login`, `/#register`, `/#reset`
 4. **Check icons**: Navigate to `/icons-preview.html`
+5. **Run unit tests**: `npm run test` (13 tests covering utils + worker routing)
+6. **Run linter**: `npm run lint` (must pass with 0 errors before push)
 
 **Note:** Backend API must be running at `https://api.301.st/auth` or you'll see CORS/network errors.
 
@@ -892,6 +912,13 @@ git push origin main  # Triggers automatic build & deploy on CF Pages
 ```
 
 No need to run `npm run deploy` locally - Cloudflare Pages builds from the repository.
+
+**CI Pipeline** (`.github/workflows/ci.yml`): Runs on push to `main`/`feature/**` and PRs:
+1. **Lint** — `npm run lint` (blocks on errors)
+2. **Test** — `npm run test` (blocks on failures)
+3. **Build** — `npm run build` (blocks on build errors)
+
+All three steps are blocking — broken lint or tests prevent deploy.
 
 Configuration notes:
 - Assets directory: `./public`
