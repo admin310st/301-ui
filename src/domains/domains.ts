@@ -19,8 +19,8 @@ import { showGlobalMessage } from '@ui/notifications';
 import { hideDialog } from '@ui/dialog';
 
 let currentDomains: Domain[] = [];
-let selectedDomains = new Set<number>();
-let activeFilters: ActiveFilters = getDefaultFilters();
+const selectedDomains = new Set<number>();
+const activeFilters: ActiveFilters = getDefaultFilters();
 let searchQuery = '';
 let currentPage = 1;
 const PAGE_SIZE = 25;
@@ -168,8 +168,8 @@ export function initDomainsPage(): void {
       // Close all dropdowns when clicking outside
       document.querySelectorAll('.dropdown--open').forEach((dropdown) => {
         dropdown.classList.remove('dropdown--open');
-        const trigger = dropdown.querySelector('.dropdown__trigger');
-        if (trigger) trigger.setAttribute('aria-expanded', 'false');
+        const ddTrigger = dropdown.querySelector('.dropdown__trigger');
+        if (ddTrigger) ddTrigger.setAttribute('aria-expanded', 'false');
       });
     }
   });
@@ -198,7 +198,7 @@ export function initDomainsPage(): void {
       case 'change-role':
         handleChangeRole(domain, actionBtn.getAttribute('data-role') as Domain['role']);
         break;
-      case 'delete-domain':
+      case 'delete-domain': {
         // Update dialog with domain name
         const deleteDomainNameEl = document.querySelector('[data-delete-domain-name]');
         if (deleteDomainNameEl) {
@@ -214,6 +214,7 @@ export function initDomainsPage(): void {
         // Show confirmation dialog
         showDialog('delete-domain');
         break;
+      }
     }
   });
 
@@ -467,15 +468,6 @@ function calculateDomainsHealth(domains: Domain[]): 'danger' | 'warning' | 'succ
   if (hasDanger) return 'danger';
   if (hasWarning) return 'warning';
   return 'success';
-}
-
-/**
- * Check if domain expires within N days
- */
-function isExpiringSoon(expiresAt: string, days: number): boolean {
-  const expiryDate = new Date(expiresAt);
-  const daysUntilExpiry = Math.floor((expiryDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
-  return daysUntilExpiry > 0 && daysUntilExpiry <= days;
 }
 
 function loadDomains(domains: Domain[]): void {

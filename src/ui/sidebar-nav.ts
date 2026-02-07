@@ -143,9 +143,6 @@ export function renderSidebarNav(): void {
 
   const currentPath = window.location.pathname;
 
-  // Primary navigation items
-  const primaryHtml = DASHBOARD_NAV.map(item => renderNavItem(item, currentPath)).join('');
-
   // Spacer before analytics (optional, can be removed if not needed)
   const analyticsIndex = DASHBOARD_NAV.findIndex(item => item.id === 'analytics');
   const beforeAnalytics = DASHBOARD_NAV.slice(0, analyticsIndex).map(item => renderNavItem(item, currentPath)).join('');

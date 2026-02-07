@@ -129,7 +129,7 @@ async function handleCreateProject(event: Event): Promise<void> {
     }
 
     // Create project
-    const newProject = await createProject(request);
+    await createProject(request);
 
     // Show success message
     showGlobalMessage('success', t('projects.messages.created') || 'Project created successfully');

@@ -39,7 +39,7 @@ function showTooltip(target: HTMLElement, content: string) {
   tooltip.hidden = false;
 
   // Force reflow to get accurate measurements
-  tooltip.offsetHeight;
+  void tooltip.offsetHeight;
 
   // Now get accurate measurements
   const targetRect = target.getBoundingClientRect();

@@ -4,7 +4,7 @@
  */
 
 import type { FilterConfig, ActiveFilters } from './filters-config';
-import { REDIRECT_FILTERS, hasActiveFilters, getDefaultFilters } from './filters-config';
+import { REDIRECT_FILTERS } from './filters-config';
 import { adjustDropdownPosition } from '@ui/dropdown';
 
 /**

@@ -1,6 +1,5 @@
 import { t } from '@i18n';
 import { getProjects, getProject } from '@api/projects';
-import { getSites } from '@api/sites';
 import { getDomains } from '@api/domains';
 import type { Project, Site, ProjectIntegration, APIDomain } from '@api/types';
 import { getAccountId } from '@state/auth-state';
@@ -730,7 +729,7 @@ function initTabs() {
       const projectId = getCurrentProjectId();
 
       // Update active tab
-      tabs.forEach(t => t.classList.remove('is-active'));
+      tabs.forEach(el => el.classList.remove('is-active'));
       tab.classList.add('is-active');
 
       // Show corresponding panel
@@ -877,8 +876,8 @@ export function initProjectsPage(): void {
       // Close all dropdowns when clicking outside
       document.querySelectorAll('.dropdown--open').forEach((dropdown) => {
         dropdown.classList.remove('dropdown--open');
-        const trigger = dropdown.querySelector('.dropdown__trigger');
-        if (trigger) trigger.setAttribute('aria-expanded', 'false');
+        const ddTrigger = dropdown.querySelector('.dropdown__trigger');
+        if (ddTrigger) ddTrigger.setAttribute('aria-expanded', 'false');
       });
     }
   });
@@ -889,9 +888,9 @@ export function initProjectsPage(): void {
     const viewBtn = target.closest<HTMLButtonElement>('[data-action="view-project"]');
 
     if (viewBtn) {
-      const projectId = viewBtn.dataset.projectId;
-      if (projectId) {
-        window.location.href = `/projects.html?id=${projectId}`;
+      const viewProjectId = viewBtn.dataset.projectId;
+      if (viewProjectId) {
+        window.location.href = `/projects.html?id=${viewProjectId}`;
       }
     }
   });
@@ -931,7 +930,7 @@ function handleProjectActions(): void {
         showGlobalMessage('info', 'Archive project feature coming soon');
         break;
 
-      case 'delete-project':
+      case 'delete-project': {
         const confirmed = confirm(
           t('projects.messages.confirmDelete') ||
           'Are you sure you want to delete this project? This will also delete all sites and streams.'
@@ -960,6 +959,7 @@ function handleProjectActions(): void {
           showGlobalMessage('error', error.message || t('projects.errors.deleteFailed') || 'Failed to delete project');
         }
         break;
+      }
     }
   });
 }

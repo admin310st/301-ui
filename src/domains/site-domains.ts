@@ -5,7 +5,7 @@
 
 import { getAuthState } from '@state/auth-state';
 import { getSite, attachDomain } from '@api/sites';
-import type { Site, APIDomain } from '@api/types';
+import type { APIDomain } from '@api/types';
 import * as domainsAPI from '@api/domains';
 import { t } from '@i18n';
 import { logError, logDebug } from '@utils/logger';
@@ -721,7 +721,7 @@ export function initSiteDomains(): void {
       const value = dropdownItem.getAttribute('data-value');
       const label = dropdownItem.textContent?.trim() || '';
       const selectBtn = document.querySelector<HTMLButtonElement>('[data-attach-domain-select]');
-      const attachBtn = document.querySelector<HTMLButtonElement>('[data-site-attach-domain]');
+      const attachDomainBtn = document.querySelector<HTMLButtonElement>('[data-site-attach-domain]');
 
       if (selectBtn && value) {
         selectBtn.setAttribute('data-selected-value', value);
@@ -729,7 +729,7 @@ export function initSiteDomains(): void {
         if (labelEl) labelEl.textContent = label;
 
         // Enable attach button
-        if (attachBtn) attachBtn.disabled = false;
+        if (attachDomainBtn) attachDomainBtn.disabled = false;
       }
     }
 

@@ -29,7 +29,7 @@ import {
   getSortedDomains,
   type SiteContext,
 } from './state';
-import { initSiteSelector, getCurrentProjectId } from './site-selector';
+import { initSiteSelector } from './site-selector';
 import { adaptDomainsToLegacy } from './adapter';
 import {
   updateRedirect,
@@ -40,8 +40,8 @@ import { showGlobalNotice } from '@ui/globalNotice';
 
 let currentRedirects: DomainRedirect[] = [];
 let filteredRedirects: DomainRedirect[] = [];
-let collapsedGroups = new Set<number>();  // Set of collapsed site_ids
-let selectedRedirects = new Set<number>(); // Set of selected redirect IDs
+const collapsedGroups = new Set<number>();  // Set of collapsed site_ids
+const selectedRedirects = new Set<number>(); // Set of selected redirect IDs
 let primaryDomains = new Set<string>(); // Set of primary domains (main domains of sites)
 let activeFilters: ActiveFilters = getDefaultFilters(); // Active filters state
 
@@ -90,7 +90,7 @@ export function initRedirectsPage(): void {
   });
 
   // Initialize project & site selectors (triggers data load on selection)
-  initSiteSelector((sites: SiteContext[]) => {
+  initSiteSelector((_sites: SiteContext[]) => {
     // Clear selection on site change
     selectedRedirects.clear();
     collapsedGroups.clear();
@@ -264,8 +264,8 @@ function setupGlobalDropdowns(): void {
     if (clickedOutside) {
       document.querySelectorAll('.dropdown--open').forEach((dropdown) => {
         dropdown.classList.remove('dropdown--open');
-        const trigger = dropdown.querySelector('.dropdown__trigger');
-        if (trigger) trigger.setAttribute('aria-expanded', 'false');
+        const ddTrigger = dropdown.querySelector('.dropdown__trigger');
+        if (ddTrigger) ddTrigger.setAttribute('aria-expanded', 'false');
         const menu = dropdown.querySelector('.dropdown__menu') as HTMLElement;
         if (menu) {
           menu.classList.remove('dropdown__menu--up', 'dropdown__menu--right');
@@ -540,7 +540,7 @@ function getSiteTypeBadge(siteType: string): string {
  * Render donor/reserve domain row
  * Has visual indentation with left border line to show hierarchy under acceptor
  */
-function renderDomainRow(redirect: DomainRedirect, isLastRow: boolean): string {
+function renderDomainRow(redirect: DomainRedirect, _isLastRow: boolean): string {
   const isSelected = selectedRedirects.has(redirect.id);
   const isPaused = redirect.site_status === 'paused' || redirect.site_status === 'archived';
   const statusBadge = redirect.domain_status !== 'active'
@@ -647,114 +647,6 @@ function updateGlobalCheckbox(): void {
     globalCheckbox.checked = false;
     globalCheckbox.indeterminate = true;
   }
-}
-
-/**
- * Render target subgroup (Level 1) with its domain rows (Level 2)
- * For 'site' type: primary domain becomes the header (no duplication)
- * For 'redirect'/'none' type: show all domains at same level
- */
-function renderTargetSubgroup(target: TargetSubgroup, projectId: number): string {
-  if (target.target_type === 'site') {
-    // Primary domain case: first domain is the site, rest are in same site
-    const primaryDomain = target.domains[0];
-    const otherDomains = target.domains.slice(1);
-
-    // Count only actual redirects to primary (not "No redirect" domains)
-    const actualRedirects = otherDomains.filter(d =>
-      d.has_redirect &&
-      d.target_url &&
-      d.target_url.toLowerCase().includes(primaryDomain.domain.toLowerCase())
-    );
-
-    // Render primary domain as target header (Level 1) - enhanced domain row
-    const primaryRow = renderPrimaryDomainRow(primaryDomain, {
-      groupId: projectId,
-      donorDomains: otherDomains,
-    });
-
-    // Render ALL other domains in site (Level 2) - both redirecting and non-redirecting
-    const childRows = otherDomains.map((redirect, index) => {
-      const isLastRow = index === otherDomains.length - 1;
-      return renderRow(redirect, projectId, isLastRow, false);
-    }).join('');
-
-    return primaryRow + childRows;
-  } else {
-    // No primary domain: just render all domains at Level 1 (flat)
-    return target.domains.map((redirect, index) => {
-      const isLastRow = index === target.domains.length - 1;
-      return renderRow(redirect, projectId, isLastRow, false, true); // isTopLevel = true
-    }).join('');
-  }
-}
-
-/**
- * Render single redirect row
- */
-function renderRow(redirect: DomainRedirect, groupId: number, isLastRow: boolean, isNewSite: boolean, isTopLevel: boolean = false): string {
-  const isPrimaryDomain = primaryDomains.has(redirect.domain);
-  const isSelected = selectedRedirects.has(redirect.id);
-  const rowClass = [
-    'table__domain-row',
-    isTopLevel ? 'table__row--level-1' : 'table__row--level-2',
-    redirect.domain_status === 'expired' ? 'table__row--muted' : '',
-    isPrimaryDomain ? 'table__row--primary' : ''
-  ].filter(Boolean).join(' ');
-
-  const checkbox = getCheckboxDisplay(redirect, isPrimaryDomain);
-  const domainDisplay = getDomainDisplay(redirect, isPrimaryDomain, isTopLevel);
-  const targetDisplay = getTargetDisplay(redirect, isPrimaryDomain);
-  const activityDisplay = getActivityDisplay(redirect);
-  const statusDisplay = getStatusDisplay(redirect);
-  const actions = getRowActions(redirect);
-
-  return `
-    <tr data-redirect-id="${redirect.id}" data-group-id="${groupId}" class="${rowClass}">
-      <td data-priority="critical" class="table__cell-domain">
-        ${domainDisplay}
-      </td>
-      <td data-priority="critical" class="table__cell-target">
-        ${targetDisplay}
-      </td>
-      <td data-priority="medium" class="table__cell-activity">
-        ${activityDisplay}
-      </td>
-      <td data-priority="high" class="table__cell-status">
-        ${statusDisplay}
-      </td>
-      <td data-priority="critical" class="table__cell-actions">
-        <div class="table-actions table-actions--inline">
-          ${actions}
-        </div>
-      </td>
-      <td data-priority="critical" class="table__cell-checkbox">
-        ${checkbox}
-      </td>
-    </tr>
-  `;
-}
-
-/**
- * Get checkbox display (primary domains don't have checkboxes)
- */
-function getCheckboxDisplay(redirect: DomainRedirect, isPrimaryDomain: boolean): string {
-  if (isPrimaryDomain) {
-    // Primary domains don't have checkboxes - they are main site domains
-    return '';
-  }
-
-  const isSelected = selectedRedirects.has(redirect.id);
-  return `
-    <input
-      type="checkbox"
-      class="checkbox"
-      data-redirect-checkbox
-      data-redirect-id="${redirect.id}"
-      ${isSelected ? 'checked' : ''}
-      aria-label="Select ${redirect.domain}"
-    />
-  `;
 }
 
 /**

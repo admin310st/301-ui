@@ -49,7 +49,7 @@ export function initCfConnectForm(): void {
   if (!tokenTextarea || !accountIdInput) return;
 
   // Auto-parse curl command when pasted into token field
-  tokenTextarea.addEventListener('paste', (event) => {
+  tokenTextarea.addEventListener('paste', (_event) => {
     // Give the paste event time to complete
     setTimeout(() => {
       const pastedText = tokenTextarea.value;

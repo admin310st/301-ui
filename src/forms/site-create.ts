@@ -147,7 +147,7 @@ function hideFormStatus(): void {
 /**
  * Reload sites list or project detail view
  */
-async function reloadSitesView(projectId: number): Promise<void> {
+async function reloadSitesView(_projectId: number): Promise<void> {
   // If on projects page with detail view, reload project sites
   const projectDetailView = document.querySelector<HTMLElement>('[data-view="project-detail"]');
   if (projectDetailView && !projectDetailView.hidden) {

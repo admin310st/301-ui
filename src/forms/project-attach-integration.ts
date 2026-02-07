@@ -3,12 +3,11 @@
  * Handles attaching integration keys to projects
  */
 
-import { getIntegrationKeys, type IntegrationKey } from '@api/integrations';
+import { getIntegrationKeys } from '@api/integrations';
 import { attachIntegration, getProjectIntegrations } from '@api/projects';
 import { getAuthState } from '@state/auth-state';
 import { getCurrentProjectId, setIntegrations } from '@state/project-detail-state';
 import { showGlobalMessage } from '@ui/notifications';
-import { t } from '@i18n';
 import { safeCall } from '@api/ui-client';
 import { invalidateCache } from '@api/cache';
 
@@ -177,7 +176,7 @@ async function handleAttachIntegration(): Promise<void> {
     }
 
     // Attach integration
-    const response = await safeCall(
+    await safeCall(
       () => attachIntegration(currentProjectId!, { account_key_id: Number(selectedKeyId) }),
       {
         lockKey: `attach-integration-${currentProjectId}-${selectedKeyId}`,

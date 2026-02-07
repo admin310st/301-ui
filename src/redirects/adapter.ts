@@ -8,7 +8,7 @@
  */
 
 import type { RedirectDomain, RedirectRule, DomainRole } from '@api/types';
-import type { DomainRedirect, SyncStatus, DomainStatus, CfImplementation, SiteType, AnalyticsTrend } from './mock-data';
+import type { DomainRedirect, SyncStatus, DomainStatus, SiteType, AnalyticsTrend } from './mock-data';
 
 /**
  * Convert new API domain to legacy DomainRedirect format

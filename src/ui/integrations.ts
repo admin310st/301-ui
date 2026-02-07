@@ -1,4 +1,3 @@
-import { t } from '@i18n';
 import { getIntegrationKeys, getIntegrationKey, deleteIntegrationKey, updateIntegrationKey } from '@api/integrations';
 import type { IntegrationKey } from '@api/types';
 import { getAccountId } from '@state/auth-state';

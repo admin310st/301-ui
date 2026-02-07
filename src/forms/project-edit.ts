@@ -230,8 +230,8 @@ export function initProjectEdit(): void {
   // Escape key handler
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
-      const drawer = document.querySelector<HTMLElement>('[data-drawer="edit-project"]');
-      if (drawer && !drawer.hasAttribute('hidden')) {
+      const editDrawer = document.querySelector<HTMLElement>('[data-drawer="edit-project"]');
+      if (editDrawer && !editDrawer.hasAttribute('hidden')) {
         closeEditProjectDrawer();
       }
     }

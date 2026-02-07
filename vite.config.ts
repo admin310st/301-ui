@@ -1,3 +1,4 @@
+/// <reference types="vitest/config" />
 import { defineConfig, Plugin } from 'vite';
 import { resolve } from 'path';
 import { readFileSync } from 'fs';
@@ -106,5 +107,9 @@ export default defineConfig({
       '@social': '/src/social',
       '@i18n': '/src/i18n',
     },
+  },
+  test: {
+    include: ['tests/**/*.test.ts'],
+    environment: 'node',
   },
 });

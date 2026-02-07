@@ -15,7 +15,6 @@ import type {
   RedirectTemplate,
   RedirectPreset,
   RedirectRule,
-  RedirectZoneLimit,
   GetSiteRedirectsResponse,
   GetRedirectResponse,
   GetTemplatesResponse,

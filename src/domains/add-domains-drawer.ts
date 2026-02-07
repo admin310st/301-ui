@@ -11,7 +11,7 @@ import { showLoading, hideLoading } from '@ui/loading-indicator';
 import { formatDomainDisplay } from '@utils/idn';
 import { getIntegrationKeys, type IntegrationKey } from '@api/integrations';
 import { createZonesBatch, type BatchZoneResponse, type BatchZoneSuccess, type BatchZoneFailed } from '@api/domains';
-import { syncZones, type SyncZonesResponse } from '@api/zones';
+import { syncZones } from '@api/zones';
 import { getAccountId } from '@state/auth-state';
 import { initDropdowns } from '@ui/dropdown';
 import { t, tWithVars } from '@i18n';
@@ -405,7 +405,7 @@ export function initAddDomainsDrawer(): void {
 
     const inputView = document.querySelector('[data-add-input-view]');
     const resultsView = document.querySelector('[data-add-results-view]');
-    const submitBtn = document.querySelector<HTMLButtonElement>('[data-add-submit]');
+    const resultsSubmitBtn = document.querySelector<HTMLButtonElement>('[data-add-submit]');
 
     if (inputView) inputView.setAttribute('hidden', '');
     if (resultsView) {
@@ -414,8 +414,8 @@ export function initAddDomainsDrawer(): void {
     }
 
     // Update footer button
-    if (submitBtn) {
-      submitBtn.setAttribute('hidden', '');
+    if (resultsSubmitBtn) {
+      resultsSubmitBtn.setAttribute('hidden', '');
     }
 
     // Show results footer buttons
@@ -530,7 +530,7 @@ export function initAddDomainsDrawer(): void {
       html += '<div class="stack-list">';
 
       // Render each NS group
-      groupKeys.forEach((nsKey, index) => {
+      groupKeys.forEach((nsKey) => {
         const group = nsGroups[nsKey];
 
         html += `
@@ -834,7 +834,7 @@ export function initAddDomainsDrawer(): void {
           }, 2000);
         }
       }
-    } catch (error) {
+    } catch {
       // Fallback for older browsers
       const textarea = document.createElement('textarea');
       textarea.value = ns;
@@ -866,7 +866,7 @@ export function initAddDomainsDrawer(): void {
           }, 2000);
         }
       }
-    } catch (error) {
+    } catch {
       // Fallback for older browsers
       const textarea = document.createElement('textarea');
       textarea.value = text;

@@ -147,28 +147,7 @@ export function updateSidebarSyncIndicator(stats: SyncStats): void {
   });
 }
 
-/**
- * Trigger CF sync animation (orange sweep → green success)
- */
-function triggerSyncAnimation(): void {
-  const button = document.querySelector<HTMLButtonElement>('[data-sync-chip] .sync-indicator-btn');
-  if (!button) return;
 
-  // Add syncing class to trigger animation
-  button.classList.add('is-syncing');
-
-  // After animation completes, set success status
-  setTimeout(() => {
-    button.classList.remove('is-syncing');
-    // Simulate successful sync - set status to success (green)
-    button.setAttribute('data-status', 'success');
-
-    // After showing success for 2 seconds, return to normal status
-    setTimeout(() => {
-      button.setAttribute('data-status', 'pending'); // Or recalculate actual status
-    }, 2000);
-  }, 2000); // Match animation duration
-}
 
 /**
  * Initialize sync status indicator and action handlers
@@ -203,10 +182,11 @@ export function initSyncStatus(redirects: DomainRedirect[]): void {
         await handleSyncAll();
         break;
 
-      case 'add-redirects':
+      case 'add-redirects': {
         const event = new CustomEvent('open-redirect-drawer');
         document.dispatchEvent(event);
         break;
+      }
 
       case 'cancel-sync':
         // Not implemented - sync is fast enough
@@ -244,7 +224,6 @@ async function handleSyncAll(): Promise<void> {
 
   try {
     let totalSynced = 0;
-    let totalRemoved = 0;
 
     for (const zoneId of zoneIds) {
       const response = await applyZoneRedirects(zoneId);

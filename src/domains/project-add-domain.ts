@@ -5,10 +5,8 @@
 
 import { getDomains, assignDomainToSite } from '@api/domains';
 import type { APIDomain } from '@api/types';
-import { getAuthState } from '@state/auth-state';
 import { getCurrentProjectId } from '@state/project-detail-state';
 import { showGlobalMessage } from '@ui/notifications';
-import { t } from '@i18n';
 import { safeCall } from '@api/ui-client';
 import { invalidateCache } from '@api/cache';
 import { getProject } from '@api/projects';
@@ -17,7 +15,7 @@ import { drawerManager } from '@ui/drawer-manager';
 let currentProjectId: number | null = null;
 let currentSiteId: number | null = null;
 let availableDomains: APIDomain[] = [];
-let selectedDomainIds = new Set<number>();
+const selectedDomainIds = new Set<number>();
 
 /**
  * Open add domain drawer

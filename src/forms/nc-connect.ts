@@ -66,7 +66,7 @@ export function initNcConnectForm(): void {
 
     try {
       const { initNamecheap } = await import('@api/integrations');
-      const keyId = await initNamecheap({
+      await initNamecheap({
         username,
         api_key: apiKey,
         key_alias: keyAlias,

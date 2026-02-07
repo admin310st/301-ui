@@ -215,9 +215,9 @@ export async function removeDomainFromProject(
  * Real implementation should use POST /sites/:id/domains
  */
 export async function moveDomainToProject(
-  accountId: number,
-  domainId: number,
-  projectId: number | null
+  _accountId: number,
+  _domainId: number,
+  _projectId: number | null
 ): Promise<void> {
   console.warn('[moveDomainToProject] DEPRECATED - Use assignDomainToSite() instead');
   throw new Error('This function is deprecated. Use assignDomainToSite() for real implementation.');

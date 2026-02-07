@@ -8,18 +8,14 @@ import { getCached, setCache, invalidateCacheByPrefix } from './cache';
 import { withInFlight } from './ui-client';
 import type {
   Site,
-  SiteDomain,
   GetSitesResponse,
   GetSiteResponse,
   CreateSiteRequest,
   CreateSiteResponse,
   UpdateSiteRequest,
-  AttachDomainRequest,
   AttachDomainResponse,
   SiteStatus,
 } from './types';
-
-const BASE_URL = '/sites';
 
 /**
  * Get all sites for an account (aggregates from all projects)
