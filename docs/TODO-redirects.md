@@ -504,19 +504,6 @@ Currently 16+ direct API calls without safeCall in the redirects module:
 
 ---
 
-## 🐛 Testing Issues
-
-### TI-1: T4 (www → non-www) requires www A-record
-**Status:** Open — backend issue
-**Problem:** Creating a T4 redirect adds a CF Redirect Rule for `www.example.com → example.com`,
-but if there's no DNS A-record for `www.example.com`, the domain won't resolve and the redirect
-never fires.
-**Impact:** T4 template silently fails — redirect is "synced" in CF but doesn't work in practice.
-**Solutions:**
-- Backend: Auto-create www A-record (proxied) when applying T3/T4 template
-- Backend: Pre-check DNS records before creating T3/T4 and return error if missing
-- Frontend: Show warning in drawer when applying T4 without www record
-
 ---
 
 **Last updated:** 2026-02-08
