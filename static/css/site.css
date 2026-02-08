@@ -184,6 +184,10 @@ body {
   margin: 0;
 }
 
+.text-sm {
+  font-size: var(--fs-sm);
+}
+
 .h1 {
   font-size: var(--fs-2xl);
   font-weight: var(--fw-semibold);

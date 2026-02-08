@@ -793,19 +793,10 @@ function renderAcceptorContent(redirect: DomainRedirect): string {
     <div class="stack-list">
       <!-- Overview Card -->
       <section class="card card--panel">
-        <header class="card__header">
-          <h3 class="h5">Overview</h3>
+        <header class="card__header" style="display:flex; align-items:center; justify-content:space-between;">
+          <h3 class="h5" style="margin:0;">Overview</h3>
+          <span class="badge badge--sm ${typeConfig.badge}">${typeConfig.label}</span>
         </header>
-        <div class="card__body">
-          <dl class="detail-list">
-            <div class="detail-row">
-              <dt class="detail-label">Type</dt>
-              <dd class="detail-value">
-                <span class="badge badge--sm ${typeConfig.badge}">${typeConfig.label}</span>
-              </dd>
-            </div>
-          </dl>
-        </div>
       </section>
 
       <!-- Site Settings Card -->
