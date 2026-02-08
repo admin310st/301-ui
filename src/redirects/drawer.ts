@@ -1047,11 +1047,18 @@ function setupAcceptorRedirectCardHandlers(redirect: DomainRedirect): void {
       const domainId = Number(deleteBtn.dataset.domainId);
       if (!redirectId || !domainId) return;
 
+      // Confirm before deleting canonical redirect
+      const confirmed = confirm('Delete canonical redirect from this domain?');
+      if (!confirmed) return;
+
       deleteBtn.disabled = true;
       try {
         await deleteRedirect(redirectId);
         removeRedirectFromDomain(domainId, true); // keep acceptor role
         showGlobalNotice('success', 'Canonical redirect removed');
+
+        // Refresh state from API to get ground truth
+        await refreshRedirects();
 
         // Re-render drawer to show "no redirect" state
         if (currentRedirect) {
@@ -1070,6 +1077,8 @@ function setupAcceptorRedirectCardHandlers(redirect: DomainRedirect): void {
         }
       } catch (error: any) {
         showGlobalNotice('error', error.message || 'Failed to delete redirect');
+        // Refresh state to show actual backend state
+        await refreshRedirects();
         deleteBtn.disabled = false;
       }
     });
