@@ -104,6 +104,12 @@
   overflow: hidden;
 }
 
+.drawer__footer > div:not([hidden]) {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
 /* Drawer-specific component overrides */
 .drawer .empty-state {
   min-height: 120px;
