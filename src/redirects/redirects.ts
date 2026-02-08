@@ -1489,7 +1489,7 @@ async function handleEnable(redirectId: number): Promise<void> {
 
   try {
     // Optimistic update
-    updateDomainRedirect(redirect.domain_id, { enabled: true });
+    updateDomainRedirect(redirect.domain_id, { enabled: true, sync_status: 'pending' });
     renderTable();
 
     // API call
@@ -1512,7 +1512,7 @@ async function handleDisable(redirectId: number): Promise<void> {
 
   try {
     // Optimistic update
-    updateDomainRedirect(redirect.domain_id, { enabled: false });
+    updateDomainRedirect(redirect.domain_id, { enabled: false, sync_status: 'pending' });
     renderTable();
 
     // API call
@@ -1606,13 +1606,28 @@ async function confirmDeleteRedirect(): Promise<void> {
   // Hide dialog immediately
   hideDialog('delete-redirect');
 
+  // Capture zone_id BEFORE removing from state (removeRedirectFromDomain clears it)
+  const state = getState();
+  const domain = state.domains.find(d => d.domain_id === redirect.domain_id);
+  const zoneId = domain?.zone_id;
+
   try {
     // Optimistic update - remove from state
     removeRedirectFromDomain(redirect.domain_id);
     renderTable();
 
-    // API call
+    // Delete from DB
     await deleteRedirect(redirect.id);
+
+    // Sync zone to CF to remove the orphaned redirect rule
+    if (zoneId) {
+      try {
+        await applyZoneRedirects(zoneId);
+      } catch (syncError) {
+        console.warn('[confirmDeleteRedirect] Zone sync failed:', syncError);
+      }
+    }
+
     showGlobalNotice('success', `Deleted redirect for ${redirect.domain}`);
   } catch (error: any) {
     // On error, refresh to restore state
