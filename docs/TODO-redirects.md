@@ -422,10 +422,13 @@ When editing weighted destinations:
 ```
 redirects.html
 src/redirects/
-  ├─ redirects.ts        # Main UI logic
-  ├─ mock-data.ts        # Mock redirect rules (NEW structure)
-  ├─ drawer.ts           # Drawer tabs logic
-  └─ test-url.ts         # URL pattern testing logic
+  ├─ redirects.ts        # Main UI logic (table, actions, bulk ops)
+  ├─ types.ts            # Legacy DomainRedirect type definitions
+  ├─ adapter.ts          # API → legacy type adapter (TODO: remove)
+  ├─ state.ts            # Reactive state management
+  ├─ sync-status.ts      # Sync indicator + Sync All logic
+  ├─ drawer.ts           # Drawer tabs logic (edit, create)
+  └─ test-url.ts         # URL pattern testing logic (future)
 ```
 
 ---
@@ -440,19 +443,61 @@ src/redirects/
 6. ✅ Add weighted destinations display
 7. ✅ Create drawer with auto-save (toggle, dropdown, target URL on blur)
 8. ✅ Move Sync button to drawer footer
-9. [ ] Bulk actions (sticky panel at bottom)
-   - [ ] Add redirect to main domain (T1 → acceptor URL, auto-detect)
-   - [ ] Enable selected redirects
-   - [ ] Disable selected redirects
-   - [ ] Delete selected redirects
-   - [ ] Sync selected to Cloudflare
-10. [ ] Drawer: template selector for advanced redirects (T3, T4, T5, T7)
-11. [ ] Add "Add Redirect" wizard/modal (for new domains)
-12. [ ] Implement Test URL preview logic
-13. [ ] i18n for drawer content and bulk actions
+9. [x] Bulk actions (sticky panel at bottom)
+   - [x] Add redirect to main domain (T1 → acceptor URL, auto-detect)
+   - [x] Enable selected redirects
+   - [x] Disable selected redirects
+   - [x] Delete selected redirects
+   - [x] Sync selected to Cloudflare
+10. [x] Site-level actions (kebab menu on acceptor row)
+   - [x] Apply: apex → www (T3) — creates canonical redirect
+   - [x] Apply: www → apex (T4) — creates canonical redirect
+   - [x] Clear site redirects — deletes all donor redirects
+   - [x] Clear primary redirect — removes redirect from acceptor
+11. [x] Sync indicator (metric_pill) fixes
+   - [x] Filter only pending/error zones (was syncing ALL zones)
+   - [x] Idempotent event listeners (was duplicating on every state change)
+   - [x] Re-entry guard (prevent double-click sync)
+12. [ ] Drawer: template selector for advanced redirects (T3, T4, T5, T7)
+    - Currently hardcoded to T1 in drawer.ts:514 and drawer.ts:1133
+    - T3/T4 only available via site header menu, not individual domain drawer
+13. [ ] Add "Add Redirect" wizard/modal (for new domains)
+    - Stub exists: openBulkAddDrawer() in drawer.ts:185
+14. [ ] Test URL preview logic
+15. [ ] i18n for redirects page (0 data-i18n attributes currently)
+    - Page headers, table columns, buttons, drawer content — all hardcoded English
 
 ---
 
-**Last updated:** 2026-01-29
+## 📋 Post-Testing Revision (when all features are tested)
 
-**Status:** ✅ MVP table + drawer complete with auto-save UX
+**Trigger:** After manual testing confirms all actions work end-to-end with real API.
+
+### R1. safeCall migration
+Wrap all mutation calls with `safeCall()` + `lockKey` per CLAUDE.md standard.
+Currently 16+ direct API calls without safeCall in the redirects module:
+- `redirects.ts`: createRedirect, updateRedirect, deleteRedirect, applyZoneRedirects (×3)
+- `drawer.ts`: createRedirect (×2), updateRedirect (×2), deleteRedirect, applyZoneRedirects (×2)
+- `sync-status.ts`: applyZoneRedirects
+
+### ~~R2. Remove mock data fallback~~ ✅ Done
+- Deleted `mock-data.ts` (903 lines of mock data + dead helper functions)
+- Extracted type definitions to `src/redirects/types.ts` (68 lines)
+- Updated all imports: adapter.ts, drawer.ts, redirects.ts, sync-status.ts
+- Removed `loadRedirects()` mock loader; retry now uses `refreshRedirects()` (real API)
+
+### R3. Remove adapter.ts
+- Gradual migration: UI code should use `RedirectDomain` / `ExtendedRedirectDomain` directly
+- Remove `DomainRedirect` legacy type from `types.ts`
+- Update all rendering functions to work with API types
+
+### R4. i18n pass
+- Add translation keys to en.ts / ru.ts under `redirects.*` namespace
+- Apply `data-i18n` attributes to redirects.html
+- Translate drawer content, bulk actions, sync status messages
+
+---
+
+**Last updated:** 2026-02-08
+
+**Status:** ✅ All core actions implemented. Pending: drawer template selector, add wizard, i18n, post-testing revision.

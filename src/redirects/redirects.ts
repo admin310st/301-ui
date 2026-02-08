@@ -7,7 +7,7 @@
  * Works with real API via state.ts (multi-site support)
  */
 
-import type { DomainRedirect } from './mock-data';
+import type { DomainRedirect } from './types';
 import { getDefaultFilters, hasActiveFilters, type ActiveFilters } from './filters-config';
 import { renderFilterBar, initFilterUI } from './filters-ui';
 import { initDrawer, openDrawer, openBulkAddDrawer } from './drawer';
@@ -348,36 +348,6 @@ function getArrowStyle(redirect: DomainRedirect): { color: string; title: string
     const redirectType = redirect.redirect_code === 301 ? 'Custom (301)' : 'Custom (302)';
     return { color: 'text-danger', title: `${redirectType} - ${targetHost}` };
   }
-}
-
-/**
- * Load domain redirects (mock data for now)
- */
-function loadRedirects(): void {
-  const loadingState = document.querySelector('[data-loading-state]');
-  const emptyState = document.querySelector('[data-empty-state]');
-  const tableShell = document.querySelector('[data-table-shell]');
-
-  if (loadingState) loadingState.hidden = false;
-
-  // Simulate loading
-  setTimeout(() => {
-    currentRedirects = [...mockDomainRedirects];
-    filteredRedirects = [...currentRedirects];
-    primaryDomains = calculatePrimaryDomains(currentRedirects);
-
-    if (loadingState) loadingState.hidden = true;
-
-    if (currentRedirects.length === 0) {
-      if (emptyState) emptyState.hidden = false;
-    } else {
-      renderTable();
-      if (tableShell) tableShell.hidden = false;
-
-      // Initialize sync status indicator
-      initSyncStatus(currentRedirects);
-    }
-  }, 300);
 }
 
 /**
@@ -1273,7 +1243,7 @@ function setupActions(): void {
         handleAddRedirects();
         break;
       case 'retry':
-        loadRedirects();
+        refreshRedirects();
         break;
     }
   });

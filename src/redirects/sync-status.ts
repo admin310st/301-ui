@@ -1,4 +1,4 @@
-import type { DomainRedirect } from './mock-data';
+import type { DomainRedirect } from './types';
 import { updateNavItemIndicators } from '@ui/sidebar-nav';
 import { applyZoneRedirects } from '@api/redirects';
 import { getState, markZoneSynced, refreshRedirects } from './state';
@@ -149,8 +149,16 @@ export function updateSidebarSyncIndicator(stats: SyncStats): void {
 
 
 
+/** Whether event listeners have been bound (prevents duplicates) */
+let listenersBound = false;
+
+/** Whether a sync operation is in progress (prevents re-entry) */
+let isSyncing = false;
+
 /**
  * Initialize sync status indicator and action handlers
+ * Safe to call multiple times — listeners are bound only once,
+ * stats are recalculated on every call.
  * Note: Dropdown toggle is handled by initDropdowns() in redirects.ts
  */
 export function initSyncStatus(redirects: DomainRedirect[]): void {
@@ -159,11 +167,14 @@ export function initSyncStatus(redirects: DomainRedirect[]): void {
 
   if (!dropdown || !menu) return;
 
-  // Calculate and update initial stats
+  // Always recalculate stats
   const stats = calculateSyncStats(redirects);
   updateSyncIndicator(stats);
 
-  // Action handlers (dropdown toggle is handled by standard initDropdowns())
+  // Bind action handlers ONCE (idempotent)
+  if (listenersBound) return;
+  listenersBound = true;
+
   menu.addEventListener('click', async (e) => {
     const target = e.target as HTMLElement;
     const button = target.closest('[data-action]') as HTMLElement;
@@ -196,23 +207,35 @@ export function initSyncStatus(redirects: DomainRedirect[]): void {
 }
 
 /**
- * Sync all zones to Cloudflare
- * Collects unique zones and applies redirects to each
- * Note: Paused/archived sites are excluded from sync
+ * Sync only zones that have pending or error redirects to Cloudflare
+ * Skips zones where all redirects are already synced.
+ * Paused/archived sites are excluded.
+ * Protected against re-entry (double-click, duplicate listeners).
  */
 async function handleSyncAll(): Promise<void> {
+  // Re-entry guard
+  if (isSyncing) return;
+  isSyncing = true;
+
   const state = getState();
 
-  // Collect unique zone IDs from active domains only (exclude paused/archived sites)
+  // Only collect zones that actually need syncing (pending or error)
   const zoneIds = new Set<number>();
   for (const domain of state.domains) {
-    if (domain.zone_id && domain.site_status !== 'paused' && domain.site_status !== 'archived') {
+    if (
+      domain.zone_id &&
+      domain.redirect &&
+      (domain.redirect.sync_status === 'pending' || domain.redirect.sync_status === 'error') &&
+      domain.site_status !== 'paused' &&
+      domain.site_status !== 'archived'
+    ) {
       zoneIds.add(domain.zone_id);
     }
   }
 
   if (zoneIds.size === 0) {
-    showGlobalNotice('info', 'No zones to sync');
+    showGlobalNotice('info', 'All redirects are already synced');
+    isSyncing = false;
     return;
   }
 
@@ -256,5 +279,7 @@ async function handleSyncAll(): Promise<void> {
     }
 
     showGlobalNotice('error', error.message || 'Failed to sync to Cloudflare');
+  } finally {
+    isSyncing = false;
   }
 }

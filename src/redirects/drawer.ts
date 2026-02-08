@@ -3,7 +3,7 @@
  * Handles opening, closing, and managing redirect edit/add drawer
  */
 
-import type { DomainRedirect } from './mock-data';
+import type { DomainRedirect } from './types';
 import type { Site } from '@api/types';
 import {
   updateRedirect,

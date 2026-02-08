@@ -84,7 +84,7 @@ Account (Аккаунт клиента)
 
 ### 2. Redirects
 
-**Статус:** ✅ COMPLETED (2025-01-31)
+**Статус:** ✅ Core complete, testing in progress (2026-02-08)
 
 **Цель:** Core функциональность 301.st - управление redirect rules
 
@@ -107,29 +107,23 @@ src/api/
 
 **Реализовано (Этапы 1-5):**
 - [x] Создать `redirects.html` с dashboard layout
-- [x] API Layer (`src/api/redirects.ts`):
-  - Templates/Presets (long TTL cache)
-  - Site redirects (short TTL, parallel multi-site loading)
-  - CRUD operations (create, update, delete)
-  - Zone sync (apply-redirects)
-- [x] State Management (`src/redirects/state.ts`):
-  - Multi-site selection support
-  - Optimistic updates
-  - Reactive listeners
-- [x] Project/Site selectors (API-driven, not mocks)
-- [x] Table rendering with hierarchy:
-  - Acceptor row: mass-select checkbox, flag, ←N badge, site type, lock icon
-  - Donor rows: indented with vertical line, status badges
-- [x] Filters: Configured, Sync, Enabled (working)
+- [x] API Layer (`src/api/redirects.ts`)
+- [x] State Management (`src/redirects/state.ts`)
+- [x] Project/Site selectors (API-driven)
+- [x] Table rendering with hierarchy (acceptor/donor/reserve)
+- [x] Filters: Configured, Sync, Enabled
 - [x] Drawer for creating/editing redirects
 - [x] Pre-fill target URL with acceptor domain
-- [x] Bulk actions UI (enable/disable/delete/sync)
+- [x] Bulk actions (enable/disable/delete/sync selected)
+- [x] Site-level actions (T3/T4 canonical, clear redirects)
+- [x] Sync indicator — only pending/error zones, idempotent listeners
+- [x] Cloudflare sync + error handling
 
-**Завершено:**
-- [x] Fix createRedirect API call (removed invalid `enabled` field)
-- [x] Drawer save with real API
-- [x] Cloudflare sync
-- [x] Error handling
+**Осталось:**
+- [ ] Drawer template selector (T3-T7) — сейчас hardcoded T1
+- [ ] Add Redirect wizard (stub exists)
+- [ ] i18n (0 data-i18n attributes)
+- [ ] Post-testing revision: safeCall migration, remove adapter.ts (см. TODO-redirects.md)
 
 **API Endpoints (из `docs/301-wiki/API_Redirects.md`):**
 | Endpoint | Метод | Описание |
@@ -601,6 +595,15 @@ build: {
 ---
 
 ## 📅 История обновлений
+
+- **2026-02-08**: Redirects page — actions & sync fixes
+  - Wire up T3/T4 template actions (handleApplyTemplate)
+  - Implement handleClearSiteRedirects with real API
+  - Fix handleSyncAll: filter only pending/error zones (was syncing ALL)
+  - Fix initSyncStatus: idempotent event listeners (was duplicating)
+  - Add re-entry guard to prevent double sync
+  - Added ESLint + Vitest + CI pipeline
+  - Audited TODO-redirects.md against actual code state
 
 - **2025-01-31**: Domains API Migration Complete
   - Real API integration for domains (GET /domains)
