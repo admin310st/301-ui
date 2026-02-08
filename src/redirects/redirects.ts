@@ -24,7 +24,6 @@ import {
   refreshRedirects,
   updateDomainRedirect,
   removeRedirectFromDomain,
-  addRedirectToDomain,
   bulkUpdateEnabled,
   markZoneSynced,
   getSortedDomains,
@@ -33,7 +32,6 @@ import {
 import { initSiteSelector } from './site-selector';
 import { adaptDomainsToLegacy } from './adapter';
 import {
-  createRedirect,
   updateRedirect,
   deleteRedirect,
   applyZoneRedirects,
@@ -424,14 +422,18 @@ function renderPrimaryDomainRow(
   // Count donors with redirects for badge
   const actualRedirects = siteDonors.filter(r => r.has_redirect);
 
-  // Check if the acceptor itself has a redirect configured (problematic state after primary change)
+  // Check if the acceptor itself has a redirect configured
+  const rawAcceptorDomain = getState().domains.find(d => d.domain_id === redirect.domain_id);
+  const acceptorTemplateId = rawAcceptorDomain?.redirect?.template_id;
+  const isCanonicalRedirect = (acceptorTemplateId === 'T3' || acceptorTemplateId === 'T4');
   const acceptorHasRedirect = redirect.has_redirect && redirect.target_url;
+  const acceptorHasNonCanonicalRedirect = acceptorHasRedirect && !isCanonicalRedirect;
 
-  // Redirect badge with color coding OR red arrow if acceptor has redirect
+  // Redirect badge with color coding OR red arrow if non-canonical acceptor redirect
   let redirectBadge = '';
-  if (acceptorHasRedirect) {
-    // Acceptor has its own redirect - show red danger arrow (needs attention)
-    redirectBadge = `<span class="text-danger" style="font-size: 1.125rem; line-height: 1;" title="Primary domain has redirect configured! Click to clear.">→</span>`;
+  if (acceptorHasNonCanonicalRedirect) {
+    // Acceptor has non-canonical redirect - show red danger arrow (needs attention)
+    redirectBadge = `<span class="text-danger" style="font-size: 1.125rem; line-height: 1;" title="Primary domain has redirect configured! Click to clear.">\u2192</span>`;
   } else if (actualRedirects.length > 0) {
     const has301 = actualRedirects.some(r => r.redirect_code === 301);
     const has302 = actualRedirects.some(r => r.redirect_code === 302);
@@ -443,9 +445,9 @@ function renderPrimaryDomainRow(
     </span>`;
   }
 
-  // Site type badge OR redirect target if acceptor has redirect
+  // Site type badge OR redirect target if acceptor has non-canonical redirect
   let targetDisplay = '';
-  if (acceptorHasRedirect) {
+  if (acceptorHasNonCanonicalRedirect) {
     // Show where the acceptor redirects to (problematic state)
     const targetHost = redirect.target_url!.replace('https://', '').replace('http://', '').split('/')[0];
     targetDisplay = `<span class="text-danger" title="Primary domain redirects to ${redirect.target_url}">${targetHost}</span>`;
@@ -458,7 +460,7 @@ function renderPrimaryDomainRow(
 
   const activityDisplay = getActivityDisplay(redirect);
   const statusDisplay = getStatusDisplay(redirect);
-  const actions = getSiteHeaderActions(redirect, acceptorHasRedirect);
+  const actions = getSiteHeaderActions(redirect, !!acceptorHasRedirect);
 
   // Row classes: add level-1 for grouped view, paused for paused/archived sites
   const isPaused = redirect.site_status === 'paused' || redirect.site_status === 'archived';
@@ -806,6 +808,50 @@ function escapeHtml(unsafe: string): string {
 }
 
 /**
+ * Get badge for canonical redirects (T3/T4) on acceptor domains
+ * Shows template label with sync status color and tooltip
+ */
+function getCanonicalBadge(redirect: DomainRedirect, templateId: string): string {
+  const label = templateId === 'T4' ? 'www\u2192apex' : 'apex\u2192www';
+  const syncStatus = redirect.sync_status || 'never';
+
+  if (syncStatus === 'synced') {
+    const syncDate = redirect.last_sync_at ? formatTooltipTimestamp(redirect.last_sync_at) : 'Unknown';
+    const tooltipContent = `
+      <div class="tooltip tooltip--success">
+        <div class="tooltip__header">${label}</div>
+        <div class="tooltip__body">Synced to CDN</div>
+        <div class="tooltip__footer">Last sync: ${syncDate}</div>
+      </div>
+    `.trim();
+    return `<span class="badge badge--success" data-tooltip data-tooltip-content="${escapeHtml(tooltipContent)}">${label}</span>`;
+  }
+
+  if (syncStatus === 'pending') {
+    const tooltipContent = `
+      <div class="tooltip tooltip--warning">
+        <div class="tooltip__header">${label}</div>
+        <div class="tooltip__body">Pending sync to Cloudflare</div>
+      </div>
+    `.trim();
+    return `<span class="badge badge--warning" data-tooltip data-tooltip-content="${escapeHtml(tooltipContent)}">${label}</span>`;
+  }
+
+  if (syncStatus === 'error') {
+    const errorMessage = redirect.sync_error || 'Unknown error';
+    const tooltipContent = `
+      <div class="tooltip tooltip--danger">
+        <div class="tooltip__header">${label}</div>
+        <div class="tooltip__body">${errorMessage}</div>
+      </div>
+    `.trim();
+    return `<span class="badge badge--danger" data-tooltip data-tooltip-content="${escapeHtml(tooltipContent)}">${label}</span>`;
+  }
+
+  return `<span class="badge badge--neutral" title="${label} - not synced">${label}</span>`;
+}
+
+/**
  * Get status display (per truth table spec)
  *
  * Acceptor domain (role='acceptor'):
@@ -821,8 +867,16 @@ function escapeHtml(unsafe: string): string {
 function getStatusDisplay(redirect: DomainRedirect): string {
   // Acceptor domain (target site)
   if (redirect.role === 'acceptor') {
-    // Check if acceptor has redirect configured (problematic state)
     if (redirect.has_redirect && redirect.target_url) {
+      // Check if this is a canonical redirect (T3/T4) — normal for acceptors
+      const rawDomain = getState().domains.find(d => d.domain_id === redirect.domain_id);
+      const templateId = rawDomain?.redirect?.template_id;
+
+      if (templateId === 'T3' || templateId === 'T4') {
+        return getCanonicalBadge(redirect, templateId);
+      }
+
+      // Non-canonical redirect on acceptor — problematic state
       const targetHost = redirect.target_url.replace('https://', '').replace('http://', '').split('/')[0];
       const tooltipContent = `
         <div class="tooltip tooltip--danger">
@@ -1018,18 +1072,9 @@ function getSiteHeaderActions(redirect: DomainRedirect, acceptorHasRedirect: boo
           <span>Manage domains</span>
         </button>
         <div class="dropdown__divider"></div>
-        <button class="dropdown__item" type="button" data-action="apply-t4" data-site-id="${redirect.site_id}">
-          <span class="icon" data-icon="mono/directions-fork"></span>
-          <span>Apply: www → apex</span>
-        </button>
-        <button class="dropdown__item" type="button" data-action="apply-t3" data-site-id="${redirect.site_id}">
-          <span class="icon" data-icon="mono/directions-fork"></span>
-          <span>Apply: apex → www</span>
-        </button>
-        <div class="dropdown__divider"></div>
         <button class="dropdown__item dropdown__item--danger" type="button" data-action="clear-site-redirects" data-site-id="${redirect.site_id}">
           <span class="icon" data-icon="mono/delete"></span>
-          <span>Clear site redirects</span>
+          <span>Clear donor redirects</span>
         </button>
       </div>
     </div>
@@ -1208,12 +1253,6 @@ function setupActions(): void {
         break;
       case 'manage-domains':
         if (siteId) handleManageDomains(siteId);
-        break;
-      case 'apply-t3':
-        if (siteId) handleApplyTemplate(siteId, 't3');
-        break;
-      case 'apply-t4':
-        if (siteId) handleApplyTemplate(siteId, 't4');
         break;
       case 'clear-site-redirects':
         if (siteId) handleClearSiteRedirects(siteId);
@@ -1404,35 +1443,6 @@ function handleEditSite(redirectId: number): void {
 function handleManageDomains(siteId: number): void {
   // Open manage site domains drawer
   openManageSiteDomainsDrawer(siteId);
-}
-
-/**
- * Handle apply template (T3 = apex→www, T4 = www→apex)
- */
-async function handleApplyTemplate(siteId: number, template: 't3' | 't4'): Promise<void> {
-  const siteDomains = currentRedirects.filter(r => r.site_id === siteId);
-  const acceptor = siteDomains.find(r => r.role === 'acceptor');
-  if (!acceptor) {
-    showGlobalNotice('error', 'No primary domain found for this site');
-    return;
-  }
-
-  const templateId = template.toUpperCase(); // 'T3' or 'T4'
-  const templateName = template === 't3' ? 'apex → www' : 'www → apex';
-
-  try {
-    const response = await createRedirect(acceptor.domain_id, {
-      template_id: templateId,
-      params: {},
-    });
-
-    // Optimistic update — keep role as 'acceptor' (T3/T4 don't change role)
-    addRedirectToDomain(acceptor.domain_id, response.redirect, 'acceptor');
-
-    showGlobalNotice('success', `Applied "${templateName}" to ${acceptor.domain}`);
-  } catch (error: any) {
-    showGlobalNotice('error', error.message || `Failed to apply template "${templateName}"`);
-  }
 }
 
 /**

@@ -450,18 +450,24 @@ src/redirects/
    - [x] Delete selected redirects
    - [x] Sync selected to Cloudflare
 10. [x] Site-level actions (kebab menu on acceptor row)
-   - [x] Apply: apex → www (T3) — creates canonical redirect
-   - [x] Apply: www → apex (T4) — creates canonical redirect
-   - [x] Clear site redirects — deletes all donor redirects
+   - [x] Clear donor redirects — deletes all donor redirects (renamed for clarity)
    - [x] Clear primary redirect — removes redirect from acceptor
+   - [x] Manage domains
 11. [x] Sync indicator (metric_pill) fixes
    - [x] Filter only pending/error zones (was syncing ALL zones)
    - [x] Idempotent event listeners (was duplicating on every state change)
    - [x] Re-entry guard (prevent double-click sync)
-12. [ ] Drawer: template selector for advanced redirects (T3, T4, T5, T7)
-    - Currently hardcoded to T1 in drawer.ts:514 and drawer.ts:1133
-    - T3/T4 only available via site header menu, not individual domain drawer
-13. [ ] Add "Add Redirect" wizard/modal (for new domains)
+12. [x] Canonical redirects in acceptor drawer
+   - [x] T3/T4 moved from site dropdown to acceptor drawer
+   - [x] Acceptor drawer shows redirect info + sync status when has_redirect
+   - [x] Acceptor drawer shows T3/T4 action buttons when no redirect
+   - [x] Delete canonical redirect from drawer
+   - [x] Table badge: T3/T4 shows sync-colored label, not "Alert" danger
+   - [x] Table row: canonical redirect doesn't show red arrow/target
+13. [ ] Drawer: template selector for advanced redirects (T5, T6, T7)
+    - T1 still hardcoded for donor drawer (covers 90% use case)
+    - Future: add template dropdown to donor drawer for path/maintenance redirects
+14. [ ] Add "Add Redirect" wizard/modal (for new domains)
     - Stub exists: openBulkAddDrawer() in drawer.ts:185
 14. [ ] Test URL preview logic
 15. [ ] i18n for redirects page (0 data-i18n attributes currently)
@@ -498,6 +504,21 @@ Currently 16+ direct API calls without safeCall in the redirects module:
 
 ---
 
+## 🐛 Testing Issues
+
+### TI-1: T4 (www → non-www) requires www A-record
+**Status:** Open — backend issue
+**Problem:** Creating a T4 redirect adds a CF Redirect Rule for `www.example.com → example.com`,
+but if there's no DNS A-record for `www.example.com`, the domain won't resolve and the redirect
+never fires.
+**Impact:** T4 template silently fails — redirect is "synced" in CF but doesn't work in practice.
+**Solutions:**
+- Backend: Auto-create www A-record (proxied) when applying T3/T4 template
+- Backend: Pre-check DNS records before creating T3/T4 and return error if missing
+- Frontend: Show warning in drawer when applying T4 without www record
+
+---
+
 **Last updated:** 2026-02-08
 
-**Status:** ✅ All core actions implemented. Pending: drawer template selector, add wizard, i18n, post-testing revision.
+**Status:** ✅ Core + canonical redirects in drawer. Pending: add wizard, i18n, post-testing revision.

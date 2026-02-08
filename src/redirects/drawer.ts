@@ -888,8 +888,192 @@ function renderAcceptorContent(redirect: DomainRedirect): string {
           </form>
         </div>
       </section>
+
+      ${renderAcceptorRedirectCard(redirect)}
     </div>
   `;
+}
+
+/**
+ * Render canonical redirect card for acceptor domain
+ * Two states: (1) has redirect → info + sync + delete, (2) no redirect → T3/T4 action buttons
+ */
+function renderAcceptorRedirectCard(redirect: DomainRedirect): string {
+  const rawDomain = getState().domains.find(d => d.domain_id === redirect.domain_id);
+  const templateId = rawDomain?.redirect?.template_id;
+
+  if (redirect.has_redirect) {
+    // Resolve template label
+    const templateLabels: Record<string, string> = {
+      T3: 'apex \u2192 www',
+      T4: 'www \u2192 apex',
+      T1: 'Domain redirect',
+    };
+    const templateLabel = templateLabels[templateId || ''] || templateId || 'Custom';
+    const targetUrl = redirect.target_url || '';
+
+    // Sync status
+    const syncStatus = redirect.sync_status || 'never';
+    const syncStatusText = syncStatus === 'synced' ? 'Synced' :
+                           syncStatus === 'pending' ? 'Pending' :
+                           syncStatus === 'error' ? 'Failed' : 'Not synced';
+    const syncStatusColor = syncStatus === 'synced' ? 'text-success' :
+                            syncStatus === 'pending' ? 'text-warning' :
+                            syncStatus === 'error' ? 'text-danger' : 'text-muted';
+    const lastSync = redirect.last_sync_at
+      ? new Date(redirect.last_sync_at).toLocaleString('en-US', {
+          year: 'numeric', month: 'short', day: 'numeric',
+          hour: '2-digit', minute: '2-digit',
+        })
+      : 'Never';
+
+    return `
+      <section class="card card--panel">
+        <header class="card__header">
+          <h3 class="h5">Canonical Redirect</h3>
+        </header>
+        <div class="card__body">
+          <dl class="detail-list">
+            <div class="detail-row">
+              <dt class="detail-label">Template</dt>
+              <dd class="detail-value">
+                <span class="badge badge--sm badge--neutral">${templateLabel}</span>
+              </dd>
+            </div>
+            <div class="detail-row">
+              <dt class="detail-label">Target</dt>
+              <dd class="detail-value text-sm">${targetUrl}</dd>
+            </div>
+            <div class="detail-row">
+              <dt class="detail-label">Sync</dt>
+              <dd class="detail-value">
+                <span class="${syncStatusColor}">${syncStatusText}</span>
+                <span class="text-muted text-sm" style="margin-inline-start: var(--space-2);">${lastSync}</span>
+              </dd>
+            </div>
+            ${redirect.sync_error ? `
+              <div class="detail-row">
+                <dt class="detail-label">Error</dt>
+                <dd class="detail-value">
+                  <span class="text-danger text-sm">${redirect.sync_error}</span>
+                </dd>
+              </div>
+            ` : ''}
+          </dl>
+          <div style="margin-top: var(--space-3);">
+            <button class="btn btn--sm btn--ghost btn--danger" type="button" data-action="delete-acceptor-redirect" data-redirect-id="${redirect.id}" data-domain-id="${redirect.domain_id}">
+              <span class="icon" data-icon="mono/trash"></span>
+              <span>Delete redirect</span>
+            </button>
+          </div>
+        </div>
+      </section>
+    `;
+  }
+
+  // No redirect — show T3/T4 action buttons
+  return `
+    <section class="card card--panel">
+      <header class="card__header">
+        <h3 class="h5">Canonical Redirect</h3>
+      </header>
+      <div class="card__body">
+        <p class="text-muted text-sm" style="margin-bottom: var(--space-3);">Set up www normalization for this domain.</p>
+        <div class="cluster" style="gap: var(--space-2);">
+          <button class="btn btn--sm btn--outline" type="button" data-action="apply-canonical" data-template="t4" data-site-id="${redirect.site_id}">
+            <span>www \u2192 apex</span>
+          </button>
+          <button class="btn btn--sm btn--outline" type="button" data-action="apply-canonical" data-template="t3" data-site-id="${redirect.site_id}">
+            <span>apex \u2192 www</span>
+          </button>
+        </div>
+      </div>
+    </section>
+  `;
+}
+
+/**
+ * Wire up click handlers for the acceptor redirect card
+ * Handles: T3/T4 apply buttons + delete redirect button
+ */
+function setupAcceptorRedirectCardHandlers(redirect: DomainRedirect): void {
+  if (!drawerElement) return;
+
+  // T3/T4 apply buttons
+  drawerElement.querySelectorAll<HTMLButtonElement>('[data-action="apply-canonical"]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const template = btn.dataset.template as 't3' | 't4';
+      const templateId = template.toUpperCase();
+      const templateName = template === 't3' ? 'apex \u2192 www' : 'www \u2192 apex';
+
+      btn.disabled = true;
+      try {
+        const response = await createRedirect(redirect.domain_id, {
+          template_id: templateId,
+          params: {},
+        });
+        addRedirectToDomain(redirect.domain_id, response.redirect, 'acceptor');
+        showGlobalNotice('success', `Applied "${templateName}" to ${redirect.domain}`);
+
+        // Re-render drawer to show redirect info
+        if (currentRedirect) {
+          currentRedirect = {
+            ...currentRedirect,
+            has_redirect: true,
+            target_url: template === 't4'
+              ? `https://${redirect.domain.replace(/^www\./, '')}`
+              : `https://www.${redirect.domain}`,
+            sync_status: 'pending',
+            id: response.redirect.id,
+          };
+          renderDrawerContent(currentRedirect);
+          if (currentRedirect.role === 'acceptor') {
+            setupAcceptorFormHandlers();
+          }
+        }
+      } catch (error: any) {
+        showGlobalNotice('error', error.message || `Failed to apply "${templateName}"`);
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  });
+
+  // Delete acceptor redirect button
+  const deleteBtn = drawerElement.querySelector<HTMLButtonElement>('[data-action="delete-acceptor-redirect"]');
+  if (deleteBtn) {
+    deleteBtn.addEventListener('click', async () => {
+      const redirectId = Number(deleteBtn.dataset.redirectId);
+      const domainId = Number(deleteBtn.dataset.domainId);
+      if (!redirectId || !domainId) return;
+
+      deleteBtn.disabled = true;
+      try {
+        await deleteRedirect(redirectId);
+        removeRedirectFromDomain(domainId, true); // keep acceptor role
+        showGlobalNotice('success', 'Canonical redirect removed');
+
+        // Re-render drawer to show "no redirect" state
+        if (currentRedirect) {
+          currentRedirect = {
+            ...currentRedirect,
+            has_redirect: false,
+            target_url: null,
+            sync_status: 'never',
+            cf_rule_id: null,
+            last_sync_at: null,
+          };
+          renderDrawerContent(currentRedirect);
+          if (currentRedirect.role === 'acceptor') {
+            setupAcceptorFormHandlers();
+          }
+        }
+      } catch (error: any) {
+        showGlobalNotice('error', error.message || 'Failed to delete redirect');
+        deleteBtn.disabled = false;
+      }
+    });
+  }
 }
 
 /**
@@ -934,6 +1118,11 @@ function renderDrawerContent(redirect: DomainRedirect): void {
   setupDropdownHandlers();
   setupToggleHandlers();
   setupTargetUrlHandlers();
+
+  // Setup acceptor redirect card handlers (T3/T4 create + delete)
+  if (isAcceptor) {
+    setupAcceptorRedirectCardHandlers(redirect);
+  }
 }
 
 /**
