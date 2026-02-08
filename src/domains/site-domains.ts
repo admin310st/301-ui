@@ -401,6 +401,14 @@ async function handleAttachDomain(): Promise<void> {
       // Not on redirects page or module not loaded - ignore
     }
 
+    // Refresh global sites table if on sites page
+    try {
+      const { loadSites } = await import('@ui/sites');
+      await loadSites();
+    } catch {
+      // Not on sites page or module not loaded - ignore
+    }
+
     setTimeout(() => {
       if (statusPanel) statusPanel.setAttribute('hidden', '');
     }, 3000);
@@ -472,6 +480,14 @@ async function handleDetachDomain(domainId: number, domainName: string): Promise
       await refreshRedirects();
     } catch {
       // Not on redirects page or module not loaded - ignore
+    }
+
+    // Refresh global sites table if on sites page
+    try {
+      const { loadSites } = await import('@ui/sites');
+      await loadSites();
+    } catch {
+      // Not on sites page or module not loaded - ignore
     }
   } catch (error: any) {
     logError('Failed to detach domain:', error);
@@ -662,6 +678,14 @@ async function handleSavePrimaryDomain(): Promise<void> {
       await refreshRedirects();
     } catch {
       // Not on redirects page or module not loaded - ignore
+    }
+
+    // Refresh global sites table if on sites page
+    try {
+      const { loadSites } = await import('@ui/sites');
+      await loadSites();
+    } catch {
+      // Not on sites page or module not loaded - ignore
     }
 
     setTimeout(() => {
