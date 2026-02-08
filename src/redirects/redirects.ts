@@ -24,6 +24,7 @@ import {
   refreshRedirects,
   updateDomainRedirect,
   removeRedirectFromDomain,
+  addRedirectToDomain,
   bulkUpdateEnabled,
   markZoneSynced,
   getSortedDomains,
@@ -32,6 +33,7 @@ import {
 import { initSiteSelector } from './site-selector';
 import { adaptDomainsToLegacy } from './adapter';
 import {
+  createRedirect,
   updateRedirect,
   deleteRedirect,
   applyZoneRedirects,
@@ -1439,16 +1441,28 @@ function handleManageDomains(siteId: number): void {
  */
 async function handleApplyTemplate(siteId: number, template: 't3' | 't4'): Promise<void> {
   const siteDomains = currentRedirects.filter(r => r.site_id === siteId);
-  const site = siteDomains[0];
-  if (!site) return;
+  const acceptor = siteDomains.find(r => r.role === 'acceptor');
+  if (!acceptor) {
+    showGlobalNotice('error', 'No primary domain found for this site');
+    return;
+  }
 
+  const templateId = template.toUpperCase(); // 'T3' or 'T4'
   const templateName = template === 't3' ? 'apex → www' : 'www → apex';
 
-  // TODO: Implement API call to apply template
-  // This will set up redirects for all domains in the site based on the template:
-  // T3: non-www domains redirect to www variant
-  // T4: www domains redirect to apex variant
-  showGlobalNotice('info', `Template "${templateName}" will be applied to ${site.site_name}`);
+  try {
+    const response = await createRedirect(acceptor.domain_id, {
+      template_id: templateId,
+      params: {},
+    });
+
+    // Optimistic update — keep role as 'acceptor' (T3/T4 don't change role)
+    addRedirectToDomain(acceptor.domain_id, response.redirect, 'acceptor');
+
+    showGlobalNotice('success', `Applied "${templateName}" to ${acceptor.domain}`);
+  } catch (error: any) {
+    showGlobalNotice('error', error.message || `Failed to apply template "${templateName}"`);
+  }
 }
 
 /**
@@ -1469,9 +1483,21 @@ async function handleClearSiteRedirects(siteId: number): Promise<void> {
   const confirmed = confirm(`Clear ${donorDomains.length} redirect(s) from "${site.site_name}"?\n\nThis will remove redirect configurations but keep the domains.`);
   if (!confirmed) return;
 
-  // TODO: Implement API call to delete all redirects for the site
-  // This would call deleteRedirect for each domain_id
-  showGlobalNotice('info', `Clearing ${donorDomains.length} redirects from ${site.site_name}...`);
+  try {
+    let cleared = 0;
+    for (const domain of donorDomains) {
+      await deleteRedirect(domain.id);
+      removeRedirectFromDomain(domain.domain_id);
+      cleared++;
+    }
+
+    showGlobalNotice('success', `Cleared ${cleared} redirect(s) from ${site.site_name}`);
+  } catch (error: any) {
+    // Some may have been cleared before the error
+    showGlobalNotice('error', error.message || 'Failed to clear redirects');
+    // Refresh to get actual state
+    await refreshRedirects();
+  }
 }
 
 /**
