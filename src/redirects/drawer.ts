@@ -961,7 +961,7 @@ function renderAcceptorRedirectCard(redirect: DomainRedirect): string {
             ` : ''}
           </dl>
           <div style="margin-top: var(--space-3);">
-            <button class="btn btn--sm btn--ghost btn--danger" type="button" data-action="delete-acceptor-redirect" data-redirect-id="${redirect.id}" data-domain-id="${redirect.domain_id}">
+            <button class="btn btn--sm btn--danger" type="button" data-action="delete-acceptor-redirect" data-redirect-id="${redirect.id}" data-domain-id="${redirect.domain_id}">
               <span class="icon" data-icon="mono/trash"></span>
               <span>Delete redirect</span>
             </button>
