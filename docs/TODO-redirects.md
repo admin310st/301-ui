@@ -464,6 +464,13 @@ src/redirects/
    - [x] Delete canonical redirect from drawer
    - [x] Table badge: T3/T4 shows sync-colored label, not "Alert" danger
    - [x] Table row: canonical redirect doesn't show red arrow/target
+12b. [x] **WORKAROUND** Canonical redirect dedup (frontend)
+   - API returns same `domain_id` twice when domain has T1 + T3/T4 redirects
+   - Frontend `dedupDomains()` in state.ts merges duplicates: T1 as `redirect`, T3/T4 as `canonical_redirect`
+   - Enables single table row, canonical badge on donors, two-state drawer card
+   - **Backend Issue:** API should merge redirects per domain_id server-side
+   - **See:** GitHub Issue #164 — remove `dedupDomains()` once backend fixes this
+   - Files changed: state.ts, types.ts, adapter.ts, redirects.ts, drawer.ts, sync-status.ts
 13. [ ] Drawer: template selector for advanced redirects (T5, T6, T7)
     - T1 still hardcoded for donor drawer (covers 90% use case)
     - Future: add template dropdown to donor drawer for path/maintenance redirects

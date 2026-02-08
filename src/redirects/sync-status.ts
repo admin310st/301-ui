@@ -52,6 +52,25 @@ export function calculateSyncStats(redirects: DomainRedirect[]): SyncStats {
     } else if (redirect.sync_status === 'error') {
       stats.error++;
     }
+
+    // Also count canonical redirect (T3/T4) if present
+    const canonical = redirect.canonical_redirect;
+    if (canonical) {
+      stats.total++;
+      if (canonical.sync_status === 'synced') {
+        stats.synced++;
+        if (canonical.last_sync_at) {
+          const syncDate = new Date(canonical.last_sync_at);
+          if (!mostRecentSync || syncDate > mostRecentSync) {
+            mostRecentSync = syncDate;
+          }
+        }
+      } else if (canonical.sync_status === 'pending') {
+        stats.pending++;
+      } else if (canonical.sync_status === 'error') {
+        stats.error++;
+      }
+    }
   });
 
   stats.ratio = stats.total > 0 ? stats.synced / stats.total : 0;
@@ -220,16 +239,21 @@ async function handleSyncAll(): Promise<void> {
   const state = getState();
 
   // Only collect zones that actually need syncing (pending or error)
+  // Includes both main redirects and canonical redirects (T3/T4)
   const zoneIds = new Set<number>();
   for (const domain of state.domains) {
     if (
       domain.zone_id &&
-      domain.redirect &&
-      (domain.redirect.sync_status === 'pending' || domain.redirect.sync_status === 'error') &&
       domain.site_status !== 'paused' &&
       domain.site_status !== 'archived'
     ) {
-      zoneIds.add(domain.zone_id);
+      const mainNeedsSync = domain.redirect &&
+        (domain.redirect.sync_status === 'pending' || domain.redirect.sync_status === 'error');
+      const canonicalNeedsSync = domain.canonical_redirect &&
+        (domain.canonical_redirect.sync_status === 'pending' || domain.canonical_redirect.sync_status === 'error');
+      if (mainNeedsSync || canonicalNeedsSync) {
+        zoneIds.add(domain.zone_id);
+      }
     }
   }
 

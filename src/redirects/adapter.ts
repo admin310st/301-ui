@@ -14,7 +14,7 @@ import type { DomainRedirect, SyncStatus, DomainStatus, SiteType, AnalyticsTrend
  * Convert new API domain to legacy DomainRedirect format
  */
 export function adaptDomainToLegacy(
-  domain: RedirectDomain,
+  domain: RedirectDomain & { canonical_redirect?: RedirectRule | null },
   siteInfo: {
     site_id: number;
     site_name: string;
@@ -88,6 +88,17 @@ export function adaptDomainToLegacy(
     created_at: redirect?.created_at ?? new Date().toISOString(),
     updated_at: redirect?.updated_at ?? new Date().toISOString(),
 
+    // Canonical redirect (T3/T4)
+    canonical_redirect: domain.canonical_redirect ? {
+      id: domain.canonical_redirect.id,
+      template_id: domain.canonical_redirect.template_id,
+      target_url: getTargetUrlFromRedirect(domain, domain.canonical_redirect),
+      sync_status: (syncStatusMap[domain.canonical_redirect.sync_status] ?? 'never') as SyncStatus,
+      sync_error: null,
+      last_sync_at: domain.canonical_redirect.updated_at ?? null,
+      enabled: domain.canonical_redirect.enabled,
+    } : null,
+
     // Analytics
     analytics,
   };
@@ -97,7 +108,7 @@ export function adaptDomainToLegacy(
  * Convert array of API domains to legacy format
  */
 export function adaptDomainsToLegacy(
-  domains: RedirectDomain[],
+  domains: (RedirectDomain & { canonical_redirect?: RedirectRule | null })[],
   siteInfo: {
     site_id: number;
     site_name: string;

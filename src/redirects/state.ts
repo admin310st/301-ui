@@ -45,6 +45,8 @@ export interface ExtendedRedirectDomain extends RedirectDomain {
   site_name: string;
   site_tag: string | null;
   site_status: SiteStatus;
+  /** Merged T3/T4 canonical redirect (separate from main redirect) */
+  canonical_redirect: RedirectRule | null;
 }
 
 // =============================================================================
@@ -138,6 +140,43 @@ export function finishLoading(): void {
 }
 
 // =============================================================================
+// Dedup (merge T1 + T3/T4 into single domain entry)
+// WORKAROUND: API returns same domain_id twice when it has both T1 and T3/T4.
+// Tracked in backend issue — remove once API merges redirects per domain.
+// =============================================================================
+
+function dedupDomains(domains: ExtendedRedirectDomain[]): ExtendedRedirectDomain[] {
+  const map = new Map<number, ExtendedRedirectDomain>();
+
+  for (const domain of domains) {
+    const templateId = domain.redirect?.template_id;
+    const isCanonical = templateId === 'T3' || templateId === 'T4';
+    const existing = map.get(domain.domain_id);
+
+    if (!existing) {
+      if (isCanonical) {
+        map.set(domain.domain_id, {
+          ...domain,
+          canonical_redirect: domain.redirect,
+          redirect: null,
+        });
+      } else {
+        map.set(domain.domain_id, { ...domain });
+      }
+    } else {
+      if (isCanonical) {
+        existing.canonical_redirect = domain.redirect;
+      } else {
+        existing.redirect = domain.redirect;
+        existing.domain_role = domain.domain_role;
+      }
+    }
+  }
+
+  return Array.from(map.values());
+}
+
+// =============================================================================
 // Actions (load data)
 // =============================================================================
 
@@ -193,6 +232,7 @@ export async function loadSitesRedirects(
         site_name: response.siteContext.siteName,
         site_tag: response.siteContext.siteTag,
         site_status: response.siteContext.siteStatus,
+        canonical_redirect: null as RedirectRule | null,
       }));
       allDomains.push(...domainsWithSite);
 
@@ -207,9 +247,11 @@ export async function loadSitesRedirects(
       totalRedirects += response.total_redirects;
     }
 
+    const dedupedDomains = dedupDomains(allDomains);
+
     state = {
       ...state,
-      domains: allDomains,
+      domains: dedupedDomains,
       zoneLimits: allZoneLimits,
       totalDomains,
       totalRedirects,
@@ -355,6 +397,46 @@ export function addRedirectToDomain(
 }
 
 /**
+ * Add canonical redirect to domain (optimistic)
+ */
+export function addCanonicalToDomain(
+  domainId: number,
+  redirect: RedirectRule
+): void {
+  const domain = findDomain(domainId);
+  if (!domain) return;
+
+  domain.canonical_redirect = redirect;
+
+  if (domain.zone_id) {
+    const zoneLimit = state.zoneLimits.find(z => z.zone_id === domain.zone_id);
+    if (zoneLimit) zoneLimit.used++;
+  }
+
+  state = { ...state, domains: [...state.domains], zoneLimits: [...state.zoneLimits], totalRedirects: state.totalRedirects + 1 };
+  notifyListeners();
+}
+
+/**
+ * Remove canonical redirect from domain (optimistic)
+ */
+export function removeCanonicalFromDomain(domainId: number): void {
+  const domain = findDomain(domainId);
+  if (!domain?.canonical_redirect) return;
+
+  const zoneId = domain.zone_id;
+  domain.canonical_redirect = null;
+
+  if (zoneId) {
+    const zoneLimit = state.zoneLimits.find(z => z.zone_id === zoneId);
+    if (zoneLimit && zoneLimit.used > 0) zoneLimit.used--;
+  }
+
+  state = { ...state, domains: [...state.domains], zoneLimits: [...state.zoneLimits], totalRedirects: Math.max(0, state.totalRedirects - 1) };
+  notifyListeners();
+}
+
+/**
  * Bulk update enabled status (optimistic)
  * Used after multiple PATCH /redirects/:id calls
  */
@@ -383,9 +465,13 @@ export function markZoneSynced(zoneId: number, syncedRedirectIds: number[]): voi
   let changed = false;
 
   state.domains.forEach(domain => {
-    if (domain.zone_id === zoneId && domain.redirect) {
-      if (syncedRedirectIds.includes(domain.redirect.id)) {
+    if (domain.zone_id === zoneId) {
+      if (domain.redirect && syncedRedirectIds.includes(domain.redirect.id)) {
         domain.redirect.sync_status = 'synced';
+        changed = true;
+      }
+      if (domain.canonical_redirect && syncedRedirectIds.includes(domain.canonical_redirect.id)) {
+        domain.canonical_redirect.sync_status = 'synced';
         changed = true;
       }
     }
@@ -498,21 +584,36 @@ export function getDonorDomains(): ExtendedRedirectDomain[] {
  * Get pending sync count
  */
 export function getPendingSyncCount(): number {
-  return state.domains.filter(d => d.redirect?.sync_status === 'pending').length;
+  let count = 0;
+  for (const d of state.domains) {
+    if (d.redirect?.sync_status === 'pending') count++;
+    if (d.canonical_redirect?.sync_status === 'pending') count++;
+  }
+  return count;
 }
 
 /**
- * Get error sync count
+ * Get error sync count (includes canonical redirects)
  */
 export function getErrorSyncCount(): number {
-  return state.domains.filter(d => d.redirect?.sync_status === 'error').length;
+  let count = 0;
+  for (const d of state.domains) {
+    if (d.redirect?.sync_status === 'error') count++;
+    if (d.canonical_redirect?.sync_status === 'error') count++;
+  }
+  return count;
 }
 
 /**
- * Get synced count
+ * Get synced count (includes canonical redirects)
  */
 export function getSyncedCount(): number {
-  return state.domains.filter(d => d.redirect?.sync_status === 'synced').length;
+  let count = 0;
+  for (const d of state.domains) {
+    if (d.redirect?.sync_status === 'synced') count++;
+    if (d.canonical_redirect?.sync_status === 'synced') count++;
+  }
+  return count;
 }
 
 /**

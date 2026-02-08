@@ -65,6 +65,17 @@ export interface DomainRedirect {
   created_at: string;
   updated_at: string;
 
+  // Canonical redirect (T3/T4 www normalization, separate from main redirect)
+  canonical_redirect?: {
+    id: number;
+    template_id: string;
+    target_url: string | null;
+    sync_status: SyncStatus;
+    sync_error: string | null;
+    last_sync_at: string | null;
+    enabled: boolean;
+  } | null;
+
   // Analytics (optional - from Cloudflare GraphQL Analytics API)
   analytics?: RedirectAnalytics;
 }

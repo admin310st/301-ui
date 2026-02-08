@@ -19,6 +19,8 @@ import {
   updateDomainRedirect,
   addRedirectToDomain,
   removeRedirectFromDomain,
+  addCanonicalToDomain,
+  removeCanonicalFromDomain,
   markZoneSynced,
   refreshRedirects,
   getAcceptorDomain,
@@ -875,83 +877,83 @@ function renderAcceptorContent(redirect: DomainRedirect): string {
 }
 
 /**
- * Render canonical redirect card for acceptor domain
- * Two states: (1) has redirect → info + sync + delete, (2) no redirect → T3/T4 action buttons
+ * Render canonical redirect info card (shared by acceptor and donor)
+ * Shows template, target, sync status, and delete button
  */
-function renderAcceptorRedirectCard(redirect: DomainRedirect): string {
-  const rawDomain = getState().domains.find(d => d.domain_id === redirect.domain_id);
-  const templateId = rawDomain?.redirect?.template_id;
+function renderCanonicalInfoCard(
+  canonical: NonNullable<DomainRedirect['canonical_redirect']>,
+  domainId: number,
+): string {
+  const templateLabels: Record<string, string> = {
+    T3: 'apex \u2192 www',
+    T4: 'www \u2192 apex',
+  };
+  const templateLabel = templateLabels[canonical.template_id] || canonical.template_id || 'Custom';
+  const targetUrl = canonical.target_url || '';
 
-  if (redirect.has_redirect) {
-    // Resolve template label
-    const templateLabels: Record<string, string> = {
-      T3: 'apex \u2192 www',
-      T4: 'www \u2192 apex',
-      T1: 'Domain redirect',
-    };
-    const templateLabel = templateLabels[templateId || ''] || templateId || 'Custom';
-    const targetUrl = redirect.target_url || '';
+  const syncStatus = canonical.sync_status || 'never';
+  const syncStatusText = syncStatus === 'synced' ? 'Synced' :
+                         syncStatus === 'pending' ? 'Pending' :
+                         syncStatus === 'error' ? 'Failed' : 'Not synced';
+  const syncStatusColor = syncStatus === 'synced' ? 'text-success' :
+                          syncStatus === 'pending' ? 'text-warning' :
+                          syncStatus === 'error' ? 'text-danger' : 'text-muted';
+  const lastSync = canonical.last_sync_at
+    ? new Date(canonical.last_sync_at).toLocaleString('en-US', {
+        year: 'numeric', month: 'short', day: 'numeric',
+        hour: '2-digit', minute: '2-digit',
+      })
+    : 'Never';
 
-    // Sync status
-    const syncStatus = redirect.sync_status || 'never';
-    const syncStatusText = syncStatus === 'synced' ? 'Synced' :
-                           syncStatus === 'pending' ? 'Pending' :
-                           syncStatus === 'error' ? 'Failed' : 'Not synced';
-    const syncStatusColor = syncStatus === 'synced' ? 'text-success' :
-                            syncStatus === 'pending' ? 'text-warning' :
-                            syncStatus === 'error' ? 'text-danger' : 'text-muted';
-    const lastSync = redirect.last_sync_at
-      ? new Date(redirect.last_sync_at).toLocaleString('en-US', {
-          year: 'numeric', month: 'short', day: 'numeric',
-          hour: '2-digit', minute: '2-digit',
-        })
-      : 'Never';
-
-    return `
-      <section class="card card--panel">
-        <header class="card__header">
-          <h3 class="h5">Canonical Redirect</h3>
-        </header>
-        <div class="card__body">
-          <dl class="detail-list">
-            <div class="detail-row">
-              <dt class="detail-label">Template</dt>
-              <dd class="detail-value">
-                <span class="badge badge--sm badge--neutral">${templateLabel}</span>
-              </dd>
-            </div>
-            <div class="detail-row">
-              <dt class="detail-label">Target</dt>
-              <dd class="detail-value text-sm">${targetUrl}</dd>
-            </div>
-            <div class="detail-row">
-              <dt class="detail-label">Sync</dt>
-              <dd class="detail-value">
-                <span class="${syncStatusColor}">${syncStatusText}</span>
-                <span class="text-muted text-sm" style="margin-inline-start: var(--space-2);">${lastSync}</span>
-              </dd>
-            </div>
-            ${redirect.sync_error ? `
-              <div class="detail-row">
-                <dt class="detail-label">Error</dt>
-                <dd class="detail-value">
-                  <span class="text-danger text-sm">${redirect.sync_error}</span>
-                </dd>
-              </div>
-            ` : ''}
-          </dl>
-          <div style="margin-top: var(--space-3);">
-            <button class="btn btn--sm btn--danger" type="button" data-action="delete-acceptor-redirect" data-redirect-id="${redirect.id}" data-domain-id="${redirect.domain_id}">
-              <span class="icon" data-icon="mono/trash"></span>
-              <span>Delete redirect</span>
-            </button>
+  return `
+    <section class="card card--panel">
+      <header class="card__header">
+        <h3 class="h5">Canonical Redirect</h3>
+      </header>
+      <div class="card__body">
+        <dl class="detail-list">
+          <div class="detail-row">
+            <dt class="detail-label">Template</dt>
+            <dd class="detail-value">
+              <span class="badge badge--sm badge--neutral">${templateLabel}</span>
+            </dd>
           </div>
+          <div class="detail-row">
+            <dt class="detail-label">Target</dt>
+            <dd class="detail-value text-sm">${targetUrl}</dd>
+          </div>
+          <div class="detail-row">
+            <dt class="detail-label">Sync</dt>
+            <dd class="detail-value">
+              <span class="${syncStatusColor}">${syncStatusText}</span>
+              <span class="text-muted text-sm" style="margin-inline-start: var(--space-2);">${lastSync}</span>
+            </dd>
+          </div>
+          ${canonical.sync_error ? `
+            <div class="detail-row">
+              <dt class="detail-label">Error</dt>
+              <dd class="detail-value">
+                <span class="text-danger text-sm">${canonical.sync_error}</span>
+              </dd>
+            </div>
+          ` : ''}
+        </dl>
+        <div style="margin-top: var(--space-3);">
+          <button class="btn btn--sm btn--danger" type="button" data-action="delete-canonical" data-redirect-id="${canonical.id}" data-domain-id="${domainId}">
+            <span class="icon" data-icon="mono/trash"></span>
+            <span>Delete redirect</span>
+          </button>
         </div>
-      </section>
-    `;
-  }
+      </div>
+    </section>
+  `;
+}
 
-  // No redirect — show T3/T4 action buttons
+/**
+ * Render canonical redirect buttons card (shared by acceptor and donor)
+ * Shows T3/T4 action buttons to create canonical redirect
+ */
+function renderCanonicalButtonsCard(siteId: number): string {
   return `
     <section class="card card--panel">
       <header class="card__header">
@@ -960,10 +962,10 @@ function renderAcceptorRedirectCard(redirect: DomainRedirect): string {
       <div class="card__body">
         <p class="text-muted text-sm" style="margin-bottom: var(--space-3);">Set up www normalization for this domain.</p>
         <div class="cluster" style="gap: var(--space-2);">
-          <button class="btn btn--sm btn--outline" type="button" data-action="apply-canonical" data-template="t4" data-site-id="${redirect.site_id}">
+          <button class="btn btn--sm btn--outline" type="button" data-action="apply-canonical" data-template="t4" data-site-id="${siteId}">
             <span>www \u2192 apex</span>
           </button>
-          <button class="btn btn--sm btn--outline" type="button" data-action="apply-canonical" data-template="t3" data-site-id="${redirect.site_id}">
+          <button class="btn btn--sm btn--outline" type="button" data-action="apply-canonical" data-template="t3" data-site-id="${siteId}">
             <span>apex \u2192 www</span>
           </button>
         </div>
@@ -973,38 +975,61 @@ function renderAcceptorRedirectCard(redirect: DomainRedirect): string {
 }
 
 /**
- * Wire up click handlers for the acceptor redirect card
- * Handles: T3/T4 apply buttons + delete redirect button
+ * Render canonical redirect card for acceptor domain
+ * Uses redirect.canonical_redirect (deduped field) instead of raw state lookup
  */
-function setupAcceptorRedirectCardHandlers(redirect: DomainRedirect): void {
+function renderAcceptorRedirectCard(redirect: DomainRedirect): string {
+  const canonical = redirect.canonical_redirect;
+  if (canonical) {
+    return renderCanonicalInfoCard(canonical, redirect.domain_id);
+  }
+  return renderCanonicalButtonsCard(redirect.site_id);
+}
+
+/**
+ * Unified handler for canonical redirect cards (both acceptor and donor)
+ * Handles: T3/T4 create buttons + delete canonical button
+ */
+function setupCanonicalCardHandlers(redirect: DomainRedirect): void {
   if (!drawerElement) return;
 
-  // T3/T4 apply buttons
+  // T3/T4 apply buttons (create canonical)
   drawerElement.querySelectorAll<HTMLButtonElement>('[data-action="apply-canonical"]').forEach(btn => {
     btn.addEventListener('click', async () => {
       const template = btn.dataset.template as 't3' | 't4';
       const templateId = template.toUpperCase();
       const templateName = template === 't3' ? 'apex \u2192 www' : 'www \u2192 apex';
 
-      btn.disabled = true;
+      // Disable all buttons during request
+      const allBtns = drawerElement!.querySelectorAll<HTMLButtonElement>('[data-action="apply-canonical"]');
+      allBtns.forEach(b => { b.disabled = true; });
+
       try {
         const response = await createRedirect(redirect.domain_id, {
           template_id: templateId,
           params: {},
         });
-        addRedirectToDomain(redirect.domain_id, response.redirect, 'acceptor');
+
+        // Optimistic update: add canonical to deduped state
+        addCanonicalToDomain(redirect.domain_id, response.redirect);
         showGlobalNotice('success', `Applied "${templateName}" to ${redirect.domain}`);
 
-        // Re-render drawer to show redirect info
+        // Update currentRedirect with new canonical data
         if (currentRedirect) {
+          const targetUrl = template === 't4'
+            ? `https://${redirect.domain.replace(/^www\./, '')}`
+            : `https://www.${redirect.domain}`;
           currentRedirect = {
             ...currentRedirect,
-            has_redirect: true,
-            target_url: template === 't4'
-              ? `https://${redirect.domain.replace(/^www\./, '')}`
-              : `https://www.${redirect.domain}`,
-            sync_status: 'pending',
-            id: response.redirect.id,
+            canonical_redirect: {
+              id: response.redirect.id,
+              template_id: templateId,
+              target_url: targetUrl,
+              sync_status: 'pending',
+              sync_error: null,
+              last_sync_at: null,
+              enabled: true,
+            },
           };
           renderDrawerContent(currentRedirect);
           if (currentRedirect.role === 'acceptor') {
@@ -1013,21 +1038,20 @@ function setupAcceptorRedirectCardHandlers(redirect: DomainRedirect): void {
         }
       } catch (error: any) {
         showGlobalNotice('error', error.message || `Failed to apply "${templateName}"`);
-      } finally {
-        btn.disabled = false;
+        allBtns.forEach(b => { b.disabled = false; });
       }
     });
   });
 
-  // Delete acceptor redirect button
-  const deleteBtn = drawerElement.querySelector<HTMLButtonElement>('[data-action="delete-acceptor-redirect"]');
+  // Delete canonical redirect button
+  const deleteBtn = drawerElement.querySelector<HTMLButtonElement>('[data-action="delete-canonical"]');
   if (deleteBtn) {
     deleteBtn.addEventListener('click', async () => {
       const redirectId = Number(deleteBtn.dataset.redirectId);
       const domainId = Number(deleteBtn.dataset.domainId);
       if (!redirectId || !domainId) return;
 
-      // Confirm before deleting canonical redirect
+      // Confirm before deleting
       const confirmed = await showConfirmDialog('delete-redirect', {
         'delete-domain': currentRedirect?.domain || 'this domain',
       });
@@ -1036,21 +1060,25 @@ function setupAcceptorRedirectCardHandlers(redirect: DomainRedirect): void {
       deleteBtn.disabled = true;
       try {
         await deleteRedirect(redirectId);
-        removeRedirectFromDomain(domainId, true); // keep acceptor role
+        removeCanonicalFromDomain(domainId);
         showGlobalNotice('success', 'Canonical redirect removed');
 
-        // Refresh state from API to get ground truth
-        await refreshRedirects();
+        // Sync zone to remove rule from Cloudflare
+        const state = getState();
+        const domain = state.domains.find(d => d.domain_id === domainId);
+        if (domain?.zone_id) {
+          try {
+            await applyZoneRedirects(domain.zone_id);
+          } catch {
+            console.warn('[Drawer] Zone sync after canonical delete failed');
+          }
+        }
 
-        // Re-render drawer to show "no redirect" state
+        // Update currentRedirect and re-render
         if (currentRedirect) {
           currentRedirect = {
             ...currentRedirect,
-            has_redirect: false,
-            target_url: null,
-            sync_status: 'never',
-            cf_rule_id: null,
-            last_sync_at: null,
+            canonical_redirect: null,
           };
           renderDrawerContent(currentRedirect);
           if (currentRedirect.role === 'acceptor') {
@@ -1059,8 +1087,6 @@ function setupAcceptorRedirectCardHandlers(redirect: DomainRedirect): void {
         }
       } catch (error: any) {
         showGlobalNotice('error', error.message || 'Failed to delete redirect');
-        // Refresh state to show actual backend state
-        await refreshRedirects();
         deleteBtn.disabled = false;
       }
     });
@@ -1087,61 +1113,14 @@ function renderDonorContent(
 
 /**
  * Render canonical redirect card for donor domain
- * Always shows T3/T4 buttons — canonical state not tracked separately from main redirect
+ * Two states: has canonical → info card, no canonical → T3/T4 buttons
  */
 function renderDonorCanonicalCard(redirect: DomainRedirect): string {
-  return `
-    <section class="card card--panel">
-      <header class="card__header">
-        <h3 class="h5">Canonical Redirect</h3>
-      </header>
-      <div class="card__body">
-        <p class="text-muted text-sm" style="margin-bottom: var(--space-3);">Set up www normalization for this domain.</p>
-        <div class="cluster" style="gap: var(--space-2);">
-          <button class="btn btn--sm btn--outline" type="button" data-action="apply-canonical" data-template="t4">
-            <span>www \u2192 apex</span>
-          </button>
-          <button class="btn btn--sm btn--outline" type="button" data-action="apply-canonical" data-template="t3">
-            <span>apex \u2192 www</span>
-          </button>
-        </div>
-      </div>
-    </section>
-  `;
-}
-
-/**
- * Wire up click handlers for donor canonical redirect card
- * Creates T3/T4 redirect and refreshes state
- */
-function setupDonorCanonicalHandlers(redirect: DomainRedirect): void {
-  if (!drawerElement) return;
-
-  drawerElement.querySelectorAll<HTMLButtonElement>('[data-action="apply-canonical"]').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      const template = btn.dataset.template as 't3' | 't4';
-      const templateId = template.toUpperCase();
-      const templateName = template === 't3' ? 'apex \u2192 www' : 'www \u2192 apex';
-
-      // Disable both buttons during request
-      const allBtns = drawerElement!.querySelectorAll<HTMLButtonElement>('[data-action="apply-canonical"]');
-      allBtns.forEach(b => { b.disabled = true; });
-
-      try {
-        await createRedirect(redirect.domain_id, {
-          template_id: templateId,
-          params: {},
-        });
-        showGlobalNotice('success', `Applied "${templateName}" to ${redirect.domain}`);
-
-        // Refresh state to see what backend did
-        await refreshRedirects();
-      } catch (error: any) {
-        showGlobalNotice('error', error.message || `Failed to apply "${templateName}"`);
-        allBtns.forEach(b => { b.disabled = false; });
-      }
-    });
-  });
+  const canonical = redirect.canonical_redirect;
+  if (canonical) {
+    return renderCanonicalInfoCard(canonical, redirect.domain_id);
+  }
+  return renderCanonicalButtonsCard(redirect.site_id);
 }
 
 /**
@@ -1170,12 +1149,8 @@ function renderDrawerContent(redirect: DomainRedirect): void {
   setupToggleHandlers();
   setupTargetUrlHandlers();
 
-  // Setup canonical redirect card handlers (T3/T4 create + delete)
-  if (isAcceptor) {
-    setupAcceptorRedirectCardHandlers(redirect);
-  } else {
-    setupDonorCanonicalHandlers(redirect);
-  }
+  // Setup canonical redirect card handlers (T3/T4 create + delete) — unified for both roles
+  setupCanonicalCardHandlers(redirect);
 }
 
 /**

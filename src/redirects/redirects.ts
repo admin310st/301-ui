@@ -422,12 +422,9 @@ function renderPrimaryDomainRow(
   // Count donors with redirects for badge
   const actualRedirects = siteDonors.filter(r => r.has_redirect);
 
-  // Check if the acceptor itself has a redirect configured
-  const rawAcceptorDomain = getState().domains.find(d => d.domain_id === redirect.domain_id);
-  const acceptorTemplateId = rawAcceptorDomain?.redirect?.template_id;
-  const isCanonicalRedirect = (acceptorTemplateId === 'T3' || acceptorTemplateId === 'T4');
+  // After dedup, T3/T4 goes to canonical_redirect, so has_redirect only reflects T1
   const acceptorHasRedirect = redirect.has_redirect && redirect.target_url;
-  const acceptorHasNonCanonicalRedirect = acceptorHasRedirect && !isCanonicalRedirect;
+  const acceptorHasNonCanonicalRedirect = acceptorHasRedirect;
 
   // Redirect badge with color coding OR red arrow if non-canonical acceptor redirect
   let redirectBadge = '';
@@ -867,15 +864,13 @@ function getCanonicalBadge(redirect: DomainRedirect, templateId: string): string
 function getStatusDisplay(redirect: DomainRedirect): string {
   // Acceptor domain (target site)
   if (redirect.role === 'acceptor') {
+    // Canonical badge from deduped field
+    if (redirect.canonical_redirect) {
+      const cr = redirect.canonical_redirect;
+      return getCanonicalBadge({ ...redirect, sync_status: cr.sync_status, last_sync_at: cr.last_sync_at, sync_error: cr.sync_error }, cr.template_id);
+    }
+
     if (redirect.has_redirect && redirect.target_url) {
-      // Check if this is a canonical redirect (T3/T4) — normal for acceptors
-      const rawDomain = getState().domains.find(d => d.domain_id === redirect.domain_id);
-      const templateId = rawDomain?.redirect?.template_id;
-
-      if (templateId === 'T3' || templateId === 'T4') {
-        return getCanonicalBadge(redirect, templateId);
-      }
-
       // Non-canonical redirect on acceptor — problematic state
       const targetHost = redirect.target_url.replace('https://', '').replace('http://', '').split('/')[0];
       const tooltipContent = `
@@ -890,55 +885,40 @@ function getStatusDisplay(redirect: DomainRedirect): string {
     return '<span class="badge badge--brand" title="Redirect target (main site domain)">Target</span>';
   }
 
-  // Donor domain without redirect configured - should not happen in normal flow
+  // Donor: build main status badge
+  let mainBadge = '';
+
   if (!redirect.has_redirect) {
-    if (!redirect.enabled) {
-      return '<span class="badge badge--neutral" title="Disabled by user">Disabled</span>';
-    }
-    // Enabled but no redirect configured - edge case
-    return '<span class="badge badge--neutral" title="No redirect configured">Enabled</span>';
-  }
-
-  // Case 2: Redirect configured but disabled (has_redirect=true, enabled=false)
-  if (!redirect.enabled) {
-    return '<span class="badge badge--neutral" title="Disabled by user">Disabled</span>';
-  }
-
-  // Case 3: Redirect configured and enabled (has_redirect=true, enabled=true)
-  // Show status based on sync_status
-  if (redirect.sync_status === 'synced') {
+    mainBadge = !redirect.enabled
+      ? '<span class="badge badge--neutral" title="Disabled by user">Disabled</span>'
+      : '<span class="badge badge--neutral" title="No redirect configured">Enabled</span>';
+  } else if (!redirect.enabled) {
+    mainBadge = '<span class="badge badge--neutral" title="Disabled by user">Disabled</span>';
+  } else if (redirect.sync_status === 'synced') {
     const syncDate = redirect.last_sync_at ? formatTooltipTimestamp(redirect.last_sync_at) : 'Unknown';
-    const tooltipContent = `
-      <div class="tooltip tooltip--success">
-        <div class="tooltip__header">Synced to CDN</div>
-        <div class="tooltip__body">Last sync: ${syncDate}</div>
-      </div>
-    `.trim();
-    return `<span class="badge badge--success" data-tooltip data-tooltip-content="${escapeHtml(tooltipContent)}">Active</span>`;
-  }
-
-  if (redirect.sync_status === 'pending') {
-    return '<span class="badge badge--warning" title="Sync in progress">Pending</span>';
-  }
-
-  if (redirect.sync_status === 'error') {
+    const tooltipContent = `<div class="tooltip tooltip--success"><div class="tooltip__header">Synced to CDN</div><div class="tooltip__body">Last sync: ${syncDate}</div></div>`.trim();
+    mainBadge = `<span class="badge badge--success" data-tooltip data-tooltip-content="${escapeHtml(tooltipContent)}">Active</span>`;
+  } else if (redirect.sync_status === 'pending') {
+    mainBadge = '<span class="badge badge--warning" title="Sync in progress">Pending</span>';
+  } else if (redirect.sync_status === 'error') {
     const errorMessage = redirect.sync_error || 'Unknown error';
     const lastAttempt = redirect.last_sync_at ? formatTooltipTimestamp(redirect.last_sync_at) : 'Unknown';
-    const tooltipContent = `
-      <div class="tooltip tooltip--danger">
-        <div class="tooltip__header">Sync Failed</div>
-        <div class="tooltip__body">${errorMessage}</div>
-        <div class="tooltip__footer">Last attempt: ${lastAttempt}</div>
-      </div>
-    `.trim();
-    return `<span class="badge badge--danger" data-tooltip data-tooltip-content="${escapeHtml(tooltipContent)}">Error</span>`;
+    const tooltipContent = `<div class="tooltip tooltip--danger"><div class="tooltip__header">Sync Failed</div><div class="tooltip__body">${errorMessage}</div><div class="tooltip__footer">Last attempt: ${lastAttempt}</div></div>`.trim();
+    mainBadge = `<span class="badge badge--danger" data-tooltip data-tooltip-content="${escapeHtml(tooltipContent)}">Error</span>`;
+  } else if (redirect.sync_status === 'never') {
+    mainBadge = '<span class="badge badge--neutral" title="Not synced yet">New</span>';
+  } else {
+    mainBadge = '<span class="badge badge--neutral" title="Unknown status">Unknown</span>';
   }
 
-  if (redirect.sync_status === 'never') {
-    return '<span class="badge badge--neutral" title="Not synced yet">New</span>';
+  // Append canonical badge for donors with T3/T4
+  if (redirect.canonical_redirect) {
+    const cr = redirect.canonical_redirect;
+    const canonicalBadge = getCanonicalBadge({ ...redirect, sync_status: cr.sync_status, last_sync_at: cr.last_sync_at, sync_error: cr.sync_error }, cr.template_id);
+    return mainBadge + ' ' + canonicalBadge;
   }
 
-  return '<span class="badge badge--neutral" title="Unknown status">Unknown</span>';
+  return mainBadge;
 }
 
 /**
