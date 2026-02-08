@@ -13,6 +13,7 @@ import {
 } from '@api/redirects';
 import { getSite, updateSite } from '@api/sites';
 import { safeCall } from '@api/ui-client';
+import { showConfirmDialog } from '@ui/dialog';
 import {
   getState,
   updateDomainRedirect,
@@ -1048,7 +1049,9 @@ function setupAcceptorRedirectCardHandlers(redirect: DomainRedirect): void {
       if (!redirectId || !domainId) return;
 
       // Confirm before deleting canonical redirect
-      const confirmed = confirm('Delete canonical redirect from this domain?');
+      const confirmed = await showConfirmDialog('delete-redirect', {
+        'delete-domain': currentRedirect?.domain || 'this domain',
+      });
       if (!confirmed) return;
 
       deleteBtn.disabled = true;
