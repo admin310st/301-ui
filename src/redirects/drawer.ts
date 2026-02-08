@@ -1069,7 +1069,7 @@ function setupAcceptorRedirectCardHandlers(redirect: DomainRedirect): void {
 
 /**
  * Render content for donor (redirect) domain
- * Simple layout: Redirect Configuration + Sync Status
+ * Layout: Redirect Configuration + Canonical Redirect + Sync Status
  */
 function renderDonorContent(
   redirect: DomainRedirect,
@@ -1079,9 +1079,69 @@ function renderDonorContent(
   return `
     <div class="stack-list">
       ${renderRedirectConfigCard(redirect, defaultTargetUrl)}
+      ${renderDonorCanonicalCard(redirect)}
       ${renderSyncStatusCard(redirect)}
     </div>
   `;
+}
+
+/**
+ * Render canonical redirect card for donor domain
+ * Always shows T3/T4 buttons — canonical state not tracked separately from main redirect
+ */
+function renderDonorCanonicalCard(redirect: DomainRedirect): string {
+  return `
+    <section class="card card--panel">
+      <header class="card__header">
+        <h3 class="h5">Canonical Redirect</h3>
+      </header>
+      <div class="card__body">
+        <p class="text-muted text-sm" style="margin-bottom: var(--space-3);">Set up www normalization for this domain.</p>
+        <div class="cluster" style="gap: var(--space-2);">
+          <button class="btn btn--sm btn--outline" type="button" data-action="apply-canonical" data-template="t4">
+            <span>www \u2192 apex</span>
+          </button>
+          <button class="btn btn--sm btn--outline" type="button" data-action="apply-canonical" data-template="t3">
+            <span>apex \u2192 www</span>
+          </button>
+        </div>
+      </div>
+    </section>
+  `;
+}
+
+/**
+ * Wire up click handlers for donor canonical redirect card
+ * Creates T3/T4 redirect and refreshes state
+ */
+function setupDonorCanonicalHandlers(redirect: DomainRedirect): void {
+  if (!drawerElement) return;
+
+  drawerElement.querySelectorAll<HTMLButtonElement>('[data-action="apply-canonical"]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const template = btn.dataset.template as 't3' | 't4';
+      const templateId = template.toUpperCase();
+      const templateName = template === 't3' ? 'apex \u2192 www' : 'www \u2192 apex';
+
+      // Disable both buttons during request
+      const allBtns = drawerElement!.querySelectorAll<HTMLButtonElement>('[data-action="apply-canonical"]');
+      allBtns.forEach(b => { b.disabled = true; });
+
+      try {
+        await createRedirect(redirect.domain_id, {
+          template_id: templateId,
+          params: {},
+        });
+        showGlobalNotice('success', `Applied "${templateName}" to ${redirect.domain}`);
+
+        // Refresh state to see what backend did
+        await refreshRedirects();
+      } catch (error: any) {
+        showGlobalNotice('error', error.message || `Failed to apply "${templateName}"`);
+        allBtns.forEach(b => { b.disabled = false; });
+      }
+    });
+  });
 }
 
 /**
@@ -1110,9 +1170,11 @@ function renderDrawerContent(redirect: DomainRedirect): void {
   setupToggleHandlers();
   setupTargetUrlHandlers();
 
-  // Setup acceptor redirect card handlers (T3/T4 create + delete)
+  // Setup canonical redirect card handlers (T3/T4 create + delete)
   if (isAcceptor) {
     setupAcceptorRedirectCardHandlers(redirect);
+  } else {
+    setupDonorCanonicalHandlers(redirect);
   }
 }
 
