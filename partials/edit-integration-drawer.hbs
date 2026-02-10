@@ -3,12 +3,12 @@
   <div class="drawer__overlay" data-drawer-close></div>
   <div class="drawer__panel">
     <header class="drawer__header">
-      <div class="drawer__title">
-        <span class="icon" data-icon="mono/puzzle-edit"></span>
-        <div>
+      <div class="drawer__header-content">
+        <div class="drawer__title">
+          <span class="icon" data-icon="mono/puzzle-edit"></span>
           <h2 class="h4">Edit Integration</h2>
-          <p class="text-muted">Manage API key settings and permissions.</p>
         </div>
+        <p class="text-muted">Manage API key settings and permissions.</p>
       </div>
       <button class="btn-close" type="button" data-drawer-close aria-label="Close">
         <span class="icon" data-icon="mono/close"></span>
@@ -54,9 +54,8 @@
                 type="button"
                 data-integration-toggle="status"
                 data-status="active"
-                style="border-color: var(--ok);"
               >
-                <span class="icon" data-icon="mono/check-circle" style="color: var(--ok);"></span>
+                <span class="icon" data-icon="mono/check-circle"></span>
                 <span>Active</span>
               </button>
             </div>

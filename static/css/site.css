@@ -270,6 +270,10 @@ body {
   color: var(--info);
 }
 
+.text-cf {
+  color: var(--cf-orange);
+}
+
 /**
  * Inline editing pattern
  *
@@ -3348,6 +3352,38 @@ body.sidebar-open .utility-bar {
   gap: var(--space-3);
   align-items: start;
 }
+
+.detail-row--center {
+  align-items: center;
+}
+
+/* Toggle button with data-enabled / data-status state coloring */
+.btn--outline[data-enabled="true"],
+.btn--outline[data-status="active"] {
+  border-color: var(--ok);
+}
+
+.btn--outline[data-enabled="true"] > .icon,
+.btn--outline[data-status="active"] > .icon {
+  color: var(--ok);
+}
+
+.btn--outline[data-enabled="false"],
+.btn--outline[data-status="revoked"] {
+  border-color: var(--danger);
+}
+
+.btn--outline[data-enabled="false"] > .icon,
+.btn--outline[data-status="revoked"] > .icon {
+  color: var(--danger);
+}
+
+/* Dropdown chip with data-status border coloring */
+.btn-chip[data-status="active"]  { border-color: var(--ok); }
+.btn-chip[data-status="paused"]  { border-color: var(--warning); }
+.btn-chip[data-status="archived"]{ border-color: var(--text-muted); }
+.btn-chip[data-status="301"]     { border-color: var(--ok); }
+.btn-chip[data-status="302"]     { border-color: var(--warning); }
 
 .detail-row dd {
   margin: 0;

@@ -370,10 +370,7 @@ function setupDropdownHandlers(): void {
       // Store value
       if (trigger) {
         trigger.setAttribute('data-selected-value', value || '301');
-
-        // Update border color based on selected code
-        const borderColor = value === '301' ? 'var(--ok)' : 'var(--warning)';
-        (trigger as HTMLElement).style.borderColor = borderColor;
+        trigger.setAttribute('data-status', value || '301');
       }
 
       // Close dropdown
@@ -404,17 +401,11 @@ function setupToggleHandlers(): void {
     const currentEnabled = toggleBtn.getAttribute('data-enabled') === 'true';
     const newEnabled = !currentEnabled;
 
-    // Update border color based on state
-    (toggleBtn as HTMLElement).style.borderColor = newEnabled ? 'var(--ok)' : 'var(--danger)';
-
     // Update icon - remove old SVG and update data-icon
     const iconContainer = toggleBtn.querySelector('.icon');
     if (iconContainer) {
       const newIconName = `mono/${newEnabled ? 'check-circle' : 'close-circle'}`;
       iconContainer.setAttribute('data-icon', newIconName);
-
-      // Update icon color to match state
-      (iconContainer as HTMLElement).style.color = newEnabled ? 'var(--ok)' : 'var(--danger)';
 
       // Remove existing SVG
       const existingSvg = iconContainer.querySelector('svg');
@@ -647,13 +638,6 @@ function setupAcceptorFormHandlers(): void {
     trigger.setAttribute('aria-expanded', (!isOpen).toString());
   });
 
-  // Status colors for border
-  const statusColors: Record<string, string> = {
-    active: 'var(--ok)',
-    paused: 'var(--warning)',
-    archived: 'var(--muted)',
-  };
-
   // Handle item selection
   items.forEach((item) => {
     item.addEventListener('click', () => {
@@ -669,8 +653,7 @@ function setupAcceptorFormHandlers(): void {
       if (hiddenInput) hiddenInput.value = value;
       if (trigger) {
         trigger.setAttribute('data-selected-value', value);
-        // Update border color
-        (trigger as HTMLElement).style.borderColor = statusColors[value] || statusColors.active;
+        trigger.setAttribute('data-status', value);
       }
 
       // Close dropdown
@@ -793,8 +776,8 @@ function renderAcceptorContent(redirect: DomainRedirect): string {
     <div class="stack-list">
       <!-- Overview Card -->
       <section class="card card--panel">
-        <header class="card__header" style="display:flex; align-items:center; justify-content:space-between;">
-          <h3 class="h5" style="margin:0;">Overview</h3>
+        <header class="card__header cluster cluster--space-between">
+          <h3 class="h5">Overview</h3>
           <span class="badge badge--sm ${typeConfig.badge}">${typeConfig.label}</span>
         </header>
       </section>
@@ -845,7 +828,7 @@ function renderAcceptorContent(redirect: DomainRedirect): string {
                   aria-haspopup="menu"
                   aria-expanded="false"
                   data-selected-value="${siteStatus}"
-                  style="border-color: ${currentStatusConfig.color};"
+                  data-status="${siteStatus}"
                 >
                   <span class="btn-chip__label" data-status-label>${currentStatusConfig.label}</span>
                   <span class="btn-chip__chevron icon" data-icon="mono/chevron-down"></span>
@@ -917,7 +900,7 @@ function renderCanonicalInfoCard(
             <dt class="detail-label">Sync</dt>
             <dd class="detail-value">
               <span class="${syncStatusColor}">${syncStatusText}</span>
-              <span class="text-muted text-sm" style="margin-inline-start: var(--space-2);">${lastSync}</span>
+              <span class="text-muted text-sm">${lastSync}</span>
             </dd>
           </div>
           ${canonical.sync_error ? `
@@ -929,7 +912,7 @@ function renderCanonicalInfoCard(
             </div>
           ` : ''}
         </dl>
-        <div style="margin-top: var(--space-3);">
+        <div class="stack--sm">
           <button class="btn btn--sm btn--danger" type="button" data-action="delete-canonical" data-redirect-id="${canonical.id}" data-domain-id="${domainId}">
             <span class="icon" data-icon="mono/trash"></span>
             <span>Delete redirect</span>
@@ -956,8 +939,8 @@ function renderCanonicalButtonsCard(siteId: number, domain: string): string {
         <h3 class="h5">Canonical Redirect</h3>
       </header>
       <div class="card__body">
-        <p class="text-muted text-sm" style="margin-bottom: var(--space-3);">Set up www normalization for this domain.</p>
-        <div class="cluster" style="gap: var(--space-2); align-items: center;">
+        <p class="text-muted text-sm">Set up www normalization for this domain.</p>
+        <div class="cluster cluster--sm">
           <div class="dropdown" data-dropdown="canonical-direction">
             <button
               class="btn-chip btn-chip--sm btn-chip--dropdown dropdown__trigger"
@@ -1215,7 +1198,6 @@ function renderRedirectConfigCard(redirect: DomainRedirect, defaultTargetUrl: st
   const isNewRedirect = !hasRedirect && defaultTargetUrl;
 
   const redirectCodeLabel = redirectCode === 301 ? '301 - Permanent' : '302 - Temporary';
-  const redirectCodeColor = redirectCode === 301 ? 'var(--ok)' : 'var(--warning)';
 
   return `
     <section class="card card--panel">
@@ -1239,7 +1221,7 @@ function renderRedirectConfigCard(redirect: DomainRedirect, defaultTargetUrl: st
             />
           </div>
 
-          <div class="detail-row" style="align-items: center;">
+          <div class="detail-row detail-row--center">
             <dt class="detail-label">Redirect Code</dt>
             <dd class="detail-value">
               <div class="dropdown" data-dropdown="redirect-code">
@@ -1250,7 +1232,7 @@ function renderRedirectConfigCard(redirect: DomainRedirect, defaultTargetUrl: st
                   aria-expanded="false"
                   data-drawer-dropdown="redirect_code"
                   data-selected-value="${redirectCode}"
-                  style="border-color: ${redirectCodeColor};"
+                  data-status="${redirectCode}"
                 >
                   <span class="btn-chip__label" data-selected-label>${redirectCodeLabel}</span>
                   <span class="btn-chip__chevron" data-icon="mono/chevron-down"></span>
@@ -1277,7 +1259,7 @@ function renderRedirectConfigCard(redirect: DomainRedirect, defaultTargetUrl: st
             </dd>
           </div>
 
-          <div class="detail-row" style="align-items: center;">
+          <div class="detail-row detail-row--center">
             <dt class="detail-label">Status</dt>
             <dd class="detail-value">
               <button
@@ -1285,9 +1267,8 @@ function renderRedirectConfigCard(redirect: DomainRedirect, defaultTargetUrl: st
                 type="button"
                 data-drawer-toggle="enabled"
                 data-enabled="${enabled}"
-                style="border-color: ${enabled ? 'var(--ok)' : 'var(--danger)'};"
               >
-                <span class="icon" data-icon="mono/${enabled ? 'check-circle' : 'close-circle'}" style="color: ${enabled ? 'var(--ok)' : 'var(--danger)'}"></span>
+                <span class="icon" data-icon="mono/${enabled ? 'check-circle' : 'close-circle'}"></span>
                 <span>${enabled ? 'Enabled' : 'Disabled'}</span>
               </button>
             </dd>
