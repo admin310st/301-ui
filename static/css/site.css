@@ -3332,7 +3332,7 @@ body.sidebar-open .utility-bar {
 .btn-group {
   display: flex;
   gap: var(--inline-gap);
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .detail-list {
