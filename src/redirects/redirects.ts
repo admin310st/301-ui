@@ -808,44 +808,30 @@ function escapeHtml(unsafe: string): string {
  * Get badge for canonical redirects (T3/T4) on acceptor domains
  * Shows template label with sync status color and tooltip
  */
-function getCanonicalBadge(redirect: DomainRedirect, templateId: string): string {
+function getCanonicalIcon(redirect: DomainRedirect, templateId: string): string {
   const label = templateId === 'T4' ? 'www\u2192apex' : 'apex\u2192www';
   const syncStatus = redirect.sync_status || 'never';
 
+  let colorClass = 'text-muted';
+  let tooltipContent = '';
+
   if (syncStatus === 'synced') {
+    colorClass = 'text-ok';
     const syncDate = redirect.last_sync_at ? formatTooltipTimestamp(redirect.last_sync_at) : 'Unknown';
-    const tooltipContent = `
-      <div class="tooltip tooltip--success">
-        <div class="tooltip__header">${label}</div>
-        <div class="tooltip__body">Synced to CDN</div>
-        <div class="tooltip__footer">Last sync: ${syncDate}</div>
-      </div>
-    `.trim();
-    return `<span class="badge badge--success" data-tooltip data-tooltip-content="${escapeHtml(tooltipContent)}">${label}</span>`;
-  }
-
-  if (syncStatus === 'pending') {
-    const tooltipContent = `
-      <div class="tooltip tooltip--warning">
-        <div class="tooltip__header">${label}</div>
-        <div class="tooltip__body">Pending sync to Cloudflare</div>
-      </div>
-    `.trim();
-    return `<span class="badge badge--warning" data-tooltip data-tooltip-content="${escapeHtml(tooltipContent)}">${label}</span>`;
-  }
-
-  if (syncStatus === 'error') {
+    tooltipContent = `<div class="tooltip tooltip--success"><div class="tooltip__header">${label}</div><div class="tooltip__body">Synced to CDN</div><div class="tooltip__footer">Last sync: ${syncDate}</div></div>`;
+  } else if (syncStatus === 'pending') {
+    colorClass = 'text-warning';
+    tooltipContent = `<div class="tooltip tooltip--warning"><div class="tooltip__header">${label}</div><div class="tooltip__body">Pending sync to Cloudflare</div></div>`;
+  } else if (syncStatus === 'error') {
+    colorClass = 'text-danger';
     const errorMessage = redirect.sync_error || 'Unknown error';
-    const tooltipContent = `
-      <div class="tooltip tooltip--danger">
-        <div class="tooltip__header">${label}</div>
-        <div class="tooltip__body">${errorMessage}</div>
-      </div>
-    `.trim();
-    return `<span class="badge badge--danger" data-tooltip data-tooltip-content="${escapeHtml(tooltipContent)}">${label}</span>`;
+    tooltipContent = `<div class="tooltip tooltip--danger"><div class="tooltip__header">${label}</div><div class="tooltip__body">${errorMessage}</div></div>`;
   }
 
-  return `<span class="badge badge--neutral" title="${label} - not synced">${label}</span>`;
+  if (tooltipContent) {
+    return `<span class="icon ${colorClass}" data-icon="mono/sign-yield" data-tooltip data-tooltip-content="${escapeHtml(tooltipContent)}" style="font-size: 1.25em;"></span>`;
+  }
+  return `<span class="icon ${colorClass}" data-icon="mono/sign-yield" title="${label} - not synced" style="font-size: 1.25em;"></span>`;
 }
 
 /**
@@ -864,11 +850,7 @@ function getCanonicalBadge(redirect: DomainRedirect, templateId: string): string
 function getStatusDisplay(redirect: DomainRedirect): string {
   // Acceptor domain (target site)
   if (redirect.role === 'acceptor') {
-    // Canonical badge from deduped field
-    if (redirect.canonical_redirect) {
-      const cr = redirect.canonical_redirect;
-      return getCanonicalBadge({ ...redirect, sync_status: cr.sync_status, last_sync_at: cr.last_sync_at, sync_error: cr.sync_error }, cr.template_id);
-    }
+    let baseBadge = '';
 
     if (redirect.has_redirect && redirect.target_url) {
       // Non-canonical redirect on acceptor — problematic state
@@ -880,9 +862,17 @@ function getStatusDisplay(redirect: DomainRedirect): string {
           <div class="tooltip__footer">Use "Clear primary redirect" to fix</div>
         </div>
       `.trim();
-      return `<span class="badge badge--danger" data-tooltip data-tooltip-content="${escapeHtml(tooltipContent)}">Alert</span>`;
+      baseBadge = `<span class="badge badge--danger" data-tooltip data-tooltip-content="${escapeHtml(tooltipContent)}">Alert</span>`;
     }
-    return '<span class="badge badge--brand" title="Redirect target (main site domain)">Target</span>';
+
+    // Append canonical badge if present
+    if (redirect.canonical_redirect) {
+      const cr = redirect.canonical_redirect;
+      const canonicalBadge = getCanonicalIcon({ ...redirect, sync_status: cr.sync_status, last_sync_at: cr.last_sync_at, sync_error: cr.sync_error }, cr.template_id);
+      return baseBadge ? baseBadge + ' ' + canonicalBadge : canonicalBadge;
+    }
+
+    return baseBadge || '<span class="badge badge--brand" title="Redirect target (main site domain)">Target</span>';
   }
 
   // Donor: build main status badge
@@ -914,7 +904,7 @@ function getStatusDisplay(redirect: DomainRedirect): string {
   // Append canonical badge for donors with T3/T4
   if (redirect.canonical_redirect) {
     const cr = redirect.canonical_redirect;
-    const canonicalBadge = getCanonicalBadge({ ...redirect, sync_status: cr.sync_status, last_sync_at: cr.last_sync_at, sync_error: cr.sync_error }, cr.template_id);
+    const canonicalBadge = getCanonicalIcon({ ...redirect, sync_status: cr.sync_status, last_sync_at: cr.last_sync_at, sync_error: cr.sync_error }, cr.template_id);
     return mainBadge + ' ' + canonicalBadge;
   }
 

@@ -19,10 +19,10 @@ export interface SyncStats {
  * Excludes paused/archived sites from counts
  */
 export function calculateSyncStats(redirects: DomainRedirect[]): SyncStats {
-  // Filter to only count donors (domains with configured redirects)
+  // Filter to domains with any redirect (T1 or canonical T3/T4)
   // Exclude paused/archived sites from sync statistics
-  const donors = redirects.filter((r) =>
-    r.has_redirect &&
+  const withRedirects = redirects.filter((r) =>
+    (r.has_redirect || r.canonical_redirect) &&
     r.site_status !== 'paused' &&
     r.site_status !== 'archived'
   );
@@ -31,29 +31,33 @@ export function calculateSyncStats(redirects: DomainRedirect[]): SyncStats {
     synced: 0,
     pending: 0,
     error: 0,
-    total: donors.length,
+    total: 0,
     ratio: 0,
     lastSync: undefined as string | undefined,
   };
 
   let mostRecentSync: Date | null = null;
 
-  donors.forEach((redirect) => {
-    if (redirect.sync_status === 'synced') {
-      stats.synced++;
-      if (redirect.last_sync_at) {
-        const syncDate = new Date(redirect.last_sync_at);
-        if (!mostRecentSync || syncDate > mostRecentSync) {
-          mostRecentSync = syncDate;
+  withRedirects.forEach((redirect) => {
+    // Count main redirect (T1) if present
+    if (redirect.has_redirect) {
+      stats.total++;
+      if (redirect.sync_status === 'synced') {
+        stats.synced++;
+        if (redirect.last_sync_at) {
+          const syncDate = new Date(redirect.last_sync_at);
+          if (!mostRecentSync || syncDate > mostRecentSync) {
+            mostRecentSync = syncDate;
+          }
         }
+      } else if (redirect.sync_status === 'pending') {
+        stats.pending++;
+      } else if (redirect.sync_status === 'error') {
+        stats.error++;
       }
-    } else if (redirect.sync_status === 'pending') {
-      stats.pending++;
-    } else if (redirect.sync_status === 'error') {
-      stats.error++;
     }
 
-    // Also count canonical redirect (T3/T4) if present
+    // Count canonical redirect (T3/T4) if present
     const canonical = redirect.canonical_redirect;
     if (canonical) {
       stats.total++;

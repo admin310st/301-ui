@@ -944,7 +944,12 @@ function renderCanonicalInfoCard(
  * Render canonical redirect buttons card (shared by acceptor and donor)
  * Shows T3/T4 action buttons to create canonical redirect
  */
-function renderCanonicalButtonsCard(siteId: number): string {
+function renderCanonicalButtonsCard(siteId: number, domain: string): string {
+  // Smart default: www domains → T4 (www→apex), non-www → T3 (apex→www)
+  const isWww = domain.startsWith('www.');
+  const defaultTemplate = isWww ? 't4' : 't3';
+  const defaultLabel = isWww ? 'www \u2192 apex' : 'apex \u2192 www';
+
   return `
     <section class="card card--panel">
       <header class="card__header">
@@ -952,12 +957,25 @@ function renderCanonicalButtonsCard(siteId: number): string {
       </header>
       <div class="card__body">
         <p class="text-muted text-sm" style="margin-bottom: var(--space-3);">Set up www normalization for this domain.</p>
-        <div class="cluster" style="gap: var(--space-2);">
-          <button class="btn btn--sm btn--outline" type="button" data-action="apply-canonical" data-template="t4" data-site-id="${siteId}">
-            <span>www \u2192 apex</span>
-          </button>
-          <button class="btn btn--sm btn--outline" type="button" data-action="apply-canonical" data-template="t3" data-site-id="${siteId}">
-            <span>apex \u2192 www</span>
+        <div class="cluster" style="gap: var(--space-2); align-items: center;">
+          <div class="dropdown" data-dropdown="canonical-direction">
+            <button
+              class="btn-chip btn-chip--sm btn-chip--dropdown dropdown__trigger"
+              type="button"
+              aria-haspopup="menu"
+              aria-expanded="false"
+              data-selected-value="${defaultTemplate}"
+            >
+              <span class="btn-chip__label" data-selected-label>${defaultLabel}</span>
+              <span class="btn-chip__chevron icon" data-icon="mono/chevron-down"></span>
+            </button>
+            <div class="dropdown__menu dropdown__menu--fit-trigger" role="menu">
+              <button class="dropdown__item ${defaultTemplate === 't4' ? 'is-active' : ''}" type="button" data-value="t4">www \u2192 apex</button>
+              <button class="dropdown__item ${defaultTemplate === 't3' ? 'is-active' : ''}" type="button" data-value="t3">apex \u2192 www</button>
+            </div>
+          </div>
+          <button class="btn btn--sm btn--primary" type="button" data-action="apply-canonical" data-site-id="${siteId}">
+            Apply
           </button>
         </div>
       </div>
@@ -974,7 +992,7 @@ function renderAcceptorRedirectCard(redirect: DomainRedirect): string {
   if (canonical) {
     return renderCanonicalInfoCard(canonical, redirect.domain_id);
   }
-  return renderCanonicalButtonsCard(redirect.site_id);
+  return renderCanonicalButtonsCard(redirect.site_id, redirect.domain);
 }
 
 /**
@@ -984,16 +1002,54 @@ function renderAcceptorRedirectCard(redirect: DomainRedirect): string {
 function setupCanonicalCardHandlers(redirect: DomainRedirect): void {
   if (!drawerElement) return;
 
-  // T3/T4 apply buttons (create canonical)
-  drawerElement.querySelectorAll<HTMLButtonElement>('[data-action="apply-canonical"]').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      const template = btn.dataset.template as 't3' | 't4';
+  // Canonical direction dropdown
+  const canonicalDropdown = drawerElement.querySelector('[data-dropdown="canonical-direction"]');
+  if (canonicalDropdown) {
+    const trigger = canonicalDropdown.querySelector('.dropdown__trigger');
+    const menu = canonicalDropdown.querySelector('.dropdown__menu');
+    const items = canonicalDropdown.querySelectorAll('.dropdown__item');
+    const label = canonicalDropdown.querySelector('[data-selected-label]');
+
+    if (trigger && menu) {
+      trigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOpen = canonicalDropdown.classList.contains('dropdown--open');
+        canonicalDropdown.classList.toggle('dropdown--open', !isOpen);
+        trigger.setAttribute('aria-expanded', (!isOpen).toString());
+      });
+
+      items.forEach((item) => {
+        item.addEventListener('click', () => {
+          const value = item.getAttribute('data-value');
+          const text = item.textContent?.trim();
+          items.forEach((i) => i.classList.remove('is-active'));
+          item.classList.add('is-active');
+          if (label && text) label.textContent = text;
+          if (trigger) trigger.setAttribute('data-selected-value', value || 't3');
+          canonicalDropdown.classList.remove('dropdown--open');
+          trigger.setAttribute('aria-expanded', 'false');
+        });
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!canonicalDropdown.contains(e.target as Node)) {
+          canonicalDropdown.classList.remove('dropdown--open');
+          trigger.setAttribute('aria-expanded', 'false');
+        }
+      });
+    }
+  }
+
+  // Apply canonical button (reads selected direction from dropdown)
+  const applyBtn = drawerElement.querySelector<HTMLButtonElement>('[data-action="apply-canonical"]');
+  if (applyBtn) {
+    applyBtn.addEventListener('click', async () => {
+      const trigger = drawerElement!.querySelector('[data-dropdown="canonical-direction"] .dropdown__trigger');
+      const template = (trigger?.getAttribute('data-selected-value') || 't3') as 't3' | 't4';
       const templateId = template.toUpperCase();
       const templateName = template === 't3' ? 'apex \u2192 www' : 'www \u2192 apex';
 
-      // Disable all buttons during request
-      const allBtns = drawerElement!.querySelectorAll<HTMLButtonElement>('[data-action="apply-canonical"]');
-      allBtns.forEach(b => { b.disabled = true; });
+      applyBtn.disabled = true;
 
       try {
         const response = await createRedirect(redirect.domain_id, {
@@ -1001,11 +1057,9 @@ function setupCanonicalCardHandlers(redirect: DomainRedirect): void {
           params: {},
         });
 
-        // Optimistic update: add canonical to deduped state
         addCanonicalToDomain(redirect.domain_id, response.redirect);
         showGlobalNotice('success', `Applied "${templateName}" to ${redirect.domain}`);
 
-        // Update currentRedirect with new canonical data
         if (currentRedirect) {
           const targetUrl = template === 't4'
             ? `https://${redirect.domain.replace(/^www\./, '')}`
@@ -1029,10 +1083,10 @@ function setupCanonicalCardHandlers(redirect: DomainRedirect): void {
         }
       } catch (error: any) {
         showGlobalNotice('error', error.message || `Failed to apply "${templateName}"`);
-        allBtns.forEach(b => { b.disabled = false; });
+        applyBtn.disabled = false;
       }
     });
-  });
+  }
 
   // Delete canonical redirect button
   const deleteBtn = drawerElement.querySelector<HTMLButtonElement>('[data-action="delete-canonical"]');
@@ -1111,7 +1165,7 @@ function renderDonorCanonicalCard(redirect: DomainRedirect): string {
   if (canonical) {
     return renderCanonicalInfoCard(canonical, redirect.domain_id);
   }
-  return renderCanonicalButtonsCard(redirect.site_id);
+  return renderCanonicalButtonsCard(redirect.site_id, redirect.domain);
 }
 
 /**
