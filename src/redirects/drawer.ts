@@ -1080,6 +1080,7 @@ function setupCanonicalCardHandlers(redirect: DomainRedirect): void {
           if (currentRedirect.role === 'acceptor') {
             setupAcceptorFormHandlers();
           }
+          updateSyncButtonState(currentRedirect);
         }
       } catch (error: any) {
         showGlobalNotice('error', error.message || `Failed to apply "${templateName}"`);
@@ -1129,6 +1130,7 @@ function setupCanonicalCardHandlers(redirect: DomainRedirect): void {
           if (currentRedirect.role === 'acceptor') {
             setupAcceptorFormHandlers();
           }
+          updateSyncButtonState(currentRedirect);
         }
       } catch (error: any) {
         showGlobalNotice('error', error.message || 'Failed to delete redirect');
