@@ -618,6 +618,13 @@ tr:hover .table-cell-quick-action {
   text-align: right;
 }
 
+/* Narrow numeric columns — shrink to content width */
+.th-num {
+  width: 1%;
+  white-space: nowrap;
+  text-align: right;
+}
+
 /* ============================================
    4. TABLE CONTROLS & FILTERS
    ============================================ */
