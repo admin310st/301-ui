@@ -455,7 +455,11 @@ function renderPrimaryDomainRow(
   // Domain display with mass-select checkbox
   const domainDisplay = getDomainDisplay(redirect, true, true, allDonorsSelected, someDonorsSelected, redirectBadge);
 
-  const activityDisplay = getActivityDisplay(redirect);
+  // Activity for acceptor: show donor redirect count
+  const donorsWithRedirect = siteDonors.filter(r => r.has_redirect).length;
+  const activityDisplay = donorsWithRedirect > 0
+    ? `<span class="text-sm text-muted" title="${donorsWithRedirect} domain${donorsWithRedirect > 1 ? 's' : ''} redirect here">${donorsWithRedirect} redirect${donorsWithRedirect > 1 ? 's' : ''}</span>`
+    : getActivityDisplay(redirect);
   const statusDisplay = getStatusDisplay(redirect);
   const actions = getSiteHeaderActions(redirect, !!acceptorHasRedirect);
 
@@ -850,7 +854,8 @@ function getCanonicalIcon(redirect: DomainRedirect, templateId: string): string 
 function getStatusDisplay(redirect: DomainRedirect): string {
   // Acceptor domain (target site)
   if (redirect.role === 'acceptor') {
-    let baseBadge = '';
+    // Default: "Target" badge; overridden to "Alert" if acceptor has problematic T1 redirect
+    let baseBadge = '<span class="badge badge--brand" title="Redirect target (main site domain)">Target</span>';
 
     if (redirect.has_redirect && redirect.target_url) {
       // Non-canonical redirect on acceptor — problematic state
@@ -865,14 +870,14 @@ function getStatusDisplay(redirect: DomainRedirect): string {
       baseBadge = `<span class="badge badge--danger" data-tooltip data-tooltip-content="${escapeHtml(tooltipContent)}">Alert</span>`;
     }
 
-    // Append canonical badge if present
+    // Append canonical icon if present
     if (redirect.canonical_redirect) {
       const cr = redirect.canonical_redirect;
       const canonicalBadge = getCanonicalIcon({ ...redirect, sync_status: cr.sync_status, last_sync_at: cr.last_sync_at, sync_error: cr.sync_error }, cr.template_id);
-      return baseBadge ? baseBadge + ' ' + canonicalBadge : canonicalBadge;
+      return baseBadge + ' ' + canonicalBadge;
     }
 
-    return baseBadge || '<span class="badge badge--brand" title="Redirect target (main site domain)">Target</span>';
+    return baseBadge;
   }
 
   // Donor: build main status badge
