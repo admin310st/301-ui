@@ -452,14 +452,17 @@ function renderPrimaryDomainRow(
     targetDisplay = getSiteTypeBadge(redirect.site_type);
   }
 
-  // Domain display with mass-select checkbox
-  const domainDisplay = getDomainDisplay(redirect, true, true, allDonorsSelected, someDonorsSelected, redirectBadge);
+  // Canonical icon prefix for domain name
+  let canonicalIcon = '';
+  if (redirect.canonical_redirect) {
+    const cr = redirect.canonical_redirect;
+    canonicalIcon = getCanonicalIcon({ ...redirect, sync_status: cr.sync_status, last_sync_at: cr.last_sync_at, sync_error: cr.sync_error }, cr.template_id);
+  }
 
-  // Activity for acceptor: show donor redirect count
-  const donorsWithRedirect = siteDonors.filter(r => r.has_redirect).length;
-  const activityDisplay = donorsWithRedirect > 0
-    ? `<span class="text-sm text-muted" title="${donorsWithRedirect} domain${donorsWithRedirect > 1 ? 's' : ''} redirect here">${donorsWithRedirect} redirect${donorsWithRedirect > 1 ? 's' : ''}</span>`
-    : getActivityDisplay(redirect);
+  // Domain display with mass-select checkbox
+  const domainDisplay = getDomainDisplay(redirect, true, true, allDonorsSelected, someDonorsSelected, redirectBadge, canonicalIcon);
+
+  const activityDisplay = getActivityDisplay(redirect);
   const statusDisplay = getStatusDisplay(redirect);
   const actions = getSiteHeaderActions(redirect, !!acceptorHasRedirect);
 
@@ -529,9 +532,17 @@ function renderDomainRow(redirect: DomainRedirect, _isLastRow: boolean): string 
     arrowIndicator = `<span class="${arrowColor}" style="font-size: 1.125rem; line-height: 1;" title="${arrowTitle}">→</span>`;
   }
 
+  // Canonical icon prefix for domain name
+  let canonicalIcon = '';
+  if (redirect.canonical_redirect) {
+    const cr = redirect.canonical_redirect;
+    canonicalIcon = getCanonicalIcon({ ...redirect, sync_status: cr.sync_status, last_sync_at: cr.last_sync_at, sync_error: cr.sync_error }, cr.template_id);
+  }
+
   // Child row: indented with left border line
   const domainDisplay = `
     <div class="table-cell-stack table-cell-stack--child">
+      ${canonicalIcon}
       <span class="table-cell-main">${redirect.domain}</span>
       ${statusBadge}
       ${arrowIndicator}
@@ -635,7 +646,8 @@ function getDomainDisplay(
   isTopLevel: boolean = false,
   allDonorsSelected: boolean = false,
   someDonorsSelected: boolean = false,
-  redirectCountBadge: string = ''
+  redirectCountBadge: string = '',
+  prefixIcon: string = ''
 ): string {
   const statusBadge = redirect.domain_status !== 'active'
     ? `<span class="badge badge--xs badge--${redirect.domain_status === 'parked' ? 'neutral' : 'danger'}">${redirect.domain_status}</span>`
@@ -694,6 +706,7 @@ function getDomainDisplay(
   return `
     <div class="table-cell-stack ${!isTopLevel ? 'table-cell-stack--child' : ''}">
       ${checkboxBefore}
+      ${prefixIcon}
       <span class="table-cell-main">${redirect.domain}</span>
       ${flagBadge}
       ${redirectCountBadge}
@@ -870,13 +883,6 @@ function getStatusDisplay(redirect: DomainRedirect): string {
       baseBadge = `<span class="badge badge--danger" data-tooltip data-tooltip-content="${escapeHtml(tooltipContent)}">Alert</span>`;
     }
 
-    // Append canonical icon if present
-    if (redirect.canonical_redirect) {
-      const cr = redirect.canonical_redirect;
-      const canonicalBadge = getCanonicalIcon({ ...redirect, sync_status: cr.sync_status, last_sync_at: cr.last_sync_at, sync_error: cr.sync_error }, cr.template_id);
-      return baseBadge + ' ' + canonicalBadge;
-    }
-
     return baseBadge;
   }
 
@@ -904,13 +910,6 @@ function getStatusDisplay(redirect: DomainRedirect): string {
     mainBadge = '<span class="badge badge--neutral" title="Not synced yet">New</span>';
   } else {
     mainBadge = '<span class="badge badge--neutral" title="Unknown status">Unknown</span>';
-  }
-
-  // Append canonical badge for donors with T3/T4
-  if (redirect.canonical_redirect) {
-    const cr = redirect.canonical_redirect;
-    const canonicalBadge = getCanonicalIcon({ ...redirect, sync_status: cr.sync_status, last_sync_at: cr.last_sync_at, sync_error: cr.sync_error }, cr.template_id);
-    return mainBadge + ' ' + canonicalBadge;
   }
 
   return mainBadge;
