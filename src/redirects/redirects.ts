@@ -846,9 +846,9 @@ function getCanonicalIcon(redirect: DomainRedirect, templateId: string): string 
   }
 
   if (tooltipContent) {
-    return `<span class="${colorClass}" data-tooltip data-tooltip-content="${escapeHtml(tooltipContent)}" style="font-size: 1.25em; line-height: 1; cursor: default;">\u224B</span>`;
+    return `<span class="${colorClass}" data-tooltip data-tooltip-content="${escapeHtml(tooltipContent)}">\u224B</span>`;
   }
-  return `<span class="${colorClass}" title="${label} - not synced" style="font-size: 1.25em; line-height: 1;">\u224B</span>`;
+  return `<span class="${colorClass}" title="${label} - not synced">\u224B</span>`;
 }
 
 /**
