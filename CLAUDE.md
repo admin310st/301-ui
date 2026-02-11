@@ -132,6 +132,64 @@ npm run purge:report     # Analyze unused CSS (output to build/purge-report, not
 - Prioritize pure functions and worker routing logic
 - Mock external dependencies (i18n, DOM, fetch) only when necessary
 
+### API Probe (Live Endpoint Testing)
+
+**File:** `tests/api-probe.mjs`
+**Dependency:** `playwright` (dev dependency)
+**Purpose:** Verify real API responses against our TypeScript types by hitting live `api.301.st` endpoints.
+
+**Prerequisites:**
+- Google Chrome installed locally (Playwright uses `channel: 'chrome'`)
+- `npm i` (playwright is in devDependencies)
+
+**How it works:**
+1. Opens real Chrome via Playwright (`channel: 'chrome'` — not bundled Chromium)
+2. Navigates to `app.301.st/#login`, fills credentials, Turnstile auto-solves
+3. After login, runs API calls from browser context (preserves JWT fingerprint, cookies, CORS)
+4. Saves browser session to `tests/.api-session.json` for reuse (~7 day TTL)
+5. Saves full results to `tests/api-probe-results.json`
+
+**Usage:**
+```bash
+# First run (or session expired) — opens Chrome, logs in, tests:
+MODE=login EMAIL=click@clx.cx PASSWORD=Robotics777 node tests/api-probe.mjs
+
+# Subsequent runs — headless, reuses saved session:
+node tests/api-probe.mjs
+```
+
+**Tested endpoints (14 total):**
+
+| Category | Endpoint | Notes |
+|----------|----------|-------|
+| Auth | `GET /auth/me` | Returns `account_id` used by other calls |
+| Projects | `GET /projects` | List all projects |
+| Projects | `GET /projects/:id` | Project detail |
+| Projects | `GET /projects/:id/sites` | Sites for a project |
+| Domains | `GET /domains` | List all domains |
+| Domains | `GET /domains/:id` | Domain detail |
+| Sites | `GET /sites/:id` | Site detail |
+| Sites | `GET /sites/:id/redirects` | Site redirects (with domain list) |
+| Redirects | `GET /redirects/:id` | Redirect detail |
+| Redirects | `GET /redirects/templates` | Redirect templates |
+| Redirects | `GET /redirects/presets` | Redirect presets |
+| Zones | `GET /zones/:id/redirect-limits` | Zone redirect limits |
+| Zones | `GET /zones/:id/redirect-status` | Zone redirect status |
+| Integrations | `GET /integrations/keys?account_id=N` | Integration keys list |
+| Integrations | `GET /integrations/keys/:id` | Integration key detail |
+
+**Important notes:**
+- JWT contains `fp` (fingerprint hash) — API calls must originate from the same browser context that logged in. Node.js `fetch()` outside browser will get 401.
+- Turnstile blocks Docker/Xvfb environments — login must run on a real display.
+- Session files (`tests/.api-session.json`, `tests/api-probe-results.json`) are gitignored.
+- If Turnstile can't auto-solve, the script shows a prompt and waits 120s for manual solve.
+
+**When to run:**
+- After changing API types in `src/api/types.ts`
+- After backend API changes
+- Before implementing new endpoint integrations
+- To capture real response shapes for mock data
+
 ## HTML Partials System
 
 To eliminate code duplication across pages, the project uses a custom Vite plugin for HTML partials:

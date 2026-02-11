@@ -24,7 +24,7 @@ export function applyAuthDom(state: AuthState): void {
   const loggedIn = Boolean(state?.user);
   const email = state?.user?.email || '';
   const name = state?.user?.name || '';
-  const role = state?.user?.role || state?.user?.type || 'client:owner';
+  const role = state?.user?.user_type || 'client';
 
   qsa<HTMLElement>('[data-onlogin]').forEach((node) => {
     node.hidden = !loggedIn;

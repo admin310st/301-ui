@@ -27,6 +27,13 @@ Thumbs.db
 *.log
 logs/
 
+### API Probe (session data, results, debug screenshots)
+tests/.api-session.json
+tests/.auth-state.json
+tests/api-probe-results.json
+tests/login-debug.png
+tests/turnstile-debug.png
+
 ### Claude Code
 .claude/settings.local.json
 .claude/.session

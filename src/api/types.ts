@@ -1,11 +1,12 @@
 export interface UserProfile {
-  id?: string | number;
+  id: number;
   email: string;
-  name?: string;
-  tg_id?: string | number;
-  role?: string;
-  type?: string;
-  plan?: string;
+  phone?: string | null;
+  tg_id?: string | number | null;
+  name?: string | null;
+  user_type?: string;    // 'client', 'admin', etc.
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface LoginRequest {
@@ -94,11 +95,17 @@ export interface VerifyResetResponse {
 
 export type VerifyResponse = VerifyRegisterResponse | VerifyResetResponse;
 
+export interface MeAccount {
+  id: number;
+  role: string;      // 'owner', 'editor', 'viewer'
+  status: string;    // 'active', 'suspended'
+  user_id: number;
+}
+
 export interface MeResponse {
   ok?: boolean;
   user?: UserProfile;
-  email?: string;
-  access_token?: string;
+  accounts?: MeAccount[];
   active_account_id?: number;
 }
 
@@ -143,6 +150,7 @@ export interface IntegrationKey {
   last_used: string | null;
   created_at: string;
   provider_scope?: string; // JSON string from API
+  client_env?: string | null; // JSON with client environment IDs (D1, KV, Workers)
 }
 
 // Domain from API (GET /domains)
@@ -273,7 +281,7 @@ export interface GetKeyResponse {
 
 export interface Project {
   id: number;
-  account_id: number;
+  account_id?: number; // Only in GET /projects/:id detail, not in list
   project_name: string;
   description: string | null;
   brand_tag: string | null;
@@ -372,15 +380,15 @@ export type DomainRole = 'acceptor' | 'donor' | 'reserve';
 
 export interface Site {
   id: number;
-  project_id: number;
+  project_id?: number;    // Not in project detail's embedded sites
   site_name: string;
   site_tag: string | null;
   status: SiteStatus;
   created_at: string;
-  updated_at: string;
-  domains_count: number;
-  acceptor_domain?: string | null;
-  project_name?: string;
+  updated_at?: string;    // Not in project detail's embedded sites
+  domains_count?: number; // Only in site list, not in project detail
+  acceptor_domain?: string | null; // Only in site list
+  project_name?: string;  // Only in GET /sites/:id detail
 }
 
 export interface SiteDomain {
@@ -454,6 +462,7 @@ export type Trend = 'up' | 'down' | 'neutral';
 
 /**
  * Redirect rule (nested object inside RedirectDomain)
+ * Detail-only fields are present in GET /redirects/:id but not in list responses.
  */
 export interface RedirectRule {
   id: number;
@@ -472,6 +481,14 @@ export interface RedirectRule {
   trend: Trend;
   created_at: string;
   updated_at: string;
+  // Detail-only fields (GET /redirects/:id)
+  domain_id?: number;
+  domain_name?: string;
+  zone_id?: number;
+  zone_name?: string;
+  cf_ruleset_id?: string | null;
+  last_synced_at?: string | null;
+  last_error?: string | null;
 }
 
 /**
@@ -519,22 +536,32 @@ export interface GetRedirectResponse {
 }
 
 /**
- * Redirect template (T1-T7)
+ * Template parameter definition (from backend TemplateParam)
+ */
+export interface TemplateParam {
+  name: string;
+  type: 'string' | 'boolean';
+  required: boolean;
+  default?: string | boolean;
+  description: string;
+  placeholder?: string;
+  validation?: {
+    pattern?: string;
+    minLength?: number;
+    maxLength?: number;
+  };
+}
+
+/**
+ * Redirect template (T1, T3-T7) — shape returned by GET /redirects/templates
  */
 export interface RedirectTemplate {
   id: string;
   name: string;
   description: string;
   category: 'domain' | 'canonical' | 'path' | 'temporary';
-  preservePath: boolean;
-  preserveQuery: boolean;
   defaultStatusCode: 301 | 302;
-  params: Array<{
-    name: string;
-    type: 'url' | 'path';
-    required: boolean;
-    description: string;
-  }>;
+  params: TemplateParam[];
 }
 
 /**
@@ -546,19 +573,15 @@ export interface GetTemplatesResponse {
 }
 
 /**
- * Redirect preset (P1-P5)
+ * Redirect preset (P1-P5) — shape returned by GET /redirects/presets
  */
 export interface RedirectPreset {
   id: string;
   name: string;
   description: string;
   useCase: string;
-  rulesCount: number | string;
-  rules: Array<{
-    template_id: string;
-    order: number | string;
-    description: string;
-  }>;
+  rulesCount: number;
+  requiredParams: string[];
 }
 
 /**
@@ -641,4 +664,72 @@ export interface GetZoneLimitsResponse {
   used: number;
   max: number;
   available: number;
+}
+
+/**
+ * GET /zones/:id/redirect-status response
+ */
+export interface GetZoneRedirectStatusResponse {
+  ok: boolean;
+  zone_id: number;
+  cf_zone_id: string;
+  cf_ruleset_id: string | null;
+  has_ruleset: boolean;
+  rules: {
+    total: number;
+    pending: number;
+    synced: number;
+    error: number;
+  };
+  needs_apply: boolean;
+}
+
+/**
+ * GET /domains/:id response
+ */
+export interface GetDomainResponse {
+  ok: boolean;
+  domain: APIDomain;
+}
+
+// =============================================================================
+// Namecheap Integration Types
+// =============================================================================
+
+export interface NamecheapDomain {
+  domain: string;
+  expires: string;
+}
+
+/**
+ * GET /integrations/namecheap/proxy-ips response
+ */
+export interface GetNamecheapProxyIpsResponse {
+  ok: true;
+  ips: string[];
+}
+
+/**
+ * GET /integrations/namecheap/domains?key_id=N response
+ */
+export interface GetNamecheapDomainsResponse {
+  ok: true;
+  domains: NamecheapDomain[];
+}
+
+/**
+ * POST /integrations/namecheap/set-ns request
+ */
+export interface SetNamecheapNsRequest {
+  key_id: number;
+  domain: string;
+  nameservers: string[];
+}
+
+/**
+ * POST /integrations/namecheap/set-ns response
+ */
+export interface SetNamecheapNsResponse {
+  ok: true;
+  message: string;
 }

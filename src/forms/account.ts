@@ -89,10 +89,10 @@ export function initAccountPage(): void {
   if (emailEl) emailEl.textContent = user.email || '—';
   if (nameEl) nameEl.textContent = user.name || '—';
   if (idEl) idEl.textContent = user.id ? String(user.id) : '—';
-  if (roleEl) roleEl.textContent = user.role || user.type || '—';
+  if (roleEl) roleEl.textContent = user.user_type || '—';
 
   // Update plan selector
-  const userPlan = (user.plan || 'free').toLowerCase();
+  const userPlan = 'free'; // TODO: plan not yet in backend user model
   if (planSelector) {
     planSelector.setAttribute('data-selected-value', userPlan);
   }
