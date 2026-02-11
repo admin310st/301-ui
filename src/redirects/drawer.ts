@@ -31,6 +31,28 @@ import { showGlobalNotice } from '@ui/globalNotice';
 import { openManageSiteDomainsDrawer } from '@domains/site-domains';
 import { drawerManager } from '@ui/drawer-manager';
 
+/** Donor template definitions — drives the template dropdown and dynamic fields */
+const DONOR_TEMPLATES = [
+  { id: 'T1', label: 'Domain redirect', hint: 'Entire domain to another URL',
+    defaultCode: 301 as const, fields: [
+      { name: 'target_url', label: 'Target', placeholder: 'https://example.com' },
+    ] },
+  { id: 'T5', label: 'Path redirect', hint: 'Path prefix to another path',
+    defaultCode: 301 as const, fields: [
+      { name: 'source_path', label: 'Source path', placeholder: '/old/' },
+      { name: 'target_path', label: 'Target path', placeholder: '/new/' },
+    ] },
+  { id: 'T6', label: 'Exact path \u2192 URL', hint: 'Specific page to another URL',
+    defaultCode: 301 as const, fields: [
+      { name: 'source_path', label: 'Source path', placeholder: '/old-page' },
+      { name: 'target_url', label: 'Target URL', placeholder: 'https://example.com/new' },
+    ] },
+  { id: 'T7', label: 'Maintenance mode', hint: 'Temporary redirect (302)',
+    defaultCode: 302 as const, fields: [
+      { name: 'target_url', label: 'Maintenance URL', placeholder: 'https://example.com/maintenance' },
+    ] },
+] as const;
+
 let drawerElement: HTMLElement | null = null;
 let currentDomain: ExtendedRedirectDomain | null = null;
 let currentSite: Site | null = null; // Fetched site data for acceptor form
@@ -440,18 +462,139 @@ function setupToggleHandlers(): void {
 }
 
 /**
- * Setup target URL input handlers (blur and Enter key)
+ * Setup input handlers for all dynamic template fields
+ * Listens to `input` on every [data-drawer-field] element
  */
-function setupTargetUrlHandlers(): void {
+function setupFieldHandlers(): void {
   if (!drawerElement) return;
 
-  const targetInput = drawerElement.querySelector('[data-drawer-field="target_url"]') as HTMLInputElement;
-  if (!targetInput) return;
-
-  // Update save/sync button state on input change
-  targetInput.addEventListener('input', () => {
-    updateSyncButtonState(currentDomain || undefined);
+  const fields = drawerElement.querySelectorAll<HTMLInputElement>('[data-drawer-field]');
+  fields.forEach(field => {
+    field.addEventListener('input', () => {
+      updateSyncButtonState(currentDomain || undefined);
+    });
   });
+}
+
+/**
+ * Setup template dropdown handler (only active for new redirects)
+ * On selection: re-render fields, auto-set redirect code
+ */
+function setupTemplateDropdownHandler(): void {
+  if (!drawerElement) return;
+
+  const dropdown = drawerElement.querySelector('[data-dropdown="template-select"]');
+  if (!dropdown) return; // Not present for existing redirects (read-only badge)
+
+  const trigger = dropdown.querySelector('.dropdown__trigger');
+  const menu = dropdown.querySelector('.dropdown__menu');
+  const items = dropdown.querySelectorAll('.dropdown__item');
+  const label = dropdown.querySelector('[data-selected-label]');
+
+  if (!trigger || !menu) return;
+
+  // Toggle dropdown
+  trigger.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const isOpen = dropdown.classList.contains('dropdown--open');
+    dropdown.classList.toggle('dropdown--open', !isOpen);
+    trigger.setAttribute('aria-expanded', (!isOpen).toString());
+  });
+
+  // Handle item selection
+  items.forEach((item) => {
+    item.addEventListener('click', () => {
+      const value = item.getAttribute('data-value') || 'T1';
+      const itemLabel = item.querySelector('.dropdown__item-label')?.textContent?.trim();
+
+      // Update selected state
+      items.forEach((i) => i.classList.remove('is-active'));
+      item.classList.add('is-active');
+
+      // Update trigger label and value
+      if (label && itemLabel) label.textContent = itemLabel;
+      trigger.setAttribute('data-selected-value', value);
+
+      // Close dropdown
+      dropdown.classList.remove('dropdown--open');
+      trigger.setAttribute('aria-expanded', 'false');
+
+      // Apply template change
+      onTemplateChange(value);
+    });
+  });
+
+  // Close on outside click
+  document.addEventListener('click', (e) => {
+    if (!dropdown.contains(e.target as Node)) {
+      dropdown.classList.remove('dropdown--open');
+      trigger.setAttribute('aria-expanded', 'false');
+    }
+  });
+}
+
+/**
+ * Handle template change — re-render fields and auto-set redirect code
+ */
+function onTemplateChange(templateId: string): void {
+  if (!drawerElement) return;
+
+  const tpl = getTemplateConfig(templateId);
+
+  // Re-render parameter fields
+  const fieldsContainer = drawerElement.querySelector('[data-template-fields]');
+  if (fieldsContainer) {
+    // Get acceptor domain for pre-filling T1 target URL
+    const acceptorDomain = currentDomain ? getAcceptorDomain(currentDomain.site_id) : null;
+    const defaultTargetUrl = acceptorDomain ? `https://${acceptorDomain.domain_name}` : '';
+    fieldsContainer.innerHTML = renderTemplateFields(templateId, defaultTargetUrl);
+
+    // Re-attach field input listeners
+    setupFieldHandlers();
+  }
+
+  // Auto-set redirect code to template default
+  const codeTrigger = drawerElement.querySelector('[data-drawer-dropdown="redirect_code"]');
+  if (codeTrigger) {
+    const codeLabel = codeTrigger.querySelector('[data-selected-label]');
+    const newCode = tpl.defaultCode.toString();
+    codeTrigger.setAttribute('data-selected-value', newCode);
+    codeTrigger.setAttribute('data-status', newCode);
+    if (codeLabel) {
+      codeLabel.textContent = newCode === '302' ? '302 - Temporary' : '301 - Permanent';
+    }
+
+    // Update active state in redirect code dropdown items
+    const codeDropdown = drawerElement.querySelector('[data-dropdown="redirect-code"]');
+    if (codeDropdown) {
+      codeDropdown.querySelectorAll('.dropdown__item').forEach(item => {
+        item.classList.toggle('is-active', item.getAttribute('data-value') === newCode);
+      });
+    }
+  }
+
+  // Update button states
+  updateSyncButtonState(currentDomain || undefined);
+}
+
+/**
+ * Collect params from all [data-drawer-field] inputs in the drawer
+ */
+function collectFieldParams(): Record<string, string> {
+  const params: Record<string, string> = {};
+  if (!drawerElement) return params;
+  drawerElement.querySelectorAll<HTMLInputElement>('[data-drawer-field]').forEach(input => {
+    const name = input.getAttribute('data-drawer-field');
+    if (name) params[name] = input.value.trim();
+  });
+  return params;
+}
+
+/**
+ * Validate that all collected field params have non-empty values
+ */
+function validateFieldParams(params: Record<string, string>): boolean {
+  return Object.values(params).every(v => v !== '');
 }
 
 /**
@@ -460,20 +603,20 @@ function setupTargetUrlHandlers(): void {
 async function handleSave(domain: ExtendedRedirectDomain): Promise<void> {
   if (!drawerElement) return;
 
-  // Collect current form values
-  const targetInput = drawerElement.querySelector('[data-drawer-field="target_url"]') as HTMLInputElement;
-  const targetUrl = targetInput?.value?.trim() || '';
+  // Collect dynamic params from all template fields
+  const params = collectFieldParams();
+
+  // Validate all fields are filled
+  if (!validateFieldParams(params)) {
+    showGlobalNotice('error', 'Fill in all fields');
+    return;
+  }
 
   const redirectCodeTrigger = drawerElement.querySelector('[data-drawer-dropdown="redirect_code"]');
   const redirectCode = parseInt(redirectCodeTrigger?.getAttribute('data-selected-value') || '301') as 301 | 302;
 
   const toggleBtn = drawerElement.querySelector('[data-drawer-toggle="enabled"]');
   const enabled = toggleBtn?.getAttribute('data-enabled') === 'true';
-
-  if (!targetUrl) {
-    showGlobalNotice('error', 'Enter target URL first');
-    return;
-  }
 
   // Show progress on Save button
   const saveBtn = drawerElement.querySelector('[data-drawer-save]') as HTMLButtonElement;
@@ -487,14 +630,14 @@ async function handleSave(domain: ExtendedRedirectDomain): Promise<void> {
     if (domain.redirect) {
       // Update existing redirect
       await safeCall(() => updateRedirect(domain.redirect!.id, {
-        params: { target_url: targetUrl },
+        params,
         status_code: redirectCode,
         enabled,
       }), { lockKey: `redirect:update:${domain.redirect!.id}`, retryOn401: true });
 
       // Optimistic state update
       updateDomainRedirect(domain.domain_id, {
-        params: { target_url: targetUrl },
+        params,
         status_code: redirectCode,
         enabled,
         sync_status: 'pending',
@@ -502,10 +645,13 @@ async function handleSave(domain: ExtendedRedirectDomain): Promise<void> {
 
       showGlobalNotice('success', 'Redirect saved');
     } else {
-      // Create new redirect (T1 template = simple redirect)
+      // Create new redirect — read template_id from dropdown
+      const templateTrigger = drawerElement.querySelector('[data-drawer-dropdown="template_id"]');
+      const templateId = templateTrigger?.getAttribute('data-selected-value') || 'T1';
+
       const response = await safeCall(() => createRedirect(domain.domain_id, {
-        template_id: 'T1',
-        params: { target_url: targetUrl },
+        template_id: templateId,
+        params,
         status_code: redirectCode,
       }), { lockKey: `redirect:create:${domain.domain_id}`, retryOn401: true });
 
@@ -564,9 +710,9 @@ function updateSyncButtonState(domain?: ExtendedRedirectDomain): void {
   const deleteBtn = drawerElement.querySelector('[data-drawer-delete]') as HTMLButtonElement;
   if (!syncBtn || !deleteBtn) return;
 
-  // Check current input value (may be different from saved state)
-  const targetInput = drawerElement.querySelector('[data-drawer-field="target_url"]') as HTMLInputElement;
-  const currentTargetUrl = targetInput?.value?.trim() || '';
+  // Check all dynamic fields have values
+  const params = collectFieldParams();
+  const allFieldsFilled = validateFieldParams(params);
 
   // Check current toggle state
   const toggleBtn = drawerElement.querySelector('[data-drawer-toggle="enabled"]');
@@ -575,24 +721,22 @@ function updateSyncButtonState(domain?: ExtendedRedirectDomain): void {
   // Check if redirect exists in DB
   const hasRedirect = domain?.redirect !== null && domain?.redirect !== undefined;
 
-  const hasTargetUrl = currentTargetUrl !== '';
-
   if (!currentEnabled && hasRedirect) {
     // Disabled redirect with existing record → show Save + Delete, hide Sync
-    if (saveBtn) { saveBtn.removeAttribute('hidden'); saveBtn.disabled = !hasTargetUrl; }
+    if (saveBtn) { saveBtn.removeAttribute('hidden'); saveBtn.disabled = !allFieldsFilled; }
     syncBtn.setAttribute('hidden', '');
     deleteBtn.removeAttribute('hidden');
     deleteBtn.disabled = false;
   } else {
     // Enabled or no redirect yet → show Save + Sync, hide Delete
     deleteBtn.setAttribute('hidden', '');
-    if (saveBtn) { saveBtn.removeAttribute('hidden'); saveBtn.disabled = !hasTargetUrl; }
+    if (saveBtn) { saveBtn.removeAttribute('hidden'); saveBtn.disabled = !allFieldsFilled; }
     syncBtn.removeAttribute('hidden');
 
-    // Sync available when there's a target URL (saves first, then syncs)
-    if (!hasTargetUrl) {
+    // Sync available when all fields are filled (saves first, then syncs)
+    if (!allFieldsFilled) {
       syncBtn.disabled = true;
-      syncBtn.title = 'Enter target URL first';
+      syncBtn.title = 'Fill in all fields first';
     } else {
       syncBtn.disabled = false;
       syncBtn.title = hasRedirect ? 'Save and sync to Cloudflare' : 'Create and sync to Cloudflare';
@@ -1154,10 +1298,111 @@ function renderDrawerContent(domain: ExtendedRedirectDomain): void {
   // Setup dropdown, toggle, and input handlers after content is rendered (donor only)
   setupDropdownHandlers();
   setupToggleHandlers();
-  setupTargetUrlHandlers();
+  setupTemplateDropdownHandler();
+  setupFieldHandlers();
 
   // Setup canonical redirect card handlers (T3/T4 create + delete) — unified for both roles
   setupCanonicalCardHandlers(domain);
+}
+
+/**
+ * Look up a DONOR_TEMPLATES entry by id (falls back to T1)
+ */
+function getTemplateConfig(templateId: string) {
+  return DONOR_TEMPLATES.find(t => t.id === templateId) || DONOR_TEMPLATES[0];
+}
+
+/**
+ * Render the template dropdown (for new redirects) or a read-only badge (for existing)
+ */
+function renderTemplateRow(domain: ExtendedRedirectDomain): string {
+  const hasRedirect = domain.redirect !== null && domain.redirect !== undefined;
+
+  if (hasRedirect) {
+    // Existing redirect — read-only badge
+    const tpl = getTemplateConfig(domain.redirect!.template_id);
+    return `
+      <div class="detail-row detail-row--center">
+        <dt class="detail-label">Template</dt>
+        <dd class="detail-value">
+          <span class="badge badge--sm badge--neutral">${tpl.label}</span>
+        </dd>
+      </div>
+    `;
+  }
+
+  // New redirect — interactive dropdown, default T1
+  const defaultTpl = DONOR_TEMPLATES[0];
+  return `
+    <div class="detail-row detail-row--center">
+      <dt class="detail-label">Template</dt>
+      <dd class="detail-value">
+        <div class="dropdown" data-dropdown="template-select">
+          <button
+            class="btn-chip btn-chip--sm btn-chip--dropdown dropdown__trigger"
+            type="button"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            data-drawer-dropdown="template_id"
+            data-selected-value="${defaultTpl.id}"
+          >
+            <span class="btn-chip__label" data-selected-label>${defaultTpl.label}</span>
+            <span class="btn-chip__chevron icon" data-icon="mono/chevron-down"></span>
+          </button>
+          <div class="dropdown__menu dropdown__menu--auto" role="menu">
+            ${DONOR_TEMPLATES.map((tpl, i) => `
+              ${tpl.id === 'T7' ? '<hr class="dropdown__divider" />' : ''}
+              <button
+                class="dropdown__item dropdown__item--rich ${i === 0 ? 'is-active' : ''}"
+                type="button"
+                role="menuitem"
+                data-value="${tpl.id}"
+              >
+                <span class="dropdown__item-label">${tpl.label}</span>
+                <span class="dropdown__item-hint">${tpl.hint}</span>
+              </button>
+            `).join('')}
+          </div>
+        </div>
+      </dd>
+    </div>
+  `;
+}
+
+/**
+ * Render the dynamic parameter fields for a given template
+ */
+function renderTemplateFields(
+  templateId: string,
+  defaultTargetUrl: string,
+  existingParams?: Record<string, any>,
+): string {
+  const tpl = getTemplateConfig(templateId);
+  return tpl.fields.map(field => {
+    // Resolve value: existing param > pre-fill for target_url on T1 > empty
+    let value = existingParams?.[field.name] || '';
+    if (!value && field.name === 'target_url' && templateId === 'T1') {
+      value = defaultTargetUrl;
+    }
+
+    return `
+      <div class="field">
+        <label class="field__label">
+          ${field.label}
+          ${!value && field.name === 'target_url' && templateId === 'T1' && defaultTargetUrl
+            ? '<span class="field__hint">Pre-filled with main domain</span>'
+            : ''}
+        </label>
+        <input
+          type="text"
+          class="input"
+          placeholder="${field.placeholder}"
+          value="${value}"
+          data-drawer-field="${field.name}"
+        />
+      </div>
+    `;
+  }).join('');
 }
 
 /**
@@ -1168,12 +1413,9 @@ function renderDrawerContent(domain: ExtendedRedirectDomain): void {
 function renderRedirectConfigCard(domain: ExtendedRedirectDomain, defaultTargetUrl: string = ''): string {
   const redirectCode = domain.redirect?.status_code || 301;
   const enabled = domain.redirect?.enabled ?? true;
-  const existingTargetUrl = getTargetUrl(domain.domain_name, domain.redirect);
-  const hasRedirect = existingTargetUrl && existingTargetUrl.trim() !== '';
-
-  // Use existing target URL or default (acceptor domain)
-  const targetValue = existingTargetUrl || defaultTargetUrl;
-  const isNewRedirect = !hasRedirect && defaultTargetUrl;
+  const hasRedirect = domain.redirect !== null && domain.redirect !== undefined;
+  const isNewRedirect = !hasRedirect;
+  const templateId = domain.redirect?.template_id || 'T1';
 
   const redirectCodeLabel = redirectCode === 301 ? '301 - Permanent' : '302 - Temporary';
 
@@ -1184,19 +1426,10 @@ function renderRedirectConfigCard(domain: ExtendedRedirectDomain, defaultTargetU
       </header>
       <div class="card__body">
         <div class="stack-list">
-          <div class="field">
-            <label class="field__label" for="drawer-target">
-              Target
-              <span class="field__hint">${isNewRedirect ? 'Pre-filled with main domain' : 'Destination URL or host'}</span>
-            </label>
-            <input
-              type="text"
-              id="drawer-target"
-              class="input"
-              placeholder="https://example.com"
-              value="${targetValue}"
-              data-drawer-field="target_url"
-            />
+          ${renderTemplateRow(domain)}
+
+          <div data-template-fields>
+            ${renderTemplateFields(templateId, defaultTargetUrl, domain.redirect?.params)}
           </div>
 
           <div class="detail-row detail-row--center">
@@ -1320,20 +1553,19 @@ function renderSyncStatusCard(domain: ExtendedRedirectDomain): string {
 async function handleSync(domain: ExtendedRedirectDomain): Promise<void> {
   if (!drawerElement) return;
 
-  // Collect current form values
-  const targetInput = drawerElement.querySelector('[data-drawer-field="target_url"]') as HTMLInputElement;
-  const targetUrl = targetInput?.value?.trim() || '';
+  // Collect dynamic params from all template fields
+  const params = collectFieldParams();
+
+  if (!validateFieldParams(params)) {
+    showGlobalNotice('error', 'Fill in all fields');
+    return;
+  }
 
   const redirectCodeTrigger = drawerElement.querySelector('[data-drawer-dropdown="redirect_code"]');
   const redirectCode = parseInt(redirectCodeTrigger?.getAttribute('data-selected-value') || '301') as 301 | 302;
 
   const toggleBtn = drawerElement.querySelector('[data-drawer-toggle="enabled"]');
   const enabled = toggleBtn?.getAttribute('data-enabled') === 'true';
-
-  if (!targetUrl) {
-    showGlobalNotice('error', 'Enter target URL first');
-    return;
-  }
 
   // Get zone_id
   if (!domain.zone_id) {
@@ -1356,20 +1588,24 @@ async function handleSync(domain: ExtendedRedirectDomain): Promise<void> {
     // Step 1: Save form values to backend
     if (domain.redirect) {
       await safeCall(() => updateRedirect(domain.redirect!.id, {
-        params: { target_url: targetUrl },
+        params,
         status_code: redirectCode,
         enabled,
       }), { lockKey: `redirect:update:${domain.redirect!.id}`, retryOn401: true });
       updateDomainRedirect(domain.domain_id, {
-        params: { target_url: targetUrl },
+        params,
         status_code: redirectCode,
         enabled,
         sync_status: 'pending',
       });
     } else {
+      // Read template_id from dropdown
+      const templateTrigger = drawerElement!.querySelector('[data-drawer-dropdown="template_id"]');
+      const templateId = templateTrigger?.getAttribute('data-selected-value') || 'T1';
+
       const createResponse = await safeCall(() => createRedirect(domain.domain_id, {
-        template_id: 'T1',
-        params: { target_url: targetUrl },
+        template_id: templateId,
+        params,
         status_code: redirectCode,
       }), { lockKey: `redirect:create:${domain.domain_id}`, retryOn401: true });
       addRedirectToDomain(domain.domain_id, {

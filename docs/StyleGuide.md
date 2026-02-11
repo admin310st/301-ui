@@ -317,6 +317,27 @@ When design system updates are introduced, **ALL** UI components and demo pages 
 - Example: `initDropdowns(tbody as HTMLElement)` after table render
 - Enables toggle/close behavior + auto-flip positioning
 
+**Rich dropdown items** (label + hint):
+
+Use `.dropdown__item--rich` for items that need a title and description:
+
+```html
+<button class="dropdown__item dropdown__item--rich" data-value="T1">
+  <span class="dropdown__item-label">Domain redirect</span>
+  <span class="dropdown__item-hint">Entire domain to another URL</span>
+</button>
+```
+
+- `.dropdown__item--rich` — sets `flex-direction: column`, extra vertical padding
+- `.dropdown__item-label` — `font-weight: medium`, inherits text color
+- `.dropdown__item-hint` — `font-size: var(--fs-xs)`, `color: var(--text-muted)`
+- Active state: `.is-active .dropdown__item-label` gets `color: var(--primary)`
+- Use `<hr class="dropdown__divider">` to separate groups of items
+
+**Production example:** `redirects.html` donor drawer template selector
+
+**CSS**: `tables.css` → Rich dropdown items section
+
 ### Loading Indicator & Global Notices
 
 **Purpose**: Unified visual feedback system combining loading states and notifications.
