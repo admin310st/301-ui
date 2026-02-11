@@ -622,14 +622,11 @@ Admin (самый конец, Layer 7)
   * перейти на проект/стрим/сайт, который его использует.
 
 **Next steps (см. TODO-domains.md):**
-- Этап 2: Фильтры и расширенный поиск
-- Этап 3: Bulk actions (массовые операции)
-- Этап 4: Статистика в header (stat-cards с метриками)
-- Этап 5: Сортировка таблицы
-- Этап 6: Работающая пагинация
-- Этап 7: Real API integration
-- Этап 8: Inspector drawer enhancements (tabs, history, DNS records)
-- Этап 9: i18n coverage (EN/RU)
+- ✅ Этапы 1-7: MVP, filters, bulk actions, add domains, real API — done
+- [ ] Drawer tabs (Overview, Routing, DNS, SSL, Security, Monitoring, Logs)
+- [ ] Stat-cards в header
+- [ ] Пагинация (stub ready)
+- [ ] i18n coverage (EN/RU)
 
 ---
 
@@ -851,11 +848,11 @@ Admin (самый конец, Layer 7)
 
 ---
 
-### Этап 4 — Traffic Rules: Redirects и TDS-логика ✅ ЧАСТИЧНО РЕАЛИЗОВАНО
+### Этап 4 — Traffic Rules: Redirects и TDS-логика ✅ РЕАЛИЗОВАНО
 
 **Цель:** отрисовать работу "движка трафика".
 
-#### 4.1. Redirect Rules ✅ РЕАЛИЗОВАНО (базовые 301/302)
+#### 4.1. Redirect Rules ✅ FEATURE-COMPLETE (2026-02-11)
 
 **Реализовано:**
 
@@ -866,28 +863,39 @@ Admin (самый конец, Layer 7)
 - ✅ **Project/Site селекторы** (API-driven, не моки)
 - ✅ **Мульти-сайт параллельная загрузка** данных
 - ✅ **Create/Edit Redirect drawer**:
-  - Source domain (donor)
-  - Target URL (pre-filled с acceptor domain)
-  - Template selection (T1-T7)
-  - Parameters (preserve_path, preserve_query, etc.)
+  - Template selector (T1/T5/T6/T7) with dynamic parameter fields
+  - Rich dropdown with descriptions, auto-set 302 for T7
+  - Source domain (donor), target URL (pre-filled с acceptor domain)
+  - Read-only badge for existing redirects, interactive dropdown for new
 - ✅ **Bulk actions**: Enable/Disable/Delete/Sync
 - ✅ **Cloudflare Sync** через `POST /zones/:id/apply-redirects`
 - ✅ **Sync status tracking** (pending/synced/error)
 - ✅ **Filters**: Configured, Sync status, Enabled/Disabled
 - ✅ **Project selection persistence** между страницами (Domains ↔ Redirects)
+- ✅ **safeCall migration** — all API calls wrapped with lockKey
+- ✅ **Adapter removal** — UI uses ExtendedRedirectDomain directly (no legacy types)
 
 **Файлы:**
 - `redirects.html` - главная страница
 - `src/redirects/redirects.ts` - UI logic, table rendering
 - `src/redirects/state.ts` - multi-site state management
 - `src/redirects/site-selector.ts` - project/site selectors
-- `src/redirects/drawer.ts` - drawer logic
+- `src/redirects/drawer.ts` - drawer logic (template selector, config, sync)
+- `src/redirects/helpers.ts` - computed values (getTargetUrl) from API types
+- `src/redirects/filters-config.ts` - filter definitions
+- `src/redirects/filters-ui.ts` - filter chips rendering
+- `src/redirects/sync-status.ts` - Cloudflare sync status
 - `src/api/redirects.ts` - API client
+
+**Осталось:**
+- [ ] Add Redirect wizard (stub exists in drawer.ts)
+- [ ] i18n pass (0 data-i18n attributes)
 
 **Known Issues (GitHub):**
 
 - ⚠️ **[#14](https://github.com/admin310st/301/issues/14)** — 500 ошибка при apply-redirects для зоны с disabled редиректом
 - ⚠️ **[#10](https://github.com/admin310st/301/issues/10)** — API должен возвращать все домены сайта (включая без редиректов)
+- ⚠️ **[#164](https://github.com/admin310st/301-ui/issues/164)** — API возвращает дубликаты domain_id при T1 + T3/T4 (frontend workaround)
 
 **Оригинальная спецификация (для справки):**
 
@@ -1075,7 +1083,7 @@ Pinia и Vue оставляем как **опциональный следующ
 ✅ **Layer 1** - Integrations (Cloudflare accounts, domain registrars)
 ✅ **Layer 2** - Domains (table, filters, bulk actions, inspector drawer)
 ✅ **Layer 3** - Projects & Sites (CRUD, tabs navigation, attach/detach mechanics)
-✅ **Layer 4** - Redirects (full API integration, Cloudflare sync, multi-site support)
+✅ **Layer 4** - Redirects (feature-complete: template selector, safeCall, adapter removal, CF sync)
 🔜 **Layer 5** - Streams (TDS/traffic distribution) - следующий этап
 📋 **Layer 6-7** - Analytics, Admin - в планах
 
@@ -1114,6 +1122,9 @@ Pinia и Vue оставляем как **опциональный следующ
 | Issue | Описание | Статус |
 |-------|----------|--------|
 | [#7](https://github.com/admin310st/301/issues/7) | Detach domain from site удаляет из проекта | OPEN |
+| [#9](https://github.com/admin310st/301/issues/9) | Нельзя добавить второй CF аккаунт | OPEN |
 | [#10](https://github.com/admin310st/301/issues/10) | Redirects API: вернуть все домены сайта | OPEN |
 | [#14](https://github.com/admin310st/301/issues/14) | 500 при apply-redirects с disabled редиректом | OPEN |
-| [#9](https://github.com/admin310st/301/issues/9) | Нельзя добавить второй CF аккаунт | OPEN |
+| [#162](https://github.com/admin310st/301-ui/issues/162) | VirusTotal мониторинг доменов | OPEN |
+| [#164](https://github.com/admin310st/301-ui/issues/164) | API дубликаты domain_id при T1+T3/T4 (backend fix) | OPEN |
+| [#165](https://github.com/admin310st/301-ui/issues/165) | Post-probe type gaps (zone_id, missing fields) | OPEN |

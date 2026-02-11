@@ -665,79 +665,20 @@ Drawer-first подход применен не только для просмо
 
 ---
 
-## 🎯 Этап 7: Real API Integration
+## ✅ Этап 7: Real API Integration (COMPLETED)
 
-**Status:** 📋 Planned
+**Status:** ✅ Complete (2025-01-31)
 
-**Цели:**
-- Подключить страницу к реальному backend API
-- Заменить mock data на live data
-- Реализовать CRUD операции
-- Создать адаптер для маппинга DomainRecord → Domain
-
-**Важно:**
-- ✅ Документация API: `docs/API-domains-actual-vs-ui.md`
-- ⚠️ Критичное: поле `registrar` отсутствует в БД (блокер интеграции)
-- ✅ Enum маппинг определён (ssl_status, blocked_reason)
-
-**Задачи:**
-
-### API Client
-- [ ] Создать `src/api/domains.ts` с методами:
-  - `getDomains(filters)` - GET /domains
-  - `getDomain(id)` - GET /domains/:id
-  - `addDomains(domains[])` - POST /domains/bulk
-  - `updateDomain(id, data)` - PATCH /domains/:id
-  - `deleteDomain(id)` - DELETE /domains/:id
-  - `syncDomains(ids[])` - POST /domains/sync
-  - `attachToProject(ids[], projectId)` - POST /domains/attach
-
-### TypeScript Types
-- [ ] Добавить в `src/api/types.ts`:
-  - `DomainRecord` interface (бекенд структура)
-  - `Domain` interface (UI структура, уже есть в mock-data.ts)
-  - `DomainFilters` interface
-  - `DomainStats` interface
-
-### Data Adapter
-- [ ] Создать `src/domains/domain-adapter.ts` с функцией `adaptDomainRecord()`:
-  - Маппинг `zone_id` → `cf_zone_id`
-  - Маппинг `expired_at` → `expires_at`
-  - Вычисление `status` из `blocked` + `expired_at`
-  - Маппинг `ssl_status`: 'none'/'error' → 'off'/'invalid'
-  - Fallback для `registrar` → 'manual' (пока нет в БД)
-  - Fallback для `project_lang` → null (требует JOIN с sites)
-  - Fallback для мониторинг полей → defaults
-
-### UI Updates
-- [ ] Обновить `src/domains/domains.ts`:
-  - Заменить mockDomains на API calls
-  - Использовать адаптер для конвертации данных
-  - Добавить error handling
-  - Добавить loading states (UI: использовать `withLoading(promise, 'cf')` из `src/ui/loading-indicator.ts`)
-  - Реализовать retry logic
-- [ ] Обновить `src/domains/mock-data.ts`:
-  - Экспортировать только `Domain` interface
-  - Перенести `DomainRecord` в `src/api/types.ts`
-  - Оставить mock данные для dev/testing
-
-### Optimization
-- [ ] Подключить к WebSocket для real-time updates (опционально)
-- [ ] Добавить оптимистичные обновления UI
-- [ ] Кешировать данные (simple in-memory cache с TTL)
-
-**API endpoints:**
-- `GET /domains` - список доменов с фильтрацией
-- `GET /domains/:id` - детали домена
-- `POST /domains/bulk` - добавление доменов
-- `PATCH /domains/:id` - обновление домена
-- `DELETE /domains/:id` - удаление домена
-- `POST /domains/sync` - синхронизация с провайдерами
-
-**Блокеры:**
-- ❌ Поле `registrar` отсутствует в SQL schema (требует миграции БД)
-- ⚠️ Поле `project_lang` требует JOIN с таблицей `sites`
-- ⚠️ Мониторинг поля (`abuse_status`, `last_check_at`) отсутствуют
+**Реализовано:**
+- [x] `src/api/domains.ts` — full API client: getDomains, getDomainDetail, getDomainHealth, updateDomain, deleteDomain, updateDomainRole, blockDomain, unblockDomain
+- [x] `src/api/types.ts` — APIDomain, GetDomainsResponse, GetDomainsFilters, DomainHealthResponse
+- [x] `src/domains/adapter.ts` — API → UI type adapter
+- [x] Real data: mock-data.ts retained for type reference only, table renders from API
+- [x] Project filter with real projects from API
+- [x] Pagination with real data
+- [x] Error handling and loading states
+- [x] In-memory caching with TTL via `@api/cache`
+- [x] Project selection persistence across pages (Domains ↔ Redirects)
 
 ---
 
@@ -914,4 +855,4 @@ export default {
 
 ---
 
-**Last updated:** 2025-12-22
+**Last updated:** 2026-02-11

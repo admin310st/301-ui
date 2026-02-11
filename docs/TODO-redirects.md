@@ -423,12 +423,13 @@ When editing weighted destinations:
 redirects.html
 src/redirects/
   ├─ redirects.ts        # Main UI logic (table, actions, bulk ops)
-  ├─ types.ts            # Legacy DomainRedirect type definitions
-  ├─ adapter.ts          # API → legacy type adapter (TODO: remove)
-  ├─ state.ts            # Reactive state management
-  ├─ sync-status.ts      # Sync indicator + Sync All logic
-  ├─ drawer.ts           # Drawer tabs logic (edit, create)
-  └─ test-url.ts         # URL pattern testing logic (future)
+  ├─ state.ts            # Reactive state management (multi-site, dedup)
+  ├─ drawer.ts           # Redirect drawer (template selector, config, sync)
+  ├─ helpers.ts          # Computed values (getTargetUrl) from API types
+  ├─ site-selector.ts    # Project + Site selectors (API-driven)
+  ├─ filters-config.ts   # Filter definitions (configured, sync, enabled)
+  ├─ filters-ui.ts       # Filter chips rendering
+  └─ sync-status.ts      # Sync indicator + Sync All logic
 ```
 
 ---
@@ -471,13 +472,14 @@ src/redirects/
    - **Backend Issue:** API should merge redirects per domain_id server-side
    - **See:** GitHub Issue #164 — remove `dedupDomains()` once backend fixes this
    - Files changed: state.ts, types.ts, adapter.ts, redirects.ts, drawer.ts, sync-status.ts
-13. [ ] Drawer: template selector for advanced redirects (T5, T6, T7)
-    - T1 still hardcoded for donor drawer (covers 90% use case)
-    - Future: add template dropdown to donor drawer for path/maintenance redirects
+13. [x] Drawer: template selector for advanced redirects (T1, T5, T6, T7)
+    - Interactive dropdown for new redirects, read-only badge for existing
+    - Dynamic fields per template, auto-set 302 for T7
+    - Rich dropdown CSS pattern (`.dropdown__item--rich`)
 14. [ ] Add "Add Redirect" wizard/modal (for new domains)
-    - Stub exists: openBulkAddDrawer() in drawer.ts:185
-14. [ ] Test URL preview logic
-15. [ ] i18n for redirects page (0 data-i18n attributes currently)
+    - Stub exists: openBulkAddDrawer() in drawer.ts
+15. [ ] Test URL preview logic
+16. [ ] i18n for redirects page (0 data-i18n attributes currently)
     - Page headers, table columns, buttons, drawer content — all hardcoded English
 
 ---
@@ -486,12 +488,9 @@ src/redirects/
 
 **Trigger:** After manual testing confirms all actions work end-to-end with real API.
 
-### R1. safeCall migration
-Wrap all mutation calls with `safeCall()` + `lockKey` per CLAUDE.md standard.
-Currently 16+ direct API calls without safeCall in the redirects module:
-- `redirects.ts`: createRedirect, updateRedirect, deleteRedirect, applyZoneRedirects (×3)
-- `drawer.ts`: createRedirect (×2), updateRedirect (×2), deleteRedirect, applyZoneRedirects (×2)
-- `sync-status.ts`: applyZoneRedirects
+### ~~R1. safeCall migration~~ ✅ Done (2026-02-11)
+- All redirects API calls wrapped with `safeCall()` + `lockKey`
+- Covers: redirects.ts, drawer.ts, sync-status.ts
 
 ### ~~R2. Remove mock data fallback~~ ✅ Done
 - Deleted `mock-data.ts` (903 lines of mock data + dead helper functions)
@@ -499,10 +498,10 @@ Currently 16+ direct API calls without safeCall in the redirects module:
 - Updated all imports: adapter.ts, drawer.ts, redirects.ts, sync-status.ts
 - Removed `loadRedirects()` mock loader; retry now uses `refreshRedirects()` (real API)
 
-### R3. Remove adapter.ts
-- Gradual migration: UI code should use `RedirectDomain` / `ExtendedRedirectDomain` directly
-- Remove `DomainRedirect` legacy type from `types.ts`
-- Update all rendering functions to work with API types
+### ~~R3. Remove adapter.ts~~ ✅ Done (2026-02-11)
+- Removed adapter.ts and legacy DomainRedirect type
+- All UI code uses `ExtendedRedirectDomain` directly
+- Rendering functions work with API types natively
 
 ### R4. i18n pass
 - Add translation keys to en.ts / ru.ts under `redirects.*` namespace
@@ -513,6 +512,6 @@ Currently 16+ direct API calls without safeCall in the redirects module:
 
 ---
 
-**Last updated:** 2026-02-08
+**Last updated:** 2026-02-11
 
-**Status:** ✅ Core + canonical redirects in drawer. Pending: add wizard, i18n, post-testing revision.
+**Status:** ✅ Core complete. Template selector (T1/T5/T6/T7), safeCall migration, adapter removal — all done. Pending: add wizard, i18n pass.

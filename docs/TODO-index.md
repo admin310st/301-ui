@@ -4,20 +4,19 @@
 
 ---
 
-## 📍 Текущий фокус (2025-01-31)
+## 📍 Текущий фокус (2026-02-11)
 
-**Приоритет:** Domains API migration, UI polish
+**Приоритет:** Redirects polish done, Streams/TDS next
 
-**Текущие задачи:**
-1. ✅ **Redirects page** - COMPLETED (full API integration, Cloudflare sync)
-2. ✅ **Domains page** - COMPLETED (real API, filters, project selector)
-3. 🎯 **Streams/TDS page** - следующий этап (см. TODO-streams.md)
+**Сегодня (2026-02-11):**
+- ✅ API types aligned with backend source + API probe tool
+- ✅ Redirects: safeCall migration (R1), adapter removal (R3)
+- ✅ Redirects: template selector for donor drawer (T1/T5/T6/T7)
 
-**Domains Progress (завершено 2025-01-31):**
-- ✅ Real API integration (GET /domains)
-- ✅ Project filter with real projects from API
-- ✅ Project selection persistence across pages (Domains ↔ Redirects)
-- ✅ Pagination with real data
+**Следующие задачи:**
+1. 🎯 **Streams/TDS page** — Layer 5 (см. TODO-streams.md)
+2. 📋 **i18n pass** для Redirects и Domains (0 data-i18n)
+3. 📋 **Add Redirect wizard** (stub exists in drawer.ts)
 
 ---
 
@@ -52,39 +51,28 @@ Account (Аккаунт клиента)
 
 ### 1. Domains (`TODO-domains.md`)
 
-**Статус:** ✅ Этап 1 MVP завершен (2025-12-19), DNS features добавлены (2025-12-22)
+**Статус:** ✅ Core complete — Real API integration done (2025-01-31)
 
-**Файл:** [`TODO-domains.md`](../TODO-domains.md)
+**Файл:** [`TODO-domains.md`](TODO-domains.md)
 
 **Реализовано:**
-- ✅ Таблица доменов (6 колонок)
-- ✅ Search & filters UI
-- ✅ Domain inspector drawer
-- ✅ Add domains modal
-- ✅ Dropdown actions
-- ✅ IDN support (punycode)
-- ✅ DNS nameserver check (Google DNS API)
-- ✅ Cloudflare NS detection
-- ✅ Mock data (35+ domains)
+- [x] Таблица доменов (6 колонок) + search & filters
+- [x] Domain inspector drawer + Add Domains drawer (batch API)
+- [x] Dropdown actions, IDN support, DNS NS check
+- [x] Real API integration (GET /domains, project filter, persistence)
+- [x] Bulk actions (attach/detach, sync)
 
-**Следующие этапы:**
-- Этап 2: Работающие фильтры (по статусу, провайдеру, проекту)
-- Этап 3: Bulk actions API integration
-- Этап 4: Stat-cards в header
-- Этап 5: Сортировка таблицы
-- Этап 6: Пагинация
-- Этап 7: Real API integration
-- Этап 8: Drawer tabs (Overview, Routing, DNS, SSL, Security, Monitoring, Logs)
-
-**Блокеры для API:**
-- ⚠️ Поле `registrar` отсутствует в БД
-- ⚠️ Monitoring поля (`abuse_status`, `last_check_at`) отсутствуют
+**Осталось:**
+- [ ] Drawer tabs (Overview, Routing, DNS, SSL, Security, Monitoring, Logs)
+- [ ] Stat-cards в header
+- [ ] Пагинация (stub ready)
+- [ ] i18n coverage
 
 ---
 
 ### 2. Redirects
 
-**Статус:** ✅ Core complete, testing in progress (2026-02-08)
+**Статус:** ✅ Feature-complete (2026-02-11)
 
 **Цель:** Core функциональность 301.st - управление redirect rules
 
@@ -93,37 +81,31 @@ Account (Аккаунт клиента)
 redirects.html
 src/redirects/
   ├─ redirects.ts       # UI logic (table, filters, bulk actions)
-  ├─ drawer.ts          # Redirect inspector/editor drawer
-  ├─ state.ts           # Multi-site state management
+  ├─ drawer.ts          # Redirect drawer (template selector, config, sync)
+  ├─ helpers.ts         # Computed values (getTargetUrl) from API types
+  ├─ state.ts           # Multi-site state management (dedup)
   ├─ site-selector.ts   # Project + Site selectors (API-driven)
   ├─ filters-config.ts  # Filter definitions
   ├─ filters-ui.ts      # Filter chips rendering
-  ├─ sync-status.ts     # Cloudflare sync status
-  ├─ adapter.ts         # API → Legacy format adapter
-  └─ mock-data.ts       # Types only (mocks removed)
+  └─ sync-status.ts     # Cloudflare sync status
 src/api/
   └─ redirects.ts       # API client for redirects endpoints
 ```
 
-**Реализовано (Этапы 1-5):**
-- [x] Создать `redirects.html` с dashboard layout
-- [x] API Layer (`src/api/redirects.ts`)
-- [x] State Management (`src/redirects/state.ts`)
-- [x] Project/Site selectors (API-driven)
-- [x] Table rendering with hierarchy (acceptor/donor/reserve)
+**Реализовано:**
+- [x] Full table with hierarchy (acceptor/donor/reserve)
+- [x] API Layer, State Management, Project/Site selectors
 - [x] Filters: Configured, Sync, Enabled
-- [x] Drawer for creating/editing redirects
+- [x] Drawer: template selector (T1/T5/T6/T7), config, sync
 - [x] Pre-fill target URL with acceptor domain
 - [x] Bulk actions (enable/disable/delete/sync selected)
 - [x] Site-level actions (T3/T4 canonical, clear redirects)
-- [x] Sync indicator — only pending/error zones, idempotent listeners
 - [x] Cloudflare sync + error handling
+- [x] safeCall migration (R1), adapter removal (R3)
 
 **Осталось:**
-- [ ] Drawer template selector (T3-T7) — сейчас hardcoded T1
-- [ ] Add Redirect wizard (stub exists)
+- [ ] Add Redirect wizard (stub exists in drawer.ts)
 - [ ] i18n (0 data-i18n attributes)
-- [ ] Post-testing revision: safeCall migration, remove adapter.ts (см. TODO-redirects.md)
 
 **API Endpoints (из `docs/301-wiki/API_Redirects.md`):**
 | Endpoint | Метод | Описание |
@@ -148,47 +130,11 @@ src/api/
 
 **Статус:** ✅ COMPLETED (Layer 3)
 
-**Цель:** Верхний уровень иерархии - управление проектами/кампаниями
-
-**Структура:**
-```
-projects.html
-src/projects/
-  ├─ projects.ts        # UI logic
-  ├─ mock-data.ts       # 10-15 mock projects
-  └─ types.ts           # Project interface
-```
-
-**Задачи MVP (Этап 1, ~1-2 дня):**
-- [ ] Создать `projects.html` с dashboard layout
-- [ ] Создать mock data:
-  - `project_name`, `brand_tag`
-  - `commercial_terms` (RS, CPA, фикс)
-  - `start_date`, `end_date`
-  - Счетчики: sites count, domains count, streams count
-- [ ] Таблица проектов
-- [ ] Stat-cards с метриками
-- [ ] Drawer inspector с Overview
-- [ ] Add project form
-- [ ] i18n (EN/RU)
-
-**Mock data example:**
-```typescript
-interface Project {
-  id: number;
-  project_name: string;
-  brand_tag: string;
-  commercial_terms: string;
-  start_date: string;
-  end_date: string;
-  status: 'active' | 'paused' | 'completed';
-  sites_count: number;
-  domains_count: number;
-  streams_count: number;
-}
-```
-
-**Детали:** Создать детальный `TODO-projects.md` при старте разработки
+**Реализовано:**
+- [x] Table with search, dropdown actions, delete confirmation
+- [x] Create/Edit drawers, detail view with tabs (Integrations, Domains, Sites, Streams)
+- [x] Real API (CRUD), attach/detach integrations & domains
+- [x] i18n (EN/RU)
 
 ---
 
@@ -196,53 +142,11 @@ interface Project {
 
 **Статус:** ✅ COMPLETED (Layer 3)
 
-**Цель:** Управление сайтами/whitepages, связь с проектами
-
-**Структура:**
-```
-sites.html
-src/sites/
-  ├─ sites.ts           # UI logic
-  ├─ mock-data.ts       # 15-20 mock sites
-  └─ types.ts           # Site interface
-```
-
-**Задачи MVP (Этап 1, ~2 дня):**
-- [ ] Создать `sites.html` с dashboard layout
-- [ ] Создать mock data:
-  - `site_name`, `lang_code` (ru, en, fr)
-  - `primary_domain_id` (денормализация)
-  - `tds_enabled`, `monitoring_enabled`
-  - `integrations_json` (GA, YM)
-  - Связь с `project_id`
-- [ ] Таблица сайтов
-- [ ] Filter by project
-- [ ] Select project при создании
-- [ ] Primary domain selector (dropdown из domains)
-- [ ] Languages, TDS toggle, monitoring toggle
-- [ ] i18n (EN/RU)
-
-**Mock data example:**
-```typescript
-interface Site {
-  id: number;
-  site_name: string;
-  project_id: number;
-  project_name: string;    // денормализация
-  lang_code: 'ru' | 'en' | 'fr' | 'de' | 'es';
-  primary_domain_id: number;
-  primary_domain_name: string;  // денормализация
-  tds_enabled: boolean;
-  monitoring_enabled: boolean;
-  integrations_json: {
-    google_analytics?: string;
-    yandex_metrica?: string;
-  };
-  status: 'active' | 'paused';
-}
-```
-
-**Детали:** Создать детальный `TODO-sites.md` при старте разработки
+**Реализовано:**
+- [x] Global sites list + sites in project detail (Sites tab)
+- [x] Create/Edit drawers, manage site domains (attach/detach)
+- [x] Real API (CRUD), search, domain management
+- [x] i18n (EN/RU)
 
 ---
 
@@ -565,14 +469,15 @@ build: {
 
 ## ⚠️ Известные блокеры
 
-### Backend API gaps (блокируют real integration)
+### Backend API gaps
+
+**Redirects:**
+- ⚠️ [#164](https://github.com/admin310st/301-ui/issues/164) — API returns duplicate `domain_id` when domain has T1 + T3/T4 redirects (frontend `dedupDomains()` workaround in state.ts)
+- ⚠️ [#165](https://github.com/admin310st/301-ui/issues/165) — Post-probe type gaps (zone_id types, missing fields)
 
 **Domains:**
-- ❌ Поле `registrar` отсутствует в SQL schema (требует миграции БД)
-- ⚠️ Поле `project_lang` требует JOIN с таблицей `sites`
+- ⚠️ Поле `registrar` отсутствует в SQL schema
 - ⚠️ Мониторинг поля (`abuse_status`, `last_check_at`) отсутствуют
-
-**Решение:** Продолжать на мокапах, пока бэкенд не готов
 
 ---
 
@@ -595,6 +500,13 @@ build: {
 ---
 
 ## 📅 История обновлений
+
+- **2026-02-11**: Redirects polish & TODO cleanup
+  - Template selector for donor drawer (T1/T5/T6/T7 with dynamic fields)
+  - safeCall migration (R1) — all redirects API calls wrapped
+  - Adapter removal (R3) — UI uses ExtendedRedirectDomain directly
+  - API types aligned with backend source + API probe tool
+  - Cleaned up all TODO files and roadmap
 
 - **2026-02-08**: Redirects page — actions & sync fixes
   - Wire up T3/T4 template actions (handleApplyTemplate)
@@ -631,6 +543,6 @@ build: {
 
 ---
 
-**Последнее обновление:** 2025-01-31
+**Последнее обновление:** 2026-02-11
 
 **Next action:** Streams/TDS page implementation (Layer 5)
