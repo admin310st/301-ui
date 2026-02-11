@@ -36,6 +36,7 @@ import {
   deleteRedirect,
   applyZoneRedirects,
 } from '@api/redirects';
+import { safeCall } from '@api/ui-client';
 import { showGlobalNotice } from '@ui/globalNotice';
 
 let currentRedirects: DomainRedirect[] = [];
@@ -1360,7 +1361,7 @@ function setupBulkActions(): void {
 
       // API calls (parallel)
       await Promise.all(
-        toDelete.map(({ redirectId }) => deleteRedirect(redirectId))
+        toDelete.map(({ redirectId }) => safeCall(() => deleteRedirect(redirectId), { lockKey: `redirect:delete:${redirectId}`, retryOn401: true }))
       );
 
       showGlobalNotice('success', `Deleted ${toDelete.length} redirect(s)`);
@@ -1440,7 +1441,7 @@ async function handleClearSiteRedirects(siteId: number): Promise<void> {
   try {
     let cleared = 0;
     for (const domain of donorDomains) {
-      await deleteRedirect(domain.id);
+      await safeCall(() => deleteRedirect(domain.id), { lockKey: `redirect:delete:${domain.id}`, retryOn401: true });
       removeRedirectFromDomain(domain.domain_id);
       cleared++;
     }
@@ -1467,7 +1468,7 @@ async function handleEnable(redirectId: number): Promise<void> {
     renderTable();
 
     // API call
-    await updateRedirect(redirectId, { enabled: true });
+    await safeCall(() => updateRedirect(redirectId, { enabled: true }), { lockKey: `redirect:update:${redirectId}`, retryOn401: true });
     showGlobalNotice('success', `Enabled redirect for ${redirect.domain}`);
   } catch (error: any) {
     // Rollback optimistic update
@@ -1490,7 +1491,7 @@ async function handleDisable(redirectId: number): Promise<void> {
     renderTable();
 
     // API call
-    await updateRedirect(redirectId, { enabled: false });
+    await safeCall(() => updateRedirect(redirectId, { enabled: false }), { lockKey: `redirect:update:${redirectId}`, retryOn401: true });
     showGlobalNotice('success', `Disabled redirect for ${redirect.domain}`);
   } catch (error: any) {
     // Rollback optimistic update
@@ -1529,7 +1530,7 @@ async function handleSyncNow(redirectId: number): Promise<void> {
     renderTable();
 
     // API call - sync entire zone
-    const response = await applyZoneRedirects(domain.zone_id);
+    const response = await safeCall(() => applyZoneRedirects(domain.zone_id), { lockKey: `zone:sync:${domain.zone_id}`, retryOn401: true });
 
     // Update state with synced redirects
     const syncedIds = response.synced_rules?.map(r => r.id) || [];
@@ -1591,12 +1592,12 @@ async function confirmDeleteRedirect(): Promise<void> {
     renderTable();
 
     // Delete from DB
-    await deleteRedirect(redirect.id);
+    await safeCall(() => deleteRedirect(redirect.id), { lockKey: `redirect:delete:${redirect.id}`, retryOn401: true });
 
     // Sync zone to CF to remove the orphaned redirect rule
     if (zoneId) {
       try {
-        await applyZoneRedirects(zoneId);
+        await safeCall(() => applyZoneRedirects(zoneId), { lockKey: `zone:sync:${zoneId}`, retryOn401: true });
       } catch (syncError) {
         console.warn('[confirmDeleteRedirect] Zone sync failed:', syncError);
       }
@@ -1624,7 +1625,7 @@ async function handleClearPrimaryRedirect(redirectId: number, domainId: number):
     renderTable();
 
     // API call
-    await deleteRedirect(redirectId);
+    await safeCall(() => deleteRedirect(redirectId), { lockKey: `redirect:delete:${redirectId}`, retryOn401: true });
     showGlobalNotice('success', `Cleared redirect from primary domain ${redirect.domain}`);
   } catch (error: any) {
     // On error, refresh to restore state
@@ -1772,7 +1773,7 @@ async function handleBulkSync(): Promise<void> {
     // Sync each zone (applies enabled, removes disabled from CF)
     let totalSynced = 0;
     for (const zoneId of zoneIds) {
-      const response = await applyZoneRedirects(zoneId);
+      const response = await safeCall(() => applyZoneRedirects(zoneId), { lockKey: `zone:sync:${zoneId}`, retryOn401: true });
       const syncedIds = response.synced_rules?.map(r => r.id) || [];
       markZoneSynced(zoneId, syncedIds);
       totalSynced += response.rules_applied || 0;
@@ -1827,7 +1828,7 @@ async function handleBulkEnable(): Promise<void> {
 
     // API calls (parallel)
     await Promise.all(
-      redirectIds.map(id => updateRedirect(id, { enabled: true }))
+      redirectIds.map(id => safeCall(() => updateRedirect(id, { enabled: true }), { lockKey: `redirect:update:${id}`, retryOn401: true }))
     );
 
     showGlobalNotice('success', `Enabled ${redirectIds.length} redirect(s)`);
@@ -1870,7 +1871,7 @@ async function handleBulkDisable(): Promise<void> {
 
     // API calls (parallel)
     await Promise.all(
-      redirectIds.map(id => updateRedirect(id, { enabled: false }))
+      redirectIds.map(id => safeCall(() => updateRedirect(id, { enabled: false }), { lockKey: `redirect:update:${id}`, retryOn401: true }))
     );
 
     showGlobalNotice('success', `Disabled ${redirectIds.length} redirect(s)`);

@@ -484,11 +484,11 @@ async function handleSave(redirect: DomainRedirect): Promise<void> {
   try {
     if (redirect.has_redirect && redirect.id) {
       // Update existing redirect
-      await updateRedirect(redirect.id, {
+      await safeCall(() => updateRedirect(redirect.id, {
         params: { target_url: targetUrl },
         status_code: redirectCode,
         enabled,
-      });
+      }), { lockKey: `redirect:update:${redirect.id}`, retryOn401: true });
 
       // Optimistic state update
       updateDomainRedirect(redirect.domain_id, {
@@ -507,11 +507,11 @@ async function handleSave(redirect: DomainRedirect): Promise<void> {
       showGlobalNotice('success', 'Redirect saved');
     } else {
       // Create new redirect (T1 template = simple redirect)
-      const response = await createRedirect(redirect.domain_id, {
+      const response = await safeCall(() => createRedirect(redirect.domain_id, {
         template_id: 'T1',
         params: { target_url: targetUrl },
         status_code: redirectCode,
-      });
+      }), { lockKey: `redirect:create:${redirect.domain_id}`, retryOn401: true });
 
       // Update current redirect with new data
       if (currentRedirect) {
@@ -1035,10 +1035,10 @@ function setupCanonicalCardHandlers(redirect: DomainRedirect): void {
       applyBtn.disabled = true;
 
       try {
-        const response = await createRedirect(redirect.domain_id, {
+        const response = await safeCall(() => createRedirect(redirect.domain_id, {
           template_id: templateId,
           params: {},
-        });
+        }), { lockKey: `redirect:create:${redirect.domain_id}:canonical`, retryOn401: true });
 
         addCanonicalToDomain(redirect.domain_id, response.redirect);
         showGlobalNotice('success', `Applied "${templateName}" to ${redirect.domain}`);
@@ -1088,7 +1088,7 @@ function setupCanonicalCardHandlers(redirect: DomainRedirect): void {
 
       deleteBtn.disabled = true;
       try {
-        await deleteRedirect(redirectId);
+        await safeCall(() => deleteRedirect(redirectId), { lockKey: `redirect:delete:${redirectId}`, retryOn401: true });
         removeCanonicalFromDomain(domainId);
         showGlobalNotice('success', 'Canonical redirect removed');
 
@@ -1097,7 +1097,7 @@ function setupCanonicalCardHandlers(redirect: DomainRedirect): void {
         const domain = state.domains.find(d => d.domain_id === domainId);
         if (domain?.zone_id) {
           try {
-            await applyZoneRedirects(domain.zone_id);
+            await safeCall(() => applyZoneRedirects(domain.zone_id), { lockKey: `zone:sync:${domain.zone_id}`, retryOn401: true });
           } catch {
             console.warn('[Drawer] Zone sync after canonical delete failed');
           }
@@ -1379,11 +1379,11 @@ async function handleSync(redirect: DomainRedirect): Promise<void> {
   try {
     // Step 1: Save form values to backend
     if (redirect.has_redirect && redirect.id) {
-      await updateRedirect(redirect.id, {
+      await safeCall(() => updateRedirect(redirect.id, {
         params: { target_url: targetUrl },
         status_code: redirectCode,
         enabled,
-      });
+      }), { lockKey: `redirect:update:${redirect.id}`, retryOn401: true });
       updateDomainRedirect(redirect.domain_id, {
         params: { target_url: targetUrl },
         status_code: redirectCode,
@@ -1391,11 +1391,11 @@ async function handleSync(redirect: DomainRedirect): Promise<void> {
         sync_status: 'pending',
       });
     } else {
-      const createResponse = await createRedirect(redirect.domain_id, {
+      const createResponse = await safeCall(() => createRedirect(redirect.domain_id, {
         template_id: 'T1',
         params: { target_url: targetUrl },
         status_code: redirectCode,
-      });
+      }), { lockKey: `redirect:create:${redirect.domain_id}`, retryOn401: true });
       if (currentRedirect) {
         currentRedirect.id = createResponse.redirect.id;
         currentRedirect.has_redirect = true;
@@ -1412,7 +1412,7 @@ async function handleSync(redirect: DomainRedirect): Promise<void> {
       if (textSpan) textSpan.textContent = 'Syncing...';
     }
 
-    const response = await applyZoneRedirects(domain.zone_id);
+    const response = await safeCall(() => applyZoneRedirects(domain.zone_id), { lockKey: `zone:sync:${domain.zone_id}`, retryOn401: true });
 
     // Update state with synced redirects
     const syncedIds = response.synced_rules?.map(r => r.id) || [];
@@ -1471,7 +1471,7 @@ async function handleDelete(redirect: DomainRedirect): Promise<void> {
 
   try {
     // Step 1: Delete redirect from DB
-    await deleteRedirect(redirect.id);
+    await safeCall(() => deleteRedirect(redirect.id), { lockKey: `redirect:delete:${redirect.id}`, retryOn401: true });
 
     // Remove from local state
     removeRedirectFromDomain(redirect.domain_id);
@@ -1481,7 +1481,7 @@ async function handleDelete(redirect: DomainRedirect): Promise<void> {
     // Step 2: If zone exists, sync to remove from CF
     if (domain?.zone_id) {
       try {
-        await applyZoneRedirects(domain.zone_id);
+        await safeCall(() => applyZoneRedirects(domain.zone_id), { lockKey: `zone:sync:${domain.zone_id}`, retryOn401: true });
       } catch (syncError) {
         // Non-critical: redirect is deleted from DB, CF sync can be retried
         console.warn('[handleDelete] Zone sync failed:', syncError);

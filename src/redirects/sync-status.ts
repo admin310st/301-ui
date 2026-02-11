@@ -1,6 +1,7 @@
 import type { DomainRedirect } from './types';
 import { updateNavItemIndicators } from '@ui/sidebar-nav';
 import { applyZoneRedirects } from '@api/redirects';
+import { safeCall } from '@api/ui-client';
 import { getState, markZoneSynced, refreshRedirects } from './state';
 import { showGlobalNotice } from '@ui/globalNotice';
 
@@ -277,7 +278,7 @@ async function handleSyncAll(): Promise<void> {
     let totalSynced = 0;
 
     for (const zoneId of zoneIds) {
-      const response = await applyZoneRedirects(zoneId);
+      const response = await safeCall(() => applyZoneRedirects(zoneId), { lockKey: `zone:sync:${zoneId}`, retryOn401: true });
       const syncedIds = response.synced_rules?.map(r => r.id) || [];
       markZoneSynced(zoneId, syncedIds);
       totalSynced += response.rules_applied || 0;
