@@ -3,8 +3,9 @@
  * Handles opening, closing, and managing redirect edit/add drawer
  */
 
-import type { DomainRedirect } from './types';
+import type { ExtendedRedirectDomain } from './state';
 import type { Site } from '@api/types';
+import { getTargetUrl } from './helpers';
 import {
   updateRedirect,
   createRedirect,
@@ -31,7 +32,7 @@ import { openManageSiteDomainsDrawer } from '@domains/site-domains';
 import { drawerManager } from '@ui/drawer-manager';
 
 let drawerElement: HTMLElement | null = null;
-let currentRedirect: DomainRedirect | null = null;
+let currentDomain: ExtendedRedirectDomain | null = null;
 let currentSite: Site | null = null; // Fetched site data for acceptor form
 
 /**
@@ -51,8 +52,8 @@ export function initDrawer(): void {
   const syncButton = drawerElement.querySelector('[data-drawer-sync]');
   if (syncButton) {
     syncButton.addEventListener('click', () => {
-      if (currentRedirect) {
-        handleSync(currentRedirect);
+      if (currentDomain) {
+        handleSync(currentDomain);
       }
     });
   }
@@ -61,8 +62,8 @@ export function initDrawer(): void {
   const saveButton = drawerElement.querySelector('[data-drawer-save]');
   if (saveButton) {
     saveButton.addEventListener('click', () => {
-      if (currentRedirect) {
-        handleSave(currentRedirect);
+      if (currentDomain) {
+        handleSave(currentDomain);
       }
     });
   }
@@ -71,8 +72,8 @@ export function initDrawer(): void {
   const deleteButton = drawerElement.querySelector('[data-drawer-delete]');
   if (deleteButton) {
     deleteButton.addEventListener('click', () => {
-      if (currentRedirect) {
-        handleDelete(currentRedirect);
+      if (currentDomain) {
+        handleDelete(currentDomain);
       }
     });
   }
@@ -81,8 +82,8 @@ export function initDrawer(): void {
   const manageDomainsBtn = drawerElement.querySelector('[data-action="manage-domains-drawer"]');
   if (manageDomainsBtn) {
     manageDomainsBtn.addEventListener('click', () => {
-      if (currentRedirect?.site_id) {
-        openManageSiteDomainsDrawer(currentRedirect.site_id);
+      if (currentDomain?.site_id) {
+        openManageSiteDomainsDrawer(currentDomain.site_id);
       }
     });
   }
@@ -99,19 +100,19 @@ export function initDrawer(): void {
 /**
  * Open drawer for editing a redirect
  */
-export async function openDrawer(redirect: DomainRedirect): Promise<void> {
+export async function openDrawer(domain: ExtendedRedirectDomain): Promise<void> {
   if (!drawerElement) return;
 
-  currentRedirect = redirect;
+  currentDomain = domain;
   currentSite = null;
 
-  const isAcceptor = redirect.role === 'acceptor';
+  const isAcceptor = domain.domain_role === 'acceptor';
 
   // For acceptor domains, fetch full site data from API
-  if (isAcceptor && redirect.site_id) {
+  if (isAcceptor && domain.site_id) {
     try {
       const response = await safeCall(
-        () => getSite(redirect.site_id),
+        () => getSite(domain.site_id),
         { retryOn401: true }
       );
       currentSite = response.site;
@@ -130,12 +131,12 @@ export async function openDrawer(redirect: DomainRedirect): Promise<void> {
   }
 
   // Update sync button state based on redirect status
-  updateSyncButtonState(redirect);
+  updateSyncButtonState(domain);
 
   // Update domain name in header
   const domainEl = drawerElement.querySelector('[data-drawer-domain]');
   if (domainEl) {
-    domainEl.textContent = redirect.domain;
+    domainEl.textContent = domain.domain_name;
   }
 
   // Update role icon based on domain role
@@ -172,10 +173,10 @@ export async function openDrawer(redirect: DomainRedirect): Promise<void> {
   }
 
   // Setup action buttons
-  setupActionButtons(redirect);
+  setupActionButtons(domain);
 
   // Render drawer content
-  renderDrawerContent(redirect);
+  renderDrawerContent(domain);
 
   // Toggle footer based on role
   const donorFooter = drawerElement.querySelector('[data-footer-donor]');
@@ -198,7 +199,7 @@ export async function openDrawer(redirect: DomainRedirect): Promise<void> {
 export function openBulkAddDrawer(): void {
   if (!drawerElement) return;
 
-  currentRedirect = null;
+  currentDomain = null;
 
   // Update title and subtitle
   const titleEl = drawerElement.querySelector('[data-drawer-title]');
@@ -265,13 +266,13 @@ export function openBulkAddDrawer(): void {
 export function closeDrawer(): void {
   // Close via drawer manager (handles z-index stacking)
   drawerManager.close('redirect-inspector');
-  currentRedirect = null;
+  currentDomain = null;
 }
 
 /**
  * Setup action buttons (copy, open in new tab, sync)
  */
-function setupActionButtons(redirect: DomainRedirect): void {
+function setupActionButtons(domain: ExtendedRedirectDomain): void {
   if (!drawerElement) return;
 
   // Copy button
@@ -279,7 +280,7 @@ function setupActionButtons(redirect: DomainRedirect): void {
   if (copyBtn) {
     // Use onclick to replace any previous handler (prevents accumulation)
     (copyBtn as HTMLButtonElement).onclick = () => {
-      navigator.clipboard.writeText(redirect.domain).then(() => {
+      navigator.clipboard.writeText(domain.domain_name).then(() => {
         // Show success feedback with color change on icon
         const icon = copyBtn.querySelector('.icon');
         if (icon) {
@@ -299,15 +300,16 @@ function setupActionButtons(redirect: DomainRedirect): void {
   if (openBtn) {
     // Use onclick to replace any previous handler (prevents multiple tabs)
     openBtn.onclick = () => {
-      window.open(`https://${redirect.domain}`, '_blank', 'noopener,noreferrer');
+      window.open(`https://${domain.domain_name}`, '_blank', 'noopener,noreferrer');
     };
 
     // Color icon based on redirect code
     const icon = openBtn.querySelector('.icon');
     if (icon) {
-      const hasRedirect = redirect.target_url && redirect.target_url.trim() !== '';
-      const enabled = redirect.enabled ?? true;
-      const redirectCode = redirect.redirect_code || 301;
+      const targetUrl = getTargetUrl(domain.domain_name, domain.redirect);
+      const hasRedirect = targetUrl && targetUrl.trim() !== '';
+      const enabled = domain.redirect?.enabled ?? true;
+      const redirectCode = domain.redirect?.status_code || 301;
 
       if (hasRedirect && enabled) {
         // Active redirect - color matches redirect code
@@ -433,7 +435,7 @@ function setupToggleHandlers(): void {
     toggleBtn.setAttribute('data-enabled', newEnabled.toString());
 
     // Update sync button state
-    updateSyncButtonState(currentRedirect || undefined);
+    updateSyncButtonState(currentDomain || undefined);
   });
 }
 
@@ -448,14 +450,14 @@ function setupTargetUrlHandlers(): void {
 
   // Update save/sync button state on input change
   targetInput.addEventListener('input', () => {
-    updateSyncButtonState(currentRedirect || undefined);
+    updateSyncButtonState(currentDomain || undefined);
   });
 }
 
 /**
  * Handle Save button click — collect all form values and persist to API
  */
-async function handleSave(redirect: DomainRedirect): Promise<void> {
+async function handleSave(domain: ExtendedRedirectDomain): Promise<void> {
   if (!drawerElement) return;
 
   // Collect current form values
@@ -482,48 +484,33 @@ async function handleSave(redirect: DomainRedirect): Promise<void> {
   }
 
   try {
-    if (redirect.has_redirect && redirect.id) {
+    if (domain.redirect) {
       // Update existing redirect
-      await safeCall(() => updateRedirect(redirect.id, {
+      await safeCall(() => updateRedirect(domain.redirect!.id, {
         params: { target_url: targetUrl },
         status_code: redirectCode,
         enabled,
-      }), { lockKey: `redirect:update:${redirect.id}`, retryOn401: true });
+      }), { lockKey: `redirect:update:${domain.redirect!.id}`, retryOn401: true });
 
       // Optimistic state update
-      updateDomainRedirect(redirect.domain_id, {
+      updateDomainRedirect(domain.domain_id, {
         params: { target_url: targetUrl },
         status_code: redirectCode,
         enabled,
         sync_status: 'pending',
       });
 
-      // Update local redirect object
-      currentRedirect!.redirect_code = redirectCode;
-      currentRedirect!.target_url = targetUrl;
-      currentRedirect!.enabled = enabled;
-      currentRedirect!.sync_status = 'pending';
-
       showGlobalNotice('success', 'Redirect saved');
     } else {
       // Create new redirect (T1 template = simple redirect)
-      const response = await safeCall(() => createRedirect(redirect.domain_id, {
+      const response = await safeCall(() => createRedirect(domain.domain_id, {
         template_id: 'T1',
         params: { target_url: targetUrl },
         status_code: redirectCode,
-      }), { lockKey: `redirect:create:${redirect.domain_id}`, retryOn401: true });
-
-      // Update current redirect with new data
-      if (currentRedirect) {
-        currentRedirect.id = response.redirect.id;
-        currentRedirect.has_redirect = true;
-        currentRedirect.redirect_code = redirectCode;
-        currentRedirect.target_url = targetUrl;
-        currentRedirect.sync_status = 'pending';
-      }
+      }), { lockKey: `redirect:create:${domain.domain_id}`, retryOn401: true });
 
       // Add redirect to state
-      addRedirectToDomain(redirect.domain_id, {
+      addRedirectToDomain(domain.domain_id, {
         ...response.redirect,
         sync_status: 'pending' as const,
       }, 'donor');
@@ -533,7 +520,7 @@ async function handleSave(redirect: DomainRedirect): Promise<void> {
 
     // Update sync status display and button states
     updateSyncStatusDisplay('pending');
-    updateSyncButtonState(currentRedirect || undefined);
+    updateSyncButtonState(currentDomain || undefined);
   } catch (error: any) {
     showGlobalNotice('error', error.message || 'Failed to save redirect');
   } finally {
@@ -569,7 +556,7 @@ function updateSyncStatusDisplay(status: 'pending' | 'synced' | 'error' | 'never
  * - Enabled redirect: show Sync button
  * - Disabled redirect: show Delete button
  */
-function updateSyncButtonState(redirect?: DomainRedirect): void {
+function updateSyncButtonState(domain?: ExtendedRedirectDomain): void {
   if (!drawerElement) return;
 
   const saveBtn = drawerElement.querySelector('[data-drawer-save]') as HTMLButtonElement;
@@ -586,7 +573,7 @@ function updateSyncButtonState(redirect?: DomainRedirect): void {
   const currentEnabled = toggleBtn?.getAttribute('data-enabled') !== 'false';
 
   // Check if redirect exists in DB
-  const hasRedirect = redirect?.has_redirect || false;
+  const hasRedirect = domain?.redirect !== null && domain?.redirect !== undefined;
 
   const hasTargetUrl = currentTargetUrl !== '';
 
@@ -745,8 +732,8 @@ async function handleSaveSite(): Promise<void> {
  * Shows site overview and edit form in card sections
  * Uses currentSite (fetched from API) for accurate site data
  */
-function renderAcceptorContent(redirect: DomainRedirect): string {
-  // Use fetched site data if available, otherwise fall back to redirect data
+function renderAcceptorContent(domain: ExtendedRedirectDomain): string {
+  // Use fetched site data if available, otherwise fall back to domain data
   const site = currentSite;
 
   // Site type config (label and badge style) - matches table badges
@@ -755,14 +742,14 @@ function renderAcceptorContent(redirect: DomainRedirect): string {
     tds: { label: 'TDS', badge: 'badge--brand' },
     hybrid: { label: 'Hybrid', badge: 'badge--warning' },
   };
-  const siteType = site?.site_type || redirect.site_type || 'landing';
+  const siteType = site?.site_type || 'landing';
   const typeConfig = siteTypeConfig[siteType] || siteTypeConfig.landing;
 
-  // Site data from API (preferred) or redirect data (fallback)
-  const siteName = site?.site_name || redirect.site_name || '';
+  // Site data from API (preferred) or domain data (fallback)
+  const siteName = site?.site_name || domain.site_name || '';
   const siteTag = site?.site_tag || '';
   const siteStatus = site?.status || 'active';
-  const siteId = site?.id || redirect.site_id;
+  const siteId = site?.id || domain.site_id;
 
   // Status config (label and border color)
   const statusConfig: Record<string, { label: string; color: string }> = {
@@ -845,7 +832,7 @@ function renderAcceptorContent(redirect: DomainRedirect): string {
         </div>
       </section>
 
-      ${renderAcceptorRedirectCard(redirect)}
+      ${renderAcceptorRedirectCard(domain)}
     </div>
   `;
 }
@@ -855,7 +842,8 @@ function renderAcceptorContent(redirect: DomainRedirect): string {
  * Shows template, target, sync status, and delete button
  */
 function renderCanonicalInfoCard(
-  canonical: NonNullable<DomainRedirect['canonical_redirect']>,
+  canonical: NonNullable<ExtendedRedirectDomain['canonical_redirect']>,
+  domainName: string,
   domainId: number,
 ): string {
   const templateLabels: Record<string, string> = {
@@ -863,17 +851,17 @@ function renderCanonicalInfoCard(
     T4: 'www \u2192 apex',
   };
   const templateLabel = templateLabels[canonical.template_id] || canonical.template_id || 'Custom';
-  const targetUrl = canonical.target_url || '';
+  const targetUrl = getTargetUrl(domainName, canonical) || '';
 
-  const syncStatus = canonical.sync_status || 'never';
+  const syncStatus = canonical.sync_status || 'pending';
   const syncStatusText = syncStatus === 'synced' ? 'Synced' :
                          syncStatus === 'pending' ? 'Pending' :
                          syncStatus === 'error' ? 'Failed' : 'Not synced';
   const syncStatusColor = syncStatus === 'synced' ? 'text-success' :
                           syncStatus === 'pending' ? 'text-warning' :
                           syncStatus === 'error' ? 'text-danger' : 'text-muted';
-  const lastSync = canonical.last_sync_at
-    ? new Date(canonical.last_sync_at).toLocaleString('en-US', {
+  const lastSync = canonical.updated_at
+    ? new Date(canonical.updated_at).toLocaleString('en-US', {
         year: 'numeric', month: 'short', day: 'numeric',
         hour: '2-digit', minute: '2-digit',
       })
@@ -903,11 +891,11 @@ function renderCanonicalInfoCard(
               <span class="text-muted text-sm">${lastSync}</span>
             </dd>
           </div>
-          ${canonical.sync_error ? `
+          ${(canonical as any).last_error ? `
             <div class="detail-row">
               <dt class="detail-label">Error</dt>
               <dd class="detail-value">
-                <span class="text-danger text-sm">${canonical.sync_error}</span>
+                <span class="text-danger text-sm">${(canonical as any).last_error}</span>
               </dd>
             </div>
           ` : ''}
@@ -970,19 +958,19 @@ function renderCanonicalButtonsCard(siteId: number, domain: string): string {
  * Render canonical redirect card for acceptor domain
  * Uses redirect.canonical_redirect (deduped field) instead of raw state lookup
  */
-function renderAcceptorRedirectCard(redirect: DomainRedirect): string {
-  const canonical = redirect.canonical_redirect;
+function renderAcceptorRedirectCard(domain: ExtendedRedirectDomain): string {
+  const canonical = domain.canonical_redirect;
   if (canonical) {
-    return renderCanonicalInfoCard(canonical, redirect.domain_id);
+    return renderCanonicalInfoCard(canonical, domain.domain_name, domain.domain_id);
   }
-  return renderCanonicalButtonsCard(redirect.site_id, redirect.domain);
+  return renderCanonicalButtonsCard(domain.site_id, domain.domain_name);
 }
 
 /**
  * Unified handler for canonical redirect cards (both acceptor and donor)
  * Handles: T3/T4 create buttons + delete canonical button
  */
-function setupCanonicalCardHandlers(redirect: DomainRedirect): void {
+function setupCanonicalCardHandlers(domain: ExtendedRedirectDomain): void {
   if (!drawerElement) return;
 
   // Canonical direction dropdown
@@ -1035,35 +1023,24 @@ function setupCanonicalCardHandlers(redirect: DomainRedirect): void {
       applyBtn.disabled = true;
 
       try {
-        const response = await safeCall(() => createRedirect(redirect.domain_id, {
+        const response = await safeCall(() => createRedirect(domain.domain_id, {
           template_id: templateId,
           params: {},
-        }), { lockKey: `redirect:create:${redirect.domain_id}:canonical`, retryOn401: true });
+        }), { lockKey: `redirect:create:${domain.domain_id}:canonical`, retryOn401: true });
 
-        addCanonicalToDomain(redirect.domain_id, response.redirect);
-        showGlobalNotice('success', `Applied "${templateName}" to ${redirect.domain}`);
+        addCanonicalToDomain(domain.domain_id, response.redirect);
+        showGlobalNotice('success', `Applied "${templateName}" to ${domain.domain_name}`);
 
-        if (currentRedirect) {
-          const targetUrl = template === 't4'
-            ? `https://${redirect.domain.replace(/^www\./, '')}`
-            : `https://www.${redirect.domain}`;
-          currentRedirect = {
-            ...currentRedirect,
-            canonical_redirect: {
-              id: response.redirect.id,
-              template_id: templateId,
-              target_url: targetUrl,
-              sync_status: 'pending',
-              sync_error: null,
-              last_sync_at: null,
-              enabled: true,
-            },
+        if (currentDomain) {
+          currentDomain = {
+            ...currentDomain,
+            canonical_redirect: response.redirect,
           };
-          renderDrawerContent(currentRedirect);
-          if (currentRedirect.role === 'acceptor') {
+          renderDrawerContent(currentDomain);
+          if (currentDomain.domain_role === 'acceptor') {
             setupAcceptorFormHandlers();
           }
-          updateSyncButtonState(currentRedirect);
+          updateSyncButtonState(currentDomain);
         }
       } catch (error: any) {
         showGlobalNotice('error', error.message || `Failed to apply "${templateName}"`);
@@ -1082,7 +1059,7 @@ function setupCanonicalCardHandlers(redirect: DomainRedirect): void {
 
       // Confirm before deleting
       const confirmed = await showConfirmDialog('delete-redirect', {
-        'delete-domain': currentRedirect?.domain || 'this domain',
+        'delete-domain': currentDomain?.domain_name || 'this domain',
       });
       if (!confirmed) return;
 
@@ -1094,26 +1071,26 @@ function setupCanonicalCardHandlers(redirect: DomainRedirect): void {
 
         // Sync zone to remove rule from Cloudflare
         const state = getState();
-        const domain = state.domains.find(d => d.domain_id === domainId);
-        if (domain?.zone_id) {
+        const fresh = state.domains.find(d => d.domain_id === domainId);
+        if (fresh?.zone_id) {
           try {
-            await safeCall(() => applyZoneRedirects(domain.zone_id), { lockKey: `zone:sync:${domain.zone_id}`, retryOn401: true });
+            await safeCall(() => applyZoneRedirects(fresh.zone_id), { lockKey: `zone:sync:${fresh.zone_id}`, retryOn401: true });
           } catch {
             console.warn('[Drawer] Zone sync after canonical delete failed');
           }
         }
 
-        // Update currentRedirect and re-render
-        if (currentRedirect) {
-          currentRedirect = {
-            ...currentRedirect,
+        // Update currentDomain and re-render
+        if (currentDomain) {
+          currentDomain = {
+            ...currentDomain,
             canonical_redirect: null,
           };
-          renderDrawerContent(currentRedirect);
-          if (currentRedirect.role === 'acceptor') {
+          renderDrawerContent(currentDomain);
+          if (currentDomain.domain_role === 'acceptor') {
             setupAcceptorFormHandlers();
           }
-          updateSyncButtonState(currentRedirect);
+          updateSyncButtonState(currentDomain);
         }
       } catch (error: any) {
         showGlobalNotice('error', error.message || 'Failed to delete redirect');
@@ -1128,15 +1105,15 @@ function setupCanonicalCardHandlers(redirect: DomainRedirect): void {
  * Layout: Redirect Configuration + Canonical Redirect + Sync Status
  */
 function renderDonorContent(
-  redirect: DomainRedirect,
-  acceptorDomain: ReturnType<typeof getAcceptorDomain>,
+  domain: ExtendedRedirectDomain,
+  _acceptorDomain: ReturnType<typeof getAcceptorDomain>,
   defaultTargetUrl: string
 ): string {
   return `
     <div class="stack-list">
-      ${renderRedirectConfigCard(redirect, defaultTargetUrl)}
-      ${renderDonorCanonicalCard(redirect)}
-      ${renderSyncStatusCard(redirect)}
+      ${renderRedirectConfigCard(domain, defaultTargetUrl)}
+      ${renderDonorCanonicalCard(domain)}
+      ${renderSyncStatusCard(domain)}
     </div>
   `;
 }
@@ -1145,32 +1122,32 @@ function renderDonorContent(
  * Render canonical redirect card for donor domain
  * Two states: has canonical → info card, no canonical → T3/T4 buttons
  */
-function renderDonorCanonicalCard(redirect: DomainRedirect): string {
-  const canonical = redirect.canonical_redirect;
+function renderDonorCanonicalCard(domain: ExtendedRedirectDomain): string {
+  const canonical = domain.canonical_redirect;
   if (canonical) {
-    return renderCanonicalInfoCard(canonical, redirect.domain_id);
+    return renderCanonicalInfoCard(canonical, domain.domain_name, domain.domain_id);
   }
-  return renderCanonicalButtonsCard(redirect.site_id, redirect.domain);
+  return renderCanonicalButtonsCard(domain.site_id, domain.domain_name);
 }
 
 /**
  * Render drawer content with cards and detail-list
  */
-function renderDrawerContent(redirect: DomainRedirect): void {
+function renderDrawerContent(domain: ExtendedRedirectDomain): void {
   const contentEl = drawerElement?.querySelector('[data-drawer-content]');
   if (!contentEl) return;
 
-  const isAcceptor = redirect.role === 'acceptor';
+  const isAcceptor = domain.domain_role === 'acceptor';
 
   // Get acceptor domain for this site (for pre-filling target URL)
-  const acceptorDomain = getAcceptorDomain(redirect.site_id);
+  const acceptorDomain = getAcceptorDomain(domain.site_id);
   const defaultTargetUrl = acceptorDomain
     ? `https://${acceptorDomain.domain_name}`
     : '';
 
   const content = isAcceptor
-    ? renderAcceptorContent(redirect)
-    : renderDonorContent(redirect, acceptorDomain, defaultTargetUrl);
+    ? renderAcceptorContent(domain)
+    : renderDonorContent(domain, acceptorDomain, defaultTargetUrl);
 
   contentEl.innerHTML = content;
 
@@ -1180,7 +1157,7 @@ function renderDrawerContent(redirect: DomainRedirect): void {
   setupTargetUrlHandlers();
 
   // Setup canonical redirect card handlers (T3/T4 create + delete) — unified for both roles
-  setupCanonicalCardHandlers(redirect);
+  setupCanonicalCardHandlers(domain);
 }
 
 /**
@@ -1188,13 +1165,14 @@ function renderDrawerContent(redirect: DomainRedirect): void {
  * @param redirect - Domain redirect data
  * @param defaultTargetUrl - Pre-filled target URL (usually acceptor domain)
  */
-function renderRedirectConfigCard(redirect: DomainRedirect, defaultTargetUrl: string = ''): string {
-  const redirectCode = redirect.redirect_code || 301;
-  const enabled = redirect.enabled ?? true;
-  const hasRedirect = redirect.target_url && redirect.target_url.trim() !== '';
+function renderRedirectConfigCard(domain: ExtendedRedirectDomain, defaultTargetUrl: string = ''): string {
+  const redirectCode = domain.redirect?.status_code || 301;
+  const enabled = domain.redirect?.enabled ?? true;
+  const existingTargetUrl = getTargetUrl(domain.domain_name, domain.redirect);
+  const hasRedirect = existingTargetUrl && existingTargetUrl.trim() !== '';
 
   // Use existing target URL or default (acceptor domain)
-  const targetValue = redirect.target_url || defaultTargetUrl;
+  const targetValue = existingTargetUrl || defaultTargetUrl;
   const isNewRedirect = !hasRedirect && defaultTargetUrl;
 
   const redirectCodeLabel = redirectCode === 301 ? '301 - Permanent' : '302 - Temporary';
@@ -1282,9 +1260,9 @@ function renderRedirectConfigCard(redirect: DomainRedirect, defaultTargetUrl: st
 /**
  * Render sync status card
  */
-function renderSyncStatusCard(redirect: DomainRedirect): string {
-  const lastSync = redirect.last_sync_at
-    ? new Date(redirect.last_sync_at).toLocaleString('en-US', {
+function renderSyncStatusCard(domain: ExtendedRedirectDomain): string {
+  const lastSync = domain.redirect?.updated_at
+    ? new Date(domain.redirect.updated_at).toLocaleString('en-US', {
         year: 'numeric',
         month: 'short',
         day: 'numeric',
@@ -1294,7 +1272,7 @@ function renderSyncStatusCard(redirect: DomainRedirect): string {
     : 'Never';
 
   // Use sync_status field for accurate status display
-  const syncStatus = redirect.sync_status || 'never';
+  const syncStatus = domain.redirect?.sync_status || 'never';
   const syncStatusText = syncStatus === 'synced' ? 'Synced' :
                          syncStatus === 'pending' ? 'Pending' :
                          syncStatus === 'error' ? 'Failed' : 'Not synced';
@@ -1302,7 +1280,7 @@ function renderSyncStatusCard(redirect: DomainRedirect): string {
                           syncStatus === 'pending' ? 'text-warning' :
                           syncStatus === 'error' ? 'text-danger' : 'text-muted';
 
-  const syncError = redirect.sync_error;
+  const syncError: string | null = null; // API doesn't expose error in list view
 
   return `
     <section class="card card--panel">
@@ -1339,7 +1317,7 @@ function renderSyncStatusCard(redirect: DomainRedirect): string {
  * Handle sync button click (footer button)
  * Saves current form values first, then syncs zone to Cloudflare
  */
-async function handleSync(redirect: DomainRedirect): Promise<void> {
+async function handleSync(domain: ExtendedRedirectDomain): Promise<void> {
   if (!drawerElement) return;
 
   // Collect current form values
@@ -1357,10 +1335,8 @@ async function handleSync(redirect: DomainRedirect): Promise<void> {
     return;
   }
 
-  // Get zone_id from state
-  const state = getState();
-  const domain = state.domains.find(d => d.domain_id === redirect.domain_id);
-  if (!domain?.zone_id) {
+  // Get zone_id
+  if (!domain.zone_id) {
     showGlobalNotice('error', 'Domain is not associated with a Cloudflare zone');
     return;
   }
@@ -1378,29 +1354,25 @@ async function handleSync(redirect: DomainRedirect): Promise<void> {
 
   try {
     // Step 1: Save form values to backend
-    if (redirect.has_redirect && redirect.id) {
-      await safeCall(() => updateRedirect(redirect.id, {
+    if (domain.redirect) {
+      await safeCall(() => updateRedirect(domain.redirect!.id, {
         params: { target_url: targetUrl },
         status_code: redirectCode,
         enabled,
-      }), { lockKey: `redirect:update:${redirect.id}`, retryOn401: true });
-      updateDomainRedirect(redirect.domain_id, {
+      }), { lockKey: `redirect:update:${domain.redirect!.id}`, retryOn401: true });
+      updateDomainRedirect(domain.domain_id, {
         params: { target_url: targetUrl },
         status_code: redirectCode,
         enabled,
         sync_status: 'pending',
       });
     } else {
-      const createResponse = await safeCall(() => createRedirect(redirect.domain_id, {
+      const createResponse = await safeCall(() => createRedirect(domain.domain_id, {
         template_id: 'T1',
         params: { target_url: targetUrl },
         status_code: redirectCode,
-      }), { lockKey: `redirect:create:${redirect.domain_id}`, retryOn401: true });
-      if (currentRedirect) {
-        currentRedirect.id = createResponse.redirect.id;
-        currentRedirect.has_redirect = true;
-      }
-      addRedirectToDomain(redirect.domain_id, {
+      }), { lockKey: `redirect:create:${domain.domain_id}`, retryOn401: true });
+      addRedirectToDomain(domain.domain_id, {
         ...createResponse.redirect,
         sync_status: 'pending' as const,
       }, 'donor');
@@ -1412,11 +1384,11 @@ async function handleSync(redirect: DomainRedirect): Promise<void> {
       if (textSpan) textSpan.textContent = 'Syncing...';
     }
 
-    const response = await safeCall(() => applyZoneRedirects(domain.zone_id), { lockKey: `zone:sync:${domain.zone_id}`, retryOn401: true });
+    const response = await safeCall(() => applyZoneRedirects(domain.zone_id!), { lockKey: `zone:sync:${domain.zone_id}`, retryOn401: true });
 
     // Update state with synced redirects
     const syncedIds = response.synced_rules?.map(r => r.id) || [];
-    markZoneSynced(domain.zone_id, syncedIds);
+    markZoneSynced(domain.zone_id!, syncedIds);
 
     showGlobalNotice('success', `Synced ${response.rules_applied || 1} redirect(s) to Cloudflare`);
 
@@ -1432,8 +1404,8 @@ async function handleSync(redirect: DomainRedirect): Promise<void> {
     console.error('[handleSync] Error:', error);
 
     // Mark as error if redirect exists
-    if (redirect.has_redirect || currentRedirect?.has_redirect) {
-      updateDomainRedirect(redirect.domain_id, { sync_status: 'error' });
+    if (domain.redirect || currentDomain?.redirect) {
+      updateDomainRedirect(domain.domain_id, { sync_status: 'error' });
     }
 
     showGlobalNotice('error', error.message || 'Failed to sync to Cloudflare');
@@ -1445,7 +1417,7 @@ async function handleSync(redirect: DomainRedirect): Promise<void> {
       if (textSpan) textSpan.textContent = 'Retry';
     }
     if (saveBtn) saveBtn.disabled = false;
-    updateSyncButtonState(currentRedirect || redirect);
+    updateSyncButtonState(currentDomain || domain);
   }
 }
 
@@ -1453,12 +1425,10 @@ async function handleSync(redirect: DomainRedirect): Promise<void> {
  * Handle delete button click (footer button)
  * Deletes disabled redirect from DB, then syncs zone to remove from CF
  */
-async function handleDelete(redirect: DomainRedirect): Promise<void> {
-  if (!drawerElement || !redirect.id) return;
+async function handleDelete(domain: ExtendedRedirectDomain): Promise<void> {
+  if (!drawerElement || !domain.redirect?.id) return;
 
-  // Get zone_id from state
-  const state = getState();
-  const domain = state.domains.find(d => d.domain_id === redirect.domain_id);
+  const redirectId = domain.redirect.id;
 
   // Update delete button to show progress with shimmer
   const deleteBtn = drawerElement.querySelector('[data-drawer-delete]') as HTMLButtonElement;
@@ -1471,15 +1441,15 @@ async function handleDelete(redirect: DomainRedirect): Promise<void> {
 
   try {
     // Step 1: Delete redirect from DB
-    await safeCall(() => deleteRedirect(redirect.id), { lockKey: `redirect:delete:${redirect.id}`, retryOn401: true });
+    await safeCall(() => deleteRedirect(redirectId), { lockKey: `redirect:delete:${redirectId}`, retryOn401: true });
 
     // Remove from local state
-    removeRedirectFromDomain(redirect.domain_id);
+    removeRedirectFromDomain(domain.domain_id);
 
     showGlobalNotice('success', 'Redirect deleted');
 
     // Step 2: If zone exists, sync to remove from CF
-    if (domain?.zone_id) {
+    if (domain.zone_id) {
       try {
         await safeCall(() => applyZoneRedirects(domain.zone_id), { lockKey: `zone:sync:${domain.zone_id}`, retryOn401: true });
       } catch (syncError) {

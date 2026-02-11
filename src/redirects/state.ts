@@ -45,6 +45,8 @@ export interface ExtendedRedirectDomain extends RedirectDomain {
   site_name: string;
   site_tag: string | null;
   site_status: SiteStatus;
+  project_id: number;
+  project_name: string;
   /** Merged T3/T4 canonical redirect (separate from main redirect) */
   canonical_redirect: RedirectRule | null;
 }
@@ -232,6 +234,8 @@ export async function loadSitesRedirects(
         site_name: response.siteContext.siteName,
         site_tag: response.siteContext.siteTag,
         site_status: response.siteContext.siteStatus,
+        project_id: response.siteContext.projectId,
+        project_name: response.siteContext.projectName,
         canonical_redirect: null as RedirectRule | null,
       }));
       allDomains.push(...domainsWithSite);

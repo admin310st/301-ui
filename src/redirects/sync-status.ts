@@ -1,4 +1,4 @@
-import type { DomainRedirect } from './types';
+import type { ExtendedRedirectDomain } from './state';
 import { updateNavItemIndicators } from '@ui/sidebar-nav';
 import { applyZoneRedirects } from '@api/redirects';
 import { safeCall } from '@api/ui-client';
@@ -16,14 +16,14 @@ export interface SyncStats {
 
 /**
  * Calculate sync statistics from redirect data
- * Only counts donors (domains with has_redirect: true)
+ * Only counts domains with a redirect rule (main or canonical)
  * Excludes paused/archived sites from counts
  */
-export function calculateSyncStats(redirects: DomainRedirect[]): SyncStats {
-  // Filter to domains with any redirect (T1 or canonical T3/T4)
+export function calculateSyncStats(redirects: ExtendedRedirectDomain[]): SyncStats {
+  // Filter to domains with any redirect (main or canonical T3/T4)
   // Exclude paused/archived sites from sync statistics
   const withRedirects = redirects.filter((r) =>
-    (r.has_redirect || r.canonical_redirect) &&
+    (r.redirect || r.canonical_redirect) &&
     r.site_status !== 'paused' &&
     r.site_status !== 'archived'
   );
@@ -39,33 +39,33 @@ export function calculateSyncStats(redirects: DomainRedirect[]): SyncStats {
 
   let mostRecentSync: Date | null = null;
 
-  withRedirects.forEach((redirect) => {
-    // Count main redirect (T1) if present
-    if (redirect.has_redirect) {
+  withRedirects.forEach((domain) => {
+    // Count main redirect if present
+    if (domain.redirect) {
       stats.total++;
-      if (redirect.sync_status === 'synced') {
+      if (domain.redirect.sync_status === 'synced') {
         stats.synced++;
-        if (redirect.last_sync_at) {
-          const syncDate = new Date(redirect.last_sync_at);
+        if (domain.redirect.updated_at) {
+          const syncDate = new Date(domain.redirect.updated_at);
           if (!mostRecentSync || syncDate > mostRecentSync) {
             mostRecentSync = syncDate;
           }
         }
-      } else if (redirect.sync_status === 'pending') {
+      } else if (domain.redirect.sync_status === 'pending') {
         stats.pending++;
-      } else if (redirect.sync_status === 'error') {
+      } else if (domain.redirect.sync_status === 'error') {
         stats.error++;
       }
     }
 
     // Count canonical redirect (T3/T4) if present
-    const canonical = redirect.canonical_redirect;
+    const canonical = domain.canonical_redirect;
     if (canonical) {
       stats.total++;
       if (canonical.sync_status === 'synced') {
         stats.synced++;
-        if (canonical.last_sync_at) {
-          const syncDate = new Date(canonical.last_sync_at);
+        if (canonical.updated_at) {
+          const syncDate = new Date(canonical.updated_at);
           if (!mostRecentSync || syncDate > mostRecentSync) {
             mostRecentSync = syncDate;
           }
@@ -185,7 +185,7 @@ let isSyncing = false;
  * stats are recalculated on every call.
  * Note: Dropdown toggle is handled by initDropdowns() in redirects.ts
  */
-export function initSyncStatus(redirects: DomainRedirect[]): void {
+export function initSyncStatus(redirects: ExtendedRedirectDomain[]): void {
   const dropdown = document.querySelector('[data-sync-chip]');
   const menu = dropdown?.querySelector<HTMLElement>('.dropdown__menu');
 
@@ -293,7 +293,7 @@ async function handleSyncAll(): Promise<void> {
       button.setAttribute('data-status', 'success');
       setTimeout(() => {
         // Recalculate status after showing success
-        const newStats = calculateSyncStats(state.domains as unknown as DomainRedirect[]);
+        const newStats = calculateSyncStats(state.domains);
         updateSyncIndicator(newStats);
       }, 2000);
     }
