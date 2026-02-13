@@ -93,14 +93,21 @@ export function initNcConnectForm(): void {
         // Reset form
         form.reset();
 
-        // Reload integrations to show new NameCheap integration
-        try {
-          const { loadIntegrations } = await import('@ui/integrations');
-          await loadIntegrations();
-        } catch (error) {
-          // Fallback: reload page
-          console.error('Failed to reload integrations:', error);
-          window.location.reload();
+        // Check if we're on integrations page
+        const isIntegrationsPage = document.querySelector('[data-integrations-tbody]');
+
+        if (isIntegrationsPage) {
+          // Reload integrations table in-place
+          try {
+            const { loadIntegrations } = await import('@ui/integrations');
+            await loadIntegrations();
+          } catch (error) {
+            console.error('Failed to reload integrations:', error);
+            window.location.reload();
+          }
+        } else {
+          // Navigate to integrations page to see results
+          window.location.href = '/integrations.html';
         }
 
         // Reset button state after drawer closes

@@ -505,3 +505,10 @@ export function getSelectedSiteIds(): number[] {
 export function getAvailableSites(): SiteOption[] {
   return availableSites;
 }
+
+/**
+ * Get available projects (loaded on init)
+ */
+export function getAvailableProjects(): ProjectOption[] {
+  return availableProjects;
+}

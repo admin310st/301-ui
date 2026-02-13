@@ -1044,7 +1044,7 @@ function renderCanonicalInfoCard(
             </div>
           ` : ''}
         </dl>
-        <div class="stack--sm">
+        <div class="card__actions">
           <button class="btn btn--sm btn--danger" type="button" data-action="delete-canonical" data-redirect-id="${canonical.id}" data-domain-id="${domainId}">
             <span class="icon" data-icon="mono/trash"></span>
             <span>Delete redirect</span>

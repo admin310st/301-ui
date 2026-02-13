@@ -29,7 +29,7 @@ import {
   getSortedDomains,
   type SiteContext,
 } from './state';
-import { initSiteSelector } from './site-selector';
+import { initSiteSelector, getAvailableProjects, getAvailableSites } from './site-selector';
 import {
   updateRedirect,
   deleteRedirect,
@@ -59,7 +59,7 @@ export function initRedirectsPage(): void {
     } else if (state.error) {
       showErrorState(state.error);
     } else if (state.domains.length === 0 && state.selectedSiteIds.length > 0) {
-      showEmptyState();
+      showEmptyState('no-domains');
     } else if (state.domains.length > 0) {
       // Domains are already sorted and extended with site context
       currentRedirects = getSortedDomains();
@@ -69,8 +69,16 @@ export function initRedirectsPage(): void {
       renderTable();
       initSyncStatus(currentRedirects);
     } else if (state.selectedSiteIds.length === 0) {
-      // No sites selected
-      showEmptyState();
+      // Determine why no sites are selected
+      const projects = getAvailableProjects();
+      const sites = getAvailableSites();
+      if (projects.length === 0) {
+        showEmptyState('no-projects');
+      } else if (sites.length === 0) {
+        showEmptyState('no-sites');
+      } else {
+        showEmptyState('no-selection');
+      }
     }
   });
 
@@ -141,16 +149,69 @@ function showErrorState(message: string): void {
 }
 
 /**
- * Show empty state
+ * Show empty state with contextual message
  */
-function showEmptyState(): void {
+type EmptyReason = 'no-projects' | 'no-sites' | 'no-selection' | 'no-domains';
+
+function showEmptyState(reason: EmptyReason): void {
   const loadingState = document.querySelector('[data-loading-state]');
   const emptyState = document.querySelector('[data-empty-state]');
   const tableShell = document.querySelector('[data-table-shell]');
 
   if (loadingState) loadingState.hidden = true;
-  if (emptyState) emptyState.hidden = false;
+  if (emptyState) {
+    emptyState.hidden = false;
+    emptyState.innerHTML = renderEmptyContent(reason);
+  }
   if (tableShell) tableShell.hidden = true;
+}
+
+function renderEmptyContent(reason: EmptyReason): string {
+  switch (reason) {
+    case 'no-projects':
+      return `
+        <div class="stack-md">
+          <span class="icon icon--lg text-muted" data-icon="mono/project"></span>
+          <h3 class="h4">No projects yet</h3>
+          <p class="text-muted">Create a project to organize your domains and set up redirects.</p>
+          <div class="card__actions">
+            <a class="btn btn--primary" href="/projects.html">
+              <span class="icon" data-icon="mono/plus"></span>
+              <span>Create project</span>
+            </a>
+          </div>
+        </div>`;
+    case 'no-sites':
+      return `
+        <div class="stack-md">
+          <span class="icon icon--lg text-muted" data-icon="mono/landing"></span>
+          <h3 class="h4">No sites in this project</h3>
+          <p class="text-muted">Create a site to attach domains and configure redirects.</p>
+          <div class="card__actions">
+            <a class="btn btn--primary" href="/sites.html">
+              <span class="icon" data-icon="mono/plus"></span>
+              <span>Create site</span>
+            </a>
+          </div>
+        </div>`;
+    case 'no-selection':
+      return `
+        <div class="stack-md">
+          <span class="icon icon--lg text-muted" data-icon="mono/filter"></span>
+          <h3 class="h4">Select a site</h3>
+          <p class="text-muted">Choose a site from the filters above to view and manage its redirects.</p>
+        </div>`;
+    case 'no-domains':
+      return `
+        <div class="stack-md">
+          <span class="icon icon--lg text-muted" data-icon="mono/arrow-top-right"></span>
+          <h3 class="h4">No redirects configured</h3>
+          <p class="text-muted">
+            Set up simple 301/302 redirects for your domains.<br>
+            Useful for blocked domains, migrations, or consolidation.
+          </p>
+        </div>`;
+  }
 }
 
 /**

@@ -164,12 +164,12 @@ export function initCfConnectForm(): void {
         const isIntegrationsPage = document.querySelector('[data-integrations-tbody]');
 
         if (isIntegrationsPage) {
-          // Reload integrations table
+          // Reload integrations table in-place
           const { loadIntegrations } = await import('@ui/integrations');
           await loadIntegrations();
         } else {
-          // On other pages (dashboard, etc.) - full reload to show updated state
-          window.location.reload();
+          // Navigate to integrations page to see results
+          window.location.href = '/integrations.html';
         }
       }, 3500);
 
@@ -288,12 +288,12 @@ async function handleReplaceConfirmation(
       const isIntegrationsPage = document.querySelector('[data-integrations-tbody]');
 
       if (isIntegrationsPage) {
-        // Reload integrations table
+        // Reload integrations table in-place
         const { loadIntegrations } = await import('@ui/integrations');
         await loadIntegrations();
       } else {
-        // On other pages (dashboard, etc.) - full reload to show updated state
-        window.location.reload();
+        // Navigate to integrations page to see results
+        window.location.href = '/integrations.html';
       }
     }, 3500);
 

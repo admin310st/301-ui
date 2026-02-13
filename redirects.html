@@ -154,23 +154,8 @@
               <p class="text-muted">Loading redirect rules...</p>
             </div>
 
-            <!-- Empty State -->
-            <div class="empty-state" data-empty-state hidden>
-              <div class="stack-md">
-                <span class="icon icon--lg" data-icon="mono/arrow-top-right"></span>
-                <h3 class="h4">No redirects configured</h3>
-                <p class="text-muted">
-                  Set up simple 301/302 redirects for your domains.<br>
-                  Useful for blocked domains, migrations, or consolidation.
-                </p>
-                <div class="btn-group">
-                  <button class="btn btn--primary" type="button" data-action="add-redirect">
-                    <span class="icon" data-icon="mono/plus"></span>
-                    <span>Add redirect</span>
-                  </button>
-                </div>
-              </div>
-            </div>
+            <!-- Empty State (content rendered dynamically by redirects.ts based on context) -->
+            <div class="empty-state" data-empty-state hidden></div>
 
             <!-- Error State -->
             <div class="alert alert--danger" data-error-state hidden>
