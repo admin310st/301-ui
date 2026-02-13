@@ -103,10 +103,13 @@
   ],
   "brand": [
     "301",
+    "chrome",
     "cloudflare",
     "cws",
+    "edge",
     "github",
     "google",
+    "mozilla",
     "namecheap",
     "namesilo",
     "virustotal"

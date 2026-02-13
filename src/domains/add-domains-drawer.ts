@@ -639,21 +639,17 @@ export function initAddDomainsDrawer(): void {
               ` : ''}
 
               ${isZoneLimitError ? `
-                <div class="panel panel--info"${hint ? ' style="margin-top: var(--space-2);"' : ''}>
+                <div class="panel panel--info stack stack--sm"${hint ? ' style="margin-top: var(--space-2);"' : ''}>
                   <p class="text-sm">
                     <span class="icon" data-icon="mono/info"></span>
                     ${t('domains.add.errors.zoneLimitExtension')}
                   </p>
-                  <a
-                    href="https://chromewebstore.google.com/detail/gncbekdjakchefiiahjbjlbhhfijoikp?utm_source=301.st"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="btn btn--sm btn--ghost"
-                    style="margin-top: var(--space-2);"
-                  >
-                    <span class="icon" data-icon="brand/cws"></span>
-                    <span>${t('domains.add.errors.zoneLimitExtensionCta')}</span>
-                  </a>
+                  <div class="cluster">
+                    <span class="text-sm text-muted">${t('domains.add.errors.zoneLimitExtensionCta')}:</span>
+                    <a href="https://chromewebstore.google.com/detail/gncbekdjakchefiiahjbjlbhhfijoikp?utm_source=301.st" target="_blank" rel="noopener noreferrer" class="btn-icon btn-icon--sm btn-icon--ghost" title="Chrome Web Store"><span class="icon" data-icon="brand/chrome"></span></a>
+                    <a href="https://microsoftedge.microsoft.com/addons/detail/cloudflare-tools/kklailenhhfnlhbmfaibeonjpdkcpklc" target="_blank" rel="noopener noreferrer" class="btn-icon btn-icon--sm btn-icon--ghost" title="Microsoft Edge Add-ons"><span class="icon" data-icon="brand/edge"></span></a>
+                    <a href="https://addons.mozilla.org/en-US/firefox/addon/cloudflare-tools/" target="_blank" rel="noopener noreferrer" class="btn-icon btn-icon--sm btn-icon--ghost" title="Firefox Add-ons"><span class="icon" data-icon="brand/mozilla"></span></a>
+                  </div>
                 </div>
               ` : ''}
             </div>
