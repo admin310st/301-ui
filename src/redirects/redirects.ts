@@ -478,7 +478,7 @@ function renderPrimaryDomainRow(
   let redirectBadge = '';
   if (acceptorHasRedirect) {
     // Acceptor has non-canonical redirect - show red danger arrow (needs attention)
-    redirectBadge = `<span class="text-danger" style="font-size: 1.125rem; line-height: 1;" title="Primary domain has redirect configured! Click to clear.">\u2192</span>`;
+    redirectBadge = `<span class="text-danger redirect-arrow" title="Primary domain has redirect configured! Click to clear.">\u2192</span>`;
   } else if (actualRedirects.length > 0) {
     const has301 = actualRedirects.some(r => (r.redirect?.status_code ?? 301) === 301);
     const has302 = actualRedirects.some(r => r.redirect?.status_code === 302);
@@ -575,7 +575,7 @@ function renderDomainRow(domain: ExtendedRedirectDomain, _isLastRow: boolean): s
   let arrowIndicator = '';
   if (domain.redirect && targetUrl) {
     const { color: arrowColor, title: arrowTitle } = getArrowStyle(domain);
-    arrowIndicator = `<span class="${arrowColor}" style="font-size: 1.125rem; line-height: 1;" title="${arrowTitle}">→</span>`;
+    arrowIndicator = `<span class="${arrowColor} redirect-arrow" title="${arrowTitle}">→</span>`;
   }
 
   // Canonical icon prefix for domain name
@@ -733,7 +733,7 @@ function getDomainDisplay(
 
   if (!isPrimaryDomain && targetUrl) {
     const { color: arrowColor, title: arrowTitle } = getArrowStyle(domain);
-    iconAfter = `<span class="${arrowColor}" style="font-size: 1.125rem; line-height: 1;" title="${arrowTitle}">→</span>`;
+    iconAfter = `<span class="${arrowColor} redirect-arrow" title="${arrowTitle}">→</span>`;
   }
 
   return `

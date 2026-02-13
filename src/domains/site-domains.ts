@@ -94,7 +94,7 @@ async function loadSiteAndDomains(siteId: number): Promise<void> {
     // Load site details
     const data = await safeCall(
       () => getSite(siteId),
-      { retryOn401: true }
+      { lockKey: `site:${siteId}`, retryOn401: true }
     );
     const site = data.site;
     currentProjectId = site.project_id;

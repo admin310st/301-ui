@@ -135,7 +135,7 @@ export async function openDrawer(domain: ExtendedRedirectDomain): Promise<void> 
     try {
       const response = await safeCall(
         () => getSite(domain.site_id),
-        { retryOn401: true }
+        { lockKey: `site:${domain.site_id}`, retryOn401: true }
       );
       currentSite = response.site;
     } catch (error: any) {
@@ -240,7 +240,7 @@ export function openBulkAddDrawer(): void {
   if (contentEl) {
     contentEl.innerHTML = `
       <div class="stack-lg" style="padding: var(--space-4) 0;">
-        <div style="text-align: center;">
+        <div class="text-center">
           <span class="icon icon--xl text-muted" data-icon="mono/plus" style="font-size: 3rem;"></span>
           <h3 class="h4" style="margin-top: var(--space-3);">Bulk Domain Management</h3>
           <p class="text-muted">Feature coming soon</p>
@@ -258,7 +258,7 @@ export function openBulkAddDrawer(): void {
 
         <div class="stack-sm">
           <h4 class="h5">Key Features</h4>
-          <ul style="line-height: 1.8; color: var(--text-muted);">
+          <ul class="text-muted" style="line-height: 1.8;">
             <li>Bulk import domains from registrars or CSV</li>
             <li>View and filter reserve domains (<code>role='reserve'</code>, <code>site_id=NULL</code>)</li>
             <li>Mass assign domains to projects and sites (changes role to <code>acceptor</code>/<code>donor</code>)</li>

@@ -76,6 +76,7 @@ export async function syncZones(accountKeyId?: number): Promise<SyncZonesRespons
   const response = await apiFetch<SyncZonesResponse>('/zones/sync', {
     method: 'POST',
     body: JSON.stringify(body),
+    showLoading: 'cf',
   });
   // Invalidate zones cache (zones were synced from Cloudflare)
   invalidateCache('zones');

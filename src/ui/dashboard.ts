@@ -2,6 +2,7 @@ import { getIntegrationKeys } from '@api/integrations';
 import { getAccountId } from '@state/auth-state';
 import { updateDashboardOnboardingIndicator } from './sidebar-nav';
 import { getZones } from '@api/zones';
+import { safeCall } from '@api/ui-client';
 
 /**
  * Calculate current onboarding step
@@ -30,8 +31,8 @@ async function updateSidebarOnboardingIndicator(): Promise<void> {
 
     // Fetch integrations and zones in parallel
     const [integrations, zones] = await Promise.all([
-      getIntegrationKeys(accountId),
-      getZones().catch(() => [])
+      safeCall(() => getIntegrationKeys(accountId), { lockKey: 'integrations', retryOn401: true }),
+      safeCall(() => getZones(), { lockKey: 'zones', retryOn401: true }).catch(() => [])
     ]);
 
     // Count Cloudflare integrations
@@ -56,7 +57,7 @@ async function updateStep1CardState(): Promise<void> {
     if (!accountId) return;
 
     // Fetch integrations
-    const integrations = await getIntegrationKeys(accountId);
+    const integrations = await safeCall(() => getIntegrationKeys(accountId), { lockKey: 'integrations', retryOn401: true });
     const cfIntegrations = integrations.filter(key => key.provider === 'cloudflare');
     const hasCfIntegration = cfIntegrations.length > 0;
 

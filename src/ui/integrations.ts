@@ -8,7 +8,7 @@ import { initTabs } from './tabs';
 import { initCfConnectForms } from '@forms/cf-connect';
 import { showDialog, hideDialog } from './dialog';
 import { getZones, syncZones } from '@api/zones';
-import { showLoading, hideLoading } from './loading-indicator';
+import { safeCall } from '@api/ui-client';
 import { invalidateCacheByPrefix } from '@api/cache';
 
 // Store current editing key
@@ -185,8 +185,8 @@ export async function loadIntegrations(): Promise<void> {
 
     // Fetch all integration keys (all providers) and zones in parallel
     const [integrationKeys, zones] = await Promise.all([
-      getIntegrationKeys(accountId),
-      getZones().catch((err) => {
+      safeCall(() => getIntegrationKeys(accountId), { lockKey: 'integrations', retryOn401: true }),
+      safeCall(() => getZones(), { lockKey: 'zones', retryOn401: true }).catch((err) => {
         console.error('❌ Failed to fetch zones:', err);
         return [];
       })
@@ -276,7 +276,7 @@ async function handleEditKey(event: Event): Promise<void> {
 
   try {
     // Fetch full key details
-    const key = await getIntegrationKey(parseInt(keyId, 10));
+    const key = await safeCall(() => getIntegrationKey(parseInt(keyId, 10)), { lockKey: `integration:${keyId}`, retryOn401: true });
     currentEditingKey = key;
 
     // Open drawer
@@ -322,7 +322,7 @@ async function openEditIntegrationDrawer(key: IntegrationKey): Promise<void> {
         // Get last sync date from zones
         let lastSyncDate = '—';
         try {
-          const zones = await getZones();
+          const zones = await safeCall(() => getZones(), { lockKey: 'zones', retryOn401: true });
           const keyZones = zones.filter(z => z.key_id === key.id);
           if (keyZones.length > 0) {
             const mostRecent = keyZones.reduce((latest, zone) =>
@@ -564,10 +564,10 @@ function initEditIntegrationDrawer(): void {
     const status = (statusToggleBtn?.getAttribute('data-status') || 'active') as 'active' | 'revoked';
 
     try {
-      await updateIntegrationKey(currentEditingKey.id, {
+      await safeCall(() => updateIntegrationKey(currentEditingKey!.id, {
         key_alias: alias,
         status,
-      });
+      }), { lockKey: `update-integration-${currentEditingKey!.id}`, retryOn401: true });
 
       showGlobalMessage('success', 'Integration updated successfully');
       drawer.setAttribute('hidden', '');
@@ -585,13 +585,12 @@ function initEditIntegrationDrawer(): void {
   syncBtn?.addEventListener('click', async () => {
     if (!currentEditingKey || currentEditingKey.provider !== 'cloudflare') return;
 
-    // Show loading state (CF orange shimmer)
+    // Show loading state
     (syncBtn as HTMLButtonElement).disabled = true;
     syncBtn.setAttribute('data-turnstile-pending', '');
-    showLoading('cf');
 
     try {
-      const result = await syncZones(currentEditingKey.id);
+      const result = await safeCall(() => syncZones(currentEditingKey!.id), { lockKey: `sync-zones-${currentEditingKey!.id}`, retryOn401: true });
 
       // Invalidate domains cache
       invalidateCacheByPrefix('domains');
@@ -617,7 +616,6 @@ function initEditIntegrationDrawer(): void {
     } catch (error: any) {
       showGlobalMessage('error', error.message || 'Failed to sync zones');
     } finally {
-      hideLoading();
       (syncBtn as HTMLButtonElement).disabled = false;
       syncBtn.removeAttribute('data-turnstile-pending');
     }
@@ -742,7 +740,7 @@ async function handleConfirmDeleteIntegration(): Promise<void> {
   if (!currentEditingKey) return;
 
   try {
-    await deleteIntegrationKey(currentEditingKey.id);
+    await safeCall(() => deleteIntegrationKey(currentEditingKey!.id), { lockKey: `delete-integration-${currentEditingKey!.id}`, retryOn401: true });
     showGlobalMessage('success', 'Integration deleted successfully');
 
     // Hide dialog and drawer

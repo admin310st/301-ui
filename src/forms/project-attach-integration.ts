@@ -86,8 +86,8 @@ async function loadAvailableIntegrations(projectId: number): Promise<void> {
   try {
     // Get all integrations and already attached integrations in parallel
     const [allIntegrations, attachedIntegrations] = await Promise.all([
-      safeCall(() => getIntegrationKeys(accountId), { retryOn401: true }),
-      safeCall(() => getProjectIntegrations(projectId), { retryOn401: true }),
+      safeCall(() => getIntegrationKeys(accountId), { lockKey: 'integrations', retryOn401: true }),
+      safeCall(() => getProjectIntegrations(projectId), { lockKey: `project-integrations:${projectId}`, retryOn401: true }),
     ]);
 
     // Filter out already attached integrations

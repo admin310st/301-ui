@@ -56,7 +56,7 @@ async function openEditSiteDrawer(siteId: number, projectId: number): Promise<vo
     // Fetch site details
     const data = await safeCall(
       () => getSite(siteId),
-      { retryOn401: true }
+      { lockKey: `site:${siteId}`, retryOn401: true }
     );
 
     const { site } = data;

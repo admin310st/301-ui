@@ -29,7 +29,7 @@ export async function openAddDomainDrawer(projectId: number): Promise<void> {
   try {
     const projectData = await safeCall(
       () => getProject(projectId),
-      { retryOn401: true }
+      { lockKey: `project:${projectId}`, retryOn401: true }
     );
 
     if (!projectData.sites || projectData.sites.length === 0) {

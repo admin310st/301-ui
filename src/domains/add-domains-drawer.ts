@@ -7,7 +7,6 @@
  */
 
 import { showGlobalMessage } from '@ui/notifications';
-import { showLoading, hideLoading } from '@ui/loading-indicator';
 import { formatDomainDisplay } from '@utils/idn';
 import { getIntegrationKeys, type IntegrationKey } from '@api/integrations';
 import { createZonesBatch, type BatchZoneResponse, type BatchZoneSuccess, type BatchZoneFailed } from '@api/domains';
@@ -126,10 +125,9 @@ export function initAddDomainsDrawer(): void {
   syncBtn?.addEventListener('click', async () => {
     if (!selectedIntegration) return;
 
-    // Show loading state (CF orange shimmer)
+    // Show loading state
     syncBtn.disabled = true;
     syncBtn.setAttribute('data-turnstile-pending', '');
-    showLoading('cf');
 
     try {
       const result = await safeCall(
@@ -154,7 +152,6 @@ export function initAddDomainsDrawer(): void {
       showGlobalMessage('danger', normalized.message || 'Failed to sync zones');
     } finally {
       // Restore button state
-      hideLoading();
       syncBtn.removeAttribute('data-turnstile-pending');
       syncBtn.disabled = false;
     }
@@ -507,13 +504,13 @@ export function initAddDomainsDrawer(): void {
       <div class="panel ${isMixed ? 'panel--warning' : failedCount > 0 ? 'panel--danger' : 'panel--success'}">
         <div class="cluster cluster--xs">
           ${successCount > 0 ? `
-            <span class="cluster cluster--xs" style="color: var(--ok);">
+            <span class="cluster cluster--xs text-ok">
               <span class="icon" data-icon="mono/check-circle"></span>
               <strong>${successCount}</strong> added
             </span>
           ` : ''}
           ${failedCount > 0 ? `
-            <span class="cluster cluster--xs" style="color: var(--danger);">
+            <span class="cluster cluster--xs text-danger">
               <span class="icon" data-icon="mono/alert-circle"></span>
               <strong>${failedCount}</strong> failed
             </span>
@@ -608,7 +605,7 @@ export function initAddDomainsDrawer(): void {
         html += `
           <div class="card card--panel">
             <header class="card__header">
-              <div class="cluster cluster--sm cluster--space-between" style="width: 100%;">
+              <div class="cluster cluster--sm cluster--space-between">
                 <div class="cluster cluster--sm">
                   <span class="icon icon--danger" data-icon="mono/alert-circle"></span>
                   <h4 class="h5">${getErrorTitle(group.error)}</h4>

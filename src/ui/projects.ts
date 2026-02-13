@@ -487,7 +487,7 @@ export async function loadProjects(): Promise<void> {
   showLoading();
 
   try {
-    allProjects = await getProjects(accountId);
+    allProjects = await safeCall(() => getProjects(accountId), { lockKey: 'projects', retryOn401: true });
 
     hideLoading();
 
@@ -942,8 +942,11 @@ function handleProjectActions(): void {
           showGlobalMessage('info', t('common.messages.deleting') || 'Deleting...');
 
           await import('@api/projects').then(({ deleteProject }) =>
-            deleteProject(projectId)
+            safeCall(() => deleteProject(projectId), { lockKey: `delete-project-${projectId}`, retryOn401: true })
           );
+
+          invalidateCache(`project:${projectId}`);
+          invalidateCacheByPrefix('projects');
 
           showGlobalMessage('success', t('projects.messages.deleted') || 'Project deleted successfully');
 

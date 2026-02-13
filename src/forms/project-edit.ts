@@ -3,6 +3,8 @@ import type { UpdateProjectRequest } from '@api/types';
 import { showGlobalMessage } from '@ui/notifications';
 import { t, tWithVars } from '@i18n';
 import { loadProjects, loadProjectDetail } from '@ui/projects';
+import { safeCall, type NormalizedError } from '@api/ui-client';
+import { invalidateCache, invalidateCacheByPrefix } from '@api/cache';
 
 /**
  * Open edit project drawer and populate with project data
@@ -20,7 +22,7 @@ async function openEditProjectDrawer(projectId: number): Promise<void> {
 
   try {
     // Fetch project data
-    const data = await getProject(projectId);
+    const data = await safeCall(() => getProject(projectId), { lockKey: `project:${projectId}`, retryOn401: true });
     const { project } = data;
 
     // Populate form fields
@@ -120,7 +122,11 @@ async function handleEditProject(event: Event): Promise<void> {
       'info'
     );
 
-    await updateProject(projectId, request);
+    await safeCall(() => updateProject(projectId, request), { lockKey: `update-project-${projectId}`, retryOn401: true });
+
+    // Invalidate related caches
+    invalidateCache(`project:${projectId}`);
+    invalidateCacheByPrefix('projects');
 
     // Show success in drawer
     showFormStatus(
@@ -149,18 +155,21 @@ async function handleEditProject(event: Event): Promise<void> {
     if (detailView && !detailView.hasAttribute('hidden')) {
       await loadProjectDetail(projectId);
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Failed to update project:', error);
+
+    const normalized = error as NormalizedError;
+    const details = normalized.details as Record<string, unknown> | undefined;
 
     // Map API error codes to user-friendly messages
     let errorMessage: string;
 
-    if (error.body?.error) {
-      const errorCode = error.body.error;
+    if (details?.error) {
+      const errorCode = details.error as string;
 
       // Special handling for errors with additional fields
-      if (errorCode === 'missing_field' && error.body.field) {
-        errorMessage = tWithVars('projects.errors.missingField', { field: error.body.field });
+      if (errorCode === 'missing_field' && details.field) {
+        errorMessage = tWithVars('projects.errors.missingField', { field: details.field as string });
       } else {
         // Try to find translation for the error code
         const errorKey = `projects.errors.${errorCode}`;
@@ -174,9 +183,9 @@ async function handleEditProject(event: Event): Promise<void> {
           errorMessage = t('projects.errors.updateFailed') || 'Failed to update project';
         }
       }
-    } else if (error.message && error.message !== 'Request failed') {
+    } else if (normalized.message && normalized.message !== 'Request failed') {
       // Use error message if it's not the generic fallback
-      errorMessage = error.message;
+      errorMessage = normalized.message;
     } else {
       // Final fallback
       errorMessage = t('projects.errors.updateFailed') || 'Failed to update project';

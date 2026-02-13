@@ -25,16 +25,6 @@ To whitelist these IPs:
 }
 
 /**
- * Hide loading spinner
- */
-function hideLoading(): void {
-  const loadingIndicator = document.querySelector('[data-loading="brand"]');
-  if (loadingIndicator) {
-    loadingIndicator.setAttribute('hidden', '');
-  }
-}
-
-/**
  * Initialize NameCheap Connect form
  */
 export function initNcConnectForm(): void {
@@ -115,13 +105,11 @@ export function initNcConnectForm(): void {
           submitBtn.disabled = false;
           submitBtn.classList.remove('btn--success');
           submitBtn.classList.add('btn--primary');
-          submitBtn.innerHTML = '<span class="icon" data-icon="mono/save"></span><span>Connect NameCheap</span>';
+          submitBtn.innerHTML = '<span class="icon" data-icon="mono/check"></span><span>Connect NameCheap</span>';
         }
       }, 2000);
 
     } catch (error: any) {
-      hideLoading();
-
       console.error('[nc-connect] Error:', error);
 
       const body = error.body as ApiErrorResponse | null;

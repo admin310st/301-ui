@@ -254,6 +254,10 @@ body {
  * Use these classes to apply semantic colors to text elements.
  * Available in all components (buttons, badges, icons, text).
  */
+.text-center {
+  text-align: center;
+}
+
 .text-ok {
   color: var(--ok);
 }

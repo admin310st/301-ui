@@ -497,6 +497,11 @@
   text-align: center;
 }
 
+.redirect-arrow {
+  font-size: 1.125rem;
+  line-height: 1;
+}
+
 /* ============================================
    3b. TABLE CELL UTILITIES
    ============================================ */

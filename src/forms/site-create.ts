@@ -4,6 +4,7 @@ import type { CreateSiteRequest } from '@api/types';
 import { getAccountId } from '@state/auth-state';
 import { showGlobalMessage } from '@ui/notifications';
 import { t } from '@i18n';
+import { safeCall } from '@api/ui-client';
 
 /**
  * Track current context (which project to create site for, if any)
@@ -36,7 +37,7 @@ async function populateProjectDropdown(): Promise<void> {
   if (!accountId) return;
 
   try {
-    const projects = await getProjects(accountId);
+    const projects = await safeCall(() => getProjects(accountId), { lockKey: 'projects', retryOn401: true });
 
     // Clear existing items
     menu.innerHTML = '';
@@ -215,7 +216,7 @@ async function handleCreateSite(event: Event): Promise<void> {
     }
 
     // Create site
-    await createSite(projectId, request);
+    await safeCall(() => createSite(projectId, request), { lockKey: 'create-site', retryOn401: true });
 
     // Show success message
     showGlobalMessage('success', t('sites.messages.created') || 'Site created successfully');

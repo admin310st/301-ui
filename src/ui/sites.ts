@@ -182,7 +182,7 @@ export async function loadSites(): Promise<void> {
   showTableLoading();
 
   try {
-    const sites = await getSites(accountId);
+    const sites = await safeCall(() => getSites(accountId), { lockKey: 'sites', retryOn401: true });
 
     hideTableLoading();
 

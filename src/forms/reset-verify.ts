@@ -12,7 +12,7 @@ import type { CommonErrorResponse, VerifyResetResponse } from '@api/types';
 import { setResetCsrfToken } from '@state/reset-session';
 import { setResetMode, showAuthView } from '@ui/auth-routing';
 import { showNotice } from '@ui/notifications';
-import type { ApiError } from '@utils/errors';
+import { safeCall, type NormalizedError } from '@api/ui-client';
 
 type VerifyResponse = VerifyResetResponse & {
   ok?: boolean;
@@ -45,15 +45,18 @@ async function handleResetVerify(url: URL, token: string): Promise<void> {
   let data: VerifyResponse | null = null;
 
   try {
-    data = await apiFetch<VerifyResponse>('/verify', {
-      method: 'POST',
-      body: JSON.stringify({ token }),
-      credentials: 'include',
-    });
+    data = await safeCall(
+      () => apiFetch<VerifyResponse>('/verify', {
+        method: 'POST',
+        body: JSON.stringify({ token }),
+      }),
+      { lockKey: 'reset-verify', retryOn401: false }
+    );
   } catch (err) {
     console.error('[ResetVerify] /auth/verify failed', err);
-    const apiError = err as ApiError<CommonErrorResponse>;
-    const errorCode = apiError?.body?.code || apiError?.body?.error;
+    const normalized = err as NormalizedError;
+    const details = normalized.details as CommonErrorResponse | null;
+    const errorCode = details?.code || details?.error;
     showNotice('error', mapVerifyError(errorCode));
     setResetCsrfToken(null);
     window.location.hash = '#reset';
