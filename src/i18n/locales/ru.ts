@@ -798,6 +798,9 @@ export const ru: Translation = {
       confirmPassword: 'Подтвердите пароль',
       passwordMismatch: 'Пароли не совпадают',
       passwordChanged: 'Пароль успешно изменен',
+      wrongPassword: 'Неверный текущий пароль',
+      samePassword: 'Новый пароль должен отличаться от текущего',
+      oauthOnly: 'Невозможно сменить пароль для аккаунтов OAuth',
     },
   },
 };

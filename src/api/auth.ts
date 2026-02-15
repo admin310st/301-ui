@@ -1,6 +1,8 @@
 import { apiFetch } from './client';
 export { apiFetch } from './client';
 import type {
+  ChangePasswordRequest,
+  ChangePasswordResponse,
   ConfirmPasswordRequest,
   ConfirmPasswordResponse,
   LoginRequest,
@@ -61,6 +63,14 @@ export async function verifyToken(payload: VerifyRequest): Promise<VerifyRespons
 
 export async function confirmPassword(payload: ConfirmPasswordRequest): Promise<ConfirmPasswordResponse> {
   return apiFetch<ConfirmPasswordResponse>('/auth/confirm_password', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+    showLoading: 'brand',
+  });
+}
+
+export async function changePassword(payload: ChangePasswordRequest): Promise<ChangePasswordResponse> {
+  return apiFetch<ChangePasswordResponse>('/auth/change_password', {
     method: 'POST',
     body: JSON.stringify(payload),
     showLoading: 'brand',

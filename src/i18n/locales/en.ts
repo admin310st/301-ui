@@ -792,6 +792,9 @@ export const en = {
       confirmPassword: 'Confirm Password',
       passwordMismatch: 'Passwords do not match',
       passwordChanged: 'Password changed successfully',
+      wrongPassword: 'Current password is incorrect',
+      samePassword: 'New password must be different from current',
+      oauthOnly: 'Cannot change password for OAuth-only accounts',
     },
   },
 };

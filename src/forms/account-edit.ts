@@ -1,5 +1,8 @@
 import { showGlobalMessage } from '@ui/notifications';
 import { t } from '@i18n';
+import { changePassword } from '@api/auth';
+import { safeCall, type NormalizedError } from '@api/ui-client';
+import { validatePasswordStrength } from '@utils/password';
 
 /**
  * Initialize inline editing for account fields
@@ -109,16 +112,40 @@ export function initAccountEdit(): void {
         return;
       }
 
-      if (newPassword.length < 8) {
-        showGlobalMessage('error', t('auth.validation.passwordTooShort'));
+      const strengthError = validatePasswordStrength(newPassword);
+      if (strengthError) {
+        showGlobalMessage('error', strengthError);
         return;
       }
 
-      // TODO: Send to API
-      // For now, just show success
-      passwordForm.reset();
-      passwordForm.hidden = true;
-      showGlobalMessage('success', t('account.security.passwordChanged'));
+      const submitBtn = passwordForm.querySelector<HTMLButtonElement>('button[type="submit"]');
+      if (submitBtn) submitBtn.disabled = true;
+
+      try {
+        await safeCall(
+          () => changePassword({ current_password: currentPassword, new_password: newPassword }),
+          { lockKey: 'change-password', retryOn401: true }
+        );
+
+        passwordForm.reset();
+        passwordForm.hidden = true;
+        showGlobalMessage('success', t('account.security.passwordChanged'));
+      } catch (error: unknown) {
+        const normalized = error as NormalizedError;
+        const details = normalized.details as Record<string, unknown> | undefined;
+        const errorCode = details?.error as string | undefined;
+
+        const errorMap: Record<string, string> = {
+          wrong_password: t('account.security.wrongPassword'),
+          password_too_weak: t('auth.password.requirements'),
+          same_password: t('account.security.samePassword'),
+          oauth_only: t('account.security.oauthOnly'),
+        };
+
+        showGlobalMessage('error', (errorCode && errorMap[errorCode]) || normalized.message);
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
+      }
     });
   }
 }
