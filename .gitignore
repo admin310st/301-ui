@@ -35,6 +35,7 @@ tests/login-debug.png
 tests/turnstile-debug.png
 
 ### Claude Code
+CLAUDE.md
 .claude/settings.local.json
 .claude/.session
 .claude/history/
