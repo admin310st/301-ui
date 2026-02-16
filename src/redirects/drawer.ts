@@ -1089,7 +1089,7 @@ function renderCanonicalButtonsCard(siteId: number, domain: string): string {
               <button class="dropdown__item ${defaultTemplate === 't3' ? 'is-active' : ''}" type="button" data-value="t3">apex \u2192 www</button>
             </div>
           </div>
-          <button class="btn btn--sm btn--primary" type="button" data-action="apply-canonical" data-site-id="${siteId}">
+          <button class="btn-chip btn-chip--sm btn-chip--primary" type="button" data-action="apply-canonical" data-site-id="${siteId}">
             Apply
           </button>
         </div>
