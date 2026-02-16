@@ -190,17 +190,32 @@
                   <div class="stack" style="gap: var(--space-3);">
                     <div class="field">
                       <label class="field__label" data-i18n="account.security.currentPassword">Current Password</label>
-                      <input type="password" class="input" data-password-field data-current-password required />
+                      <div class="password-field" data-password-field>
+                        <input type="password" class="input" data-current-password autocomplete="current-password" required />
+                        <button type="button" class="password-toggle" data-password-toggle aria-label="Show password">
+                          <svg class="icon" aria-hidden="true"><use href="#i-mono-eye"></use></svg>
+                        </button>
+                      </div>
                     </div>
 
                     <div class="field">
                       <label class="field__label" data-i18n="account.security.newPassword">New Password</label>
-                      <input type="password" class="input" data-password-field data-new-password required />
+                      <div class="password-field" data-password-field>
+                        <input type="password" class="input" data-new-password autocomplete="new-password" required />
+                        <button type="button" class="password-toggle" data-password-toggle aria-label="Show password">
+                          <svg class="icon" aria-hidden="true"><use href="#i-mono-eye"></use></svg>
+                        </button>
+                      </div>
                     </div>
 
                     <div class="field">
                       <label class="field__label" data-i18n="account.security.confirmPassword">Confirm Password</label>
-                      <input type="password" class="input" data-password-field data-confirm-password required />
+                      <div class="password-field" data-password-field>
+                        <input type="password" class="input" data-confirm-password autocomplete="new-password" required />
+                        <button type="button" class="password-toggle" data-password-toggle aria-label="Show password">
+                          <svg class="icon" aria-hidden="true"><use href="#i-mono-eye"></use></svg>
+                        </button>
+                      </div>
                     </div>
 
                     <div class="btn-group">
