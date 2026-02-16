@@ -9,6 +9,8 @@ export interface Domain {
   registrar: 'cloudflare' | 'namecheap' | 'namesilo' | 'google' | 'manual'; // было: provider
   cf_zone_id?: string; // Cloudflare Zone ID (опционально)
 
+  ns_expected?: string; // CF-assigned nameservers (comma-separated), from APIDomain.ns
+
   // UI-специфичные поля (не в базовой схеме API):
   ssl_status: 'valid' | 'expiring' | 'invalid' | 'off';
   ssl_valid_to?: string;

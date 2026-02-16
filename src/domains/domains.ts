@@ -793,6 +793,44 @@ function updatePaginationUI(totalCount: number): void {
   }
 }
 
+/**
+ * Render expected NS hint panel with copy button
+ */
+function renderNsHint(
+  container: HTMLElement,
+  expectedNs: string[],
+  type: 'warning' | 'info',
+  label: string
+): void {
+  const panelClass = type === 'warning' ? 'panel--warning' : 'panel--info';
+  const nsText = expectedNs.join('\n');
+
+  container.innerHTML = `
+    <div class="panel ${panelClass} stack stack--sm" style="margin-top: var(--space-3);">
+      <span class="text-sm text-strong">${label}</span>
+      <div class="stack-list--xs">
+        ${expectedNs.map(ns => `<code class="text-sm">${ns}</code>`).join('')}
+      </div>
+      <button class="btn btn--sm btn--ghost" type="button" data-copy-ns title="Copy nameservers">
+        <span class="icon" data-icon="mono/copy"></span>
+        <span>Copy</span>
+      </button>
+    </div>
+  `;
+  container.hidden = false;
+
+  const copyBtn = container.querySelector('[data-copy-ns]');
+  copyBtn?.addEventListener('click', () => {
+    navigator.clipboard.writeText(nsText).then(() => {
+      const icon = copyBtn.querySelector('.icon');
+      if (icon) {
+        icon.classList.add('text-ok');
+        setTimeout(() => icon.classList.remove('text-ok'), 2000);
+      }
+    });
+  });
+}
+
 function openAddDomainsDrawer(): void {
   const drawer = document.querySelector<HTMLElement>('[data-drawer="add-domains"]');
   if (!drawer) return;
@@ -857,40 +895,79 @@ function openInspector(domainId: number): void {
   if (sslEl) sslEl.textContent = `${domain.ssl_status.charAt(0).toUpperCase() + domain.ssl_status.slice(1)}${domain.ssl_valid_to ? ` (until ${domain.ssl_valid_to})` : ''}`;
   if (abuseEl) abuseEl.textContent = domain.abuse_status.charAt(0).toUpperCase() + domain.abuse_status.slice(1);
 
-  // Load NS records asynchronously
+  // Load NS records asynchronously and compare against expected CF nameservers
+  const nsHintEl = drawer.querySelector<HTMLElement>('[data-inspector-ns-hint]');
+  if (nsHintEl) {
+    nsHintEl.hidden = true;
+    nsHintEl.innerHTML = '';
+  }
+
   if (nsEl && nsStatusEl) {
     nsEl.innerHTML = '<span class="text-muted">Loading...</span>';
     nsStatusEl.innerHTML = '';
+
+    // Parse expected NS from domain (CF-assigned nameservers, comma-separated)
+    const expectedNs = domain.ns_expected
+      ? domain.ns_expected.split(',').map(ns => ns.trim().toLowerCase()).filter(Boolean).sort()
+      : null;
+
     queryNSRecords(domain.domain_name)
       .then((records) => {
         if (records.length === 0) {
           nsEl.innerHTML = '<span class="text-muted">No NS records found</span>';
           nsStatusEl.innerHTML = '';
+          // Show expected NS if available
+          if (expectedNs && expectedNs.length > 0 && nsHintEl) {
+            renderNsHint(nsHintEl, expectedNs, 'info', 'Set nameservers to:');
+          }
           return;
         }
 
         const allCloudflare = records.every((r) => r.isCloudflare);
         const someCloudflare = records.some((r) => r.isCloudflare);
 
-        // NS list with CF icons before nameserver
+        // Compare live NS against expected
+        const liveNs = records.map(r => r.nameserver.toLowerCase()).sort();
+        const isExactMatch = expectedNs
+          && expectedNs.length === liveNs.length
+          && expectedNs.every((ns, i) => ns === liveNs[i]);
+
+        // NS list with CF icons — color wrong-pair NS with warning
         const recordsHtml = records
           .map((record) => {
+            const isExpected = expectedNs?.includes(record.nameserver.toLowerCase());
             const cfIcon = record.isCloudflare
-              ? '<span class="icon text-ok" data-icon="brand/cloudflare" title="Cloudflare" style="margin-right: var(--space-2);"></span>'
-              : '<span class="icon" style="opacity: 0; pointer-events: none; margin-right: var(--space-2);"></span>'; // Invisible spacer for alignment
-            return `<div style="display: flex; align-items: center;">${cfIcon}${record.nameserver}</div>`;
+              ? `<span class="icon ${isExpected !== false ? 'text-ok' : 'text-warning'}" data-icon="brand/cloudflare" title="Cloudflare" style="margin-right: var(--space-2);"></span>`
+              : '<span class="icon" style="opacity: 0; pointer-events: none; margin-right: var(--space-2);"></span>';
+            return `<div class="cluster">${cfIcon}${record.nameserver}</div>`;
           })
           .join('');
 
-        // Status badge in header (no icons, just colored text)
-        const statusBadge = allCloudflare
-          ? '<span class="badge badge--success">On Cloudflare</span>'
-          : someCloudflare
-          ? '<span class="badge badge--warning">Mixed NS</span>'
-          : '<span class="badge badge--neutral">Not on Cloudflare</span>';
+        // Status badge with NS match awareness
+        let statusBadge: string;
+        if (allCloudflare && isExactMatch) {
+          statusBadge = '<span class="badge badge--success">On Cloudflare</span>';
+        } else if (allCloudflare && expectedNs && !isExactMatch) {
+          statusBadge = '<span class="badge badge--warning">NS mismatch</span>';
+        } else if (allCloudflare) {
+          statusBadge = '<span class="badge badge--success">On Cloudflare</span>';
+        } else if (someCloudflare) {
+          statusBadge = '<span class="badge badge--warning">Mixed NS</span>';
+        } else {
+          statusBadge = '<span class="badge badge--neutral">Not on Cloudflare</span>';
+        }
 
         nsEl.innerHTML = `<div class="stack-list--xs">${recordsHtml}</div>`;
         nsStatusEl.innerHTML = statusBadge;
+
+        // Show hint panel for mismatches (only when expected NS is known)
+        if (nsHintEl && expectedNs && expectedNs.length > 0 && !isExactMatch) {
+          if (allCloudflare) {
+            renderNsHint(nsHintEl, expectedNs, 'warning', 'Expected nameservers:');
+          } else {
+            renderNsHint(nsHintEl, expectedNs, 'info', 'Update nameservers to:');
+          }
+        }
       })
       .catch((error) => {
         console.error('Failed to load NS records:', error);

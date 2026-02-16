@@ -118,6 +118,7 @@ export function adaptAPIDomainToUI(api: APIDomain): Domain {
     role: api.role,
     registrar,
     cf_zone_id: api.cf_zone_id,
+    ns_expected: api.ns || undefined,
     ssl_status: mapSSLStatus(api.ssl_status),
     // ssl_valid_to not in API list response
     abuse_status: mapHealthToAbuse(api.health),
