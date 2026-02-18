@@ -245,7 +245,7 @@ async function handleAddDomains(): Promise<void> {
     const projectId = getCurrentProjectId();
     if (projectId === currentProjectId) {
       await import('@ui/projects').then(({ loadProjectDomains }) => {
-        loadProjectDomains(projectId);
+        void loadProjectDomains(projectId);
       });
     }
 

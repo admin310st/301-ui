@@ -30,7 +30,7 @@ function renderSitesTable(sites: any[]): void {
   }
 
   // Import renderSiteRow from projects.ts
-  import('@ui/projects').then(({ renderSiteRow }) => {
+  void import('@ui/projects').then(({ renderSiteRow }) => {
     if (tbody) {
       tbody.innerHTML = sites.map((site: any) => renderSiteRow(site)).join('');
 

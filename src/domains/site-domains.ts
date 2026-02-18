@@ -44,7 +44,7 @@ export function openManageSiteDomainsDrawer(siteId: number): void {
     dropdownsInitialized = true;
   }
 
-  loadSiteAndDomains(siteId);
+  void loadSiteAndDomains(siteId);
 }
 
 /**
@@ -727,7 +727,7 @@ export function initSiteDomains(): void {
     const attachBtn = target.closest('[data-site-attach-domain]');
     if (attachBtn) {
       e.preventDefault();
-      handleAttachDomain();
+      void handleAttachDomain();
     }
 
     // Detach domain button
@@ -736,7 +736,7 @@ export function initSiteDomains(): void {
       e.preventDefault();
       const domainId = detachBtn.getAttribute('data-domain-id');
       const domainName = detachBtn.getAttribute('data-domain-name') || 'this domain';
-      if (domainId) handleDetachDomain(Number(domainId), domainName);
+      if (domainId) void handleDetachDomain(Number(domainId), domainName);
     }
 
     // Dropdown option selection
@@ -784,7 +784,7 @@ export function initSiteDomains(): void {
 
         const newSelectedId = parseInt(value, 10);
         if (!isNaN(newSelectedId)) {
-          handlePrimaryDomainChange(newSelectedId);
+          void handlePrimaryDomainChange(newSelectedId);
         }
       }
     }

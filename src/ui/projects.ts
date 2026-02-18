@@ -515,13 +515,13 @@ function initProjectsList(): void {
   const accountId = getAccountId();
   if (accountId) {
     // Account ID already available (page reload case)
-    loadProjects();
+    void loadProjects();
   } else {
     // Wait for account ID to be loaded (fresh login case)
-    import('@state/auth-state').then(({ onAuthChange }) => {
+    void import('@state/auth-state').then(({ onAuthChange }) => {
       const unsubscribe = onAuthChange((state) => {
         if (state.accountId) {
-          loadProjects();
+          void loadProjects();
           unsubscribe(); // Only load once
         }
       });
@@ -820,7 +820,7 @@ export function initProjectsPage(): void {
     initTabs();
 
     // Load project details
-    loadProjectDetail(parseInt(projectId, 10));
+    void loadProjectDetail(parseInt(projectId, 10));
   } else {
     // Show list view
     if (listView) listView.hidden = false;
@@ -951,8 +951,8 @@ function handleProjectActions(): void {
           showGlobalMessage('success', t('projects.messages.deleted') || 'Project deleted successfully');
 
           // Update sidebar count
-          import('@ui/sidebar-nav').then(({ updateProjectsAndSitesCounts }) => {
-            updateProjectsAndSitesCounts();
+          void import('@ui/sidebar-nav').then(({ updateProjectsAndSitesCounts }) => {
+            void updateProjectsAndSitesCounts();
           });
 
           // Reload projects list

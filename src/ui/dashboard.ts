@@ -95,13 +95,13 @@ export function initDashboardPage(): void {
   // Update Step 1 card state when account ID becomes available
   const accountId = getAccountId();
   if (accountId) {
-    updateStep1CardState();
+    void updateStep1CardState();
   } else {
     // Wait for account ID to be loaded (fresh login case)
-    import('@state/auth-state').then(({ onAuthChange }) => {
+    void import('@state/auth-state').then(({ onAuthChange }) => {
       const unsubscribe = onAuthChange((state) => {
         if (state.accountId) {
-          updateStep1CardState();
+          void updateStep1CardState();
           unsubscribe();
         }
       });
@@ -115,13 +115,13 @@ export function initDashboardPage(): void {
 export function initSidebarOnboarding(): void {
   const accountId = getAccountId();
   if (accountId) {
-    updateSidebarOnboardingIndicator();
+    void updateSidebarOnboardingIndicator();
   } else {
     // Wait for account ID to be loaded (fresh login case)
-    import('@state/auth-state').then(({ onAuthChange }) => {
+    void import('@state/auth-state').then(({ onAuthChange }) => {
       const unsubscribe = onAuthChange((state) => {
         if (state.accountId) {
-          updateSidebarOnboardingIndicator();
+          void updateSidebarOnboardingIndicator();
           unsubscribe();
         }
       });

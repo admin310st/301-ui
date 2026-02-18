@@ -94,7 +94,7 @@ export function openCreateSiteDrawer(projectId?: number): void {
       // Show project selection when opened from global sites page
       projectField.hidden = false;
       projectValue.setAttribute('required', '');
-      populateProjectDropdown();
+      void populateProjectDropdown();
     }
   }
 
@@ -225,8 +225,8 @@ async function handleCreateSite(event: Event): Promise<void> {
     closeCreateSiteDrawer();
 
     // Update sidebar count badge
-    import('@ui/sidebar-nav').then(({ updateProjectsAndSitesCounts }) => {
-      updateProjectsAndSitesCounts();
+    void import('@ui/sidebar-nav').then(({ updateProjectsAndSitesCounts }) => {
+      void updateProjectsAndSitesCounts();
     });
 
     // Reload appropriate view

@@ -280,7 +280,7 @@ async function handleEditKey(event: Event): Promise<void> {
     currentEditingKey = key;
 
     // Open drawer
-    openEditIntegrationDrawer(key);
+    void openEditIntegrationDrawer(key);
   } catch (error: any) {
     showGlobalMessage('error', error.message || 'Failed to load integration details');
   }
@@ -482,7 +482,7 @@ export function openConnectNamecheapDrawer(): void {
   drawer.removeAttribute('hidden');
 
   // Initialize NameCheap connect form
-  import('@forms/nc-connect').then(({ initNcConnectForm }) => {
+  void import('@forms/nc-connect').then(({ initNcConnectForm }) => {
     initNcConnectForm();
   });
 
@@ -667,13 +667,13 @@ export function initIntegrationsPage(): void {
   const accountId = getAccountId();
   if (accountId) {
     // Account ID already available (page reload case)
-    loadIntegrations();
+    void loadIntegrations();
   } else {
     // Wait for account ID to be loaded (fresh login case)
-    import('@state/auth-state').then(({ onAuthChange }) => {
+    void import('@state/auth-state').then(({ onAuthChange }) => {
       const unsubscribe = onAuthChange((state) => {
         if (state.accountId) {
-          loadIntegrations();
+          void loadIntegrations();
           unsubscribe(); // Only load once
         }
       });
@@ -723,12 +723,12 @@ export function initIntegrationsPage(): void {
 
     // Edit key - opens drawer
     if (target.closest('[data-action="edit-key"]')) {
-      handleEditKey(e);
+      void handleEditKey(e);
     }
 
     // Confirm delete integration from dialog
     if (target.closest('[data-confirm-delete-integration]')) {
-      handleConfirmDeleteIntegration();
+      void handleConfirmDeleteIntegration();
     }
   });
 }

@@ -54,7 +54,7 @@ export function initDomainsPage(): void {
   showLoadingState();
 
   // Load domains from API
-  loadDomainsFromAPI();
+  void loadDomainsFromAPI();
 
   // Add domains button
   document.querySelectorAll('[data-action="add-domains"]').forEach((btn) => {
@@ -66,7 +66,7 @@ export function initDomainsPage(): void {
   if (retryBtn) {
     retryBtn.addEventListener('click', () => {
       showLoadingState();
-      loadDomainsFromAPI();
+      void loadDomainsFromAPI();
     });
   }
 
@@ -190,13 +190,13 @@ export function initDomainsPage(): void {
 
     switch (action) {
       case 'block-domain':
-        handleBlockDomain(domain);
+        void handleBlockDomain(domain);
         break;
       case 'unblock-domain':
-        handleUnblockDomain(domain);
+        void handleUnblockDomain(domain);
         break;
       case 'change-role':
-        handleChangeRole(domain, actionBtn.getAttribute('data-role') as Domain['role']);
+        void handleChangeRole(domain, actionBtn.getAttribute('data-role') as Domain['role']);
         break;
       case 'delete-domain': {
         // Update dialog with domain name
@@ -821,7 +821,7 @@ function renderNsHint(
 
   const copyBtn = container.querySelector('[data-copy-ns]');
   copyBtn?.addEventListener('click', () => {
-    navigator.clipboard.writeText(nsText).then(() => {
+    void navigator.clipboard.writeText(nsText).then(() => {
       const icon = copyBtn.querySelector('.icon');
       if (icon) {
         icon.classList.add('text-ok');

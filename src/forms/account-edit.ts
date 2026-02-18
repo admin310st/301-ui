@@ -66,7 +66,7 @@ export function initAccountEdit(): void {
     input.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
         e.preventDefault();
-        saveChanges();
+        void saveChanges();
       } else if (e.key === 'Escape') {
         cancelEdit();
       }

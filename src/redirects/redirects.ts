@@ -83,7 +83,7 @@ export function initRedirectsPage(): void {
   });
 
   // Initialize project & site selectors (triggers data load on selection)
-  initSiteSelector((_sites: SiteContext[]) => {
+  void initSiteSelector((_sites: SiteContext[]) => {
     // Clear selection on site change
     selectedRedirects.clear();
     collapsedGroups.clear();
@@ -1266,22 +1266,22 @@ function setupActions(): void {
         if (siteId) handleManageDomains(siteId);
         break;
       case 'clear-site-redirects':
-        if (siteId) handleClearSiteRedirects(siteId);
+        if (siteId) void handleClearSiteRedirects(siteId);
         break;
       case 'clear-primary-redirect':
-        if (domainId) handleClearPrimaryRedirect(domainId);
+        if (domainId) void handleClearPrimaryRedirect(domainId);
         break;
       case 'enable':
-        if (domainId) handleEnable(domainId);
+        if (domainId) void handleEnable(domainId);
         break;
       case 'disable':
-        if (domainId) handleDisable(domainId);
+        if (domainId) void handleDisable(domainId);
         break;
       case 'retry-sync':
-        if (domainId) handleRetrySync(domainId);
+        if (domainId) void handleRetrySync(domainId);
         break;
       case 'sync-now':
-        if (domainId) handleSyncNow(domainId);
+        if (domainId) void handleSyncNow(domainId);
         break;
       case 'delete':
         if (domainId) handleDelete(domainId);
@@ -1293,7 +1293,7 @@ function setupActions(): void {
         handleAddRedirects();
         break;
       case 'retry':
-        refreshRedirects();
+        void refreshRedirects();
         break;
     }
   });
@@ -1352,13 +1352,13 @@ function setupBulkActions(): void {
         handleClearSelection();
         break;
       case 'bulk-sync':
-        handleBulkSync();
+        void handleBulkSync();
         break;
       case 'bulk-enable':
-        handleBulkEnable();
+        void handleBulkEnable();
         break;
       case 'bulk-disable':
-        handleBulkDisable();
+        void handleBulkDisable();
         break;
       case 'bulk-delete':
         handleBulkDelete();
@@ -1411,7 +1411,7 @@ function setupBulkActions(): void {
   // Handle single delete confirmation
   const confirmDeleteBtn = document.querySelector('[data-confirm-delete]');
   confirmDeleteBtn?.addEventListener('click', () => {
-    confirmDeleteRedirect();
+    void confirmDeleteRedirect();
   });
 }
 
@@ -1434,7 +1434,7 @@ function handleEdit(domainId: number): void {
   const domain = currentRedirects.find(r => r.domain_id === domainId);
   if (!domain) return;
 
-  openDrawer(domain);
+  void openDrawer(domain);
 }
 
 /**
@@ -1445,7 +1445,7 @@ function handleEditSite(domainId: number): void {
   if (!domain) return;
 
   // Open drawer showing site/acceptor info
-  openDrawer(domain);
+  void openDrawer(domain);
 }
 
 /**
@@ -1679,7 +1679,7 @@ function handleAddRedirect(domainId: number): void {
   const domain = currentRedirects.find(r => r.domain_id === domainId);
   if (!domain) return;
 
-  openDrawer(domain);
+  void openDrawer(domain);
 }
 
 /**

@@ -539,15 +539,15 @@ export function initSidebarNav(): void {
   });
 
   // Update counts when account ID becomes available
-  import('@state/auth-state').then(({ getAccountId, onAuthChange }) => {
+  void import('@state/auth-state').then(({ getAccountId, onAuthChange }) => {
     if (getAccountId()) {
       // Account ID already available
-      updateSidebarCounts();
+      void updateSidebarCounts();
     } else {
       // Wait for auth to load
       const unsubscribe = onAuthChange((state) => {
         if (state.accountId) {
-          updateSidebarCounts();
+          void updateSidebarCounts();
           unsubscribe();
         }
       });

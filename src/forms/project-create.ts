@@ -139,8 +139,8 @@ async function handleCreateProject(event: Event): Promise<void> {
     closeCreateProjectDrawer();
 
     // Update sidebar count badge
-    import('@ui/sidebar-nav').then(({ updateProjectsAndSitesCounts }) => {
-      updateProjectsAndSitesCounts();
+    void import('@ui/sidebar-nav').then(({ updateProjectsAndSitesCounts }) => {
+      void updateProjectsAndSitesCounts();
     });
 
     // Reload projects list if on list view

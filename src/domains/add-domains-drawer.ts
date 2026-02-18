@@ -87,7 +87,7 @@ export function initAddDomainsDrawer(): void {
       if (mutation.type === 'attributes' && mutation.attributeName === 'hidden') {
         const isOpen = !drawer.hasAttribute('hidden');
         if (isOpen && !integrationsLoaded) {
-          loadCloudflareIntegrations();
+          void loadCloudflareIntegrations();
           integrationsLoaded = true;
         }
       }
@@ -664,7 +664,7 @@ export function initAddDomainsDrawer(): void {
       btn.addEventListener('click', (e) => {
         const target = e.currentTarget as HTMLButtonElement;
         const ns = target.getAttribute('data-copy-single-ns') || '';
-        copySingleNameserver(ns, target);
+        void copySingleNameserver(ns, target);
       });
     });
 
@@ -673,7 +673,7 @@ export function initAddDomainsDrawer(): void {
       btn.addEventListener('click', (e) => {
         const target = e.currentTarget as HTMLButtonElement;
         const domains = target.getAttribute('data-copy-domains')?.split(',') || [];
-        copyDomainsList(domains, target);
+        void copyDomainsList(domains, target);
       });
     });
   }

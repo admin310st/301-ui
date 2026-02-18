@@ -75,7 +75,7 @@ export function initDrawer(): void {
   if (syncButton) {
     syncButton.addEventListener('click', () => {
       if (currentDomain) {
-        handleSync(currentDomain);
+        void handleSync(currentDomain);
       }
     });
   }
@@ -85,7 +85,7 @@ export function initDrawer(): void {
   if (saveButton) {
     saveButton.addEventListener('click', () => {
       if (currentDomain) {
-        handleSave(currentDomain);
+        void handleSave(currentDomain);
       }
     });
   }
@@ -95,7 +95,7 @@ export function initDrawer(): void {
   if (deleteButton) {
     deleteButton.addEventListener('click', () => {
       if (currentDomain) {
-        handleDelete(currentDomain);
+        void handleDelete(currentDomain);
       }
     });
   }

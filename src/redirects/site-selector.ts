@@ -430,7 +430,7 @@ export async function initSiteSelector(
       const button = target.closest('[data-action="select-project"]') as HTMLElement;
       if (button) {
         const projectId = Number(button.dataset.projectId);
-        handleProjectSelect(projectId);
+        void handleProjectSelect(projectId);
       }
     });
   }
@@ -445,7 +445,7 @@ export async function initSiteSelector(
       // Toggle all
       if (target.closest('[data-action="toggle-all-sites"]')) {
         e.preventDefault();
-        handleToggleAllSites();
+        void handleToggleAllSites();
         return;
       }
 
@@ -454,7 +454,7 @@ export async function initSiteSelector(
       if (siteButton) {
         e.preventDefault();
         const siteId = Number(siteButton.dataset.siteId);
-        handleSiteToggle(siteId);
+        void handleSiteToggle(siteId);
       }
     });
   }

@@ -6,6 +6,11 @@ export default tseslint.config(
   ...tseslint.configs.recommended,
   {
     files: ['src/**/*.ts'],
+    languageOptions: {
+      parserOptions: {
+        project: './tsconfig.json',
+      },
+    },
     rules: {
       // Only catch real bugs — no style enforcement
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
@@ -16,6 +21,7 @@ export default tseslint.config(
       'no-debugger': 'warn',
       'no-duplicate-case': 'error',
       'no-empty': 'warn',
+      '@typescript-eslint/no-floating-promises': 'error',
     },
   },
   {

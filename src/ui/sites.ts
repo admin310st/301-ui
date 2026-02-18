@@ -445,13 +445,13 @@ export function initSitesPage(): void {
   const accountId = getAccountId();
   if (accountId) {
     // Account ID already available (page reload case)
-    loadSites();
+    void loadSites();
   } else {
     // Wait for account ID to be loaded (fresh login case)
-    import('@state/auth-state').then(({ onAuthChange }) => {
+    void import('@state/auth-state').then(({ onAuthChange }) => {
       const unsubscribe = onAuthChange((state) => {
         if (state.accountId) {
-          loadSites();
+          void loadSites();
           unsubscribe(); // Only load once
         }
       });
