@@ -1,2478 +1,298 @@
-# TODO: Streams/TDS Page
+# TODO: Streams / TDS Page
 
-**Epic:** Traffic Distribution System UI - Complete implementation from welcome screen to rule editor
+**Layer 5** -- Traffic Distribution System UI
+**Status:** In progress (welcome card + empty state done)
+**Scope:** Frontend only -- mock data first, API integration later
 
-**Status:** 📋 Planned (Layer 5-6 in roadmap)
+**Related docs (do not duplicate here):**
+- `docs/301-wiki/TDS.md` -- TDS specification (SmartLink + SmartShield)
+- `docs/tds-backend-recommendations.md` -- Backend API contract (authoritative for endpoints)
+- `docs/mab-algorithms.md` -- MAB algorithm details (Thompson Sampling, UCB, Epsilon-Greedy)
+- `docs/mini-tds-analysis.md` -- mini-tds prototype analysis (reference only)
+- `docs/ui-roadmap.md` -- Layer 5 overview, entity model, stream detail tabs
 
-**Priority:** After Redirects, Projects, Sites
-
-**Target:** Полноценный UI для управления TDS правилами с онбордингом, таблицей, drawer-редактором и reorder UX
-
-**API Reference:**
-- [`docs/301-wiki/TDS.md`](docs/301-wiki/TDS.md) - Official TDS specification (SmartLink + SmartShield)
-- [`docs/tds-backend-recommendations.md`](docs/tds-backend-recommendations.md) - Backend API recommendations
-- [`docs/mini-tds-analysis.md`](docs/mini-tds-analysis.md) - mini-tds prototype analysis (reference only)
-
----
-
-## 🎯 Key Feature: Multi-Armed Bandits (MAB)
-
-**The 301.st TDS includes auto-optimizing A/B testing using Multi-Armed Bandit algorithms — a competitive advantage over traditional TDS systems.**
-
-### What Makes This Special?
-
-**Traditional A/B Testing (competitors):**
-- ❌ Fixed weights (50/50, 60/40) throughout the entire test
-- ❌ You lose conversions showing the worse variant
-- ❌ Manual analysis and weight adjustment required
-- ❌ Slow convergence to optimal solution
-
-**MAB A/B Testing (301.st TDS):**
-- ✅ **Auto-optimizing**: Algorithm dynamically redistributes traffic to better-performing variant
-- ✅ **Minimizes losses**: Less traffic to worse variant = higher overall conversions
-- ✅ **Faster convergence**: Reaches optimal distribution in hours, not weeks
-- ✅ **Real-time adaptation**: Adjusts to changes automatically (time of day, audience shifts)
-- ✅ **Multiple algorithms**: Thompson Sampling (recommended), UCB, Epsilon-Greedy
-
-### Business Impact
-
-**Example:**
-- Traditional A/B test: 50/50 split between Variant A (CR 8%) and Variant B (CR 6%)
-  - Overall CR: **7.0%** (you lose 1% showing the worse variant)
-
-- MAB test: Starts 50/50, converges to 70/30 after learning
-  - Overall CR: **7.4%** (minimized losses from worse variant)
-  - **Result: +5.7% revenue boost** from the same traffic
-
-### UI Implementation
-
-1. **Simple Toggle**: Choose "Redirect" (single target) or "A/B Test (MAB)" (multiple targets)
-2. **3 Algorithms**: Thompson Sampling (recommended), UCB (conservative), Epsilon-Greedy (simple)
-3. **Real-time Stats**: See current weights, conversions, estimated values for each variant
-4. **Performance Chart**: Visual feedback on optimization progress
-5. **One-Click Reset**: Restart test if conditions change
-
-### Marketing Angle
-
-**Positioning:**
-> "Unlike static A/B tests that waste your budget on losing variants, 301.st TDS uses ML-powered Multi-Armed Bandits to automatically optimize traffic distribution in real-time. Start seeing results in hours, not weeks."
-
-**Target audience:**
-- Affiliate marketers running aggressive split-tests
-- Performance marketers optimizing ROI
-- Teams tired of manual A/B test management
+**Current state:** `streams.html` has a welcome/onboarding card with 3-step flow (Shield, Rules, Publish) and an empty state. `src/streams/main.ts` has basic welcome card toggle logic. No rules table, drawer, or API integration yet.
 
 ---
 
-## Architecture Alignment
+## Terminology
 
-**Existing Patterns to Reuse:**
-- Table layout: `domains.html`, `redirects.html` (columns, sticky header, priority-based hiding)
-- Drawer pattern: `partials/connect-cloudflare-drawer.hbs`, domain inspector
-- Filter chips: domains filters (`src/domains/filters-ui.ts`)
-- Bulk actions: domains bulk actions bar
-- Design tokens: fluid layout tokens, spacing, shadows
-- Tabs component: Connect CF drawer tabs
-
-**New Patterns to Create:**
-- Context bar (sticky, project/site/domain selectors)
-- Pipeline strip (visual flow: Shield → Rules → Target)
-- Priority controls (up/down arrows + drag handle)
-- Draft/publish banner (sticky top notification)
-- Onboarding checklist card
+- **Position** (UI label) = `priority` (API/code field). Lower number executes first.
+- **SmartShield** = route by CF metadata (geo, device, bots, ASN, TLS)
+- **SmartLink** = route by UTM params and campaign tags
+- **MAB** = Multi-Armed Bandit auto-optimizing A/B test (Pro plan feature)
 
 ---
 
-## Milestone 1: Page Skeleton + Context Bar + Pipeline Strip
+## Phase 1: TypeScript Types + Mock Data
 
-### 1.1. Context Bar (Sticky Top)
+- [ ] Create `src/streams/types.ts` with TDS rule interfaces
+  - `RuleType`: `"smartlink" | "smartshield"`
+  - `SmartShieldMatch`: path, countries, devices, bots, asn, tls_version, ip_ranges
+  - `SmartLinkMatch`: utm_source, utm_campaign, utm_content, utm_medium, custom_params
+  - `RedirectAction`: url, status (301/302), preserveOriginalQuery, appendCountry, appendDevice
+  - `MABRedirectAction`: algorithm, targets (MABTarget[]), metric, min_sample_size, exploration_period
+  - `ResponseAction`: status, headers, bodyHtml, bodyText
+  - `TDSRule`: id, rule_type, enabled, priority, label, match, action, metadata
+- [ ] Create `src/streams/mock-data.ts` with 6-8 example rules covering:
+  - SmartShield geo+device redirect
+  - SmartShield MAB A/B test (with stats)
+  - SmartShield advanced filters (ASN, TLS)
+  - SmartLink UTM redirect
+  - SmartLink MAB A/B test
+  - SmartLink custom params
+  - Bot catch-all with response action
+- [ ] Create `src/streams/adapter.ts` -- convert API types to UI display types
 
-**Component:** `.tds-context-bar` (new)
+## Phase 2: Context Bar + Site Selector
 
-**Elements:**
-```html
-<div class="tds-context-bar">
-  <div class="tds-context-bar__selectors">
-    <!-- Project selector -->
-    <div class="dropdown" data-dropdown>
-      <button class="btn-chip">
-        <span class="icon" data-icon="mono/layers"></span>
-        <span>My Campaign</span>
-        <span class="icon" data-icon="mono/chevron-down"></span>
-      </button>
-    </div>
+Primary scope is **Site** (TDS rules have FK `site_id`). Domain selector is secondary (for entry URL / simulator).
 
-    <!-- Site selector -->
-    <div class="dropdown" data-dropdown>
-      <button class="btn-chip">
-        <span class="icon" data-icon="mono/landing"></span>
-        <span>landing.example.com</span>
-        <span class="icon" data-icon="mono/chevron-down"></span>
-      </button>
-    </div>
+- [ ] Add `.tds-context-bar` to `streams.html` (sticky, below utility bar)
+  - Project selector (dropdown, btn-chip)
+  - Site selector (dropdown, btn-chip) -- **primary scope**
+  - Acceptor domain selector (show only `role: acceptor` domains from selected site)
+  - Shield status badge
+  - TDS status badge
+  - Simulator button (placeholder)
+  - Publish button (disabled until draft changes exist)
+- [ ] Create `src/streams/context.ts`
+  - Load projects via `GET /projects`
+  - Load sites via `GET /projects/:id/sites`
+  - Load site domains, filter by `role: acceptor`
+  - Persist selected project/site in `ui-preferences`
+  - Reuse patterns from `src/redirects/site-selector.ts`
+- [ ] CSS: `.tds-context-bar` in `static/css/site.css`
+  - Sticky position, single-line desktop / 2-line mobile
+  - Spacing: `--space-3` between groups
 
-    <!-- Acceptor domain selector (TDS enabled) -->
-    <div class="dropdown" data-dropdown>
-      <button class="btn-chip">
-        <span class="icon" data-icon="mono/dns"></span>
-        <span>offer.example.com</span>
-        <span class="badge badge--sm badge--success">acceptor</span>
-        <span class="icon" data-icon="mono/chevron-down"></span>
-      </button>
-      <div class="dropdown__menu">
-        <button class="dropdown__item">
-          <div class="dropdown__item-content">
-            <strong>offer.example.com</strong>
-            <span class="badge badge--sm badge--success">acceptor</span>
-            <p class="text-sm text-muted">TDS active</p>
-          </div>
-        </button>
-        <button class="dropdown__item">
-          <div class="dropdown__item-content">
-            <strong>promo.example.com</strong>
-            <span class="badge badge--sm badge--success">acceptor</span>
-            <p class="text-sm text-muted">TDS active</p>
-          </div>
-        </button>
-      </div>
-    </div>
-  </div>
+## Phase 3: Rules Table
 
-  <div class="tds-context-bar__status">
-    <!-- Traffic Shield status -->
-    <span class="badge badge--success">
-      <span class="icon" data-icon="mono/shield-check"></span>
-      Shield: On
-    </span>
+Reuse `.table`, `.table-controls` patterns from domains/redirects.
 
-    <!-- TDS status -->
-    <span class="badge badge--info">
-      <span class="icon" data-icon="mono/directions-fork"></span>
-      TDS: Active
-    </span>
-  </div>
+### Toolbar
+- [ ] Search input (`.table-search`)
+- [ ] Filter chips: Type (SmartShield/SmartLink), Status (enabled/disabled), Country, Device
+- [ ] Actions: "Create rule" button, overflow menu (Validate all, Import, Export, Invalidate cache)
+- [ ] Reorder mode toggle button
 
-  <div class="tds-context-bar__actions">
-    <button class="btn-chip">
-      <span class="icon" data-icon="mono/flask"></span>
-      <span>Simulator</span>
-    </button>
+### Table columns
+| # | Column | Width | Notes |
+|---|--------|-------|-------|
+| 1 | Position | 80px | Number + up/down arrows + drag handle |
+| 2 | Type | 100px | Badge: Shield (blue) or Link (teal) |
+| 3 | When | fluid | Condition chips with "+N" overflow |
+| 4 | Then | fluid | Target URL + status code badge |
+| 5 | Enabled | 80px | Toggle switch |
+| 6 | Updated | 120px | Relative time |
+| 7 | Actions | 100px | Edit, duplicate, test, delete |
 
-    <button class="btn btn--primary" disabled>
-      <span class="icon" data-icon="mono/rocket"></span>
-      <span>Publish</span>
-    </button>
+- [ ] Create `src/streams/table.ts` -- render rules from mock data
+- [ ] Create `src/streams/filters.ts` -- client-side filtering
+- [ ] Create `src/streams/filters-config.ts` -- filter definitions
+- [ ] Create `src/streams/filters-ui.ts` -- filter chip rendering (pattern: `src/domains/filters-ui.ts`)
 
-    <div class="dropdown" data-dropdown>
-      <button class="btn-icon btn-icon--compact">
-        <span class="icon" data-icon="mono/dots-vertical"></span>
-      </button>
-    </div>
-  </div>
-</div>
-```
+### New CSS components
+- [ ] `.priority-control` -- vertical layout: up arrow, number, down arrow, drag handle
+- [ ] `.condition-chips` -- inline chip list with "+N" overflow badge
+- [ ] `.target-info` -- URL display + status code badge
+- [ ] `.toggle` -- iOS-style toggle switch (check if exists, reuse if so)
 
-**CSS Requirements:**
-- Sticky positioning (use existing `.utility-bar` pattern)
-- Single-line height (desktop), 2-line (mobile)
-- Spacing tokens: `--space-3` between groups
-- Use `.btn-chip` for selectors (existing component)
+### Empty state
+- [ ] "No rules yet" with CTA to create first rule (reuse `.empty-state`)
+- [ ] "No rules match filters" with "Clear filters" button (already in HTML)
 
-**Логика селекторов:**
+### Responsive
+- [ ] Hide "Updated" column below 768px
+- [ ] Hide "When" column below 600px (details visible in drawer)
 
-⚠️ **Primary scope: Site (не Domain!)**
-- TDS правила хранятся с FK `site_id`
-- **Site selector обязателен** - это основной контекст страницы
-- Правила применяются ко всем acceptor доменам сайта автоматически
+## Phase 4: Rule Drawer (Editor)
 
-**Selectors:**
-- **Project selector** - выбор проекта/кампании (группировка сайтов)
-- **Site selector** ⭐ - **PRIMARY SCOPE** - выбор сайта (к которому привязаны TDS правила)
-- **Acceptor domain selector** - **ВТОРИЧНЫЙ** - выбор домена для:
-  - Entry URL (копирование ссылки для трафика)
-  - Симулятора (тест запроса "as if it came to this domain")
-  - Отображения "Правила применяются к: offer.example.com, promo.example.com"
-  - Показываем ТОЛЬКО домены с `role: acceptor` из выбранного Site
-  - Donor/reserve домены НЕ показываем (у них нет TDS)
+Reuse drawer pattern from `partials/connect-cloudflare-drawer.hbs`.
 
-**Files:**
-- `static/css/site.css` - add `.tds-context-bar` styles
-- `streams.html` - HTML structure
-- `src/streams/context.ts` - селекторы + фильтрация acceptor доменов
+### Drawer shell
+- [ ] Create `partials/tds-rule-drawer.hbs`
+  - Header: title, enabled toggle, priority mini-control, close button
+  - Body: 3 tabs (When, Then, Advanced)
+  - Footer: Cancel, Save Draft, Save & Publish
+- [ ] Create `src/streams/drawer.ts` -- open/close, form state, dirty tracking
 
----
+### Tab: When (Conditions)
+- [ ] Catch-all toggle: "Match all traffic" checkbox (disables all condition fields)
+- [ ] Rule type selector: SmartShield / SmartLink (button group)
+- [ ] SmartShield fields (shown when type=smartshield):
+  - Path patterns (regex, repeatable list with add/remove)
+  - Countries (multi-select dropdown with checkboxes)
+  - Devices (chip group: Mobile, Desktop, Tablet)
+  - Bots (select: Any, Exclude bots, Bots only)
+  - Advanced (collapsible details): ASN, TLS version, IP ranges
+- [ ] SmartLink fields (shown when type=smartlink):
+  - UTM Source, Campaign, Content, Medium (text inputs)
+  - Custom parameters (repeatable key-value pairs with add/remove)
 
-### 1.2. Pipeline Strip
+### Tab: Then (Action)
+- [ ] Action type selector: Redirect / A/B Test (MAB) / Response
+- [ ] Redirect fields:
+  - Target URL input
+  - Status code dropdown (301, 302, 307)
+  - Preserve query string checkbox
+  - Advanced (collapsible): append country, append device
+- [ ] MAB Redirect fields (Pro plan gated):
+  - Variant cards (2+ required): label + URL + read-only stats (weight, conversions, estimated value)
+  - "Add variant" button
+  - Algorithm dropdown: Thompson Sampling (recommended), UCB, Epsilon-Greedy
+  - Target metric: CR, RPU, CTR
+  - Advanced: min sample size, exploration period, epsilon (for e-greedy), confidence (for UCB)
+  - Performance chart placeholder (for existing rules)
+  - Reset statistics button
+- [ ] Response fields:
+  - Status code input
+  - Body type selector: HTML / Text-JSON
+  - Response body textarea
+  - Custom headers (collapsible, repeatable key-value)
 
-**Component:** `.tds-pipeline` (new)
+### Tab: Advanced
+- [ ] Read-only JSON preview of rule configuration
+- [ ] Validate button (`POST /api/sites/:siteId/tds/rules/validate`)
+- [ ] Metadata display: ETag, last updated timestamp
 
-**Elements:**
-```html
-<div class="tds-pipeline">
-  <button class="tds-pipeline__segment" data-segment="shield">
-    <span class="tds-pipeline__icon">
-      <span class="icon" data-icon="mono/shield-check"></span>
-    </span>
-    <div class="tds-pipeline__content">
-      <span class="tds-pipeline__label">Traffic Shield</span>
-      <span class="badge badge--sm badge--success">On</span>
-    </div>
-  </button>
+### Unsaved changes guard
+- [ ] Track dirty state on form input events
+- [ ] Show confirmation dialog on close when dirty (reuse `.dialog` pattern)
 
-  <span class="tds-pipeline__arrow">
-    <span class="icon" data-icon="mono/arrow-right"></span>
-  </span>
+## Phase 5: Reorder / Priority Controls
 
-  <button class="tds-pipeline__segment is-active" data-segment="rules">
-    <span class="tds-pipeline__icon">
-      <span class="icon" data-icon="mono/directions-fork"></span>
-    </span>
-    <div class="tds-pipeline__content">
-      <span class="tds-pipeline__label">TDS Rules</span>
-      <span class="badge badge--sm badge--info">12 rules</span>
-    </div>
-  </button>
+- [ ] Create `src/streams/priority.ts`
+  - Move up/down logic with array swap
+  - Undo toast after position change (extend `src/ui/notifications.ts`)
+  - Sync position display in both table and drawer
+- [ ] Reorder mode toggle:
+  - Show drag handles, highlight priority column
+  - Optional: add "Move to top", "Move to bottom", "Set position..." to row context menu
+- [ ] Optional: drag-and-drop via SortableJS (`src/streams/drag.ts`)
+  - If added, update `package.json`
+  - Reorder via drag handle `[data-drag-handle]`
 
-  <span class="tds-pipeline__arrow">
-    <span class="icon" data-icon="mono/arrow-right"></span>
-  </span>
+## Phase 6: Draft / Publish Workflow
 
-  <button class="tds-pipeline__segment" data-segment="targets">
-    <span class="tds-pipeline__icon">
-      <span class="icon" data-icon="mono/target"></span>
-    </span>
-    <div class="tds-pipeline__content">
-      <span class="tds-pipeline__label">Targets/Origin</span>
-      <span class="badge badge--sm">8 targets</span>
-    </div>
-  </button>
-</div>
-```
+- [ ] Create `src/streams/draft.ts`
+  - Track changes: create, update, delete, reorder
+  - `draftChanges[]` array with type, ruleId, timestamp
+- [ ] Draft banner (`.draft-banner`):
+  - Sticky below context bar
+  - Shows change summary ("3 rules modified, 1 reordered")
+  - Discard button, Publish button
+  - Hidden when no pending changes
+- [ ] Publish action: `POST /api/sites/:siteId/tds/publish` (mock for now)
+- [ ] Discard action: reset to last published state
 
-**Design:**
-- Horizontal layout with arrows between segments
-- Each segment clickable (CTA placeholder)
-- Mobile: stack vertically or horizontal scroll
-- Use existing badge system
+## Phase 7: API Integration
 
-**Files:**
-- `static/css/site.css` - add `.tds-pipeline` styles
+**Production API base path:** `/api/sites/:siteId/tds/...` (site-scoped)
 
----
+Do NOT code against mini-tds endpoints. Use mock data until backend implements the spec.
 
-## Milestone 2: Welcome / Getting Started
+### Endpoints to integrate
 
-### 2.1. Welcome Hero Card + Checklist
+| Method | Endpoint | Purpose |
+|--------|----------|---------|
+| GET | `/api/sites/:siteId/tds/rules` | List all rules for site |
+| GET | `/api/sites/:siteId/tds/rules/:id` | Get single rule |
+| POST | `/api/sites/:siteId/tds/rules` | Create rule |
+| PATCH | `/api/sites/:siteId/tds/rules/:id` | Update rule |
+| DELETE | `/api/sites/:siteId/tds/rules/:id` | Delete rule |
+| POST | `/api/sites/:siteId/tds/rules/validate` | Validate rules |
+| POST | `/api/sites/:siteId/tds/rules/reorder` | Batch reorder |
+| POST | `/api/sites/:siteId/tds/publish` | Publish draft to KV |
 
-**Component:** Reuse `.card.card--panel` pattern
+### Integration tasks
+- [ ] Create `src/api/tds.ts` with typed API functions
+- [ ] All calls use `safeCall()` with appropriate `lockKey` / `abortKey`
+- [ ] ETag-based optimistic locking (`If-Match` header on PUT/PATCH)
+- [ ] Cache invalidation after mutations
+- [ ] Replace mock data with real API responses
+- [ ] Error handling: 409 conflict (ETag mismatch), 412 precondition failed
 
-**Conditions to Show:**
-```typescript
-const showWelcome = !entryDomain || rulesCount === 0 || isReadOnly;
-```
+## Phase 8: Polish + i18n
 
-**Structure:**
-```html
-<section class="card card--panel card--accent card--accent-info">
-  <header class="card__header">
-    <h2 class="card__title">Traffic Routing (TDS)</h2>
-    <p class="text-muted">
-      Traffic first passes Traffic Shield for bot filtering, then TDS rules
-      route visitors to different targets based on GEO, device, and other conditions.
-    </p>
-  </header>
-
-  <div class="card__body stack">
-    <!-- Mini pipeline (compact version) -->
-    <div class="tds-pipeline tds-pipeline--compact">
-      <!-- Same structure, smaller -->
-    </div>
-
-    <!-- Checklist -->
-    <ol class="list--ruled">
-      <li class="checklist-item">
-        <span class="icon checklist-item__icon" data-icon="mono/circle"></span>
-        <div class="checklist-item__content">
-          <strong>Attach entry domain</strong>
-          <p class="text-sm text-muted">Choose domain for TDS routing</p>
-        </div>
-        <button class="btn btn--sm btn--primary">Select domain</button>
-      </li>
-
-      <li class="checklist-item">
-        <span class="icon checklist-item__icon" data-icon="mono/circle"></span>
-        <div class="checklist-item__content">
-          <strong>Configure Traffic Shield</strong>
-          <p class="text-sm text-muted">Set up bot filtering and security rules</p>
-        </div>
-        <button class="btn btn--sm btn--ghost">Open Traffic Shield</button>
-      </li>
-
-      <!-- ... 3 more items ... -->
-    </ol>
-  </div>
-</section>
-```
-
-**CSS Requirements:**
-- `.checklist-item` - flex layout with icon, content, action
-- Use existing `.list--ruled` base styles
-- Spacing tokens: `--space-3` between items
-
-**Files:**
-- `streams.html` - HTML structure
-- `static/css/site.css` - `.checklist-item` styles
-- `src/streams/onboarding.ts` - show/hide logic
+- [ ] Add i18n keys to `src/i18n/locales/en.ts` and `ru.ts`:
+  - `streams.title`, `streams.subtitle`
+  - `streams.empty.*` (title, description, cta)
+  - `streams.table.columns.*` (position, type, when, then, enabled, updated, actions)
+  - `streams.drawer.*` (tabs, fields, buttons)
+  - `streams.draft.*` (banner text, discard, publish)
+  - `streams.welcome.*` (checklist items)
+- [ ] Apply `data-i18n` attributes to all visible text in `streams.html`
+- [ ] Accessibility audit:
+  - `role="tablist"` / `role="tab"` / `role="tabpanel"` on drawer tabs
+  - `aria-label` on icon-only buttons
+  - `aria-expanded` on dropdowns
+  - `aria-live="polite"` on toast and draft banner
+  - Keyboard: Tab, Arrow keys for tabs, Enter/Space, Escape
+- [ ] Mobile responsive testing (context bar, table, drawer)
+- [ ] Run `/uix` style guide compliance check
 
 ---
 
-### 2.2. Compact Status Panel
+## File Structure
 
-**Component:** `.tds-status-panel` (collapsed state)
-
-**Show when:** `rulesCount > 0 && !showFullChecklist`
-
-```html
-<div class="tds-status-panel">
-  <div class="tds-pipeline tds-pipeline--mini">
-    <!-- Compact pipeline -->
-  </div>
-
-  <div class="tds-status-panel__chips">
-    <span class="badge badge--success">Shield: On</span>
-    <span class="badge">12 rules</span>
-    <span class="badge badge--warning">3 draft changes</span>
-  </div>
-
-  <button class="btn-chip btn-chip--sm" data-action="toggle-checklist">
-    <span class="icon" data-icon="mono/help-circle"></span>
-    <span>Show checklist</span>
-  </button>
-</div>
 ```
-
----
-
-## Milestone 3: Rules Table
-
-### 3.1. Rules Toolbar
-
-**Component:** Reuse `.table-controls` pattern from domains/redirects
-
-**Structure:**
-```html
-<div class="table-controls">
-  <!-- Search -->
-  <div class="table-search">
-    <span class="icon" data-icon="mono/magnify"></span>
-    <input type="search" placeholder="Search rules..." />
-  </div>
-
-  <!-- Filter chips -->
-  <div class="filter-chips">
-    <!-- NEW: Rule Type filter -->
-    <div class="dropdown filter-chip" data-dropdown>
-      <button class="btn-chip btn-chip--sm">
-        <span class="icon" data-icon="mono/filter"></span>
-        <span>Type: All</span>
-        <span class="icon" data-icon="mono/chevron-down"></span>
-      </button>
-      <div class="dropdown__menu">
-        <button class="dropdown__item" data-filter-value="all">All types</button>
-        <button class="dropdown__item" data-filter-value="smartshield">
-          <span class="icon" data-icon="mono/shield"></span>
-          <span>SmartShield</span>
-        </button>
-        <button class="dropdown__item" data-filter-value="smartlink">
-          <span class="icon" data-icon="mono/link"></span>
-          <span>SmartLink</span>
-        </button>
-      </div>
-    </div>
-
-    <div class="dropdown filter-chip" data-dropdown>
-      <button class="btn-chip btn-chip--sm">
-        <span>Status: All</span>
-        <span class="icon" data-icon="mono/chevron-down"></span>
-      </button>
-      <!-- Dropdown menu -->
-    </div>
-
-    <div class="dropdown filter-chip" data-dropdown>
-      <button class="btn-chip btn-chip--sm">
-        <span>Country: All</span>
-        <span class="badge badge--sm">0</span>
-        <span class="icon" data-icon="mono/chevron-down"></span>
-      </button>
-    </div>
-
-    <div class="dropdown filter-chip" data-dropdown>
-      <button class="btn-chip btn-chip--sm">
-        <span>Device: All</span>
-        <span class="icon" data-icon="mono/chevron-down"></span>
-      </button>
-    </div>
-  </div>
-
-  <!-- Actions -->
-  <div class="table-actions">
-    <button class="btn btn--primary">
-      <span class="icon" data-icon="mono/plus"></span>
-      <span>Create rule</span>
-    </button>
-
-    <div class="dropdown" data-dropdown>
-      <button class="btn-icon">
-        <span class="icon" data-icon="mono/dots-vertical"></span>
-      </button>
-      <div class="dropdown__menu dropdown__menu--right">
-        <button class="dropdown__item">
-          <span class="icon" data-icon="mono/check-circle"></span>
-          <span>Validate all</span>
-        </button>
-        <button class="dropdown__item">
-          <span class="icon" data-icon="mono/download"></span>
-          <span>Import rules</span>
-        </button>
-        <button class="dropdown__item">
-          <span class="icon" data-icon="mono/upload"></span>
-          <span>Export rules</span>
-        </button>
-        <hr class="dropdown__divider" />
-        <button class="dropdown__item">
-          <span class="icon" data-icon="mono/refresh"></span>
-          <span>Invalidate cache</span>
-        </button>
-      </div>
-    </div>
-
-    <button class="btn btn--ghost" data-action="toggle-reorder">
-      <span class="icon" data-icon="mono/drag-vertical"></span>
-      <span>Reorder</span>
-    </button>
-  </div>
-</div>
-```
-
-**Pattern Reference:** `src/domains/filters-ui.ts`
-
----
-
-### 3.2. Rules Table
-
-**Component:** Reuse `.table` pattern with custom columns
-
-**Columns:**
-1. **Position** (80px) - number + up/down + drag handle
-2. **Type** (100px) - SmartLink or SmartShield badge
-3. **When** (fluid) - chips summary of conditions
-4. **Then** (fluid) - target + status
-5. **Enabled** (80px) - toggle switch
-6. **Updated** (120px) - relative time
-7. **Actions** (100px) - edit/duplicate/delete
-
-**Note:** "Position" in UI = execution order (lower number = higher priority). In API/storage, this is stored as `priority` field.
-
-**Structure:**
-```html
-<div class="table-wrapper">
-  <table class="table">
-    <thead>
-      <tr>
-        <th class="th-priority">Position</th>
-        <th class="th-type">Type</th>
-        <th>When</th>
-        <th>Then</th>
-        <th class="th-center">Enabled</th>
-        <th class="th-updated">Updated</th>
-        <th class="th-actions">Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <!-- SmartShield rule -->
-      <tr class="table-row" data-rule-id="1" data-rule-type="smartshield">
-        <!-- Position cell -->
-        <td class="td-priority">
-          <div class="priority-control">
-            <button class="priority-control__btn" data-action="move-up" title="Move up">
-              <span class="icon" data-icon="mono/chevron-up"></span>
-            </button>
-            <span class="priority-control__number">1</span>
-            <button class="priority-control__btn" data-action="move-down" title="Move down">
-              <span class="icon" data-icon="mono/chevron-down"></span>
-            </button>
-            <button class="priority-control__handle" data-drag-handle title="Drag to reorder">
-              <span class="icon" data-icon="mono/drag-vertical"></span>
-            </button>
-          </div>
-        </td>
-
-        <!-- Type cell -->
-        <td class="td-type">
-          <span class="badge badge--sm badge--primary">
-            <span class="icon" data-icon="mono/shield"></span>
-            <span>Shield</span>
-          </span>
-        </td>
-
-        <!-- When cell (SmartShield conditions) -->
-        <td class="td-when">
-          <div class="condition-chips">
-            <span class="badge badge--sm">
-              <span class="icon" data-icon="mono/flag"></span>
-              RU, BY
-            </span>
-            <span class="badge badge--sm">
-              <span class="icon" data-icon="mono/devices"></span>
-              Mobile
-            </span>
-            <span class="badge badge--sm">
-              <span class="icon" data-icon="mono/link"></span>
-              /offer/*
-            </span>
-          </div>
-        </td>
-
-        <!-- Then cell -->
-        <td class="td-then">
-          <div class="target-info">
-            <span class="target-info__url">https://offer1.example.com</span>
-            <span class="badge badge--sm badge--success">301</span>
-          </div>
-        </td>
-
-        <!-- Enabled cell -->
-        <td class="td-center">
-          <label class="toggle">
-            <input type="checkbox" checked />
-            <span class="toggle__slider"></span>
-          </label>
-        </td>
-
-        <!-- Updated cell -->
-        <td class="td-updated">
-          <time datetime="2025-12-24">2 hours ago</time>
-        </td>
-
-        <!-- Actions cell -->
-        <td class="td-actions">
-          <div class="btn-group">
-            <button class="btn-icon btn-icon--compact" data-action="edit" title="Edit rule">
-              <span class="icon" data-icon="mono/pencil"></span>
-            </button>
-            <div class="dropdown" data-dropdown>
-              <button class="btn-icon btn-icon--compact">
-                <span class="icon" data-icon="mono/dots-vertical"></span>
-              </button>
-              <div class="dropdown__menu dropdown__menu--right">
-                <button class="dropdown__item">
-                  <span class="icon" data-icon="mono/content-copy"></span>
-                  <span>Duplicate</span>
-                </button>
-                <button class="dropdown__item">
-                  <span class="icon" data-icon="mono/flask"></span>
-                  <span>Test in simulator</span>
-                </button>
-                <hr class="dropdown__divider" />
-                <button class="dropdown__item text-danger">
-                  <span class="icon" data-icon="mono/delete"></span>
-                  <span>Delete</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </td>
-      </tr>
-
-      <!-- SmartLink rule -->
-      <tr class="table-row" data-rule-id="2" data-rule-type="smartlink">
-        <td class="td-priority">
-          <div class="priority-control">
-            <button class="priority-control__btn" data-action="move-up">
-              <span class="icon" data-icon="mono/chevron-up"></span>
-            </button>
-            <span class="priority-control__number">2</span>
-            <button class="priority-control__btn" data-action="move-down">
-              <span class="icon" data-icon="mono/chevron-down"></span>
-            </button>
-            <button class="priority-control__handle" data-drag-handle>
-              <span class="icon" data-icon="mono/drag-vertical"></span>
-            </button>
-          </div>
-        </td>
-
-        <!-- Type cell -->
-        <td class="td-type">
-          <span class="badge badge--sm badge--info">
-            <span class="icon" data-icon="mono/link"></span>
-            <span>Link</span>
-          </span>
-        </td>
-
-        <!-- When cell (SmartLink conditions) -->
-        <td class="td-when">
-          <div class="condition-chips">
-            <span class="badge badge--sm">
-              <span class="icon" data-icon="mono/tag"></span>
-              utm_source=fb
-            </span>
-            <span class="badge badge--sm">
-              <span class="icon" data-icon="mono/tag"></span>
-              utm_campaign=summer
-            </span>
-          </div>
-        </td>
-
-        <!-- Then cell -->
-        <td class="td-then">
-          <div class="target-info">
-            <span class="target-info__url">https://offer2.example.com/fb-summer</span>
-            <span class="badge badge--sm badge--success">302</span>
-          </div>
-        </td>
-
-        <td class="td-center">
-          <label class="toggle">
-            <input type="checkbox" checked />
-            <span class="toggle__slider"></span>
-          </label>
-        </td>
-
-        <td class="td-updated">
-          <time datetime="2025-12-24">1 day ago</time>
-        </td>
-
-        <td class="td-actions">
-          <div class="btn-group">
-            <button class="btn-icon btn-icon--compact" data-action="edit">
-              <span class="icon" data-icon="mono/pencil"></span>
-            </button>
-            <div class="dropdown" data-dropdown>
-              <button class="btn-icon btn-icon--compact">
-                <span class="icon" data-icon="mono/dots-vertical"></span>
-              </button>
-              <div class="dropdown__menu dropdown__menu--right">
-                <button class="dropdown__item">
-                  <span class="icon" data-icon="mono/content-copy"></span>
-                  <span>Duplicate</span>
-                </button>
-                <button class="dropdown__item">
-                  <span class="icon" data-icon="mono/flask"></span>
-                  <span>Test in simulator</span>
-                </button>
-                <hr class="dropdown__divider" />
-                <button class="dropdown__item text-danger">
-                  <span class="icon" data-icon="mono/delete"></span>
-                  <span>Delete</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-```
-
-**New Components:**
-- `.priority-control` - vertical layout with up/down/number/drag
-- `.condition-chips` - chips container with "+N" overflow
-- `.target-info` - URL + status badge
-- `.toggle` - iOS-style toggle switch (reuse if exists)
-- `.badge--primary` - blue badge for SmartShield type
-- `.badge--info` - purple/teal badge for SmartLink type
-
-**CSS Requirements:**
-- Sticky header
-- Uniform row height
-- Compact chip display with "+N" overflow
-- Priority column always visible (high priority in responsive)
-
-**Files:**
-- `streams.html`
-- `src/streams/table.ts`
-- `static/css/site.css` - `.priority-control`, `.condition-chips`, `.target-info`
-
----
-
-### 3.3. Empty State
-
-**Show when:** `rulesCount === 0`
-
-```html
-<div class="empty-state">
-  <span class="empty-state__icon">
-    <span class="icon icon--lg" data-icon="mono/directions-fork"></span>
-  </span>
-  <h3 class="empty-state__title">No rules yet</h3>
-  <p class="empty-state__description">
-    Create your first TDS rule to start routing traffic based on conditions.
-  </p>
-  <button class="btn btn--primary">
-    <span class="icon" data-icon="mono/plus"></span>
-    <span>Create your first rule</span>
-  </button>
-</div>
-```
-
-**Pattern Reference:** Existing `.empty-state` component
-
----
-
-## Milestone 4: Rule Drawer (Editor)
-
-### 4.1. Drawer Shell
-
-**Component:** Reuse drawer pattern from `partials/connect-cloudflare-drawer.hbs`
-
-**Structure:**
-```html
-<aside class="drawer" data-drawer="rule-editor" hidden>
-  <div class="drawer__overlay" data-drawer-close></div>
-  <div class="drawer__panel drawer__panel--wide">
-    <!-- Header -->
-    <header class="drawer__header">
-      <div class="drawer__title">
-        <span class="icon" data-icon="mono/directions-fork"></span>
-        <h2 class="h4">Edit Rule: Mobile US Traffic</h2>
-      </div>
-
-      <div class="drawer__header-controls">
-        <!-- Enabled toggle -->
-        <label class="toggle" title="Enable/disable rule">
-          <input type="checkbox" checked />
-          <span class="toggle__slider"></span>
-        </label>
-
-        <!-- Priority mini-control -->
-        <div class="priority-mini">
-          <button class="btn-icon btn-icon--compact" data-action="priority-up">
-            <span class="icon" data-icon="mono/chevron-up"></span>
-          </button>
-          <span class="priority-mini__number">3</span>
-          <button class="btn-icon btn-icon--compact" data-action="priority-down">
-            <span class="icon" data-icon="mono/chevron-down"></span>
-          </button>
-        </div>
-
-        <button class="btn-close" type="button" data-drawer-close>
-          <span class="icon" data-icon="mono/close"></span>
-        </button>
-      </div>
-    </header>
-
-    <!-- Body with tabs -->
-    <div class="drawer__body">
-      <div class="tabs">
-        <!-- Tabs navigation -->
-        <div class="tabs__nav" role="tablist">
-          <button class="tabs__trigger is-active" data-tab-trigger="when">
-            <span class="icon" data-icon="mono/filter"></span>
-            <span>When</span>
-          </button>
-          <button class="tabs__trigger" data-tab-trigger="then">
-            <span class="icon" data-icon="mono/arrow-right"></span>
-            <span>Then</span>
-          </button>
-          <button class="tabs__trigger" data-tab-trigger="advanced">
-            <span class="icon" data-icon="mono/code"></span>
-            <span>Advanced</span>
-          </button>
-        </div>
-
-        <!-- Tab panels -->
-        <div class="tabs__panels">
-          <!-- When panel -->
-          <div class="tabs__panel is-active" data-tab-panel="when">
-            <!-- Conditions form - see 4.2 -->
-          </div>
-
-          <!-- Then panel -->
-          <div class="tabs__panel" data-tab-panel="then">
-            <!-- Action form - see 4.3 -->
-          </div>
-
-          <!-- Advanced panel -->
-          <div class="tabs__panel" data-tab-panel="advanced">
-            <!-- JSON preview - see 4.4 -->
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Footer -->
-    <footer class="drawer__footer">
-      <button class="btn btn--ghost" type="button" data-drawer-close>Cancel</button>
-      <button class="btn btn--ghost" type="button" data-action="save-draft">Save draft</button>
-      <button class="btn btn--primary" type="button" data-action="save-publish" disabled>
-        <span class="icon" data-icon="mono/rocket"></span>
-        <span>Save & publish</span>
-      </button>
-    </footer>
-  </div>
-</aside>
-```
-
-**Pattern Reference:** `partials/connect-cloudflare-drawer.hbs`, `src/ui/tabs.ts`
-
----
-
-### 4.2. Drawer Tab: When (Conditions)
-
-**Form Structure:**
-```html
-<form class="stack-list" data-form="rule-conditions">
-  <!-- Catch-all toggle -->
-  <div class="field">
-    <label class="checkbox">
-      <input type="checkbox" data-match-all-traffic />
-      <span class="checkbox__label"><strong>Match all traffic (Catch-all)</strong></span>
-    </label>
-    <p class="field__hint text-muted">
-      When enabled, this rule will match ANY request (no conditions required).
-      Useful for fallback/default actions. Will be displayed as "ANY" in table.
-    </p>
-  </div>
-
-  <!-- Conditions wrapper (disabled when match-all is checked) -->
-  <div data-conditions-wrapper>
-    <!-- Rule Type Selector -->
-    <div class="field">
-      <label class="field__label">Rule Type</label>
-      <div class="btn-group btn-group--full" role="group" data-rule-type-selector>
-        <button type="button" class="btn btn--ghost is-active" data-rule-type="smartshield">
-          <span class="icon" data-icon="mono/shield"></span>
-          <span>SmartShield</span>
-        </button>
-        <button type="button" class="btn btn--ghost" data-rule-type="smartlink">
-          <span class="icon" data-icon="mono/link"></span>
-          <span>SmartLink</span>
-        </button>
-      </div>
-      <p class="field__hint text-muted">
-        <strong>SmartShield:</strong> Route by geo, device, bots (CF metadata).
-        <strong>SmartLink:</strong> Route by UTM params, campaign tags.
-      </p>
-    </div>
-
-  <!-- SmartShield Conditions (shown when type=smartshield) -->
-  <div data-rule-type-fields="smartshield">
-    <!-- Path patterns -->
-    <div class="field">
-      <label class="field__label">Path patterns (optional)</label>
-      <div class="field__input-group">
-        <input type="text" class="input" placeholder="^/casino/([^/?#]+)" />
-        <button class="btn-icon" type="button" data-action="add-pattern">
-          <span class="icon" data-icon="mono/plus"></span>
-        </button>
-      </div>
-      <p class="field__hint text-muted">
-        Regex patterns. Leave empty to match all paths.
-      </p>
-      <ul class="pattern-list">
-        <li class="pattern-list__item">
-          <span class="pattern-list__text">^/casino/([^/?#]+)</span>
-          <button class="btn-icon btn-icon--compact" data-action="remove-pattern">
-            <span class="icon" data-icon="mono/close"></span>
-          </button>
-        </li>
-      </ul>
-    </div>
-
-    <!-- Countries -->
-    <div class="field">
-      <label class="field__label">Countries (optional)</label>
-      <div class="dropdown" data-dropdown>
-        <button class="btn-chip" type="button">
-          <span class="icon" data-icon="mono/flag"></span>
-          <span>Select countries</span>
-          <span class="badge badge--sm">2</span>
-          <span class="icon" data-icon="mono/chevron-down"></span>
-        </button>
-        <div class="dropdown__menu dropdown__menu--wide">
-          <label class="dropdown__item dropdown__item--checkbox">
-            <input type="checkbox" value="RU" checked />
-            <span class="icon" data-icon="mono/check"></span>
-            <span>🇷🇺 Russia (RU)</span>
-          </label>
-          <label class="dropdown__item dropdown__item--checkbox">
-            <input type="checkbox" value="BY" checked />
-            <span class="icon" data-icon="mono/check"></span>
-            <span>🇧🇾 Belarus (BY)</span>
-          </label>
-          <!-- ... more countries ... -->
-        </div>
-      </div>
-      <p class="field__hint text-muted">
-        Leave empty to match all countries.
-      </p>
-    </div>
-
-    <!-- Devices -->
-    <div class="field">
-      <label class="field__label">Devices (optional)</label>
-      <div class="chip-group">
-        <label class="chip-group__item">
-          <input type="checkbox" value="mobile" checked />
-          <span class="chip-group__label">
-            <span class="icon" data-icon="mono/cellphone"></span>
-            <span>Mobile</span>
-          </span>
-        </label>
-        <label class="chip-group__item">
-          <input type="checkbox" value="desktop" />
-          <span class="chip-group__label">
-            <span class="icon" data-icon="mono/monitor"></span>
-            <span>Desktop</span>
-          </span>
-        </label>
-        <label class="chip-group__item">
-          <input type="checkbox" value="tablet" />
-          <span class="chip-group__label">
-            <span class="icon" data-icon="mono/tablet"></span>
-            <span>Tablet</span>
-          </span>
-        </label>
-      </div>
-    </div>
-
-    <!-- Bots -->
-    <div class="field">
-      <label class="field__label">Bots</label>
-      <select class="select">
-        <option value="">Any (include bots and humans)</option>
-        <option value="false" selected>Exclude bots</option>
-        <option value="true">Bots only</option>
-      </select>
-      <p class="field__hint text-muted">
-        Filter by bot detection (Googlebot, YandexBot, etc.)
-      </p>
-    </div>
-
-    <!-- Advanced: ASN (NEW) -->
-    <details class="field__details">
-      <summary class="field__details-summary">Advanced conditions</summary>
-      <div class="stack-list stack-list--sm">
-        <div class="field">
-          <label class="field__label">ASN (optional)</label>
-          <input type="text" class="input" placeholder="12389, 8359" />
-          <p class="field__hint text-muted">
-            AS numbers (comma-separated). Example: 12389 (MTS), 8359 (Beeline)
-          </p>
-        </div>
-
-        <div class="field">
-          <label class="field__label">TLS Version (optional)</label>
-          <div class="chip-group">
-            <label class="chip-group__item">
-              <input type="checkbox" value="1.2" />
-              <span class="chip-group__label">TLS 1.2</span>
-            </label>
-            <label class="chip-group__item">
-              <input type="checkbox" value="1.3" />
-              <span class="chip-group__label">TLS 1.3</span>
-            </label>
-          </div>
-        </div>
-
-        <div class="field">
-          <label class="field__label">IP Ranges (optional)</label>
-          <input type="text" class="input" placeholder="203.0.113.0/24" />
-          <p class="field__hint text-muted">
-            CIDR notation, comma-separated
-          </p>
-        </div>
-      </div>
-    </details>
-  </div>
-
-  <!-- SmartLink Conditions (shown when type=smartlink) -->
-  <div data-rule-type-fields="smartlink" hidden>
-    <div class="field">
-      <label class="field__label">UTM Source</label>
-      <input type="text" class="input" placeholder="facebook, fb, instagram" />
-      <p class="field__hint text-muted">
-        Comma-separated values. Example: facebook, fb
-      </p>
-    </div>
-
-    <div class="field">
-      <label class="field__label">UTM Campaign (optional)</label>
-      <input type="text" class="input" placeholder="summer2025" />
-    </div>
-
-    <div class="field">
-      <label class="field__label">UTM Content (optional)</label>
-      <input type="text" class="input" placeholder="banner1, video2" />
-    </div>
-
-    <div class="field">
-      <label class="field__label">UTM Medium (optional)</label>
-      <input type="text" class="input" placeholder="cpc, social" />
-    </div>
-
-    <!-- Custom Parameters -->
-    <details class="field__details">
-      <summary class="field__details-summary">Custom parameters</summary>
-      <div class="stack-list stack-list--sm">
-        <div class="field">
-          <label class="field__label">Parameter name</label>
-          <div class="cluster cluster--sm">
-            <input type="text" class="input" placeholder="sub1" style="flex: 1;" />
-            <input type="text" class="input" placeholder="value" style="flex: 1;" />
-            <button class="btn btn--ghost btn--sm" type="button">Remove</button>
-          </div>
-        </div>
-        <button class="btn btn--ghost btn--sm" type="button">
-          <span class="icon" data-icon="mono/plus"></span>
-          <span>Add parameter</span>
-        </button>
-      </div>
-    </details>
-  </div>
-  <!-- End conditions wrapper -->
-  </div>
-</form>
-```
-
-**JavaScript Logic:**
-```typescript
-// src/streams/drawer.ts
-const matchAllCheckbox = document.querySelector('[data-match-all-traffic]') as HTMLInputElement;
-const conditionsWrapper = document.querySelector('[data-conditions-wrapper]') as HTMLElement;
-
-matchAllCheckbox.addEventListener('change', () => {
-  if (matchAllCheckbox.checked) {
-    // Disable all condition fields
-    conditionsWrapper.querySelectorAll('input, select, button').forEach(el => {
-      (el as HTMLInputElement).disabled = true;
-    });
-    conditionsWrapper.style.opacity = '0.5';
-    conditionsWrapper.style.pointerEvents = 'none';
-  } else {
-    // Re-enable condition fields
-    conditionsWrapper.querySelectorAll('input, select, button').forEach(el => {
-      (el as HTMLInputElement).disabled = false;
-    });
-    conditionsWrapper.style.opacity = '1';
-    conditionsWrapper.style.pointerEvents = 'auto';
-  }
-});
-```
-
-**New Components:**
-- `.pattern-list` - list of removable items
-- `.dropdown__item--checkbox` - checkbox item in dropdown
-- `.btn-group--full` - full-width button group for rule type selector
-- `.chip-group` - checkbox group styled as chips
-- `.field__details` - collapsible details element for advanced fields
-
-**Pattern Reference:** Existing form components, `.field`, `.btn-chip-group`
-
-**JavaScript Logic:**
-- Toggle visibility of `[data-rule-type-fields]` based on selected rule type
-- SmartShield: show geo, device, bots, path, ASN, TLS, IP fields
-- SmartLink: show UTM params, custom params fields
-
----
-
-### 4.3. Drawer Tab: Then (Action)
-
-**Form Structure:**
-```html
-<form class="stack-list" data-form="rule-action">
-  <!-- Action type switch -->
-  <div class="field">
-    <label class="field__label">Action type</label>
-    <div class="btn-chip-group" role="group">
-      <button class="btn-chip is-active" type="button" data-action-type="redirect">
-        <span class="icon" data-icon="mono/arrow-right"></span>
-        <span>Redirect</span>
-      </button>
-      <!-- MAB button: disabled + locked badge if Free plan -->
-      <button class="btn-chip" type="button" data-action-type="mab_redirect" data-requires-plan="paid" disabled title="MAB A/B testing requires Paid plan">
-        <span class="icon" data-icon="mono/trending-up"></span>
-        <span>A/B Test (MAB)</span>
-        <span class="badge badge--sm badge--warning">Pro</span>
-      </button>
-      <button class="btn-chip" type="button" data-action-type="response">
-        <span class="icon" data-icon="mono/code"></span>
-        <span>Response</span>
-      </button>
-    </div>
-    <p class="field__hint text-muted">
-      <strong>MAB</strong> = Multi-Armed Bandit: auto-optimizing A/B test that minimizes losses. <strong>Requires Paid plan.</strong>
-    </p>
-  </div>
-
-  <!-- Simple Redirect fields (show when type=redirect) -->
-  <div class="action-fields" data-action-fields="redirect">
-    <div class="field">
-      <label class="field__label">Target URL</label>
-      <input type="url" class="input" placeholder="https://offer1.example.com" required />
-      <p class="field__hint text-muted">
-        Must be a valid URL starting with http:// or https://
-      </p>
-    </div>
-
-    <div class="field">
-      <label class="field__label">Status code</label>
-      <div class="dropdown" data-dropdown>
-        <button class="btn-chip" type="button">
-          <span class="badge badge--success">301</span>
-          <span>Permanent Redirect</span>
-          <span class="icon" data-icon="mono/chevron-down"></span>
-        </button>
-        <div class="dropdown__menu">
-          <button class="dropdown__item">
-            <span class="badge badge--success">301</span>
-            <span>Permanent Redirect</span>
-          </button>
-          <button class="dropdown__item">
-            <span class="badge badge--info">302</span>
-            <span>Temporary Redirect</span>
-          </button>
-          <button class="dropdown__item">
-            <span class="badge badge--info">307</span>
-            <span>Temporary Redirect (keep method)</span>
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <div class="field">
-      <label class="checkbox">
-        <input type="checkbox" checked />
-        <span class="checkbox__label">Preserve query string</span>
-      </label>
-      <p class="field__hint text-muted">
-        Append original query parameters to target URL.
-      </p>
-    </div>
-
-    <!-- Advanced options (collapsible) -->
-    <details class="field__details">
-      <summary class="field__details-summary">Advanced redirect options</summary>
-      <div class="stack-list stack-list--sm">
-        <div class="field">
-          <label class="checkbox">
-            <input type="checkbox" />
-            <span class="checkbox__label">Append country code (?country=RU)</span>
-          </label>
-        </div>
-        <div class="field">
-          <label class="checkbox">
-            <input type="checkbox" />
-            <span class="checkbox__label">Append device type (?device=mobile)</span>
-          </label>
-        </div>
-      </div>
-    </details>
-  </div>
-
-  <!-- MAB Redirect fields (show when type=mab_redirect) -->
-  <div class="action-fields" data-action-fields="mab_redirect" hidden>
-    <!-- Test Variants -->
-    <div class="field">
-      <label class="field__label">Test Variants (2+ required)</label>
-
-      <!-- Variant A -->
-      <div class="card card--compact stack-list stack-list--xs" data-variant="a">
-        <div class="cluster cluster--sm">
-          <span class="badge badge--sm badge--primary">Variant A</span>
-          <input type="text" class="input" placeholder="Label (e.g., Offer A)" value="Offer A" style="flex: 0 0 140px;" />
-        </div>
-        <input type="url" class="input" placeholder="https://offer-a.example.com" required />
-
-        <!-- Stats (read-only, показываются только при редактировании существующего правила) -->
-        <div class="mab-stats" data-mab-stats="variant-a">
-          <div class="mab-stats__grid">
-            <div class="mab-stats__item">
-              <span class="text-muted text-xs">Weight:</span>
-              <strong>58.3%</strong>
-            </div>
-            <div class="mab-stats__item">
-              <span class="text-muted text-xs">Conversions:</span>
-              <strong>142 / 1850</strong>
-            </div>
-            <div class="mab-stats__item">
-              <span class="text-muted text-xs">Est. value:</span>
-              <strong>7.68%</strong>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Variant B -->
-      <div class="card card--compact stack-list stack-list--xs" data-variant="b">
-        <div class="cluster cluster--sm">
-          <span class="badge badge--sm badge--info">Variant B</span>
-          <input type="text" class="input" placeholder="Label" value="Offer B" style="flex: 0 0 140px;" />
-          <button class="btn-icon btn-icon--compact" type="button" data-action="remove-variant" title="Remove variant">
-            <span class="icon" data-icon="mono/close"></span>
-          </button>
-        </div>
-        <input type="url" class="input" placeholder="https://offer-b.example.com" required />
-
-        <div class="mab-stats" data-mab-stats="variant-b">
-          <div class="mab-stats__grid">
-            <div class="mab-stats__item">
-              <span class="text-muted text-xs">Weight:</span>
-              <strong>41.7%</strong>
-            </div>
-            <div class="mab-stats__item">
-              <span class="text-muted text-xs">Conversions:</span>
-              <strong>89 / 1320</strong>
-            </div>
-            <div class="mab-stats__item">
-              <span class="text-muted text-xs">Est. value:</span>
-              <strong>6.74%</strong>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <button class="btn btn--ghost btn--sm" type="button" data-action="add-variant">
-        <span class="icon" data-icon="mono/plus"></span>
-        <span>Add variant</span>
-      </button>
-    </div>
-
-    <!-- Algorithm -->
-    <div class="field">
-      <label class="field__label">Optimization Algorithm</label>
-      <div class="dropdown" data-dropdown>
-        <button class="btn-chip" type="button">
-          <span>Thompson Sampling</span>
-          <span class="badge badge--sm badge--success">Recommended</span>
-          <span class="icon" data-icon="mono/chevron-down"></span>
-        </button>
-        <div class="dropdown__menu dropdown__menu--wide">
-          <button class="dropdown__item is-active">
-            <div class="dropdown__item-content">
-              <div class="cluster cluster--sm">
-                <strong>Thompson Sampling</strong>
-                <span class="badge badge--sm badge--success">Recommended</span>
-              </div>
-              <p class="text-sm text-muted">Bayesian approach, best balance between exploration and exploitation</p>
-            </div>
-          </button>
-          <button class="dropdown__item">
-            <div class="dropdown__item-content">
-              <strong>UCB (Upper Confidence Bound)</strong>
-              <p class="text-sm text-muted">Conservative, slower convergence but very stable</p>
-            </div>
-          </button>
-          <button class="dropdown__item">
-            <div class="dropdown__item-content">
-              <strong>Epsilon-Greedy</strong>
-              <p class="text-sm text-muted">Simple, requires epsilon parameter tuning</p>
-            </div>
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Target Metric -->
-    <div class="field">
-      <label class="field__label">Target Metric</label>
-      <select class="select">
-        <option value="conversion_rate">Conversion Rate (CR)</option>
-        <option value="revenue_per_user">Revenue per User (RPU)</option>
-        <option value="click_through_rate">Click-Through Rate (CTR)</option>
-      </select>
-      <p class="field__hint text-muted">
-        Metric to optimize. Requires analytics integration via postback URL.
-      </p>
-    </div>
-
-    <!-- Status Code -->
-    <div class="field">
-      <label class="field__label">Status code</label>
-      <div class="dropdown" data-dropdown>
-        <button class="btn-chip" type="button">
-          <span class="badge badge--info">302</span>
-          <span>Temporary Redirect</span>
-          <span class="icon" data-icon="mono/chevron-down"></span>
-        </button>
-        <div class="dropdown__menu">
-          <button class="dropdown__item">
-            <span class="badge badge--success">301</span>
-            <span>Permanent Redirect</span>
-          </button>
-          <button class="dropdown__item">
-            <span class="badge badge--info">302</span>
-            <span>Temporary Redirect</span>
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Advanced Settings -->
-    <details class="field__details">
-      <summary class="field__details-summary">Advanced settings</summary>
-      <div class="stack-list stack-list--sm">
-        <div class="field">
-          <label class="field__label">Min sample size per variant</label>
-          <input type="number" class="input" value="100" min="10" step="10" />
-          <p class="field__hint text-muted">
-            Minimum impressions before optimization starts (default: 100)
-          </p>
-        </div>
-
-        <div class="field">
-          <label class="field__label">Exploration period (seconds)</label>
-          <input type="number" class="input" value="3600" min="0" step="300" />
-          <p class="field__hint text-muted">
-            Initial period with equal distribution (default: 1 hour = 3600s)
-          </p>
-        </div>
-
-        <!-- Algorithm-specific params (показываются условно) -->
-        <div class="field" data-algorithm-param="epsilon_greedy" hidden>
-          <label class="field__label">Epsilon (exploration rate)</label>
-          <input type="number" class="input" value="0.1" min="0" max="1" step="0.01" />
-          <p class="field__hint text-muted">
-            Probability of random choice (0.1 = 10% exploration)
-          </p>
-        </div>
-
-        <div class="field" data-algorithm-param="ucb">
-          <label class="field__label">Confidence level</label>
-          <input type="number" class="input" value="0.95" min="0.5" max="0.99" step="0.01" />
-          <p class="field__hint text-muted">
-            Confidence level for UCB algorithm (default: 0.95)
-          </p>
-        </div>
-
-        <div class="field">
-          <label class="checkbox">
-            <input type="checkbox" checked />
-            <span class="checkbox__label">Preserve query string</span>
-          </label>
-        </div>
-
-        <div class="field">
-          <label class="checkbox">
-            <input type="checkbox" />
-            <span class="checkbox__label">Append country code</span>
-          </label>
-        </div>
-
-        <div class="field">
-          <label class="checkbox">
-            <input type="checkbox" />
-            <span class="checkbox__label">Append device type</span>
-          </label>
-        </div>
-      </div>
-    </details>
-
-    <!-- Performance Chart (опционально, для существующих правил) -->
-    <div class="panel panel--info" data-mab-performance hidden>
-      <div class="panel__header">
-        <h4 class="panel__title">Performance Over Time</h4>
-        <span class="badge badge--sm badge--success">
-          <span class="icon" data-icon="mono/check-circle"></span>
-          <span>Optimizing</span>
-        </span>
-      </div>
-      <div class="panel__body">
-        <!-- Здесь будет canvas/svg график или простая таблица -->
-        <div class="mab-chart" data-mab-chart>
-          <p class="text-muted text-sm">Performance chart will be available after test starts</p>
-        </div>
-      </div>
-      <div class="panel__footer">
-        <button class="btn btn--ghost btn--sm" type="button" data-action="reset-mab">
-          <span class="icon" data-icon="mono/refresh"></span>
-          <span>Reset statistics</span>
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Response fields (show when type=response) -->
-  <div class="action-fields" data-action-fields="response" hidden>
-    <div class="field">
-      <label class="field__label">Status code</label>
-      <input type="number" class="input" value="200" min="200" max="599" />
-    </div>
-
-    <!-- Body type selector -->
-    <div class="field">
-      <label class="field__label">Response body type</label>
-      <div class="btn-group btn-group--full" role="group">
-        <button type="button" class="btn btn--ghost is-active" data-body-type="html">
-          <span>HTML</span>
-        </button>
-        <button type="button" class="btn btn--ghost" data-body-type="text">
-          <span>Text/JSON</span>
-        </button>
-      </div>
-      <p class="field__hint text-muted">
-        HTML: saved as <code>bodyHtml</code>. Text/JSON: saved as <code>bodyText</code>.
-      </p>
-    </div>
-
-    <!-- Body content (label changes based on type) -->
-    <div class="field">
-      <label class="field__label" data-body-label>Response body (HTML)</label>
-      <textarea class="textarea" rows="8" placeholder="<!doctype html>..."></textarea>
-      <p class="field__hint text-muted">
-        For bots/moderators. Will be returned directly without redirect.
-      </p>
-    </div>
-
-    <!-- Headers (optional, collapsed) -->
-    <details class="field__details">
-      <summary class="field__details-summary">Custom headers (optional)</summary>
-      <div class="stack-list stack-list--sm">
-        <div class="field" data-repeatable-headers>
-          <div class="cluster cluster--sm">
-            <input type="text" class="input" placeholder="Content-Type" style="flex: 1;" />
-            <input type="text" class="input" placeholder="text/html; charset=utf-8" style="flex: 2;" />
-            <button class="btn-icon btn-icon--compact" type="button" title="Remove header">
-              <span class="icon" data-icon="mono/close"></span>
-            </button>
-          </div>
-        </div>
-        <button class="btn btn--ghost btn--sm" type="button" data-action="add-header">
-          <span class="icon" data-icon="mono/plus"></span>
-          <span>Add header</span>
-        </button>
-      </div>
-    </details>
-  </div>
-</form>
-```
-
-**Pattern Reference:** Existing form components, `<details>` for collapsible sections
-
-**Plan Gating Logic:**
-```typescript
-// src/streams/drawer.ts
-const userPlan = await getUserPlan(); // 'free' | 'paid'
-
-const mabButton = document.querySelector('[data-action-type="mab_redirect"]');
-if (userPlan === 'free') {
-  mabButton.setAttribute('disabled', '');
-  mabButton.setAttribute('title', 'MAB A/B testing requires Paid plan. Upgrade to unlock.');
-  // Show badge "Pro"
-} else {
-  mabButton.removeAttribute('disabled');
-  // Hide badge
-}
-```
-
----
-
-### 4.4. Drawer Tab: Advanced (JSON Preview)
-
-**Structure:**
-```html
-<div class="stack-list" data-tab-panel="advanced">
-  <!-- JSON preview -->
-  <div class="field">
-    <label class="field__label">Rule configuration (JSON)</label>
-    <pre class="code-block"><code class="language-json">{
-  "priority": 3,
-  "enabled": true,
-  "conditions": {
-    "path": ["/offer/*"],
-    "countries": ["US", "CA", "GB"],
-    "device": "mobile",
-    "bots": "any"
-  },
-  "action": {
-    "type": "redirect",
-    "url": "https://offer1.example.com",
-    "status": 301,
-    "preserveOriginalQuery": true
-  },
-  "metadata": {
-    "etag": "abc123",
-    "updatedAt": "2025-12-24T12:00:00Z"
-  }
-}</code></pre>
-  </div>
-
-  <!-- Validate button -->
-  <div class="field">
-    <button class="btn btn--ghost">
-      <span class="icon" data-icon="mono/check-circle"></span>
-      <span>Validate configuration</span>
-    </button>
-  </div>
-
-  <!-- Metadata (optional) -->
-  <div class="panel panel--info">
-    <div class="stack stack--xs">
-      <div class="cluster">
-        <span class="text-muted">ETag:</span>
-        <code class="text-sm">abc123def456</code>
-      </div>
-      <div class="cluster">
-        <span class="text-muted">Last updated:</span>
-        <time datetime="2025-12-24">Dec 24, 2025 at 12:00 PM</time>
-      </div>
-    </div>
-  </div>
-</div>
-```
-
-**New Component:**
-- `.code-block` - monospace code display with syntax highlighting (optional)
-
-**CSS Requirements:**
-- Monospace font
-- Horizontal scroll for long lines
-- Max height with vertical scroll
-
----
-
-### 4.5. Unsaved Changes Guard
-
-**Component:** Reuse existing dialog pattern
-
-```html
-<dialog class="dialog" data-dialog="unsaved-changes">
-  <div class="dialog__content">
-    <header class="dialog__header">
-      <h3 class="dialog__title">Unsaved changes</h3>
-    </header>
-    <div class="dialog__body">
-      <p>You have unsaved changes. Are you sure you want to close?</p>
-    </div>
-    <footer class="dialog__footer">
-      <button class="btn btn--ghost" data-action="keep-editing">Keep editing</button>
-      <button class="btn btn--danger" data-action="discard">Discard changes</button>
-    </footer>
-  </div>
-</dialog>
-```
-
-**Logic:**
-```typescript
-// src/streams/drawer.ts
-let isDirty = false;
-
-form.addEventListener('input', () => {
-  isDirty = true;
-  updatePublishButton();
-});
-
-drawerCloseBtn.addEventListener('click', (e) => {
-  if (isDirty) {
-    e.preventDefault();
-    showUnsavedChangesDialog();
-  }
-});
-```
-
-**Pattern Reference:** Existing dialog component, delete confirmation dialogs
-
----
-
-## Milestone 5: Reorder UX (Position Controls)
-
-**Terminology Note:**
-- **UI/User-facing:** "Position" (lower number = executes first)
-- **Code/API:** `priority` field, `.priority-control` CSS class
-- **Why:** "Position" is clearer for non-technical users ("rule #1 runs first")
-
-### 5.1. Position Column Controls + Undo Toast
-
-**Component:** `.priority-control` (already defined in 3.2)
-
-**Behavior:**
-```typescript
-// src/streams/priority.ts
-function handleMoveUp(ruleId: string) {
-  const currentIndex = rules.findIndex(r => r.id === ruleId);
-  if (currentIndex === 0) return; // Already at top
-
-  // Swap positions
-  const temp = rules[currentIndex];
-  rules[currentIndex] = rules[currentIndex - 1];
-  rules[currentIndex - 1] = temp;
-
-  // Re-render table
-  renderTable();
-
-  // Show undo toast
-  showUndoToast(`Moved rule from position ${currentIndex + 1} to ${currentIndex}`, () => {
-    // Undo: swap back
-    const temp = rules[currentIndex];
-    rules[currentIndex] = rules[currentIndex - 1];
-    rules[currentIndex - 1] = temp;
-    renderTable();
-  });
-}
-```
-
-**Toast Component:**
-```html
-<div class="toast toast--success" data-toast="priority-change">
-  <div class="toast__content">
-    <span class="icon" data-icon="mono/check-circle"></span>
-    <span>Moved rule from position 3 to 2</span>
-  </div>
-  <button class="btn-chip btn-chip--sm" data-action="undo">
-    <span class="icon" data-icon="mono/undo"></span>
-    <span>Undo</span>
-  </button>
-  <button class="btn-icon btn-icon--compact" data-action="dismiss">
-    <span class="icon" data-icon="mono/close"></span>
-  </button>
-</div>
-```
-
-**Files:**
-- `src/streams/priority.ts`
-- `src/ui/notifications.ts` (extend for undo toast)
-
----
-
-### 5.2. Drag Handle (Optional Enhancement)
-
-**Component:** Already included in `.priority-control` (see 3.2)
-
-**Library:** Consider using SortableJS or implement custom drag logic
-
-**Behavior:**
-```typescript
-// src/streams/drag.ts
-import Sortable from 'sortablejs';
-
-const tbody = document.querySelector('tbody');
-Sortable.create(tbody, {
-  handle: '[data-drag-handle]',
-  animation: 150,
-  onEnd: (evt) => {
-    const oldIndex = evt.oldIndex;
-    const newIndex = evt.newIndex;
-
-    // Update rules array
-    const [movedRule] = rules.splice(oldIndex, 1);
-    rules.splice(newIndex, 0, movedRule);
-
-    // Show toast
-    showUndoToast(`Moved rule from position ${oldIndex + 1} to ${newIndex + 1}`, undoCallback);
-  }
-});
-```
-
-**Note:** If adding SortableJS, update package.json
-
----
-
-### 5.3. Reorder Mode Toggle
-
-**Component:** Button in toolbar (already defined in 3.1)
-
-**Reorder mode UI changes:**
-```css
-/* When data-reorder-mode="true" */
-[data-reorder-mode="true"] .priority-control {
-  background: var(--bg-interactive);
-  border: 2px solid var(--brand);
-}
-
-[data-reorder-mode="true"] .priority-control__handle {
-  display: flex; /* Show drag handle */
-}
-
-[data-reorder-mode="true"] .table-row:hover {
-  cursor: move;
-}
-```
-
-**Additional Controls in Reorder Mode:**
-```html
-<!-- Row context menu in reorder mode -->
-<div class="dropdown" data-dropdown>
-  <button class="btn-icon btn-icon--compact">
-    <span class="icon" data-icon="mono/dots-vertical"></span>
-  </button>
-  <div class="dropdown__menu">
-    <button class="dropdown__item">
-      <span class="icon" data-icon="mono/arrow-up"></span>
-      <span>Move to top</span>
-    </button>
-    <button class="dropdown__item">
-      <span class="icon" data-icon="mono/arrow-down"></span>
-      <span>Move to bottom</span>
-    </button>
-    <hr class="dropdown__divider" />
-    <button class="dropdown__item">
-      <span class="icon" data-icon="mono/number"></span>
-      <span>Set position...</span>
-    </button>
-  </div>
-</div>
-```
-
----
-
-### 5.4. Position Control in Drawer
-
-**Component:** `.priority-mini` (already defined in 4.1 drawer header)
-
-**Note:** Code still uses "priority" internally, but UI displays "Position"
-
-**Behavior:**
-```typescript
-// Sync with table priority
-function updateDrawerPriority(ruleId: string) {
-  const rule = rules.find(r => r.id === ruleId);
-  const priorityDisplay = document.querySelector('.priority-mini__number');
-  priorityDisplay.textContent = rules.indexOf(rule) + 1;
-}
-
-// Up/down buttons
-document.querySelector('[data-action="priority-up"]').addEventListener('click', () => {
-  const currentRule = getCurrentRule();
-  handleMoveUp(currentRule.id);
-  updateDrawerPriority(currentRule.id);
-});
-```
-
----
-
-## Milestone 6: Draft/Publish Banner
-
-### 6.1. Unpublished Changes Banner
-
-**Component:** `.draft-banner` (sticky top, below context bar)
-
-**Structure:**
-```html
-<div class="draft-banner" data-draft-banner hidden>
-  <div class="draft-banner__content">
-    <span class="icon" data-icon="mono/alert-circle"></span>
-    <div class="draft-banner__text">
-      <strong>You have unpublished changes</strong>
-      <span class="text-muted">3 rules modified, 1 reordered</span>
-    </div>
-  </div>
-  <div class="draft-banner__actions">
-    <button class="btn btn--ghost btn--sm" data-action="discard-draft">
-      <span class="icon" data-icon="mono/close"></span>
-      <span>Discard</span>
-    </button>
-    <button class="btn btn--primary btn--sm" data-action="publish-draft">
-      <span class="icon" data-icon="mono/rocket"></span>
-      <span>Publish changes</span>
-    </button>
-  </div>
-</div>
-```
-
-**CSS:**
-```css
-.draft-banner {
-  position: sticky;
-  top: var(--header-height); /* After context bar */
-  z-index: var(--z-sticky);
-  background: var(--bg-warning-subtle);
-  border-bottom: 1px solid var(--border-warning);
-  padding: var(--space-3);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
-}
-
-.draft-banner[hidden] {
-  display: none;
-}
-```
-
-**Show Logic:**
-```typescript
-// src/streams/draft.ts
-let draftChanges = [];
-
-function trackChange(type: 'create' | 'update' | 'delete' | 'reorder', ruleId: string) {
-  draftChanges.push({ type, ruleId, timestamp: Date.now() });
-  updateDraftBanner();
-}
-
-function updateDraftBanner() {
-  const banner = document.querySelector('[data-draft-banner]');
-
-  if (draftChanges.length > 0) {
-    banner.removeAttribute('hidden');
-
-    // Update summary text
-    const summary = summarizeChanges(draftChanges);
-    banner.querySelector('.draft-banner__text span').textContent = summary;
-  } else {
-    banner.setAttribute('hidden', '');
-  }
-}
-```
-
----
-
-## Technical Requirements Summary
-
-### Design System Compliance
-
-**Components to Reuse:**
-- ✅ `.table` - base table styles
-- ✅ `.drawer` - drawer pattern
-- ✅ `.tabs` - tabs component
-- ✅ `.btn`, `.btn-chip`, `.btn-icon` - buttons
-- ✅ `.badge` - status badges
-- ✅ `.dropdown` - filter dropdowns
-- ✅ `.field`, `.input`, `.select`, `.textarea` - form controls
-- ✅ `.panel` - info panels
-- ✅ `.card` - welcome card
-- ✅ `.empty-state` - no rules state
-- ✅ `.dialog` - confirmation dialogs
-- ✅ `.toast` - notifications
-
-**New Components to Create:**
-- `.tds-context-bar` - sticky selectors and status
-- `.tds-pipeline` - visual flow diagram
-- `.priority-control` - up/down/drag controls
-- `.condition-chips` - chips with overflow
-- `.target-info` - URL + status display
-- `.checklist-item` - onboarding checklist
-- `.draft-banner` - sticky changes notification
-- `.code-block` - JSON display (optional)
-
-**Design Tokens:**
-- Use fluid layout tokens for responsive sizing
-- Use spacing tokens (--space-*) for consistent gaps
-- Use shadow tokens (--shadow-*) for elevation
-- Use color tokens (--bg-*, --border-*, --text-*)
-
-### Responsive Strategy
-
-**Breakpoints:**
-- Desktop (>1024px): Full table, side drawer
-- Tablet (768-1024px): Adaptive columns, compact drawer
-- Mobile (<768px): Priority columns only, full-screen drawer
-
-**Priority-based Column Hiding:**
-```css
-@container (max-width: 768px) {
-  .td-updated { display: none; } /* Priority 4 */
-}
-
-@container (max-width: 600px) {
-  .td-when { display: none; } /* Priority 3 - show in drawer */
-}
-```
-
-### Accessibility
-
-**ARIA Requirements:**
-- `role="tablist"` on tabs navigation
-- `role="tab"` on tab triggers
-- `role="tabpanel"` on tab panels
-- `aria-label` on icon-only buttons
-- `aria-expanded` on dropdowns
-- `aria-pressed` on toggle buttons
-- `aria-live="polite"` on toast notifications
-
-**Keyboard Navigation:**
-- Tab through interactive elements
-- Arrow keys for tabs navigation
-- Enter/Space to activate buttons
-- Escape to close drawer/dropdowns
-
-### File Structure
-
-**New Files:**
-```
-streams.html                       # Main page
+streams.html                          # Page (exists, has welcome card)
+partials/tds-rule-drawer.hbs          # Drawer partial (new)
 src/streams/
-  ├── table.ts                     # Table rendering
-  ├── filters.ts                   # Filter logic
-  ├── drawer.ts                    # Drawer management
-  ├── priority.ts                  # Priority controls
-  ├── drag.ts                      # Drag & drop (optional)
-  ├── draft.ts                     # Draft tracking
-  ├── onboarding.ts                # Welcome checklist
-  └── mock-data.ts                 # Mock rules for UI development
+  main.ts                             # Entry point (exists, basic)
+  types.ts                            # TDS rule interfaces (new)
+  mock-data.ts                        # Mock rules (new)
+  adapter.ts                          # API-to-UI conversion (new)
+  context.ts                          # Context bar selectors (new)
+  table.ts                            # Table rendering (new)
+  drawer.ts                           # Drawer management (new)
+  priority.ts                         # Reorder controls (new)
+  drag.ts                             # Drag-and-drop (new, optional)
+  draft.ts                            # Draft tracking (new)
+  filters.ts                          # Filter logic (new)
+  filters-config.ts                   # Filter definitions (new)
+  filters-ui.ts                       # Filter chip rendering (new)
+src/api/tds.ts                        # API client (new, Phase 7)
+static/css/site.css                   # New component styles (append)
 ```
 
-**CSS Updates:**
-```
-static/css/site.css                # Add new component styles
-```
+## New CSS Components Summary
 
-**i18n:**
-```typescript
-// src/i18n/locales/en.ts
-streams: {
-  title: 'TDS Rules',
-  welcome: {
-    title: 'Traffic Routing (TDS)',
-    subtitle: 'Traffic first passes Traffic Shield...',
-    // ... checklist items
-  },
-  table: {
-    position: 'Position',  // Note: API field is "priority", but UI shows "Position"
-    when: 'When',
-    then: 'Then',
-    // ... column headers
-  },
-  drawer: {
-    newRule: 'New rule',
-    editRule: 'Edit rule',
-    // ... drawer labels
-  },
-  // ... more namespaces
-}
-```
+| Component | Purpose | File |
+|-----------|---------|------|
+| `.tds-context-bar` | Sticky site/project selectors + status | `site.css` |
+| `.priority-control` | Up/down/drag controls in table | `site.css` |
+| `.condition-chips` | Inline chips with "+N" overflow | `site.css` |
+| `.target-info` | URL + status code display | `site.css` |
+| `.draft-banner` | Sticky unpublished changes notification | `site.css` |
+| `.mab-stats` | Read-only MAB variant statistics grid | `site.css` |
+| `.code-block` | Monospace JSON display | `site.css` |
+
+Reuse existing: `.table`, `.drawer`, `.tabs`, `.btn`, `.btn-chip`, `.badge`, `.dropdown`, `.field`, `.input`, `.select`, `.textarea`, `.panel`, `.card`, `.empty-state`, `.dialog`, `.toggle`, `.toast`.
 
 ---
 
-## Implementation Order (Recommended)
+## Open Questions
 
-**Phase 1: Foundation (1-2 days)**
-1. ✅ Create `streams.html` skeleton
-2. ✅ Implement context bar (sticky)
-3. ✅ Implement pipeline strip
-4. ✅ Add welcome card with checklist
-5. ✅ Create mock data structure
-
-**Phase 2: Table (1-2 days)**
-6. ✅ Implement toolbar with filters
-7. ✅ Implement rules table with columns
-8. ✅ Add priority column with up/down controls
-9. ✅ Add empty state
-10. ✅ Implement basic row interactions
-
-**Phase 3: Drawer (2-3 days)**
-11. ✅ Create drawer shell with tabs
-12. ✅ Implement "When" tab (conditions form)
-13. ✅ Implement "Then" tab (action form)
-14. ✅ Implement "Advanced" tab (JSON preview)
-15. ✅ Add unsaved changes guard
-
-**Phase 4: Reorder (1 day)**
-16. ✅ Implement up/down logic with undo toast
-17. ✅ Add drag handle (optional)
-18. ✅ Implement reorder mode toggle
-
-**Phase 5: Polish (1 day)**
-19. ✅ Implement draft banner
-20. ✅ Add all interactions (edit/duplicate/delete)
-21. ✅ Mobile responsive testing
-22. ✅ Accessibility audit
-
-**Total Estimate:** 6-9 days for complete UI implementation (mock data)
+1. Should the context bar link to actual Shield settings or a placeholder?
+2. How detailed should the Simulator UI be in Phase 1? (Full form vs. simple button)
+3. Import/Export format: JSON only or also YAML?
+4. Should publish show a confirmation dialog?
+5. Should drafts persist across sessions via localStorage?
 
 ---
 
-## Mock Data Structure
+## Estimate
 
-**Updated 2025-12-25:** Aligned with 301-wiki TDS specification + Multi-Armed Bandits (MAB) for auto-optimizing A/B tests
-
-**Key changes from mini-tds:**
-- Added `rule_type: "smartlink" | "smartshield"` discriminator
-- Split match conditions into SmartShieldMatch (geo/device/bots/ASN/TLS) and SmartLinkMatch (UTM params)
-- **Removed `weighted_redirect`** (static A/B weights)
-- **Added `mab_redirect`** (Multi-Armed Bandit auto-optimization) — **key competitive feature**
-- `redirect` now uses `url: string` (not `targets: []`)
-- Added SmartLink examples (UTM-based routing)
-- Added advanced SmartShield conditions (ASN, TLS version, IP ranges)
-
-```typescript
-// src/streams/types.ts
-
-// Rule type discriminator (from 301-wiki/TDS.md)
-export type RuleType = "smartlink" | "smartshield";
-
-export type Device = "mobile" | "desktop" | "tablet" | "any";
-
-// SmartShield Match Conditions (route by CF metadata)
-export interface SmartShieldMatch {
-  path?: string | string[];      // Regex patterns: ["^/casino/([^/?#]+)"]
-  countries?: string[];          // ISO codes (uppercase): ["RU", "UA", "BY"]
-  devices?: Device[];            // Device types
-  bots?: boolean;                // true = bots only, false = exclude bots
-  // Advanced conditions:
-  asn?: number[];                // AS numbers: [12389, 8359]
-  tls_version?: string[];        // TLS versions: ["1.2", "1.3"]
-  ip_ranges?: string[];          // CIDR notation: ["203.0.113.0/24"]
-  referrer?: string | string[];  // Regex for referrer
-}
-
-// SmartLink Match Conditions (route by UTM params)
-export interface SmartLinkMatch {
-  utm_source?: string[];         // UTM source values: ["facebook", "fb"]
-  utm_campaign?: string[];       // UTM campaign values: ["summer2025"]
-  utm_content?: string[];        // UTM content values: ["banner1", "video2"]
-  utm_medium?: string[];         // UTM medium values: ["cpc", "social"]
-  custom_params?: Record<string, string[]>; // Custom query params: { sub1: ["value1"] }
-}
-
-// Unified match type (either SmartShield OR SmartLink)
-export type MatchRule = SmartShieldMatch | SmartLinkMatch;
-
-// Simple redirect action (single target)
-export interface RedirectAction {
-  type: "redirect";
-  url: string;                   // Target URL
-  query?: Record<string, string | { fromPathGroup: number }>;
-  preserveOriginalQuery?: boolean;
-  appendCountry?: boolean;       // Add ?country=RU
-  appendDevice?: boolean;        // Add ?device=mobile
-  status?: 301 | 302;            // Default 302
-}
-
-// Multi-Armed Bandit redirect (auto-optimizing A/B test)
-export interface MABTarget {
-  url: string;                   // Absolute URL
-  label?: string;                // Display name (e.g., "Variant A")
-
-  // Statistics (read-only, updated by backend)
-  stats?: {
-    impressions: number;         // Total visits to this variant
-    conversions: number;         // Successful conversions
-    revenue: number;             // Total revenue generated
-    current_weight: number;      // Current dynamic weight (0-100%)
-    estimated_value: number;     // Algorithm's value estimate
-  };
-}
-
-export interface MABRedirectAction {
-  type: "mab_redirect";
-  algorithm: "ucb" | "thompson_sampling" | "epsilon_greedy";
-  targets: MABTarget[];          // 2+ variants for A/B testing
-
-  // Target metric for optimization
-  metric: "conversion_rate" | "revenue_per_user" | "click_through_rate";
-
-  // Minimum impressions per variant before optimization starts
-  min_sample_size?: number;      // Default: 100
-
-  // Initial exploration period (seconds) with equal distribution
-  exploration_period?: number;   // Default: 3600 (1 hour)
-
-  // Algorithm-specific parameters
-  epsilon?: number;              // For epsilon-greedy (0-1, default: 0.1)
-  confidence_level?: number;     // For UCB (0-1, default: 0.95)
-
-  // Common redirect options
-  query?: Record<string, string | { fromPathGroup: number }>;
-  preserveOriginalQuery?: boolean;
-  appendCountry?: boolean;
-  appendDevice?: boolean;
-  status?: 301 | 302;
-}
-
-// Response action (return HTML/JSON without redirect)
-export interface ResponseAction {
-  type: "response";
-  status?: number;               // HTTP status (200, 404, etc.)
-  headers?: Record<string, string>;
-  bodyHtml?: string;             // HTML response body
-  bodyText?: string;             // Plain text body
-}
-
-export type RouteAction = RedirectAction | MABRedirectAction | ResponseAction;
-
-export interface TDSRule {
-  id: string;                    // Unique rule ID
-  rule_type: RuleType;           // "smartlink" | "smartshield" (discriminator)
-  enabled?: boolean;             // Default true
-  priority?: number;             // For UI sorting (not in mini-tds)
-  label?: string;                // User-friendly name (UI only)
-  match: MatchRule;              // Conditions (type depends on rule_type)
-  action: RouteAction;           // Action to take
-  // Metadata (read-only from API)
-  metadata?: {
-    etag?: string;
-    updatedAt?: string;
-    updatedBy?: string;
-  };
-}
-```
-
-**Example Mock Data:**
-
-```typescript
-// src/streams/mock-data.ts
-export const MOCK_TDS_RULES: TDSRule[] = [
-  // SmartShield rules (route by CF metadata: geo, device, bots)
-  {
-    id: "rule-ru-mobile-casino",
-    rule_type: "smartshield",
-    enabled: true,
-    priority: 1,
-    label: "RU Mobile Casino → MAB A/B Test",
-    match: {
-      path: ["^/casino/([^/?#]+)"],
-      countries: ["RU", "BY"],
-      devices: ["mobile"],
-      bots: false,
-    },
-    action: {
-      type: "mab_redirect",
-      algorithm: "thompson_sampling",
-      metric: "conversion_rate",
-      targets: [
-        {
-          url: "https://offer1.example.com/landing",
-          label: "Offer A",
-          stats: {
-            impressions: 1850,
-            conversions: 142,
-            revenue: 14200,
-            current_weight: 58.3,
-            estimated_value: 0.0768,
-          },
-        },
-        {
-          url: "https://offer2.example.com/promo",
-          label: "Offer B",
-          stats: {
-            impressions: 1320,
-            conversions: 89,
-            revenue: 8900,
-            current_weight: 41.7,
-            estimated_value: 0.0674,
-          },
-        },
-      ],
-      min_sample_size: 100,
-      exploration_period: 3600,
-      query: {
-        bonus: { fromPathGroup: 1 },  // From regex capture group
-        src: "tds-mobile",
-      },
-      appendCountry: true,
-      appendDevice: true,
-      status: 302,
-    },
-    metadata: {
-      etag: "abc123def456",
-      updatedAt: "2025-12-24T12:00:00Z",
-      updatedBy: "admin@ip-1.2.3.4",
-    },
-  },
-  {
-    id: "rule-ua-desktop-slots",
-    rule_type: "smartshield",
-    enabled: true,
-    priority: 2,
-    label: "UA Desktop Slots → Direct",
-    match: {
-      path: ["^/slots/"],
-      countries: ["UA"],
-      devices: ["desktop"],
-      bots: false,
-    },
-    action: {
-      type: "redirect",
-      url: "https://mainsite.example.com/slots-ua",
-      preserveOriginalQuery: true,
-      status: 301,
-    },
-  },
-  {
-    id: "rule-us-advanced",
-    rule_type: "smartshield",
-    enabled: true,
-    priority: 3,
-    label: "US Traffic (Advanced Filters)",
-    match: {
-      countries: ["US"],
-      devices: ["desktop"],
-      asn: [7922, 20057],  // Comcast, AT&T
-      tls_version: ["1.3"],
-      bots: false,
-    },
-    action: {
-      type: "redirect",
-      url: "https://premium-offer.example.com",
-      status: 302,
-    },
-  },
-
-  // SmartLink rules (route by UTM params)
-  {
-    id: "rule-fb-summer-campaign",
-    rule_type: "smartlink",
-    enabled: true,
-    priority: 4,
-    label: "Facebook Summer Campaign",
-    match: {
-      utm_source: ["facebook", "fb"],
-      utm_campaign: ["summer2025"],
-    },
-    action: {
-      type: "redirect",
-      url: "https://offer2.example.com/fb-summer",
-      preserveOriginalQuery: true,
-      status: 302,
-    },
-    metadata: {
-      updatedAt: "2025-12-23T10:00:00Z",
-    },
-  },
-  {
-    id: "rule-google-ads-ab",
-    rule_type: "smartlink",
-    enabled: true,
-    priority: 5,
-    label: "Google Ads MAB A/B Test",
-    match: {
-      utm_source: ["google", "adwords"],
-      utm_medium: ["cpc"],
-      utm_content: ["banner1", "banner2"],
-    },
-    action: {
-      type: "mab_redirect",
-      algorithm: "ucb",
-      metric: "revenue_per_user",
-      targets: [
-        {
-          url: "https://landing-a.example.com",
-          label: "Landing A",
-          stats: {
-            impressions: 950,
-            conversions: 85,
-            revenue: 12750,
-            current_weight: 52.1,
-            estimated_value: 13.42,
-          },
-        },
-        {
-          url: "https://landing-b.example.com",
-          label: "Landing B",
-          stats: {
-            impressions: 874,
-            conversions: 71,
-            revenue: 10650,
-            current_weight: 47.9,
-            estimated_value: 12.19,
-          },
-        },
-      ],
-      min_sample_size: 50,
-      exploration_period: 1800,
-      confidence_level: 0.95,
-      status: 302,
-    },
-  },
-  {
-    id: "rule-email-campaign",
-    rule_type: "smartlink",
-    enabled: true,
-    priority: 6,
-    label: "Email Newsletter Campaign",
-    match: {
-      utm_source: ["newsletter"],
-      utm_medium: ["email"],
-      custom_params: {
-        subscriber_id: ["*"],  // Any value present
-      },
-    },
-    action: {
-      type: "redirect",
-      url: "https://exclusive.example.com/subscribers",
-      preserveOriginalQuery: true,
-      status: 302,
-    },
-  },
-
-  // Fallback/catch-all SmartShield rule
-  {
-    id: "rule-bots-landing",
-    rule_type: "smartshield",
-    enabled: true,
-    priority: 99,
-    label: "Bots → Safe Landing Page",
-    match: {
-      bots: true,
-    },
-    action: {
-      type: "response",
-      status: 200,
-      headers: {
-        "Content-Type": "text/html; charset=utf-8",
-      },
-      bodyHtml: "<!doctype html><html><head><title>Welcome</title></head><body><h1>Site is fine</h1></body></html>",
-    },
-  },
-  // ... add 2-3 more rules for realistic table if needed
-];
-```
-
----
-
-## API Integration (Future - Out of Scope)
-
-⚠️ **КРИТИЧЕСКИ ВАЖНО: API Contract Clarification**
-
-**Production API:**
-- **UI integrates with 301.st API** (not mini-tds!)
-- **Base path:** `/api/sites/:siteId/tds/...`  ← Site-scoped!
-- **Reference:** `docs/tds-backend-recommendations.md` ← AUTHORITATIVE SOURCE
-
-**mini-tds API:**
-- **Reference only** for architectural inspiration
-- **DO NOT** code UI against mini-tds endpoints
-- Paths differ: mini-tds uses `/api/tds/rules`, 301.st uses `/api/sites/:siteId/tds/rules`
-
-**Current State:**
-- UI uses **mock data** (`src/streams/mock-data.ts`)
-- No real API calls until backend implements 301.st spec
-
----
-
-**301.st API Endpoints (PRODUCTION):**
-```
-GET    /api/sites/:siteId/tds/rules           # Get all rules for site
-GET    /api/sites/:siteId/tds/rules/:id       # Get single rule
-POST   /api/sites/:siteId/tds/rules           # Create new rule
-PATCH  /api/sites/:siteId/tds/rules/:id       # Update rule
-DELETE /api/sites/:siteId/tds/rules/:id       # Delete rule
-POST   /api/sites/:siteId/tds/rules/validate  # Validate rules
-POST   /api/sites/:siteId/tds/rules/reorder   # Batch reorder
-POST   /api/sites/:siteId/tds/publish         # Publish draft changes → KV sync
-```
-
-**Response structures:** See `docs/tds-backend-recommendations.md` sections:
-- "GET /api/sites/:siteId/tds/rules"
-- "POST /api/sites/:siteId/tds/rules"
-- "PATCH /api/sites/:siteId/tds/rules/:id"
-- "POST /api/sites/:siteId/tds/rules/reorder"
-
----
-
-**mini-tds Reference (DO NOT USE IN PRODUCTION):**
-
-**Reference:** `docs/mini-tds-analysis.md` - Architectural reference only
-
-**Core Endpoints (mini-tds - reference only):**
-
-**Core Endpoints (mini-tds compatible):**
-```
-GET    /api/tds/rules                # Get all rules + ETag
-                                      Response: { rules: TDSRule[], version: string, etag: string }
-
-PUT    /api/tds/rules                # Replace all rules (requires If-Match header)
-                                      Request: { rules: TDSRule[] }
-                                      Headers: If-Match: <etag>
-                                      Response: { ok: true, etag: string }
-
-PATCH  /api/tds/rules/:id            # Update single rule
-                                      Request: { patch: Partial<TDSRule> }
-                                      Response: { ok: true, etag: string }
-
-DELETE /api/tds/rules/:id            # Delete rule
-                                      Response: { ok: true, etag: string }
-
-POST   /api/tds/rules/validate       # Validate without saving
-                                      Request: { routes: TDSRule[] }
-                                      Response: { ok: true } | { error: string }
-```
-
-**Extended Endpoints (301-ui specific):**
-```
-GET    /api/tds/audit?limit=20      # Audit log (last N changes)
-                                      Response: AuditEntry[]
-
-POST   /api/tds/cache/invalidate    # Invalidate worker cache
-                                      Response: { ok: true }
-
-GET    /api/tds/export              # Export full bundle
-                                      Response: { rules, flags, metadata, etag }
-
-POST   /api/tds/import              # Import bundle
-                                      Request: { routes, flags }
-```
-
-**Authentication:**
-```typescript
-// All API requests require Bearer token
-headers: {
-  'Authorization': 'Bearer <token>',
-  'Content-Type': 'application/json'
-}
-```
-
-**ETag-based Updates (Optimistic Locking):**
-```typescript
-// When updating rules, include If-Match header to prevent lost updates
-const response = await fetch('/api/tds/rules', {
-  method: 'PUT',
-  headers: {
-    'If-Match': currentEtag,  // From GET /api/tds/rules response
-    'Authorization': `Bearer ${token}`,
-  },
-  body: JSON.stringify({ rules: updatedRules }),
-});
-
-// If ETag mismatch: 412 Precondition Failed
-// User must reload and retry
-```
-
-**Event Delegation:**
-When implementing API calls, apply event delegation pattern from performance roadmap.
-
-**Validation Strategy:**
-- Client-side: Validate before opening save button
-- Server-side: Validate via `POST /api/tds/rules/validate` before PUT
-- Show validation errors in drawer form (field-level + summary)
-
----
-
-## Questions / Clarifications Needed
-
-1. **Traffic Shield Integration:** Should context bar link to actual Shield settings or placeholder?
-2. **Simulator:** Detailed UI for simulator or just button CTA?
-3. **Import/Export:** File format? JSON? YAML? Custom?
-4. **Publish Flow:** Should publish be instant or show confirmation dialog?
-5. **Draft Persistence:** Should drafts persist across sessions (localStorage)?
-
----
-
-## Success Criteria
-
-**Milestone 1-2 (Foundation):**
-- ✅ Context bar sticky and responsive
-- ✅ Pipeline strip clear and clickable
-- ✅ Welcome checklist visible for new users
-- ✅ Compact status panel for existing users
-
-**Milestone 3 (Table):**
-- ✅ Table displays rules clearly
-- ✅ Filters work (UI only, mock data)
-- ✅ Empty state shows when no rules
-- ✅ Mobile: priority columns visible
-
-**Milestone 4 (Drawer):**
-- ✅ Drawer opens/closes smoothly
-- ✅ All form fields functional
-- ✅ Tabs navigation works
-- ✅ Unsaved changes guard prevents data loss
-
-**Milestone 5 (Reorder):**
-- ✅ Up/down buttons work with undo
-- ✅ Drag handle functional (optional)
-- ✅ Reorder mode visually distinct
-- ✅ Priority changes reflected immediately
-
-**Milestone 6 (Draft):**
-- ✅ Banner shows when changes exist
-- ✅ Discard/Publish buttons present
-- ✅ Banner dismisses after publish (placeholder)
-
-**Overall:**
-- ✅ No design system violations
-- ✅ Responsive on mobile/tablet/desktop
-- ✅ Keyboard accessible
-- ✅ Zero console errors
-- ✅ Ready for API integration
+| Phase | Scope | Days |
+|-------|-------|------|
+| 1 | Types + mock data | 0.5 |
+| 2 | Context bar + site selector | 1 |
+| 3 | Rules table + filters | 1.5 |
+| 4 | Rule drawer (editor) | 2.5 |
+| 5 | Reorder / priority | 1 |
+| 6 | Draft / publish | 0.5 |
+| 7 | API integration | 1.5 |
+| 8 | i18n + a11y + polish | 1 |
+| **Total** | | **~9.5 days** |
