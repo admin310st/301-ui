@@ -103,11 +103,11 @@ function renderProjectRow(project: Project): string {
                 <span>View sites</span>
               </button>
               <hr class="dropdown__divider" />
-              <button class="dropdown__item" type="button" data-action="duplicate-project" data-project-id="${project.id}">
+              <button class="dropdown__item" type="button" data-action="duplicate-project" data-project-id="${project.id}" disabled>
                 <span class="icon" data-icon="mono/copy"></span>
                 <span>Duplicate project</span>
               </button>
-              <button class="dropdown__item" type="button" data-action="archive-project" data-project-id="${project.id}">
+              <button class="dropdown__item" type="button" data-action="archive-project" data-project-id="${project.id}" disabled>
                 <span class="icon" data-icon="mono/package-closed"></span>
                 <span>Archive project</span>
               </button>
@@ -612,7 +612,10 @@ export async function loadProjectDetail(projectId: number): Promise<void> {
     let sites = data.sites;
     try {
       const { getProjectSites } = await import('@api/sites');
-      sites = await getProjectSites(projectId);
+      sites = await safeCall(
+        () => getProjectSites(projectId),
+        { lockKey: `sites:project:${projectId}`, retryOn401: true }
+      );
     } catch (error) {
       console.warn('Failed to fetch sites with acceptor_domain, using basic sites data:', error);
     }
@@ -931,10 +934,11 @@ function handleProjectActions(): void {
         break;
 
       case 'delete-project': {
-        const confirmed = confirm(
-          t('projects.messages.confirmDelete') ||
-          'Are you sure you want to delete this project? This will also delete all sites and streams.'
-        );
+        const row = actionBtn.closest<HTMLElement>('tr[data-project-id]');
+        const projectName = row?.querySelector('.link')?.textContent?.trim() || `#${projectId}`;
+        const confirmed = await showConfirmDialog('delete-project', {
+          'delete-project-name': projectName,
+        });
 
         if (!confirmed) return;
 
@@ -1010,7 +1014,7 @@ function handleIntegrationActions(): void {
       const { getProjectIntegrations } = await import('@api/projects');
       const integrations = await safeCall(
         () => getProjectIntegrations(projectId),
-        { retryOn401: true }
+        { lockKey: `integrations:project:${projectId}`, retryOn401: true }
       );
 
       // Update state
