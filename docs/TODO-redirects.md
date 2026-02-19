@@ -14,13 +14,6 @@ Done: Full table with site/project hierarchy (acceptor/donor/reserve rows). API 
 
 ## Remaining Work
 
-### Add Redirect Wizard
-
-- [ ] Implement `openBulkAddDrawer()` (stub exists in `drawer.ts`)
-- [ ] Domain selection for new redirect
-- [ ] Template selection, target URL input
-- [ ] Create via API, refresh table
-
 ### i18n Pass (R4)
 
 - [ ] Add translation keys to `en.ts` / `ru.ts` under `redirects.*` namespace
@@ -78,4 +71,4 @@ src/redirects/
 
 **Last updated:** 2026-02-11
 
-**Status:** Core complete. Pending: add wizard, i18n pass.
+**Status:** Core complete. Pending: i18n pass.

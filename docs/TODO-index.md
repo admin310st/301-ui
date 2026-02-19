@@ -11,7 +11,6 @@ Central task index for the 301-ui project. See `CLAUDE.md` for architecture and 
 **Next tasks:**
 1. **Streams/TDS page** — Layer 5 (see `TODO-streams.md`)
 2. **i18n pass** for Redirects and Domains (0 `data-i18n` attributes)
-3. **Add Redirect wizard** (stub exists in `drawer.ts`)
 
 ---
 
@@ -53,7 +52,6 @@ Done: Table (6 cols), search & filters, inspector drawer, add domains drawer (ba
 Done: Full table with hierarchy, API layer, project/site selectors, filters, drawer with template selector (T1/T5/T6/T7), bulk actions, site-level actions, CF sync, safeCall migration, adapter removal.
 
 **Remaining:**
-- [ ] Add Redirect wizard (stub in `drawer.ts`)
 - [ ] i18n (0 `data-i18n` attributes)
 
 ### 3. Projects

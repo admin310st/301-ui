@@ -10,7 +10,7 @@
 import type { ExtendedRedirectDomain } from './state';
 import { getDefaultFilters, hasActiveFilters, type ActiveFilters } from './filters-config';
 import { renderFilterBar, initFilterUI } from './filters-ui';
-import { initDrawer, openDrawer, openBulkAddDrawer } from './drawer';
+import { initDrawer, openDrawer } from './drawer';
 import { openManageSiteDomainsDrawer } from '@domains/site-domains';
 import { showDialog, hideDialog, showConfirmDialog } from '@ui/dialog';
 import { formatTooltipTimestamp, initTooltips } from '@ui/tooltip';
@@ -1233,14 +1233,6 @@ function setupActions(): void {
   const card = document.querySelector('[data-redirects-card]');
   if (!card) return;
 
-  // Handle header "Add Redirects" button (outside of card)
-  const addRedirectsBtn = document.querySelector('[data-action="add-redirects"]');
-  if (addRedirectsBtn) {
-    addRedirectsBtn.addEventListener('click', () => {
-      handleAddRedirects();
-    });
-  }
-
   // Delegate events for action buttons inside card
   card.addEventListener('click', (e) => {
     const target = e.target as HTMLElement;
@@ -1288,9 +1280,6 @@ function setupActions(): void {
         break;
       case 'add-redirect':
         if (domainId) handleAddRedirect(domainId);
-        break;
-      case 'add-redirects':
-        handleAddRedirects();
         break;
       case 'retry':
         void refreshRedirects();
@@ -1685,13 +1674,6 @@ function handleAddRedirect(domainId: number): void {
   if (!domain) return;
 
   void openDrawer(domain);
-}
-
-/**
- * Handle add redirects (bulk add - main button)
- */
-function handleAddRedirects(): void {
-  openBulkAddDrawer();
 }
 
 /**
