@@ -8,7 +8,7 @@
 - интеграцию с backend-API (см. `docs/301-wiki/` — локальная документация в виде git submodule);
 - развёртывание всего этого как **Cloudflare Worker** под `app.301.st`.
 
-Текущая кодовая база — это **"Layer 0-4"** из дорожной карты, описанной в `docs/ui-roadmap.ru.md`: фундамент (аутентификация, интеграции, UI Style Guide) + управление доменами (таблица, фильтры, bulk actions, инспектор) + проекты и сайты (CRUD, tabs navigation, attach/detach mechanics) + редиректы (полная интеграция с API, синхронизация с Cloudflare).
+Текущая кодовая база — это **"Layer 0-4"** из дорожной карты, описанной в `docs/ui-roadmap.md`: фундамент (аутентификация, интеграции, UI Style Guide) + управление доменами (таблица, фильтры, bulk actions, инспектор) + проекты и сайты (CRUD, tabs navigation, attach/detach mechanics) + редиректы (полная интеграция с API, синхронизация с Cloudflare).
 
 > **📖 API Документация (git submodule)**
 > Полная спецификация API находится в `docs/301-wiki/` и подключена как git submodule из репозитория [301.wiki](https://github.com/admin310st/301.wiki.git).
@@ -326,7 +326,7 @@ Cloudflare Workers serves `public/` as the origin root.
 
 ### Roadmap
 
-Полная дорожная карта по доменам и другим модулям: **`docs/ui-roadmap.ru.md`**
+Полная дорожная карта по доменам и другим модулям: **`docs/ui-roadmap.md`**
 
 ---
 
@@ -622,7 +622,7 @@ Cloudflare Workers serves `public/` as the origin root.
 ├── static/               # Локальные статические файлы
 ├── docs/                 # Documentation
 │   ├── StyleGuide.md     # UI Style Guide documentation
-│   ├── ui-roadmap.ru.md  # UI Roadmap
+│   ├── ui-roadmap.md  # UI Roadmap
 │   └── 301-wiki/         # API docs (git submodule)
 │       ├── API_Auth.md
 │       ├── API_Integrations.md
@@ -702,7 +702,7 @@ For non-Russian readers:
 > **Documentation:**
 > - API specification: `docs/301-wiki/` (git submodule)
 >   - Update with: `git submodule update --remote docs/301-wiki`
-> - UI Roadmap: `docs/ui-roadmap.ru.md`
+> - UI Roadmap: `docs/ui-roadmap.md`
 > - Style Guide: `docs/StyleGuide.md`
 >
 > The repo is currently at **Layer 0-4** of the roadmap: foundation (auth, integrations, UI Style Guide) + domains management UI with filters, bulk actions, and inspector drawer + projects and sites with full CRUD and tab navigation + redirects with full API integration and Cloudflare sync.

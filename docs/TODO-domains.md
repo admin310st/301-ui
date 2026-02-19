@@ -790,7 +790,7 @@ export default {
 
 - [ ] Обновить CLAUDE.md (добавить информацию о domains page)
 - [ ] Обновить README.md (добавить Domains в структуру проекта)
-- [ ] Обновить ui-roadmap.ru.md (отметить прогресс по Layer 2.2)
+- [ ] Обновить ui-roadmap.md (отметить прогресс по Layer 2.2)
 - [x] Создать TODO-domains.md (этот файл)
 - [x] Обновить CHANGELOG.md (добавить Domains page в [Unreleased])
 - [x] Создать docs/API-domains-actual-vs-ui.md (детальное сравнение API vs UI, 2025-12-20)

@@ -68,7 +68,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Documentation updates**
   - CLAUDE.md: API_Integrations.md references, new module structure
   - README.md: Integrations section, git submodule instructions, updated project structure
-  - ui-roadmap.ru.md: Layer 1 implementation status for integrations
+  - ui-roadmap.md: Layer 1 implementation status for integrations
 - **i18n conventions guide** (`.claude/i18n-conventions.md`)
   - Two-layer translation system: UI interface vs Content pages
   - Key naming conventions and best practices
@@ -164,7 +164,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Documented all implemented features: table, filters, bulk actions, health indicators
   - Listed TODOs for Layer 2 completion: API integration, global state, subdomain creation
   - Updated EN summary to reflect current implementation state
-  - All sources of truth clearly referenced: docs/301-wiki/, docs/StyleGuide.md, docs/ui-roadmap.ru.md
+  - All sources of truth clearly referenced: docs/301-wiki/, docs/StyleGuide.md, docs/ui-roadmap.md
 
 ## [0.2.0] - 2025-12-12
 
@@ -246,7 +246,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - README.md with architecture overview
 - CLAUDE.md with project instructions for AI assistants
 - StyleGuide.md with design system tokens
-- ui-roadmap.ru.md with long-term roadmap
+- ui-roadmap.md with long-term roadmap
 - API contract documentation
 
 ---

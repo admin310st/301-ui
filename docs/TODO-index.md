@@ -32,7 +32,7 @@ Account (Аккаунт клиента)
                  └─ Domain (Домен)
 ```
 
-### UI Roadmap (из `docs/ui-roadmap.ru.md`)
+### UI Roadmap (из `docs/ui-roadmap.md`)
 
 ```
 ✅ Layer 0: Auth pages, UI Style Guide
@@ -411,7 +411,7 @@ build: {
 ### Архитектура
 
 - **Иерархия сущностей:** `docs/301-wiki/Appendix.md`
-- **UI Roadmap:** `docs/ui-roadmap.ru.md`
+- **UI Roadmap:** `docs/ui-roadmap.md`
 - **API Auth spec:** `docs/301-wiki/API_Auth.md`
 - **API Integrations spec:** `docs/301-wiki/API_Integrations.md`
 - **Domains API gap analysis:** `docs/API-domains-actual-vs-ui.md`
@@ -522,7 +522,7 @@ build: {
   - Project filter with real projects from API
   - Project selection persistence across pages (Domains ↔ Redirects)
   - Cleaned up completed PLAN files from repository
-  - Updated README.md, ui-roadmap.ru.md, TODO-index.md with current status
+  - Updated README.md, ui-roadmap.md, TODO-index.md with current status
 
 - **2025-01-18**: Redirects Real API Integration
   - Fixed multi-site parallel loading (site-specific abort keys)

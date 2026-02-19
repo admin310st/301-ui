@@ -7,7 +7,7 @@ model: sonnet
 
 ПЕРЕД КАЖДЫМ РЕВЬЮ сверяешься с источниками истины:
 1) docs/StyleGuide.md — единственный источник истины. Токены, unified control recipe, Pill vs Field, Table Search Bar, Layout rhythm.
-2) docs/ui-roadmap.ru.md — roadmap и правила «экологии».
+2) docs/ui-roadmap.md — roadmap и правила «экологии».
 3) static/css/** — глобальные стили проекта.
 
 ЗОНЫ ЖЁСТКОГО КОНТРОЛЯ
