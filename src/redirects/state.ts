@@ -15,6 +15,7 @@ import type {
   DomainRole,
 } from '@api/types';
 import { getSiteRedirects } from '@api/redirects';
+import { safeCall } from '@api/ui-client';
 
 // =============================================================================
 // Types
@@ -212,8 +213,10 @@ export async function loadSitesRedirects(
     // Load redirects from all sites in parallel
     const responses = await Promise.all(
       contexts.map(ctx =>
-        getSiteRedirects(ctx.siteId, options)
-          .then(response => ({
+        safeCall(
+          () => getSiteRedirects(ctx.siteId, options),
+          { lockKey: `site-redirects:${ctx.siteId}`, retryOn401: true }
+        ).then(response => ({
             ...response,
             siteContext: ctx,
           }))

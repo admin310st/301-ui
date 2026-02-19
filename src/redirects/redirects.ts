@@ -12,7 +12,7 @@ import { getDefaultFilters, hasActiveFilters, type ActiveFilters } from './filte
 import { renderFilterBar, initFilterUI } from './filters-ui';
 import { initDrawer, openDrawer, openBulkAddDrawer } from './drawer';
 import { openManageSiteDomainsDrawer } from '@domains/site-domains';
-import { showDialog, hideDialog } from '@ui/dialog';
+import { showDialog, hideDialog, showConfirmDialog } from '@ui/dialog';
 import { formatTooltipTimestamp, initTooltips } from '@ui/tooltip';
 import { initSyncStatus } from './sync-status';
 import { updateBulkActionsBar as updateBulkActions } from '@ui/bulk-actions';
@@ -1471,7 +1471,12 @@ async function handleClearSiteRedirects(siteId: number): Promise<void> {
     return;
   }
 
-  const confirmed = confirm(`Clear ${donorDomains.length} redirect(s) from "${site.site_name}"?\n\nThis will remove redirect configurations but keep the domains.`);
+  // TODO: Add dialog element `data-dialog="clear-site-redirects"` to redirects.html
+  // with data-clear-site-name, data-clear-site-count, and data-confirm-delete attributes
+  const confirmed = await showConfirmDialog('clear-site-redirects', {
+    'clear-site-name': site.site_name,
+    'clear-site-count': donorDomains.length.toString(),
+  });
   if (!confirmed) return;
 
   try {

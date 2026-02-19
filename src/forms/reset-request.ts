@@ -1,5 +1,6 @@
 import { resetPassword } from '@api/auth';
 import type { CommonErrorResponse, ResetPasswordRequest } from '@api/types';
+import { safeCall } from '@api/ui-client';
 import { t, tWithVars } from '@i18n';
 import { requireTurnstileToken, resetTurnstile } from '../turnstile';
 import { setFormState } from '@ui/dom';
@@ -68,11 +69,14 @@ async function handleResetRequest(event: SubmitEvent): Promise<void> {
 
   try {
     setFormState(form, 'pending', t('auth.reset.statusPending'));
-    const res = await resetPassword({
-      type,
-      value,
-      turnstile_token: captcha,
-    });
+    const res = await safeCall(
+      () => resetPassword({
+        type,
+        value,
+        turnstile_token: captcha,
+      }),
+      { lockKey: 'auth-reset-request', retryOn401: false }
+    );
 
     if (res.status === 'oauth_only' || res.oauth_only) {
       const provider = res.provider ? PROVIDER_LABELS[res.provider] ?? res.provider : null;

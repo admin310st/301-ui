@@ -2,6 +2,8 @@
  * NameCheap Connect form
  */
 
+import { safeCall, type NormalizedError } from '@api/ui-client';
+import { invalidateCache } from '@api/cache';
 import { showGlobalMessage } from '@ui/notifications';
 import { getIntegrationErrorMessage } from '@utils/api-errors';
 
@@ -56,12 +58,18 @@ export function initNcConnectForm(): void {
 
     try {
       const { initNamecheap } = await import('@api/integrations');
-      await initNamecheap({
-        username,
-        api_key: apiKey,
-        key_alias: keyAlias,
-      });
+      await safeCall(
+        () => initNamecheap({
+          username,
+          api_key: apiKey,
+          key_alias: keyAlias,
+        }),
+        { lockKey: 'nc-connect', retryOn401: true }
+      );
       // Loading indicator managed by initNamecheap() automatically
+
+      // Invalidate integration keys cache after successful creation
+      invalidateCache('integration-keys');
 
       const successMsg = 'NameCheap account connected successfully!';
       showStatus('success', successMsg);
@@ -109,15 +117,16 @@ export function initNcConnectForm(): void {
         }
       }, 2000);
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('[nc-connect] Error:', error);
 
-      const body = error.body as ApiErrorResponse | null;
+      const normalized = error as NormalizedError;
+      const details = normalized.details as { error?: string; message?: string; ips?: string } | null;
 
       // Handle ip_not_whitelisted - show IPs in status panel
-      if (body?.error === 'ip_not_whitelisted') {
-        const ipsString = (body as any).ips as string | undefined;
-        const message = body.message || 'Add these IPs to your Namecheap API whitelist';
+      if (details?.error === 'ip_not_whitelisted') {
+        const ipsString = details.ips;
+        const message = details.message || 'Add these IPs to your Namecheap API whitelist';
 
         if (ipsString) {
           const ipMessage = formatIpWhitelistError(ipsString, message);

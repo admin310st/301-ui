@@ -57,7 +57,7 @@ export function showConfirmDialog(
     dialog.hidden = false;
 
     // Handler for confirm button (find any data-confirm-* button)
-    const confirmBtn = dialog.querySelector('[data-confirm-replace], [data-confirm-delete], [data-confirm-detach], [data-confirm-remove], [data-confirm-cf], [data-confirm-bulk-delete], [data-confirm-bulk-move]');
+    const confirmBtn = dialog.querySelector('[data-confirm-replace], [data-confirm-delete], [data-confirm-detach], [data-confirm-remove], [data-confirm-cf], [data-confirm-bulk-delete], [data-confirm-bulk-move], [data-confirm-block], [data-confirm-unblock], [data-confirm-bulk-block], [data-confirm-bulk-role]');
     const handleConfirm = () => {
       dialog.hidden = true;
       cleanup();

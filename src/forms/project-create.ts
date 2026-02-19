@@ -1,10 +1,11 @@
 import { createProject } from '@api/projects';
 import type { CreateProjectRequest } from '@api/types';
+import { safeCall } from '@api/ui-client';
+import { invalidateCache } from '@api/cache';
 import { getAccountId } from '@state/auth-state';
 import { showGlobalMessage } from '@ui/notifications';
 import { t } from '@i18n';
 import { loadProjects } from '@ui/projects';
-import { safeCall } from '@api/ui-client';
 
 /**
  * Open create project drawer
@@ -131,6 +132,9 @@ async function handleCreateProject(event: Event): Promise<void> {
 
     // Create project
     await safeCall(() => createProject(request), { lockKey: 'create-project', retryOn401: true });
+
+    // Invalidate projects cache after successful creation
+    invalidateCache('projects');
 
     // Show success message
     showGlobalMessage('success', t('projects.messages.created') || 'Project created successfully');

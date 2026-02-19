@@ -1,5 +1,6 @@
 import { login } from '@api/auth';
 import type { CommonErrorResponse } from '@api/types';
+import { safeCall } from '@api/ui-client';
 import { t } from '@i18n';
 import { requireTurnstileToken, resetTurnstile } from '../turnstile';
 import { setFormState } from '@ui/dom';
@@ -54,7 +55,10 @@ async function handleLoginSubmit(event: SubmitEvent): Promise<void> {
 
   try {
     setFormState(form, 'pending', t('auth.login.statusPending'));
-    const res = await login({ email, password, turnstile_token: captcha });
+    const res = await safeCall(
+      () => login({ email, password, turnstile_token: captcha }),
+      { lockKey: 'auth-login', retryOn401: false }
+    );
     await loadUser();
     const successMessage = res.message || t('auth.login.statusSuccess');
     setFormState(form, 'success', successMessage);

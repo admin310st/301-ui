@@ -1,5 +1,6 @@
 import { confirmPassword } from '@api/auth';
 import type { CommonErrorResponse } from '@api/types';
+import { safeCall } from '@api/ui-client';
 import { t } from '@i18n';
 import { getResetCsrfToken, setResetCsrfToken } from '@state/reset-session';
 import { setFormState } from '@ui/dom';
@@ -71,7 +72,10 @@ async function handleResetConfirm(event: SubmitEvent): Promise<void> {
 
   try {
     setFormState(form, 'pending', t('auth.resetConfirm.statusPending'));
-    const res = await confirmPassword({ password, csrf_token: csrfToken });
+    const res = await safeCall(
+      () => confirmPassword({ password, csrf_token: csrfToken }),
+      { lockKey: 'auth-reset-confirm', retryOn401: false }
+    );
     const message = res.message || t('auth.resetConfirm.statusSuccess');
     setFormState(form, 'success', message);
     showGlobalMessage('success', message);

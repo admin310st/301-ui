@@ -1,7 +1,7 @@
 import { type Domain } from './mock-data';
 import { initAddDomainsDrawer } from './add-domains-drawer';
 import { formatDomainDisplay } from '@utils/idn';
-import { showDialog } from '@ui/dialog';
+import { showConfirmDialog } from '@ui/dialog';
 import { getDefaultFilters, hasActiveFilters, updateProjectFilterOptions, type ActiveFilters } from './filters-config';
 import { filterDomains as applyFiltersAndSearch } from './filters';
 import { renderFilterBar, initFilterUI } from './filters-ui';
@@ -13,11 +13,11 @@ import { getDomains, updateDomainRole, blockDomain, unblockDomain, deleteDomain 
 import { getProjects } from '@api/projects';
 import { getSiteRedirects, getZoneLimits } from '@api/redirects';
 import { safeCall } from '@api/ui-client';
+import { invalidateCache } from '@api/cache';
 import { getAccountId } from '@state/auth-state';
 import { getSelectedProjectName, setSelectedProject, clearSelectedProject } from '@state/ui-preferences';
 import { adaptDomainsResponseToUI } from './adapter';
 import { showGlobalMessage } from '@ui/notifications';
-import { hideDialog } from '@ui/dialog';
 
 let currentDomains: Domain[] = [];
 const selectedDomains = new Set<number>();
@@ -200,57 +200,11 @@ export function initDomainsPage(): void {
         void handleChangeRole(domain, actionBtn.getAttribute('data-role') as Domain['role']);
         break;
       case 'delete-domain': {
-        // Update dialog with domain name
-        const deleteDomainNameEl = document.querySelector('[data-delete-domain-name]');
-        if (deleteDomainNameEl) {
-          deleteDomainNameEl.textContent = domain.domain_name;
-        }
-
-        // Store domain ID for confirmation handler
-        const deleteDialog = document.querySelector('[data-dialog="delete-domain"]');
-        if (deleteDialog) {
-          deleteDialog.setAttribute('data-domain-id', domain.id.toString());
-        }
-
-        // Show confirmation dialog
-        showDialog('delete-domain');
+        void handleDeleteDomain(domain);
         break;
       }
     }
   });
-
-  // Delete domain confirmation handler
-  const confirmDeleteBtn = document.querySelector('[data-confirm-delete]');
-  if (confirmDeleteBtn) {
-    confirmDeleteBtn.addEventListener('click', async () => {
-      const deleteDialog = document.querySelector('[data-dialog="delete-domain"]');
-      const domainId = deleteDialog?.getAttribute('data-domain-id');
-
-      if (domainId) {
-        const domain = currentDomains.find((d) => d.id === parseInt(domainId));
-        if (domain) {
-          try {
-            await safeCall(
-              () => deleteDomain(domain.id),
-              { lockKey: `delete-domain-${domain.id}`, retryOn401: true }
-            );
-
-            showGlobalMessage('success', `Deleted ${domain.domain_name}`);
-
-            // Hide dialog and reload
-            hideDialog('delete-domain');
-            showLoadingState();
-            await loadDomainsFromAPI();
-          } catch (error: unknown) {
-            console.error('Failed to delete domain:', error);
-            const errorMessage = error instanceof Error ? error.message : 'Failed to delete domain';
-            showGlobalMessage('error', errorMessage);
-            hideDialog('delete-domain');
-          }
-        }
-      }
-    });
-  }
 
   // Reset filters button state updater
   const resetBtn = document.querySelector('[data-reset-filters]');
@@ -1141,19 +1095,51 @@ function getRoleMenuItems(domain: Domain): string {
 }
 
 /**
+ * Handle delete domain action
+ * DELETE /domains/:id
+ */
+async function handleDeleteDomain(domain: Domain): Promise<void> {
+  const confirmed = await showConfirmDialog('delete-domain', {
+    'delete-domain-name': domain.domain_name,
+  });
+  if (!confirmed) return;
+
+  try {
+    await safeCall(
+      () => deleteDomain(domain.id),
+      { lockKey: `delete-domain-${domain.id}`, retryOn401: true }
+    );
+
+    invalidateCache('domains');
+    showGlobalMessage('success', `Deleted ${domain.domain_name}`);
+
+    // Reload domains to reflect changes
+    showLoadingState();
+    await loadDomainsFromAPI();
+  } catch (error: unknown) {
+    console.error('Failed to delete domain:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Failed to delete domain';
+    showGlobalMessage('error', errorMessage);
+  }
+}
+
+/**
  * Handle block domain action
  * PATCH /domains/:id { blocked: true, blocked_reason: ... }
  */
 async function handleBlockDomain(domain: Domain): Promise<void> {
-  const reason = prompt(`Block ${domain.domain_name}?\n\nEnter reason (optional):`);
-  if (reason === null) return; // User cancelled
+  const confirmed = await showConfirmDialog('block-domain', {
+    'block-domain-name': domain.domain_name,
+  });
+  if (!confirmed) return;
 
   try {
     await safeCall(
-      () => blockDomain(domain.id, reason || 'manual'),
+      () => blockDomain(domain.id, 'manual'),
       { lockKey: `block-domain-${domain.id}`, retryOn401: true }
     );
 
+    invalidateCache('domains');
     showGlobalMessage('success', `Blocked ${domain.domain_name}`);
 
     // Reload domains to reflect changes
@@ -1171,7 +1157,10 @@ async function handleBlockDomain(domain: Domain): Promise<void> {
  * PATCH /domains/:id { blocked: false, blocked_reason: null }
  */
 async function handleUnblockDomain(domain: Domain): Promise<void> {
-  if (!confirm(`Unblock ${domain.domain_name}?`)) return;
+  const confirmed = await showConfirmDialog('unblock-domain', {
+    'unblock-domain-name': domain.domain_name,
+  });
+  if (!confirmed) return;
 
   try {
     await safeCall(
@@ -1179,6 +1168,7 @@ async function handleUnblockDomain(domain: Domain): Promise<void> {
       { lockKey: `unblock-domain-${domain.id}`, retryOn401: true }
     );
 
+    invalidateCache('domains');
     showGlobalMessage('success', `Unblocked ${domain.domain_name}`);
 
     // Reload domains to reflect changes
@@ -1203,6 +1193,8 @@ async function handleChangeRole(domain: Domain, newRole: Domain['role']): Promis
       () => updateDomainRole(domain.id, newRole),
       { lockKey: `change-role-${domain.id}`, retryOn401: true }
     );
+
+    invalidateCache('domains');
 
     const roleLabels = {
       acceptor: 'Acceptor',

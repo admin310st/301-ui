@@ -191,7 +191,7 @@ async function handleAttachIntegration(): Promise<void> {
     // Update state
     const integrations = await safeCall(
       () => getProjectIntegrations(currentProjectId!),
-      { retryOn401: true }
+      { lockKey: `project-integrations:${currentProjectId}`, retryOn401: true }
     );
     setIntegrations(integrations);
 

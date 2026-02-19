@@ -1,10 +1,11 @@
 import { createSite } from '@api/sites';
 import { getProjects } from '@api/projects';
 import type { CreateSiteRequest } from '@api/types';
+import { safeCall } from '@api/ui-client';
+import { invalidateCache, invalidateCacheByPrefix } from '@api/cache';
 import { getAccountId } from '@state/auth-state';
 import { showGlobalMessage } from '@ui/notifications';
 import { t } from '@i18n';
-import { safeCall } from '@api/ui-client';
 
 /**
  * Track current context (which project to create site for, if any)
@@ -217,6 +218,10 @@ async function handleCreateSite(event: Event): Promise<void> {
 
     // Create site
     await safeCall(() => createSite(projectId, request), { lockKey: 'create-site', retryOn401: true });
+
+    // Invalidate sites cache after successful creation
+    invalidateCache('sites');
+    invalidateCacheByPrefix('sites:project');
 
     // Show success message
     showGlobalMessage('success', t('sites.messages.created') || 'Site created successfully');

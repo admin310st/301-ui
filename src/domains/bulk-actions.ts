@@ -3,11 +3,12 @@
  * Handles selection tracking and bulk operations
  */
 
-import { showDialog, hideDialog } from '@ui/dialog';
+import { showConfirmDialog } from '@ui/dialog';
 import { updateBulkActionsBar } from '@ui/bulk-actions';
 import { showGlobalMessage } from '@ui/notifications';
 import { updateDomainRole, blockDomain, deleteDomain } from '@api/domains';
 import { safeCall } from '@api/ui-client';
+import { invalidateCache } from '@api/cache';
 import type { DomainRole } from '@api/types';
 
 // Callback to reload domains after bulk operations
@@ -117,9 +118,31 @@ export function initBulkActions(): void {
     const selectedIds = getSelectedDomainIds();
     if (selectedIds.length === 0) return;
 
-    const newRole = prompt(
-      `Change role for ${selectedIds.length} domain(s)?\n\nEnter new role: acceptor, donor, or reserve`
-    );
+    // Update count in dialog
+    const roleCountEl = document.querySelector('[data-bulk-role-count]');
+    if (roleCountEl) {
+      roleCountEl.textContent = selectedIds.length.toString();
+    }
+
+    // Reset and enable select
+    const roleSelect = document.querySelector<HTMLSelectElement>('[data-bulk-role-select]');
+    const confirmRoleBtn = document.querySelector<HTMLButtonElement>('[data-confirm-bulk-role]');
+    if (roleSelect) {
+      roleSelect.value = '';
+      if (confirmRoleBtn) confirmRoleBtn.disabled = true;
+
+      // Enable confirm button when a role is selected
+      const handleSelectChange = () => {
+        if (confirmRoleBtn) confirmRoleBtn.disabled = !roleSelect.value;
+      };
+      roleSelect.removeEventListener('change', handleSelectChange);
+      roleSelect.addEventListener('change', handleSelectChange);
+    }
+
+    const confirmed = await showConfirmDialog('bulk-role-change');
+    if (!confirmed) return;
+
+    const newRole = roleSelect?.value;
     if (!newRole || !['acceptor', 'donor', 'reserve'].includes(newRole)) return;
 
     let successCount = 0;
@@ -139,6 +162,8 @@ export function initBulkActions(): void {
         errorCount++;
       }
     }
+
+    invalidateCache('domains');
 
     // Show result
     if (errorCount === 0) {
@@ -171,10 +196,14 @@ export function initBulkActions(): void {
     const selectedIds = getSelectedDomainIds();
     if (selectedIds.length === 0) return;
 
-    const reason = prompt(
-      `Block ${selectedIds.length} domain(s)?\n\nEnter reason (optional):`
-    );
-    if (reason === null) return; // User cancelled
+    // Update count in dialog
+    const blockCountEl = document.querySelector('[data-bulk-block-count]');
+    if (blockCountEl) {
+      blockCountEl.textContent = selectedIds.length.toString();
+    }
+
+    const confirmed = await showConfirmDialog('bulk-block-domains');
+    if (!confirmed) return;
 
     let successCount = 0;
     let errorCount = 0;
@@ -184,7 +213,7 @@ export function initBulkActions(): void {
       const domainId = parseInt(idStr);
       try {
         await safeCall(
-          () => blockDomain(domainId, reason || 'manual'),
+          () => blockDomain(domainId, 'manual'),
           { lockKey: `bulk-block-${domainId}`, retryOn401: true }
         );
         successCount++;
@@ -193,6 +222,8 @@ export function initBulkActions(): void {
         errorCount++;
       }
     }
+
+    invalidateCache('domains');
 
     // Show result
     if (errorCount === 0) {
@@ -207,42 +238,18 @@ export function initBulkActions(): void {
 
   /**
    * Handle Delete button - show confirmation dialog
-   */
-  deleteBtn?.addEventListener('click', () => {
-    const checkboxes = getRowCheckboxes();
-    const selectedIds = checkboxes
-      .filter(cb => cb.checked)
-      .map(cb => cb.closest('tr')?.dataset.domainId)
-      .filter(Boolean);
-
-    if (selectedIds.length === 0) return;
-
-    // Update count in dialog
-    const countElement = document.querySelector('[data-bulk-delete-count]');
-    if (countElement) {
-      countElement.textContent = selectedIds.length.toString();
-    }
-
-    // Show confirmation dialog
-    showDialog('bulk-delete-domains');
-  });
-
-  /**
-   * Handle bulk delete confirmation
    * NOTE: Only subdomains (3rd+ level) can be deleted via API.
    * Root domains are managed by zones.
    * Sequential DELETE /domains/:id for safety
    */
-  const confirmBulkDeleteBtn = document.querySelector('[data-confirm-bulk-delete]');
-  confirmBulkDeleteBtn?.addEventListener('click', async () => {
+  deleteBtn?.addEventListener('click', async () => {
     const selectedIds = getSelectedDomainIds();
+    if (selectedIds.length === 0) return;
 
-    if (selectedIds.length === 0) {
-      hideDialog('bulk-delete-domains');
-      return;
-    }
-
-    hideDialog('bulk-delete-domains');
+    const confirmed = await showConfirmDialog('bulk-delete-domains', {
+      'bulk-delete-count': selectedIds.length.toString(),
+    });
+    if (!confirmed) return;
 
     let successCount = 0;
     let errorCount = 0;
@@ -266,6 +273,8 @@ export function initBulkActions(): void {
         }
       }
     }
+
+    invalidateCache('domains');
 
     // Show result
     if (errorCount === 0) {

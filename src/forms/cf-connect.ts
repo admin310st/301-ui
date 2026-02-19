@@ -6,6 +6,7 @@ import { showGlobalMessage } from '@ui/notifications';
 import { setPendingNoticeFlash } from '@ui/loading-indicator';
 import { showConfirmDialog } from '@ui/dialog';
 import { safeCall, type NormalizedError } from '@api/ui-client';
+import { invalidateCache, invalidateCacheByPrefix } from '@api/cache';
 import { getIntegrationErrorMessage } from '@utils/api-errors';
 
 /**
@@ -131,6 +132,10 @@ export function initCfConnectForm(): void {
           retryOn401: true,
         }
       );
+
+      // Invalidate integration caches after successful connection
+      invalidateCache('integration-keys');
+      invalidateCacheByPrefix('integrations');
 
       // Show success message with sync info
       const syncInfo = response.sync
@@ -263,6 +268,10 @@ async function handleReplaceConfirmation(
         retryOn401: true,
       }
     );
+
+    // Invalidate integration caches after successful replacement
+    invalidateCache('integration-keys');
+    invalidateCacheByPrefix('integrations');
 
     const syncInfo = response.sync
       ? ` Synced ${response.sync.zones} zones and ${response.sync.domains} domains.`

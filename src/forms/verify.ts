@@ -1,5 +1,6 @@
 import { verifyToken } from '@api/auth';
 import type { CommonErrorResponse, VerifyRequest } from '@api/types';
+import { safeCall } from '@api/ui-client';
 import { t } from '@i18n';
 import { applyLoginStateToDOM } from '@ui/auth-dom';
 import { showAuthView } from '@ui/auth-routing';
@@ -79,7 +80,10 @@ async function handleVerification(params: VerifyUrlParams): Promise<void> {
 
   try {
     setVerifyStatus('pending', t('auth.verify.pending'));
-    const res = await verifyToken(payload);
+    const res = await safeCall(
+      () => verifyToken(payload),
+      { lockKey: 'auth-verify', retryOn401: false }
+    );
 
     const user = ('user' in res ? res.user : null) || null;
     applyLoginStateToDOM(user);

@@ -9,7 +9,7 @@ import { getCurrentProjectId, updateSite as updateSiteState, getCurrentSites } f
 import { showGlobalMessage } from '@ui/notifications';
 import { t } from '@i18n';
 import { safeCall } from '@api/ui-client';
-import { invalidateCache } from '@api/cache';
+import { invalidateCache, invalidateCacheByPrefix } from '@api/cache';
 
 /**
  * Render sites table from state
@@ -203,8 +203,10 @@ async function handleEditSiteSubmit(event: Event): Promise<void> {
     // 1. Optimistic point update in state
     updateSiteState(siteId, request);
 
-    // 2. Invalidate project cache (SDK already invalidated sites:*)
+    // 2. Invalidate caches
     invalidateCache(`project:${projectId}`);
+    invalidateCache('sites');
+    invalidateCacheByPrefix('sites:project');
 
     // 3. Re-render sites table from state
     renderSitesTable(getCurrentSites());

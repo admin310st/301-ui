@@ -1,5 +1,6 @@
 import { register } from '@api/auth';
 import type { CommonErrorResponse } from '@api/types';
+import { safeCall } from '@api/ui-client';
 import { t, tWithVars } from '@i18n';
 import { requireTurnstileToken, resetTurnstile } from '../turnstile';
 import { setFormState } from '@ui/dom';
@@ -67,7 +68,10 @@ async function handleRegisterSubmit(event: SubmitEvent): Promise<void> {
 
   try {
     setFormState(form, 'pending', t('auth.register.statusPending'));
-    const res = await register({ email, password, turnstile_token: captcha });
+    const res = await safeCall(
+      () => register({ email, password, turnstile_token: captcha }),
+      { lockKey: 'auth-register', retryOn401: false }
+    );
     const statusMessage =
       res.message || tWithVars('auth.register.statusSuccess', { email });
     setFormState(form, 'success', statusMessage);
