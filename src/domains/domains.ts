@@ -1004,7 +1004,11 @@ function openInspector(domainId: number): void {
 
           // Redirect row
           if (redirect) {
-            const templateLabel = redirect.template_id || 'Custom';
+            const templateNames: Record<string, string> = {
+              T1: 'Domain redirect', T3: 'apex \u2192 www', T4: 'www \u2192 apex',
+              T5: 'Path redirect', T6: 'Exact path \u2192 URL', T7: 'Maintenance mode',
+            };
+            const templateLabel = templateNames[redirect.template_id] || redirect.template_id || 'Custom';
             const targetUrl = redirect.params?.target_url || '—';
             html += `
               <div class="detail-row">
