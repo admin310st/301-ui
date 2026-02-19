@@ -144,7 +144,6 @@ Recommended: **Entry Points Pattern** for this MPA project — separate entry po
 | i18n guidelines | `.claude/i18n-conventions.md` |
 | UI roadmap | `docs/ui-roadmap.md` |
 | API specs | `docs/301-wiki/` |
-| Domain API gaps | `docs/API-domains-actual-vs-ui.md` |
 | UI reviewer agent | `.claude/agents/ui-code-reviewer.md` (`/uix`) |
 | Icon preview | `/icons-preview.html` |
 

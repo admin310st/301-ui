@@ -242,7 +242,7 @@ When design system updates are introduced, **ALL** UI components and demo pages 
 - Task completion progress
 - Domain health scores
 
-**Production**: Not yet implemented
+**Production**: Reserved — not yet used in any page
 
 **CSS**: `site.css` → "Metric Pill"
 
@@ -362,45 +362,7 @@ Use `.dropdown__item--rich` for items that need a title and description:
    └─ Shimmer fades out (200ms)
 ```
 
-**CSS Implementation**:
-
-```css
-/* Loading bar with shimmer */
-.loading-bar {
-  position: absolute;
-  bottom: 0;
-  height: var(--indicator-thickness); /* 1px */
-  background: var(--brand); /* Blue */
-  z-index: var(--z-indicator);
-}
-
-.loading-bar[data-loading='true']::before {
-  animation: shimmer 1.5s ease-in-out infinite;
-}
-
-/* Shimmer flush state (final cycle) */
-.loading-bar[data-loading='flushing']::before {
-  animation: shimmer 1.5s ease-in-out 1; /* Once, not infinite */
-}
-
-/* Color variants */
-.loading-bar[data-type='brand'] { background: var(--brand); }
-.loading-bar[data-type='cf'] { background: var(--accent-cf); }
-.loading-bar[data-type='success'] { background: var(--success); }
-.loading-bar[data-type='error'] { background: var(--danger); }
-.loading-bar[data-type='info'] { background: var(--info); }
-
-/* Border flash on utility-bar */
-.utility-bar[data-border-flash='success'] {
-  border-bottom-color: var(--success);
-}
-.utility-bar[data-border-flash='error'] {
-  border-bottom-color: var(--danger);
-}
-.utility-bar[data-border-flash='info'] {
-  border-bottom-color: var(--info);
-}
-```
+**CSS**: `site.css` → "Loading indicator bar" section
 
 **Timing Specifications**:
 
@@ -422,22 +384,7 @@ Use `.dropdown__item--rich` for items that need a title and description:
 | `error` | Red (`--danger`) | Error notices |
 | `info` | Blue (`--info`) | Info notices |
 
-**Design Tokens**:
-
-```css
-:root {
-  --indicator-thickness: 1px;
-  --z-indicator: 2;        /* Loading bar layer */
-  --z-global-notice: 100;  /* Notice overlay layer */
-
-  /* Colors */
-  --brand: #3475C0;        /* Blue for auth */
-  --accent-cf: #C24F00;    /* Orange for CF */
-  --success: #18C27A;      /* Green */
-  --danger: #FF4F6E;       /* Red */
-  --info: #3B82F6;         /* Info blue */
-}
-```
+**Design Tokens**: See `theme.css` → `:root` for `--indicator-thickness`, `--z-indicator`, `--z-global-notice`
 
 **Accessibility**:
 - Loading bar has `aria-hidden="true"` (visual only)
@@ -760,46 +707,14 @@ All major component sections in `site.css` are marked with comments:
 
 **Drawer Manager (`@ui/drawer-manager`):**
 
-For multi-layer drawer workflows (e.g., Inspector → Manage Domains → Add Domains), use the centralized drawer manager:
+For multi-layer workflows, use the centralized drawer manager. API: `drawerManager.open(id)`, `.close(id)`, `.closeTop()`, `.closeAll()`, `.isOpen(id)`.
 
-```typescript
-import { drawerManager } from '@ui/drawer-manager';
-
-// Open drawer (adds to stack with proper z-index)
-drawerManager.open('drawer-id');
-
-// Close specific drawer
-drawerManager.close('drawer-id');
-
-// Close topmost drawer (Escape key does this automatically)
-drawerManager.closeTop();
-
-// Close all drawers
-drawerManager.closeAll();
-
-// Check if drawer is open
-if (drawerManager.isOpen('drawer-id')) { ... }
-
-// Get current stack depth
-const depth = drawerManager.getStackDepth();
-```
-
-**Key features:**
-- **Z-index stacking**: Each drawer level gets +10 z-index (base: 1000)
-- **Escape key handling**: Centralized - closes topmost drawer only
-- **Focus trapping**: Focuses first focusable element when drawer opens
-- **Overlay click**: Closes only the topmost drawer
+**Key features:** Z-index stacking (+10 per level, base 1000), centralized Escape key handling, focus trapping, overlay click closes topmost only.
 
 **Rules:**
 1. Always use `data-drawer="unique-id"` attribute on drawer elements
-2. Use `drawerManager.open()/close()` instead of manual `hidden` attribute manipulation
-3. Remove manual Escape key handlers from drawer modules (manager handles it)
-4. Use `data-drawer-close` on overlay and close buttons
-
-**Stacking example (Redirects page):**
-1. Layer 1: `redirect-inspector` - Domain redirect details
-2. Layer 2: `manage-site-domains` - Manage domains for site
-3. Layer 3: `add-domain-to-project` - Add unassigned domains
+2. Use `drawerManager.open()/close()` instead of manual `hidden` manipulation
+3. Use `data-drawer-close` on overlay and close buttons
 
 **CSS**: `drawers.css`
 
@@ -809,24 +724,7 @@ const depth = drawerManager.getStackDepth();
 
 ## Cloudflare-Specific Rules
 
-### When to Use CF Orange
-
-**Button variants**: `.btn--cf`, `.btn-chip--cf`
-**Card accents**: `.card--accent-cf`
-**Badge**: `.badge--cf`
-
-**Valid use cases:**
-1. Connect Cloudflare account
-2. Add/verify CF API token
-3. Apply CF-specific settings (WAF, SSL, Cache)
-4. Sync with CF API
-5. Purge CF cache
-
-**Invalid use cases:**
-- Generic primary actions
-- Domain management (use primary blue)
-- Navigation
-- General CTAs
+CF Orange usage rules: see **Design System Principles > 2. Cloudflare Orange Rule** above.
 
 ### CF Step Numbering
 
@@ -854,13 +752,6 @@ Other steps use neutral: `.badge--neutral`
 2. **Update StyleGuide** if structure changes
 3. **Never leave orphaned variants** in CSS
 
-### Design System Updates
-
-When introducing breaking changes (new control formula, spacing changes, etc.):
-- Update ALL pages to use new system
-- No page should use old patterns
-- Document migration in commit message
-
 ---
 
 ## Reference Links
@@ -887,5 +778,5 @@ When introducing breaking changes (new control formula, spacing changes, etc.):
 
 ---
 
-**Last updated**: 2025-12-26
-**Version**: 2.0 (condensed reference format)
+**Last updated**: 2026-02-13
+**Version**: 2.1 (deduplicated, CSS code blocks → source references)
