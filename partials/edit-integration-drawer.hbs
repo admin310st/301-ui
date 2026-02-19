@@ -72,6 +72,22 @@
             <span data-i18n="integrations.edit.rotateHint">To rotate the API token, reconnect the Cloudflare account via "Add integration → Cloudflare". The system will automatically update the token.</span>
           </p>
         </div>
+
+        <!-- Namecheap Domains (shown conditionally by JS) -->
+        <div class="card card--panel" data-nc-domains-section hidden>
+          <header class="card__header" style="cursor: pointer;" data-nc-domains-toggle>
+            <div class="cluster cluster--xs">
+              <span class="icon" data-icon="mono/web"></span>
+              <h3 class="h5">Registrar Domains</h3>
+              <span class="badge badge--neutral" data-nc-domains-count hidden>0</span>
+            </div>
+            <span class="icon" data-icon="mono/chevron-down" data-nc-chevron></span>
+          </header>
+          <div class="card__body" data-nc-domains-body hidden>
+            <p class="text-muted" data-nc-domains-loading>Loading domains...</p>
+            <div data-nc-domains-content></div>
+          </div>
+        </div>
       </div>
     </div>
 

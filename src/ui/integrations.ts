@@ -1,5 +1,5 @@
 import { getIntegrationKeys, getIntegrationKey, deleteIntegrationKey, updateIntegrationKey } from '@api/integrations';
-import type { IntegrationKey } from '@api/types';
+import type { IntegrationKey, NamecheapDomain } from '@api/types';
 import { getAccountId } from '@state/auth-state';
 import { showGlobalMessage } from './notifications';
 import { initDropdowns } from './dropdown';
@@ -400,6 +400,49 @@ async function openEditIntegrationDrawer(key: IntegrationKey): Promise<void> {
     }
   }
 
+  // Show/hide Namecheap domains section
+  const ncDomainsSection = drawer.querySelector<HTMLElement>('[data-nc-domains-section]');
+  if (ncDomainsSection) {
+    if (key.provider === 'namecheap' && key.status === 'active') {
+      ncDomainsSection.removeAttribute('hidden');
+
+      // Reset state on each open
+      const body = ncDomainsSection.querySelector<HTMLElement>('[data-nc-domains-body]');
+      const chevron = ncDomainsSection.querySelector<HTMLElement>('[data-nc-chevron]');
+      const content = ncDomainsSection.querySelector<HTMLElement>('[data-nc-domains-content]');
+      const countBadge = ncDomainsSection.querySelector<HTMLElement>('[data-nc-domains-count]');
+      body?.setAttribute('hidden', '');
+      chevron?.setAttribute('data-icon', 'mono/chevron-down');
+      if (content) content.innerHTML = '';
+      if (countBadge) countBadge.setAttribute('hidden', '');
+
+      let domainsLoaded = false;
+
+      // Remove old toggle handler (prevent duplicates on re-open)
+      const toggle = ncDomainsSection.querySelector<HTMLElement>('[data-nc-domains-toggle]');
+      const newToggle = toggle?.cloneNode(true) as HTMLElement;
+      if (toggle && newToggle) {
+        toggle.replaceWith(newToggle);
+        newToggle.addEventListener('click', async () => {
+          const isExpanded = !body?.hasAttribute('hidden');
+          if (isExpanded) {
+            body?.setAttribute('hidden', '');
+            chevron?.setAttribute('data-icon', 'mono/chevron-down');
+          } else {
+            body?.removeAttribute('hidden');
+            chevron?.setAttribute('data-icon', 'mono/chevron-up');
+            if (!domainsLoaded) {
+              await loadNamecheapDomains(key.id, ncDomainsSection);
+              domainsLoaded = true;
+            }
+          }
+        });
+      }
+    } else {
+      ncDomainsSection.setAttribute('hidden', '');
+    }
+  }
+
   // Show drawer
   drawer.removeAttribute('hidden');
 }
@@ -481,9 +524,29 @@ export function openConnectNamecheapDrawer(): void {
 
   drawer.removeAttribute('hidden');
 
-  // Initialize NameCheap connect form
-  void import('@forms/nc-connect').then(({ initNcConnectForm }) => {
+  // Initialize tabs (same pattern as CF drawer)
+  const tabsContainer = drawer.querySelector('.tabs');
+  if (tabsContainer) {
+    initTabs(drawer);
+  }
+
+  // Set initial footer button visibility
+  const activePanel = drawer.querySelector('.tabs__panel.is-active');
+  const activePanelId = activePanel?.getAttribute('data-tab-panel');
+  if (activePanelId) {
+    drawer.querySelectorAll<HTMLButtonElement>('[data-footer-action]').forEach((btn) => {
+      if (btn.dataset.footerAction === activePanelId) {
+        btn.removeAttribute('hidden');
+      } else {
+        btn.setAttribute('hidden', '');
+      }
+    });
+  }
+
+  // Initialize NameCheap connect form + load proxy IPs
+  void import('@forms/nc-connect').then(({ initNcConnectForm, loadProxyIps }) => {
     initNcConnectForm();
+    void loadProxyIps();
   });
 
   // Close drawer function
@@ -755,5 +818,180 @@ async function handleConfirmDeleteIntegration(): Promise<void> {
   } catch (error: any) {
     showGlobalMessage('error', error.message || 'Failed to delete integration');
     hideDialog('delete-integration');
+  }
+}
+
+/**
+ * Load and render Namecheap domains for a key
+ */
+async function loadNamecheapDomains(keyId: number, section: HTMLElement): Promise<void> {
+  const loadingEl = section.querySelector<HTMLElement>('[data-nc-domains-loading]');
+  const contentEl = section.querySelector<HTMLElement>('[data-nc-domains-content]');
+  const countBadge = section.querySelector<HTMLElement>('[data-nc-domains-count]');
+
+  if (!contentEl) return;
+
+  // Show loading
+  if (loadingEl) loadingEl.removeAttribute('hidden');
+  contentEl.innerHTML = '';
+
+  try {
+    const { getNamecheapDomains } = await import('@api/integrations');
+    const domains = await safeCall(
+      () => getNamecheapDomains(keyId),
+      { lockKey: `nc-domains:${keyId}`, retryOn401: true }
+    );
+
+    if (loadingEl) loadingEl.setAttribute('hidden', '');
+
+    // Update count badge
+    if (countBadge) {
+      countBadge.textContent = String(domains.length);
+      countBadge.removeAttribute('hidden');
+    }
+
+    if (domains.length === 0) {
+      contentEl.innerHTML = '<p class="text-muted">No domains found in this account.</p>';
+      return;
+    }
+
+    // Render domain list
+    contentEl.innerHTML = `
+      <div class="detail-list">
+        ${domains.map(d => renderNcDomainRow(d, keyId)).join('')}
+      </div>
+    `;
+
+    // Attach Set NS handlers
+    contentEl.querySelectorAll('[data-action="nc-set-ns"]').forEach(btn => {
+      btn.addEventListener('click', (e) => void handleSetNs(e));
+    });
+  } catch (error: any) {
+    if (loadingEl) loadingEl.setAttribute('hidden', '');
+    contentEl.innerHTML = '<p class="text-danger">Failed to load domains.</p>';
+    console.error('[nc-domains] Error:', error);
+  }
+}
+
+/**
+ * Render a single Namecheap domain row
+ */
+function renderNcDomainRow(domain: NamecheapDomain, keyId: number): string {
+  // Parse MM/DD/YYYY date format
+  const parts = domain.expires.split('/');
+  let formattedDate = domain.expires;
+  if (parts.length === 3) {
+    const date = new Date(parseInt(parts[2]), parseInt(parts[0]) - 1, parseInt(parts[1]));
+    formattedDate = date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+  }
+
+  return `
+    <div class="detail-row">
+      <dt class="detail-label">${domain.domain}</dt>
+      <dd class="detail-value cluster cluster--xs">
+        <span class="text-muted text-sm">${formattedDate}</span>
+        <button class="btn-chip btn-chip--sm" type="button" data-action="nc-set-ns" data-domain="${domain.domain}" data-key-id="${keyId}">
+          <span class="icon" data-icon="mono/dns"></span>
+          <span>Set NS</span>
+        </button>
+      </dd>
+    </div>
+  `;
+}
+
+/**
+ * Handle Set Nameservers button click
+ */
+async function handleSetNs(event: Event): Promise<void> {
+  const button = (event.target as HTMLElement).closest('[data-action="nc-set-ns"]') as HTMLButtonElement;
+  if (!button) return;
+
+  const keyId = parseInt(button.dataset.keyId || '0', 10);
+  const domain = button.dataset.domain || '';
+  if (!keyId || !domain) return;
+
+  const nameservers = ['ns1.cloudflare.com', 'ns2.cloudflare.com'];
+
+  // Confirm with user
+  const confirmed = await new Promise<boolean>(resolve => {
+    // Create temporary dialog if it doesn't exist
+    let dialog = document.querySelector<HTMLDialogElement>('[data-dialog="nc-set-ns"]');
+    if (!dialog) {
+      dialog = document.createElement('dialog');
+      dialog.setAttribute('data-dialog', 'nc-set-ns');
+      dialog.className = 'dialog';
+      dialog.innerHTML = `
+        <div class="dialog__content card card--panel">
+          <header class="card__header">
+            <h3 class="h4">Set Nameservers</h3>
+          </header>
+          <div class="card__body stack-sm">
+            <p>Set Cloudflare nameservers for <strong>${domain}</strong>?</p>
+            <div class="panel panel--info">
+              <p><code>${nameservers[0]}</code><br><code>${nameservers[1]}</code></p>
+            </div>
+            <p class="text-muted text-sm">Changes take 1–48 hours to propagate.</p>
+          </div>
+          <footer class="card__footer cluster">
+            <button class="btn btn--primary" data-nc-ns-confirm>Confirm</button>
+            <button class="btn btn--ghost" data-nc-ns-cancel>Cancel</button>
+          </footer>
+        </div>
+      `;
+      document.body.appendChild(dialog);
+    } else {
+      // Update domain name in existing dialog
+      const strong = dialog.querySelector('.card__body strong');
+      if (strong) strong.textContent = domain;
+    }
+
+    dialog.showModal();
+
+    const confirm = dialog.querySelector('[data-nc-ns-confirm]');
+    const cancel = dialog.querySelector('[data-nc-ns-cancel]');
+
+    const cleanup = () => {
+      dialog!.close();
+      confirm?.removeEventListener('click', onConfirm);
+      cancel?.removeEventListener('click', onCancel);
+    };
+
+    const onConfirm = () => { cleanup(); resolve(true); };
+    const onCancel = () => { cleanup(); resolve(false); };
+
+    confirm?.addEventListener('click', onConfirm);
+    cancel?.addEventListener('click', onCancel);
+    dialog.addEventListener('cancel', () => { cleanup(); resolve(false); }, { once: true });
+  });
+
+  if (!confirmed) return;
+
+  // Show loading on button
+  button.disabled = true;
+  const originalHtml = button.innerHTML;
+  button.innerHTML = '<span class="icon" data-icon="mono/refresh"></span><span>Setting...</span>';
+
+  try {
+    const { setNamecheapNs } = await import('@api/integrations');
+    await safeCall(
+      () => setNamecheapNs({ key_id: keyId, domain, nameservers }),
+      { lockKey: `nc-set-ns:${domain}`, retryOn401: true }
+    );
+
+    showGlobalMessage('success', `Nameservers updated for ${domain}`);
+
+    // Show success state
+    button.innerHTML = '<span class="icon" data-icon="mono/check-circle"></span><span>Done</span>';
+    button.classList.add('btn-chip--success');
+
+    setTimeout(() => {
+      button.disabled = false;
+      button.innerHTML = originalHtml;
+      button.classList.remove('btn-chip--success');
+    }, 3000);
+  } catch (error: any) {
+    showGlobalMessage('error', error.message || `Failed to set nameservers for ${domain}`);
+    button.disabled = false;
+    button.innerHTML = originalHtml;
   }
 }

@@ -9,6 +9,11 @@ import type {
   InitIntegrationResponse,
   GetKeysResponse,
   GetKeyResponse,
+  GetNamecheapProxyIpsResponse,
+  GetNamecheapDomainsResponse,
+  NamecheapDomain,
+  SetNamecheapNsRequest,
+  SetNamecheapNsResponse,
 } from './types';
 
 // Re-export types for convenience
@@ -110,4 +115,32 @@ export async function initNamecheap(data: InitNamecheapRequest): Promise<number>
   // Invalidate integrations cache (new integration added)
   invalidateCacheByPrefix('integrations:');
   return response.key_id;
+}
+
+/**
+ * Get Namecheap proxy IPs for whitelisting
+ */
+export async function getNamecheapProxyIps(): Promise<string[]> {
+  const res = await apiFetch<GetNamecheapProxyIpsResponse>(`${BASE_URL}/namecheap/proxy-ips`);
+  return res.ips;
+}
+
+/**
+ * Get domains from Namecheap account
+ */
+export async function getNamecheapDomains(keyId: number): Promise<NamecheapDomain[]> {
+  const res = await apiFetch<GetNamecheapDomainsResponse>(`${BASE_URL}/namecheap/domains?key_id=${keyId}`);
+  return res.domains;
+}
+
+/**
+ * Set nameservers for a Namecheap domain
+ */
+export async function setNamecheapNs(data: SetNamecheapNsRequest): Promise<string> {
+  const res = await apiFetch<SetNamecheapNsResponse>(`${BASE_URL}/namecheap/set-ns`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+    showLoading: 'brand',
+  });
+  return res.message;
 }

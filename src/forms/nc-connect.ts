@@ -27,6 +27,27 @@ To whitelist these IPs:
 }
 
 /**
+ * Load and display proxy IPs in the instructions tab
+ */
+export async function loadProxyIps(): Promise<void> {
+  const ipsEl = document.querySelector('[data-nc-proxy-ips]');
+  if (!ipsEl) return;
+
+  try {
+    const { getNamecheapProxyIps } = await import('@api/integrations');
+    const ips = await safeCall(
+      () => getNamecheapProxyIps(),
+      { lockKey: 'nc-proxy-ips', retryOn401: true }
+    );
+
+    ipsEl.innerHTML = ips.map(ip => `<code>${ip}</code>`).join(', ');
+    ipsEl.classList.remove('text-muted');
+  } catch {
+    ipsEl.innerHTML = '<span class="text-danger">Failed to load IPs</span>';
+  }
+}
+
+/**
  * Initialize NameCheap Connect form
  */
 export function initNcConnectForm(): void {
