@@ -11,6 +11,7 @@ import { adjustDropdownPosition } from '@ui/dropdown';
 import { queryNSRecords } from '@utils/dns';
 import { getDomains, updateDomainRole, blockDomain, unblockDomain, deleteDomain } from '@api/domains';
 import { getProjects } from '@api/projects';
+import { getSiteRedirects, getZoneLimits } from '@api/redirects';
 import { safeCall } from '@api/ui-client';
 import { getAccountId } from '@state/auth-state';
 import { getSelectedProjectName, setSelectedProject, clearSelectedProject } from '@state/ui-preferences';
@@ -974,6 +975,97 @@ function openInspector(domainId: number): void {
         nsEl.innerHTML = '<span class="text-muted">Failed to load NS records</span>';
         nsStatusEl.innerHTML = '';
       });
+  }
+
+  // Load Routing & Redirects data asynchronously
+  const routingEl = drawer.querySelector<HTMLElement>('[data-inspector-routing]');
+  if (routingEl) {
+    if (!domain.site_id) {
+      routingEl.innerHTML = '<p class="text-muted text-sm">Not attached to a site</p>';
+    } else {
+      routingEl.innerHTML = '<p class="text-muted">Loading...</p>';
+      const siteId = domain.site_id;
+      const zoneId = domain.zone_id;
+
+      void (async () => {
+        try {
+          const [siteRedirects, zoneLimits] = await Promise.all([
+            safeCall(() => getSiteRedirects(siteId), { lockKey: `inspector-redirects:${siteId}`, retryOn401: true }),
+            zoneId
+              ? safeCall(() => getZoneLimits(zoneId), { lockKey: `inspector-limits:${zoneId}`, retryOn401: true })
+              : Promise.resolve(null),
+          ]);
+
+          // Find this domain's redirect
+          const domainRedirect = siteRedirects.domains.find(d => d.domain_id === domain.id);
+          const redirect = domainRedirect?.redirect;
+
+          let html = '<dl class="detail-list">';
+
+          // Redirect row
+          if (redirect) {
+            const templateLabel = redirect.template_id || 'Custom';
+            const targetUrl = redirect.params?.target_url || '—';
+            html += `
+              <div class="detail-row">
+                <dt class="detail-label">Redirect</dt>
+                <dd class="detail-value">
+                  <span class="badge badge--sm badge--neutral">${templateLabel}</span>
+                </dd>
+              </div>
+              <div class="detail-row">
+                <dt class="detail-label">Target</dt>
+                <dd class="detail-value text-sm">${targetUrl}</dd>
+              </div>`;
+
+            // Sync status
+            const syncStatus = redirect.sync_status || 'pending';
+            const syncText = syncStatus === 'synced' ? 'Synced' :
+                             syncStatus === 'pending' ? 'Pending' :
+                             syncStatus === 'error' ? 'Failed' : 'Not synced';
+            const syncColor = syncStatus === 'synced' ? 'text-success' :
+                              syncStatus === 'pending' ? 'text-warning' :
+                              syncStatus === 'error' ? 'text-danger' : 'text-muted';
+            html += `
+              <div class="detail-row">
+                <dt class="detail-label">Sync</dt>
+                <dd class="detail-value">
+                  <span class="${syncColor}">${syncText}</span>
+                </dd>
+              </div>`;
+          } else {
+            html += `
+              <div class="detail-row">
+                <dt class="detail-label">Redirect</dt>
+                <dd class="detail-value text-muted text-sm">No redirect configured</dd>
+              </div>`;
+          }
+
+          // Zone limits
+          if (zoneLimits) {
+            html += `
+              <div class="detail-row">
+                <dt class="detail-label">Zone quota</dt>
+                <dd class="detail-value text-sm">${zoneLimits.used} / ${zoneLimits.max} rules</dd>
+              </div>`;
+          }
+
+          html += '</dl>';
+
+          // Manage link
+          html += `
+            <div class="card__actions">
+              <a class="btn-chip btn-chip--sm btn-chip--primary" href="redirects.html">
+                <span>Manage redirects</span>
+              </a>
+            </div>`;
+
+          routingEl.innerHTML = html;
+        } catch {
+          routingEl.innerHTML = '<p class="text-muted text-sm">Failed to load redirect data</p>';
+        }
+      })();
+    }
   }
 
   // Add copy button handler

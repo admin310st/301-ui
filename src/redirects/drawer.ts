@@ -1070,7 +1070,7 @@ function renderCanonicalButtonsCard(siteId: number, domain: string): string {
       <header class="card__header">
         <h3 class="h5">Canonical Redirect</h3>
       </header>
-      <div class="card__body">
+      <div class="card__body stack stack--sm">
         <p class="text-muted text-sm">Set up www normalization for this domain.</p>
         <div class="cluster cluster--sm">
           <div class="dropdown" data-dropdown="canonical-direction">

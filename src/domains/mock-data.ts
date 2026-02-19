@@ -8,6 +8,8 @@ export interface Domain {
   role: 'acceptor' | 'donor' | 'reserve'; // роль домена в системе (editable via PATCH /domains/:id)
   registrar: 'cloudflare' | 'namecheap' | 'namesilo' | 'google' | 'manual'; // было: provider
   cf_zone_id?: string; // Cloudflare Zone ID (опционально)
+  site_id?: number;    // internal site ID (for fetching redirects)
+  zone_id?: number;    // internal zone ID (for zone limits)
 
   ns_expected?: string; // CF-assigned nameservers (comma-separated), from APIDomain.ns
 
