@@ -990,6 +990,11 @@ h5 .icon[data-icon*="close"] {
   border-color: color-mix(in srgb, var(--success) 40%, transparent);
 }
 
+:root[data-theme="dark"] .btn-icon.btn--success,
+:root[data-theme="dark"] .btn-icon--success {
+  color: var(--btn-text-on-bright);
+}
+
 .btn-icon.btn--success:hover,
 .btn-icon--success:hover {
   background: color-mix(in srgb, var(--success) 88%, #000 6%);
@@ -1514,6 +1519,11 @@ a.btn-chip {
   border-color: color-mix(in srgb, var(--success) 40%, transparent);
 }
 
+/* Dark theme: bright green (#18C27A) needs dark text — white is only 2.32:1 */
+:root[data-theme="dark"] .btn--success {
+  color: var(--btn-text-on-bright);
+}
+
 .btn--success:hover {
   background: color-mix(in srgb, var(--success) 88%, #000 6%);
 }
@@ -1870,13 +1880,13 @@ html[data-theme="light"] .btn--ghost:hover {
 .field label,
 .field-label {
   font-size: var(--fs-sm);
-  color: var(--text-subtle);
+  color: var(--text-muted);
   font-weight: var(--fw-medium);
 }
 
 .form-label {
   font-size: var(--fs-sm);
-  color: var(--text-subtle);
+  color: var(--text-muted);
   font-weight: var(--fw-medium);
 }
 
@@ -1927,7 +1937,6 @@ html[data-theme="light"] .btn--ghost:hover {
 .input::placeholder,
 .textarea::placeholder {
   color: var(--text-subtle);
-  opacity: 0.9;
 }
 
 .textarea {

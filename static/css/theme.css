@@ -180,7 +180,7 @@
 
   --text-main: #E7E9EE;
   --text-muted: #A0A4AF;
-  --text-subtle: #7A7E87;
+  --text-subtle: #8B8F98; /* Brightened for AA on bg-elev/bg-soft (was #7A7E87 → 3.9:1) */
   --text-invert: #FFFFFF;
 
   --text: var(--text-main);
@@ -249,7 +249,7 @@
 
   --text-main: #111111;
   --text-muted: #666A73;
-  --text-subtle: #8A8F99;
+  --text-subtle: #6E7580; /* Darkened for AA on white (was #8A8F99 → 3.25:1) */
   --text-invert: #FFFFFF;
 
   --text: var(--text-main);
@@ -270,6 +270,16 @@
   --primary-hover: #003682; /* even higher contrast */
 
   --brand: var(--primary);
+
+  /*
+    Light-theme semantic overrides — darker for AA 4.5:1 on white.
+    Shared :root values (#FF4F6E, #18C27A, #FFB347, #3B82F6) are tuned for dark bg;
+    these replacements keep the hue but pass contrast on light backgrounds.
+  */
+  --danger:  #D9264A; /* 4.86:1 on #FFF (was #FF4F6E → 3.18:1) */
+  --success: #0E7B4C; /* 5.31:1 on #FFF (was #18C27A → 2.32:1) */
+  --warning: #9A6200; /* 5.09:1 on #FFF (was #FFB347 → 1.78:1) */
+  --info:    #2563EB; /* 5.14:1 on #FFF (was #3B82F6 → 3.68:1) */
   --ok: var(--success);
 
   /*
