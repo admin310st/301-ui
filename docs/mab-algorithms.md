@@ -699,8 +699,16 @@ const epsilon = Math.max(0.01, 0.5 / Math.sqrt(totalImpressions));
 
 ---
 
-**Автор:** Claude Opus 4.5
-**Дата создания:** 2025-12-25
-**Версия:** 1.0
+## Integration Notes
 
-🤖 Создано с помощью [Claude Code](https://claude.com/claude-code)
+### Draft/Publish Flow
+
+KV snapshot updates ONLY on explicit Publish, NOT on every rule change:
+
+1. **Draft** — user creates/updates/deletes/reorders rules via API. Changes saved to D1 with `draft_status = 'draft'`. Edge-worker keeps serving old published rules. UI shows "Unpublished changes" banner.
+2. **Publish** — user clicks "Publish". API validates all rules, generates KV snapshot (only enabled rules sorted by priority), puts to `KV_TDS.put('tds:site:{id}', snapshot)`, sets `draft_status = 'published'`.
+
+### Plan Gating
+
+- **Free plan**: `redirect` + `response` actions only. No MAB. Max 5-10 rules per site.
+- **Paid plan**: All actions including `mab_redirect`. Max 50+ rules. Advanced match conditions (ASN, TLS, IP ranges).
