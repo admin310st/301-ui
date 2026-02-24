@@ -9,7 +9,7 @@ import { initGithubOAuth } from '@social/github';
 import { initGoogleOAuth } from '@social/google';
 import { applyInitialAuthState, handleLogoutDom } from '@ui/auth-dom';
 import { initGlobalNotice, showGlobalNotice } from '@ui/globalNotice';
-import { initTurnstile } from './turnstile';
+import { lazyInitTurnstile } from './turnstile';
 import { showGlobalMessage } from '@ui/notifications';
 import { initVisibilityController } from '@ui/visibility';
 import { applyTranslations, initLangSwitcher } from '@i18n/dom';
@@ -160,8 +160,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   await applyInitialAuthState();
 
   // Only initialize Turnstile if there are widgets on the page (index.html auth forms)
+  // Lazy-load: defer script injection until auth card is near viewport (avoids third-party cookies on initial audit)
   if (document.querySelector('.turnstile-widget')) {
-    await initTurnstile();
+    lazyInitTurnstile(document.querySelector('.auth-card'));
   }
 
   initAuthRouting();

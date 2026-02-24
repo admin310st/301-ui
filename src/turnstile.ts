@@ -20,7 +20,6 @@ declare global {
       render: (container: HTMLElement, options: Record<string, unknown>) => string | void;
       reset: (id?: string | HTMLElement) => void;
     };
-    addEventListener(name: 'turnstileLoaded', listener: () => void, options?: unknown): void;
   }
 }
 
@@ -42,18 +41,27 @@ function loadScript(): Promise<typeof window.turnstile | null> {
 
   return new Promise((resolve) => {
     const existing = document.querySelector('script[data-turnstile]');
-    if (!existing) {
-      const script = document.createElement('script');
-      script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
-      script.async = true;
-      script.defer = true;
-      script.dataset.turnstile = 'true';
-      document.head.appendChild(script);
+    if (existing) {
+      // Script already injected, wait for it
+      if (window.turnstile) return resolve(window.turnstile);
+      const check = setInterval(() => {
+        if (window.turnstile) { clearInterval(check); resolve(window.turnstile); }
+      }, 100);
+      setTimeout(() => { clearInterval(check); resolve(window.turnstile || null); }, 5000);
+      return;
     }
 
-    const ready = (): void => resolve(window.turnstile || null);
-    window.addEventListener('turnstileLoaded', ready, { once: true });
-    setTimeout(ready, 2000);
+    // Use official onload callback
+    (window as any).onTurnstileLoad = () => resolve(window.turnstile || null);
+
+    const script = document.createElement('script');
+    script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=onTurnstileLoad';
+    script.async = true;
+    script.dataset.turnstile = 'true';
+    document.head.appendChild(script);
+
+    // Fallback timeout
+    setTimeout(() => resolve(window.turnstile || null), 5000);
   });
 }
 
@@ -209,6 +217,23 @@ export function requireTurnstileToken(form: HTMLFormElement): string | null {
   (iframe || widget)?.focus?.();
 
   return null;
+}
+
+export function lazyInitTurnstile(observeTarget?: Element | null): void {
+  const target = observeTarget || document.querySelector('.turnstile-widget');
+  if (!target) return;
+
+  const io = new IntersectionObserver(
+    (entries) => {
+      if (entries[0].isIntersecting) {
+        io.disconnect();
+        void initTurnstile();
+      }
+    },
+    { rootMargin: '200px' }
+  );
+
+  io.observe(target);
 }
 
 export function resetTurnstile(form?: HTMLFormElement): void {
