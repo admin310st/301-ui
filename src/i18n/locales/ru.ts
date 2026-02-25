@@ -458,6 +458,31 @@ export const ru: Translation = {
       experimentalDescription: 'Все интеграции (включая аккаунты Cloudflare) общие для всех проектов. Этот экран только для справки.',
       experimentalHint: 'Вы можете привязать интеграции для организационных целей, но это не повлияет на отображение данных в интерфейсе. Используйте <strong>Проекты</strong> как основную папку для доменов, и при необходимости создавайте <strong>Сайты</strong> (потоки трафика) для детального управления трафиком.',
     },
+    streams: {
+      loading: 'Loading TDS status...',
+      error: 'Failed to load TDS data',
+      viewAllRules: 'View all TDS rules',
+      columns: {
+        site: 'Site',
+        acceptor: 'Acceptor Domain',
+        rules: 'Rules',
+        status: 'TDS Status',
+        actions: 'Actions',
+      },
+      status: {
+        noDomain: 'No domain',
+        noRules: 'No rules',
+        active: 'Active',
+        inactive: 'Inactive',
+      },
+      actions: {
+        configureTds: 'Configure TDS',
+        setupDomain: 'Set up domain',
+      },
+      empty: {
+        noSites: 'No sites in this project. Create a site first.',
+      },
+    },
     errors: {
       projectNotFound: 'Проект не найден',
       nameRequired: 'Название проекта обязательно',

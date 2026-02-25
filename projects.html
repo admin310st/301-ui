@@ -259,14 +259,33 @@
           <div class="card card--panel">
             <header class="card__header">
               <div class="card__actions">
-                <button class="btn btn--primary btn--sm" type="button" data-action="create-stream">
-                  <span class="icon" data-icon="mono/plus"></span>
-                  <span>Create stream</span>
-                </button>
+                <a class="btn btn--ghost btn--sm" href="/streams.html" data-i18n="projects.streams.viewAllRules">
+                  <span class="icon" data-icon="mono/arrow-decision-auto"></span>
+                  <span>View all TDS rules</span>
+                </a>
               </div>
             </header>
             <div class="card__body card__body--table">
-              <p class="text-muted">Streams management coming soon...</p>
+              <div class="loading-state" data-streams-loading hidden>
+                <div class="spinner"></div>
+                <p data-i18n="projects.streams.loading">Loading TDS status...</p>
+              </div>
+              <div class="table-scroll" data-project-streams-container hidden>
+                <table class="table" data-project-streams-table>
+                  <thead>
+                    <tr>
+                      <th data-priority="critical" data-i18n="projects.streams.columns.site">Site</th>
+                      <th data-priority="high" data-i18n="projects.streams.columns.acceptor">Acceptor Domain</th>
+                      <th data-priority="medium" data-i18n="projects.streams.columns.rules">Rules</th>
+                      <th data-priority="high" data-i18n="projects.streams.columns.status">TDS Status</th>
+                      <th data-priority="critical" class="th-actions" data-i18n="projects.streams.columns.actions">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <!-- Populated by JS -->
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>

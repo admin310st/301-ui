@@ -1,11 +1,12 @@
 import { t } from '@i18n';
 import { getProjects, getProject } from '@api/projects';
 import { getDomains } from '@api/domains';
-import type { Project, Site, ProjectIntegration, APIDomain } from '@api/types';
+import { getRules, getRuleDomains } from '@api/tds';
+import type { Project, Site, ProjectIntegration, APIDomain, TdsRule } from '@api/types';
 import { getAccountId } from '@state/auth-state';
 import { showGlobalMessage } from './notifications';
 import { adjustDropdownPosition } from '@ui/dropdown';
-import { setProjectData, incrementRequestToken, getRequestToken, getCurrentProjectId, setIntegrations } from '@state/project-detail-state';
+import { setProjectData, incrementRequestToken, getRequestToken, getCurrentProjectId, setIntegrations, getCurrentSites } from '@state/project-detail-state';
 import { safeCall } from '@api/ui-client';
 import { invalidateCache, invalidateCacheByPrefix } from '@api/cache';
 import { showConfirmDialog } from '@ui/dialog';
@@ -13,6 +14,7 @@ import { showConfirmDialog } from '@ui/dialog';
 // State
 let allProjects: Project[] = [];
 let searchQuery = '';
+let cachedDomainRuleMap: Map<string, TdsRule[]> | null = null;
 
 /**
  * Format date to locale string
@@ -719,6 +721,160 @@ export async function loadProjectDetail(projectId: number): Promise<void> {
   }
 }
 
+// =============================================================================
+// Streams Tab
+// =============================================================================
+
+/**
+ * Build a map of domain_name → TdsRule[] by loading rules and their domain bindings
+ */
+async function buildDomainRuleMap(): Promise<Map<string, TdsRule[]>> {
+  if (cachedDomainRuleMap) return cachedDomainRuleMap;
+
+  const map = new Map<string, TdsRule[]>();
+
+  const response = await safeCall(
+    () => getRules(),
+    { lockKey: 'tds-rules-for-streams', retryOn401: true }
+  );
+
+  const rulesWithDomains = response.rules.filter(r => r.domain_count > 0);
+
+  if (rulesWithDomains.length > 0) {
+    const bindingsResults = await Promise.all(
+      rulesWithDomains.map(rule =>
+        safeCall(
+          () => getRuleDomains(rule.id),
+          { lockKey: `tds-rule-domains-${rule.id}`, retryOn401: true }
+        ).catch(() => [])
+      )
+    );
+
+    rulesWithDomains.forEach((rule, i) => {
+      const bindings = bindingsResults[i];
+      if (!Array.isArray(bindings)) return;
+      for (const binding of bindings) {
+        const existing = map.get(binding.domain_name) || [];
+        existing.push(rule);
+        map.set(binding.domain_name, existing);
+      }
+    });
+  }
+
+  cachedDomainRuleMap = map;
+  return map;
+}
+
+/**
+ * Render a single row for the streams site table
+ */
+function renderStreamsSiteRow(site: Site, rules: TdsRule[]): string {
+  const domain = site.acceptor_domain || '';
+  const domainDisplay = domain || `<span class="text-muted">${t('projects.streams.status.noDomain')}</span>`;
+  const ruleCount = rules.length;
+
+  // Determine status
+  let statusBadge: string;
+  if (!domain) {
+    statusBadge = `<span class="badge badge--neutral">${t('projects.streams.status.noDomain')}</span>`;
+  } else if (ruleCount === 0) {
+    statusBadge = `<span class="badge badge--warning">${t('projects.streams.status.noRules')}</span>`;
+  } else {
+    const hasActive = rules.some(r => r.status === 'active');
+    if (hasActive) {
+      statusBadge = `<span class="badge badge--success">${t('projects.streams.status.active')}</span>`;
+    } else {
+      statusBadge = `<span class="badge badge--neutral">${t('projects.streams.status.inactive')}</span>`;
+    }
+  }
+
+  // Action button
+  let actionHtml: string;
+  if (domain) {
+    actionHtml = `
+      <a class="btn-icon" href="/streams.html" title="${t('projects.streams.actions.configureTds')}" aria-label="${t('projects.streams.actions.configureTds')} ${site.site_name}">
+        <span class="icon" data-icon="mono/arrow-decision-auto"></span>
+      </a>`;
+  } else {
+    actionHtml = `
+      <button class="btn-icon" type="button" data-action="manage-domains" data-site-id="${site.id}" title="${t('projects.streams.actions.setupDomain')}" aria-label="${t('projects.streams.actions.setupDomain')} ${site.site_name}">
+        <span class="icon" data-icon="mono/web-scan"></span>
+      </button>`;
+  }
+
+  return `
+    <tr data-site-id="${site.id}">
+      <td data-priority="critical" style="font-weight: var(--fw-medium)">${site.site_name}</td>
+      <td data-priority="high">${domainDisplay}</td>
+      <td data-priority="medium">${ruleCount > 0 ? `<span class="badge badge--neutral">${ruleCount}</span>` : '<span class="text-muted">0</span>'}</td>
+      <td data-priority="high">${statusBadge}</td>
+      <td data-priority="critical" class="table-actions">${actionHtml}</td>
+    </tr>`;
+}
+
+/**
+ * Render the full streams table from sites + domain-rule map
+ */
+function renderStreamsTable(sites: Site[], map: Map<string, TdsRule[]>): void {
+  const tbody = document.querySelector<HTMLTableSectionElement>('[data-project-streams-table] tbody');
+  if (!tbody) return;
+
+  if (sites.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="5" class="text-center text-muted">
+          ${t('projects.streams.empty.noSites')}
+        </td>
+      </tr>`;
+  } else {
+    tbody.innerHTML = sites.map(site => {
+      const rules = site.acceptor_domain ? (map.get(site.acceptor_domain) || []) : [];
+      return renderStreamsSiteRow(site, rules);
+    }).join('');
+  }
+
+  if (typeof (window as any).injectIcons === 'function') {
+    (window as any).injectIcons();
+  }
+}
+
+/**
+ * Load and render the Streams tab content
+ */
+async function loadStreamsTab(): Promise<void> {
+  const loading = document.querySelector<HTMLElement>('[data-streams-loading]');
+  const container = document.querySelector<HTMLElement>('[data-project-streams-container]');
+
+  if (loading) loading.hidden = false;
+  if (container) container.hidden = true;
+
+  try {
+    const map = await buildDomainRuleMap();
+    const sites = getCurrentSites();
+
+    if (loading) loading.hidden = true;
+    if (container) container.hidden = false;
+
+    renderStreamsTable(sites, map);
+  } catch {
+    if (loading) loading.hidden = true;
+    if (container) container.hidden = false;
+
+    // Show error in table
+    const tbody = document.querySelector<HTMLTableSectionElement>('[data-project-streams-table] tbody');
+    if (tbody) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="5" class="text-center text-danger">
+            ${t('projects.streams.error')}
+          </td>
+        </tr>`;
+    }
+
+    showGlobalMessage('error', t('projects.streams.error'));
+  }
+}
+
 /**
  * Initialize tabs switching for detail view
  */
@@ -748,6 +904,9 @@ function initTabs() {
       if (projectId) {
         if (targetTab === 'domains') {
           await loadProjectDomains(projectId);
+        }
+        if (targetTab === 'streams') {
+          await loadStreamsTab();
         }
         // Sites tab already loads on detail view load
       }

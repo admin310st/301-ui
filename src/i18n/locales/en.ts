@@ -452,6 +452,31 @@ export const en = {
       experimentalDescription: 'All integrations (including Cloudflare accounts) are shared across projects. This screen is for your reference only.',
       experimentalHint: 'You can attach integrations here for organizational purposes, but it won\'t affect how interfaces display data. Use <strong>Projects</strong> as the main folder for domains, and optionally create <strong>Sites</strong> (traffic streams) for granular traffic control.',
     },
+    streams: {
+      loading: 'Loading TDS status...',
+      error: 'Failed to load TDS data',
+      viewAllRules: 'View all TDS rules',
+      columns: {
+        site: 'Site',
+        acceptor: 'Acceptor Domain',
+        rules: 'Rules',
+        status: 'TDS Status',
+        actions: 'Actions',
+      },
+      status: {
+        noDomain: 'No domain',
+        noRules: 'No rules',
+        active: 'Active',
+        inactive: 'Inactive',
+      },
+      actions: {
+        configureTds: 'Configure TDS',
+        setupDomain: 'Set up domain',
+      },
+      empty: {
+        noSites: 'No sites in this project. Create a site first.',
+      },
+    },
     errors: {
       projectNotFound: 'Project not found',
       nameRequired: 'Project name is required',
