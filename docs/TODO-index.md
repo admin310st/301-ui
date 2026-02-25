@@ -4,12 +4,12 @@ Central task index for the 301-ui project. See `CLAUDE.md` for architecture and 
 
 ---
 
-## Current Focus (2026-02-11)
+## Current Focus (2026-02-25)
 
-**Priority:** Streams/TDS (Layer 5)
+**Priority:** Streams/TDS integration with Projects (Layer 5)
 
 **Next tasks:**
-1. **Streams/TDS page** — Layer 5 (see `TODO-streams.md`)
+1. **Projects → Streams tab** — Site-scoped TDS management (see `TODO-streams.md`)
 2. **i18n pass** for Redirects and Domains (0 `data-i18n` attributes)
 
 ---
@@ -64,25 +64,20 @@ Done: Full table with hierarchy, API layer, project/site selectors, filters, dra
 
 ### 5. Streams/TDS
 
-**Status:** Documented (`TODO-streams.md`, aligned with mini-tds)
+**Status:** Core implemented (2026-02-25). Types, API client, table, drawer, domain bindings, i18n — all done.
 
-**Components planned:**
-- Context bar (project/site/domain selectors)
-- Pipeline strip (Traffic Shield -> TDS Rules -> Target/Origin)
-- Rules table with priority controls
-- Drawer-based rule editor (conditions, targets, weights)
-- Draft/publish workflow with sticky banner
-- Onboarding checklist card
+**Architecture:** TDS is **site-scoped** — rules bind to a site's acceptor domain (the traffic entry point where the CF Worker runs). Two UI entry points: `streams.html` (global view) and Projects → Streams tab (site context).
 
-**Milestones (6 stages):**
-1. Page skeleton + context bar + pipeline strip
-2. Welcome screen + onboarding checklist
-3. Rules table + add rule drawer (MVP)
-4. Rule editor logic (conditions, targets, weights)
-5. Priority controls (reorder UX)
-6. Draft/publish workflow + filters
+**Completed:**
+- Types + API client (`src/api/tds.ts`)
+- Rules table with search, filters, 4 visibility states
+- Create/edit drawer (preset + manual modes)
+- Domain binding UI (picker, bind/unbind)
+- i18n (~180 English keys, all TS files use `t()`)
 
-**API alignment:** Data structure matches mini-tds (RouteRule format), Match/Action pattern, weighted_redirect support, ETag-based updates.
+**Next:** Projects → Streams tab — site-scoped TDS management inside project detail view.
+
+**Backlog:** Domain picker grouping by site, sites page TDS column, priority reorder, Russian translations.
 
 Details in `TODO-streams.md`.
 
@@ -157,6 +152,6 @@ Recommended: **Entry Points Pattern** for this MPA project — separate entry po
 
 ---
 
-**Last updated:** 2026-02-11
+**Last updated:** 2026-02-25
 
-**Next action:** Streams/TDS page implementation (Layer 5)
+**Next action:** Projects → Streams tab (site-scoped TDS management)
