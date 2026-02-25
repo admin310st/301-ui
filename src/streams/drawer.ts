@@ -14,8 +14,10 @@ import {
 } from './state';
 import { showGlobalNotice } from '@ui/globalNotice';
 import { drawerManager } from '@ui/drawer-manager';
+import { initDropdowns } from '@ui/dropdown';
 import { renderPresetSelector, renderPresetParams, collectPresetValues } from './preset-renderer';
 import { renderDomainBindings, initDomainBindingHandlers } from './domain-binding';
+import { t } from '@i18n';
 
 const DRAWER_ID = 'tds-rule';
 
@@ -24,6 +26,64 @@ let currentRuleId: number | null = null;
 let currentBindings: TdsDomainBinding[] = [];
 let drawerMode: 'create-preset' | 'create-manual' | 'edit' = 'create-preset';
 
+// =============================================================================
+// Dropdown option sets
+// =============================================================================
+
+type SelectOption = { value: string; label: string };
+
+function typeOptions(): SelectOption[] {
+  return [
+    { value: 'traffic_shield', label: t('streams.drawer.options.shield') },
+    { value: 'smartlink', label: t('streams.drawer.options.smartlink') },
+  ];
+}
+
+function deviceOptions(): SelectOption[] {
+  return [
+    { value: '', label: t('streams.drawer.options.deviceAny') },
+    { value: 'mobile', label: t('streams.drawer.options.deviceMobile') },
+    { value: 'desktop', label: t('streams.drawer.options.deviceDesktop') },
+    { value: 'tablet', label: t('streams.drawer.options.deviceTablet') },
+  ];
+}
+
+function actionOptions(): SelectOption[] {
+  return [
+    { value: 'redirect', label: t('streams.drawer.options.actionRedirect') },
+    { value: 'block', label: t('streams.drawer.options.actionBlock') },
+    { value: 'pass', label: t('streams.drawer.options.actionPass') },
+    { value: 'mab_redirect', label: t('streams.drawer.options.actionMab') },
+  ];
+}
+
+function statusCodeOptions(): SelectOption[] {
+  return [
+    { value: '302', label: t('streams.drawer.options.code302') },
+    { value: '301', label: t('streams.drawer.options.code301') },
+  ];
+}
+
+function algorithmOptions(): SelectOption[] {
+  return [
+    { value: 'thompson_sampling', label: t('streams.drawer.options.algoThompson') },
+    { value: 'ucb', label: t('streams.drawer.options.algoUcb') },
+    { value: 'epsilon_greedy', label: t('streams.drawer.options.algoEpsilon') },
+  ];
+}
+
+function ruleStatusOptions(): SelectOption[] {
+  return [
+    { value: 'draft', label: t('streams.drawer.options.statusDraft') },
+    { value: 'active', label: t('streams.drawer.options.statusActive') },
+    { value: 'disabled', label: t('streams.drawer.options.statusDisabled') },
+  ];
+}
+
+// =============================================================================
+// Init
+// =============================================================================
+
 /**
  * Initialize drawer
  */
@@ -31,11 +91,21 @@ export function initDrawer(): void {
   drawerElement = document.querySelector(`[data-drawer="${DRAWER_ID}"]`);
   if (!drawerElement) return;
 
+  // Close buttons (overlay + X + Cancel)
+  drawerElement.querySelectorAll('[data-drawer-close]').forEach(el => {
+    el.addEventListener('click', closeDrawer);
+  });
+
   // Save button
   const saveBtn = drawerElement.querySelector('[data-drawer-save]');
   if (saveBtn) {
     saveBtn.addEventListener('click', handleSave);
   }
+
+  // Dropdown toggle + positioning (delegated, one-time)
+  initDropdowns(drawerElement);
+  // Dropdown item selection → hidden input sync (delegated, one-time)
+  setupDropdownSelection(drawerElement);
 
   // Listen for custom events from page controller
   document.addEventListener('tds:open-create-drawer', () => {
@@ -60,13 +130,13 @@ export function openCreateDrawer(): void {
 
   // Update header
   const title = drawerElement.querySelector('[data-drawer-title]');
-  if (title) title.textContent = 'Create Rule';
+  if (title) title.textContent = t('streams.drawer.createTitle');
 
   // Update save button
   const saveBtn = drawerElement.querySelector('[data-drawer-save]');
   if (saveBtn) {
     const textSpan = saveBtn.querySelector('span:last-child');
-    if (textSpan) textSpan.textContent = 'Create';
+    if (textSpan) textSpan.textContent = t('streams.drawer.create');
   }
 
   // Render create content
@@ -86,19 +156,19 @@ export async function openEditDrawer(ruleId: number): Promise<void> {
 
   // Update header
   const title = drawerElement.querySelector('[data-drawer-title]');
-  if (title) title.textContent = 'Edit Rule';
+  if (title) title.textContent = t('streams.drawer.editTitle');
 
   // Update save button
   const saveBtn = drawerElement.querySelector('[data-drawer-save]');
   if (saveBtn) {
     const textSpan = saveBtn.querySelector('span:last-child');
-    if (textSpan) textSpan.textContent = 'Save';
+    if (textSpan) textSpan.textContent = t('streams.drawer.save');
   }
 
   // Show loading in content
   const content = drawerElement.querySelector('[data-drawer-content]');
   if (content) {
-    content.innerHTML = '<div class="loading-state"><div class="spinner"></div><p class="text-muted">Loading rule...</p></div>';
+    content.innerHTML = `<div class="loading-state"><div class="spinner"></div><p class="text-muted">${t('streams.drawer.loading')}</p></div>`;
   }
 
   drawerManager.open(DRAWER_ID);
@@ -114,7 +184,7 @@ export async function openEditDrawer(ruleId: number): Promise<void> {
   } catch (error: any) {
     if (error.code === 'ABORTED') return;
     if (content) {
-      content.innerHTML = `<div class="alert alert--danger"><p>${error.message || 'Failed to load rule'}</p></div>`;
+      content.innerHTML = `<div class="alert alert--danger"><p>${error.message || t('streams.drawer.loadError')}</p></div>`;
     }
   }
 }
@@ -142,8 +212,8 @@ function renderCreateContent(): void {
     <div class="stack-list">
       <!-- Mode Toggle -->
       <div class="tabs tabs--sm" data-mode-tabs>
-        <button class="tab is-active" type="button" data-mode="preset">From Preset</button>
-        <button class="tab" type="button" data-mode="manual">Manual</button>
+        <button class="tab is-active" type="button" data-mode="preset">${t('streams.drawer.fromPreset')}</button>
+        <button class="tab" type="button" data-mode="manual">${t('streams.drawer.manual')}</button>
       </div>
 
       <!-- Preset Mode -->
@@ -170,8 +240,8 @@ function renderPresetCreateContent(presets: TdsPreset[]): string {
     <div class="stack">
       <!-- Type tabs within preset -->
       <div class="tabs tabs--sm" data-type-tabs>
-        <button class="tab is-active" type="button" data-tab-type="traffic_shield">Shield</button>
-        <button class="tab" type="button" data-tab-type="smartlink">SmartLink</button>
+        <button class="tab is-active" type="button" data-tab-type="traffic_shield">${t('streams.types.traffic_shield')}</button>
+        <button class="tab" type="button" data-tab-type="smartlink">${t('streams.types.smartlink')}</button>
       </div>
 
       <div data-type-content="traffic_shield">
@@ -187,8 +257,8 @@ function renderPresetCreateContent(presets: TdsPreset[]): string {
 
       <!-- Optional rule name -->
       <div class="field" data-preset-name-field hidden>
-        <label class="field__label">Rule name (optional)</label>
-        <input type="text" class="input" placeholder="Auto-generated from preset" data-field="rule_name" />
+        <label class="field__label">${t('streams.drawer.fields.ruleNameOptional')}</label>
+        <input type="text" class="input" placeholder="${t('streams.drawer.fields.ruleNameAutoPlaceholder')}" data-field="rule_name" />
       </div>
     </div>
   `;
@@ -199,101 +269,81 @@ function renderManualCreateContent(): string {
     <div class="stack">
       <div class="field">
         <label class="field__label">
-          <span>Rule name</span>
+          <span>${t('streams.drawer.fields.ruleName')}</span>
           <span class="field__required">*</span>
         </label>
-        <input type="text" class="input" placeholder="My routing rule" data-field="rule_name" required />
+        <input type="text" class="input" placeholder="${t('streams.drawer.fields.ruleNamePlaceholder')}" data-field="rule_name" required />
       </div>
 
       <div class="field">
-        <label class="field__label">Type</label>
-        <select class="input" data-field="tds_type">
-          <option value="traffic_shield">Shield</option>
-          <option value="smartlink">SmartLink</option>
-        </select>
+        <label class="field__label">${t('streams.drawer.fields.type')}</label>
+        ${renderDropdown('tds_type', typeOptions())}
       </div>
 
       <!-- Conditions -->
       <section class="card card--panel">
-        <header class="card__header"><h3 class="h5">Conditions</h3></header>
+        <header class="card__header"><h3 class="h5">${t('streams.drawer.conditionsSection')}</h3></header>
         <div class="card__body stack">
           <div class="field">
-            <label class="field__label">Geo (countries, comma-separated)</label>
-            <input type="text" class="input" placeholder="RU, BY, KZ" data-field="geo" />
+            <label class="field__label">${t('streams.drawer.fields.geo')}</label>
+            <input type="text" class="input" placeholder="${t('streams.drawer.fields.geoPlaceholder')}" data-field="geo" />
           </div>
           <div class="field">
-            <label class="field__label">Device</label>
-            <select class="input" data-field="device">
-              <option value="">Any</option>
-              <option value="mobile">Mobile</option>
-              <option value="desktop">Desktop</option>
-              <option value="tablet">Tablet</option>
-            </select>
+            <label class="field__label">${t('streams.drawer.fields.device')}</label>
+            ${renderDropdown('device', deviceOptions())}
           </div>
           <div class="field">
             <label class="field__label">
               <input type="checkbox" class="checkbox" data-field="bot" />
-              <span>Bot traffic only</span>
+              <span>${t('streams.drawer.fields.botOnly')}</span>
             </label>
           </div>
           <div class="field">
-            <label class="field__label">UTM Source (comma-separated)</label>
-            <input type="text" class="input" placeholder="facebook, google" data-field="utm_source" />
+            <label class="field__label">${t('streams.drawer.fields.utmSource')}</label>
+            <input type="text" class="input" placeholder="${t('streams.drawer.fields.utmSourcePlaceholder')}" data-field="utm_source" />
           </div>
           <div class="field">
-            <label class="field__label">UTM Campaign (comma-separated)</label>
-            <input type="text" class="input" placeholder="summer-2026" data-field="utm_campaign" />
+            <label class="field__label">${t('streams.drawer.fields.utmCampaign')}</label>
+            <input type="text" class="input" placeholder="${t('streams.drawer.fields.utmCampaignPlaceholder')}" data-field="utm_campaign" />
           </div>
           <div class="field">
-            <label class="field__label">Path (regex)</label>
-            <input type="text" class="input" placeholder="/offer.*" data-field="path" />
+            <label class="field__label">${t('streams.drawer.fields.path')}</label>
+            <input type="text" class="input" placeholder="${t('streams.drawer.fields.pathPlaceholder')}" data-field="path" />
           </div>
           <div class="field">
-            <label class="field__label">Referrer (regex)</label>
-            <input type="text" class="input" placeholder="facebook\\.com" data-field="referrer" />
+            <label class="field__label">${t('streams.drawer.fields.referrer')}</label>
+            <input type="text" class="input" placeholder="${t('streams.drawer.fields.referrerPlaceholder')}" data-field="referrer" />
           </div>
         </div>
       </section>
 
       <!-- Action -->
       <section class="card card--panel">
-        <header class="card__header"><h3 class="h5">Action</h3></header>
+        <header class="card__header"><h3 class="h5">${t('streams.drawer.actionSection')}</h3></header>
         <div class="card__body stack">
           <div class="field">
-            <label class="field__label">Action type</label>
-            <select class="input" data-field="action">
-              <option value="redirect">Redirect</option>
-              <option value="block">Block</option>
-              <option value="pass">Pass</option>
-              <option value="mab_redirect">A/B Test (MAB)</option>
-            </select>
+            <label class="field__label">${t('streams.drawer.fields.actionType')}</label>
+            ${renderDropdown('action', actionOptions())}
           </div>
           <div class="field" data-action-url-field>
-            <label class="field__label">Action URL</label>
-            <input type="text" class="input" placeholder="https://example.com/offer" data-field="action_url" />
+            <label class="field__label">${t('streams.drawer.fields.actionUrl')}</label>
+            <input type="text" class="input" placeholder="${t('streams.drawer.fields.actionUrlPlaceholder')}" data-field="action_url" />
           </div>
           <div class="field">
-            <label class="field__label">Status code</label>
-            <select class="input" data-field="status_code">
-              <option value="302">302 - Temporary</option>
-              <option value="301">301 - Permanent</option>
-            </select>
+            <label class="field__label">${t('streams.drawer.fields.statusCode')}</label>
+            ${renderDropdown('status_code', statusCodeOptions())}
           </div>
 
           <!-- MAB variants (shown when action = mab_redirect) -->
           <div data-mab-section hidden>
             <div class="field">
-              <label class="field__label">Algorithm</label>
-              <select class="input" data-field="algorithm">
-                <option value="thompson_sampling">Thompson Sampling</option>
-                <option value="ucb">UCB</option>
-                <option value="epsilon_greedy">Epsilon Greedy</option>
-              </select>
+              <label class="field__label">${t('streams.drawer.fields.algorithm')}</label>
+              ${renderDropdown('algorithm', algorithmOptions())}
             </div>
             <div class="stack stack--sm" data-variants-list>
               <div class="cluster">
-                <label class="field__label">Variants</label>
-                <button class="btn btn--sm btn--ghost" type="button" data-action="add-variant">+ Add</button>
+                <label class="field__label">${t('streams.drawer.fields.variants')}</label>
+                <button class="btn btn--sm btn--ghost" type="button" data-action="add-variant">${t('streams.drawer.fields.addVariant')}</button>
               </div>
               <div class="stack stack--xs" data-variant-rows>
                 <div class="cluster" data-variant-row>
@@ -312,7 +362,7 @@ function renderManualCreateContent(): string {
 
       <!-- Priority -->
       <div class="field">
-        <label class="field__label">Priority</label>
+        <label class="field__label">${t('streams.drawer.fields.priority')}</label>
         <input type="number" class="input" value="100" min="1" max="9999" data-field="priority" />
       </div>
     </div>
@@ -330,97 +380,77 @@ function renderEditContent(rule: TdsRule, domains: TdsDomainBinding[]): string |
     <div class="stack-list">
       <!-- Rule Configuration -->
       <section class="card card--panel">
-        <header class="card__header"><h3 class="h5">Rule Configuration</h3></header>
+        <header class="card__header"><h3 class="h5">${t('streams.drawer.ruleConfig')}</h3></header>
         <div class="card__body stack">
           <div class="field">
-            <label class="field__label">Rule name</label>
+            <label class="field__label">${t('streams.drawer.fields.ruleName')}</label>
             <input type="text" class="input" value="${escapeAttr(rule.rule_name)}" data-field="rule_name" />
           </div>
 
           <div class="field">
-            <label class="field__label">Type</label>
-            <select class="input" data-field="tds_type">
-              <option value="traffic_shield" ${rule.tds_type === 'traffic_shield' ? 'selected' : ''}>Shield</option>
-              <option value="smartlink" ${rule.tds_type === 'smartlink' ? 'selected' : ''}>SmartLink</option>
-            </select>
+            <label class="field__label">${t('streams.drawer.fields.type')}</label>
+            ${renderDropdown('tds_type', typeOptions(), rule.tds_type)}
           </div>
 
           <div class="field">
-            <label class="field__label">Status</label>
-            <select class="input" data-field="status">
-              <option value="draft" ${rule.status === 'draft' ? 'selected' : ''}>Draft</option>
-              <option value="active" ${rule.status === 'active' ? 'selected' : ''}>Active</option>
-              <option value="disabled" ${rule.status === 'disabled' ? 'selected' : ''}>Disabled</option>
-            </select>
+            <label class="field__label">${t('streams.drawer.fields.status')}</label>
+            ${renderDropdown('status', ruleStatusOptions(), rule.status)}
           </div>
 
           <!-- Conditions -->
           <fieldset class="stack stack--sm">
-            <legend class="field__label">Conditions</legend>
+            <legend class="field__label">${t('streams.drawer.conditionsSection')}</legend>
             <div class="field">
-              <label class="field__label text-sm">Geo</label>
+              <label class="field__label text-sm">${t('streams.drawer.fields.geoShort')}</label>
               <input type="text" class="input" value="${(conditions.geo || []).join(', ')}" data-field="geo" />
             </div>
             <div class="field">
-              <label class="field__label text-sm">Device</label>
-              <select class="input" data-field="device">
-                <option value="">Any</option>
-                <option value="mobile" ${conditions.device?.includes('mobile') ? 'selected' : ''}>Mobile</option>
-                <option value="desktop" ${conditions.device?.includes('desktop') ? 'selected' : ''}>Desktop</option>
-                <option value="tablet" ${conditions.device?.includes('tablet') ? 'selected' : ''}>Tablet</option>
-              </select>
+              <label class="field__label text-sm">${t('streams.drawer.fields.device')}</label>
+              ${renderDropdown('device', deviceOptions(), conditions.device?.[0] || '')}
             </div>
             <div class="field">
               <label class="field__label text-sm">
                 <input type="checkbox" class="checkbox" data-field="bot" ${conditions.bot ? 'checked' : ''} />
-                <span>Bot traffic only</span>
+                <span>${t('streams.drawer.fields.botOnly')}</span>
               </label>
             </div>
             <div class="field">
-              <label class="field__label text-sm">UTM Source</label>
+              <label class="field__label text-sm">${t('streams.drawer.fields.utmSourceShort')}</label>
               <input type="text" class="input" value="${(conditions.utm_source || []).join(', ')}" data-field="utm_source" />
             </div>
             <div class="field">
-              <label class="field__label text-sm">UTM Campaign</label>
+              <label class="field__label text-sm">${t('streams.drawer.fields.utmCampaignShort')}</label>
               <input type="text" class="input" value="${(conditions.utm_campaign || []).join(', ')}" data-field="utm_campaign" />
             </div>
             <div class="field">
-              <label class="field__label text-sm">Path</label>
+              <label class="field__label text-sm">${t('streams.drawer.fields.pathShort')}</label>
               <input type="text" class="input" value="${conditions.path || ''}" data-field="path" />
             </div>
             <div class="field">
-              <label class="field__label text-sm">Referrer</label>
+              <label class="field__label text-sm">${t('streams.drawer.fields.referrerShort')}</label>
               <input type="text" class="input" value="${conditions.referrer || ''}" data-field="referrer" />
             </div>
           </fieldset>
 
           <!-- Action -->
           <fieldset class="stack stack--sm">
-            <legend class="field__label">Action</legend>
+            <legend class="field__label">${t('streams.drawer.actionSection')}</legend>
             <div class="field">
-              <label class="field__label text-sm">Action type</label>
-              <select class="input" data-field="action">
-                <option value="redirect" ${logic.action === 'redirect' ? 'selected' : ''}>Redirect</option>
-                <option value="block" ${logic.action === 'block' ? 'selected' : ''}>Block</option>
-                <option value="pass" ${logic.action === 'pass' ? 'selected' : ''}>Pass</option>
-                <option value="mab_redirect" ${logic.action === 'mab_redirect' ? 'selected' : ''}>A/B Test (MAB)</option>
-              </select>
+              <label class="field__label text-sm">${t('streams.drawer.fields.actionType')}</label>
+              ${renderDropdown('action', actionOptions(), logic.action)}
             </div>
             <div class="field">
-              <label class="field__label text-sm">Action URL</label>
+              <label class="field__label text-sm">${t('streams.drawer.fields.actionUrl')}</label>
               <input type="text" class="input" value="${logic.action_url || ''}" data-field="action_url" />
             </div>
             <div class="field">
-              <label class="field__label text-sm">Status code</label>
-              <select class="input" data-field="status_code">
-                <option value="302" ${(logic.status_code || 302) === 302 ? 'selected' : ''}>302 - Temporary</option>
-                <option value="301" ${logic.status_code === 301 ? 'selected' : ''}>301 - Permanent</option>
-              </select>
+              <label class="field__label text-sm">${t('streams.drawer.fields.statusCode')}</label>
+              ${renderDropdown('status_code', statusCodeOptions(), String(logic.status_code || 302))}
             </div>
           </fieldset>
 
           <div class="field">
-            <label class="field__label">Priority</label>
+            <label class="field__label">${t('streams.drawer.fields.priority')}</label>
             <input type="number" class="input" value="${rule.priority}" min="1" max="9999" data-field="priority" />
           </div>
         </div>
@@ -429,10 +459,10 @@ function renderEditContent(rule: TdsRule, domains: TdsDomainBinding[]): string |
       <!-- Domain Bindings -->
       <section class="card card--panel">
         <header class="card__header cluster cluster--space-between">
-          <h3 class="h5">Domain Bindings</h3>
+          <h3 class="h5">${t('streams.bindings.title')}</h3>
           <button class="btn btn--sm btn--ghost" type="button" data-action="show-domain-picker">
             <span class="icon" data-icon="mono/plus"></span>
-            <span>Bind Domain</span>
+            <span>${t('streams.bindings.bindDomain')}</span>
           </button>
         </header>
         <div class="card__body">
@@ -445,21 +475,21 @@ function renderEditContent(rule: TdsRule, domains: TdsDomainBinding[]): string |
 
       <!-- Details -->
       <section class="card card--panel">
-        <header class="card__header"><h3 class="h5">Details</h3></header>
+        <header class="card__header"><h3 class="h5">${t('streams.drawer.detailsSection')}</h3></header>
         <div class="card__body">
           <dl class="detail-list">
             ${rule.preset_id ? `
               <div class="detail-row">
-                <dt class="detail-label">Preset</dt>
+                <dt class="detail-label">${t('streams.drawer.details.preset')}</dt>
                 <dd class="detail-value"><span class="badge badge--sm badge--neutral">${rule.preset_id}</span></dd>
               </div>
             ` : ''}
             <div class="detail-row">
-              <dt class="detail-label">Created</dt>
+              <dt class="detail-label">${t('streams.drawer.details.created')}</dt>
               <dd class="detail-value text-sm">${formatDate(rule.created_at)}</dd>
             </div>
             <div class="detail-row">
-              <dt class="detail-label">Updated</dt>
+              <dt class="detail-label">${t('streams.drawer.details.updated')}</dt>
               <dd class="detail-value text-sm">${formatDate(rule.updated_at)}</dd>
             </div>
           </dl>
@@ -488,7 +518,7 @@ function setupModeToggle(): void {
       const mode = (tab as HTMLElement).dataset.mode;
       if (!mode) return;
 
-      tabs.forEach(t => t.classList.remove('is-active'));
+      tabs.forEach(tab2 => tab2.classList.remove('is-active'));
       tab.classList.add('is-active');
 
       drawerMode = mode === 'preset' ? 'create-preset' : 'create-manual';
@@ -522,7 +552,7 @@ function setupPresetHandlers(): void {
       const type = (tab as HTMLElement).dataset.tabType;
       if (!type) return;
 
-      typeTabs.forEach(t => t.classList.remove('is-active'));
+      typeTabs.forEach(tab2 => tab2.classList.remove('is-active'));
       tab.classList.add('is-active');
 
       const shieldContent = drawerElement!.querySelector('[data-type-content="traffic_shield"]') as HTMLElement;
@@ -571,22 +601,22 @@ function setupPresetHandlers(): void {
 function setupActionToggle(): void {
   if (!drawerElement) return;
 
-  const actionSelect = drawerElement.querySelector('[data-field="action"]') as HTMLSelectElement;
+  const actionInput = drawerElement.querySelector('[data-field="action"]') as HTMLInputElement;
   const mabSection = drawerElement.querySelector('[data-mab-section]') as HTMLElement;
   const urlField = drawerElement.querySelector('[data-action-url-field]') as HTMLElement;
 
-  if (!actionSelect) return;
+  if (!actionInput) return;
 
   const update = () => {
-    const isMab = actionSelect.value === 'mab_redirect';
-    const isBlock = actionSelect.value === 'block';
-    const isPass = actionSelect.value === 'pass';
+    const isMab = actionInput.value === 'mab_redirect';
+    const isBlock = actionInput.value === 'block';
+    const isPass = actionInput.value === 'pass';
 
     if (mabSection) mabSection.hidden = !isMab;
     if (urlField) urlField.hidden = isBlock || isPass;
   };
 
-  actionSelect.addEventListener('change', update);
+  actionInput.addEventListener('change', update);
   update();
 }
 
@@ -605,7 +635,7 @@ function setupVariantHandlers(): void {
       newRow.innerHTML = `
         <input type="text" class="input" placeholder="https://offer-c.com" data-variant-url />
         <input type="number" class="input" style="width: 80px;" placeholder="50" data-variant-weight value="33" />
-        <button class="btn-icon btn-icon--sm btn-icon--ghost" type="button" data-action="remove-variant" aria-label="Remove variant">
+        <button class="btn-icon btn-icon--sm btn-icon--ghost" type="button" data-action="remove-variant" aria-label="${t('streams.drawer.fields.removeVariant')}">
           <span class="icon" data-icon="mono/close"></span>
         </button>
       `;
@@ -644,7 +674,7 @@ async function handlePresetCreate(): Promise<void> {
 
   const selectedCard = drawerElement.querySelector('[data-preset-id].is-selected') as HTMLElement;
   if (!selectedCard) {
-    showGlobalNotice('error', 'Select a preset first');
+    showGlobalNotice('error', t('streams.messages.selectPreset'));
     return;
   }
 
@@ -662,10 +692,10 @@ async function handlePresetCreate(): Promise<void> {
     );
 
     addRuleOptimistic(response.rule);
-    showGlobalNotice('success', 'Rule created from preset');
+    showGlobalNotice('success', t('streams.messages.createdFromPreset'));
     closeDrawer();
   } catch (error: any) {
-    showGlobalNotice('error', error.message || 'Failed to create rule');
+    showGlobalNotice('error', error.message || t('streams.messages.createFailed'));
   } finally {
     if (saveBtn) saveBtn.disabled = false;
   }
@@ -676,7 +706,7 @@ async function handleManualCreate(): Promise<void> {
 
   const ruleName = getFieldValue('rule_name');
   if (!ruleName) {
-    showGlobalNotice('error', 'Rule name is required');
+    showGlobalNotice('error', t('streams.messages.ruleNameRequired'));
     return;
   }
 
@@ -694,10 +724,10 @@ async function handleManualCreate(): Promise<void> {
     );
 
     addRuleOptimistic(response.rule);
-    showGlobalNotice('success', 'Rule created');
+    showGlobalNotice('success', t('streams.messages.created'));
     closeDrawer();
   } catch (error: any) {
-    showGlobalNotice('error', error.message || 'Failed to create rule');
+    showGlobalNotice('error', error.message || t('streams.messages.createFailed'));
   } finally {
     if (saveBtn) saveBtn.disabled = false;
   }
@@ -735,10 +765,10 @@ async function handleEdit(): Promise<void> {
       logic_json: logicJson,
     });
 
-    showGlobalNotice('success', 'Rule saved');
+    showGlobalNotice('success', t('streams.messages.saved'));
     closeDrawer();
   } catch (error: any) {
-    showGlobalNotice('error', error.message || 'Failed to save rule');
+    showGlobalNotice('error', error.message || t('streams.messages.saveFailed'));
     await refreshRules();
   } finally {
     if (saveBtn) saveBtn.disabled = false;
@@ -751,9 +781,9 @@ async function handleEdit(): Promise<void> {
 
 function getFieldValue(name: string): string {
   if (!drawerElement) return '';
-  const el = drawerElement.querySelector(`[data-field="${name}"]`) as HTMLInputElement | HTMLSelectElement;
+  const el = drawerElement.querySelector(`[data-field="${name}"]`) as HTMLInputElement;
   if (!el) return '';
-  if (el.type === 'checkbox') return (el as HTMLInputElement).checked ? 'true' : '';
+  if (el.type === 'checkbox') return el.checked ? 'true' : '';
   return el.value.trim();
 }
 
@@ -814,6 +844,76 @@ function collectLogicJson() {
 
   return logicJson;
 }
+
+// =============================================================================
+// Custom Dropdown Helpers
+// =============================================================================
+
+/**
+ * Render a custom dropdown (btn-chip + dropdown__menu + hidden input)
+ * replacing native <select> per StyleGuide rules.
+ */
+function renderDropdown(fieldName: string, options: SelectOption[], selected?: string): string {
+  const effectiveValue = selected ?? options[0]?.value ?? '';
+  const sel = options.find(o => o.value === effectiveValue);
+  const display = sel?.label ?? 'Select...';
+
+  return `
+    <div class="dropdown" data-dropdown="${fieldName}">
+      <button class="btn-chip btn-chip--sm btn-chip--dropdown dropdown__trigger" type="button" aria-haspopup="menu" aria-expanded="false">
+        <span class="btn-chip__label">${escapeAttr(display)}</span>
+        <span class="btn-chip__chevron icon" data-icon="mono/chevron-down"></span>
+      </button>
+      <div class="dropdown__menu dropdown__menu--fit-trigger" role="menu">
+        ${options.map(o =>
+          `<button class="dropdown__item${o.value === effectiveValue ? ' is-active' : ''}" type="button" data-value="${escapeAttr(o.value)}">${escapeAttr(o.label)}</button>`
+        ).join('')}
+      </div>
+    </div>
+    <input type="hidden" data-field="${fieldName}" value="${escapeAttr(effectiveValue)}" />
+  `;
+}
+
+/**
+ * Delegated handler: when a .dropdown__item is clicked, update the
+ * sibling hidden input value, the trigger label, and the active state.
+ * Called once on the drawer element.
+ */
+function setupDropdownSelection(container: HTMLElement): void {
+  container.addEventListener('click', (e) => {
+    const item = (e.target as HTMLElement).closest('.dropdown__item') as HTMLElement;
+    if (!item) return;
+
+    const dropdown = item.closest('.dropdown, [data-dropdown]') as HTMLElement;
+    if (!dropdown) return;
+
+    const value = item.dataset.value ?? '';
+
+    // Update trigger label
+    const triggerLabel = dropdown.querySelector('.btn-chip__label');
+    if (triggerLabel) triggerLabel.textContent = item.textContent?.trim() ?? '';
+
+    // Mark active
+    dropdown.querySelectorAll('.dropdown__item').forEach(i => i.classList.remove('is-active'));
+    item.classList.add('is-active');
+
+    // Close dropdown
+    dropdown.classList.remove('dropdown--open');
+    const trigger = dropdown.querySelector('.dropdown__trigger');
+    if (trigger) trigger.setAttribute('aria-expanded', 'false');
+
+    // Update hidden input (next element sibling of dropdown wrapper)
+    const hidden = dropdown.nextElementSibling as HTMLInputElement;
+    if (hidden?.tagName === 'INPUT' && hidden.type === 'hidden') {
+      hidden.value = value;
+      hidden.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+  });
+}
+
+// =============================================================================
+// Utility
+// =============================================================================
 
 function escapeAttr(str: string): string {
   return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');

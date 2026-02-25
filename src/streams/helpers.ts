@@ -4,6 +4,7 @@
  */
 
 import type { TdsConditions, TdsAction, TdsType, TdsRuleStatus } from '@api/types';
+import { t } from '@i18n';
 
 /**
  * Summarize conditions for table display
@@ -14,14 +15,14 @@ export function getConditionSummary(conditions: TdsConditions): string {
 
   if (conditions.geo && conditions.geo.length > 0) {
     if (conditions.geo.length <= 2) {
-      parts.push(`geo: ${conditions.geo.join(', ')}`);
+      parts.push(`${t('streams.conditions.geo')} ${conditions.geo.join(', ')}`);
     } else {
-      parts.push(`geo: ${conditions.geo.slice(0, 2).join(', ')} +${conditions.geo.length - 2}`);
+      parts.push(`${t('streams.conditions.geo')} ${conditions.geo.slice(0, 2).join(', ')} +${conditions.geo.length - 2}`);
     }
   }
 
   if (conditions.geo_exclude && conditions.geo_exclude.length > 0) {
-    parts.push(`!geo: ${conditions.geo_exclude.length}`);
+    parts.push(`${t('streams.conditions.geoExclude')} ${conditions.geo_exclude.length}`);
   }
 
   if (conditions.device && conditions.device.length > 0) {
@@ -29,34 +30,34 @@ export function getConditionSummary(conditions: TdsConditions): string {
   }
 
   if (conditions.os && conditions.os.length > 0) {
-    parts.push(`os: ${conditions.os.join(', ')}`);
+    parts.push(`${t('streams.conditions.os')} ${conditions.os.join(', ')}`);
   }
 
   if (conditions.browser && conditions.browser.length > 0) {
-    parts.push(`browser: ${conditions.browser.join(', ')}`);
+    parts.push(`${t('streams.conditions.browser')} ${conditions.browser.join(', ')}`);
   }
 
   if (conditions.bot === true) {
-    parts.push('bot');
+    parts.push(t('streams.conditions.bot'));
   }
 
   if (conditions.utm_source && conditions.utm_source.length > 0) {
-    parts.push(`utm_src: ${conditions.utm_source.length}`);
+    parts.push(`${t('streams.conditions.utmSource')} ${conditions.utm_source.length}`);
   }
 
   if (conditions.utm_campaign && conditions.utm_campaign.length > 0) {
-    parts.push(`utm_camp: ${conditions.utm_campaign.length}`);
+    parts.push(`${t('streams.conditions.utmCampaign')} ${conditions.utm_campaign.length}`);
   }
 
   if (conditions.path) {
-    parts.push(`path: ${conditions.path}`);
+    parts.push(`${t('streams.conditions.path')} ${conditions.path}`);
   }
 
   if (conditions.referrer) {
-    parts.push(`ref: ${conditions.referrer}`);
+    parts.push(`${t('streams.conditions.referrer')} ${conditions.referrer}`);
   }
 
-  return parts.length > 0 ? parts.join(' · ') : 'Any';
+  return parts.length > 0 ? parts.join(' · ') : t('streams.conditions.any');
 }
 
 /**
@@ -64,10 +65,10 @@ export function getConditionSummary(conditions: TdsConditions): string {
  */
 export function getActionLabel(action: TdsAction): string {
   const labels: Record<TdsAction, string> = {
-    redirect: 'Redirect',
-    block: 'Block',
-    pass: 'Pass',
-    mab_redirect: 'A/B Test',
+    redirect: t('streams.actionTypes.redirect'),
+    block: t('streams.actionTypes.block'),
+    pass: t('streams.actionTypes.pass'),
+    mab_redirect: t('streams.actionTypes.mab_redirect'),
   };
   return labels[action] || action;
 }
@@ -77,9 +78,9 @@ export function getActionLabel(action: TdsAction): string {
  */
 export function getTypeBadgeHtml(tdsType: TdsType): string {
   if (tdsType === 'traffic_shield') {
-    return '<span class="badge badge--sm badge--primary">Shield</span>';
+    return `<span class="badge badge--sm badge--primary">${t('streams.types.traffic_shield')}</span>`;
   }
-  return '<span class="badge badge--sm badge--info">SmartLink</span>';
+  return `<span class="badge badge--sm badge--info">${t('streams.types.smartlink')}</span>`;
 }
 
 /**
@@ -87,9 +88,9 @@ export function getTypeBadgeHtml(tdsType: TdsType): string {
  */
 export function getStatusBadgeHtml(status: TdsRuleStatus): string {
   const config: Record<TdsRuleStatus, { label: string; cls: string }> = {
-    draft: { label: 'Draft', cls: 'badge--neutral' },
-    active: { label: 'Active', cls: 'badge--success' },
-    disabled: { label: 'Disabled', cls: 'badge--neutral' },
+    draft: { label: t('streams.status.draft'), cls: 'badge--neutral' },
+    active: { label: t('streams.status.active'), cls: 'badge--success' },
+    disabled: { label: t('streams.status.disabled'), cls: 'badge--neutral' },
   };
   const { label, cls } = config[status] || config.draft;
   return `<span class="badge badge--sm ${cls}">${label}</span>`;

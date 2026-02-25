@@ -21,7 +21,7 @@
         <div class="page-shell utility-bar__inner">
           <div class="utility-left">
             <span class="badges">
-              <span class="badge badge--primary">TDS Rules</span>
+              <span class="badge badge--primary" data-i18n="streams.title">TDS Rules</span>
             </span>
           </div>
 
@@ -39,13 +39,13 @@
         <!-- Page Header -->
         <header class="page-header">
           <div class="page-header__title">
-            <h1 class="h3">TDS Rules</h1>
-            <p class="page-header__subtitle">Traffic distribution rules — Shield, SmartLink, A/B testing</p>
+            <h1 class="h3" data-i18n="streams.title">TDS Rules</h1>
+            <p class="page-header__subtitle" data-i18n="streams.subtitle">Traffic distribution rules — Shield, SmartLink, A/B testing</p>
           </div>
           <div class="page-header__actions">
             <button class="btn btn--primary" type="button" data-action="create-rule">
               <span class="icon" data-icon="mono/plus"></span>
-              <span>Create Rule</span>
+              <span data-i18n="streams.actions.create">Create Rule</span>
             </button>
           </div>
         </header>
@@ -62,14 +62,15 @@
                     type="text"
                     class="table-search__input"
                     placeholder="Search rules..."
+                    data-i18n-placeholder="streams.search"
                     data-search-input
                   />
-                  <button class="table-search__clear" type="button" aria-label="Clear" data-search-clear>
+                  <button class="table-search__clear" type="button" aria-label="Clear" data-i18n-aria="common.clear" data-search-clear>
                     <span class="icon" data-icon="mono/close"></span>
                   </button>
                 </div>
 
-                <button type="button" class="btn-icon btn-icon--neutral" data-reset-filters aria-label="Reset filters">
+                <button type="button" class="btn-icon btn-icon--neutral" data-reset-filters aria-label="Reset filters" data-i18n-aria="streams.actions.resetFilters">
                   <span class="icon" data-icon="mono/filter-remove"></span>
                 </button>
               </div>
@@ -85,24 +86,24 @@
             <!-- Loading State -->
             <div class="loading-state" data-loading-state>
               <div class="spinner"></div>
-              <p class="text-muted">Loading TDS rules...</p>
+              <p class="text-muted" data-i18n="streams.loading">Loading TDS rules...</p>
             </div>
 
             <!-- Empty State (shown when all filtered to 0) -->
             <div class="empty-state" data-empty-state hidden>
               <span class="icon icon--xxl" data-icon="mono/search"></span>
-              <h2>No rules match your filters</h2>
-              <p>Try adjusting your search or filters to find what you're looking for.</p>
+              <h2 data-i18n="streams.empty.title">No rules match your filters</h2>
+              <p data-i18n="streams.empty.description">Try adjusting your search or filters to find what you're looking for.</p>
               <button class="btn btn--ghost" type="button" data-action="clear-filters">
                 <span class="icon" data-icon="mono/close"></span>
-                <span>Clear Filters</span>
+                <span data-i18n="streams.empty.cta">Clear Filters</span>
               </button>
             </div>
 
             <!-- Error State -->
             <div class="alert alert--danger" data-error-state hidden>
-              <p data-error-message>Failed to load TDS rules. Please retry or check your connection.</p>
-              <button class="btn btn--sm btn--ghost" type="button" data-action="retry">Retry</button>
+              <p data-error-message data-i18n="streams.error">Failed to load TDS rules. Please retry or check your connection.</p>
+              <button class="btn btn--sm btn--ghost" type="button" data-action="retry" data-i18n="streams.actions.retry">Retry</button>
             </div>
 
             <!-- Rules Table -->
@@ -110,14 +111,14 @@
               <table class="table table--tds">
                 <thead>
                   <tr>
-                    <th data-priority="medium" class="text-center" style="width: 60px;">Priority</th>
-                    <th data-priority="critical">Name</th>
-                    <th data-priority="high">Type</th>
-                    <th data-priority="medium">Conditions</th>
-                    <th data-priority="high">Action</th>
-                    <th data-priority="medium" class="text-center" style="width: 70px;">Domains</th>
-                    <th data-priority="high">Status</th>
-                    <th data-priority="critical" class="th-actions">Actions</th>
+                    <th data-priority="medium" class="text-center" style="width: 60px;" data-i18n="streams.table.columns.priority">Priority</th>
+                    <th data-priority="critical" data-i18n="streams.table.columns.name">Name</th>
+                    <th data-priority="high" data-i18n="streams.table.columns.type">Type</th>
+                    <th data-priority="medium" data-i18n="streams.table.columns.conditions">Conditions</th>
+                    <th data-priority="high" data-i18n="streams.table.columns.action">Action</th>
+                    <th data-priority="medium" class="text-center" style="width: 70px;" data-i18n="streams.table.columns.domains">Domains</th>
+                    <th data-priority="high" data-i18n="streams.table.columns.status">Status</th>
+                    <th data-priority="critical" class="th-actions" data-i18n="streams.table.columns.actions">Actions</th>
                   </tr>
                 </thead>
                 <tbody data-tds-tbody>
@@ -141,25 +142,25 @@
               <div class="step-flow">
                 <div class="step-pill">
                   <span class="step-number">1</span>
-                  <span class="step-text">Create a Rule</span>
+                  <span class="step-text" data-i18n="streams.welcome.step1">Create a Rule</span>
                 </div>
                 <span class="step-separator">&rarr;</span>
                 <div class="step-pill">
                   <span class="step-number">2</span>
-                  <span class="step-text">Bind Domains</span>
+                  <span class="step-text" data-i18n="streams.welcome.step2">Bind Domains</span>
                 </div>
                 <span class="step-separator">&rarr;</span>
                 <div class="step-pill">
                   <span class="step-number">3</span>
-                  <span class="step-text">Monitor &amp; Optimize</span>
+                  <span class="step-text" data-i18n="streams.welcome.step3">Monitor &amp; Optimize</span>
                 </div>
               </div>
             </div>
 
             <article class="card card--panel">
               <header class="card__header">
-                <h2 class="h4">Get started with TDS</h2>
-                <p class="text-muted">Route traffic by geo, device, UTM parameters, and more. Use presets for quick setup or build custom rules from scratch.</p>
+                <h2 class="h4" data-i18n="streams.welcome.title">Get started with TDS</h2>
+                <p class="text-muted" data-i18n="streams.welcome.description">Route traffic by geo, device, UTM parameters, and more. Use presets for quick setup or build custom rules from scratch.</p>
               </header>
               <div class="card__body stack">
                 <div class="stack stack--sm">
@@ -169,8 +170,8 @@
                         <span class="icon" data-icon="mono/shield-check"></span>
                       </div>
                       <div class="stack stack--xs">
-                        <p class="text-sm"><strong>Smart Shield</strong></p>
-                        <p class="text-sm text-muted">Filter bots and unwanted traffic before it reaches your campaigns.</p>
+                        <p class="text-sm"><strong data-i18n="streams.welcome.shield.title">Smart Shield</strong></p>
+                        <p class="text-sm text-muted" data-i18n="streams.welcome.shield.description">Filter bots and unwanted traffic before it reaches your campaigns.</p>
                       </div>
                     </div>
                   </div>
@@ -180,8 +181,8 @@
                         <span class="icon" data-icon="mono/arrow-decision-auto"></span>
                       </div>
                       <div class="stack stack--xs">
-                        <p class="text-sm"><strong>SmartLink</strong></p>
-                        <p class="text-sm text-muted">Route by UTM, campaign tags, and split traffic across offers.</p>
+                        <p class="text-sm"><strong data-i18n="streams.welcome.smartlink.title">SmartLink</strong></p>
+                        <p class="text-sm text-muted" data-i18n="streams.welcome.smartlink.description">Route by UTM, campaign tags, and split traffic across offers.</p>
                       </div>
                     </div>
                   </div>
@@ -191,8 +192,8 @@
                         <span class="icon" data-icon="mono/ab-testing"></span>
                       </div>
                       <div class="stack stack--xs">
-                        <p class="text-sm"><strong>A/B Testing</strong></p>
-                        <p class="text-sm text-muted">Multi-armed bandit auto-optimizes traffic distribution based on performance.</p>
+                        <p class="text-sm"><strong data-i18n="streams.welcome.abtest.title">A/B Testing</strong></p>
+                        <p class="text-sm text-muted" data-i18n="streams.welcome.abtest.description">Multi-armed bandit auto-optimizes traffic distribution based on performance.</p>
                       </div>
                     </div>
                   </div>
@@ -200,7 +201,7 @@
                 <div class="cluster">
                   <button class="btn btn--primary" type="button" data-action="create-rule">
                     <span class="icon" data-icon="mono/plus"></span>
-                    <span>Create Rule</span>
+                    <span data-i18n="streams.actions.create">Create Rule</span>
                   </button>
                 </div>
               </div>
@@ -217,13 +218,13 @@
     <div class="dialog dialog--danger" data-dialog="delete-tds-rule" hidden>
       <div class="dialog__backdrop" data-dialog-close></div>
       <div class="dialog__panel">
-        <h3 class="dialog__title">Delete Rule</h3>
+        <h3 class="dialog__title" data-i18n="streams.deleteDialog.title">Delete Rule</h3>
         <p class="dialog__body">
-          Are you sure you want to delete <strong data-delete-rule-name></strong>? This action cannot be undone.
+          <span data-i18n="streams.deleteDialog.body">Are you sure you want to delete</span> <strong data-delete-rule-name></strong><span data-i18n="streams.deleteDialog.bodyEnd">? This action cannot be undone.</span>
         </p>
         <div class="dialog__actions">
-          <button class="btn btn--ghost" type="button" data-dialog-close>Cancel</button>
-          <button class="btn btn--danger" type="button" data-confirm-delete-tds>Delete</button>
+          <button class="btn btn--ghost" type="button" data-dialog-close data-i18n="streams.deleteDialog.cancel">Cancel</button>
+          <button class="btn btn--danger" type="button" data-confirm-delete-tds data-i18n="streams.deleteDialog.confirm">Delete</button>
         </div>
       </div>
     </div>
@@ -231,6 +232,5 @@
 {{> footer}}
 
   <script type="module" src="/src/main.ts"></script>
-  <script type="module" src="/src/streams/main.ts"></script>
 </body>
 </html>

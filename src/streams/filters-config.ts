@@ -4,45 +4,48 @@
  */
 
 import type { FilterConfig, FilterOption, ActiveFilters } from '@redirects/filters-config';
+import { t } from '@i18n';
 
 // Re-export types for convenience
 export type { FilterConfig, FilterOption, ActiveFilters };
 
-export const TDS_FILTERS: FilterConfig[] = [
-  {
-    id: 'tds_type',
-    label: 'Type',
-    type: 'multi-select',
-    priority: 'critical',
-    options: [
-      { value: 'traffic_shield', label: 'Shield' },
-      { value: 'smartlink', label: 'SmartLink' },
-    ],
-  },
-  {
-    id: 'status',
-    label: 'Status',
-    type: 'multi-select',
-    priority: 'high',
-    options: [
-      { value: 'draft', label: 'Draft' },
-      { value: 'active', label: 'Active' },
-      { value: 'disabled', label: 'Disabled' },
-    ],
-  },
-  {
-    id: 'action',
-    label: 'Action',
-    type: 'multi-select',
-    priority: 'medium',
-    options: [
-      { value: 'redirect', label: 'Redirect' },
-      { value: 'block', label: 'Block' },
-      { value: 'pass', label: 'Pass' },
-      { value: 'mab_redirect', label: 'A/B Test' },
-    ],
-  },
-];
+export function getTdsFilters(): FilterConfig[] {
+  return [
+    {
+      id: 'tds_type',
+      label: t('streams.filters.type'),
+      type: 'multi-select',
+      priority: 'critical',
+      options: [
+        { value: 'traffic_shield', label: t('streams.types.traffic_shield') },
+        { value: 'smartlink', label: t('streams.types.smartlink') },
+      ],
+    },
+    {
+      id: 'status',
+      label: t('streams.filters.status'),
+      type: 'multi-select',
+      priority: 'high',
+      options: [
+        { value: 'draft', label: t('streams.status.draft') },
+        { value: 'active', label: t('streams.status.active') },
+        { value: 'disabled', label: t('streams.status.disabled') },
+      ],
+    },
+    {
+      id: 'action',
+      label: t('streams.filters.action'),
+      type: 'multi-select',
+      priority: 'medium',
+      options: [
+        { value: 'redirect', label: t('streams.actionTypes.redirect') },
+        { value: 'block', label: t('streams.actionTypes.block') },
+        { value: 'pass', label: t('streams.actionTypes.pass') },
+        { value: 'mab_redirect', label: t('streams.actionTypes.mab_redirect') },
+      ],
+    },
+  ];
+}
 
 export interface TdsActiveFilters {
   tds_type?: string[];

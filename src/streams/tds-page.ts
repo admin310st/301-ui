@@ -19,6 +19,7 @@ import { deleteRule } from '@api/tds';
 import { safeCall } from '@api/ui-client';
 import { showGlobalNotice } from '@ui/globalNotice';
 import { showDialog, hideDialog } from '@ui/dialog';
+import { t } from '@i18n';
 
 let allRules: TdsRule[] = [];
 let filteredRules: TdsRule[] = [];
@@ -321,10 +322,10 @@ async function confirmDeleteRule(): Promise<void> {
       { lockKey: `tds-rule:delete:${ruleId}`, retryOn401: true }
     );
 
-    showGlobalNotice('success', 'Rule deleted');
+    showGlobalNotice('success', t('streams.messages.deleted'));
   } catch (error: any) {
     await refreshRules();
-    showGlobalNotice('error', error.message || 'Failed to delete rule');
+    showGlobalNotice('error', error.message || t('streams.messages.deleteFailed'));
   }
 }
 

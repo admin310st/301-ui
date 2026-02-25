@@ -4,7 +4,7 @@
  */
 
 import type { FilterConfig } from '@redirects/filters-config';
-import { TDS_FILTERS, type TdsActiveFilters } from './filters-config';
+import { getTdsFilters, type TdsActiveFilters } from './filters-config';
 import { adjustDropdownPosition } from '@ui/dropdown';
 
 /**
@@ -96,7 +96,7 @@ function renderFilterOptions(config: FilterConfig, activeValue: string[] | undef
  * Render filter chips HTML
  */
 export function renderFilterBar(activeFilters: TdsActiveFilters): string {
-  return TDS_FILTERS.map(config => {
+  return getTdsFilters().map(config => {
     const activeValue = activeFilters[config.id as keyof TdsActiveFilters];
     return renderFilterChip(config, activeValue);
   }).join('\n');

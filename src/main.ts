@@ -35,6 +35,8 @@ import { initSitesPage } from '@ui/sites';
 import { initSiteCreate } from '@forms/site-create';
 import { initSiteEdit } from '@forms/site-edit';
 import { initSiteDomains } from '@domains/site-domains';
+import { initTdsPage } from './streams/tds-page';
+import { initDrawer as initTdsDrawer } from './streams/drawer';
 import { initDialogCloseHandlers } from '@ui/dialog';
 import { initPageLoadIndicator, showLoading, hideLoading, withLoading } from '@ui/loading-indicator';
 import { initDashboardPage, initSidebarOnboarding } from '@ui/dashboard';
@@ -198,6 +200,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   initSiteCreate();
   initSiteEdit();
   initSiteDomains();
+  initTdsPage();
+  initTdsDrawer();
   initDialogCloseHandlers();
 
   // Global handler for "Connect Cloudflare" buttons (dashboard, integrations, etc.)

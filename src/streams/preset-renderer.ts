@@ -4,13 +4,14 @@
  */
 
 import type { TdsPreset } from '@api/types';
+import { t, tWithVars } from '@i18n';
 
 /**
  * Render preset cards for selection
  */
 export function renderPresetSelector(presets: TdsPreset[]): string {
   if (presets.length === 0) {
-    return '<p class="text-muted text-sm">No presets available for this type.</p>';
+    return `<p class="text-muted text-sm">${t('streams.presets.empty')}</p>`;
   }
 
   return `
@@ -35,12 +36,12 @@ export function renderPresetSelector(presets: TdsPreset[]): string {
  */
 export function renderPresetParams(preset: TdsPreset): string {
   if (preset.params.length === 0) {
-    return '<p class="text-sm text-muted">This preset has no configurable parameters.</p>';
+    return `<p class="text-sm text-muted">${t('streams.presets.noParams')}</p>`;
   }
 
   return `
     <div class="stack stack--sm">
-      <h4 class="h5">Configure: ${escapeHtml(preset.name)}</h4>
+      <h4 class="h5">${tWithVars('streams.presets.configure', { name: escapeHtml(preset.name) })}</h4>
       ${preset.params.map(param => renderParamField(param)).join('')}
     </div>
   `;
@@ -56,10 +57,16 @@ function renderParamField(param: { key: string; label: string; type: string; req
     return `
       <div class="field">
         <label class="field__label"><span>${escapeHtml(param.label)}</span>${requiredMark}</label>
-        <select class="input" data-preset-field="${param.key}" ${param.required ? 'required' : ''}>
-          <option value="">Select...</option>
-          ${param.options.map(opt => `<option value="${escapeHtml(opt)}">${escapeHtml(opt)}</option>`).join('')}
-        </select>
+        <div class="dropdown" data-dropdown="preset-${param.key}">
+          <button class="btn-chip btn-chip--sm btn-chip--dropdown dropdown__trigger" type="button" aria-haspopup="menu" aria-expanded="false">
+            <span class="btn-chip__label">${t('streams.presets.select')}</span>
+            <span class="btn-chip__chevron icon" data-icon="mono/chevron-down"></span>
+          </button>
+          <div class="dropdown__menu dropdown__menu--fit-trigger" role="menu">
+            ${param.options.map(opt => `<button class="dropdown__item" type="button" data-value="${escapeHtml(opt)}">${escapeHtml(opt)}</button>`).join('')}
+          </div>
+        </div>
+        <input type="hidden" data-preset-field="${param.key}" value="" />
       </div>
     `;
   }

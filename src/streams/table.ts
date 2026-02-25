@@ -4,6 +4,7 @@
  */
 
 import type { TdsRule } from '@api/types';
+import { t } from '@i18n';
 import {
   getConditionSummary,
   getActionLabel,
@@ -34,7 +35,7 @@ function renderRuleRow(rule: TdsRule): string {
   const statusBadge = getStatusBadgeHtml(rule.status);
 
   const presetBadge = rule.preset_id
-    ? `<span class="badge badge--sm badge--neutral" title="From preset ${rule.preset_id}">${rule.preset_id}</span>`
+    ? `<span class="badge badge--sm badge--neutral" title="${t('streams.table.fromPreset').replace('{{id}}', rule.preset_id)}">${rule.preset_id}</span>`
     : '';
 
   return `
@@ -68,17 +69,17 @@ function renderRuleRow(rule: TdsRule): string {
       </td>
       <td data-priority="critical">
         <div class="table-actions table-actions--inline">
-          <button class="btn-icon btn-icon--sm btn-icon--ghost" type="button" data-action="edit-rule" data-rule-id="${rule.id}" title="Edit rule">
+          <button class="btn-icon btn-icon--sm btn-icon--ghost" type="button" data-action="edit-rule" data-rule-id="${rule.id}" title="${t('streams.actions.edit')}">
             <span class="icon" data-icon="mono/pencil-circle"></span>
           </button>
           <div class="dropdown" data-dropdown>
-            <button class="btn-icon btn-icon--sm btn-icon--ghost dropdown__trigger" type="button" aria-haspopup="menu" title="More actions">
+            <button class="btn-icon btn-icon--sm btn-icon--ghost dropdown__trigger" type="button" aria-haspopup="menu" title="${t('streams.actions.moreActions')}">
               <span class="icon" data-icon="mono/dots-vertical"></span>
             </button>
             <div class="dropdown__menu" role="menu">
               <button class="dropdown__item dropdown__item--danger" type="button" data-action="delete-rule" data-rule-id="${rule.id}">
                 <span class="icon" data-icon="mono/delete"></span>
-                <span>Delete</span>
+                <span>${t('streams.actions.delete')}</span>
               </button>
             </div>
           </div>

@@ -697,28 +697,253 @@ export const en = {
     },
   },
   streams: {
-    title: 'Streams',
-    subtitle: 'Traffic Distribution System (TDS) stream configuration',
+    title: 'TDS Rules',
+    subtitle: 'Traffic distribution rules — Shield, SmartLink, A/B testing',
+
+    // Page states
+    loading: 'Loading TDS rules...',
+    error: 'Failed to load TDS rules. Please retry or check your connection.',
+    search: 'Search rules...',
+
+    // Empty / filter-miss state
     empty: {
-      title: 'No streams configured',
-      description: 'Set up traffic streams to distribute visitors across landing pages and offers.',
-      cta: 'Create stream',
+      title: 'No rules match your filters',
+      description: 'Try adjusting your search or filters to find what you\'re looking for.',
+      cta: 'Clear Filters',
     },
+
+    // Onboarding welcome card
+    welcome: {
+      title: 'Get started with TDS',
+      description: 'Route traffic by geo, device, UTM parameters, and more. Use presets for quick setup or build custom rules from scratch.',
+      step1: 'Create a Rule',
+      step2: 'Bind Domains',
+      step3: 'Monitor & Optimize',
+      shield: {
+        title: 'Smart Shield',
+        description: 'Filter bots and unwanted traffic before it reaches your campaigns.',
+      },
+      smartlink: {
+        title: 'SmartLink',
+        description: 'Route by UTM, campaign tags, and split traffic across offers.',
+      },
+      abtest: {
+        title: 'A/B Testing',
+        description: 'Multi-armed bandit auto-optimizes traffic distribution based on performance.',
+      },
+    },
+
+    // Button / action labels
     actions: {
-      create: 'Create stream',
-      edit: 'Edit',
+      create: 'Create Rule',
+      edit: 'Edit rule',
       delete: 'Delete',
-      pause: 'Pause',
-      resume: 'Resume',
+      retry: 'Retry',
+      clearFilters: 'Clear Filters',
+      resetFilters: 'Reset filters',
+      moreActions: 'More actions',
     },
+
+    // Table
     table: {
       columns: {
+        priority: 'Priority',
         name: 'Name',
-        project: 'Project',
-        rules: 'Rules',
+        type: 'Type',
+        conditions: 'Conditions',
+        action: 'Action',
+        domains: 'Domains',
         status: 'Status',
-        traffic: 'Traffic',
+        actions: 'Actions',
       },
+      showing: 'Showing',
+      of: 'of',
+      fromPreset: 'From preset {{id}}',
+    },
+
+    // Filter chips
+    filters: {
+      type: 'Type',
+      status: 'Status',
+      action: 'Action',
+    },
+
+    // TDS type labels
+    types: {
+      traffic_shield: 'Shield',
+      smartlink: 'SmartLink',
+    },
+
+    // Rule status labels
+    status: {
+      draft: 'Draft',
+      active: 'Active',
+      disabled: 'Disabled',
+    },
+
+    // Action type labels
+    actionTypes: {
+      redirect: 'Redirect',
+      block: 'Block',
+      pass: 'Pass',
+      mab_redirect: 'A/B Test',
+    },
+
+    // Condition prefixes
+    conditions: {
+      any: 'Any',
+      bot: 'bot',
+      geo: 'geo:',
+      geoExclude: '!geo:',
+      os: 'os:',
+      browser: 'browser:',
+      utmSource: 'utm_src:',
+      utmCampaign: 'utm_camp:',
+      path: 'path:',
+      referrer: 'ref:',
+    },
+
+    // Drawer
+    drawer: {
+      createTitle: 'Create Rule',
+      editTitle: 'Edit Rule',
+      create: 'Create',
+      save: 'Save',
+      cancel: 'Cancel',
+      close: 'Close',
+      loading: 'Loading rule...',
+      loadError: 'Failed to load rule',
+
+      // Mode tabs
+      fromPreset: 'From Preset',
+      manual: 'Manual',
+
+      // Section headings
+      ruleConfig: 'Rule Configuration',
+      conditionsSection: 'Conditions',
+      actionSection: 'Action',
+      detailsSection: 'Details',
+
+      // Field labels
+      fields: {
+        ruleName: 'Rule name',
+        ruleNameOptional: 'Rule name (optional)',
+        ruleNamePlaceholder: 'My routing rule',
+        ruleNameAutoPlaceholder: 'Auto-generated from preset',
+        type: 'Type',
+        status: 'Status',
+        priority: 'Priority',
+        geo: 'Geo (countries, comma-separated)',
+        geoShort: 'Geo',
+        geoPlaceholder: 'RU, BY, KZ',
+        device: 'Device',
+        botOnly: 'Bot traffic only',
+        utmSource: 'UTM Source (comma-separated)',
+        utmSourceShort: 'UTM Source',
+        utmSourcePlaceholder: 'facebook, google',
+        utmCampaign: 'UTM Campaign (comma-separated)',
+        utmCampaignShort: 'UTM Campaign',
+        utmCampaignPlaceholder: 'summer-2026',
+        path: 'Path (regex)',
+        pathShort: 'Path',
+        pathPlaceholder: '/offer.*',
+        referrer: 'Referrer (regex)',
+        referrerShort: 'Referrer',
+        referrerPlaceholder: 'facebook\\.com',
+        actionType: 'Action type',
+        actionUrl: 'Action URL',
+        actionUrlPlaceholder: 'https://example.com/offer',
+        statusCode: 'Status code',
+        algorithm: 'Algorithm',
+        variants: 'Variants',
+        addVariant: '+ Add',
+        removeVariant: 'Remove variant',
+      },
+
+      // Dropdown option labels
+      options: {
+        shield: 'Shield',
+        smartlink: 'SmartLink',
+        deviceAny: 'Any',
+        deviceMobile: 'Mobile',
+        deviceDesktop: 'Desktop',
+        deviceTablet: 'Tablet',
+        actionRedirect: 'Redirect',
+        actionBlock: 'Block',
+        actionPass: 'Pass',
+        actionMab: 'A/B Test (MAB)',
+        code302: '302 — Temporary',
+        code301: '301 — Permanent',
+        algoThompson: 'Thompson Sampling',
+        algoUcb: 'UCB',
+        algoEpsilon: 'Epsilon Greedy',
+        statusDraft: 'Draft',
+        statusActive: 'Active',
+        statusDisabled: 'Disabled',
+      },
+
+      // Detail row labels
+      details: {
+        preset: 'Preset',
+        created: 'Created',
+        updated: 'Updated',
+      },
+    },
+
+    // Presets
+    presets: {
+      empty: 'No presets available for this type.',
+      noParams: 'This preset has no configurable parameters.',
+      configure: 'Configure: {{name}}',
+      select: 'Select...',
+    },
+
+    // Domain bindings
+    bindings: {
+      title: 'Domain Bindings',
+      bindDomain: 'Bind Domain',
+      unbindDomain: 'Unbind domain',
+      unbindAria: 'Unbind {{name}}',
+      empty: 'No domains bound to this rule yet.',
+      on: 'On',
+      off: 'Off',
+      statusPending: 'Pending',
+      statusApplied: 'Applied',
+      statusRemoved: 'Removed',
+      loading: 'Loading domains...',
+      allBound: 'All domains are already bound.',
+      selectLabel: 'Select domains to bind:',
+      bindSelected: 'Bind Selected',
+      cancel: 'Cancel',
+    },
+
+    // Delete confirmation dialog
+    deleteDialog: {
+      title: 'Delete Rule',
+      body: 'Are you sure you want to delete',
+      bodyEnd: '? This action cannot be undone.',
+      cancel: 'Cancel',
+      confirm: 'Delete',
+    },
+
+    // Notification messages
+    messages: {
+      selectPreset: 'Select a preset first',
+      createdFromPreset: 'Rule created from preset',
+      created: 'Rule created',
+      saved: 'Rule saved',
+      deleted: 'Rule deleted',
+      ruleNameRequired: 'Rule name is required',
+      createFailed: 'Failed to create rule',
+      saveFailed: 'Failed to save rule',
+      deleteFailed: 'Failed to delete rule',
+      domainUnbound: 'Domain unbound',
+      unbindFailed: 'Failed to unbind domain',
+      selectDomain: 'Select at least one domain',
+      boundDomains: 'Bound {{count}} domain(s)',
+      boundDomainsPartial: 'Bound {{count}} domain(s), {{errors}} failed',
+      bindFailed: 'Failed to bind domains',
+      loadDomainsFailed: 'Failed to load domains',
     },
   },
   redirects: {
