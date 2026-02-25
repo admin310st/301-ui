@@ -744,3 +744,173 @@ export interface SetNamecheapNsResponse {
   ok: true;
   message: string;
 }
+
+// =============================================================================
+// TDS (Traffic Distribution System) API Types
+// =============================================================================
+
+export type TdsType = 'traffic_shield' | 'smartlink';
+export type TdsRuleStatus = 'draft' | 'active' | 'disabled';
+export type TdsAction = 'redirect' | 'block' | 'pass' | 'mab_redirect';
+export type MabAlgorithm = 'thompson_sampling' | 'ucb' | 'epsilon_greedy';
+export type BindingStatus = 'pending' | 'applied' | 'removed';
+
+export interface TdsConditions {
+  geo?: string[];
+  geo_exclude?: string[];
+  device?: string[];
+  os?: string[];
+  browser?: string[];
+  bot?: boolean;
+  utm_source?: string[];
+  utm_campaign?: string[];
+  match_params?: Record<string, string>;
+  path?: string;
+  referrer?: string;
+}
+
+export interface MabVariant {
+  url: string;
+  weight: number;
+  alpha?: number;
+  beta?: number;
+  impressions?: number;
+  conversions?: number;
+}
+
+export interface TdsLogicJson {
+  conditions: TdsConditions;
+  action: TdsAction;
+  action_url?: string;
+  status_code?: number;
+  algorithm?: MabAlgorithm;
+  variants?: MabVariant[];
+}
+
+export interface TdsRule {
+  id: number;
+  rule_name: string;
+  tds_type: TdsType;
+  logic_json: TdsLogicJson;
+  priority: number;
+  status: TdsRuleStatus;
+  preset_id: string | null;
+  created_at: string;
+  updated_at: string;
+  domain_count: number;
+}
+
+export interface TdsDomainBinding {
+  binding_id: number;
+  domain_id: number;
+  domain_name: string;
+  enabled: boolean;
+  binding_status: BindingStatus;
+  schedule_start: string | null;
+  schedule_end: string | null;
+  last_synced_at: string | null;
+  last_error: string | null;
+  created_at: string;
+}
+
+export interface TdsPresetParam {
+  key: string;
+  label: string;
+  type: 'select' | 'url' | 'multi-select';
+  required: boolean;
+  options?: string[];
+  placeholder?: string;
+}
+
+export interface TdsPreset {
+  id: string;
+  name: string;
+  description: string;
+  category: string;
+  tds_type: TdsType;
+  params: TdsPresetParam[];
+  defaultPriority: number;
+}
+
+export interface TdsParam {
+  param_key: string;
+  category: string;
+  description: string;
+}
+
+/** GET /tds/presets response */
+export interface GetTdsPresetsResponse {
+  ok: boolean;
+  presets: TdsPreset[];
+}
+
+/** GET /tds/rules response */
+export interface GetTdsRulesResponse {
+  ok: boolean;
+  rules: TdsRule[];
+  total: number;
+}
+
+/** GET /tds/rules/:id response */
+export interface GetTdsRuleResponse {
+  ok: boolean;
+  rule: TdsRule;
+  domains: TdsDomainBinding[];
+}
+
+/** POST /tds/rules request */
+export interface CreateTdsRuleRequest {
+  rule_name: string;
+  tds_type: TdsType;
+  logic_json: TdsLogicJson;
+  priority?: number;
+}
+
+/** POST /tds/rules/from-preset request */
+export interface CreateFromPresetRequest {
+  preset_id: string;
+  params: Record<string, any>;
+  domain_ids?: number[];
+  rule_name?: string;
+}
+
+/** POST /tds/rules/from-preset response */
+export interface CreateFromPresetResponse {
+  ok: boolean;
+  rule: TdsRule;
+  bound_domains?: TdsDomainBinding[];
+}
+
+/** PATCH /tds/rules/:id request */
+export interface UpdateTdsRuleRequest {
+  rule_name?: string;
+  tds_type?: TdsType;
+  logic_json?: TdsLogicJson;
+  priority?: number;
+  status?: TdsRuleStatus;
+}
+
+/** PATCH /tds/rules/reorder request */
+export interface ReorderRulesRequest {
+  rules: Array<{ id: number; priority: number }>;
+}
+
+/** POST /tds/rules/:id/domains request */
+export interface BindDomainsRequest {
+  domain_ids: number[];
+}
+
+/** POST /tds/rules/:id/domains response */
+export interface BindDomainsResponse {
+  ok: boolean;
+  bound: TdsDomainBinding[];
+  errors: Array<{ domain_id: number; error: string }>;
+}
+
+/** GET /tds/rules/:id/domains response */
+export interface GetRuleDomainsResponse {
+  ok: boolean;
+  rule_id: number;
+  domains: TdsDomainBinding[];
+  total: number;
+}

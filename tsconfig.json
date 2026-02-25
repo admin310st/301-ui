@@ -14,7 +14,8 @@
       "@utils/*": ["utils/*"],
       "@state/*": ["state/*"],
       "@social/*": ["social/*"],
-      "@i18n/*": ["i18n/*"]
+      "@i18n/*": ["i18n/*"],
+      "@streams/*": ["streams/*"]
     }
   },
   "include": ["src"]

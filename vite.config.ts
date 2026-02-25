@@ -106,6 +106,7 @@ export default defineConfig({
       '@state': '/src/state',
       '@social': '/src/social',
       '@i18n': '/src/i18n',
+      '@streams': '/src/streams',
     },
   },
   test: {

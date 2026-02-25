@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="/css/layout.css" />
     <link rel="stylesheet" href="/css/tables.css" />
     <link rel="stylesheet" href="/css/site.css" />
+    <link rel="stylesheet" href="/css/drawers.css" />
   </head>
   <body class="layout-dashboard">
 {{> sidebar-state-loader}}
@@ -34,90 +35,145 @@
     <main class="page-shell dashboard-shell">
 {{> sidebar activePage="streams"}}
 
-      <section class="dashboard-content">
-        <!-- Welcome Section (shown when no rules) -->
-        <div class="tds-onboarding" data-welcome-card>
-          <header class="page-header">
-            <div class="page-header__title">
-              <h1 class="h3">TDS Rules</h1>
-              <p class="text-lead">Apply traffic rules to any domain in your control panel. Serve different landing pages based on traffic source, or redirect visitors automatically using geo, device, and campaign filters.</p>
+      <section class="dashboard-content dashboard-content--fill-height">
+        <!-- Page Header -->
+        <header class="page-header">
+          <div class="page-header__title">
+            <h1 class="h3">TDS Rules</h1>
+            <p class="page-header__subtitle">Traffic distribution rules — Shield, SmartLink, A/B testing</p>
+          </div>
+          <div class="page-header__actions">
+            <button class="btn btn--primary" type="button" data-action="create-rule">
+              <span class="icon" data-icon="mono/plus"></span>
+              <span>Create Rule</span>
+            </button>
+          </div>
+        </header>
+
+        <!-- TDS Table Card -->
+        <div class="card card--panel" data-tds-card>
+          <header class="card__header">
+            <div class="card__actions">
+              <!-- Search & Reset -->
+              <div class="controls-row">
+                <div class="table-search" data-table-search>
+                  <span class="icon" data-icon="mono/search"></span>
+                  <input
+                    type="text"
+                    class="table-search__input"
+                    placeholder="Search rules..."
+                    data-search-input
+                  />
+                  <button class="table-search__clear" type="button" aria-label="Clear" data-search-clear>
+                    <span class="icon" data-icon="mono/close"></span>
+                  </button>
+                </div>
+
+                <button type="button" class="btn-icon btn-icon--neutral" data-reset-filters aria-label="Reset filters">
+                  <span class="icon" data-icon="mono/filter-remove"></span>
+                </button>
+              </div>
+
+              <!-- Filter chips row -->
+              <div class="controls-row table-controls">
+                <div class="filter-chips" data-filter-bar></div>
+              </div>
             </div>
           </header>
 
+          <div class="card__body card__body--table">
+            <!-- Loading State -->
+            <div class="loading-state" data-loading-state>
+              <div class="spinner"></div>
+              <p class="text-muted">Loading TDS rules...</p>
+            </div>
+
+            <!-- Empty State (shown when all filtered to 0) -->
+            <div class="empty-state" data-empty-state hidden>
+              <span class="icon icon--xxl" data-icon="mono/search"></span>
+              <h2>No rules match your filters</h2>
+              <p>Try adjusting your search or filters to find what you're looking for.</p>
+              <button class="btn btn--ghost" type="button" data-action="clear-filters">
+                <span class="icon" data-icon="mono/close"></span>
+                <span>Clear Filters</span>
+              </button>
+            </div>
+
+            <!-- Error State -->
+            <div class="alert alert--danger" data-error-state hidden>
+              <p data-error-message>Failed to load TDS rules. Please retry or check your connection.</p>
+              <button class="btn btn--sm btn--ghost" type="button" data-action="retry">Retry</button>
+            </div>
+
+            <!-- Rules Table -->
+            <div class="table-scroll" data-table-shell hidden>
+              <table class="table table--tds">
+                <thead>
+                  <tr>
+                    <th data-priority="medium" class="text-center" style="width: 60px;">Priority</th>
+                    <th data-priority="critical">Name</th>
+                    <th data-priority="high">Type</th>
+                    <th data-priority="medium">Conditions</th>
+                    <th data-priority="high">Action</th>
+                    <th data-priority="medium" class="text-center" style="width: 70px;">Domains</th>
+                    <th data-priority="high">Status</th>
+                    <th data-priority="critical" class="th-actions">Actions</th>
+                  </tr>
+                </thead>
+                <tbody data-tds-tbody>
+                  <!-- Rows injected by JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <footer class="card__footer" data-table-footer>
+            <div class="pagination">
+              <span class="pagination__info">Showing <strong data-shown-count>0</strong> of <strong data-total-count>0</strong></span>
+            </div>
+          </footer>
+        </div>
+
+        <!-- Welcome Card (shown when 0 rules exist — onboarding) -->
+        <div class="tds-onboarding" data-welcome-card hidden>
           <div class="stack stack--xl">
-            <!-- Step Flow Indicator -->
             <div class="card card--soft">
               <div class="step-flow">
                 <div class="step-pill">
                   <span class="step-number">1</span>
-                  <span class="step-text">Configure Shield</span>
+                  <span class="step-text">Create a Rule</span>
                 </div>
-                <span class="step-separator">→</span>
+                <span class="step-separator">&rarr;</span>
                 <div class="step-pill">
                   <span class="step-number">2</span>
-                  <span class="step-text">Create rules</span>
+                  <span class="step-text">Bind Domains</span>
                 </div>
-                <span class="step-separator">→</span>
+                <span class="step-separator">&rarr;</span>
                 <div class="step-pill">
                   <span class="step-number">3</span>
-                  <span class="step-text">Test & Publish</span>
+                  <span class="step-text">Monitor &amp; Optimize</span>
                 </div>
               </div>
             </div>
 
-            <!-- Step 1: Smart Shield -->
             <article class="card card--panel">
               <header class="card__header">
-                <div class="cluster">
-                  <h2 class="h4">
-                    <span class="badge badge--neutral" style="margin-right: var(--space-2);">1</span>
-                    <span>Configure Smart Shield</span>
-                  </h2>
-                </div>
-                <p class="text-muted">Block bots and moderators before they reach routing rules.</p>
+                <h2 class="h4">Get started with TDS</h2>
+                <p class="text-muted">Route traffic by geo, device, UTM parameters, and more. Use presets for quick setup or build custom rules from scratch.</p>
               </header>
-
               <div class="card__body stack">
-                <p class="text-body">
-                  Smart Shield protects your campaigns by filtering unwanted traffic. Match by geo, device, ASN, TLS fingerprint —
-                  and route bots and moderators to safe pages before they reach your TDS rules.
-                </p>
-
-                <div class="panel panel--info">
-                  <p class="text-sm">
-                    <span class="icon" data-icon="mono/info"></span>
-                    <span>Shield decisions may prevent requests from reaching TDS rules. Configure Shield first to ensure proper traffic flow.</span>
-                  </p>
-                </div>
-
-                <div class="cluster">
-                  <button class="btn btn--primary">
-                    <span class="icon" data-icon="mono/shield-check"></span>
-                    <span>Open Smart Shield</span>
-                  </button>
-                </div>
-              </div>
-            </article>
-
-            <!-- Step 2: Create Rules -->
-            <article class="card card--panel">
-              <header class="card__header">
-                <div class="cluster">
-                  <h2 class="h4">
-                    <span class="badge badge--neutral" style="margin-right: var(--space-2);">2</span>
-                    <span>Create your first rule</span>
-                  </h2>
-                </div>
-                <p class="text-muted">Choose what to match and what to do when the rule matches.</p>
-              </header>
-
-              <div class="card__body stack">
-                <p class="text-body">
-                  Build routing rules that run top-to-bottom. The first matching rule wins.
-                  You can route by geo, device type, traffic source, UTM parameters, and more.
-                </p>
-
                 <div class="stack stack--sm">
+                  <div class="panel">
+                    <div class="cluster cluster--promo">
+                      <div class="icon-ring icon-ring--brand">
+                        <span class="icon" data-icon="mono/shield-check"></span>
+                      </div>
+                      <div class="stack stack--xs">
+                        <p class="text-sm"><strong>Smart Shield</strong></p>
+                        <p class="text-sm text-muted">Filter bots and unwanted traffic before it reaches your campaigns.</p>
+                      </div>
+                    </div>
+                  </div>
                   <div class="panel">
                     <div class="cluster cluster--promo">
                       <div class="icon-ring icon-ring--brand">
@@ -125,110 +181,52 @@
                       </div>
                       <div class="stack stack--xs">
                         <p class="text-sm"><strong>SmartLink</strong></p>
-                        <p class="text-sm text-muted">Route by UTM and campaign tags. Split traffic by source, creative, or custom parameters.</p>
+                        <p class="text-sm text-muted">Route by UTM, campaign tags, and split traffic across offers.</p>
                       </div>
                     </div>
                   </div>
-
                   <div class="panel">
                     <div class="cluster cluster--promo">
                       <div class="icon-ring icon-ring--success">
                         <span class="icon" data-icon="mono/ab-testing"></span>
                       </div>
                       <div class="stack stack--xs">
-                        <p class="text-sm"><strong>A/B Testing (Multi-Armed Bandit)</strong></p>
-                        <p class="text-sm text-muted">Add 2+ variants and let the algorithm optimize distribution automatically based on performance.</p>
+                        <p class="text-sm"><strong>A/B Testing</strong></p>
+                        <p class="text-sm text-muted">Multi-armed bandit auto-optimizes traffic distribution based on performance.</p>
                       </div>
                     </div>
                   </div>
                 </div>
-
                 <div class="cluster">
-                  <button class="btn btn--primary" data-action="create-rule">
+                  <button class="btn btn--primary" type="button" data-action="create-rule">
                     <span class="icon" data-icon="mono/plus"></span>
                     <span>Create Rule</span>
                   </button>
                 </div>
               </div>
             </article>
-
-            <!-- Step 3: Test & Publish -->
-            <article class="card card--panel">
-              <header class="card__header">
-                <div class="cluster">
-                  <h2 class="h4">
-                    <span class="badge badge--neutral" style="margin-right: var(--space-2);">3</span>
-                    <span>Test and publish changes</span>
-                  </h2>
-                </div>
-                <p class="text-muted">Verify rules work correctly before going live.</p>
-              </header>
-
-              <div class="card__body stack">
-                <p class="text-body">
-                  All edits are saved as drafts. Use the Simulator to test your rules with different geo/device/UTM combinations,
-                  then publish to sync the active ruleset to Workers.
-                </p>
-
-                <div class="stack stack--sm">
-                  <div class="panel">
-                    <div class="cluster cluster--promo">
-                      <div class="icon-ring icon-ring--brand">
-                        <span class="icon" data-icon="mono/play"></span>
-                      </div>
-                      <div class="stack stack--xs">
-                        <p class="text-sm"><strong>Test in Simulator</strong></p>
-                        <p class="text-sm text-muted">Simulate geo/device/UTM to confirm the exact outcome — including Shield decisions.</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="panel">
-                    <div class="cluster cluster--promo">
-                      <div class="icon-ring icon-ring--success">
-                        <span class="icon" data-icon="mono/prod"></span>
-                      </div>
-                      <div class="stack stack--xs">
-                        <p class="text-sm"><strong>Publish to Production</strong></p>
-                        <p class="text-sm text-muted">Deploy your ruleset to Cloudflare Workers and make it active for all traffic.</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="cluster">
-                  <button class="btn btn--ghost">
-                    <span class="icon" data-icon="mono/flask"></span>
-                    <span>Open Simulator</span>
-                  </button>
-                  <button class="btn btn--primary" disabled>
-                    <span class="icon" data-icon="mono/upload"></span>
-                    <span>Publish</span>
-                  </button>
-                </div>
-              </div>
-            </article>
           </div>
-        </div>
-
-        <!-- Empty State (shown when rules exist but filtered to 0) -->
-        <div class="empty-state" data-empty-state hidden>
-          <span class="icon icon--xxl" data-icon="mono/search"></span>
-          <h2>No rules match your filters</h2>
-          <p>Try adjusting your search or filters to find what you're looking for.</p>
-          <button class="btn btn--ghost" data-action="clear-filters">
-            <span class="icon" data-icon="mono/close"></span>
-            <span>Clear Filters</span>
-          </button>
-        </div>
-
-        <!-- Rules Table (shown when rules exist) -->
-        <div class="tds-rules-container" data-rules-container hidden>
-          <!-- Will be added in Iteration 3 -->
-        </div>
         </div>
       </section>
     </main>
+
+    <!-- TDS Rule Drawer -->
+{{> tds-rule-drawer}}
+
+    <!-- Delete Rule Confirmation Dialog -->
+    <div class="dialog dialog--danger" data-dialog="delete-tds-rule" hidden>
+      <div class="dialog__backdrop" data-dialog-close></div>
+      <div class="dialog__panel">
+        <h3 class="dialog__title">Delete Rule</h3>
+        <p class="dialog__body">
+          Are you sure you want to delete <strong data-delete-rule-name></strong>? This action cannot be undone.
+        </p>
+        <div class="dialog__actions">
+          <button class="btn btn--ghost" type="button" data-dialog-close>Cancel</button>
+          <button class="btn btn--danger" type="button" data-confirm-delete-tds>Delete</button>
+        </div>
+      </div>
+    </div>
 
 {{> footer}}
 
