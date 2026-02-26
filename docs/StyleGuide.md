@@ -182,10 +182,12 @@ When design system updates are introduced, **ALL** UI components and demo pages 
 - `.panel--success` - positive feedback (green tint)
 - `.panel--warning` - caution (orange tint)
 - `.panel--danger` - errors/critical (red tint)
+- `.panel--interactive` - clickable panel with `cursor: pointer`, hover/focus states. Use `.is-selected` for active selection.
 
 **Production**:
 - Info: `dashboard.html` Step 1 security note, `streams.html` Smart Shield warning
 - Success: `dashboard.html` Step 1 completed state
+- Interactive: TDS preset cards in rule drawer (`streams.html`)
 
 **CSS**: `site.css` → "Panels"
 

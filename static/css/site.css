@@ -2894,6 +2894,23 @@ body.sidebar-collapsed .sidebar .navitem:hover::after {
   border-color: color-mix(in srgb, var(--danger) 30%, transparent);
 }
 
+.panel--interactive {
+  cursor: pointer;
+  transition: border-color var(--transition-md), box-shadow var(--transition-md), background-color var(--transition-md);
+}
+
+.panel--interactive:hover,
+.panel--interactive:focus-visible {
+  border-color: var(--border);
+  box-shadow: var(--shadow-md);
+  background: color-mix(in srgb, var(--bg-soft) 88%, var(--bg-elevated));
+}
+
+.panel--interactive.is-selected {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 1px var(--primary);
+}
+
 .cluster {
   display: flex;
   align-items: center;
