@@ -193,7 +193,7 @@ export interface APIDomain {
   ns_expected?: string;
   // Health data (from list response)
   health: {
-    status: 'healthy' | 'warning' | 'blocked' | 'unknown';
+    status: 'ok' | 'warning' | 'danger' | 'unknown';
     threat_score: number | null;
     categories: string[] | null;
     checked_at: string | null;

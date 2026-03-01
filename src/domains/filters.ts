@@ -88,12 +88,12 @@ export function matchesFilters(domain: Domain, filters: ActiveFilters): boolean 
   }
 
   // Health filter (multi-select)
-  // Supports both mock format (clean/warning/blocked) and API format (healthy/warning/blocked/unknown)
+  // Adapter maps API ok/warning/danger/unknown → UI clean/warning/danger
   if (filters.health && filters.health.length > 0) {
     const hasMatch = filters.health.some((healthType) => {
       if (healthType === 'ok') {
-        // All healthy: valid SSL, clean/healthy abuse status, no errors
-        const isHealthy = domain.abuse_status === 'clean' || domain.abuse_status === 'healthy';
+        // All healthy: valid SSL, clean abuse status, no errors
+        const isHealthy = domain.abuse_status === 'clean';
         return domain.ssl_status === 'valid' && isHealthy && !domain.has_errors;
       }
       if (healthType === 'ssl_bad') {
@@ -112,8 +112,8 @@ export function matchesFilters(domain: Domain, filters: ActiveFilters): boolean 
         return domain.has_errors;
       }
       if (healthType === 'abuse_bad') {
-        // Abuse warnings or blocked
-        return domain.abuse_status === 'warning' || domain.abuse_status === 'blocked';
+        // Abuse warnings or danger
+        return domain.abuse_status === 'warning' || domain.abuse_status === 'danger';
       }
       return false;
     });

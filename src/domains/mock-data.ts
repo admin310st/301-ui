@@ -16,7 +16,7 @@ export interface Domain {
   // UI-специфичные поля (не в базовой схеме API):
   ssl_status: 'valid' | 'expiring' | 'invalid' | 'off';
   ssl_valid_to?: string;
-  abuse_status: 'clean' | 'warning' | 'blocked';
+  abuse_status: 'clean' | 'warning' | 'danger';
   expires_at: string; // дата истечения регистрации
   monitoring_enabled: boolean;
   last_check_at?: string;
@@ -96,7 +96,7 @@ function generateDomain(id: number): Domain {
   // Abuse status
   let abuse_status: Domain['abuse_status'];
   if (status === 'blocked') {
-    abuse_status = 'blocked';
+    abuse_status = 'danger';
   } else if (Math.random() > 0.9) {
     abuse_status = 'warning';
   } else {

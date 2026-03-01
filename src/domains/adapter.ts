@@ -75,11 +75,11 @@ function mapHealthToAbuse(health: APIDomain['health']): Domain['abuse_status'] {
   if (!health) return 'clean';
 
   switch (health.status) {
-    case 'blocked':
-      return 'blocked';
+    case 'danger':
+      return 'danger';
     case 'warning':
       return 'warning';
-    case 'healthy':
+    case 'ok':
     case 'unknown':
     default:
       return 'clean';
@@ -133,7 +133,7 @@ export function adaptAPIDomainToUI(api: APIDomain): Domain {
       : undefined,
     has_errors:
       api.blocked === 1 ||
-      api.health?.status === 'blocked' ||
+      api.health?.status === 'danger' ||
       api.health?.status === 'warning' ||
       api.ssl_status === 'error',
   };
@@ -169,7 +169,7 @@ export interface DomainDetailUI extends Domain {
   proxied: boolean;
   blocked: boolean;
   blocked_reason: string | null;
-  health_status: 'healthy' | 'warning' | 'blocked' | 'unknown' | null;
+  health_status: 'ok' | 'warning' | 'danger' | 'unknown' | null;
   health_threat_score: number | null;
   health_categories: string[] | null;
   health_checked_at: string | null;

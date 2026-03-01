@@ -397,13 +397,13 @@ function calculateDomainsHealth(domains: Domain[]): 'danger' | 'warning' | 'succ
   let hasWarning = false;
 
   for (const domain of domains) {
-    // Danger: blocked status, expired, SSL invalid/error, abuse not clean/healthy
+    // Danger: blocked status, expired, SSL invalid/error, abuse not clean
     if (
       domain.status === 'blocked' ||
       domain.status === 'expired' ||
       domain.ssl_status === 'invalid' ||
       domain.ssl_status === 'error' ||
-      (domain.abuse_status !== 'clean' && domain.abuse_status !== 'healthy')
+      domain.abuse_status !== 'clean'
     ) {
       hasDanger = true;
       break; // Highest priority, stop checking
@@ -596,15 +596,14 @@ function getHealthIcons(domain: Domain): string {
     icons.push('<span class="icon text-muted" data-icon="mono/lock" title="No SSL"></span>');
   }
 
-  // Health/Abuse icon - API returns health.status: healthy, warning, blocked, unknown
-  // Mock data returns abuse_status: clean, warning, blocked
+  // Health/Abuse icon - adapter maps API health.status (ok/warning/danger/unknown) to abuse_status (clean/warning/danger)
   const healthStatus = domain.abuse_status;
-  if (healthStatus === 'clean' || healthStatus === 'healthy') {
+  if (healthStatus === 'clean') {
     icons.push('<span class="icon text-ok" data-icon="mono/shield-check" title="Healthy"></span>');
   } else if (healthStatus === 'warning') {
     icons.push('<span class="icon text-warning" data-icon="mono/alert-triangle" title="Warning"></span>');
-  } else if (healthStatus === 'blocked') {
-    icons.push('<span class="icon text-danger" data-icon="mono/security" title="Blocked"></span>');
+  } else if (healthStatus === 'danger') {
+    icons.push('<span class="icon text-danger" data-icon="mono/security" title="Danger"></span>');
   } else {
     icons.push('<span class="icon text-muted" data-icon="mono/help-circle" title="Unknown"></span>');
   }

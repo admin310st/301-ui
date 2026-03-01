@@ -357,11 +357,11 @@ function calculateDomainsHealthStatus(domains: any[]): 'danger' | 'warning' | 's
   let hasWarning = false;
 
   for (const domain of domains) {
-    // Danger: blocked, SSL error, health blocked
+    // Danger: blocked, SSL error, health danger
     if (
       domain.blocked === 1 ||
       domain.ssl_status === 'error' ||
-      domain.health?.status === 'blocked'
+      domain.health?.status === 'danger'
     ) {
       hasDanger = true;
       break;

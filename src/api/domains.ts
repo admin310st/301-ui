@@ -243,7 +243,7 @@ export interface DomainDetailResponse {
 export interface DomainHealthResponse {
   ok: boolean;
   health: {
-    status: 'healthy' | 'warning' | 'blocked' | 'unknown';
+    status: 'ok' | 'warning' | 'danger' | 'unknown';
     blocked: boolean;
     blocked_reason: string | null;
     threats: {

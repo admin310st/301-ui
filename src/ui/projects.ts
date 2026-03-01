@@ -265,12 +265,14 @@ function renderProjectDomainRow(domain: APIDomain): string {
     ? '<span class="icon text-ok" data-icon="mono/dns" title="NS configured"></span>'
     : '<span class="icon text-muted" data-icon="mono/dns" title="NS not configured"></span>';
 
-  // Health: clean = green, suspicious/malicious = red, unknown/null = gray
+  // Health: ok = green, danger = red, warning = orange, unknown/null = gray
   const healthStatus = domain.health?.status;
-  const abuseIcon = healthStatus === 'clean'
-    ? '<span class="icon text-ok" data-icon="mono/security" title="Clean"></span>'
-    : healthStatus === 'suspicious' || healthStatus === 'malicious'
+  const abuseIcon = healthStatus === 'ok'
+    ? '<span class="icon text-ok" data-icon="mono/security" title="Healthy"></span>'
+    : healthStatus === 'danger'
     ? '<span class="icon text-danger" data-icon="mono/security" title="Threat detected"></span>'
+    : healthStatus === 'warning'
+    ? '<span class="icon text-warning" data-icon="mono/security" title="Warning"></span>'
     : '<span class="icon text-muted" data-icon="mono/security" title="Not checked"></span>';
 
   // Status badge
