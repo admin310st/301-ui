@@ -2791,6 +2791,10 @@ body.sidebar-collapsed .sidebar .navitem:hover::after {
   flex: 1 1 auto; /* Allow growth beyond viewport */
   display: flex;
   flex-direction: column;
+  position: sticky;
+  top: var(--header-offset, var(--header-height));
+  z-index: 1; /* Above page-header when scrolled behind */
+  transition: top 0.3s ease;
 }
 
 .dashboard-content--fill-height .card__body {
@@ -2815,6 +2819,10 @@ body.sidebar-collapsed .sidebar .navitem:hover::after {
     overflow: visible;
     height: auto;
     min-height: 50lvh; /* Fallback: enough space for dropdowns */
+  }
+
+  .dashboard-content--fill-height .card {
+    position: static; /* Disable sticky on mobile */
   }
 }
 
