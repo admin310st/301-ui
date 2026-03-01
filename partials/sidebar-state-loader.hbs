@@ -9,6 +9,7 @@
       })();
     </script>
     <style>
-      /* Prevent FOUC: hide fixed sidebar until stylesheets are applied */
-      .sidebar { visibility: hidden; }
+      /* Prevent FOUC: hide fixed sidebar until external CSS loads.
+         @layer ensures site.css (unlayered) always overrides this. */
+      @layer fouc { .sidebar { visibility: hidden; } }
     </style>
