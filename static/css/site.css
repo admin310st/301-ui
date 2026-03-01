@@ -2463,6 +2463,7 @@ body.sidebar-collapsed .sidebar {
   min-width: 0;
   overflow: hidden;
   z-index: var(--z-sidebar);
+  visibility: visible; /* Override inline FOUC guard from sidebar-state-loader */
   transition: width var(--sidebar-transition);
 }
 
