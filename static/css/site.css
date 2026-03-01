@@ -2423,7 +2423,7 @@ html[data-theme="light"] .btn--social-github {
   grid-template-areas: "sidebar content";
   gap: var(--dashboard-gap);
   align-items: start;
-  min-height: calc(100dvh - var(--header-height) - var(--footer-height));
+  min-height: calc(100dvh - var(--header-height));
 }
 
 /* Legacy alias for backward compatibility */
@@ -2433,7 +2433,7 @@ html[data-theme="light"] .btn--social-github {
   grid-template-areas: "sidebar content";
   gap: var(--dashboard-gap);
   align-items: start;
-  min-height: calc(100dvh - var(--header-height) - var(--footer-height));
+  min-height: calc(100dvh - var(--header-height));
 }
 
 /* Collapsed state: Grid adjusts automatically */
