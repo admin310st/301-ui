@@ -2442,12 +2442,18 @@ body.sidebar-collapsed .app-shell {
   grid-template-columns: var(--sidebar-width-collapsed) 1fr;
 }
 
+body.sidebar-collapsed .sidebar {
+  width: var(--sidebar-width-collapsed);
+}
+
 /* Sidebar */
 .sidebar {
   grid-area: sidebar;
-  position: sticky;
-  top: var(--header-height);
-  height: calc(100dvh - var(--header-height));
+  position: fixed;
+  top: var(--header-offset, var(--header-height));
+  left: var(--shell-left, 0px);
+  width: var(--sidebar-width);
+  height: calc(100dvh - var(--header-offset, var(--header-height)));
   background: var(--panel);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
@@ -2456,6 +2462,7 @@ body.sidebar-collapsed .app-shell {
   flex-direction: column;
   min-width: 0;
   overflow: hidden;
+  z-index: var(--z-sidebar);
   transition: width var(--sidebar-transition);
 }
 
@@ -2792,7 +2799,7 @@ body.sidebar-collapsed .sidebar .navitem:hover::after {
   display: flex;
   flex-direction: column;
   position: sticky;
-  top: var(--header-height);
+  top: var(--header-offset, var(--header-height));
   z-index: 1;
 }
 

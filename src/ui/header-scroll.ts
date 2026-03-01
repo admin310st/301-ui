@@ -8,6 +8,9 @@
  * - Scrolling down: First hide utility-bar, then header (300ms delay)
  * - Scrolling up: First show header, then utility-bar (300ms delay)
  * - At top: Both visible immediately
+ *
+ * Also tracks --header-offset (visual header bottom) and --shell-left
+ * for fixed sidebar and sticky card positioning.
  */
 
 let lastScrollTop = 0;
@@ -19,6 +22,7 @@ let scrollThreshold = 0;
 export function initHeaderScroll(): void {
   const header = document.querySelector<HTMLElement>('.site-header');
   const utilityBar = document.querySelector<HTMLElement>('.utility-bar');
+  const dashboardShell = document.querySelector<HTMLElement>('.dashboard-shell');
 
   if (!header) return;
 
@@ -29,6 +33,29 @@ export function initHeaderScroll(): void {
 
   updateScrollThreshold();
   window.addEventListener('resize', updateScrollThreshold);
+
+  // Update --header-offset CSS variable based on visible header bottom
+  // Used by fixed sidebar (top) and sticky card (top)
+  function updateHeaderOffset(): void {
+    if (!header) return;
+    const rect = header.getBoundingClientRect();
+    // rect.bottom accounts for transforms (translateY(-100%) when hidden)
+    const offset = Math.max(0, rect.bottom);
+    document.documentElement.style.setProperty('--header-offset', `${offset}px`);
+  }
+
+  // Update --shell-left for fixed sidebar horizontal positioning
+  function updateShellLeft(): void {
+    if (!dashboardShell) return;
+    const rect = dashboardShell.getBoundingClientRect();
+    document.documentElement.style.setProperty('--shell-left', `${rect.left}px`);
+  }
+
+  // Combined layout update
+  function updateLayoutVars(): void {
+    updateHeaderOffset();
+    updateShellLeft();
+  }
 
   // Update global notice position to match header height
   function updateGlobalNoticePosition(): void {
@@ -86,6 +113,12 @@ export function initHeaderScroll(): void {
     updateGlobalNoticePosition();
   }
 
+  // Listen for transition end to update offset after animation completes
+  header.addEventListener('transitionend', updateHeaderOffset);
+  if (utilityBar) {
+    utilityBar.addEventListener('transitionend', updateHeaderOffset);
+  }
+
   // Handle scroll events
   window.addEventListener('scroll', () => {
     const st = window.scrollY || document.documentElement.scrollTop;
@@ -110,6 +143,7 @@ export function initHeaderScroll(): void {
     }
 
     lastScrollTop = st;
+    updateHeaderOffset();
   });
 
   // Ensure both are visible on page load if at top
@@ -120,8 +154,15 @@ export function initHeaderScroll(): void {
       showUtilityBar();
     }
     updateGlobalNoticePosition();
+    updateLayoutVars();
   });
 
-  // Update global notice position on resize
-  window.addEventListener('resize', updateGlobalNoticePosition);
+  // Update positions on resize
+  window.addEventListener('resize', () => {
+    updateGlobalNoticePosition();
+    updateLayoutVars();
+  });
+
+  // Initial values
+  updateLayoutVars();
 }
