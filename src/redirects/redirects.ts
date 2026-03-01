@@ -573,9 +573,11 @@ function renderDomainRow(domain: ExtendedRedirectDomain, _isLastRow: boolean): s
   // Arrow indicator for donors with redirect
   const targetUrl = getTargetUrl(domain.domain_name, domain.redirect);
   let arrowIndicator = '';
+  let arrowColor = '';
   if (domain.redirect && targetUrl) {
-    const { color: arrowColor, title: arrowTitle } = getArrowStyle(domain);
-    arrowIndicator = `<span class="${arrowColor} redirect-arrow" title="${arrowTitle}">→</span>`;
+    const style = getArrowStyle(domain);
+    arrowColor = style.color;
+    arrowIndicator = `<span class="${arrowColor} redirect-arrow" title="${style.title}">→</span>`;
   }
 
   // Canonical icon prefix for domain name
@@ -594,7 +596,7 @@ function renderDomainRow(domain: ExtendedRedirectDomain, _isLastRow: boolean): s
     </div>
   `;
 
-  const targetDisplay = getTargetDisplay(domain, false);
+  const targetDisplay = getTargetDisplay(domain, false, arrowColor);
   const activityDisplay = getActivityDisplay(domain);
   const statusDisplay = getStatusDisplay(domain);
   const actions = getRowActions(domain);
@@ -754,8 +756,10 @@ function getDomainDisplay(
  * - Primary domains: just [Landing/TDS/Hybrid] badge (no domain duplicate)
  * - Redirects: → target [301/302]
  * - No redirect: "No redirect"
+ *
+ * @param arrowColor - CSS class from getArrowStyle(); when 'text-danger', target text is also red
  */
-function getTargetDisplay(domain: ExtendedRedirectDomain, isPrimaryDomain: boolean): string {
+function getTargetDisplay(domain: ExtendedRedirectDomain, isPrimaryDomain: boolean, arrowColor?: string): string {
   const targetUrl = getTargetUrl(domain.domain_name, domain.redirect);
 
   // Primary domains (sites) → show only site type badge (no domain duplicate)
@@ -784,10 +788,11 @@ function getTargetDisplay(domain: ExtendedRedirectDomain, isPrimaryDomain: boole
 
   // Redirect configured → show target domain (no arrow, since source domain already has →)
   const targetHost = targetUrl.replace('https://', '').replace('http://', '').split('/')[0];
+  const colorClass = arrowColor === 'text-danger' ? ' text-danger' : '';
 
   return `
     <div class="table-cell-inline">
-      <span class="table-cell-main" title="${targetUrl}">${targetHost}</span>
+      <span class="table-cell-main${colorClass}" title="${targetUrl}">${targetHost}</span>
     </div>
   `;
 }
