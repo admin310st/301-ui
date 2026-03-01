@@ -5,6 +5,13 @@ import { qsa } from './dom';
 const PROTECTED_PAGES = ['/dashboard', '/integrations', '/account',
   '/domains', '/projects', '/sites', '/redirects', '/streams'];
 
+/** Tracks whether initAuthState() has resolved at least once. */
+let authResolved = false;
+
+export function markAuthResolved(): void {
+  authResolved = true;
+}
+
 function goToDashboard(): void {
   const DASH = '/dashboard.html';
   const isLoginPage =
@@ -60,7 +67,9 @@ export function applyAuthDom(state: AuthState): void {
 
   if (loggedIn) {
     goToDashboard();
-  } else {
+  } else if (authResolved) {
+    // Only redirect after auth has been fully checked — otherwise we'd
+    // bounce the user before the refresh call has a chance to succeed.
     goToLoginIfProtected();
   }
 }
