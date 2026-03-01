@@ -28,7 +28,6 @@ export function initHeaderScroll(): void {
   }
 
   updateScrollThreshold();
-  window.addEventListener('resize', updateScrollThreshold);
 
   // Update global notice position to match header height
   function updateGlobalNoticePosition(): void {
@@ -72,10 +71,20 @@ export function initHeaderScroll(): void {
     updateGlobalNoticePosition();
   }
 
+  // Update --header-offset CSS variable to track the visible bottom edge of the header.
+  // Used by sidebar sticky positioning only (not height — that stays static via --header-height).
+  // getBoundingClientRect() accounts for transforms, so when header slides up the offset → 0.
+  function updateHeaderOffset(): void {
+    if (!header) return;
+    const bottom = Math.max(0, header.getBoundingClientRect().bottom);
+    document.documentElement.style.setProperty('--header-offset', `${bottom}px`);
+  }
+
   // Hide header (second level)
   function hideHeader(): void {
     if (!header || isAtTop) return;
     header.classList.add('header-hidden');
+    updateHeaderOffset();
     updateGlobalNoticePosition();
   }
 
@@ -83,6 +92,7 @@ export function initHeaderScroll(): void {
   function showHeader(): void {
     if (!header) return;
     header.classList.remove('header-hidden');
+    updateHeaderOffset();
     updateGlobalNoticePosition();
   }
 
@@ -112,6 +122,16 @@ export function initHeaderScroll(): void {
     lastScrollTop = st;
   });
 
+  // Update header height after CSS transitions complete
+  header.addEventListener('transitionend', (e) => {
+    if (e.propertyName === 'transform') updateHeaderOffset();
+  });
+  if (utilityBar) {
+    utilityBar.addEventListener('transitionend', (e) => {
+      if (e.propertyName === 'transform') updateHeaderOffset();
+    });
+  }
+
   // Ensure both are visible on page load if at top
   window.addEventListener('load', () => {
     checkTopPosition();
@@ -119,9 +139,14 @@ export function initHeaderScroll(): void {
       showHeader();
       showUtilityBar();
     }
+    updateHeaderOffset();
     updateGlobalNoticePosition();
   });
 
   // Update global notice position on resize
-  window.addEventListener('resize', updateGlobalNoticePosition);
+  window.addEventListener('resize', () => {
+    updateScrollThreshold();
+    updateHeaderOffset();
+    updateGlobalNoticePosition();
+  });
 }
