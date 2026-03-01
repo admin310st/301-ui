@@ -9,3 +9,5 @@ Allow: /privacy
 Allow: /terms
 Allow: /security
 Disallow: /
+
+Sitemap: https://app.301.st/sitemap.xml

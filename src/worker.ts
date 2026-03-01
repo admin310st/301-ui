@@ -29,7 +29,7 @@ function addSecurityHeaders(response: Response): Response {
       "frame-src https://challenges.cloudflare.com",
       "style-src 'self' 'unsafe-inline'",
       "connect-src 'self' https://api.301.st",
-      "img-src 'self' data:",
+      "img-src 'self' data: https://www.gravatar.com",
     ].join('; ')
   );
 
@@ -57,6 +57,16 @@ export default {
       ['/account.html', '/account.html'],
       ['/domains', '/domains.html'],
       ['/domains.html', '/domains.html'],
+      ['/projects', '/projects.html'],
+      ['/projects.html', '/projects.html'],
+      ['/sites', '/sites.html'],
+      ['/sites.html', '/sites.html'],
+      ['/redirects', '/redirects.html'],
+      ['/redirects.html', '/redirects.html'],
+      ['/streams', '/streams.html'],
+      ['/streams.html', '/streams.html'],
+      ['/reset-password', '/reset-password.html'],
+      ['/reset-password.html', '/reset-password.html'],
       ['/about', '/about.html'],
       ['/about.html', '/about.html'],
       ['/privacy', '/privacy.html'],
@@ -71,20 +81,31 @@ export default {
       ['/404.html', '/404.html'],
     ]);
 
+    const cookie = request.headers.get('cookie') || '';
+    const hasSession = cookie.includes('refresh_token=') ||
+      cookie.includes('session=') ||
+      cookie.includes('auth_session=') ||
+      cookie.includes('_301st_session=');
+
     // Early redirect: authenticated users should skip login page
     // This runs on Cloudflare Workers edge. For non-CF deployments,
     // client-side fallback in index.html will handle the redirect.
     if (request.method === 'GET' && (url.pathname === '/' || url.pathname === '/index.html')) {
-      const cookie = request.headers.get('cookie');
-      // Check for common session cookie patterns from backend
-      // Adjust cookie names based on your backend implementation
-      if (cookie && (
-        cookie.includes('refresh_token=') ||
-        cookie.includes('session=') ||
-        cookie.includes('auth_session=') ||
-        cookie.includes('_301st_session=')
-      )) {
+      if (hasSession) {
         return Response.redirect(`${url.origin}/dashboard.html`, 307);
+      }
+    }
+
+    // Auth guard: redirect unauthenticated users away from dashboard pages
+    const protectedPrefixes = ['/dashboard', '/integrations', '/account',
+      '/domains', '/projects', '/sites', '/redirects', '/streams'];
+
+    if (request.method === 'GET' && !hasSession) {
+      const isProtected = protectedPrefixes.some(prefix =>
+        normalizedPath === prefix || normalizedPath === `${prefix}.html`
+      );
+      if (isProtected) {
+        return Response.redirect(`${url.origin}/`, 307);
       }
     }
 

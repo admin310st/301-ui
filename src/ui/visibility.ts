@@ -2,6 +2,9 @@ import type { AuthState } from '@state/auth-state';
 import { getAuthState, onAuthChange } from '@state/auth-state';
 import { qsa } from './dom';
 
+const PROTECTED_PAGES = ['/dashboard', '/integrations', '/account',
+  '/domains', '/projects', '/sites', '/redirects', '/streams'];
+
 function goToDashboard(): void {
   const DASH = '/dashboard.html';
   const isLoginPage =
@@ -10,6 +13,13 @@ function goToDashboard(): void {
     Boolean(location.hash.match(/^#(login|register|reset)/));
 
   if (isLoginPage) location.assign(DASH);
+}
+
+function goToLoginIfProtected(): void {
+  const path = location.pathname.replace(/\.html$/, '');
+  if (PROTECTED_PAGES.includes(path)) {
+    location.assign('/');
+  }
 }
 
 // safe default on first paint
@@ -48,7 +58,11 @@ export function applyAuthDom(state: AuthState): void {
     node.textContent = role;
   });
 
-  if (loggedIn) goToDashboard();
+  if (loggedIn) {
+    goToDashboard();
+  } else {
+    goToLoginIfProtected();
+  }
 }
 
 export function initVisibilityController(): void {
