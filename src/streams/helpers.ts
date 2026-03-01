@@ -25,8 +25,8 @@ export function getConditionSummary(conditions: TdsConditions): string {
     parts.push(`${t('streams.conditions.geoExclude')} ${conditions.geo_exclude.length}`);
   }
 
-  if (conditions.device && conditions.device.length > 0) {
-    parts.push(conditions.device.join(', '));
+  if (conditions.device) {
+    parts.push(conditions.device);
   }
 
   if (conditions.os && conditions.os.length > 0) {

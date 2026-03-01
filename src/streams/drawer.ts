@@ -406,7 +406,7 @@ function renderEditContent(rule: TdsRule, domains: TdsDomainBinding[]): string |
             </div>
             <div class="field">
               <label class="field__label text-sm">${t('streams.drawer.fields.device')}</label>
-              ${renderDropdown('device', deviceOptions(), conditions.device?.[0] || '')}
+              ${renderDropdown('device', deviceOptions(), conditions.device || '')}
             </div>
             <div class="field">
               <label class="field__label text-sm">
@@ -802,7 +802,7 @@ function collectLogicJson() {
   if (geo.length > 0) conditions.geo = geo;
 
   const device = getFieldValue('device');
-  if (device) conditions.device = [device];
+  if (device) conditions.device = device;
 
   const bot = getFieldValue('bot');
   if (bot) conditions.bot = true;

@@ -758,20 +758,20 @@ export type BindingStatus = 'pending' | 'applied' | 'removed';
 export interface TdsConditions {
   geo?: string[];
   geo_exclude?: string[];
-  device?: string[];
+  device?: string;
   os?: string[];
   browser?: string[];
   bot?: boolean;
   utm_source?: string[];
   utm_campaign?: string[];
-  match_params?: Record<string, string>;
+  match_params?: string[];
   path?: string;
   referrer?: string;
 }
 
 export interface MabVariant {
   url: string;
-  weight: number;
+  weight?: number;
   alpha?: number;
   beta?: number;
   impressions?: number;
@@ -878,7 +878,7 @@ export interface CreateFromPresetRequest {
 export interface CreateFromPresetResponse {
   ok: boolean;
   rule: TdsRule;
-  bound_domains?: TdsDomainBinding[];
+  bound_domains?: number[];
 }
 
 /** PATCH /tds/rules/:id request */
@@ -903,7 +903,7 @@ export interface BindDomainsRequest {
 /** POST /tds/rules/:id/domains response */
 export interface BindDomainsResponse {
   ok: boolean;
-  bound: TdsDomainBinding[];
+  bound: number[];
   errors: Array<{ domain_id: number; error: string }>;
 }
 

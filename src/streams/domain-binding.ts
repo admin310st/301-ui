@@ -5,7 +5,7 @@
 
 import type { TdsDomainBinding } from '@api/types';
 import { getDomains } from '@api/domains';
-import { bindDomains, unbindDomain } from '@api/tds';
+import { bindDomains, unbindDomain, getRuleDomains } from '@api/tds';
 import { safeCall } from '@api/ui-client';
 import { showGlobalNotice } from '@ui/globalNotice';
 import { t, tWithVars } from '@i18n';
@@ -186,8 +186,13 @@ async function showDomainPicker(
           { lockKey: `tds-bind:${ruleId}:${Date.now()}`, retryOn401: true }
         );
 
-        // Update binding list
-        currentBindings.push(...bindResponse.bound);
+        // Refetch full bindings (API returns only IDs in bound[])
+        const freshBindings = await safeCall(
+          () => getRuleDomains(ruleId),
+          { lockKey: `tds-rule-domains:${ruleId}`, retryOn401: true }
+        );
+        currentBindings.length = 0;
+        currentBindings.push(...freshBindings);
         const bindingsList = drawerElement.querySelector('[data-bindings-list]');
         if (bindingsList) {
           bindingsList.innerHTML = renderDomainBindings(currentBindings);
