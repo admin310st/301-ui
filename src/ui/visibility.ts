@@ -10,6 +10,10 @@ let authResolved = false;
 
 export function markAuthResolved(): void {
   authResolved = true;
+  // Re-apply: the final notify() from initAuthState() fired while
+  // authResolved was still false, so the guard was skipped. Now that
+  // auth is resolved, re-evaluate so the guard can actually fire.
+  applyAuthDom(getAuthState());
 }
 
 function goToDashboard(): void {
