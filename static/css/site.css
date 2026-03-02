@@ -2779,50 +2779,25 @@ body.sidebar-collapsed .sidebar .navitem:hover::after {
   padding-bottom: var(--dashboard-gap);
 }
 
-/* Fill height variant - syncs content height with sidebar */
+/* Fill height variant — block layout so sticky card shares the same
+   containing block (viewport) as the sidebar.  flex caused sticky to
+   resolve relative to the flex container, offsetting the card. */
 .dashboard-content--fill-height {
-  min-height: calc(100dvh - var(--header-height)); /* Min-height allows growth */
-  display: flex;
-  flex-direction: column;
-}
-
-.dashboard-content--fill-height .page-header {
-  flex-shrink: 0;
+  min-height: calc(100dvh - var(--header-height));
 }
 
 .dashboard-content--fill-height .card {
-  flex: 1 1 auto; /* Allow growth beyond viewport */
-  display: flex;
-  flex-direction: column;
   position: sticky;
   top: var(--header-height);
   z-index: 1;
-}
-
-.dashboard-content--fill-height .card__body {
-  flex: 1 1 auto; /* Allow growth */
 }
 
 .dashboard-content--fill-height .table-scroll {
   min-height: 50lvh; /* Minimum space for dropdowns */
 }
 
-/* Mobile: disable fill-height (sidebar is overlay on mobile) */
+/* Mobile: no sticky card, sidebar is overlay */
 @media (max-width: 1023px) {
-  .dashboard-content--fill-height {
-    height: auto;
-    overflow: visible;
-  }
-
-  .dashboard-content--fill-height .card,
-  .dashboard-content--fill-height .card__body,
-  .dashboard-content--fill-height .table-scroll {
-    flex: initial;
-    overflow: visible;
-    height: auto;
-    min-height: 50lvh; /* Fallback: enough space for dropdowns */
-  }
-
   .dashboard-content--fill-height .card {
     position: static;
   }
