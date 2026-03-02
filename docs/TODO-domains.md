@@ -6,7 +6,14 @@ Roadmap for `/domains.html` enhancements. Core features are complete.
 
 ## Completed Summary
 
-Done: MVP page (table with 6 columns, search, filters, mock data, inspector drawer, add domains modal, dropdown actions, IDN support with `src/utils/idn.ts`, DNS NS check with `src/utils/dns.ts`, CSS improvements). Add Domains drawer (batch zone creation via `/domains/zones/batch`, CF account selector, domain extraction parser, results view with NS grouping, error handling). Real API integration (`src/api/domains.ts`, adapter, project filter, pagination, caching, project persistence across pages). Architectural decision: drawer-first approach (all domain operations via tabbed drawer, not modals).
+- **Table:** 6 columns (domain, status, health, expires, project, actions), search, filters (status, health, provider), bulk select
+- **Inspector drawer:** 3 vertical sections (Overview, DNS config with live NS check via Google DNS, Routing with redirect info). No tab UI yet
+- **Add Domains drawer:** Batch zone creation via `/domains/zones/batch`, CF account selector, domain extraction parser with IDN/punycode support, debounced input, results view with NS grouping and error handling
+- **API:** `src/api/domains.ts` with adapter, project filter, caching, project persistence across pages
+- **Pagination:** Fully working — 25/page, prev/next buttons, "Showing X-Y of Z", reset on filter change
+- **Bulk actions:** Change role ✅, Block ✅, Delete subdomains ✅, Assign to site (stub), Move to project (dialog only)
+- **Utils:** IDN support (`src/utils/idn.ts`), DNS NS check (`src/utils/dns.ts`), domain regex parser
+- **i18n:** Dialogs covered (`domains.dialogs.moveToProject.*`), main page hardcoded
 
 ---
 
@@ -14,17 +21,17 @@ Done: MVP page (table with 6 columns, search, filters, mock data, inspector draw
 
 ### Drawer Tabs (major feature)
 
-Currently the inspector drawer has only an Overview section. Planned 7-tab structure:
+Inspector drawer currently has 3 vertical sections (Overview, DNS, Routing) without tab navigation. Convert to tabbed UI and add missing tabs:
 
-- [ ] Add tabs navigation to drawer HTML
+- [ ] Add tabs navigation to drawer HTML (reuse `data-tab` pattern from other pages)
 - [ ] Create tab switching logic (vanilla JS)
-- [ ] **Overview** — Summary (expires, status, health), quick actions (sync, re-check, toggle monitoring), languages block with emoji flags
-- [ ] **Routing** — Redirect rules for this domain (add/edit/delete, priorities)
-- [ ] **DNS** — Zone records (A, CNAME, TXT, MX), nameservers, CF proxy status, DNSSEC
-- [ ] **SSL** — Certificate details, expiry, auto-renewal, force HTTPS, TLS mode
-- [ ] **Security** — Abuse status & history, blocklist checks, security presets, events log
-- [ ] **Monitoring** — Uptime, response times graph, alert settings, incident history
-- [ ] **Logs** — Sync history, config changes, webhook events, error logs
+- [ ] **Overview** (exists) — Enhance: quick actions (sync, re-check), languages block with emoji flags
+- [ ] **Routing** (exists) — Enhance: add/edit/delete redirect rules, priorities
+- [ ] **DNS** (exists) — Enhance: zone records (A, CNAME, TXT, MX), CF proxy status, DNSSEC
+- [ ] **SSL** (new) — Certificate details, expiry, auto-renewal, force HTTPS, TLS mode
+- [ ] **Security** (new) — Abuse status & history, blocklist checks, security presets, events log
+- [ ] **Monitoring** (new) — Uptime, response times graph, alert settings, incident history
+- [ ] **Logs** (new) — Sync history, config changes, webhook events, error logs
 - [ ] Add prev/next domain navigation arrows in drawer header
 
 ### Stat-Cards in Header
@@ -37,18 +44,18 @@ Currently the inspector drawer has only an Overview section. Planned 7-tab struc
 ### Filters Enhancement
 
 - [ ] Quick-filter "Unused domains" (reserve status) — priority filter
-- [ ] Multi-select for statuses (dropdown with checkboxes)
-- [ ] Provider filter
-- [ ] Save filter state in URL query params
-- [ ] Restore filters on page load
-- [ ] Debounce search (300ms)
+- [ ] Debounce table search (300ms) — add-domains drawer has debounce, table search does not
+- [ ] Save filter/sort/page state in URL query params
+- [ ] Restore filters on page load from URL
 
 ### Bulk Actions Enhancement
 
-- [ ] Improve select-all logic (respect current filters)
-- [ ] Add operations: sync with registrar, sync with CF, attach to project, mark as test/retired
-- [ ] Show operation results summary (success/error)
-- [ ] Reset selection after operation
+Working: Change Role, Block, Delete Subdomains.
+
+- [ ] Assign to Site — stub exists, needs implementation
+- [ ] Move to Project — dialog HTML exists (`data-dialog="move-to-project"`), needs handler
+- [ ] Add operations: sync with registrar, sync with CF, mark as test/retired
+- [ ] Show operation results summary (success/error count)
 
 ### Table Sorting
 
@@ -57,28 +64,28 @@ Currently the inspector drawer has only an Overview section. Planned 7-tab struc
 - [ ] Save sort order in URL params
 - [ ] Combine with filters and search
 
-### Pagination
+### Pagination (mostly done)
 
-- [ ] Implement data slicing by page
-- [ ] Add Previous/Next/Page number navigation
+Implemented: data slicing (PAGE_SIZE=25), prev/next buttons, "Showing X-Y of Z", reset on filter change.
+
 - [ ] Page size selector (25/50/100)
 - [ ] Save page & page_size in URL
-- [ ] Show "Showing 1-25 of 143" range
-- [ ] Reset to page 1 on filter change
 
 ### i18n Coverage
 
-- [ ] Create `domains` namespace in `en.ts` and `ru.ts`
-- [ ] Add translations: page header, table headers, status labels, action buttons, drawer content, filter labels, bulk action labels, empty/loading/error states
-- [ ] Apply `data-i18n` attributes to all UI elements
+`domains.*` namespace exists in `en.ts`/`ru.ts`. Dialogs use `data-i18n`. Main page is hardcoded.
+
+- [ ] Apply `data-i18n` to: page header, table headers, status labels, action buttons, inspector drawer, filter labels, bulk action labels, empty/loading/error states
+- [ ] Add missing keys to `en.ts` and `ru.ts` for TS-rendered strings (dropdown actions, inspector content)
 - [ ] Test language switching (EN/RU)
 
 ### Add Domains Drawer (minor improvements)
 
-- [ ] Domain validation before submit (check TLD, max length)
-- [ ] Progress indicator for batch creation (>10 domains)
+Domain parser with regex + IDN/punycode works. Debounced input parsing works. i18n keys for drawer exist in `domains.add.drawer.*`.
+
+- [ ] Progress indicator for batch creation (>10 domains) — currently shows results only after completion
 - [ ] Persist last selected CF account in localStorage
-- [ ] i18n coverage for drawer texts
+- [ ] Per-domain validation before submit (check TLD, max length, detect subdomains earlier)
 
 ---
 
@@ -103,4 +110,4 @@ None currently.
 
 ---
 
-**Last updated:** 2026-02-11
+**Last updated:** 2026-03-02

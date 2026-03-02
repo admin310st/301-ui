@@ -34,17 +34,16 @@ Layer 7: Admin tools (System, Jobs, Market)            PLANNED
 
 ### 1. Domains (`TODO-domains.md`)
 
-**Status:** Core complete (real API, 2025-01-31)
-
-Done: Table (6 cols), search & filters, inspector drawer, add domains drawer (batch API), dropdown actions, IDN support, DNS NS check, bulk actions, project filter, pagination stub.
+**Status:** Core complete (real API). Table, search, filters, inspector drawer (3 sections: Overview, DNS, Routing), add domains drawer (batch API, domain parser), dropdown actions, IDN support, DNS NS check, bulk actions (change role, block, delete), project filter, pagination (25/page, prev/next).
 
 **Remaining:**
-- [ ] Drawer tabs (Overview, Routing, DNS, SSL, Security, Monitoring, Logs)
+- [ ] Drawer tabs (convert current 3 sections into tab UI; add SSL, Security, Monitoring, Logs)
 - [ ] Stat-cards in header
-- [ ] Pagination (working implementation; stub ready)
 - [ ] Table sorting by columns
-- [ ] i18n coverage
-- [ ] Add domains drawer: domain validation, progress indicator, persist last CF account
+- [ ] i18n coverage (dialogs done, main page hardcoded)
+- [ ] Add domains drawer: progress indicator for large batches, persist last CF account
+- [ ] Bulk actions: assign to site (stub), move to project (dialog exists, no handler)
+- [ ] Search debounce, filter/sort URL persistence
 
 ### 2. Redirects (`TODO-redirects.md`)
 
