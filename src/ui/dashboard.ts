@@ -4,6 +4,7 @@ import { updateDashboardOnboardingIndicator } from './sidebar-nav';
 import { getZones } from '@api/zones';
 import { safeCall } from '@api/ui-client';
 import { t } from '@i18n';
+import type { APIDomain } from '@api/types';
 
 const STEPS = [
   { key: 'integrations', icon: 'mono/puzzle', action: 'connect-cloudflare' },
@@ -70,7 +71,7 @@ function renderNextStepHint(stats: Record<string, number>): void {
   const container = document.querySelector<HTMLElement>('[data-next-step]');
   if (!container) return;
 
-  const overviewCards = document.querySelectorAll<HTMLElement>('[data-overview-cards], [data-overview-card-plan]');
+  const overviewCards = document.querySelectorAll<HTMLElement>('[data-overview-card]');
   const firstEmpty = STEPS.find(s => (stats[s.key] ?? 0) === 0);
   if (!firstEmpty) {
     container.hidden = true;
@@ -104,6 +105,84 @@ function renderNextStepHint(stats: Record<string, number>): void {
   }
 
   container.hidden = false;
+}
+
+const HEALTH_BADGES: Array<{ key: string; variant: string }> = [
+  { key: 'active',   variant: 'success' },
+  { key: 'pending',  variant: 'warning' },
+  { key: 'expiring', variant: 'warning' },
+  { key: 'expired',  variant: 'danger' },
+  { key: 'blocked',  variant: 'danger' },
+];
+
+/**
+ * Render Domain Health card with badge counters
+ */
+function renderHealthCard(domains: APIDomain[]): void {
+  const card = document.querySelector<HTMLElement>('[data-card-health]');
+  if (!card) return;
+
+  const now = Date.now();
+  let active = 0, pending = 0, expiring = 0, expired = 0, blocked = 0;
+  for (const d of domains) {
+    if (d.blocked === 1) { blocked++; continue; }
+    if (d.expired_at) {
+      const diff = new Date(d.expired_at).getTime() - now;
+      if (diff < 0) { expired++; continue; }
+      if (diff <= 30 * 86_400_000) { expiring++; continue; }
+    }
+    if (d.ns_verified === 0) { pending++; continue; }
+    active++;
+  }
+
+  const counts: Record<string, number> = { active, pending, expiring, expired, blocked };
+  const container = card.querySelector<HTMLElement>('[data-health-badges]');
+  if (!container) return;
+
+  const badges = HEALTH_BADGES
+    .filter(b => counts[b.key] > 0)
+    .map(b => `<span class="badge badge--${b.variant}">${counts[b.key]} ${t(`dashboard.overview.cards.health.${b.key}`)}</span>`)
+    .join('');
+
+  container.innerHTML = badges;
+  card.hidden = !badges;
+}
+
+/**
+ * Render Expiring Soon card with domain list
+ */
+function renderExpiringCard(domains: APIDomain[]): void {
+  const card = document.querySelector<HTMLElement>('[data-card-expiring]');
+  if (!card) return;
+
+  const now = Date.now();
+  const DAY_MS = 86_400_000;
+  const expiring = domains
+    .filter(d => {
+      if (!d.expired_at) return false;
+      const diff = new Date(d.expired_at).getTime() - now;
+      return diff > 0 && diff <= 30 * DAY_MS;
+    })
+    .sort((a, b) => new Date(a.expired_at!).getTime() - new Date(b.expired_at!).getTime())
+    .slice(0, 5);
+
+  if (expiring.length === 0) {
+    card.hidden = true;
+    return;
+  }
+
+  const container = card.querySelector<HTMLElement>('[data-expiring-list]');
+  if (!container) return;
+
+  const dayLabel = t('dashboard.overview.cards.expiring.days');
+  container.innerHTML = expiring
+    .map(d => {
+      const days = Math.ceil((new Date(d.expired_at!).getTime() - now) / DAY_MS);
+      return `<div class="cluster"><span>${d.domain_name}</span><span class="text-muted text-sm">${days} ${dayLabel}</span></div>`;
+    })
+    .join('');
+
+  card.hidden = false;
 }
 
 /**
@@ -172,6 +251,8 @@ async function populateOverviewStats(): Promise<void> {
 
     renderStepFlow(stats);
     renderNextStepHint(stats);
+    renderHealthCard(allDomains);
+    renderExpiringCard(allDomains);
   } catch (error) {
     console.error('Failed to populate overview stats:', error);
   }

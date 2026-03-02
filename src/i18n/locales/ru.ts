@@ -317,10 +317,17 @@ export const ru: Translation = {
         },
       },
       cards: {
-        usage: {
-          title: 'Использование',
-          zones: 'Зоны Cloudflare',
-          comingSoon: 'Детальная аналитика использования — скоро',
+        health: {
+          title: 'Здоровье доменов',
+          active: 'Активных',
+          pending: 'Ожидание',
+          expiring: 'Истекают',
+          expired: 'Истекли',
+          blocked: 'Заблокированы',
+        },
+        expiring: {
+          title: 'Скоро истекают',
+          days: 'д',
         },
         plan: {
           title: 'Тариф и оплата',

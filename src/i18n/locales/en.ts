@@ -311,10 +311,17 @@ export const en = {
         },
       },
       cards: {
-        usage: {
-          title: 'Usage',
-          zones: 'Cloudflare zones',
-          comingSoon: 'Detailed usage analytics — coming soon',
+        health: {
+          title: 'Domain Health',
+          active: 'Active',
+          pending: 'Pending',
+          expiring: 'Expiring',
+          expired: 'Expired',
+          blocked: 'Blocked',
+        },
+        expiring: {
+          title: 'Expiring Soon',
+          days: 'd',
         },
         plan: {
           title: 'Plan & Billing',
