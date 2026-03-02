@@ -70,14 +70,14 @@ function renderNextStepHint(stats: Record<string, number>): void {
   const container = document.querySelector<HTMLElement>('[data-next-step]');
   if (!container) return;
 
-  const overviewCards = document.querySelector<HTMLElement>('[data-overview-cards]');
+  const overviewCards = document.querySelectorAll<HTMLElement>('[data-overview-cards], [data-overview-card-plan]');
   const firstEmpty = STEPS.find(s => (stats[s.key] ?? 0) === 0);
   if (!firstEmpty) {
     container.hidden = true;
-    if (overviewCards) overviewCards.hidden = false;
+    overviewCards.forEach(el => { el.hidden = false; });
     return;
   }
-  if (overviewCards) overviewCards.hidden = true;
+  overviewCards.forEach(el => { el.hidden = true; });
 
   const iconEl = container.querySelector<HTMLElement>('[data-next-step-icon]');
   const textEl = container.querySelector<HTMLElement>('[data-next-step-text]');
