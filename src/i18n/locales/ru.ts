@@ -273,6 +273,22 @@ export const ru: Translation = {
       title: 'Добро пожаловать в систему управления трафиком',
       subtitle: 'Настройка займет всего несколько минут. Начните с подключения интеграций.',
     },
+    overview: {
+      stats: {
+        integrations: 'Интеграции',
+        projects: 'Проекты',
+        domains: 'Домены',
+        sites: 'Сайты',
+        redirects: 'Редиректы',
+        streams: 'TDS правила',
+      },
+      quickActions: {
+        title: 'Быстрые действия',
+        connectCf: 'Подключить Cloudflare',
+        addDomains: 'Добавить домены',
+        projects: 'Управление проектами',
+      },
+    },
     steps: {
       connectCf: 'Подключить Cloudflare',
       addDomains: 'Добавить домены',

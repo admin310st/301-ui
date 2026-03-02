@@ -1501,6 +1501,12 @@ html[data-theme="light"] .bulk-actions-bar__actions .btn--ghost:hover {
   }
 }
 
+/* Stat Card as link — clickable card without underline */
+a.stat-card {
+  text-decoration: none;
+  color: inherit;
+}
+
 /* Stat Card - individual metric display */
 .stat-card {
   display: flex;

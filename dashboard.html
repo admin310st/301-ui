@@ -21,7 +21,7 @@
         <div class="page-shell utility-bar__inner">
           <div class="utility-left">
             <span class="badges">
-              <span class="badge badge--brand">Welcome</span>
+              <span class="badge badge--neutral" data-i18n="overview.title">Overview</span>
             </span>
           </div>
 
@@ -35,182 +35,256 @@
     <main class="page-shell dashboard-shell">
 {{> sidebar activePage="dashboard"}}
 
-      <section class="dashboard-content">
-        <header class="page-header">
+      <section class="dashboard-content dashboard-content--fill-height">
+        <!-- Onboarding mode header -->
+        <header class="page-header" data-dashboard-mode="onboarding" hidden>
           <div class="page-header__title">
             <h1 class="h3" data-i18n="dashboard.welcome.title">Welcome to Traffic Control Plane</h1>
             <p class="text-lead" data-i18n="dashboard.welcome.subtitle">Setup takes just a few minutes. Start by connecting your integrations.</p>
           </div>
         </header>
 
-        <div class="stack stack--xl">
-          <!-- Step Flow Indicator -->
-          <div class="card card--soft">
-            <div class="step-flow">
-              <div class="step-pill">
-                <span class="step-number step-number--cf">1</span>
-                <span class="step-text" data-i18n="dashboard.steps.connectCf">Connect Cloudflare</span>
-              </div>
-              <span class="step-separator">→</span>
-              <div class="step-pill">
-                <span class="step-number">2</span>
-                <span class="step-text" data-i18n="dashboard.steps.addDomains">Add domains</span>
-              </div>
-              <span class="step-separator">→</span>
-              <div class="step-pill">
-                <span class="step-number">3</span>
-                <span class="step-text" data-i18n="dashboard.steps.controlTraffic">Control traffic</span>
+        <!-- Overview mode header -->
+        <header class="page-header" data-dashboard-mode="overview" hidden>
+          <div class="page-header__title">
+            <h1 class="h3" data-i18n="overview.title">Overview</h1>
+            <p class="text-lead" data-i18n="overview.subtitle">Your 301.st control plane</p>
+          </div>
+          <div class="page-header__actions cluster">
+            <a href="/domains.html" class="btn btn--primary btn--sm">
+              <span class="icon" data-icon="mono/plus"></span>
+              <span data-i18n="dashboard.steps.addDomains">Add domains</span>
+            </a>
+            <a href="/streams.html" class="btn btn--ghost btn--sm">
+              <span class="icon" data-icon="mono/directions-fork"></span>
+              <span data-i18n="streams.actions.create">Create Rule</span>
+            </a>
+          </div>
+        </header>
+
+        <!-- ===== Onboarding mode ===== -->
+        <div data-dashboard-mode="onboarding" hidden>
+          <div class="stack stack--xl">
+            <!-- Step Flow Indicator -->
+            <div class="card card--soft">
+              <div class="step-flow">
+                <div class="step-pill">
+                  <span class="step-number step-number--cf">1</span>
+                  <span class="step-text" data-i18n="dashboard.steps.connectCf">Connect Cloudflare</span>
+                </div>
+                <span class="step-separator">→</span>
+                <div class="step-pill">
+                  <span class="step-number">2</span>
+                  <span class="step-text" data-i18n="dashboard.steps.addDomains">Add domains</span>
+                </div>
+                <span class="step-separator">→</span>
+                <div class="step-pill">
+                  <span class="step-number">3</span>
+                  <span class="step-text" data-i18n="dashboard.steps.controlTraffic">Control traffic</span>
+                </div>
               </div>
             </div>
-          </div>
 
-          <!-- Step 1: Cloudflare Account -->
-          <article class="card card--panel card--accent-cf">
-            <header class="card__header">
-              <div class="cluster">
-                <h2 class="h4">
-                  <span class="badge badge--cf" style="margin-right: var(--space-2);">1</span>
-                  <span data-i18n="dashboard.step1.title">Connect your Cloudflare account</span>
-                </h2>
-              </div>
-              <p class="text-muted" data-i18n="dashboard.step1.subtitle">Link your Cloudflare account to enable zone sync and traffic management.</p>
-            </header>
-
-            <!-- Pending State (no integrations) -->
-            <div class="card__body stack" data-step1-state="pending">
-              <p class="text-body" data-i18n="dashboard.step1.description">
-                We'll create a scoped API token with limited permissions for syncing zones and applying security presets.
-                You maintain full control — the token only accesses necessary functions.
-              </p>
-
-              <div class="panel panel--success">
+            <!-- Step 1: Cloudflare Account -->
+            <article class="card card--panel card--accent-cf">
+              <header class="card__header">
                 <div class="cluster">
-                  <span class="icon" data-icon="mono/shield-check"></span>
-                  <span class="text-sm" data-i18n="dashboard.step1.securityNote">Scoped tokens limit what 301.st can access. We'll never see your password or Global API Key.</span>
+                  <h2 class="h4">
+                    <span class="badge badge--cf" style="margin-right: var(--space-2);">1</span>
+                    <span data-i18n="dashboard.step1.title">Connect your Cloudflare account</span>
+                  </h2>
+                </div>
+                <p class="text-muted" data-i18n="dashboard.step1.subtitle">Link your Cloudflare account to enable zone sync and traffic management.</p>
+              </header>
+
+              <!-- Pending State (no integrations) -->
+              <div class="card__body stack" data-step1-state="pending">
+                <p class="text-body" data-i18n="dashboard.step1.description">
+                  We'll create a scoped API token with limited permissions for syncing zones and applying security presets.
+                  You maintain full control — the token only accesses necessary functions.
+                </p>
+
+                <div class="panel panel--success">
+                  <div class="cluster">
+                    <span class="icon" data-icon="mono/shield-check"></span>
+                    <span class="text-sm" data-i18n="dashboard.step1.securityNote">Scoped tokens limit what 301.st can access. We'll never see your password or Global API Key.</span>
+                  </div>
+                </div>
+
+                <div class="cluster">
+                  <button class="btn btn--cf" type="button" data-action="connect-cloudflare">
+                    <span class="icon" data-icon="brand/cloudflare"></span>
+                    <span data-i18n="dashboard.step1.button">Connect account</span>
+                  </button>
+                  <span class="text-muted text-sm" data-i18n="dashboard.step1.timeEstimate">Takes 1-2 minutes</span>
                 </div>
               </div>
 
+              <!-- Completed State (has integrations) -->
+              <div class="card__body" data-step1-state="completed" hidden>
+                <div class="panel panel--success">
+                  <p class="text-sm">
+                    <span class="icon" data-icon="mono/check-circle"></span>
+                    <strong data-i18n="dashboard.step1.completed.title">Cloudflare account connected</strong>
+                  </p>
+                  <p class="text-sm text-muted">
+                    <span data-dashboard-integrations-count>—</span>
+                    <span data-i18n="dashboard.step1.completed.count"> integration(s) active</span>
+                    <span> · </span>
+                    <a href="/integrations.html" class="link" data-i18n="dashboard.step1.completed.manage">Manage integrations</a>
+                  </p>
+                </div>
+              </div>
+            </article>
+
+            <!-- Step 2: Add Domains -->
+            <article class="card card--panel">
+              <header class="card__header">
+                <div class="cluster">
+                  <h2 class="h4">
+                    <span class="badge badge--neutral" style="margin-right: var(--space-2);">2</span>
+                    <span data-i18n="dashboard.step2.title">Add your domains</span>
+                  </h2>
+                </div>
+                <p class="text-muted" data-i18n="dashboard.step2.subtitle">Import domains in bulk or sync from your registrar.</p>
+              </header>
+
+              <div class="card__body stack">
+                <p class="text-body" data-i18n="dashboard.step2.description">
+                  Once your account is connected, add domains to the control panel. We provide two methods:
+                </p>
+
+                <div class="stack stack--sm">
+                  <div class="panel">
+                    <div class="cluster cluster--promo">
+                      <div class="icon-ring icon-ring--brand">
+                        <span class="icon" data-icon="mono/plus"></span>
+                      </div>
+                      <div class="stack stack--xs">
+                        <p class="text-sm"><strong data-i18n="dashboard.step2.bulkTitle">Bulk upload</strong></p>
+                        <p class="text-sm text-muted" data-i18n="dashboard.step2.bulkDescription">Paste or import a list of domains (TXT, CSV)</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="panel">
+                    <div class="cluster cluster--promo">
+                      <div class="icon-ring icon-ring--success">
+                        <span class="icon" data-icon="mono/web-sync"></span>
+                      </div>
+                      <div class="stack stack--xs">
+                        <p class="text-sm"><strong data-i18n="dashboard.step2.registrarTitle">Import from registrar</strong></p>
+                        <p class="text-sm text-muted" data-i18n="dashboard.step2.registrarDescription">Auto-sync with GoDaddy, Namecheap, Cloudflare Registrar and others</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="panel">
+                    <div class="cluster cluster--promo">
+                      <div class="icon-ring icon-ring--primary">
+                        <span class="icon" data-icon="mono/layers"></span>
+                      </div>
+                      <div class="stack stack--xs">
+                        <p class="text-sm"><strong data-i18n="dashboard.step2.projectsTitle">Organize with Projects</strong></p>
+                        <p class="text-sm text-muted" data-i18n="dashboard.step2.projectsDescription">Group domains, sites and streams into projects</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="cluster">
+                  <button class="btn btn--primary" type="button" data-action="add-domains">
+                    <span class="icon" data-icon="mono/plus"></span>
+                    <span data-i18n="dashboard.step2.button">Add domains</span>
+                  </button>
+                  <a href="/projects.html" class="btn btn--ghost">
+                    <span class="icon" data-icon="mono/layers"></span>
+                    <span data-i18n="dashboard.step2.projectsButton">Go to Projects</span>
+                  </a>
+                </div>
+              </div>
+            </article>
+
+            <!-- Step 3: Control Traffic -->
+            <article class="card card--panel">
+              <header class="card__header">
+                <div class="cluster">
+                  <h2 class="h4">
+                    <span class="badge badge--neutral" style="margin-right: var(--space-2);">3</span>
+                    <span data-i18n="dashboard.step3.title">Control your traffic</span>
+                  </h2>
+                </div>
+                <p class="text-muted" data-i18n="dashboard.step3.subtitle">Once domains are active on Cloudflare, start managing traffic flows.</p>
+              </header>
+
+              <div class="card__body stack">
+                <p class="text-body" data-i18n="dashboard.step3.description">
+                  After domain activation, unlock the full traffic control capabilities:
+                </p>
+
+                <ul class="list--spaced">
+                  <li data-i18n="dashboard.step3.features.redirects">Configure redirects and routing rules</li>
+                  <li data-i18n="dashboard.step3.features.security">Set up Cloudflare security presets (WAF, Cache, DDoS)</li>
+                  <li data-i18n="dashboard.step3.features.routing">Route traffic by GEO, device, or custom filters</li>
+                  <li data-i18n="dashboard.step3.features.cloaking">Implement cloaking for moderators and bots</li>
+                  <li data-i18n="dashboard.step3.features.tds">Manage TDS (Traffic Distribution System)</li>
+                  <li data-i18n="dashboard.step3.features.analytics">Monitor analytics and traffic statistics</li>
+                </ul>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <!-- ===== Overview mode ===== -->
+        <div data-dashboard-mode="overview" hidden>
+          <div class="stats-grid">
+            <a href="/integrations.html" class="stat-card">
+              <span class="stat-card__value" data-stat="integrations">—</span>
+              <span class="stat-card__label" data-i18n="dashboard.overview.stats.integrations">Integrations</span>
+            </a>
+            <a href="/projects.html" class="stat-card">
+              <span class="stat-card__value" data-stat="projects">—</span>
+              <span class="stat-card__label" data-i18n="dashboard.overview.stats.projects">Projects</span>
+            </a>
+            <a href="/domains.html" class="stat-card">
+              <span class="stat-card__value" data-stat="domains">—</span>
+              <span class="stat-card__label" data-i18n="dashboard.overview.stats.domains">Domains</span>
+            </a>
+            <a href="/sites.html" class="stat-card">
+              <span class="stat-card__value" data-stat="sites">—</span>
+              <span class="stat-card__label" data-i18n="dashboard.overview.stats.sites">Sites</span>
+            </a>
+            <a href="/redirects.html" class="stat-card">
+              <span class="stat-card__value" data-stat="redirects">—</span>
+              <span class="stat-card__label" data-i18n="dashboard.overview.stats.redirects">Redirects</span>
+            </a>
+            <a href="/streams.html" class="stat-card">
+              <span class="stat-card__value" data-stat="streams">—</span>
+              <span class="stat-card__label" data-i18n="dashboard.overview.stats.streams">TDS Rules</span>
+            </a>
+          </div>
+
+          <div class="card card--panel">
+            <header class="card__header">
+              <h2 class="h4" data-i18n="dashboard.overview.quickActions.title">Quick Actions</h2>
+            </header>
+            <div class="card__body">
               <div class="cluster">
                 <button class="btn btn--cf" type="button" data-action="connect-cloudflare">
                   <span class="icon" data-icon="brand/cloudflare"></span>
-                  <span data-i18n="dashboard.step1.button">Connect account</span>
+                  <span data-i18n="dashboard.overview.quickActions.connectCf">Connect Cloudflare</span>
                 </button>
-                <span class="text-muted text-sm" data-i18n="dashboard.step1.timeEstimate">Takes 1-2 minutes</span>
+                <button class="btn btn--primary" type="button" data-action="add-domains">
+                  <span class="icon" data-icon="mono/plus"></span>
+                  <span data-i18n="dashboard.overview.quickActions.addDomains">Add domains</span>
+                </button>
+                <a href="/projects.html" class="btn btn--ghost">
+                  <span class="icon" data-icon="mono/layers"></span>
+                  <span data-i18n="dashboard.overview.quickActions.projects">Manage projects</span>
+                </a>
               </div>
-            </div>
-
-            <!-- Completed State (has integrations) -->
-            <div class="card__body" data-step1-state="completed" hidden>
-              <div class="panel panel--success">
-                <p class="text-sm">
-                  <span class="icon" data-icon="mono/check-circle"></span>
-                  <strong data-i18n="dashboard.step1.completed.title">Cloudflare account connected</strong>
-                </p>
-                <p class="text-sm text-muted">
-                  <span data-dashboard-integrations-count>—</span>
-                  <span data-i18n="dashboard.step1.completed.count"> integration(s) active</span>
-                  <span> · </span>
-                  <a href="/integrations.html" class="link" data-i18n="dashboard.step1.completed.manage">Manage integrations</a>
-                </p>
-              </div>
-            </div>
-          </article>
-
-          <!-- Step 2: Add Domains -->
-          <article class="card card--panel">
-            <header class="card__header">
-              <div class="cluster">
-                <h2 class="h4">
-                  <span class="badge badge--neutral" style="margin-right: var(--space-2);">2</span>
-                  <span data-i18n="dashboard.step2.title">Add your domains</span>
-                </h2>
-              </div>
-              <p class="text-muted" data-i18n="dashboard.step2.subtitle">Import domains in bulk or sync from your registrar.</p>
-            </header>
-
-            <div class="card__body stack">
-              <p class="text-body" data-i18n="dashboard.step2.description">
-                Once your account is connected, add domains to the control panel. We provide two methods:
-              </p>
-
-              <div class="stack stack--sm">
-                <div class="panel">
-                  <div class="cluster cluster--promo">
-                    <div class="icon-ring icon-ring--brand">
-                      <span class="icon" data-icon="mono/plus"></span>
-                    </div>
-                    <div class="stack stack--xs">
-                      <p class="text-sm"><strong data-i18n="dashboard.step2.bulkTitle">Bulk upload</strong></p>
-                      <p class="text-sm text-muted" data-i18n="dashboard.step2.bulkDescription">Paste or import a list of domains (TXT, CSV)</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="panel">
-                  <div class="cluster cluster--promo">
-                    <div class="icon-ring icon-ring--success">
-                      <span class="icon" data-icon="mono/web-sync"></span>
-                    </div>
-                    <div class="stack stack--xs">
-                      <p class="text-sm"><strong data-i18n="dashboard.step2.registrarTitle">Import from registrar</strong></p>
-                      <p class="text-sm text-muted" data-i18n="dashboard.step2.registrarDescription">Auto-sync with GoDaddy, Namecheap, Cloudflare Registrar and others</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="panel">
-                  <div class="cluster cluster--promo">
-                    <div class="icon-ring icon-ring--primary">
-                      <span class="icon" data-icon="mono/layers"></span>
-                    </div>
-                    <div class="stack stack--xs">
-                      <p class="text-sm"><strong data-i18n="dashboard.step2.projectsTitle">Organize with Projects</strong></p>
-                      <p class="text-sm text-muted" data-i18n="dashboard.step2.projectsDescription">Group domains, sites and streams into projects</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-            <div class="cluster">
-              <button class="btn btn--primary" type="button" data-action="add-domains">
-                <span class="icon" data-icon="mono/plus"></span>
-                <span data-i18n="dashboard.step2.button">Add domains</span>
-              </button>
-              <a href="/projects.html" class="btn btn--ghost">
-                <span class="icon" data-icon="mono/layers"></span>
-                <span data-i18n="dashboard.step2.projectsButton">Go to Projects</span>
-              </a>
             </div>
           </div>
-        </article>
-
-          <!-- Step 3: Control Traffic -->
-          <article class="card card--panel">
-            <header class="card__header">
-              <div class="cluster">
-                <h2 class="h4">
-                  <span class="badge badge--neutral" style="margin-right: var(--space-2);">3</span>
-                  <span data-i18n="dashboard.step3.title">Control your traffic</span>
-                </h2>
-              </div>
-              <p class="text-muted" data-i18n="dashboard.step3.subtitle">Once domains are active on Cloudflare, start managing traffic flows.</p>
-            </header>
-
-            <div class="card__body stack">
-              <p class="text-body" data-i18n="dashboard.step3.description">
-                After domain activation, unlock the full traffic control capabilities:
-              </p>
-
-              <ul class="list--spaced">
-                <li data-i18n="dashboard.step3.features.redirects">Configure redirects and routing rules</li>
-                <li data-i18n="dashboard.step3.features.security">Set up Cloudflare security presets (WAF, Cache, DDoS)</li>
-                <li data-i18n="dashboard.step3.features.routing">Route traffic by GEO, device, or custom filters</li>
-                <li data-i18n="dashboard.step3.features.cloaking">Implement cloaking for moderators and bots</li>
-                <li data-i18n="dashboard.step3.features.tds">Manage TDS (Traffic Distribution System)</li>
-                <li data-i18n="dashboard.step3.features.analytics">Monitor analytics and traffic statistics</li>
-              </ul>
-            </div>
-          </article>
         </div>
       </section>
     </main>

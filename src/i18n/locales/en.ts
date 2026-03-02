@@ -267,6 +267,22 @@ export const en = {
       title: 'Welcome to Traffic Control Plane',
       subtitle: 'Setup takes just a few minutes. Start by connecting your integrations.',
     },
+    overview: {
+      stats: {
+        integrations: 'Integrations',
+        projects: 'Projects',
+        domains: 'Domains',
+        sites: 'Sites',
+        redirects: 'Redirects',
+        streams: 'TDS Rules',
+      },
+      quickActions: {
+        title: 'Quick Actions',
+        connectCf: 'Connect Cloudflare',
+        addDomains: 'Add domains',
+        projects: 'Manage projects',
+      },
+    },
     steps: {
       connectCf: 'Connect Cloudflare',
       addDomains: 'Add domains',

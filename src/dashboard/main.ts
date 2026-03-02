@@ -24,18 +24,15 @@ function openAddDomainsDrawer(): void {
  */
 function initDashboard(): void {
   // Check if we're on the dashboard page
-  if (!document.querySelector('[data-dashboard-integrations-count]')) return;
+  if (!document.querySelector('[data-dashboard-mode]')) return;
 
   // Initialize Add Domains Drawer
   initAddDomainsDrawer();
 
-  // Attach "Add domains" button handler
+  // Attach "Add domains" button handler (works in both onboarding and overview modes)
   document.querySelectorAll('[data-action="add-domains"]').forEach((btn) => {
     btn.addEventListener('click', () => openAddDomainsDrawer());
   });
-
-  // TODO: Initialize step completion tracking
-  // TODO: Load and display integration count
 }
 
 // Run on DOM ready

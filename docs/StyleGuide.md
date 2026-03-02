@@ -22,6 +22,7 @@ Design system for **301.st** (marketing front + member area).
 | **Panels** | `.panel.panel--{info\|success\|warning\|danger}` | `dashboard.html` Step 1 info panel | `site.css` → "Panels" |
 | **Badges** | `.badge.badge--{primary\|success\|neutral\|warning\|danger}` | `domains.html` status column | `site.css` → "Badges" |
 | **Tabs** | `.tabs`, `.tab`, `.tab.is-active` | `projects.html` project detail view | `site.css` → "Tabs Navigation" |
+| **Stat Card** | `.stat-card`, `.stat-card--{ok\|danger\|primary\|neutral}` | `dashboard.html` overview mode | `tables.css` → "Stats Grid" |
 | **Metric Pill** | `.metric-pill`, `.metric-pill--{success\|warning\|danger}` | Preserved (not in production) | `site.css` → "Metric Pill" |
 | **Loading Indicator** | `.loading-bar[data-loading][data-type]` | `index.html` login/register | `site.css` → "Loading indicator bar" |
 | **Global Notices** | `.app-alert.app-alert--{success\|error\|info}` | All pages, utility-bar overlay | `site.css` → "Global Notices" |
@@ -247,6 +248,34 @@ When design system updates are introduced, **ALL** UI components and demo pages 
 **Production**: Reserved — not yet used in any page
 
 **CSS**: `site.css` → "Metric Pill"
+
+### Stat Card
+
+**Purpose**: Dashboard overview metric cards linking to section pages.
+
+**Structure:**
+```html
+<div class="stats-grid">
+  <a href="/domains.html" class="stat-card">
+    <span class="stat-card__value">42</span>
+    <span class="stat-card__label">Domains</span>
+  </a>
+</div>
+```
+
+**Variants** (left border accent):
+- `.stat-card--ok` - green (healthy)
+- `.stat-card--danger` - red (errors)
+- `.stat-card--primary` - blue (informational)
+- `.stat-card--neutral` - gray (inactive)
+
+**Grid**: `.stats-grid` — 6-col at ≥1024px, 3-col at ≥768px, auto-fit below.
+
+**Link cards**: Use `<a class="stat-card">` — inherits color, no underline.
+
+**Production**: `dashboard.html` overview mode
+
+**CSS**: `tables.css` → "Stats Grid"
 
 ### Forms
 
@@ -760,7 +789,7 @@ Other steps use neutral: `.badge--neutral`
 
 **Production Pages (Live Examples):**
 - `index.html` - Auth pages (login, register, reset)
-- `dashboard.html` - Onboarding with step cards
+- `dashboard.html` - Dual-mode: onboarding wizard + overview stat cards
 - `integrations.html` - Cloudflare connection wizard
 - `domains.html` - Table with filters, actions, health
 - `redirects.html` - Table with redirect rules
