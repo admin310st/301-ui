@@ -51,14 +51,14 @@
             <p class="text-lead" data-i18n="overview.subtitle">Your 301.st control plane</p>
           </div>
           <div class="page-header__actions cluster">
-            <a href="/domains.html" class="btn btn--primary btn--sm">
+            <button class="btn btn--primary btn--sm" type="button" data-action="add-domains">
               <span class="icon" data-icon="mono/plus"></span>
               <span data-i18n="dashboard.steps.addDomains">Add domains</span>
-            </a>
-            <a href="/streams.html" class="btn btn--ghost btn--sm">
-              <span class="icon" data-icon="mono/directions-fork"></span>
-              <span data-i18n="streams.actions.create">Create Rule</span>
-            </a>
+            </button>
+            <button class="btn btn--cf btn--sm" type="button" data-action="connect-cloudflare">
+              <span class="icon" data-icon="brand/cloudflare"></span>
+              <span data-i18n="integrations.connectCloudflare">Connect Cloudflare</span>
+            </button>
           </div>
         </header>
 
@@ -291,6 +291,19 @@
                 <p class="text-sm" data-next-step-text></p>
                 <a class="link text-sm" data-next-step-link></a>
               </div>
+            </div>
+          </div>
+
+          <div class="card card--soft" data-quick-actions hidden>
+            <div class="cluster">
+              <button class="btn btn--primary btn--sm" type="button" data-action="add-domains">
+                <span class="icon" data-icon="mono/plus"></span>
+                <span data-i18n="dashboard.steps.addDomains">Add domains</span>
+              </button>
+              <button class="btn btn--cf btn--sm" type="button" data-action="connect-cloudflare">
+                <span class="icon" data-icon="brand/cloudflare"></span>
+                <span data-i18n="integrations.connectCloudflare">Connect Cloudflare</span>
+              </button>
             </div>
           </div>
         </div>
