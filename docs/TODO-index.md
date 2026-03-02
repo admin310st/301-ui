@@ -86,6 +86,7 @@ Details in `TODO-streams.md`.
 ## Phase 3: Advanced Features (in progress)
 
 - Streams/TDS page (next)
+- [ ] **Dashboard redesign** — current page is an onboarding wizard built before the Style Guide. Rebuild as a real dashboard: keep wizard for new users, then show overview stats, recent activity, health summaries. Must follow `docs/StyleGuide.md` patterns and table/card layout conventions used across other pages.
 - [ ] Drawer tabs for Domains (7 tabs)
 - [ ] Advanced bulk actions
 - [ ] Analytics integration
