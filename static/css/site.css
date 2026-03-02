@@ -2985,7 +2985,10 @@ body.sidebar-collapsed .sidebar .navitem:hover::after {
   width: auto;
   height: auto;
   flex: none;
-  font-size: 0.625rem;
+}
+.step-number__icon svg {
+  width: 0.625rem;
+  height: 0.625rem;
 }
 .step-pill--link:hover .step-number__count { opacity: 0; }
 .step-pill--link:hover .step-number__icon { opacity: 1; }

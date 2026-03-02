@@ -237,75 +237,72 @@
 
         <!-- ===== Overview mode ===== -->
         <div data-dashboard-mode="overview" hidden>
-          <div class="card card--soft">
-            <div class="step-flow">
-              <a href="/integrations.html" class="step-pill step-pill--link" data-step="integrations">
-                <span class="step-number">
-                  <span class="step-number__count" data-stat="integrations">1</span>
-                  <span class="step-number__icon icon" data-icon="mono/puzzle"></span>
-                </span>
-                <span class="step-text" data-i18n="dashboard.overview.steps.integrations">Integrations</span>
-              </a>
-              <a href="/domains.html" class="step-pill step-pill--link" data-step="domains">
-                <span class="step-number">
-                  <span class="step-number__count" data-stat="domains">2</span>
-                  <span class="step-number__icon icon" data-icon="mono/dns"></span>
-                </span>
-                <span class="step-text" data-i18n="dashboard.overview.steps.domains">Domains</span>
-              </a>
-              <a href="/projects.html" class="step-pill step-pill--link" data-step="projects">
-                <span class="step-number">
-                  <span class="step-number__count" data-stat="projects">3</span>
-                  <span class="step-number__icon icon" data-icon="mono/layers"></span>
-                </span>
-                <span class="step-text" data-i18n="dashboard.overview.steps.projects">Projects</span>
-              </a>
-              <a href="/sites.html" class="step-pill step-pill--link" data-step="sites">
-                <span class="step-number">
-                  <span class="step-number__count" data-stat="sites">4</span>
-                  <span class="step-number__icon icon" data-icon="mono/landing"></span>
-                </span>
-                <span class="step-text" data-i18n="dashboard.overview.steps.sites">Sites</span>
-              </a>
-              <a href="/redirects.html" class="step-pill step-pill--link" data-step="redirects">
-                <span class="step-number">
-                  <span class="step-number__count" data-stat="redirects">5</span>
-                  <span class="step-number__icon icon" data-icon="mono/arrow-right"></span>
-                </span>
-                <span class="step-text" data-i18n="dashboard.overview.steps.redirects">Redirects</span>
-              </a>
-              <a href="/streams.html" class="step-pill step-pill--link" data-step="streams">
-                <span class="step-number">
-                  <span class="step-number__count" data-stat="streams">6</span>
-                  <span class="step-number__icon icon" data-icon="mono/directions-fork"></span>
-                </span>
-                <span class="step-text" data-i18n="dashboard.overview.steps.streams">TDS Rules</span>
-              </a>
-            </div>
-          </div>
-
-          <div class="card card--soft" data-next-step hidden>
-            <div class="cluster" style="gap: var(--space-3); align-items: flex-start;">
-              <span class="icon text-muted" data-next-step-icon></span>
-              <div>
-                <p class="text-sm" data-next-step-text></p>
-                <a class="link text-sm" data-next-step-link></a>
+          <div class="stack">
+            <div class="card card--soft">
+              <div class="step-flow">
+                <a href="/integrations.html" class="step-pill step-pill--link" data-step="integrations">
+                  <span class="step-number">
+                    <span class="step-number__count" data-stat="integrations">1</span>
+                    <span class="step-number__icon icon" data-icon="mono/puzzle"></span>
+                  </span>
+                  <span class="step-text" data-i18n="dashboard.overview.steps.integrations">Integrations</span>
+                </a>
+                <a href="/domains.html" class="step-pill step-pill--link" data-step="domains">
+                  <span class="step-number">
+                    <span class="step-number__count" data-stat="domains">2</span>
+                    <span class="step-number__icon icon" data-icon="mono/dns"></span>
+                  </span>
+                  <span class="step-text" data-i18n="dashboard.overview.steps.domains">Domains</span>
+                </a>
+                <a href="/projects.html" class="step-pill step-pill--link" data-step="projects">
+                  <span class="step-number">
+                    <span class="step-number__count" data-stat="projects">3</span>
+                    <span class="step-number__icon icon" data-icon="mono/layers"></span>
+                  </span>
+                  <span class="step-text" data-i18n="dashboard.overview.steps.projects">Projects</span>
+                </a>
+                <a href="/sites.html" class="step-pill step-pill--link" data-step="sites">
+                  <span class="step-number">
+                    <span class="step-number__count" data-stat="sites">4</span>
+                    <span class="step-number__icon icon" data-icon="mono/landing"></span>
+                  </span>
+                  <span class="step-text" data-i18n="dashboard.overview.steps.sites">Sites</span>
+                </a>
+                <a href="/redirects.html" class="step-pill step-pill--link" data-step="redirects">
+                  <span class="step-number">
+                    <span class="step-number__count" data-stat="redirects">5</span>
+                    <span class="step-number__icon icon" data-icon="mono/arrow-right"></span>
+                  </span>
+                  <span class="step-text" data-i18n="dashboard.overview.steps.redirects">Redirects</span>
+                </a>
+                <a href="/streams.html" class="step-pill step-pill--link" data-step="streams">
+                  <span class="step-number">
+                    <span class="step-number__count" data-stat="streams">6</span>
+                    <span class="step-number__icon icon" data-icon="mono/directions-fork"></span>
+                  </span>
+                  <span class="step-text" data-i18n="dashboard.overview.steps.streams">TDS Rules</span>
+                </a>
               </div>
             </div>
-          </div>
 
-          <div class="stats-grid stats-grid--2" data-overview-cards hidden>
-            <div class="card card--soft">
-              <div class="stack stack--sm">
-                <h3 class="h5" data-i18n="dashboard.overview.cards.usage.title">Usage</h3>
-                <div class="stack stack--xs" data-usage-list></div>
-                <p class="text-sm text-muted" data-i18n="dashboard.overview.cards.usage.comingSoon">Detailed usage analytics — coming soon</p>
+            <div class="card card--soft" data-next-step hidden>
+              <div class="cluster" style="gap: var(--space-3); align-items: flex-start;">
+                <span class="icon text-muted" data-next-step-icon></span>
+                <div>
+                  <p class="text-sm" data-next-step-text></p>
+                  <a class="link text-sm" data-next-step-link></a>
+                </div>
               </div>
             </div>
-            <div class="card card--soft">
-              <div class="stack stack--sm">
-                <h3 class="h5" data-i18n="dashboard.overview.cards.plan.title">Plan & Billing</h3>
-                <p class="text-sm text-muted" data-i18n="dashboard.overview.cards.plan.comingSoon">Subscription management — coming soon</p>
+
+            <div class="stats-grid" data-overview-cards hidden>
+              <div class="stat-card stat-card--primary">
+                <span class="stat-card__value" data-i18n="dashboard.overview.cards.usage.title">Usage</span>
+                <span class="stat-card__label text-muted" data-i18n="dashboard.overview.cards.usage.comingSoon">Detailed usage analytics — coming soon</span>
+              </div>
+              <div class="stat-card stat-card--neutral">
+                <span class="stat-card__value" data-i18n="dashboard.overview.cards.plan.title">Plan & Billing</span>
+                <span class="stat-card__label text-muted" data-i18n="dashboard.overview.cards.plan.comingSoon">Subscription management — coming soon</span>
               </div>
             </div>
           </div>

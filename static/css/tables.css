@@ -1501,15 +1501,6 @@ html[data-theme="light"] .bulk-actions-bar__actions .btn--ghost:hover {
   }
 }
 
-.stats-grid--2 {
-  grid-template-columns: 1fr;
-}
-@media (min-width: 768px) {
-  .stats-grid--2 {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
 /* Stat Card as link — clickable card without underline */
 a.stat-card {
   text-decoration: none;
