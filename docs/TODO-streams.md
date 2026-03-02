@@ -2,6 +2,7 @@
 
 **Layer 5** — Traffic Distribution System UI
 **Status:** Core implemented (types, API, table, drawer, domain bindings, i18n)
+**Blocker:** `admin310st/301#22` — TDS rules need `site_id` FK (backend migration required)
 
 **Related docs:**
 - `docs/301-wiki/TDS.md` — TDS specification (SmartLink + SmartShield)
@@ -9,27 +10,47 @@
 
 ---
 
+## ⛔ Blocker: Site-scoped rules (`admin310st/301#22`)
+
+The current API model is **rule-centric**: rules are account-scoped, domains are manually bound via `tds_domain_bindings`. This inverts the natural hierarchy and breaks UX:
+
+- User thinks "configure TDS for my site" but must create a rule in a vacuum, then manually find and bind domains
+- Domain picker shows ALL account domains with no role indication (acceptor/donor/reserve)
+- Projects → Streams tab reconstructs site-scoping via fragile `domain_name` string matching
+
+**Required change:** Add `site_id` FK to `tds_rules` — rules belong to a site, acceptor domain is implicit. Same model as Redirects (`GET /sites/:id/redirects`).
+
+**Until #22 is resolved**, the following are blocked:
+- Projects → Streams tab (proper implementation)
+- Auto-bind on rule creation from site context
+- Domain picker improvements (grouping by site, role badges)
+- Site filter on streams.html
+
+See issue for full API change proposal and migration path.
+
+---
+
 ## Architecture: TDS = Site-scoped
 
-**TDS rules are conceptually site-scoped.** The site's acceptor domain is the traffic entry point where the Cloudflare Worker runs TDS logic.
+**TDS rules belong to a site.** The site's acceptor domain is the traffic entry point where the Cloudflare Worker runs TDS logic.
 
 ```
 Project
-  └─ Site
+  └─ Site (site_id on rule)
        └─ acceptor domain (main traffic entry point)
             └─ CF Worker route (brand.com/*)
-                 └─ TDS Rules (config for this hostname)
+                 └─ TDS Rules (site_id FK → site)
 ```
 
 - **Site = TDS endpoint.** Configuring TDS for a site = configuring rules for its acceptor domain.
 - Donor/reserve domains redirect TO the acceptor — they don't need their own TDS.
-- The API binds rules to `domain_id`, but the UI should present this as "TDS for site X".
 - A site without an acceptor domain cannot have TDS rules.
+- `tds_domain_bindings` becomes an **internal CF Worker sync mechanism**, not a user-facing concept.
 
 ### Two UI entry points
 
-1. **`streams.html`** — Global TDS management page (account-wide view of all rules)
-2. **Projects → Streams tab** — Site-context view (rules for a specific site's acceptor domain)
+1. **`streams.html`** — Global TDS management page (account-wide, with site filter)
+2. **Projects → Streams tab** — Site-context view (rules for a specific site)
 
 ---
 
@@ -67,31 +88,31 @@ Project
 
 ---
 
-## Next: Projects → Streams Tab
+## Next: Projects → Streams Tab ⛔ blocked by `301#22`
 
 **Goal:** Site-scoped TDS management inside the project detail view.
 
-The Projects page already has a Streams tab (placeholder: "coming soon"). This needs to become a working interface.
+**Blocked until backend adds `site_id` to `tds_rules`.** Current domain-binding workaround is too fragile for production.
 
-### Flow
+### Flow (after #22)
 
 ```
 Projects Detail → Streams Tab
   ├─ List of project's sites with TDS status
   │   Site name | acceptor domain | rules count | status badge
   │
-  ├─ Click site → expand/navigate to TDS rules for that site
-  │   (rules filtered by bindings to site's acceptor domain)
+  ├─ Click site → show TDS rules for that site (GET /tds/rules?site_id=X)
   │
-  └─ Create rule → auto-binds to selected site's acceptor domain
+  └─ Create rule → site_id pre-filled from context
 ```
 
-### Tasks
+### Tasks (after #22)
 
+- [ ] Update `src/api/tds.ts` — pass `site_id` on create, add `?site_id=` filter param
+- [ ] Update `src/api/types.ts` — add `site_id` to `TdsRule`
 - [ ] Render site list with TDS info in Streams tab (`src/ui/projects.ts`)
-- [ ] Load TDS rules for project's sites (cross-reference rules ↔ site domains)
-- [ ] "Configure TDS" action per site → open TDS drawer or navigate to filtered streams page
-- [ ] Auto-bind: when creating rule from site context, pre-select site's acceptor domain
+- [ ] "Configure TDS" action per site → open TDS drawer with `site_id` context
+- [ ] Remove manual domain picker from drawer (binding is implicit)
 - [ ] Empty state per site: "No TDS rules configured for this site"
 - [ ] i18n keys for Projects → Streams tab
 
@@ -99,24 +120,17 @@ Projects Detail → Streams Tab
 
 ## Backlog
 
-### Domain Picker Improvements
-- [ ] Group domains by site in the domain picker
-- [ ] "Bind to site" shortcut (selects all site's domains)
-- [ ] Show domain role (acceptor/donor/reserve) as badge in picker
-- [ ] Filter picker by site when opened from site context
+### Post-#22: Streams Page — Site Filter
+- [ ] Add "Site" filter chip on streams.html (`?site_id=` query param)
+- [ ] Deep-link from Projects → Streams tab to `/streams.html?site=X`
 
-### Sites Page Integration
+### Post-#22: Sites Page Integration
 - [ ] Add TDS rules count column/badge to sites table
 - [ ] Click count → navigate to streams.html filtered by site
 - [ ] Show TDS status in site row (active rules / no rules)
 
-### Site Domains Drawer Integration
-- [ ] Show "N TDS rules" badge next to each domain in site-domains drawer
-- [ ] Or a TDS section in drawer footer
-
-### Streams Page — Site Filter
-- [ ] Add "Site" filter chip on streams.html
-- [ ] Filter rules by domain bindings matching selected site's domains
+### Post-#22: Site Domains Drawer Integration
+- [ ] Show "N TDS rules" badge next to acceptor domain in site-domains drawer
 
 ### Priority Reorder
 - [ ] `src/streams/priority.ts` — up/down controls
@@ -152,4 +166,4 @@ src/api/tds.ts                        # API client
 
 ---
 
-**Last updated:** 2026-02-25
+**Last updated:** 2026-03-02

@@ -4,12 +4,13 @@ Central task index for the 301-ui project. See `CLAUDE.md` for architecture and 
 
 ---
 
-## Current Focus (2026-02-25)
+## Current Focus (2026-03-02)
 
 **Priority:** Streams/TDS integration with Projects (Layer 5)
+**Blocker:** `admin310st/301#22` — TDS rules need `site_id` FK before Projects integration can proceed
 
 **Next tasks:**
-1. **Projects → Streams tab** — Site-scoped TDS management (see `TODO-streams.md`)
+1. **⛔ Projects → Streams tab** — blocked by 301#22 (backend must add `site_id` to `tds_rules`)
 2. **i18n pass** for Redirects and Domains (0 `data-i18n` attributes)
 
 ---
@@ -65,19 +66,18 @@ Done: Full table with hierarchy, API layer, project/site selectors, filters, dra
 ### 5. Streams/TDS
 
 **Status:** Core implemented (2026-02-25). Types, API client, table, drawer, domain bindings, i18n — all done.
-
-**Architecture:** TDS is **site-scoped** — rules bind to a site's acceptor domain (the traffic entry point where the CF Worker runs). Two UI entry points: `streams.html` (global view) and Projects → Streams tab (site context).
+**Blocker:** `admin310st/301#22` — current API model is rule-centric (rules → domain bindings). Needs `site_id` FK on `tds_rules` to match Redirects pattern. Until resolved, Projects integration is blocked.
 
 **Completed:**
 - Types + API client (`src/api/tds.ts`)
 - Rules table with search, filters, 4 visibility states
 - Create/edit drawer (preset + manual modes)
-- Domain binding UI (picker, bind/unbind)
+- Domain binding UI (picker, bind/unbind) — will be replaced after #22
 - i18n (~180 English keys, all TS files use `t()`)
 
-**Next:** Projects → Streams tab — site-scoped TDS management inside project detail view.
+**Blocked:** Projects → Streams tab, auto-bind, domain picker improvements — all waiting on #22.
 
-**Backlog:** Domain picker grouping by site, sites page TDS column, priority reorder, Russian translations.
+**Backlog (unblocked):** Priority reorder, Russian translations, a11y audit.
 
 Details in `TODO-streams.md`.
 
@@ -119,6 +119,9 @@ Recommended: **Entry Points Pattern** for this MPA project — separate entry po
 
 ### Backend API Gaps
 
+**TDS/Streams:**
+- [admin310st/301#22](https://github.com/admin310st/301/issues/22) — TDS rules need `site_id` FK (blocks Projects → Streams tab, auto-bind, domain picker rework)
+
 **Redirects:**
 - [#164](https://github.com/admin310st/301-ui/issues/164) — API returns duplicate `domain_id` when domain has T1 + T3/T4 redirects (frontend `dedupDomains()` workaround in `state.ts`)
 - [#165](https://github.com/admin310st/301-ui/issues/165) — Post-probe type gaps (zone_id types, missing fields)
@@ -153,6 +156,6 @@ Recommended: **Entry Points Pattern** for this MPA project — separate entry po
 
 ---
 
-**Last updated:** 2026-02-25
+**Last updated:** 2026-03-02
 
-**Next action:** Projects → Streams tab (site-scoped TDS management)
+**Next action:** Waiting on `admin310st/301#22` for TDS site-scoping. Meanwhile: i18n pass, dashboard polish.
