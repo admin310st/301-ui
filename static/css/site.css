@@ -2724,6 +2724,11 @@ body.sidebar-collapsed .sidebar .navitem .notification-icon {
   right: var(--space-2);
 }
 
+/* Hide scrollbars in collapsed sidebar — only icons visible */
+body.sidebar-collapsed .sidebar {
+  overflow: hidden;
+}
+
 /* Navitems adjust padding and center icons on collapse */
 body.sidebar-collapsed .sidebar .navitem {
   position: relative;

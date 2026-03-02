@@ -48,8 +48,8 @@ async function populateOverviewStats(): Promise<void> {
         import('@api/tds'),
       ]);
 
-    // Fetch all counts in parallel — lockKeys match sidebar so safeCall deduplicates in-flight
-    const [keys, projects, sites, domainsResponse, tdsResponse] = await Promise.all([
+    // Fetch all counts in parallel — each call is independent so one failure doesn't block others
+    const [keysResult, projectsResult, sitesResult, domainsResult, tdsResult] = await Promise.allSettled([
       safeCall(() => integrationsModule.getIntegrationKeys(accountId), { lockKey: 'integrations', retryOn401: true }),
       safeCall(() => projectsModule.getProjects(accountId), { lockKey: 'projects', retryOn401: true }),
       safeCall(() => sitesModule.getSites(accountId), { lockKey: 'sites', retryOn401: true }),
@@ -57,7 +57,13 @@ async function populateOverviewStats(): Promise<void> {
       safeCall(() => tdsModule.getRules(), { lockKey: 'tds-rules', retryOn401: true }),
     ]);
 
-    const allDomains = domainsResponse.groups.flatMap((g: any) => g.domains);
+    const keys = keysResult.status === 'fulfilled' ? keysResult.value : [];
+    const projects = projectsResult.status === 'fulfilled' ? projectsResult.value : [];
+    const sites = sitesResult.status === 'fulfilled' ? sitesResult.value : [];
+    const allDomains = domainsResult.status === 'fulfilled'
+      ? domainsResult.value.groups.flatMap((g: any) => g.domains)
+      : [];
+    const tdsTotal = tdsResult.status === 'fulfilled' ? tdsResult.value.total : 0;
 
     // Count redirects from site data (aggregate total_redirects)
     let totalRedirects = 0;
@@ -86,7 +92,7 @@ async function populateOverviewStats(): Promise<void> {
       domains: allDomains.length,
       sites: sites.length,
       redirects: totalRedirects,
-      streams: tdsResponse.total,
+      streams: tdsTotal,
     };
 
     for (const [key, value] of Object.entries(stats)) {
