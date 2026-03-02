@@ -2929,6 +2929,7 @@ body.sidebar-collapsed .sidebar .navitem:hover::after {
 }
 
 .step-number {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -2956,6 +2957,38 @@ body.sidebar-collapsed .sidebar .navitem:hover::after {
   color: var(--text-muted);
   font-size: 1rem;
   user-select: none;
+}
+
+/* Interactive step pill (link variant) */
+.step-pill--link {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  transition: border-color var(--transition-fast);
+}
+.step-pill--link:hover {
+  border-color: var(--border-hover);
+}
+
+/* Hover swap layers */
+.step-number__count {
+  transition: opacity var(--transition-fast);
+}
+.step-number__icon {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+.step-pill--link:hover .step-number__count { opacity: 0; }
+.step-pill--link:hover .step-number__icon { opacity: 1; }
+
+/* Completed step */
+.step-number--done {
+  background: var(--ok);
 }
 
 /* Vertical step list - for compact instructions, checklists */

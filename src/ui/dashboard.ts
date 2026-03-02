@@ -5,6 +5,15 @@ import { getZones } from '@api/zones';
 import { safeCall } from '@api/ui-client';
 import { t } from '@i18n';
 
+const STEPS = [
+  { key: 'integrations', icon: 'mono/puzzle', action: 'connect-cloudflare' },
+  { key: 'domains',      icon: 'mono/dns',    action: 'add-domains' },
+  { key: 'projects',     icon: 'mono/layers',  href: '/projects.html' },
+  { key: 'sites',        icon: 'mono/landing', href: '/sites.html' },
+  { key: 'redirects',    icon: 'mono/arrow-right', href: '/redirects.html' },
+  { key: 'streams',      icon: 'mono/directions-fork', href: '/streams.html' },
+] as const;
+
 /**
  * Calculate current onboarding step
  * Step 1: Connect Cloudflare
@@ -32,52 +41,63 @@ function setDashboardMode(mode: 'onboarding' | 'overview'): void {
 }
 
 /**
- * Render "Getting Started" card with next-step suggestions
+ * Update step-flow pills with live counts and done/pending states
  */
-function renderGettingStarted(stats: Record<string, number>): void {
-  const container = document.querySelector<HTMLElement>('[data-getting-started]');
+function renderStepFlow(stats: Record<string, number>): void {
+  let stepIndex = 1;
+  for (const step of STEPS) {
+    const pill = document.querySelector<HTMLElement>(`[data-step="${step.key}"]`);
+    if (!pill) { stepIndex++; continue; }
+
+    const countEl = pill.querySelector<HTMLElement>('.step-number__count');
+    const numberEl = pill.querySelector<HTMLElement>('.step-number');
+    const count = stats[step.key] ?? 0;
+
+    if (countEl) {
+      countEl.textContent = count > 0 ? count.toString() : stepIndex.toString();
+    }
+    if (numberEl) {
+      numberEl.classList.toggle('step-number--done', count > 0);
+    }
+    stepIndex++;
+  }
+}
+
+/**
+ * Show contextual hint card for the first zero-count section
+ */
+function renderNextStepHint(stats: Record<string, number>): void {
+  const container = document.querySelector<HTMLElement>('[data-next-step]');
   if (!container) return;
 
-  const suggestions: Array<{ href: string; icon: string; i18nKey: string; fallback: string }> = [];
-
-  if (stats.projects === 0) suggestions.push({
-    href: '/projects.html', icon: 'mono/layers',
-    i18nKey: 'dashboard.overview.gettingStarted.createProject',
-    fallback: 'Create your first project to organize domains',
-  });
-  if (stats.sites === 0) suggestions.push({
-    href: '/sites.html', icon: 'mono/landing',
-    i18nKey: 'dashboard.overview.gettingStarted.createSite',
-    fallback: 'Set up a site for traffic distribution',
-  });
-  if (stats.redirects === 0) suggestions.push({
-    href: '/redirects.html', icon: 'mono/arrow-right',
-    i18nKey: 'dashboard.overview.gettingStarted.createRedirect',
-    fallback: 'Configure redirect rules for your domains',
-  });
-  if (stats.streams === 0) suggestions.push({
-    href: '/streams.html', icon: 'mono/directions-fork',
-    i18nKey: 'dashboard.overview.gettingStarted.createRule',
-    fallback: 'Create TDS rules for traffic routing',
-  });
-
-  if (suggestions.length === 0) return;
-
-  const completed = 4 - suggestions.length;
-  const stepsEl = container.querySelector('[data-getting-started-steps]');
-  if (stepsEl) {
-    stepsEl.textContent = `${completed}/4`;
+  const firstEmpty = STEPS.find(s => (stats[s.key] ?? 0) === 0);
+  if (!firstEmpty) {
+    container.hidden = true;
+    return;
   }
 
-  const suggestionsEl = container.querySelector('[data-getting-started-suggestions]');
-  if (suggestionsEl) {
-    suggestionsEl.innerHTML = suggestions.map(s =>
-      `<a href="${s.href}" class="panel panel--interactive cluster">
-        <span class="icon" data-icon="${s.icon}"></span>
-        <span class="text-sm" data-i18n="${s.i18nKey}">${t(s.i18nKey) || s.fallback}</span>
-        <span class="icon text-muted" data-icon="mono/arrow-right" style="margin-left: auto;"></span>
-      </a>`,
-    ).join('');
+  const iconEl = container.querySelector<HTMLElement>('[data-next-step-icon]');
+  const textEl = container.querySelector<HTMLElement>('[data-next-step-text]');
+  const linkEl = container.querySelector<HTMLAnchorElement>('[data-next-step-link]');
+
+  if (iconEl) {
+    iconEl.setAttribute('data-icon', firstEmpty.icon);
+  }
+  if (textEl) {
+    textEl.textContent = t(`dashboard.overview.nextStep.${firstEmpty.key}.hint`);
+  }
+  if (linkEl) {
+    linkEl.textContent = t(`dashboard.overview.nextStep.${firstEmpty.key}.link`);
+    // Integrations/domains open drawers; others navigate
+    if (firstEmpty.action) {
+      linkEl.removeAttribute('href');
+      linkEl.setAttribute('data-action', firstEmpty.action);
+      linkEl.style.cursor = 'pointer';
+    } else if (firstEmpty.href) {
+      linkEl.removeAttribute('data-action');
+      linkEl.setAttribute('href', firstEmpty.href);
+      linkEl.style.cursor = '';
+    }
   }
 
   container.hidden = false;
@@ -138,7 +158,6 @@ async function populateOverviewStats(): Promise<void> {
       }
     }
 
-    // Write counts into stat cards
     const stats: Record<string, number> = {
       integrations: keys.length,
       projects: projects.length,
@@ -148,12 +167,8 @@ async function populateOverviewStats(): Promise<void> {
       streams: tdsTotal,
     };
 
-    for (const [key, value] of Object.entries(stats)) {
-      const el = document.querySelector<HTMLElement>(`[data-stat="${key}"]`);
-      if (el) el.textContent = value.toString();
-    }
-
-    renderGettingStarted(stats);
+    renderStepFlow(stats);
+    renderNextStepHint(stats);
   } catch (error) {
     console.error('Failed to populate overview stats:', error);
   }

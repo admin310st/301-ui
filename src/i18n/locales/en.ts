@@ -276,18 +276,39 @@ export const en = {
         redirects: 'Redirects',
         streams: 'TDS Rules',
       },
-      gettingStarted: {
-        title: 'Getting Started',
-        createProject: 'Create your first project to organize domains',
-        createSite: 'Set up a site for traffic distribution',
-        createRedirect: 'Configure redirect rules for your domains',
-        createRule: 'Create TDS rules for traffic routing',
+      steps: {
+        integrations: 'Integrations',
+        domains: 'Domains',
+        projects: 'Projects',
+        sites: 'Sites',
+        redirects: 'Redirects',
+        streams: 'TDS Rules',
       },
-      quickActions: {
-        title: 'Quick Actions',
-        connectCf: 'Connect Cloudflare',
-        addDomains: 'Add domains',
-        projects: 'Manage projects',
+      nextStep: {
+        integrations: {
+          hint: 'Connect Cloudflare to sync zones and manage traffic at the edge',
+          link: 'Connect Cloudflare account',
+        },
+        domains: {
+          hint: 'Add domains to start managing redirects and monitoring',
+          link: 'Add domains',
+        },
+        projects: {
+          hint: 'Group domains into projects for organized traffic management',
+          link: 'Go to Projects',
+        },
+        sites: {
+          hint: 'Set up sites with acceptor domains for traffic distribution',
+          link: 'Go to Sites',
+        },
+        redirects: {
+          hint: 'Configure redirect rules to route traffic between domains',
+          link: 'Go to Redirects',
+        },
+        streams: {
+          hint: 'Create TDS rules for geo-routing, A/B testing and traffic shielding',
+          link: 'Go to TDS Rules',
+        },
       },
     },
     steps: {
