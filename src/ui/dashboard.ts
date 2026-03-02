@@ -3,6 +3,7 @@ import { getAccountId } from '@state/auth-state';
 import { updateDashboardOnboardingIndicator } from './sidebar-nav';
 import { getZones } from '@api/zones';
 import { safeCall } from '@api/ui-client';
+import { t } from '@i18n';
 
 /**
  * Calculate current onboarding step
@@ -28,6 +29,58 @@ function setDashboardMode(mode: 'onboarding' | 'overview'): void {
   document.querySelectorAll<HTMLElement>('[data-dashboard-mode]').forEach(el => {
     el.hidden = el.dataset.dashboardMode !== mode;
   });
+}
+
+/**
+ * Render "Getting Started" card with next-step suggestions
+ */
+function renderGettingStarted(stats: Record<string, number>): void {
+  const container = document.querySelector<HTMLElement>('[data-getting-started]');
+  if (!container) return;
+
+  const suggestions: Array<{ href: string; icon: string; i18nKey: string; fallback: string }> = [];
+
+  if (stats.projects === 0) suggestions.push({
+    href: '/projects.html', icon: 'mono/layers',
+    i18nKey: 'dashboard.overview.gettingStarted.createProject',
+    fallback: 'Create your first project to organize domains',
+  });
+  if (stats.sites === 0) suggestions.push({
+    href: '/sites.html', icon: 'mono/landing',
+    i18nKey: 'dashboard.overview.gettingStarted.createSite',
+    fallback: 'Set up a site for traffic distribution',
+  });
+  if (stats.redirects === 0) suggestions.push({
+    href: '/redirects.html', icon: 'mono/arrow-right',
+    i18nKey: 'dashboard.overview.gettingStarted.createRedirect',
+    fallback: 'Configure redirect rules for your domains',
+  });
+  if (stats.streams === 0) suggestions.push({
+    href: '/streams.html', icon: 'mono/directions-fork',
+    i18nKey: 'dashboard.overview.gettingStarted.createRule',
+    fallback: 'Create TDS rules for traffic routing',
+  });
+
+  if (suggestions.length === 0) return;
+
+  const completed = 4 - suggestions.length;
+  const stepsEl = container.querySelector('[data-getting-started-steps]');
+  if (stepsEl) {
+    stepsEl.textContent = `${completed}/4`;
+  }
+
+  const suggestionsEl = container.querySelector('[data-getting-started-suggestions]');
+  if (suggestionsEl) {
+    suggestionsEl.innerHTML = suggestions.map(s =>
+      `<a href="${s.href}" class="panel panel--interactive cluster">
+        <span class="icon" data-icon="${s.icon}"></span>
+        <span class="text-sm" data-i18n="${s.i18nKey}">${t(s.i18nKey) || s.fallback}</span>
+        <span class="icon text-muted" data-icon="mono/arrow-right" style="margin-left: auto;"></span>
+      </a>`,
+    ).join('');
+  }
+
+  container.hidden = false;
 }
 
 /**
@@ -99,6 +152,8 @@ async function populateOverviewStats(): Promise<void> {
       const el = document.querySelector<HTMLElement>(`[data-stat="${key}"]`);
       if (el) el.textContent = value.toString();
     }
+
+    renderGettingStarted(stats);
   } catch (error) {
     console.error('Failed to populate overview stats:', error);
   }

@@ -276,6 +276,13 @@ export const en = {
         redirects: 'Redirects',
         streams: 'TDS Rules',
       },
+      gettingStarted: {
+        title: 'Getting Started',
+        createProject: 'Create your first project to organize domains',
+        createSite: 'Set up a site for traffic distribution',
+        createRedirect: 'Configure redirect rules for your domains',
+        createRule: 'Create TDS rules for traffic routing',
+      },
       quickActions: {
         title: 'Quick Actions',
         connectCf: 'Connect Cloudflare',

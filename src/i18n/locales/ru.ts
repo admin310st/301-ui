@@ -282,6 +282,13 @@ export const ru: Translation = {
         redirects: 'Редиректы',
         streams: 'TDS правила',
       },
+      gettingStarted: {
+        title: 'Начало работы',
+        createProject: 'Создайте первый проект для организации доменов',
+        createSite: 'Настройте сайт для распределения трафика',
+        createRedirect: 'Настройте правила редиректов',
+        createRule: 'Создайте TDS-правила для маршрутизации',
+      },
       quickActions: {
         title: 'Быстрые действия',
         connectCf: 'Подключить Cloudflare',
