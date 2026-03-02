@@ -310,6 +310,17 @@ export const en = {
           link: 'Go to TDS Rules',
         },
       },
+      cards: {
+        usage: {
+          title: 'Usage',
+          zones: 'Cloudflare zones',
+          comingSoon: 'Detailed usage analytics — coming soon',
+        },
+        plan: {
+          title: 'Plan & Billing',
+          comingSoon: 'Subscription management — coming soon',
+        },
+      },
     },
     steps: {
       connectCf: 'Connect Cloudflare',

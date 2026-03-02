@@ -64,20 +64,38 @@ function renderStepFlow(stats: Record<string, number>): void {
 }
 
 /**
+ * Render compact usage stats list inside the Usage card
+ */
+function renderUsageList(stats: Record<string, number>): void {
+  const list = document.querySelector<HTMLElement>('[data-usage-list]');
+  if (!list) return;
+
+  list.innerHTML = STEPS.map(step =>
+    `<div class="cluster" style="justify-content: space-between;">
+      <span class="text-sm">${t(`dashboard.overview.steps.${step.key}`)}</span>
+      <strong class="text-sm">${stats[step.key] ?? 0}</strong>
+    </div>`,
+  ).join('');
+}
+
+/**
  * Show contextual hint card for the first zero-count section
  */
 function renderNextStepHint(stats: Record<string, number>): void {
   const container = document.querySelector<HTMLElement>('[data-next-step]');
   if (!container) return;
 
-  const quickActionsCard = document.querySelector<HTMLElement>('[data-quick-actions]');
+  const overviewCards = document.querySelector<HTMLElement>('[data-overview-cards]');
   const firstEmpty = STEPS.find(s => (stats[s.key] ?? 0) === 0);
   if (!firstEmpty) {
     container.hidden = true;
-    if (quickActionsCard) quickActionsCard.hidden = false;
+    if (overviewCards) {
+      renderUsageList(stats);
+      overviewCards.hidden = false;
+    }
     return;
   }
-  if (quickActionsCard) quickActionsCard.hidden = true;
+  if (overviewCards) overviewCards.hidden = true;
 
   const iconEl = container.querySelector<HTMLElement>('[data-next-step-icon]');
   const textEl = container.querySelector<HTMLElement>('[data-next-step-text]');

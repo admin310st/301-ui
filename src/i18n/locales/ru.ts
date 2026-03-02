@@ -316,6 +316,17 @@ export const ru: Translation = {
           link: 'Перейти в TDS',
         },
       },
+      cards: {
+        usage: {
+          title: 'Использование',
+          zones: 'Зоны Cloudflare',
+          comingSoon: 'Детальная аналитика использования — скоро',
+        },
+        plan: {
+          title: 'Тариф и оплата',
+          comingSoon: 'Управление подпиской — скоро',
+        },
+      },
     },
     steps: {
       connectCf: 'Подключить Cloudflare',

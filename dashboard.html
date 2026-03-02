@@ -294,16 +294,19 @@
             </div>
           </div>
 
-          <div class="card card--soft" data-quick-actions hidden>
-            <div class="cluster">
-              <button class="btn btn--primary btn--sm" type="button" data-action="add-domains">
-                <span class="icon" data-icon="mono/plus"></span>
-                <span data-i18n="dashboard.steps.addDomains">Add domains</span>
-              </button>
-              <button class="btn btn--cf btn--sm" type="button" data-action="connect-cloudflare">
-                <span class="icon" data-icon="brand/cloudflare"></span>
-                <span data-i18n="integrations.connectCloudflare">Connect Cloudflare</span>
-              </button>
+          <div class="stats-grid stats-grid--2" data-overview-cards hidden>
+            <div class="card card--soft">
+              <div class="stack stack--sm">
+                <h3 class="h5" data-i18n="dashboard.overview.cards.usage.title">Usage</h3>
+                <div class="stack stack--xs" data-usage-list></div>
+                <p class="text-sm text-muted" data-i18n="dashboard.overview.cards.usage.comingSoon">Detailed usage analytics — coming soon</p>
+              </div>
+            </div>
+            <div class="card card--soft">
+              <div class="stack stack--sm">
+                <h3 class="h5" data-i18n="dashboard.overview.cards.plan.title">Plan & Billing</h3>
+                <p class="text-sm text-muted" data-i18n="dashboard.overview.cards.plan.comingSoon">Subscription management — coming soon</p>
+              </div>
             </div>
           </div>
         </div>

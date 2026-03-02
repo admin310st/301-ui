@@ -2983,6 +2983,7 @@ body.sidebar-collapsed .sidebar .navitem:hover::after {
   opacity: 0;
   transition: opacity var(--transition-fast);
   width: auto;
+  height: auto;
   flex: none;
   font-size: 0.625rem;
 }
