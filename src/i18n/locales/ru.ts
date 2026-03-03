@@ -819,6 +819,16 @@ export const ru: Translation = {
         description: 'Multi-armed bandit auto-optimizes traffic distribution based on performance.',
       },
     },
+    selectors: {
+      projects: 'Проекты',
+      sites: 'Сайты',
+      selectProject: 'Сначала выберите проект',
+      noProjects: 'Нет проектов',
+      noSites: 'Нет сайтов в проекте',
+      allSites: 'Все сайты',
+      deselectAll: 'Снять все',
+      selectAll: 'Выбрать все',
+    },
     actions: {
       create: 'Create Rule',
       edit: 'Edit rule',
@@ -835,6 +845,7 @@ export const ru: Translation = {
         type: 'Type',
         conditions: 'Conditions',
         action: 'Action',
+        site: 'Сайт',
         domains: 'Domains',
         status: 'Status',
         actions: 'Actions',
@@ -923,6 +934,8 @@ export const ru: Translation = {
         variants: 'Variants',
         addVariant: '+ Add',
         removeVariant: 'Remove variant',
+        site: 'Сайт',
+        siteRequired: 'Выберите сайт для правила',
       },
       options: {
         shield: 'Shield',

@@ -2,8 +2,8 @@
  * TDS state management
  * Single source of truth for TDS/Streams page
  *
- * Account-scoped rules (not site-scoped like redirects).
- * Rules have domain bindings managed separately.
+ * Rules are site-scoped (ADR-001): each rule has a required site_id FK.
+ * API returns all account rules; page filters client-side by selected sites.
  */
 
 import type { TdsRule, TdsPreset } from '@api/types';

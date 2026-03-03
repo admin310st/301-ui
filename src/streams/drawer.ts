@@ -3,7 +3,7 @@
  * Handles create/edit drawer for TDS rules
  */
 
-import type { TdsRule, TdsPreset, TdsDomainBinding } from '@api/types';
+import type { TdsRule, TdsPreset } from '@api/types';
 import { getRule, createRule, createRuleFromPreset, updateRule } from '@api/tds';
 import { safeCall } from '@api/ui-client';
 import {
@@ -16,14 +16,13 @@ import { showGlobalNotice } from '@ui/globalNotice';
 import { drawerManager } from '@ui/drawer-manager';
 import { initDropdowns } from '@ui/dropdown';
 import { renderPresetSelector, renderPresetParams, collectPresetValues } from './preset-renderer';
-import { renderDomainBindings, initDomainBindingHandlers } from './domain-binding';
+import { getAvailableSites, getSelectedSiteIds } from './site-selector';
 import { t } from '@i18n';
 
 const DRAWER_ID = 'tds-rule';
 
 let drawerElement: HTMLElement | null = null;
 let currentRuleId: number | null = null;
-let currentBindings: TdsDomainBinding[] = [];
 let drawerMode: 'create-preset' | 'create-manual' | 'edit' = 'create-preset';
 
 // =============================================================================
@@ -70,6 +69,20 @@ function algorithmOptions(): SelectOption[] {
     { value: 'ucb', label: t('streams.drawer.options.algoUcb') },
     { value: 'epsilon_greedy', label: t('streams.drawer.options.algoEpsilon') },
   ];
+}
+
+function siteOptions(): SelectOption[] {
+  return getAvailableSites().map(s => ({
+    value: String(s.id),
+    label: s.name,
+  }));
+}
+
+function getDefaultSiteId(): string {
+  const selected = getSelectedSiteIds();
+  if (selected.length > 0) return String(selected[0]);
+  const sites = getAvailableSites();
+  return sites.length > 0 ? String(sites[0].id) : '';
 }
 
 function ruleStatusOptions(): SelectOption[] {
@@ -125,7 +138,6 @@ export function openCreateDrawer(): void {
   if (!drawerElement) return;
 
   currentRuleId = null;
-  currentBindings = [];
   drawerMode = 'create-preset';
 
   // Update header
@@ -179,8 +191,7 @@ export async function openEditDrawer(ruleId: number): Promise<void> {
       { abortKey: 'tds-rule-detail', retryOn401: true }
     );
 
-    currentBindings = response.domains;
-    renderEditContent(response.rule, response.domains);
+    renderEditContent(response.rule);
   } catch (error: any) {
     if (error.code === 'ABORTED') return;
     if (content) {
@@ -195,7 +206,6 @@ export async function openEditDrawer(ruleId: number): Promise<void> {
 export function closeDrawer(): void {
   drawerManager.close(DRAWER_ID);
   currentRuleId = null;
-  currentBindings = [];
 }
 
 // =============================================================================
@@ -208,8 +218,23 @@ function renderCreateContent(): void {
 
   const { presets } = getState();
 
+  const defaultSiteId = getDefaultSiteId();
+  const sites = siteOptions();
+
   content.innerHTML = `
     <div class="stack-list">
+      <!-- Site selector -->
+      <div class="field">
+        <label class="field__label">
+          <span>${t('streams.drawer.fields.site')}</span>
+          <span class="field__required">*</span>
+        </label>
+        ${sites.length > 0
+          ? renderDropdown('site_id', sites, defaultSiteId)
+          : `<p class="text-sm text-muted">${t('streams.selectors.noSites')}</p>`
+        }
+      </div>
+
       <!-- Mode Toggle -->
       <div class="tabs tabs--sm" data-mode-tabs>
         <button class="tab is-active" type="button" data-mode="preset">${t('streams.drawer.fromPreset')}</button>
@@ -369,7 +394,7 @@ function renderManualCreateContent(): string {
   `;
 }
 
-function renderEditContent(rule: TdsRule, domains: TdsDomainBinding[]): string | void {
+function renderEditContent(rule: TdsRule): string | void {
   const content = drawerElement?.querySelector('[data-drawer-content]');
   if (!content) return;
 
@@ -382,6 +407,11 @@ function renderEditContent(rule: TdsRule, domains: TdsDomainBinding[]): string |
       <section class="card card--panel">
         <header class="card__header"><h3 class="h5">${t('streams.drawer.ruleConfig')}</h3></header>
         <div class="card__body stack">
+          <div class="field">
+            <label class="field__label">${t('streams.drawer.fields.site')}</label>
+            <span class="text-sm">${escapeAttr(rule.site_name || '')}</span>
+          </div>
+
           <div class="field">
             <label class="field__label">${t('streams.drawer.fields.ruleName')}</label>
             <input type="text" class="input" value="${escapeAttr(rule.rule_name)}" data-field="rule_name" />
@@ -456,23 +486,6 @@ function renderEditContent(rule: TdsRule, domains: TdsDomainBinding[]): string |
         </div>
       </section>
 
-      <!-- Domain Bindings -->
-      <section class="card card--panel">
-        <header class="card__header cluster cluster--space-between">
-          <h3 class="h5">${t('streams.bindings.title')}</h3>
-          <button class="btn btn--sm btn--ghost" type="button" data-action="show-domain-picker">
-            <span class="icon" data-icon="mono/plus"></span>
-            <span>${t('streams.bindings.bindDomain')}</span>
-          </button>
-        </header>
-        <div class="card__body">
-          <div data-bindings-list>
-            ${renderDomainBindings(domains)}
-          </div>
-          <div data-domain-picker hidden></div>
-        </div>
-      </section>
-
       <!-- Details -->
       <section class="card card--panel">
         <header class="card__header"><h3 class="h5">${t('streams.drawer.detailsSection')}</h3></header>
@@ -497,9 +510,6 @@ function renderEditContent(rule: TdsRule, domains: TdsDomainBinding[]): string |
       </section>
     </div>
   `;
-
-  // Initialize domain binding handlers
-  initDomainBindingHandlers(drawerElement!, rule.id, currentBindings);
 
   // Setup MAB section toggle
   setupActionToggle();
@@ -681,13 +691,19 @@ async function handlePresetCreate(): Promise<void> {
   const presetId = selectedCard.dataset.presetId!;
   const params = collectPresetValues(drawerElement);
   const ruleName = (drawerElement.querySelector('[data-preset-name-field] [data-field="rule_name"]') as HTMLInputElement)?.value?.trim() || undefined;
+  const siteId = parseInt(getFieldValue('site_id'), 10);
+
+  if (!siteId) {
+    showGlobalNotice('error', t('streams.drawer.fields.siteRequired'));
+    return;
+  }
 
   const saveBtn = drawerElement.querySelector('[data-drawer-save]') as HTMLButtonElement;
   if (saveBtn) saveBtn.disabled = true;
 
   try {
     const response = await safeCall(
-      () => createRuleFromPreset({ preset_id: presetId, params, rule_name: ruleName }),
+      () => createRuleFromPreset({ preset_id: presetId, params, site_id: siteId, rule_name: ruleName }),
       { lockKey: `tds-rule:create-preset:${Date.now()}`, retryOn401: true }
     );
 
@@ -713,13 +729,19 @@ async function handleManualCreate(): Promise<void> {
   const logicJson = collectLogicJson();
   const tdsType = getFieldValue('tds_type') as 'traffic_shield' | 'smartlink';
   const priority = parseInt(getFieldValue('priority') || '100', 10);
+  const siteId = parseInt(getFieldValue('site_id'), 10);
+
+  if (!siteId) {
+    showGlobalNotice('error', t('streams.drawer.fields.siteRequired'));
+    return;
+  }
 
   const saveBtn = drawerElement.querySelector('[data-drawer-save]') as HTMLButtonElement;
   if (saveBtn) saveBtn.disabled = true;
 
   try {
     const response = await safeCall(
-      () => createRule({ rule_name: ruleName, tds_type: tdsType, logic_json: logicJson, priority }),
+      () => createRule({ rule_name: ruleName, tds_type: tdsType, logic_json: logicJson, priority, site_id: siteId }),
       { lockKey: `tds-rule:create:${Date.now()}`, retryOn401: true }
     );
 

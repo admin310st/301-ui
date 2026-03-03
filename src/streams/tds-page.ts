@@ -12,6 +12,7 @@ import {
   refreshRules,
   removeRuleOptimistic,
 } from './state';
+import { initTdsSiteSelector } from './site-selector';
 import { getDefaultFilters, hasActiveFilters, type TdsActiveFilters } from './filters-config';
 import { renderFilterBar, initFilterUI } from './filters-ui';
 import { renderRulesTable } from './table';
@@ -25,6 +26,8 @@ let allRules: TdsRule[] = [];
 let filteredRules: TdsRule[] = [];
 let activeFilters: TdsActiveFilters = getDefaultFilters();
 let searchQuery = '';
+let selectedSiteIds: number[] = [];
+let siteFilterActive = false; // true once site selector has initialized
 let pendingDeleteRuleId: number | null = null;
 
 /**
@@ -54,8 +57,22 @@ export function initTdsPage(): void {
   setupActions();
   setupGlobalDropdowns();
 
+  // Init site selector (loads projects, selects saved project, loads sites)
+  void initTdsSiteSelector(handleSiteChange);
+
   // Load data
   void loadRules();
+}
+
+// =============================================================================
+// Site Selection
+// =============================================================================
+
+function handleSiteChange(siteIds: number[]): void {
+  selectedSiteIds = siteIds;
+  siteFilterActive = true;
+  applyFiltersAndSearch();
+  showTableState();
 }
 
 // =============================================================================
@@ -96,7 +113,7 @@ function showTableState(): void {
   toggleElement('[data-table-shell]', true);
 
   // If filters reduce to 0, show empty-state within the card
-  if (filteredRules.length === 0 && (searchQuery || hasActiveFilters(activeFilters))) {
+  if (filteredRules.length === 0 && (searchQuery || hasActiveFilters(activeFilters) || siteFilterActive)) {
     toggleElement('[data-empty-state]', true);
     toggleElement('[data-table-shell]', false);
   } else {
@@ -201,6 +218,11 @@ function setupFilters(): void {
 
 function applyFiltersAndSearch(): void {
   let result = [...allRules];
+
+  // Apply site filter (client-side: filter by selected site IDs)
+  if (siteFilterActive) {
+    result = result.filter(r => selectedSiteIds.includes(r.site_id));
+  }
 
   // Apply type filter
   if (activeFilters.tds_type && activeFilters.tds_type.length > 0) {

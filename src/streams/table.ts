@@ -61,8 +61,8 @@ function renderRuleRow(rule: TdsRule): string {
           ${actionUrl ? `<span class="text-sm text-muted" title="${escapeHtml(rule.logic_json.action_url || '')}">${escapeHtml(actionUrl)}</span>` : ''}
         </div>
       </td>
-      <td data-priority="medium" class="text-center">
-        <span class="text-sm">${rule.domain_count}</span>
+      <td data-priority="medium">
+        <span class="text-sm">${escapeHtml(rule.site_name || '')}</span>
       </td>
       <td data-priority="high">
         ${statusBadge}

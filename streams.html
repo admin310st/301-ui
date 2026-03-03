@@ -75,8 +75,43 @@
                 </button>
               </div>
 
-              <!-- Filter chips row -->
+              <!-- Project & Site selectors + Filter chips row -->
               <div class="controls-row table-controls">
+                <!-- Project Selector (single-select, loads from API) -->
+                <div class="dropdown" data-project-selector>
+                  <button
+                    class="btn-chip btn-chip--dropdown dropdown__trigger"
+                    type="button"
+                    aria-haspopup="menu"
+                    aria-expanded="false"
+                  >
+                    <span class="btn-chip__icon" data-icon="mono/layers"></span>
+                    <span class="btn-chip__label" data-project-name data-i18n="streams.selectors.projects">Projects</span>
+                    <span class="btn-chip__chevron" data-icon="mono/chevron-down"></span>
+                  </button>
+                  <div class="dropdown__menu" role="menu" data-project-options>
+                    <div class="dropdown__item text-muted" data-i18n="common.loading">Loading...</div>
+                  </div>
+                </div>
+
+                <!-- Site Selector (multi-select for sites in selected project) -->
+                <div class="dropdown" data-site-selector>
+                  <button
+                    class="btn-chip btn-chip--dropdown dropdown__trigger"
+                    type="button"
+                    aria-haspopup="menu"
+                    aria-expanded="false"
+                  >
+                    <span class="btn-chip__icon" data-icon="mono/web"></span>
+                    <span class="btn-chip__label" data-site-name data-i18n="streams.selectors.sites">Sites</span>
+                    <span class="btn-chip__chevron" data-icon="mono/chevron-down"></span>
+                  </button>
+                  <div class="dropdown__menu" role="menu" data-site-options>
+                    <div class="dropdown__item text-muted" data-i18n="streams.selectors.selectProject">Select project first</div>
+                  </div>
+                </div>
+
+                <!-- Filter chips (injected by JS) -->
                 <div class="filter-chips" data-filter-bar></div>
               </div>
             </div>
@@ -116,7 +151,7 @@
                     <th data-priority="high" data-i18n="streams.table.columns.type">Type</th>
                     <th data-priority="medium" data-i18n="streams.table.columns.conditions">Conditions</th>
                     <th data-priority="high" data-i18n="streams.table.columns.action">Action</th>
-                    <th data-priority="medium" class="text-center" style="width: 70px;" data-i18n="streams.table.columns.domains">Domains</th>
+                    <th data-priority="medium" data-i18n="streams.table.columns.site">Site</th>
                     <th data-priority="high" data-i18n="streams.table.columns.status">Status</th>
                     <th data-priority="critical" class="th-actions" data-i18n="streams.table.columns.actions">Actions</th>
                   </tr>

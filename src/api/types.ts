@@ -753,7 +753,7 @@ export type TdsType = 'traffic_shield' | 'smartlink';
 export type TdsRuleStatus = 'draft' | 'active' | 'disabled';
 export type TdsAction = 'redirect' | 'block' | 'pass' | 'mab_redirect';
 export type MabAlgorithm = 'thompson_sampling' | 'ucb' | 'epsilon_greedy';
-export type BindingStatus = 'pending' | 'applied' | 'removed';
+export type TdsSyncStatus = 'pending' | 'applying' | 'applied' | 'failed';
 
 export interface TdsConditions {
   geo?: string[];
@@ -795,22 +795,15 @@ export interface TdsRule {
   priority: number;
   status: TdsRuleStatus;
   preset_id: string | null;
+  site_id: number;
+  site_name: string;
+  acceptor_domain: string;
+  sync_status: TdsSyncStatus;
   created_at: string;
   updated_at: string;
-  domain_count: number;
-}
-
-export interface TdsDomainBinding {
-  binding_id: number;
-  domain_id: number;
-  domain_name: string;
-  enabled: boolean;
-  binding_status: BindingStatus;
-  schedule_start: string | null;
-  schedule_end: string | null;
-  last_synced_at: string | null;
-  last_error: string | null;
-  created_at: string;
+  // Detail-only fields (GET /tds/rules/:id)
+  last_synced_at?: string | null;
+  last_error?: string | null;
 }
 
 export interface TdsPresetParam {
@@ -855,7 +848,6 @@ export interface GetTdsRulesResponse {
 export interface GetTdsRuleResponse {
   ok: boolean;
   rule: TdsRule;
-  domains: TdsDomainBinding[];
 }
 
 /** POST /tds/rules request */
@@ -863,6 +855,7 @@ export interface CreateTdsRuleRequest {
   rule_name: string;
   tds_type: TdsType;
   logic_json: TdsLogicJson;
+  site_id: number;
   priority?: number;
 }
 
@@ -870,7 +863,7 @@ export interface CreateTdsRuleRequest {
 export interface CreateFromPresetRequest {
   preset_id: string;
   params: Record<string, any>;
-  domain_ids?: number[];
+  site_id: number;
   rule_name?: string;
 }
 
@@ -878,7 +871,6 @@ export interface CreateFromPresetRequest {
 export interface CreateFromPresetResponse {
   ok: boolean;
   rule: TdsRule;
-  bound_domains?: number[];
 }
 
 /** PATCH /tds/rules/:id request */
@@ -888,6 +880,7 @@ export interface UpdateTdsRuleRequest {
   logic_json?: TdsLogicJson;
   priority?: number;
   status?: TdsRuleStatus;
+  site_id?: number;
 }
 
 /** PATCH /tds/rules/reorder request */
@@ -895,22 +888,3 @@ export interface ReorderRulesRequest {
   rules: Array<{ id: number; priority: number }>;
 }
 
-/** POST /tds/rules/:id/domains request */
-export interface BindDomainsRequest {
-  domain_ids: number[];
-}
-
-/** POST /tds/rules/:id/domains response */
-export interface BindDomainsResponse {
-  ok: boolean;
-  bound: number[];
-  errors: Array<{ domain_id: number; error: string }>;
-}
-
-/** GET /tds/rules/:id/domains response */
-export interface GetRuleDomainsResponse {
-  ok: boolean;
-  rule_id: number;
-  domains: TdsDomainBinding[];
-  total: number;
-}

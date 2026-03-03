@@ -1,7 +1,7 @@
 import { t } from '@i18n';
 import { getProjects, getProject } from '@api/projects';
 import { getDomains } from '@api/domains';
-import { getRules, getRuleDomains } from '@api/tds';
+import { getRules } from '@api/tds';
 import type { Project, Site, ProjectIntegration, APIDomain, TdsRule } from '@api/types';
 import { getAccountId } from '@state/auth-state';
 import { showGlobalMessage } from './notifications';
@@ -14,7 +14,7 @@ import { showConfirmDialog } from '@ui/dialog';
 // State
 let allProjects: Project[] = [];
 let searchQuery = '';
-let cachedDomainRuleMap: Map<string, TdsRule[]> | null = null;
+let cachedDomainRuleMap: Map<number, TdsRule[]> | null = null;
 
 /**
  * Format date to locale string
@@ -728,39 +728,22 @@ export async function loadProjectDetail(projectId: number): Promise<void> {
 // =============================================================================
 
 /**
- * Build a map of domain_name → TdsRule[] by loading rules and their domain bindings
+ * Build a map of site_id → TdsRule[] from the rules list (site-scoped since ADR-001)
  */
-async function buildDomainRuleMap(): Promise<Map<string, TdsRule[]>> {
+async function buildSiteRuleMap(): Promise<Map<number, TdsRule[]>> {
   if (cachedDomainRuleMap) return cachedDomainRuleMap;
 
-  const map = new Map<string, TdsRule[]>();
+  const map = new Map<number, TdsRule[]>();
 
   const response = await safeCall(
     () => getRules(),
     { lockKey: 'tds-rules-for-streams', retryOn401: true }
   );
 
-  const rulesWithDomains = response.rules.filter(r => r.domain_count > 0);
-
-  if (rulesWithDomains.length > 0) {
-    const bindingsResults = await Promise.all(
-      rulesWithDomains.map(rule =>
-        safeCall(
-          () => getRuleDomains(rule.id),
-          { lockKey: `tds-rule-domains-${rule.id}`, retryOn401: true }
-        ).catch(() => [])
-      )
-    );
-
-    rulesWithDomains.forEach((rule, i) => {
-      const bindings = bindingsResults[i];
-      if (!Array.isArray(bindings)) return;
-      for (const binding of bindings) {
-        const existing = map.get(binding.domain_name) || [];
-        existing.push(rule);
-        map.set(binding.domain_name, existing);
-      }
-    });
+  for (const rule of response.rules) {
+    const existing = map.get(rule.site_id) || [];
+    existing.push(rule);
+    map.set(rule.site_id, existing);
   }
 
   cachedDomainRuleMap = map;
@@ -817,7 +800,7 @@ function renderStreamsSiteRow(site: Site, rules: TdsRule[]): string {
 /**
  * Render the full streams table from sites + domain-rule map
  */
-function renderStreamsTable(sites: Site[], map: Map<string, TdsRule[]>): void {
+function renderStreamsTable(sites: Site[], map: Map<number, TdsRule[]>): void {
   const tbody = document.querySelector<HTMLTableSectionElement>('[data-project-streams-table] tbody');
   if (!tbody) return;
 
@@ -830,7 +813,7 @@ function renderStreamsTable(sites: Site[], map: Map<string, TdsRule[]>): void {
       </tr>`;
   } else {
     tbody.innerHTML = sites.map(site => {
-      const rules = site.acceptor_domain ? (map.get(site.acceptor_domain) || []) : [];
+      const rules = map.get(site.id) || [];
       return renderStreamsSiteRow(site, rules);
     }).join('');
   }
@@ -851,7 +834,7 @@ async function loadStreamsTab(): Promise<void> {
   if (container) container.hidden = true;
 
   try {
-    const map = await buildDomainRuleMap();
+    const map = await buildSiteRuleMap();
     const sites = getCurrentSites();
 
     if (loading) loading.hidden = true;

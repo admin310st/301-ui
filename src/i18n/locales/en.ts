@@ -820,6 +820,18 @@ export const en = {
       },
     },
 
+    // Project & Site selectors
+    selectors: {
+      projects: 'Projects',
+      sites: 'Sites',
+      selectProject: 'Select project first',
+      noProjects: 'No projects',
+      noSites: 'No sites in project',
+      allSites: 'All sites',
+      deselectAll: 'Deselect all',
+      selectAll: 'Select all',
+    },
+
     // Button / action labels
     actions: {
       create: 'Create Rule',
@@ -839,6 +851,7 @@ export const en = {
         type: 'Type',
         conditions: 'Conditions',
         action: 'Action',
+        site: 'Site',
         domains: 'Domains',
         status: 'Status',
         actions: 'Actions',
@@ -945,6 +958,8 @@ export const en = {
         variants: 'Variants',
         addVariant: '+ Add',
         removeVariant: 'Remove variant',
+        site: 'Site',
+        siteRequired: 'Select a site for this rule',
       },
 
       // Dropdown option labels

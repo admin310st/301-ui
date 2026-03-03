@@ -16,7 +16,6 @@ import type {
   TdsPreset,
   TdsParam,
   TdsRule,
-  TdsDomainBinding,
   GetTdsPresetsResponse,
   GetTdsRulesResponse,
   GetTdsRuleResponse,
@@ -25,9 +24,6 @@ import type {
   CreateFromPresetResponse,
   UpdateTdsRuleRequest,
   ReorderRulesRequest,
-  BindDomainsRequest,
-  BindDomainsResponse,
-  GetRuleDomainsResponse,
 } from './types';
 
 // =============================================================================
@@ -38,7 +34,6 @@ const TTL_PRESETS = 24 * 60 * 60 * 1000; // 24 hours
 const TTL_PARAMS = 24 * 60 * 60 * 1000;  // 24 hours
 const TTL_RULES = 30 * 1000;             // 30 seconds
 const TTL_RULE_DETAIL = 30 * 1000;       // 30 seconds
-const TTL_DOMAINS = 30 * 1000;           // 30 seconds
 
 // =============================================================================
 // Reference Data (long-lived, rarely change)
@@ -108,7 +103,7 @@ export async function getRules(force?: boolean): Promise<GetTdsRulesResponse> {
 }
 
 /**
- * Get single TDS rule with domain bindings
+ * Get single TDS rule detail
  * TTL: 30 seconds
  * Uses abort for "last wins" when switching rules
  */
@@ -206,66 +201,6 @@ export async function reorderRules(data: ReorderRulesRequest): Promise<void> {
   await apiFetch('/tds/rules/reorder', {
     method: 'PATCH',
     body: JSON.stringify(data),
-    showLoading: 'brand',
-  });
-
-  invalidateCacheByPrefix('tds:');
-}
-
-// =============================================================================
-// Domain Bindings
-// =============================================================================
-
-/**
- * Get domains bound to a rule
- * TTL: 30 seconds
- */
-export async function getRuleDomains(ruleId: number): Promise<TdsDomainBinding[]> {
-  const cacheKey = `tds:rule:${ruleId}:domains:v1`;
-  const cached = getCached<TdsDomainBinding[]>(cacheKey);
-  if (cached) return cached;
-
-  return withInFlight(cacheKey, async () => {
-    const response = await apiFetch<GetRuleDomainsResponse>(
-      `/tds/rules/${ruleId}/domains`,
-      { showLoading: false }
-    );
-    setCache(cacheKey, response.domains, TTL_DOMAINS);
-    return response.domains;
-  });
-}
-
-/**
- * Bind domains to a rule
- */
-export async function bindDomains(
-  ruleId: number,
-  domainIds: number[]
-): Promise<BindDomainsResponse> {
-  const data: BindDomainsRequest = { domain_ids: domainIds };
-
-  const response = await apiFetch<BindDomainsResponse>(
-    `/tds/rules/${ruleId}/domains`,
-    {
-      method: 'POST',
-      body: JSON.stringify(data),
-      showLoading: 'brand',
-    }
-  );
-
-  invalidateCacheByPrefix('tds:');
-  return response;
-}
-
-/**
- * Unbind a domain from a rule
- */
-export async function unbindDomain(
-  ruleId: number,
-  domainId: number
-): Promise<void> {
-  await apiFetch(`/tds/rules/${ruleId}/domains/${domainId}`, {
-    method: 'DELETE',
     showLoading: 'brand',
   });
 
