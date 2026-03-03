@@ -597,7 +597,7 @@ function renderDomainRow(domain: ExtendedRedirectDomain, _isLastRow: boolean): s
   `;
 
   const targetDisplay = getTargetDisplay(domain, false, arrowColor);
-  const activityDisplay = getActivityDisplay(domain);
+  const activityDisplay = getActivityDisplay(domain, arrowColor === 'text-danger');
   const statusDisplay = getStatusDisplay(domain);
   const actions = getRowActions(domain);
 
@@ -807,7 +807,7 @@ function getTargetDisplay(domain: ExtendedRedirectDomain, isPrimaryDomain: boole
  * - Has analytics data → show clicks count + trend icon
  * - No analytics data → empty cell (clean UI, no visual noise)
  */
-function getActivityDisplay(domain: ExtendedRedirectDomain): string {
+function getActivityDisplay(domain: ExtendedRedirectDomain, isCustomRedirect = false): string {
   // No redirect or no click data - show empty cell
   if (!domain.redirect || !domain.redirect.clicks_total) {
     return '';
@@ -836,6 +836,12 @@ function getActivityDisplay(domain: ExtendedRedirectDomain): string {
     down: 'text-warning',
     neutral: 'text-muted',
   };
+
+  // Custom redirects (non-acceptor target) always show → arrow
+  if (isCustomRedirect) {
+    const clicksFormatted = formatClicks(clicks_7d);
+    return `<span class="text-sm text-danger">→ ${clicksFormatted}</span>`;
+  }
 
   const symbol = trendSymbols[trend] || '';
   const colorClass = trendClasses[trend] || 'text-muted';
