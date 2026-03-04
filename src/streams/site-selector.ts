@@ -123,11 +123,14 @@ function updateDisplay(): void {
   const nameEl = document.querySelector('[data-site-name]');
   if (!nameEl) return;
 
+  const trigger = nameEl.closest('.btn-chip');
   if (currentSiteId === null) {
     nameEl.textContent = t('streams.selectors.sites');
+    if (trigger) trigger.removeAttribute('data-status');
   } else {
     const site = availableSites.find(s => s.id === currentSiteId);
     nameEl.textContent = site?.name || t('streams.selectors.sites');
+    if (trigger && site) trigger.setAttribute('data-status', site.status);
   }
 }
 
