@@ -928,6 +928,8 @@ function renderCanonicalInfoCard(
     T4: 'www \u2192 apex',
   };
   const templateLabel = templateLabels[canonical.template_id] || canonical.template_id || 'Custom';
+  // T4 (www→apex) = modern standard → success badge; T3 (apex→www) = legacy → neutral
+  const templateBadge = canonical.template_id === 'T4' ? 'badge--success' : 'badge--neutral';
   const targetUrl = getTargetUrl(domainName, canonical) || '';
 
   const syncStatus = canonical.sync_status || 'pending';
@@ -954,7 +956,7 @@ function renderCanonicalInfoCard(
           <div class="detail-row">
             <dt class="detail-label">Template</dt>
             <dd class="detail-value">
-              <span class="badge badge--sm badge--neutral">${templateLabel}</span>
+              <span class="badge badge--sm ${templateBadge}">${templateLabel}</span>
             </dd>
           </div>
           <div class="detail-row">
