@@ -5,7 +5,7 @@
  * 4 visibility states: loading → error → empty → table
  */
 
-import type { TdsRule } from '@api/types';
+import type { TdsRule, TdsRuleStatus } from '@api/types';
 import {
   onStateChange,
   loadRules,
@@ -16,7 +16,7 @@ import { initTdsSiteSelector } from './site-selector';
 import { getDefaultFilters, hasActiveFilters, type TdsActiveFilters } from './filters-config';
 import { renderFilterBar, initFilterUI } from './filters-ui';
 import { renderRulesTable } from './table';
-import { deleteRule } from '@api/tds';
+import { deleteRule, updateRule } from '@api/tds';
 import { safeCall } from '@api/ui-client';
 import { showGlobalNotice } from '@ui/globalNotice';
 import { showDialog, hideDialog } from '@ui/dialog';
@@ -273,6 +273,12 @@ function setupActions(): void {
       case 'delete-rule':
         if (ruleId) handleDeleteRule(ruleId);
         break;
+      case 'enable-rule':
+        if (ruleId) void handleToggleStatus(ruleId, 'active');
+        break;
+      case 'disable-rule':
+        if (ruleId) void handleToggleStatus(ruleId, 'disabled');
+        break;
       case 'clear-filters': {
         // Reset filters + search from the empty-state CTA
         activeFilters = getDefaultFilters();
@@ -341,6 +347,21 @@ function setupActions(): void {
 function handleEditRule(ruleId: number): void {
   const event = new CustomEvent('tds:open-edit-drawer', { detail: { ruleId } });
   document.dispatchEvent(event);
+}
+
+async function handleToggleStatus(ruleId: number, newStatus: TdsRuleStatus): Promise<void> {
+  try {
+    await safeCall(
+      () => updateRule(ruleId, { status: newStatus }),
+      { lockKey: `tds-rule:status:${ruleId}`, retryOn401: true }
+    );
+
+    const msgKey = newStatus === 'active' ? 'streams.messages.enabled' : 'streams.messages.disabled';
+    showGlobalNotice('success', t(msgKey));
+    await refreshRules();
+  } catch (error: any) {
+    showGlobalNotice('error', error.message || t('streams.messages.toggleFailed'));
+  }
 }
 
 function handleDeleteRule(ruleId: number): void {

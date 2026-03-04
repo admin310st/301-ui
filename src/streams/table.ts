@@ -67,16 +67,15 @@ function renderRuleRow(rule: TdsRule): string {
       <td data-priority="high">
         ${statusBadge}
       </td>
-      <td data-priority="critical">
+      <td data-priority="critical" class="th-actions">
         <div class="table-actions table-actions--inline">
-          <button class="btn-icon btn-icon--sm btn-icon--ghost" type="button" data-action="edit-rule" data-rule-id="${rule.id}" title="${t('streams.actions.edit')}">
-            <span class="icon" data-icon="mono/pencil-circle"></span>
-          </button>
           <div class="dropdown" data-dropdown>
             <button class="btn-icon btn-icon--sm btn-icon--ghost dropdown__trigger" type="button" aria-haspopup="menu" title="${t('streams.actions.moreActions')}">
               <span class="icon" data-icon="mono/dots-vertical"></span>
             </button>
             <div class="dropdown__menu" role="menu">
+              ${renderToggleAction(rule)}
+              <div class="dropdown__divider"></div>
               <button class="dropdown__item dropdown__item--danger" type="button" data-action="delete-rule" data-rule-id="${rule.id}">
                 <span class="icon" data-icon="mono/delete"></span>
                 <span>${t('streams.actions.delete')}</span>
@@ -87,6 +86,24 @@ function renderRuleRow(rule: TdsRule): string {
       </td>
     </tr>
   `;
+}
+
+/**
+ * Render toggle status action (Enable / Disable)
+ */
+function renderToggleAction(rule: TdsRule): string {
+  if (rule.status === 'active') {
+    return `
+      <button class="dropdown__item" type="button" data-action="disable-rule" data-rule-id="${rule.id}">
+        <span class="icon" data-icon="mono/pause"></span>
+        <span>${t('streams.actions.disable')}</span>
+      </button>`;
+  }
+  return `
+    <button class="dropdown__item" type="button" data-action="enable-rule" data-rule-id="${rule.id}">
+      <span class="icon" data-icon="mono/play"></span>
+      <span>${t('streams.actions.enable')}</span>
+    </button>`;
 }
 
 /**
