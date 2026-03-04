@@ -273,6 +273,30 @@ function setupActions(): void {
       case 'delete-rule':
         if (ruleId) handleDeleteRule(ruleId);
         break;
+      case 'clear-filters': {
+        // Reset filters + search from the empty-state CTA
+        activeFilters = getDefaultFilters();
+        searchQuery = '';
+        const searchInput = document.querySelector('[data-search-input]') as HTMLInputElement;
+        const tableSearch = document.querySelector('[data-table-search]') as HTMLElement;
+        if (searchInput) searchInput.value = '';
+        if (tableSearch) tableSearch.classList.remove('table-search--active');
+        const resetBtn = document.querySelector('[data-reset-filters]');
+        if (resetBtn) resetBtn.classList.remove('is-active');
+        const filterBar = document.querySelector('[data-filter-bar]');
+        if (filterBar) {
+          filterBar.innerHTML = renderFilterBar(activeFilters);
+          initFilterUI(filterBar as HTMLElement, activeFilters, (f) => {
+            activeFilters = f;
+            applyFiltersAndSearch();
+            filterBar.innerHTML = renderFilterBar(activeFilters);
+            showTableState();
+          });
+        }
+        applyFiltersAndSearch();
+        showTableState();
+        break;
+      }
       case 'retry':
         void refreshRules();
         break;

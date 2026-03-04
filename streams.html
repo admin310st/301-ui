@@ -126,13 +126,17 @@
 
             <!-- Empty State (shown when all filtered to 0) -->
             <div class="empty-state" data-empty-state hidden>
-              <span class="icon icon--xxl" data-icon="mono/search"></span>
-              <h2 data-i18n="streams.empty.title">No rules match your filters</h2>
-              <p data-i18n="streams.empty.description">Try adjusting your search or filters to find what you're looking for.</p>
-              <button class="btn btn--ghost" type="button" data-action="clear-filters">
-                <span class="icon" data-icon="mono/close"></span>
-                <span data-i18n="streams.empty.cta">Clear Filters</span>
-              </button>
+              <div class="stack stack-md">
+                <span class="icon icon--lg" data-icon="mono/search"></span>
+                <h3 class="h4" data-i18n="streams.empty.title">No rules match your filters</h3>
+                <p class="text-muted" data-i18n="streams.empty.description">Try adjusting your search or filters to find what you're looking for.</p>
+                <div class="btn-group">
+                  <button class="btn btn--ghost" type="button" data-action="clear-filters">
+                    <span class="icon" data-icon="mono/close"></span>
+                    <span data-i18n="streams.empty.cta">Clear Filters</span>
+                  </button>
+                </div>
+              </div>
             </div>
 
             <!-- Error State -->
