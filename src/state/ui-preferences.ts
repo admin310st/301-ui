@@ -13,10 +13,13 @@ export interface SelectedProject {
 export interface UIPreferences {
   /** Selected project for filtering (persists across Domains, Redirects, etc.) */
   selectedProject: SelectedProject | null;
+  /** One-shot: navigate to TDS page pre-selecting this site (consumed on read) */
+  pendingTdsSiteId: number | null;
 }
 
 const defaults: UIPreferences = {
   selectedProject: null,
+  pendingTdsSiteId: null,
 };
 
 /**
@@ -80,4 +83,27 @@ export function setSelectedProject(project: SelectedProject | null): void {
  */
 export function clearSelectedProject(): void {
   setSelectedProject(null);
+}
+
+/**
+ * Set a one-shot pending TDS site ID (for cross-page navigation)
+ * The TDS site-selector reads and clears this on init.
+ */
+export function setPendingTdsSiteId(siteId: number): void {
+  const prefs = getUIPreferences();
+  prefs.pendingTdsSiteId = siteId;
+  saveUIPreferences(prefs);
+}
+
+/**
+ * Get and clear the pending TDS site ID (one-shot read)
+ */
+export function consumePendingTdsSiteId(): number | null {
+  const prefs = getUIPreferences();
+  const siteId = prefs.pendingTdsSiteId;
+  if (siteId !== null) {
+    prefs.pendingTdsSiteId = null;
+    saveUIPreferences(prefs);
+  }
+  return siteId;
 }

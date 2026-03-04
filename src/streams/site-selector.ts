@@ -13,7 +13,7 @@ import { safeCall } from '@api/ui-client';
 import { getProjects } from '@api/projects';
 import { getProjectSites } from '@api/sites';
 import type { Site, Project } from '@api/types';
-import { getSelectedProjectId, setSelectedProject } from '@state/ui-preferences';
+import { getSelectedProjectId, setSelectedProject, consumePendingTdsSiteId } from '@state/ui-preferences';
 import { t } from '@i18n';
 
 // =============================================================================
@@ -41,6 +41,7 @@ let availableSites: SiteOption[] = [];
 let currentProjectId: number | null = null;
 let selectedSiteIds: Set<number> = new Set();
 let onChangeCallback: ((siteIds: number[]) => void) | null = null;
+let pendingSiteId: number | null = null; // one-shot: pre-select a single site on init
 
 // =============================================================================
 // API Loading
@@ -228,8 +229,19 @@ async function handleProjectSelect(projectId: number): Promise<void> {
   // Load sites for this project
   availableSites = await loadProjectSites(projectId);
 
-  // Select all sites by default
-  selectedSiteIds = new Set(availableSites.map(s => s.id));
+  // If a pending site ID was set (cross-page navigation), select only that site
+  if (pendingSiteId !== null) {
+    const targetSite = availableSites.find(s => s.id === pendingSiteId);
+    if (targetSite) {
+      selectedSiteIds = new Set([targetSite.id]);
+    } else {
+      selectedSiteIds = new Set(availableSites.map(s => s.id));
+    }
+    pendingSiteId = null;
+  } else {
+    // Select all sites by default
+    selectedSiteIds = new Set(availableSites.map(s => s.id));
+  }
 
   const siteOptions = document.querySelector('[data-site-options]');
   if (siteOptions) renderSiteOptions(siteOptions as HTMLElement);
@@ -381,6 +393,9 @@ export async function initTdsSiteSelector(
       closeDropdown('[data-site-selector]');
     }
   });
+
+  // Check for pending cross-page navigation (e.g. from redirects "TDS Rules" action)
+  pendingSiteId = consumePendingTdsSiteId();
 
   // Auto-select saved project or first project
   if (availableProjects.length > 0) {

@@ -37,6 +37,7 @@ import {
 } from '@api/redirects';
 import { safeCall } from '@api/ui-client';
 import { showGlobalNotice } from '@ui/globalNotice';
+import { setPendingTdsSiteId } from '@state/ui-preferences';
 
 let currentRedirects: ExtendedRedirectDomain[] = [];
 let filteredRedirects: ExtendedRedirectDomain[] = [];
@@ -1090,6 +1091,10 @@ function getSiteHeaderActions(domain: ExtendedRedirectDomain, acceptorHasRedirec
           <span class="icon" data-icon="mono/web"></span>
           <span>Manage domains</span>
         </button>
+        <button class="dropdown__item" type="button" data-action="open-tds" data-site-id="${domain.site_id}">
+          <span class="icon" data-icon="mono/arrow-decision-auto"></span>
+          <span>TDS Rules</span>
+        </button>
         <div class="dropdown__divider"></div>
         <button class="dropdown__item dropdown__item--danger" type="button" data-action="clear-site-redirects" data-site-id="${domain.site_id}">
           <span class="icon" data-icon="mono/delete"></span>
@@ -1267,6 +1272,9 @@ function setupActions(): void {
         break;
       case 'manage-domains':
         if (siteId) handleManageDomains(siteId);
+        break;
+      case 'open-tds':
+        if (siteId) handleOpenTds(siteId);
         break;
       case 'clear-site-redirects':
         if (siteId) void handleClearSiteRedirects(siteId);
@@ -1454,6 +1462,11 @@ function handleEditSite(domainId: number): void {
 function handleManageDomains(siteId: number): void {
   // Open manage site domains drawer
   openManageSiteDomainsDrawer(siteId);
+}
+
+function handleOpenTds(siteId: number): void {
+  setPendingTdsSiteId(siteId);
+  window.location.href = '/streams.html';
 }
 
 /**
