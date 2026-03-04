@@ -880,9 +880,12 @@ function getCanonicalIcon(
   let tooltipContent = '';
 
   if (status === 'synced') {
-    colorClass = 'text-warning';
+    // T4 (www→apex) = modern standard → green; T3 (apex→www) = legacy → muted
+    const isModern = templateId === 'T4';
+    colorClass = isModern ? 'text-ok' : 'text-muted';
+    const tooltipVariant = isModern ? 'success' : 'neutral';
     const syncDate = lastSyncAt ? formatTooltipTimestamp(lastSyncAt) : 'Unknown';
-    tooltipContent = `<div class="tooltip tooltip--warning"><div class="tooltip__header">${label}</div><div class="tooltip__body">Synced to CDN</div><div class="tooltip__footer">Last sync: ${syncDate}</div></div>`;
+    tooltipContent = `<div class="tooltip tooltip--${tooltipVariant}"><div class="tooltip__header">${label}</div><div class="tooltip__body">Synced to CDN</div><div class="tooltip__footer">Last sync: ${syncDate}</div></div>`;
   } else if (status === 'pending') {
     colorClass = 'text-warning';
     tooltipContent = `<div class="tooltip tooltip--warning"><div class="tooltip__header">${label}</div><div class="tooltip__body">Pending sync to Cloudflare</div></div>`;
