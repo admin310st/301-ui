@@ -1,9 +1,9 @@
 /**
  * Site Selector for TDS/Streams page
  *
- * Single flat selector listing all sites across all projects.
- * TDS rules are site-scoped — no need for a project-level filter.
- * API returns all account rules; page filters client-side by selected sites.
+ * Single-select: pick one site → table shows rules for that site.
+ * TDS rules are site-scoped, so you always work with one site at a time.
+ * Loads all sites across all projects into a flat list.
  */
 
 import { safeCall } from '@api/ui-client';
@@ -31,16 +31,13 @@ export interface SiteOption {
 // =============================================================================
 
 let availableSites: SiteOption[] = [];
-let selectedSiteIds: Set<number> = new Set();
+let currentSiteId: number | null = null;
 let onChangeCallback: ((siteIds: number[]) => void) | null = null;
 
 // =============================================================================
 // API Loading
 // =============================================================================
 
-/**
- * Load all sites from all projects
- */
 async function loadAllSites(): Promise<SiteOption[]> {
   try {
     const projects = await safeCall(
@@ -85,28 +82,6 @@ function renderSiteOptions(container: HTMLElement): void {
     return;
   }
 
-  const allSelected = selectedSiteIds.size === availableSites.length;
-  const someSelected = selectedSiteIds.size > 0 && selectedSiteIds.size < availableSites.length;
-
-  let html = `
-    <button
-      class="dropdown__item"
-      type="button"
-      data-action="toggle-all-sites"
-    >
-      <input
-        type="checkbox"
-        class="checkbox"
-        ${allSelected ? 'checked' : ''}
-        ${someSelected ? 'data-indeterminate="true"' : ''}
-        tabindex="-1"
-      />
-      <span>${allSelected ? t('streams.selectors.deselectAll') : t('streams.selectors.selectAll')}</span>
-      <span class="badge badge--xs badge--neutral">${availableSites.length}</span>
-    </button>
-    <div class="dropdown__divider"></div>
-  `;
-
   // Group sites by project
   const byProject = new Map<number, { name: string; sites: SiteOption[] }>();
   for (const site of availableSites) {
@@ -118,8 +93,8 @@ function renderSiteOptions(container: HTMLElement): void {
     group.sites.push(site);
   }
 
-  // If only one project, skip project headers
   const showHeaders = byProject.size > 1;
+  let html = '';
 
   for (const [, group] of byProject) {
     if (showHeaders) {
@@ -127,20 +102,14 @@ function renderSiteOptions(container: HTMLElement): void {
     }
 
     for (const site of group.sites) {
-      const isSelected = selectedSiteIds.has(site.id);
+      const isSelected = site.id === currentSiteId;
       html += `
         <button
-          class="dropdown__item"
+          class="dropdown__item${isSelected ? ' dropdown__item--selected' : ''}"
           type="button"
-          data-action="toggle-site"
+          data-action="select-site"
           data-site-id="${site.id}"
         >
-          <input
-            type="checkbox"
-            class="checkbox"
-            ${isSelected ? 'checked' : ''}
-            tabindex="-1"
-          />
           <span>${escapeHtml(site.name)}</span>
         </button>
       `;
@@ -148,33 +117,23 @@ function renderSiteOptions(container: HTMLElement): void {
   }
 
   container.innerHTML = html;
-
-  // Set indeterminate state
-  const toggleAllCheckbox = container.querySelector('[data-action="toggle-all-sites"] input');
-  if (toggleAllCheckbox && someSelected) {
-    (toggleAllCheckbox as HTMLInputElement).indeterminate = true;
-  }
 }
 
-function updateSitesDisplay(): void {
+function updateDisplay(): void {
   const nameEl = document.querySelector('[data-site-name]');
   if (!nameEl) return;
 
-  if (selectedSiteIds.size === 0) {
+  if (currentSiteId === null) {
     nameEl.textContent = t('streams.selectors.sites');
-  } else if (selectedSiteIds.size === availableSites.length) {
-    nameEl.textContent = `${t('streams.selectors.allSites')} (${availableSites.length})`;
-  } else if (selectedSiteIds.size === 1) {
-    const site = availableSites.find(s => selectedSiteIds.has(s.id));
-    nameEl.textContent = site?.name || t('streams.selectors.sites');
   } else {
-    nameEl.textContent = `${selectedSiteIds.size} ${t('streams.selectors.sites').toLowerCase()}`;
+    const site = availableSites.find(s => s.id === currentSiteId);
+    nameEl.textContent = site?.name || t('streams.selectors.sites');
   }
 }
 
 function notifyChange(): void {
   if (onChangeCallback) {
-    onChangeCallback(Array.from(selectedSiteIds));
+    onChangeCallback(currentSiteId !== null ? [currentSiteId] : []);
   }
 }
 
@@ -182,30 +141,16 @@ function notifyChange(): void {
 // Event Handlers
 // =============================================================================
 
-function handleSiteToggle(siteId: number): void {
-  if (selectedSiteIds.has(siteId)) {
-    selectedSiteIds.delete(siteId);
-  } else {
-    selectedSiteIds.add(siteId);
-  }
+function handleSiteSelect(siteId: number): void {
+  if (siteId === currentSiteId) return;
+
+  currentSiteId = siteId;
+
+  closeDropdown('[data-site-selector]');
 
   const siteOptions = document.querySelector('[data-site-options]');
   if (siteOptions) renderSiteOptions(siteOptions as HTMLElement);
-  updateSitesDisplay();
-
-  notifyChange();
-}
-
-function handleToggleAllSites(): void {
-  if (selectedSiteIds.size === availableSites.length) {
-    selectedSiteIds.clear();
-  } else {
-    selectedSiteIds = new Set(availableSites.map(s => s.id));
-  }
-
-  const siteOptions = document.querySelector('[data-site-options]');
-  if (siteOptions) renderSiteOptions(siteOptions as HTMLElement);
-  updateSitesDisplay();
+  updateDisplay();
 
   notifyChange();
 }
@@ -236,7 +181,6 @@ function setupDropdownToggle(selector: string): void {
 
     const isOpen = dropdown.classList.contains('dropdown--open');
 
-    // Close all other dropdowns
     document.querySelectorAll('.dropdown--open').forEach(other => {
       if (other !== dropdown) {
         other.classList.remove('dropdown--open');
@@ -260,7 +204,7 @@ function setupDropdownToggle(selector: string): void {
 
 /**
  * Initialize site selector for TDS page
- * @param onChange Called with selected site IDs whenever selection changes
+ * @param onChange Called with selected site IDs (0 or 1 element) whenever selection changes
  */
 export async function initTdsSiteSelector(
   onChange: (siteIds: number[]) => void
@@ -269,53 +213,36 @@ export async function initTdsSiteSelector(
 
   const siteOptions = document.querySelector('[data-site-options]');
 
-  // Show loading
   if (siteOptions) {
     siteOptions.innerHTML = `<div class="dropdown__item text-muted">${t('common.pleaseWait')}</div>`;
   }
 
-  // Load all sites across all projects
   availableSites = await loadAllSites();
 
-  // Check for pending cross-page navigation (e.g. from redirects "TDS Rules" action)
+  // Determine initial selection
   const pendingSiteId = consumePendingTdsSiteId();
 
-  if (pendingSiteId !== null) {
-    const targetSite = availableSites.find(s => s.id === pendingSiteId);
-    if (targetSite) {
-      selectedSiteIds = new Set([targetSite.id]);
-    } else {
-      selectedSiteIds = new Set(availableSites.map(s => s.id));
-    }
-  } else {
-    // Select all sites by default
-    selectedSiteIds = new Set(availableSites.map(s => s.id));
+  if (pendingSiteId !== null && availableSites.find(s => s.id === pendingSiteId)) {
+    currentSiteId = pendingSiteId;
+  } else if (availableSites.length > 0) {
+    currentSiteId = availableSites[0].id;
   }
 
   // Render
   if (siteOptions) renderSiteOptions(siteOptions as HTMLElement);
-  updateSitesDisplay();
+  updateDisplay();
 
-  // Setup dropdown toggle
+  // Setup dropdown
   setupDropdownToggle('[data-site-selector]');
   siteOptions?.addEventListener('click', (e) => {
     const target = e.target as HTMLElement;
-
-    if (target.closest('[data-action="toggle-all-sites"]')) {
-      e.preventDefault();
-      handleToggleAllSites();
-      return;
-    }
-
-    const siteButton = target.closest('[data-action="toggle-site"]') as HTMLElement;
-    if (siteButton) {
-      e.preventDefault();
-      const siteId = Number(siteButton.dataset.siteId);
-      handleSiteToggle(siteId);
+    const button = target.closest('[data-action="select-site"]') as HTMLElement;
+    if (button) {
+      const siteId = Number(button.dataset.siteId);
+      handleSiteSelect(siteId);
     }
   });
 
-  // Close dropdown on outside click
   document.addEventListener('click', (e) => {
     const target = e.target as HTMLElement;
     if (!target.closest('[data-site-selector]')) {
@@ -323,19 +250,18 @@ export async function initTdsSiteSelector(
     }
   });
 
-  // Notify page controller
   notifyChange();
 }
 
 /**
- * Get currently selected site IDs
+ * Get currently selected site IDs (0 or 1 element)
  */
 export function getSelectedSiteIds(): number[] {
-  return Array.from(selectedSiteIds);
+  return currentSiteId !== null ? [currentSiteId] : [];
 }
 
 /**
- * Get available sites (all loaded sites)
+ * Get all available sites
  */
 export function getAvailableSites(): SiteOption[] {
   return availableSites;
