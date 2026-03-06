@@ -118,6 +118,7 @@ export function adaptAPIDomainToUI(api: APIDomain): Domain {
     role: api.role,
     registrar,
     cf_zone_id: api.cf_zone_id,
+    key_id: api.key_id,
     site_id: api.site_id ?? undefined,
     zone_id: api.zone_id ?? undefined,
     ns_expected: api.ns || undefined,

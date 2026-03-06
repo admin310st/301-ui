@@ -10,6 +10,8 @@ import { initBulkActions, setReloadDomainsCallback } from './bulk-actions';
 import { adjustDropdownPosition } from '@ui/dropdown';
 import { queryNSRecords } from '@utils/dns';
 import { getDomains, updateDomainRole, blockDomain, unblockDomain, deleteDomain } from '@api/domains';
+import { getIntegrationKeys } from '@api/integrations';
+import type { IntegrationKey } from '@api/types';
 import { getProjects } from '@api/projects';
 import { getSiteRedirects, getZoneLimits } from '@api/redirects';
 import { safeCall } from '@api/ui-client';
@@ -20,6 +22,7 @@ import { adaptDomainsResponseToUI } from './adapter';
 import { showGlobalMessage } from '@ui/notifications';
 
 let currentDomains: Domain[] = [];
+let cachedIntegrationKeys: IntegrationKey[] | null = null;
 const selectedDomains = new Set<number>();
 const activeFilters: ActiveFilters = getDefaultFilters();
 let searchQuery = '';
@@ -792,6 +795,60 @@ function openAddDomainsDrawer(): void {
   drawer.removeAttribute('hidden');
 }
 
+async function resolveIntegration(keyId: number, el: Element): Promise<void> {
+  try {
+    const accountId = getAccountId();
+    if (!accountId) return;
+
+    // Fetch integration keys once, then cache in memory
+    if (!cachedIntegrationKeys) {
+      cachedIntegrationKeys = await safeCall(
+        () => getIntegrationKeys(accountId),
+        { lockKey: 'integration-keys-lookup', retryOn401: true },
+      );
+    }
+
+    const key = cachedIntegrationKeys.find((k) => k.id === keyId);
+    if (!key) {
+      el.textContent = `Key #${keyId}`;
+      return;
+    }
+
+    // Extract CF account name from provider_scope JSON
+    let accountName: string | null = null;
+    if (key.provider === 'cloudflare' && key.provider_scope) {
+      try {
+        const scope = JSON.parse(key.provider_scope);
+        accountName = scope.cf_account_name || null;
+      } catch { /* ignore parse errors */ }
+    }
+
+    const providerIcons: Record<string, string> = {
+      cloudflare: 'brand-cloudflare',
+      namecheap: 'brand-namecheap',
+    };
+    const symbolId = `i-${providerIcons[key.provider] || 'mono-key'}`;
+
+    const accountHtml = accountName
+      ? `<span class="text-muted text-sm">${accountName}</span>`
+      : '';
+
+    el.innerHTML = `
+      <a href="/integrations.html" class="link--muted" title="Go to Integrations">
+        <span class="cluster">
+          <span class="icon">
+            <svg aria-hidden="true"><use href="/icons-sprite.svg#${symbolId}"></use></svg>
+          </span>
+          ${key.key_alias}
+        </span>
+      </a>
+      ${accountHtml}
+    `.trim();
+  } catch {
+    el.textContent = `Key #${keyId}`;
+  }
+}
+
 function openInspector(domainId: number): void {
   const domain = currentDomains.find((d) => d.id === domainId);
   if (!domain) return;
@@ -804,7 +861,7 @@ function openInspector(domainId: number): void {
   const statusEl = drawer.querySelector('[data-inspector-status]');
   const projectEl = drawer.querySelector('[data-inspector-project]');
   const roleIconEl = drawer.querySelector('[data-inspector-role-icon]');
-  const providerEl = drawer.querySelector('[data-inspector-provider]');
+  const integrationEl = drawer.querySelector('[data-inspector-integration]');
   const sslEl = drawer.querySelector('[data-inspector-ssl]');
   const abuseEl = drawer.querySelector('[data-inspector-abuse]');
   const nsEl = drawer.querySelector('[data-inspector-ns]');
@@ -845,7 +902,16 @@ function openInspector(domainId: number): void {
     `.trim();
   }
 
-  if (providerEl) providerEl.textContent = domain.registrar.charAt(0).toUpperCase() + domain.registrar.slice(1);
+  // Integration: resolve key_id → IntegrationKey for CF account details
+  if (integrationEl) {
+    if (!domain.key_id) {
+      integrationEl.textContent = 'Manual';
+    } else {
+      integrationEl.innerHTML = '<span class="text-muted">Loading...</span>';
+      void resolveIntegration(domain.key_id, integrationEl);
+    }
+  }
+
   if (sslEl) sslEl.textContent = `${domain.ssl_status.charAt(0).toUpperCase() + domain.ssl_status.slice(1)}${domain.ssl_valid_to ? ` (until ${domain.ssl_valid_to})` : ''}`;
   if (abuseEl) abuseEl.textContent = domain.abuse_status.charAt(0).toUpperCase() + domain.abuse_status.slice(1);
 
