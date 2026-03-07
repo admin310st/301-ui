@@ -7,6 +7,7 @@ import { initAddDomainsDrawer } from '@domains/add-domains-drawer';
 import { initTabs } from './tabs';
 import { initCfConnectForms } from '@forms/cf-connect';
 import { showDialog, hideDialog } from './dialog';
+import { drawerManager } from './drawer-manager';
 import { getZones, syncZones } from '@api/zones';
 import { safeCall } from '@api/ui-client';
 import { invalidateCacheByPrefix } from '@api/cache';
@@ -443,8 +444,7 @@ async function openEditIntegrationDrawer(key: IntegrationKey): Promise<void> {
     }
   }
 
-  // Show drawer
-  drawer.removeAttribute('hidden');
+  drawerManager.open('edit-integration');
 }
 
 
@@ -452,10 +452,7 @@ async function openEditIntegrationDrawer(key: IntegrationKey): Promise<void> {
  * Open add domains drawer
  */
 function openAddDomainsDrawer(): void {
-  const drawer = document.querySelector<HTMLElement>('[data-drawer="add-domains"]');
-  if (!drawer) return;
-
-  drawer.removeAttribute('hidden');
+  drawerManager.open('add-domains');
 }
 
 /**
@@ -464,8 +461,6 @@ function openAddDomainsDrawer(): void {
 export function openConnectCloudflareDrawer(): void {
   const drawer = document.querySelector<HTMLElement>('[data-drawer="connect-cloudflare"]');
   if (!drawer) return;
-
-  drawer.removeAttribute('hidden');
 
   // Initialize tabs if not already done
   const tabsContainer = drawer.querySelector('.tabs');
@@ -490,26 +485,7 @@ export function openConnectCloudflareDrawer(): void {
     });
   }
 
-  // Close drawer function
-  const closeDrawer = () => {
-    drawer.setAttribute('hidden', '');
-  };
-
-  // Close on Escape key
-  const handleEscape = (e: KeyboardEvent) => {
-    if (e.key === 'Escape' && !drawer.hasAttribute('hidden')) {
-      closeDrawer();
-    }
-  };
-
-  // Remove old listener if exists, add new one
-  document.removeEventListener('keydown', handleEscape);
-  document.addEventListener('keydown', handleEscape);
-
-  // Close on overlay or close button click
-  drawer.querySelectorAll('[data-drawer-close]').forEach((el) => {
-    el.addEventListener('click', closeDrawer);
-  });
+  drawerManager.open('connect-cloudflare');
 }
 
 /**
@@ -521,8 +497,6 @@ export function openConnectNamecheapDrawer(): void {
     console.warn('NameCheap drawer not found');
     return;
   }
-
-  drawer.removeAttribute('hidden');
 
   // Initialize tabs (same pattern as CF drawer)
   const tabsContainer = drawer.querySelector('.tabs');
@@ -549,26 +523,7 @@ export function openConnectNamecheapDrawer(): void {
     void loadProxyIps();
   });
 
-  // Close drawer function
-  const closeDrawer = () => {
-    drawer.setAttribute('hidden', '');
-  };
-
-  // Close on Escape key
-  const handleEscape = (e: KeyboardEvent) => {
-    if (e.key === 'Escape' && !drawer.hasAttribute('hidden')) {
-      closeDrawer();
-    }
-  };
-
-  // Remove old listener if exists, add new one
-  document.removeEventListener('keydown', handleEscape);
-  document.addEventListener('keydown', handleEscape);
-
-  // Close on overlay or close button click
-  drawer.querySelectorAll('[data-drawer-close]').forEach((el) => {
-    el.addEventListener('click', closeDrawer);
-  });
+  drawerManager.open('connect-namecheap');
 }
 
 /**
@@ -578,12 +533,9 @@ function initEditIntegrationDrawer(): void {
   const drawer = document.querySelector<HTMLElement>('[data-drawer="edit-integration"]');
   if (!drawer) return;
 
-  // Close drawer handlers
-  drawer.querySelectorAll('[data-drawer-close]').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      drawer.setAttribute('hidden', '');
-      currentEditingKey = null;
-    });
+  // Reset state when drawer closes
+  drawerManager.onClose('edit-integration', () => {
+    currentEditingKey = null;
   });
 
   // Status toggle handler
@@ -633,8 +585,7 @@ function initEditIntegrationDrawer(): void {
       }), { lockKey: `update-integration-${currentEditingKey!.id}`, retryOn401: true });
 
       showGlobalMessage('success', 'Integration updated successfully');
-      drawer.setAttribute('hidden', '');
-      currentEditingKey = null;
+      drawerManager.close('edit-integration');
 
       // Reload integrations
       await loadIntegrations();
@@ -808,10 +759,7 @@ async function handleConfirmDeleteIntegration(): Promise<void> {
 
     // Hide dialog and drawer
     hideDialog('delete-integration');
-    const drawer = document.querySelector<HTMLElement>('[data-drawer="edit-integration"]');
-    if (drawer) drawer.setAttribute('hidden', '');
-
-    currentEditingKey = null;
+    drawerManager.close('edit-integration');
 
     // Reload integrations
     await loadIntegrations();

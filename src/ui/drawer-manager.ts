@@ -28,6 +28,9 @@ const Z_INDEX_STEP = 10;
 // Stack of open drawer IDs (bottom to top)
 const drawerStack: string[] = [];
 
+// Close callbacks per drawer ID (called on any close: Escape, overlay, programmatic)
+const closeCallbacks = new Map<string, () => void>();
+
 // Track if we've set up the global escape listener
 let escapeListenerActive = false;
 
@@ -89,6 +92,10 @@ function close(drawerId: string): void {
   drawer.setAttribute('hidden', '');
   drawer.style.zIndex = '';
   drawer.removeAttribute('data-drawer-level');
+
+  // Fire close callback if registered
+  const cb = closeCallbacks.get(drawerId);
+  if (cb) cb();
 
   // If stack is empty, remove escape listener
   if (drawerStack.length === 0) {
@@ -194,6 +201,14 @@ function setupOverlayClick(drawerId: string): void {
 }
 
 /**
+ * Register a callback that fires whenever the drawer is closed
+ * (via Escape, overlay click, close button, or programmatic close)
+ */
+function onClose(drawerId: string, callback: () => void): void {
+  closeCallbacks.set(drawerId, callback);
+}
+
+/**
  * Initialize drawer manager for existing drawers
  * Sets up overlay click handlers for all drawers with data-drawer attribute
  */
@@ -216,6 +231,7 @@ export const drawerManager = {
   getStackDepth,
   getTopDrawerId,
   setupOverlayClick,
+  onClose,
   init,
 };
 

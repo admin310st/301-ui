@@ -3,7 +3,16 @@
  *
  * Provides functions to show/hide confirmation dialogs
  * as a replacement for browser confirm() prompts.
+ *
+ * Contract:
+ *   [data-dialog="name"]       — dialog root (hidden by default)
+ *   [data-confirm]             — confirm/action button
+ *   [data-dialog-close]        — cancel/close buttons + .dialog__overlay backdrop
  */
+
+// Track the element that opened the dialog so we can restore focus
+let triggerElement: HTMLElement | null = null;
+
 
 /**
  * Show a dialog by name
@@ -53,28 +62,47 @@ export function showConfirmDialog(
       });
     }
 
+    // Remember trigger for focus restore
+    triggerElement = document.activeElement as HTMLElement | null;
+
     // Show dialog
     dialog.hidden = false;
 
-    // Handler for confirm button (find any data-confirm-* button)
-    const confirmBtn = dialog.querySelector('[data-confirm-replace], [data-confirm-delete], [data-confirm-detach], [data-confirm-remove], [data-confirm-cf], [data-confirm-bulk-delete], [data-confirm-bulk-move], [data-confirm-block], [data-confirm-unblock], [data-confirm-bulk-block], [data-confirm-bulk-role]');
+    // Stable contract: single [data-confirm] attribute
+    const confirmBtn = dialog.querySelector<HTMLElement>('[data-confirm]');
+
     const handleConfirm = () => {
-      dialog.hidden = true;
-      cleanup();
-      resolve(true);
+      close(true);
     };
 
-    // Handler for cancel/close buttons
     const handleCancel = () => {
-      dialog.hidden = true;
-      cleanup();
-      resolve(false);
+      close(false);
     };
 
-    // Cleanup function to remove event listeners
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        e.stopPropagation();
+        close(false);
+      }
+    };
+
+    const close = (result: boolean) => {
+      dialog.hidden = true;
+      cleanup();
+      // Restore focus to trigger element
+      if (triggerElement && typeof triggerElement.focus === 'function') {
+        triggerElement.focus();
+        triggerElement = null;
+      }
+
+      resolve(result);
+    };
+
     const cleanup = () => {
       confirmBtn?.removeEventListener('click', handleConfirm);
       closeButtons.forEach(btn => btn.removeEventListener('click', handleCancel));
+      document.removeEventListener('keydown', handleEscape);
     };
 
     // Attach listeners
@@ -86,12 +114,22 @@ export function showConfirmDialog(
     closeButtons.forEach(btn => {
       btn.addEventListener('click', handleCancel);
     });
+
+    // Escape key
+    document.addEventListener('keydown', handleEscape);
+
+    // Focus the confirm button (or first focusable) for keyboard access
+    requestAnimationFrame(() => {
+      const focusTarget = confirmBtn
+        || dialog.querySelector<HTMLElement>('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+      focusTarget?.focus();
+    });
   });
 }
 
 /**
  * Initialize dialog close handlers
- * Handles clicks on [data-dialog-close] elements
+ * Handles clicks on [data-dialog-close] elements (delegated)
  */
 export function initDialogCloseHandlers(): void {
   document.addEventListener('click', (e) => {

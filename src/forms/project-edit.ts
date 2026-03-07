@@ -5,6 +5,7 @@ import { t, tWithVars } from '@i18n';
 import { loadProjects, loadProjectDetail } from '@ui/projects';
 import { safeCall, type NormalizedError } from '@api/ui-client';
 import { invalidateCache, invalidateCacheByPrefix } from '@api/cache';
+import { drawerManager } from '@ui/drawer-manager';
 
 /**
  * Open edit project drawer and populate with project data
@@ -34,13 +35,8 @@ async function openEditProjectDrawer(projectId: number): Promise<void> {
     form.querySelector<HTMLInputElement>('input[name="start_date"]')!.value = project.start_date || '';
     form.querySelector<HTMLInputElement>('input[name="end_date"]')!.value = project.end_date || '';
 
-    // Show drawer
-    drawer.removeAttribute('hidden');
-
-    // Focus first input after animation
-    setTimeout(() => {
-      form.querySelector<HTMLInputElement>('input[name="project_name"]')?.focus();
-    }, 100);
+    // Show drawer (drawerManager handles z-index, Escape, focus)
+    drawerManager.open('edit-project');
   } catch (error: any) {
     console.error('Failed to load project data:', error);
     showGlobalMessage('error', error.message || 'Failed to load project data');
@@ -51,16 +47,7 @@ async function openEditProjectDrawer(projectId: number): Promise<void> {
  * Close edit project drawer and reset form
  */
 function closeEditProjectDrawer(): void {
-  const drawer = document.querySelector<HTMLElement>('[data-drawer="edit-project"]');
-  if (!drawer) return;
-
-  drawer.setAttribute('hidden', '');
-
-  const form = drawer.querySelector<HTMLFormElement>('[data-form="edit-project"]');
-  if (form) form.reset();
-
-  const statusEl = document.querySelector<HTMLElement>('[data-edit-project-status]');
-  if (statusEl) statusEl.hidden = true;
+  drawerManager.close('edit-project');
 }
 
 /**
@@ -228,22 +215,12 @@ export function initProjectEdit(): void {
     }
   });
 
-  // Close handlers
-  const drawer = document.querySelector('[data-drawer="edit-project"]');
-  if (drawer) {
-    drawer.querySelectorAll('[data-drawer-close]').forEach(btn => {
-      btn.addEventListener('click', closeEditProjectDrawer);
-    });
-  }
-
-  // Escape key handler
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      const editDrawer = document.querySelector<HTMLElement>('[data-drawer="edit-project"]');
-      if (editDrawer && !editDrawer.hasAttribute('hidden')) {
-        closeEditProjectDrawer();
-      }
-    }
+  // Reset form when drawer closes
+  drawerManager.onClose('edit-project', () => {
+    const form = document.querySelector<HTMLFormElement>('[data-form="edit-project"]');
+    if (form) form.reset();
+    const statusEl = document.querySelector<HTMLElement>('[data-edit-project-status]');
+    if (statusEl) statusEl.hidden = true;
   });
 
   // Form submit handler

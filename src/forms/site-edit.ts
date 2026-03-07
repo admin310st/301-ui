@@ -10,6 +10,7 @@ import { showGlobalMessage } from '@ui/notifications';
 import { t } from '@i18n';
 import { safeCall } from '@api/ui-client';
 import { invalidateCache, invalidateCacheByPrefix } from '@api/cache';
+import { drawerManager } from '@ui/drawer-manager';
 
 /**
  * Render sites table from state
@@ -73,11 +74,7 @@ async function openEditSiteDrawer(siteId: number, projectId: number): Promise<vo
     // Clear status panel
     hideFormStatus();
 
-    // Show drawer
-    drawer.removeAttribute('hidden');
-
-    // Focus first input
-    setTimeout(() => form.querySelector<HTMLInputElement>('[name="site_name"]')?.focus(), 100);
+    drawerManager.open('edit-site');
   } catch (error: any) {
     showGlobalMessage('error', error.message || 'Failed to load site details');
   }
@@ -87,17 +84,7 @@ async function openEditSiteDrawer(siteId: number, projectId: number): Promise<vo
  * Close edit site drawer
  */
 function closeEditSiteDrawer(): void {
-  const drawer = document.querySelector<HTMLElement>('[data-drawer="edit-site"]');
-  if (!drawer) return;
-
-  drawer.setAttribute('hidden', '');
-
-  // Reset form
-  const form = drawer.querySelector<HTMLFormElement>('[data-form="edit-site"]');
-  if (form) {
-    form.reset();
-    hideFormStatus();
-  }
+  drawerManager.close('edit-site');
 }
 
 /**
@@ -254,18 +241,12 @@ export function initSiteEdit(): void {
     }
   });
 
-  // Close handlers
-  document.querySelectorAll('[data-drawer="edit-site"] [data-drawer-close]').forEach(btn => {
-    btn.addEventListener('click', closeEditSiteDrawer);
-  });
-
-  // Escape key
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      const drawer = document.querySelector<HTMLElement>('[data-drawer="edit-site"]');
-      if (drawer && !drawer.hasAttribute('hidden')) {
-        closeEditSiteDrawer();
-      }
+  // Reset form when drawer closes
+  drawerManager.onClose('edit-site', () => {
+    const form = document.querySelector<HTMLFormElement>('[data-form="edit-site"]');
+    if (form) {
+      form.reset();
+      hideFormStatus();
     }
   });
 

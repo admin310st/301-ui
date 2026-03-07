@@ -5,6 +5,7 @@ import { getAccountId } from '@state/auth-state';
 import { showGlobalMessage } from './notifications';
 import { safeCall } from '@api/ui-client';
 import { openManageSiteDomainsDrawer } from '@domains/site-domains';
+import { drawerManager } from './drawer-manager';
 
 // State
 let allSites: Site[] = [];
@@ -277,11 +278,7 @@ async function openEditSiteDrawer(siteId: number): Promise<void> {
     // Clear status panel
     hideFormStatus();
 
-    // Show drawer
-    drawer.removeAttribute('hidden');
-
-    // Focus first input
-    setTimeout(() => form.querySelector<HTMLInputElement>('[name="site_name"]')?.focus(), 100);
+    drawerManager.open('edit-site');
   } catch (error: any) {
     showGlobalMessage('error', error.message || 'Failed to load site details');
   }
@@ -291,16 +288,7 @@ async function openEditSiteDrawer(siteId: number): Promise<void> {
  * Close edit site drawer
  */
 function closeEditSiteDrawer(): void {
-  const drawer = document.querySelector<HTMLElement>('[data-drawer="edit-site"]');
-  if (!drawer) return;
-
-  drawer.setAttribute('hidden', '');
-
-  const form = drawer.querySelector<HTMLFormElement>('[data-form="edit-site"]');
-  if (form) {
-    form.reset();
-    hideFormStatus();
-  }
+  drawerManager.close('edit-site');
 }
 
 /**
@@ -478,21 +466,6 @@ export function initSitesPage(): void {
       const siteId = manageDomainsBtn.dataset.siteId;
       if (siteId) {
         openManageSiteDomainsDrawer(parseInt(siteId, 10));
-      }
-    }
-  });
-
-  // Close handlers for edit drawer
-  document.querySelectorAll('[data-drawer="edit-site"] [data-drawer-close]').forEach(btn => {
-    btn.addEventListener('click', closeEditSiteDrawer);
-  });
-
-  // Escape key to close drawer
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      const drawer = document.querySelector<HTMLElement>('[data-drawer="edit-site"]');
-      if (drawer && !drawer.hasAttribute('hidden')) {
-        closeEditSiteDrawer();
       }
     }
   });

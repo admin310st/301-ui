@@ -5,6 +5,7 @@ import { safeCall } from '@api/ui-client';
 import { invalidateCache, invalidateCacheByPrefix } from '@api/cache';
 import { getAccountId } from '@state/auth-state';
 import { showGlobalMessage } from '@ui/notifications';
+import { drawerManager } from '@ui/drawer-manager';
 import { t } from '@i18n';
 
 /**
@@ -99,31 +100,14 @@ export function openCreateSiteDrawer(projectId?: number): void {
     }
   }
 
-  drawer.removeAttribute('hidden');
-
-  // Focus first visible input
-  const firstInput = drawer.querySelector<HTMLInputElement>(
-    contextProjectId ? 'input[name="site_name"]' : 'input[name="site_name"]'
-  );
-  setTimeout(() => firstInput?.focus(), 100);
+  drawerManager.open('create-site');
 }
 
 /**
  * Close create site drawer
  */
 function closeCreateSiteDrawer(): void {
-  const drawer = document.querySelector<HTMLElement>('[data-drawer="create-site"]');
-  if (!drawer) return;
-
-  drawer.setAttribute('hidden', '');
-  contextProjectId = null;
-
-  // Reset form
-  const form = drawer.querySelector<HTMLFormElement>('[data-form="create-site"]');
-  if (form) {
-    form.reset();
-    hideFormStatus();
-  }
+  drawerManager.close('create-site');
 }
 
 /**
@@ -276,20 +260,13 @@ export function initSiteCreate(): void {
     }
   });
 
-  // Close drawer handlers
-  document.querySelectorAll('[data-drawer="create-site"] [data-drawer-close]').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      closeCreateSiteDrawer();
-    });
-  });
-
-  // Close on Escape key
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      const drawer = document.querySelector<HTMLElement>('[data-drawer="create-site"]');
-      if (drawer && !drawer.hasAttribute('hidden')) {
-        closeCreateSiteDrawer();
-      }
+  // Reset form when drawer closes
+  drawerManager.onClose('create-site', () => {
+    contextProjectId = null;
+    const form = document.querySelector<HTMLFormElement>('[data-form="create-site"]');
+    if (form) {
+      form.reset();
+      hideFormStatus();
     }
   });
 

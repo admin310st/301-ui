@@ -6,36 +6,20 @@ import { getAccountId } from '@state/auth-state';
 import { showGlobalMessage } from '@ui/notifications';
 import { t } from '@i18n';
 import { loadProjects } from '@ui/projects';
+import { drawerManager } from '@ui/drawer-manager';
 
 /**
  * Open create project drawer
  */
 function openCreateProjectDrawer(): void {
-  const drawer = document.querySelector<HTMLElement>('[data-drawer="create-project"]');
-  if (!drawer) return;
-
-  drawer.removeAttribute('hidden');
-
-  // Focus first input
-  const firstInput = drawer.querySelector<HTMLInputElement>('input[name="project_name"]');
-  setTimeout(() => firstInput?.focus(), 100);
+  drawerManager.open('create-project');
 }
 
 /**
  * Close create project drawer
  */
 function closeCreateProjectDrawer(): void {
-  const drawer = document.querySelector<HTMLElement>('[data-drawer="create-project"]');
-  if (!drawer) return;
-
-  drawer.setAttribute('hidden', '');
-
-  // Reset form
-  const form = drawer.querySelector<HTMLFormElement>('[data-form="create-project"]');
-  if (form) {
-    form.reset();
-    hideFormStatus();
-  }
+  drawerManager.close('create-project');
 }
 
 /**
@@ -179,6 +163,15 @@ async function handleCreateProject(event: Event): Promise<void> {
  * Initialize project creation form
  */
 export function initProjectCreate(): void {
+  // Reset form when drawer closes (via Escape, overlay, close button, or programmatic)
+  drawerManager.onClose('create-project', () => {
+    const form = document.querySelector<HTMLFormElement>('[data-form="create-project"]');
+    if (form) {
+      form.reset();
+      hideFormStatus();
+    }
+  });
+
   // Open drawer on "Create project" button click (delegated)
   document.addEventListener('click', (e) => {
     const target = e.target as HTMLElement;
@@ -187,23 +180,6 @@ export function initProjectCreate(): void {
     if (createBtn) {
       e.preventDefault();
       openCreateProjectDrawer();
-    }
-  });
-
-  // Close drawer handlers
-  document.querySelectorAll('[data-drawer="create-project"] [data-drawer-close]').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      closeCreateProjectDrawer();
-    });
-  });
-
-  // Close on Escape key
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      const drawer = document.querySelector<HTMLElement>('[data-drawer="create-project"]');
-      if (drawer && !drawer.hasAttribute('hidden')) {
-        closeCreateProjectDrawer();
-      }
     }
   });
 

@@ -16,6 +16,7 @@ import { initDropdowns } from '@ui/dropdown';
 import { t, tWithVars } from '@i18n';
 import { safeCall, type NormalizedError } from '@api/ui-client';
 import { invalidateCacheByPrefix } from '@api/cache';
+import { drawerManager } from '@ui/drawer-manager';
 
 /**
  * Extract cf_account_name from provider_scope JSON
@@ -95,18 +96,6 @@ export function initAddDomainsDrawer(): void {
   });
 
   observer.observe(drawer, { attributes: true });
-
-  // Close drawer on Escape key
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && !drawer.hasAttribute('hidden')) {
-      closeDrawer();
-    }
-  });
-
-  // Close drawer on overlay click
-  drawer.querySelectorAll('[data-drawer-close]').forEach((el) => {
-    el.addEventListener('click', () => closeDrawer());
-  });
 
   // Auto-parse on input with debounce
   let parseTimeout: ReturnType<typeof setTimeout>;
@@ -912,12 +901,13 @@ export function initAddDomainsDrawer(): void {
    * Close drawer and reset state
    */
   function closeDrawer(): void {
-    drawer?.setAttribute('hidden', '');
+    drawerManager.close('add-domains');
+  }
 
-    // Reset state on close
+  // Register close callback for form reset
+  drawerManager.onClose('add-domains', () => {
     resetState();
 
-    // Reset view
     if (currentView === 'results') {
       currentView = 'input';
       lastResults = null;
@@ -928,5 +918,5 @@ export function initAddDomainsDrawer(): void {
       if (inputView) inputView.removeAttribute('hidden');
       if (resultsView) resultsView.setAttribute('hidden', '');
     }
-  }
+  });
 }
