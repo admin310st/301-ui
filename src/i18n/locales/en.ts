@@ -926,6 +926,7 @@ export const en = {
       actionSection: 'Action',
       detailsSection: 'Details',
       advanced: 'UTM, path, referrer…',
+      geoExtensionHint: 'Build geo tiers with extension',
 
       // Field labels
       fields: {

@@ -317,6 +317,7 @@ function renderManualCreateContent(): string {
           <div class="field">
             <label class="field__label">${t('streams.drawer.fields.geo')}</label>
             <input type="text" class="input" placeholder="${t('streams.drawer.fields.geoPlaceholder')}" data-field="geo" />
+            ${renderGeoExtensionHint()}
           </div>
           <div class="field">
             <label class="field__label">${t('streams.drawer.fields.device')}</label>
@@ -435,6 +436,7 @@ function renderEditContent(rule: TdsRule): string | void {
             <div class="field">
               <label class="field__label text-sm">${t('streams.drawer.fields.geoShort')}</label>
               <input type="text" class="input" value="${(conditions.geo || []).join(', ')}" data-field="geo" />
+              ${renderGeoExtensionHint()}
             </div>
             <div class="field">
               <label class="field__label text-sm">${t('streams.drawer.fields.device')}</label>
@@ -977,6 +979,16 @@ function setDrawerSubtitle(text: string | null): void {
   } else {
     el.hidden = true;
   }
+}
+
+function renderGeoExtensionHint(): string {
+  const CWS = 'https://chromewebstore.google.com/detail/dbckaneobldjifocakfojpebfkpbeghn';
+  const AMO = 'https://addons.mozilla.org/firefox/addon/geo-tier-builder/';
+  return `<p class="text-sm text-muted" style="margin-top:0.25em">
+    ${t('streams.drawer.geoExtensionHint')}
+    <a href="${CWS}" target="_blank" rel="noopener" class="link--muted" title="Chrome Web Store"><span class="icon" data-icon="brand/chrome" style="font-size:1em;vertical-align:-0.15em"></span></a>
+    <a href="${AMO}" target="_blank" rel="noopener" class="link--muted" title="Firefox Add-ons"><span class="icon" data-icon="brand/mozilla" style="font-size:1em;vertical-align:-0.15em"></span></a>
+  </p>`;
 }
 
 function escapeAttr(str: string): string {

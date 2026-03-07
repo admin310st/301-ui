@@ -904,6 +904,7 @@ export const ru: Translation = {
       actionSection: 'Action',
       detailsSection: 'Details',
       advanced: 'UTM, path, referrer…',
+      geoExtensionHint: 'Собрать гео-тиры в расширении',
       fields: {
         ruleName: 'Rule name',
         ruleNameOptional: 'Rule name (optional)',
