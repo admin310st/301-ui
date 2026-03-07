@@ -16,7 +16,7 @@
 ## Layer 6 — Active
 
 - [ ] Domain inspector tabs (convert 3 sections → tab UI; add SSL, Security, Monitoring, Logs)
-- [ ] i18n for Redirects and Domains (0 `data-i18n` attributes)
+- [ ] i18n for Domains (Redirects done)
 - [ ] Advanced bulk actions (assign to site, move to project)
 - [ ] Inline editing in tables
 - [ ] ~20 inline style violations (cosmetic)

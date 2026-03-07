@@ -10,7 +10,7 @@ Central task index for the 301-ui project. See `CLAUDE.md` for architecture and 
 **Backend blocker:** `admin310st/301#21` — `GET /tds/rules/:id` returns 500 (blocks Edit Rule drawer)
 
 **Next tasks:**
-1. **i18n pass** for Redirects and Domains (0 `data-i18n` attributes)
+1. **i18n pass** for Domains (0 `data-i18n` attributes). Redirects: done (tooltips remain)
 2. **Domain inspector tabs** — convert 3 sections into tab UI (SSL, Security, Monitoring, Logs)
 3. **#167 remaining items** — Redirects drawer polish, table ergonomics
 
@@ -53,7 +53,8 @@ Layer 7: Admin tools (System, Jobs, Market)            PLANNED
 Done: Full table with hierarchy, API layer, project/site selectors, filters, drawer with template selector (T1/T5/T6/T7), bulk actions, site-level actions, CF sync, safeCall migration, adapter removal. Canonical redirect color differentiation. Red target for custom (non-acceptor) redirects.
 
 **Remaining:**
-- [ ] i18n (0 `data-i18n` attributes)
+- [x] i18n — ~130 keys (EN/RU), HTML data-i18n, t() in 4 TS files. Remaining: template labels in drawer, tooltips/aria-labels
+- [ ] i18n — tooltips, aria-labels (~50 lower-priority strings)
 
 ### 3. Projects
 
@@ -167,4 +168,4 @@ Recommended: **Entry Points Pattern** for this MPA project — separate entry po
 
 **Last updated:** 2026-03-07
 
-**Next action:** i18n pass for Redirects/Domains. Domain inspector tabs. #167 remaining items.
+**Next action:** i18n pass for Domains. Domain inspector tabs. #167 remaining items (P2).
