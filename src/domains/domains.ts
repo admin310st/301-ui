@@ -20,6 +20,7 @@ import { getAccountId } from '@state/auth-state';
 import { getSelectedProjectName, setSelectedProject, clearSelectedProject } from '@state/ui-preferences';
 import { adaptDomainsResponseToUI } from './adapter';
 import { showGlobalMessage } from '@ui/notifications';
+import { initTabs } from '@ui/tabs';
 import { t } from '@i18n';
 
 let currentDomains: Domain[] = [];
@@ -48,6 +49,10 @@ export function initDomainsPage(): void {
 
   // Initialize Bulk Actions Bar
   initBulkActions();
+
+  // Initialize Inspector Tabs
+  const inspectorDrawer = document.querySelector<HTMLElement>('[data-drawer="domain-inspector"]');
+  if (inspectorDrawer) initTabs(inspectorDrawer);
 
   // Register reload callback for bulk actions
   setReloadDomainsCallback(async () => {
@@ -1130,6 +1135,10 @@ function openInspector(domainId: number): void {
       window.open(`https://${domain.domain_name}`, '_blank', 'noopener,noreferrer');
     });
   }
+
+  // Reset to first tab on each open
+  const firstTab = drawer.querySelector<HTMLButtonElement>('.tabs__trigger');
+  if (firstTab) firstTab.click();
 
   drawer.removeAttribute('hidden');
 }

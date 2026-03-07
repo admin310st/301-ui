@@ -38,7 +38,8 @@ Layer 7: Admin tools (System, Jobs, Market)            PLANNED
 **Status:** Core complete (real API). Table, search, filters, inspector drawer (3 sections: Overview, DNS, Routing with live redirect data and zone limits), add domains drawer (batch API, domain parser), dropdown actions, IDN support, DNS NS check, bulk actions (change role, block, delete), project filter, pagination (25/page, prev/next).
 
 **Remaining:**
-- [ ] Drawer tabs (convert current 3 sections into tab UI; add SSL, Security, Monitoring, Logs)
+- [x] Drawer tabs — converted 3 sections (Overview, DNS, Routing) into tab UI with `initTabs`
+- [ ] Inspector tabs: add SSL, Security, Monitoring, Logs (needs backend data)
 - [ ] Stat-cards in header
 - [ ] Table sorting by columns
 - [x] i18n coverage — ~100 keys (EN/RU), HTML data-i18n, t() in 3 TS files (domains.ts, bulk-actions.ts, add-domains-drawer.ts)

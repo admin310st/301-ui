@@ -185,61 +185,53 @@
           </button>
         </header>
         <div class="drawer__body">
-          <div class="stack-list">
-            <!-- Overview -->
-            <section class="card card--panel">
-              <header class="card__header">
-                <h3 class="h5" data-i18n="domains.inspector.overview">Overview</h3>
-              </header>
-              <div class="card__body">
-                <dl class="detail-list">
-                  <div class="detail-row">
-                    <dt class="detail-label" data-i18n="domains.inspector.status">Status</dt>
-                    <dd class="detail-value" data-inspector-status>—</dd>
-                  </div>
+          <div class="tabs">
+            <div class="tabs__nav" role="tablist">
+              <button class="tabs__trigger is-active" data-tab-trigger="overview" type="button" role="tab" aria-selected="true" data-i18n="domains.inspector.overview">Overview</button>
+              <button class="tabs__trigger" data-tab-trigger="dns" type="button" role="tab" aria-selected="false">DNS</button>
+              <button class="tabs__trigger" data-tab-trigger="routing" type="button" role="tab" aria-selected="false" data-i18n="domains.inspector.routing">Routing</button>
+            </div>
 
-                  <div class="detail-row">
-                    <dt class="detail-label" data-i18n="domains.inspector.project">Project</dt>
-                    <dd class="detail-value" data-inspector-project>—</dd>
-                  </div>
+            <!-- Overview Tab -->
+            <div class="tabs__panel is-active" data-tab-panel="overview" role="tabpanel">
+              <dl class="detail-list">
+                <div class="detail-row">
+                  <dt class="detail-label" data-i18n="domains.inspector.status">Status</dt>
+                  <dd class="detail-value" data-inspector-status>—</dd>
+                </div>
+                <div class="detail-row">
+                  <dt class="detail-label" data-i18n="domains.inspector.project">Project</dt>
+                  <dd class="detail-value" data-inspector-project>—</dd>
+                </div>
+                <div class="detail-row">
+                  <dt class="detail-label" data-i18n="domains.inspector.integration">Integration</dt>
+                  <dd class="detail-value" data-inspector-integration>—</dd>
+                </div>
+              </dl>
+            </div>
 
-                  <div class="detail-row">
-                    <dt class="detail-label" data-i18n="domains.inspector.integration">Integration</dt>
-                    <dd class="detail-value" data-inspector-integration>—</dd>
-                  </div>
-                </dl>
-              </div>
-            </section>
+            <!-- DNS Tab -->
+            <div class="tabs__panel" data-tab-panel="dns" role="tabpanel">
+              <dl class="detail-list">
+                <div class="detail-row">
+                  <dt class="detail-label detail-label--with-badge">
+                    <span data-i18n="domains.inspector.nameservers">Nameservers</span>
+                    <span data-inspector-ns-status></span>
+                  </dt>
+                  <dd class="detail-value" data-inspector-ns>
+                    <span class="text-muted" data-i18n="common.loading">Loading...</span>
+                  </dd>
+                </div>
+              </dl>
+              <div data-inspector-ns-hint hidden></div>
+            </div>
 
-            <!-- DNS Configuration -->
-            <section class="card card--panel">
-              <header class="card__header">
-                <h3 class="h5" data-i18n="domains.inspector.dnsConfig">DNS Configuration</h3>
-              </header>
-              <div class="card__body">
-                <dl class="detail-list">
-                  <div class="detail-row">
-                    <dt class="detail-label detail-label--with-badge">
-                      <span data-i18n="domains.inspector.nameservers">Nameservers</span>
-                      <span data-inspector-ns-status></span>
-                    </dt>
-                    <dd class="detail-value" data-inspector-ns>
-                      <span class="text-muted" data-i18n="common.loading">Loading...</span>
-                    </dd>
-                  </div>
-                </dl>
-                <div data-inspector-ns-hint hidden></div>
-              </div>
-            </section>
-
-            <section class="card card--panel">
-              <header class="card__header">
-                <h3 class="h5" data-i18n="domains.inspector.routing">Routing & Redirects</h3>
-              </header>
-              <div class="card__body" data-inspector-routing>
+            <!-- Routing Tab -->
+            <div class="tabs__panel" data-tab-panel="routing" role="tabpanel">
+              <div data-inspector-routing>
                 <p class="text-muted" data-i18n="common.loading">Loading...</p>
               </div>
-            </section>
+            </div>
           </div>
         </div>
       </div>

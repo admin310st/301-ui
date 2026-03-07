@@ -1449,6 +1449,7 @@ html[data-theme="light"] .bulk-actions-bar__actions .btn--ghost:hover {
 /* Tabs panels */
 .tabs__panel {
   display: none;
+  padding-top: var(--space-3);
 }
 
 .tabs__panel.is-active {

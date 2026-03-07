@@ -645,7 +645,7 @@ export const ru: Translation = {
       integration: 'Интеграция',
       dnsConfig: 'Конфигурация DNS',
       nameservers: 'Серверы имён',
-      routing: 'Маршрутизация и редиректы',
+      routing: 'Редиректы',
       unassigned: 'Не назначен',
       manual: 'Вручную',
       redirect: 'Редирект',

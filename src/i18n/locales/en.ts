@@ -639,7 +639,7 @@ export const en = {
       integration: 'Integration',
       dnsConfig: 'DNS Configuration',
       nameservers: 'Nameservers',
-      routing: 'Routing & Redirects',
+      routing: 'Routing',
       unassigned: 'Unassigned',
       manual: 'Manual',
       redirect: 'Redirect',
