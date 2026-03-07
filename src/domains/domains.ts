@@ -572,17 +572,6 @@ function getStatusChip(status: Domain['status']): string {
   return `<span class="badge ${variants[status]}">${labels[status]}</span>`;
 }
 
-function getStatusColor(status: Domain['status']): string {
-  const colors: Record<string, string> = {
-    active: 'text-ok',
-    expired: 'text-danger',
-    expiring: 'text-warning',
-    blocked: 'text-danger',
-    pending: 'text-muted',
-  };
-  return colors[status] || 'text-muted';
-}
-
 function getHealthIcons(domain: Domain): string {
   const icons: string[] = [];
 
@@ -863,18 +852,33 @@ function openInspector(domainId: number): void {
   const projectEl = drawer.querySelector('[data-inspector-project]');
   const roleIconEl = drawer.querySelector('[data-inspector-role-icon]');
   const integrationEl = drawer.querySelector('[data-inspector-integration]');
-  const sslEl = drawer.querySelector('[data-inspector-ssl]');
-  const abuseEl = drawer.querySelector('[data-inspector-abuse]');
   const nsEl = drawer.querySelector('[data-inspector-ns]');
   const nsStatusEl = drawer.querySelector('[data-inspector-ns-status]');
 
   if (domainEl) domainEl.textContent = domain.domain_name;
+
+  // Status as badge
   if (statusEl) {
     const statusText = domain.status.charAt(0).toUpperCase() + domain.status.slice(1);
-    const statusColor = getStatusColor(domain.status);
-    statusEl.innerHTML = `<span class="${statusColor}">${statusText}</span>`;
+    const badgeVariants: Record<string, string> = {
+      active: 'badge--success',
+      expired: 'badge--danger',
+      expiring: 'badge--warning',
+      blocked: 'badge--danger',
+      pending: 'badge--neutral',
+    };
+    const badgeClass = badgeVariants[domain.status] || 'badge--neutral';
+    statusEl.innerHTML = `<span class="badge ${badgeClass}">${statusText}</span>`;
   }
-  if (projectEl) projectEl.textContent = domain.project_name;
+
+  // Project as chip link
+  if (projectEl) {
+    if (domain.project_id && domain.project_name !== 'Unassigned') {
+      projectEl.innerHTML = `<a href="/projects.html" class="btn-chip btn-chip--sm">${domain.project_name}</a>`;
+    } else {
+      projectEl.innerHTML = '<span class="text-muted">Unassigned</span>';
+    }
+  }
 
   // Update role icon in header
   if (roleIconEl) {
@@ -912,9 +916,6 @@ function openInspector(domainId: number): void {
       void resolveIntegration(domain.key_id, integrationEl);
     }
   }
-
-  if (sslEl) sslEl.textContent = `${domain.ssl_status.charAt(0).toUpperCase() + domain.ssl_status.slice(1)}${domain.ssl_valid_to ? ` (until ${domain.ssl_valid_to})` : ''}`;
-  if (abuseEl) abuseEl.textContent = domain.abuse_status.charAt(0).toUpperCase() + domain.abuse_status.slice(1);
 
   // Load NS records asynchronously and compare against expected CF nameservers
   const nsHintEl = drawer.querySelector<HTMLElement>('[data-inspector-ns-hint]');

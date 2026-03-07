@@ -192,37 +192,19 @@
               </header>
               <div class="card__body">
                 <dl class="detail-list">
-                  <!-- Status: вычисляемое (blocked + expired_at), не редактируется -->
                   <div class="detail-row">
                     <dt class="detail-label">Status</dt>
                     <dd class="detail-value" data-inspector-status>—</dd>
                   </div>
 
-                  <!-- Project: editable via API (PATCH /domains/:id { site_id }) -->
-                  <!-- TODO: Implement inline editing using .btn-inline pattern (see account.html) -->
                   <div class="detail-row">
                     <dt class="detail-label">Project</dt>
-                    <dd class="detail-value" data-inspector-project data-editable="site_id">—</dd>
+                    <dd class="detail-value" data-inspector-project>—</dd>
                   </div>
 
-                  <!-- Role: displayed as icon in drawer header -->
-
-                  <!-- Integration: resolved from key_id → IntegrationKey -->
                   <div class="detail-row">
                     <dt class="detail-label">Integration</dt>
                     <dd class="detail-value" data-inspector-integration>—</dd>
-                  </div>
-
-                  <!-- SSL: вычисляемое, не редактируется -->
-                  <div class="detail-row">
-                    <dt class="detail-label">SSL</dt>
-                    <dd class="detail-value" data-inspector-ssl>—</dd>
-                  </div>
-
-                  <!-- Health Status: computed from API health.status -->
-                  <div class="detail-row">
-                    <dt class="detail-label">Health</dt>
-                    <dd class="detail-value" data-inspector-abuse>—</dd>
                   </div>
                 </dl>
               </div>
