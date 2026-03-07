@@ -168,11 +168,13 @@ function removeEscapeListener(): void {
  * Handle Escape key - close top drawer
  */
 function handleEscapeKey(e: KeyboardEvent): void {
-  if (e.key === 'Escape' && drawerStack.length > 0) {
-    e.preventDefault();
-    e.stopPropagation();
-    closeTop();
-  }
+  if (e.key !== 'Escape' || drawerStack.length === 0) return;
+
+  // Yield to open dialogs — they handle their own Escape
+  if (document.querySelector('[data-dialog]:not([hidden])')) return;
+
+  e.preventDefault();
+  closeTop();
 }
 
 /**
