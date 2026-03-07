@@ -421,13 +421,8 @@ function renderEditContent(rule: TdsRule): string | void {
             <input type="text" class="input" value="${escapeAttr(rule.rule_name)}" data-field="rule_name" />
           </div>
 
-          <div class="field">
-            <label class="field__label">${t('streams.drawer.fields.type')}</label>
+          <div class="cluster">
             ${renderDropdown('tds_type', typeOptions(), rule.tds_type)}
-          </div>
-
-          <div class="field">
-            <label class="field__label">${t('streams.drawer.fields.status')}</label>
             ${renderDropdown('status', ruleStatusOptions(), rule.status)}
           </div>
 
