@@ -90,36 +90,51 @@
               Instead of trying to replace your stack, 301.st connects to the systems you already use and gives them a cleaner operational layer.
             </p>
 
-            <div>
-              <h3 class="h5">Cloudflare accounts</h3>
-              <p class="text-body">
-                You keep full ownership and access. We connect via scoped API tokens so 301.st can sync zones, attach routing
-                workflows, and operate within the permissions you explicitly grant.
-              </p>
+            <div class="tabs" data-tabs="about-how" role="tablist" aria-label="How 301.st works">
+              <button class="tab is-active" data-tab="cloudflare" type="button" role="tab" aria-selected="true">Cloudflare</button>
+              <button class="tab" data-tab="registrars" type="button" role="tab" aria-selected="false">Registrars</button>
+              <button class="tab" data-tab="structure" type="button" role="tab" aria-selected="false">Projects &amp; Sites</button>
+              <button class="tab" data-tab="tds" type="button" role="tab" aria-selected="false">Streams &amp; TDS</button>
             </div>
 
-            <div>
-              <h3 class="h5">Domain registrars</h3>
-              <p class="text-body">
-                Your domains remain with your chosen registrar. 301.st syncs inventory, statuses, and expirations so the domains layer
-                stays usable for redirects, projects, and site workflows.
-              </p>
+            <div class="tab-panel is-active stack" data-tab-panel="cloudflare">
+              <div class="stack stack--xs">
+                <h3 class="h5">Cloudflare stays in your hands</h3>
+                <p class="text-body">
+                  You keep full ownership and access. 301.st connects via scoped API tokens so it can sync zones, attach routing workflows,
+                  and operate only within the permissions you explicitly grant.
+                </p>
+              </div>
             </div>
 
-            <div>
-              <h3 class="h5">Projects & sites</h3>
-              <p class="text-body">
-                Projects and sites are the structure layer: they keep domains, destinations, and redirect work grouped into operational
-                units instead of one flat account-wide list.
-              </p>
+            <div class="tab-panel stack" data-tab-panel="registrars" hidden>
+              <div class="stack stack--xs">
+                <h3 class="h5">Registrars remain the source of truth</h3>
+                <p class="text-body">
+                  Your domains stay with your chosen registrar. 301.st syncs inventory, statuses, and expirations so the domains layer stays
+                  usable for redirects, projects, and site workflows.
+                </p>
+              </div>
             </div>
 
-            <div>
-              <h3 class="h5">Streams & TDS</h3>
-              <p class="text-body">
-                TDS is in the product as a site-scoped routing layer with rules, presets, bindings, and Cloudflare-backed execution.
-                It is shipped, but still a newer surface than the core redirects workflow.
-              </p>
+            <div class="tab-panel stack" data-tab-panel="structure" hidden>
+              <div class="stack stack--xs">
+                <h3 class="h5">Projects and sites turn inventory into structure</h3>
+                <p class="text-body">
+                  Projects and sites keep domains, destinations, and redirect work grouped into operational units instead of one flat
+                  account-wide list.
+                </p>
+              </div>
+            </div>
+
+            <div class="tab-panel stack" data-tab-panel="tds" hidden>
+              <div class="stack stack--xs">
+                <h3 class="h5">TDS runs as a newer routing layer</h3>
+                <p class="text-body">
+                  TDS is in the product as a site-scoped routing layer with rules, presets, bindings, and Cloudflare-backed execution.
+                  It is shipped, but still a newer surface than the core redirects workflow.
+                </p>
+              </div>
             </div>
 
             <p class="text-body">
@@ -219,4 +234,5 @@
     <script type="module" src="/src/main-public.ts"></script>
   </body>
 </html>
+
 

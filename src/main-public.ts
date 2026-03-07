@@ -16,6 +16,7 @@ import { applyTranslations, initLangSwitcher } from '@i18n/dom';
 import { t } from '@i18n';
 import { initTheme, initThemeToggle } from '@ui/theme';
 import { initHeaderScroll } from '@ui/header-scroll';
+import { initTabs } from '@ui/tabs';
 
 function bindLogoutButtons(): void {
   document.addEventListener('click', async (event) => {
@@ -47,7 +48,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   bindLogoutButtons();
   initThemeToggle();
   initHeaderScroll();
+  initTabs(document.body);
 
   // Expose for dynamic icon injection
   (window as any).injectIcons = processDataIconAttributes;
 });
+
