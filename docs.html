@@ -66,15 +66,54 @@
         <div class="grid-2">
           <section class="card card--soft">
             <header class="card__header"><h2 class="card__title">Core Concepts</h2></header>
-            <div class="card__body">
-              <ul class="list--spaced">
-                <li><strong>Integrations:</strong> Connect Cloudflare and registrar accounts so 301.st can read and update your infrastructure through API access you control.</li>
-                <li><strong>Domains:</strong> Review synced domains, check routing and DNS state, and manage operational workflows from one table.</li>
-                <li><strong>Projects:</strong> Group domains, sites, and redirect work into logical workspaces for cleaner operations.</li>
-                <li><strong>Sites:</strong> Attach landing pages and operational endpoints to projects so routing stays organized.</li>
-                <li><strong>Redirects:</strong> Configure and sync redirect rules for site-linked domains without managing Cloudflare by hand.</li>
-                <li><strong>TDS:</strong> In active product development. Public docs currently describe status and boundaries, not a finished workflow.</li>
-              </ul>
+            <div class="card__body stack">
+              <div class="tabs" data-tabs="docs-core-concepts" role="tablist" aria-label="Core concepts">
+                <button class="tab is-active" data-tab="integrations" type="button" role="tab" aria-selected="true">Integrations</button>
+                <button class="tab" data-tab="domains" type="button" role="tab" aria-selected="false">Domains</button>
+                <button class="tab" data-tab="projects-sites" type="button" role="tab" aria-selected="false">Projects &amp; Sites</button>
+                <button class="tab" data-tab="redirects" type="button" role="tab" aria-selected="false">Redirects</button>
+                <button class="tab" data-tab="tds" type="button" role="tab" aria-selected="false">TDS</button>
+              </div>
+
+              <div class="tab-panel is-active stack" data-tab-panel="integrations">
+                <div class="stack stack--xs">
+                  <h3 class="h5">Integrations connect the platform to your real infrastructure</h3>
+                  <p class="text-body">Integrations are the access layer. They let 301.st read the systems you already operate instead of asking you to rebuild them inside a separate hosting panel.</p>
+                  <p class="text-body">Today that mainly means Cloudflare and registrar-linked workflows, using credentials you control and can revoke at any time.</p>
+                </div>
+              </div>
+
+              <div class="tab-panel stack" data-tab-panel="domains" hidden>
+                <div class="stack stack--xs">
+                  <h3 class="h5">Domains turn raw inventory into an operational workspace</h3>
+                  <p class="text-body">The domains layer is where synced inventory becomes usable. Instead of a loose list of names, you get status review, filtering, inspection, and day-to-day actions from one table.</p>
+                  <p class="text-body">That makes domains the working foundation for everything downstream: projects, sites, redirects, and TDS bindings.</p>
+                </div>
+              </div>
+
+              <div class="tab-panel stack" data-tab-panel="projects-sites" hidden>
+                <div class="stack stack--xs">
+                  <h3 class="h5">Projects and sites give structure to the rest of the stack</h3>
+                  <p class="text-body">Projects group related work, while sites attach destinations and operational context. Together they stop the account from becoming one flat surface with no boundaries.</p>
+                  <p class="text-body">That structure matters once you manage multiple offers, traffic paths, or teams and need routing logic to stay readable.</p>
+                </div>
+              </div>
+
+              <div class="tab-panel stack" data-tab-panel="redirects" hidden>
+                <div class="stack stack--xs">
+                  <h3 class="h5">Redirects are the most mature shipped traffic workflow</h3>
+                  <p class="text-body">Redirects are where the current product is the most operationally settled. You can create, review, and sync redirect rules without hopping through provider dashboards for every change.</p>
+                  <p class="text-body">For most new users, this is the clearest production workflow after integrations, domain sync, and basic project structure.</p>
+                </div>
+              </div>
+
+              <div class="tab-panel stack" data-tab-panel="tds" hidden>
+                <div class="stack stack--xs">
+                  <h3 class="h5">TDS is shipped, but still newer than the core redirect layer</h3>
+                  <p class="text-body">TDS exists in the product as a site-scoped routing surface with rules, presets, bindings, and Cloudflare-backed execution.</p>
+                  <p class="text-body">Public docs keep it framed more carefully because it is still a younger surface than redirects and is better understood as an active product area than as the main entry workflow.</p>
+                </div>
+              </div>
             </div>
           </section>
 
@@ -167,4 +206,5 @@
     <script type="module" src="/src/main-public.ts"></script>
   </body>
 </html>
+
 
