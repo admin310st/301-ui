@@ -144,6 +144,8 @@ export function openCreateDrawer(): void {
   // Update header
   const title = drawerElement.querySelector('[data-drawer-title]');
   if (title) title.textContent = t('streams.drawer.createTitle');
+  setDrawerIcon('mono/plus');
+  setDrawerSubtitle(null);
 
   // Update save button
   const saveBtn = drawerElement.querySelector('[data-drawer-save]');
@@ -170,6 +172,8 @@ export async function openEditDrawer(ruleId: number): Promise<void> {
   // Update header
   const title = drawerElement.querySelector('[data-drawer-title]');
   if (title) title.textContent = t('streams.drawer.editTitle');
+  setDrawerIcon('mono/pencil-circle');
+  setDrawerSubtitle(null); // Will be set after rule loads
 
   // Update save button
   const saveBtn = drawerElement.querySelector('[data-drawer-save]');
@@ -404,11 +408,7 @@ function renderEditContent(rule: TdsRule): string | void {
   const content = drawerElement?.querySelector('[data-drawer-content]');
   if (!content) return;
 
-  // Update drawer title with site name
-  const title = drawerElement?.querySelector('[data-drawer-title]');
-  if (title) {
-    title.innerHTML = `${t('streams.drawer.editTitle')} <span class="text-muted">· ${escapeAttr(rule.site_name || '')}</span>`;
-  }
+  setDrawerSubtitle(rule.site_name || null);
 
   const logic = rule.logic_json;
   const conditions = logic.conditions;
@@ -961,6 +961,22 @@ function hasAdvancedConditions(conditions: TdsRule['logic_json']['conditions']):
     conditions.path ||
     conditions.referrer
   );
+}
+
+function setDrawerIcon(iconName: string): void {
+  const iconEl = drawerElement?.querySelector('[data-drawer-icon]');
+  if (iconEl) iconEl.setAttribute('data-icon', iconName);
+}
+
+function setDrawerSubtitle(text: string | null): void {
+  const el = drawerElement?.querySelector('[data-drawer-subtitle]') as HTMLElement;
+  if (!el) return;
+  if (text) {
+    el.textContent = text;
+    el.hidden = false;
+  } else {
+    el.hidden = true;
+  }
 }
 
 function escapeAttr(str: string): string {
