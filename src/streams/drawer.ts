@@ -404,6 +404,12 @@ function renderEditContent(rule: TdsRule): string | void {
   const content = drawerElement?.querySelector('[data-drawer-content]');
   if (!content) return;
 
+  // Update drawer title with site name
+  const title = drawerElement?.querySelector('[data-drawer-title]');
+  if (title) {
+    title.innerHTML = `${t('streams.drawer.editTitle')} <span class="text-muted">· ${escapeAttr(rule.site_name || '')}</span>`;
+  }
+
   const logic = rule.logic_json;
   const conditions = logic.conditions;
 
@@ -411,10 +417,6 @@ function renderEditContent(rule: TdsRule): string | void {
     <div class="stack-list">
       <!-- Rule Configuration -->
       <section class="card card--panel">
-        <header class="card__header">
-          <h3 class="h5">${t('streams.drawer.ruleConfig')}</h3>
-          <span class="text-sm text-muted">${escapeAttr(rule.site_name || '')}</span>
-        </header>
         <div class="card__body stack">
           <div class="field">
             <label class="field__label">${t('streams.drawer.fields.ruleName')}</label>

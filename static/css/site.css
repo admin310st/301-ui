@@ -1621,9 +1621,9 @@ html[data-theme="light"] .btn--ghost:hover {
 }
 
 .btn-chip {
-  background: var(--panel);
-  border-color: var(--border-subtle);
-  color: var(--text-muted);
+  background: var(--input-bg);
+  border-color: var(--input-border);
+  color: var(--text);
   font-weight: var(--fw-medium);
   cursor: pointer;
   text-decoration: none;
@@ -1903,7 +1903,7 @@ html[data-theme="light"] .btn--ghost:hover {
   padding-inline: var(--control-pad-x);
   min-height: var(--control-min-height);
   border: var(--border-1) solid var(--input-border);
-  background: var(--panel);
+  background: var(--input-bg);
   color: var(--text-main);
   -webkit-appearance: none;
   appearance: none;
@@ -1945,7 +1945,7 @@ html[data-theme="light"] .btn--ghost:hover {
   padding-block: var(--control-pad-y);
   padding-inline: var(--control-pad-x);
   border: var(--border-1) solid var(--input-border);
-  background: var(--panel);
+  background: var(--input-bg);
   color: var(--text-main);
   -webkit-appearance: none;
   appearance: none;
