@@ -2887,6 +2887,48 @@ body.sidebar-collapsed .sidebar .navitem:hover::after {
   margin: 0;
 }
 
+.docs-page-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(22rem, 0.85fr);
+  align-items: end;
+  gap: clamp(1rem, 2vw, 2.25rem);
+}
+
+.docs-page-header .text-display {
+  max-width: 11ch;
+  font-size: clamp(2.75rem, 5vw, 4.5rem);
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  text-wrap: balance;
+}
+
+.docs-page-header .text-lead {
+  max-width: 34rem;
+  margin: 0 0 0.35rem auto;
+  font-size: clamp(1rem, 1.45vw, 1.18rem);
+  line-height: 1.55;
+  text-wrap: pretty;
+}
+
+@media (max-width: 900px) {
+  .docs-page-header {
+    grid-template-columns: 1fr;
+    align-items: start;
+    gap: var(--space-3);
+  }
+
+  .docs-page-header .text-display {
+    max-width: 12ch;
+    font-size: clamp(2.2rem, 8vw, 3.3rem);
+    line-height: 1;
+  }
+
+  .docs-page-header .text-lead {
+    max-width: 42rem;
+    margin: 0;
+    font-size: 1rem;
+  }
+}
 /* Grid layouts */
 .grid-2 {
   display: grid;
@@ -4017,6 +4059,7 @@ body.sidebar-open .utility-bar {
   color: var(--text-muted);
   line-height: 1.5;
 }
+
 
 
 
