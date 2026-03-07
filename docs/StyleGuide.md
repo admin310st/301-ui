@@ -22,8 +22,8 @@ Design system for **301.st** (marketing front + member area).
 | **Panels** | `.panel.panel--{info\|success\|warning\|danger}` | `dashboard.html` Step 1 info panel | `site.css` → "Panels" |
 | **Badges** | `.badge.badge--{primary\|success\|neutral\|warning\|danger}` | `domains.html` status column | `site.css` → "Badges" |
 | **Tabs** | `.tabs`, `.tab`, `.tab.is-active` | `projects.html` project detail view | `site.css` → "Tabs Navigation" |
-| **Stat Card** | `.stat-card`, `.stat-card--{ok\|danger\|primary\|neutral}` | `dashboard.html` overview mode | `tables.css` → "Stats Grid" |
-| **Metric Pill** | `.metric-pill`, `.metric-pill--{success\|warning\|danger}` | Preserved (not in production) | `site.css` → "Metric Pill" |
+| **Stat Card** | `.stat-card`, `.stat-card--{ok\|danger\|primary\|neutral}` | Reserved — not yet in production | `tables.css` → "Stats Grid" |
+| **Metric Pill** | `.metric-pill`, `.metric-pill--{date\|compact\|success}` | `projects.html`, `redirects.html` | `site.css` → "Metric Pill" |
 | **Loading Indicator** | `.loading-bar[data-loading][data-type]` | `index.html` login/register | `site.css` → "Loading indicator bar" |
 | **Global Notices** | `.app-alert.app-alert--{success\|error\|info}` | All pages, utility-bar overlay | `site.css` → "Global Notices" |
 | **Layout** | `.cluster`, `.stack`, `.stack--{xs\|sm\|md\|lg\|xl}` | All pages | `site.css` → "Common Patterns" |
@@ -44,7 +44,7 @@ height = font-size × line-height + padding × 2
 
 **Rules:**
 - ❌ **Never** set fixed heights on buttons, inputs, chips, or search bars
-- ✅ Use size modifiers: `.btn--{sm|md|lg}`, `.btn-chip--sm`
+- ✅ Use size modifiers: `.btn--sm`, `.btn--lg`, `.btn-chip--sm` (default is medium — no modifier needed)
 - ✅ Pills (buttons, badges): `border-radius: var(--r-pill)`
 - ✅ Fields (inputs, search): `border-radius: var(--r-field)`
 - ✅ Icons inside controls: `1.25em`, inline with text: `1em`
@@ -108,7 +108,7 @@ When design system updates are introduced, **ALL** UI components and demo pages 
 
 **Size modifiers:**
 - `.btn--sm` - compact buttons
-- `.btn--md` - default (same height as chips)
+- Default (no modifier) - same height as chips
 - `.btn--lg` - hero/landing layouts only
 
 **Production examples:**
@@ -228,10 +228,12 @@ When design system updates are introduced, **ALL** UI components and demo pages 
 ```
 
 **Variants:**
-- `.metric-pill` (default) - blue/primary color
-- `.metric-pill--success` - green fill
-- `.metric-pill--warning` - orange fill
-- `.metric-pill--danger` - red fill
+- `.metric-pill` (default) - blue/primary fill
+- `.metric-pill--success` - green fill (project date ranges near completion)
+- `.metric-pill--date` - date range display with label
+- `.metric-pill--compact` - reduced size for inline use in table headers
+- `.metric-pill--warning` - orange fill (reserved)
+- `.metric-pill--danger` - red fill (reserved)
 
 **Dynamic fill**: Set `--metric-fill` CSS variable (0 to 1):
 ```html
@@ -239,15 +241,9 @@ When design system updates are introduced, **ALL** UI components and demo pages 
 <span style="--metric-fill: 0.85"> <!-- 85% filled -->
 ```
 
-**Use cases:**
-- API rate limit indicators (75% of quota used)
-- Storage usage meters
-- Task completion progress
-- Domain health scores
+**Production**: `projects.html` date range indicator, `redirects.html` sync progress
 
-**Production**: Reserved — not yet used in any page
-
-**CSS**: `site.css` → "Metric Pill"
+**CSS**: `site.css` → "Metric Pill", `tables.css` → compact variant
 
 ### Stat Card
 
@@ -273,7 +269,7 @@ When design system updates are introduced, **ALL** UI components and demo pages 
 
 **Link cards**: Use `<a class="stat-card">` — inherits color, no underline.
 
-**Production**: `dashboard.html` overview mode
+**Production**: Reserved — CSS defined, not yet used in any page. Planned for dashboard overview and domains stats.
 
 **CSS**: `tables.css` → "Stats Grid"
 
@@ -281,8 +277,8 @@ When design system updates are introduced, **ALL** UI components and demo pages 
 
 **Controls:**
 - `.input` - text inputs
-- `.checkbox` - checkboxes
-- `.radio` - radio buttons
+- `.checkbox-field` - checkbox + label wrapper
+- `.checkbox` - bare checkbox (used in table rows)
 
 **Dropdowns/Selects:**
 - ❌ **NEVER use native `<select>` elements** - not styleable, inconsistent across browsers
@@ -485,7 +481,7 @@ Use `.dropdown__item--rich` for items that need a title and description:
 - `.h2` - section titles
 - `.h3` - page titles (member area)
 - `.h4` - card headers
-- `.h5`, `.h6` - subsections
+- `.h5` - subsections
 
 **Helpers:**
 - `.text-lead` - larger body text for subtitles
@@ -789,7 +785,7 @@ Other steps use neutral: `.badge--neutral`
 
 **Production Pages (Live Examples):**
 - `index.html` - Auth pages (login, register, reset)
-- `dashboard.html` - Dual-mode: onboarding wizard + overview stat cards
+- `dashboard.html` - Dual-mode: onboarding wizard + overview cards
 - `integrations.html` - Cloudflare connection wizard
 - `domains.html` - Table with filters, actions, health
 - `redirects.html` - Table with redirect rules
@@ -809,5 +805,5 @@ Other steps use neutral: `.badge--neutral`
 
 ---
 
-**Last updated**: 2026-02-13
-**Version**: 2.1 (deduplicated, CSS code blocks → source references)
+**Last updated**: 2026-03-08
+**Version**: 2.2 (audit: fix .panel--warn→warning, remove phantom classes, align with production)

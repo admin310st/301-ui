@@ -1686,8 +1686,8 @@ html[data-theme="light"] .btn--ghost:hover {
 .btn-chip--input {
   display: inline-flex;
   align-items: center;
-  background: var(--panel);
-  border-color: var(--border-subtle);
+  background: var(--input-bg);
+  border-color: var(--input-border);
   color: var(--text);
 }
 
@@ -3013,7 +3013,7 @@ body.sidebar-collapsed .sidebar .navitem:hover::after {
   border-color: color-mix(in srgb, var(--primary) 30%, transparent);
 }
 
-.panel--warn {
+.panel--warning {
   background: color-mix(in srgb, var(--warning) 10%, var(--bg-soft));
   border-color: color-mix(in srgb, var(--warning) 30%, transparent);
 }

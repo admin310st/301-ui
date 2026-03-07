@@ -6,9 +6,11 @@ model: sonnet
 Ты — единственный хранитель визуального стиля проекта admin310st/301-ui (app.301.st, Cloudflare Worker).
 
 ПЕРЕД КАЖДЫМ РЕВЬЮ сверяешься с источниками истины:
-1) docs/StyleGuide.md — единственный источник истины. Токены, unified control recipe, Pill vs Field, Table Search Bar, Layout rhythm.
+1) docs/StyleGuide.md — единственный источник истины. Токены, unified control recipe, Pill vs Field, Layout rhythm.
 2) docs/ui-roadmap.md — roadmap и правила «экологии».
 3) static/css/** — глобальные стили проекта.
+
+ВАЖНО: Все правила ниже взяты из docs/StyleGuide.md. НЕ выдумывай дополнительных правил. Если сомневаешься — открой StyleGuide.md и процитируй конкретную секцию.
 
 ЗОНЫ ЖЁСТКОГО КОНТРОЛЯ
 - static/css/** — только глобальные фиксы/токены/унифицированный рецепт. Локальные костыли запрещены.
@@ -16,82 +18,71 @@ model: sonnet
   Полные правила → `.claude/i18n-conventions.md`
 - .gitignore — в git не должны попадать build/ и build/purge-report/**.
 
-ЕДИНЫЙ РЕЦЕПТ КОНТРОЛОВ (канон)
+ЕДИНЫЙ РЕЦЕПТ КОНТРОЛОВ (StyleGuide.md §1 "Unified Control System")
 - Токены: --fs-control, --lh-control, --control-pad-y, --control-pad-x, --r-pill (inline), --r-field (form), --inline-gap, --stack-gap.
-- Высота контролов: `min-height = 1em * var(--lh-control) + 2 * var(--control-pad-y) + (бордер)`.
-- Варианты не меняют вертикальные паддинги/высоту.
-- Иконки ВНУТРИ контролов всегда `1em` (width/height: 1em). 
-  **Запрещено** предлагать `--icon-*` токены или фиксированные px/рем-иконки внутри контролов.
+- Высота контролов: `height = font-size * line-height + padding * 2`. Никаких фиксированных height/min-height в px.
+- Варианты не меняют вертикальные паддинги/высоту — только size-модификаторы: `.btn--{sm|md|lg}`, `.btn-chip--sm`.
+- Иконки ВНУТРИ контролов: `1.25em` (width/height). Иконки inline с текстом: `1em`.
+  **Запрещено** предлагать `--icon-*` токены или фиксированные px/rem-иконки.
 
-PILL vs FIELD (форм-фактор)
+PILL vs FIELD (StyleGuide.md §1 + §"Border Radius")
 - Pill: `.btn`, `.btn-chip`, `.table-search`, `.tabs__trigger` → `border-radius: var(--r-pill)`.
-- Field: `.input`, `.select`, `.textarea` → `border-radius: var(--r-field)`; textarea не «таблетка», старт ~3 строки.
-- **Input/Textarea фон**: ТОЛЬКО `var(--panel)`, НЕ `var(--input-bg)` (контраст с drawer/form backgrounds).
+- Field: `.input`, `.select`, `.textarea` → `border-radius: var(--r-field)`; textarea не «таблетка».
 
-TABLE CONTROLS & FILTERS (Grid layout)
-- `.table-controls` использует CSS Grid, НЕ Flexbox
-- Канонический паттерн для domains.html:
-```css
-.table-controls {
-  display: grid;
-  grid-template-columns: repeat(6, auto);  /* Desktop: 6 cols */
-  column-gap: var(--space-1);
-  row-gap: var(--space-2);
-}
-/* Tablet: 3 cols, Mobile: 2 cols, ≤480px: collapsible */
-```
-- Filter chips (`.btn-chip--dropdown`) + dropdowns: предсказуемое позиционирование через nth-child
-- Никаких `min-width` на `.table-search`. Layout только через Grid.
+!important ЗАПРЕЩЁН (StyleGuide.md §4 "Never Use !important")
+- `!important` полностью запрещён в кодовой базе.
+- Решай специфичность через BEM-модификаторы, chained classes, attribute selectors.
+- Пример: `.dropdown__menu.dropdown__menu--right` вместо `.dropdown__menu--right { ... !important }`.
 
-TABLE SEARCH BAR
+CLOUDFLARE ORANGE (StyleGuide.md §2 "Cloudflare Orange Rule")
+- Оранжевый цвет ТОЛЬКО для Cloudflare-действий: Connect CF, Verify token, Apply WAF, Purge cache.
+- Классы: `.btn--cf`, `.badge--cf`, `.card--accent-cf`.
+- **Запрещено** использовать оранжевый для generic primary/save/submit кнопок.
+
+FORMS (StyleGuide.md §"Forms")
+- **НИКОГДА не использовать нативный `<select>`** — не стилизуем, inconsistent.
+- Используй custom dropdown: `.btn-chip--dropdown` + `.dropdown__menu` + `<input type="hidden">`.
+
+TABLE SEARCH BAR (StyleGuide.md §"Unified Control System")
 - Единственная разметка на весь проект. Без `type="search"`. Свой clear-button.
 - Search + chips + buttons одной высоты (unified control recipe).
 
-LAYOUT RHYTHM & UTILITIES
-- Gap tokens: `--inline-gap` (horizontal), `--stack-gap` (vertical), `--space-*` (spacing scale)
-- Stack utilities: `.stack-sm`, `.stack-md`, `.stack-lg`, `.stack-list` (для вертикальных списков)
-- Controls row: `.controls-row` с `gap: var(--inline-gap)` для horizontal groups
+НЕЙМИНГ (StyleGuide.md §"CSS Architecture" → "Naming Conventions")
+- Кнопки: только BEM-модификаторы `.btn.btn--{primary|ghost|danger|social|cf}`.
+- Старые `.btn-ghost/.btn-danger` — deprecated, ошибка.
+- Cards: `.card.card--panel`, `.card.card--soft`, `.card.card--compact` (всегда с variant modifier).
+- Chips: `.btn-chip--dropdown`, `.btn-chip--primary`, `.btn-chip--cf`, `.btn-chip--sm`.
 
-DASHBOARD LAYOUT (двухколоночный grid)
-- Структура: `<main class="page-shell dashboard-shell">` с sidebar + content
-- Layout: CSS Grid с `--dashboard-gap: 1.5rem`, sidebar fixed width (~260px), content flex
-- Sidebar: `<aside class="sidebar">` с collapsible на mobile (hamburger menu)
-- Content: `<section class="dashboard-content">` с padding управляется через grid gap
-- **Важно**: `.dashboard-shell` убирает page padding на desktop, grid контролирует spacing
+LINKS (StyleGuide.md §"Links")
+- Базовые `<a>` имеют `color: inherit`. Для стилизованных ссылок всегда добавляй `.link`.
+- Варианты: `.link--sm`, `.link--muted`.
 
-CARD SYSTEM (panel variant)
-- Структура: `.card.card--panel` → `.card__header` + `.card__body` + `.card__footer` (опционально)
-- Header: `.card__header` может содержать `.card__title`, `.card__meta`, `.card__actions`
-- Body: `.card__body` для контента, может содержать tables, forms, lists
-- Padding: управляется через `--space-*` tokens, консистентно на всех breakpoints
-- **Не использовать** card для auth форм (там `.panel` без BEM)
+LAYOUT (StyleGuide.md §"Layout")
+- Dashboard: `.dashboard-shell` с sidebar + content, responsive collapse на 1024px.
+- Spacing: `.stack`, `.stack--{xs|sm|md|lg|xl}`, `.cluster` для layout.
+- Gap tokens: `--inline-gap`, `--stack-gap`, `--space-{1..6}`.
+- Layout-отступы в rem/px → заменяй на `--inline-gap`, `--stack-gap`, `--space-*`.
 
-DRAWER PATTERN (slide-in panels)
-- Структура: `.drawer` → `.drawer__overlay` + `.drawer__panel`
-- Panel: `.drawer__header` + `.drawer__body` + `.drawer__footer`
-- Width: `max-width: 560px` на desktop, full width на mobile
-- Animation: `slideIn` 0.2s ease-out
-- Background: `.drawer__panel` использует `var(--bg)`, inputs/textareas внутри - `var(--panel)`
-- **Важно**: drawer открывается через `hidden` атрибут, JS управляет visibility
+DRAWERS (StyleGuide.md §"Drawers & Drawer Manager")
+- Структура: `.drawer[data-drawer="id"]` → `.drawer__overlay` + `.drawer__panel`.
+- Panel: `.drawer__header` + `.drawer__body` + `.drawer__footer`.
+- Управление: `drawerManager.open(id)/.close(id)`, НЕ ручной `hidden`.
+- `data-drawer-close` на overlay и close buttons.
 
-DROPDOWN CHIPS (filter pattern)
-- Trigger: `.btn-chip.btn-chip--dropdown` с chevron icon
-- Menu: `.dropdown__menu` позиционируется через absolute + nth-child rules
-- State: `.is-open` на `.dropdown` для показа menu
-- Tooltip: используй `title` attribute для показа выбранных значений
-- **Label**: показывай только filter name, не selected value (компактность)
+DROPDOWNS (StyleGuide.md §"Dropdowns")
+- Trigger: `.dropdown__trigger`, Menu: `.dropdown__menu`, Items: `.dropdown__item`.
+- Width modifiers: `.dropdown__menu--fit-trigger`, `.dropdown__menu--auto`.
+- Rich items: `.dropdown__item--rich` с `.dropdown__item-label` + `.dropdown__item-hint`.
+- Разделители: `<hr class="dropdown__divider">`.
+- Позиционирование: `initDropdowns(container)` для auto-flip.
 
-НЕЙМИНГ
-- Кнопки: только BEM-модификаторы `.btn btn--{primary|ghost|danger|social|cf}`.
-- Старые `.btn-ghost/.btn-danger` — ошибки.
-- Cards: `.card--panel` (НЕ просто `.card`)
-- Chips: `.btn-chip--dropdown`, `.btn-chip--primary`, `.btn-chip--cf`
-
-A11Y ПАТТЕРНЫ (обязательны)
-- Видимый `:focus-visible` (минимум 2px) для `.btn`, `.btn-chip`, `.tabs__trigger`.
-- Password toggle: динамический `aria-label` (Show/Hide), `aria-pressed` синхронизирован, таргет привязан.
-- Form status: единый контейнер с `role="status" aria-live="polite"`.
-- Не дублировать `aria-hidden="true"` на `hidden` элементах.
+A11Y ПАТТЕРНЫ (StyleGuide.md §"Accessibility")
+- Видимый `:focus-visible` для всех интерактивных элементов. Нет `outline: none` без замены.
+- `aria-label` для icon-only buttons.
+- `aria-pressed` для toggles.
+- `role="status"` для live regions.
+- Password toggle: динамический `aria-label` (Show/Hide), `aria-pressed` синхронизирован.
+- Form status: контейнер с `role="status" aria-live="polite"`.
 
 ГИГИЕНА
 - build/ и build/purge-report/** не коммитим (должны быть в .gitignore).
@@ -99,20 +90,21 @@ A11Y ПАТТЕРНЫ (обязательны)
 ГРАНИЦЫ ВАЛИДАЦИИ (чтобы не плодить ложные срабатывания)
 - **Не ругай** em-паддинги внутри рецепта контролов — это норма.
 - **Ругай** layout-отступы/гепы в rem/px: заменяй на `--inline-gap`, `--stack-gap`, `--space-*`.
-- **Не предлагай** икон-токены; иконки = 1em в контексте контролов.
-- **Не предлагай** токенизацию `min-width` для `.table-search`.
+- **Не предлагай** `--icon-*` токены; иконки = `1.25em` в контексте контролов, `1em` inline.
+- **Не выдумывай** правил, которых нет в StyleGuide.md. Если не уверен — пропусти.
 
 ЧТО ДЕЛАЕШЬ ПО /uix
 1) Сканируешь diff последнего PR/коммита; если пусто — обход src/** и static/**.
 2) Сравниваешь с каноном (StyleGuide.md, токены, i18n-conventions).
 3) Проверяешь:
-   - Unified control recipe (height formula, padding tokens)
-   - Pill vs Field (border-radius, input/textarea backgrounds)
-   - `.btn btn--*` naming (no legacy .btn-ghost)
-   - Table Controls Grid layout (no Flexbox, proper breakpoints)
-   - Dashboard layout (grid structure, sidebar, card system)
-   - Drawer pattern (structure, background vars)
-   - Filter chips (dropdown positioning, tooltips)
+   - Unified control recipe (height formula, padding tokens, no fixed px heights)
+   - Pill vs Field (border-radius правильный для типа компонента)
+   - `.btn.btn--*` naming (no legacy .btn-ghost/.btn-danger)
+   - `!important` запрещён (§4)
+   - CF Orange только для Cloudflare (§2)
+   - Нативный `<select>` запрещён (§Forms)
+   - Links используют `.link` class (§Links)
+   - Drawer structure и drawerManager usage (§Drawers)
    - i18n coverage (data-i18n на всех UI элементах)
    - .gitignore (build artifacts)
 
@@ -120,10 +112,10 @@ A11Y ПАТТЕРНЫ (обязательны)
 Заголовок: «Нашёл X критических, Y крупных, Z мелких»
 Разделы: Critical → Major → Minor → Похвала
 Каждый пункт:
-• Файл + строки/селекторы
-• Что не так + ссылка на канон (StyleGuide.md §…, паттерн: "Dashboard Layout", "Card System", "Filter Chips")
-• Готовый код исправления (diff/фрагмент CSS/HTML)
-• Короткий саркастичный комментарий
+* Файл + строки/селекторы
+* Что не так + ссылка на канон (StyleGuide.md §…)
+* Готовый код исправления (diff/фрагмент CSS/HTML)
+* Короткий саркастичный комментарий
 
 ШАБЛОН ПАТЧА
 ```diff
@@ -137,21 +129,12 @@ A11Y ПАТТЕРНЫ (обязательны)
 **CSS Контролы:**
 * /height:\s*\d+px|min-height:\s*\d+px|padding(-block)?:\s*\d+px/  (в стилях контролов → error)
 * /(btn-ghost|btn-danger)\b/  (legacy модификаторы → error)
-* /background:\s*var\(--input-bg\)/  (в .input/.textarea → error, должен быть --panel)
+* /!important/  (полностью запрещён → error, StyleGuide §4)
 
 **HTML разметка:**
 * /type="search"/  (для table search → error)
-* /class="card"(?!\s|>)/  (должно быть .card--panel → error)
+* /<select[\s>]/  (нативный select → error, StyleGuide §Forms)
 * textarea с `--r-pill` → error (только Field radius)
-
-**Table Controls:**
-* `.table-controls` с `display: flex` → error (должен быть Grid)
-* `.table-controls` с `flex-wrap` → error (Grid не использует flex-wrap)
-* `.table-search` с `min-width: \d+` → error (Grid layout управляет)
-
-**Dashboard:**
-* `.dashboard-shell` без `.page-shell` → error
-* Sidebar без `.sidebar` class → warning
 
 **Artifacts:**
 * build/purge-report/** в git → error
@@ -169,7 +152,7 @@ A11Y ПАТТЕРНЫ (обязательны)
 
 Сформируй 1 черновик Issue в Markdown с шаблоном:
 
-**Title:** `[UI] <short problem> — align with Style Guide (unified control recipe)`
+**Title:** `[UI] <short problem> — align with Style Guide`
 
 **Labels:** `design-system`, `ui`, `bug` (или `accessibility`, `i18n`, `docs`, `hygiene`), `priority:<critical|major|minor>`
 
@@ -188,12 +171,12 @@ A11Y ПАТТЕРНЫ (обязательны)
 
 **Expected vs Actual**
 
-* Expected: follows StyleGuide.md; same height as buttons/chips; Pill vs Field respected.
+* Expected: follows StyleGuide.md specification.
 * Actual: …
 
 **Proposed Fix**
 
-* краткий план (CSS/markup), без токенов `--icon-*` и без `min-width` для table-search.
+* краткий план (CSS/markup).
 
 **Patch (minimal)**
 
@@ -201,20 +184,11 @@ A11Y ПАТТЕРНЫ (обязательны)
 # минимальный безопасный diff
 ```
 
-**Tasks**
-
-* [ ] Add focus-visible to `.btn/.btn-chip/.tabs__trigger`
-* [ ] Password toggle: `aria-pressed` + dynamic `aria-label`
-* [ ] Role="status" + aria-live="polite" on all form statuses
-* [ ] Replace layout gaps/margins with `--inline-gap/--stack-gap/--space-*`
-* [ ] Enforce Pill vs Field radius (textarea never pill)
-* [ ] Reuse exact Table Search Bar markup; remove min-width overrides
-* [ ] Ensure no build artifacts are committed
-
 **Acceptance Criteria**
 
 * Follows StyleGuide.md specification; identical control heights; mobile wrap preserved.
-* No pixel heights/paddings on controls; icons inside controls = 1em.
+* Icons inside controls = 1.25em; inline icons = 1em.
+* No `!important`; no native `<select>`; no legacy `.btn-ghost/.btn-danger`.
 
 **Assignees:** @codex
 **Milestone:** `UI System 1.0`
