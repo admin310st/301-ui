@@ -2888,36 +2888,104 @@ body.sidebar-collapsed .sidebar .navitem:hover::after {
 }
 
 .docs-page-header {
-  display: block;
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-2) 0 var(--space-1);
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .docs-page-header .text-display {
-  max-width: 12ch;
-  font-size: clamp(2.2rem, 4.2vw, 3.35rem);
-  line-height: 1.02;
-  letter-spacing: -0.035em;
-  text-wrap: balance;
+  max-width: 100%;
+  font-size: clamp(2rem, 3.5vw, 2.8rem);
+  line-height: 1.06;
+  letter-spacing: -0.03em;
+  text-wrap: pretty;
 }
 
 .docs-page-header .text-lead {
-  max-width: 46rem;
-  margin: var(--space-2) 0 0;
-  font-size: 1.02rem;
+  max-width: 54rem;
+  margin: 0;
+  font-size: 1rem;
   line-height: 1.6;
   text-wrap: pretty;
 }
 
+.docs-faq {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.docs-faq__item {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--panel);
+  box-shadow: var(--shadow-subtle);
+  overflow: clip;
+}
+
+.docs-faq__summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  cursor: pointer;
+  list-style: none;
+  font-size: var(--fs-md);
+  font-weight: var(--fw-semibold);
+  color: var(--text-main);
+}
+
+.docs-faq__summary::-webkit-details-marker {
+  display: none;
+}
+
+.docs-faq__summary::before {
+  content: '+';
+  flex: 0 0 auto;
+  color: var(--primary);
+  font-size: 1.125rem;
+  line-height: 1;
+}
+
+.docs-faq__item[open] > .docs-faq__summary {
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--bg-soft);
+}
+
+.docs-faq__item[open] > .docs-faq__summary::before {
+  content: '-';
+}
+
+.docs-faq__body {
+  padding: var(--space-3) var(--space-4) var(--space-4);
+}
+
+.docs-faq__body p {
+  margin: 0;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
 @media (max-width: 900px) {
+  .docs-page-header {
+    padding-bottom: 0;
+  }
+
   .docs-page-header .text-display {
-    max-width: 12ch;
-    font-size: clamp(2rem, 8vw, 2.8rem);
-    line-height: 1.04;
+    font-size: clamp(1.8rem, 7vw, 2.4rem);
+    line-height: 1.08;
   }
 
   .docs-page-header .text-lead {
     max-width: 100%;
-    margin-top: var(--space-2);
-    font-size: 1rem;
+    font-size: 0.98rem;
+  }
+
+  .docs-faq__summary,
+  .docs-faq__body {
+    padding-inline: var(--space-3);
   }
 }
 /* Grid layouts */
@@ -4050,9 +4118,4 @@ body.sidebar-open .utility-bar {
   color: var(--text-muted);
   line-height: 1.5;
 }
-
-
-
-
-
 

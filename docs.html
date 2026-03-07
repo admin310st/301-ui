@@ -106,17 +106,33 @@
           </div>
         </section>
 
-        <section class="card card--soft">
-          <header class="card__header"><h2 class="card__title">FAQ</h2></header>
-          <div class="card__body">
-            <ul class="list--spaced">
-              <li><strong>Is this docs section public?</strong><br />Yes. These pages are meant to be readable without login and safe to index.</li>
-              <li><strong>Does it describe only shipped features?</strong><br />That is the goal. Stable workflows are documented as guides; TDS is kept on a separate status page until rollout is complete.</li>
-              <li><strong>Where should technical contributors look?</strong><br />For engineering-level details, use the repository README, style guide, and API wiki rather than the public docs pages.</li>
-              <li><strong>Will more pages be added?</strong><br />Yes. The section is structured so new stable product areas can be added without turning <code class="code-inline">/docs</code> into a single oversized page.</li>
-            </ul>
+        <section class="stack-list docs-faq" aria-label="FAQ">
+        <h2 class="h3">FAQ</h2>
+        <details class="docs-faq__item">
+          <summary class="docs-faq__summary">Is this docs section public?</summary>
+          <div class="docs-faq__body">
+            <p>Yes. These pages are meant to be readable without login and safe to index.</p>
           </div>
-        </section>
+        </details>
+        <details class="docs-faq__item">
+          <summary class="docs-faq__summary">Does it describe only shipped features?</summary>
+          <div class="docs-faq__body">
+            <p>That is the goal. Stable workflows are documented as guides; TDS is kept on a separate status page until rollout is complete.</p>
+          </div>
+        </details>
+        <details class="docs-faq__item">
+          <summary class="docs-faq__summary">Where should technical contributors look?</summary>
+          <div class="docs-faq__body">
+            <p>For engineering-level details, use the repository README, style guide, and API wiki rather than the public docs pages.</p>
+          </div>
+        </details>
+        <details class="docs-faq__item">
+          <summary class="docs-faq__summary">Will more pages be added?</summary>
+          <div class="docs-faq__body">
+            <p>Yes. The section is structured so new stable product areas can be added without turning <code class="code-inline">/docs</code> into a single oversized page.</p>
+          </div>
+        </details>
+      </section>
 
         <section class="card card--panel">
           <header class="card__header"><h2 class="card__title">Popular Guides</h2></header>
