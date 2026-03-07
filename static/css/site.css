@@ -1969,6 +1969,44 @@ html[data-theme="light"] .btn--ghost:hover {
   margin: -0.25rem 0 0;
 }
 
+/* Collapsible field group (native <details>) */
+.field-details {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-field);
+  padding: var(--space-2) var(--space-3);
+}
+
+.field-details__summary {
+  cursor: pointer;
+  user-select: none;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.field-details__summary::-webkit-details-marker {
+  display: none;
+}
+
+.field-details__summary::before {
+  content: '›';
+  font-size: 1.1em;
+  transition: transform 150ms ease;
+}
+
+.field-details[open] > .field-details__summary::before {
+  transform: rotate(90deg);
+}
+
+.field-details__body {
+  padding-top: var(--space-3);
+}
+
+.field-details__body .field:last-child {
+  margin-bottom: 0;
+}
+
 .password-field {
   position: relative;
 }

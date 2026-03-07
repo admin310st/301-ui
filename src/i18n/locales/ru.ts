@@ -903,6 +903,7 @@ export const ru: Translation = {
       conditionsSection: 'Conditions',
       actionSection: 'Action',
       detailsSection: 'Details',
+      advanced: 'UTM, path, referrer…',
       fields: {
         ruleName: 'Rule name',
         ruleNameOptional: 'Rule name (optional)',

@@ -323,22 +323,27 @@ function renderManualCreateContent(): string {
               <span>${t('streams.drawer.fields.botOnly')}</span>
             </label>
           </div>
-          <div class="field">
-            <label class="field__label">${t('streams.drawer.fields.utmSource')}</label>
-            <input type="text" class="input" placeholder="${t('streams.drawer.fields.utmSourcePlaceholder')}" data-field="utm_source" />
-          </div>
-          <div class="field">
-            <label class="field__label">${t('streams.drawer.fields.utmCampaign')}</label>
-            <input type="text" class="input" placeholder="${t('streams.drawer.fields.utmCampaignPlaceholder')}" data-field="utm_campaign" />
-          </div>
-          <div class="field">
-            <label class="field__label">${t('streams.drawer.fields.path')}</label>
-            <input type="text" class="input" placeholder="${t('streams.drawer.fields.pathPlaceholder')}" data-field="path" />
-          </div>
-          <div class="field">
-            <label class="field__label">${t('streams.drawer.fields.referrer')}</label>
-            <input type="text" class="input" placeholder="${t('streams.drawer.fields.referrerPlaceholder')}" data-field="referrer" />
-          </div>
+          <details class="field-details">
+            <summary class="field-details__summary text-sm text-muted">${t('streams.drawer.advanced')}</summary>
+            <div class="stack stack--sm field-details__body">
+              <div class="field">
+                <label class="field__label text-sm">${t('streams.drawer.fields.utmSource')}</label>
+                <input type="text" class="input" placeholder="${t('streams.drawer.fields.utmSourcePlaceholder')}" data-field="utm_source" />
+              </div>
+              <div class="field">
+                <label class="field__label text-sm">${t('streams.drawer.fields.utmCampaign')}</label>
+                <input type="text" class="input" placeholder="${t('streams.drawer.fields.utmCampaignPlaceholder')}" data-field="utm_campaign" />
+              </div>
+              <div class="field">
+                <label class="field__label text-sm">${t('streams.drawer.fields.path')}</label>
+                <input type="text" class="input" placeholder="${t('streams.drawer.fields.pathPlaceholder')}" data-field="path" />
+              </div>
+              <div class="field">
+                <label class="field__label text-sm">${t('streams.drawer.fields.referrer')}</label>
+                <input type="text" class="input" placeholder="${t('streams.drawer.fields.referrerPlaceholder')}" data-field="referrer" />
+              </div>
+            </div>
+          </details>
         </div>
       </section>
 
@@ -444,22 +449,27 @@ function renderEditContent(rule: TdsRule): string | void {
                 <span>${t('streams.drawer.fields.botOnly')}</span>
               </label>
             </div>
-            <div class="field">
-              <label class="field__label text-sm">${t('streams.drawer.fields.utmSourceShort')}</label>
-              <input type="text" class="input" value="${(conditions.utm_source || []).join(', ')}" data-field="utm_source" />
-            </div>
-            <div class="field">
-              <label class="field__label text-sm">${t('streams.drawer.fields.utmCampaignShort')}</label>
-              <input type="text" class="input" value="${(conditions.utm_campaign || []).join(', ')}" data-field="utm_campaign" />
-            </div>
-            <div class="field">
-              <label class="field__label text-sm">${t('streams.drawer.fields.pathShort')}</label>
-              <input type="text" class="input" value="${conditions.path || ''}" data-field="path" />
-            </div>
-            <div class="field">
-              <label class="field__label text-sm">${t('streams.drawer.fields.referrerShort')}</label>
-              <input type="text" class="input" value="${conditions.referrer || ''}" data-field="referrer" />
-            </div>
+            <details class="field-details"${hasAdvancedConditions(conditions) ? ' open' : ''}>
+              <summary class="field-details__summary text-sm text-muted">${t('streams.drawer.advanced')}</summary>
+              <div class="stack stack--sm field-details__body">
+                <div class="field">
+                  <label class="field__label text-sm">${t('streams.drawer.fields.utmSourceShort')}</label>
+                  <input type="text" class="input" value="${(conditions.utm_source || []).join(', ')}" data-field="utm_source" />
+                </div>
+                <div class="field">
+                  <label class="field__label text-sm">${t('streams.drawer.fields.utmCampaignShort')}</label>
+                  <input type="text" class="input" value="${(conditions.utm_campaign || []).join(', ')}" data-field="utm_campaign" />
+                </div>
+                <div class="field">
+                  <label class="field__label text-sm">${t('streams.drawer.fields.pathShort')}</label>
+                  <input type="text" class="input" value="${conditions.path || ''}" data-field="path" />
+                </div>
+                <div class="field">
+                  <label class="field__label text-sm">${t('streams.drawer.fields.referrerShort')}</label>
+                  <input type="text" class="input" value="${conditions.referrer || ''}" data-field="referrer" />
+                </div>
+              </div>
+            </details>
           </fieldset>
 
           <!-- Action -->
@@ -936,6 +946,15 @@ function setupDropdownSelection(container: HTMLElement): void {
 // =============================================================================
 // Utility
 // =============================================================================
+
+function hasAdvancedConditions(conditions: TdsRule['logic_json']['conditions']): boolean {
+  return !!(
+    (conditions.utm_source && conditions.utm_source.length > 0) ||
+    (conditions.utm_campaign && conditions.utm_campaign.length > 0) ||
+    conditions.path ||
+    conditions.referrer
+  );
+}
 
 function escapeAttr(str: string): string {
   return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');

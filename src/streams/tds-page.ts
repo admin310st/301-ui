@@ -20,6 +20,7 @@ import { deleteRule, updateRule } from '@api/tds';
 import { safeCall } from '@api/ui-client';
 import { showGlobalNotice } from '@ui/globalNotice';
 import { showDialog, hideDialog } from '@ui/dialog';
+import { initTooltips } from '@ui/tooltip';
 import { t } from '@i18n';
 
 let allRules: TdsRule[] = [];
@@ -137,6 +138,7 @@ function renderTable(): void {
   if (!tbody) return;
 
   tbody.innerHTML = renderRulesTable(filteredRules);
+  initTooltips();
 
   // Update counts
   const shownCount = document.querySelector('[data-shown-count]');

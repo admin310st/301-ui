@@ -12,6 +12,7 @@ import {
   getStatusBadgeHtml,
   truncateUrl,
 } from './helpers';
+import { getState } from './state';
 
 /**
  * Render rules table rows
@@ -35,7 +36,7 @@ function renderRuleRow(rule: TdsRule): string {
   const statusBadge = getStatusBadgeHtml(rule.status);
 
   const presetBadge = rule.preset_id
-    ? `<span class="badge badge--sm badge--neutral" title="${t('streams.table.fromPreset').replace('{{id}}', rule.preset_id)}">${rule.preset_id}</span>`
+    ? renderPresetBadge(rule.preset_id)
     : '';
 
   return `
@@ -89,6 +90,22 @@ function renderRuleRow(rule: TdsRule): string {
       </td>
     </tr>
   `;
+}
+
+/**
+ * Render preset badge with rich tooltip (name + description)
+ */
+function renderPresetBadge(presetId: string): string {
+  const { presets } = getState();
+  const preset = presets.find(p => p.id === presetId);
+
+  if (!preset) {
+    return `<span class="badge badge--sm badge--neutral">${escapeHtml(presetId)}</span>`;
+  }
+
+  const tooltipHtml = `<div class="tooltip"><div class="tooltip__header">${escapeHtml(preset.name)}</div><div class="tooltip__body">${escapeHtml(preset.description)}</div></div>`;
+
+  return `<span class="badge badge--sm badge--neutral" data-tooltip data-tooltip-content="${escapeHtml(tooltipHtml)}">${escapeHtml(presetId)}</span>`;
 }
 
 /**

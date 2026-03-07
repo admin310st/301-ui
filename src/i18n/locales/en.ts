@@ -925,6 +925,7 @@ export const en = {
       conditionsSection: 'Conditions',
       actionSection: 'Action',
       detailsSection: 'Details',
+      advanced: 'UTM, path, referrer…',
 
       // Field labels
       fields: {
