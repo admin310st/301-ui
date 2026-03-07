@@ -13,6 +13,7 @@ import { safeCall } from '@api/ui-client';
 import { getProjects } from '@api/projects';
 import { getProjectSites } from '@api/sites';
 import type { Site, Project } from '@api/types';
+import { t } from '@i18n';
 import { loadSitesRedirects, clearState, finishLoading, type SiteContext } from './state';
 import { getSelectedProjectId, setSelectedProject } from '@state/ui-preferences';
 
@@ -102,7 +103,7 @@ async function loadProjectSites(projectId: number): Promise<SiteOption[]> {
  */
 function renderProjectOptions(container: HTMLElement): void {
   if (availableProjects.length === 0) {
-    container.innerHTML = '<div class="dropdown__item text-muted">No projects</div>';
+    container.innerHTML = `<div class="dropdown__item text-muted">${t('redirects.selectors.noProjects')}</div>`;
     return;
   }
 
@@ -156,7 +157,7 @@ function updateProjectDisplay(name: string): void {
  */
 function renderSiteOptions(container: HTMLElement): void {
   if (availableSites.length === 0) {
-    container.innerHTML = '<div class="dropdown__item text-muted">No sites in project</div>';
+    container.innerHTML = `<div class="dropdown__item text-muted">${t('redirects.selectors.noSitesInProject')}</div>`;
     return;
   }
 
@@ -176,7 +177,7 @@ function renderSiteOptions(container: HTMLElement): void {
         ${someSelected ? 'data-indeterminate="true"' : ''}
         tabindex="-1"
       />
-      <span>${allSelected ? 'Deselect all' : 'Select all'}</span>
+      <span>${allSelected ? t('redirects.selectors.deselectAll') : t('redirects.selectors.selectAll')}</span>
       <span class="badge badge--xs badge--neutral">${availableSites.length}</span>
     </button>
     <div class="dropdown__divider"></div>
@@ -220,14 +221,14 @@ function updateSitesDisplay(): void {
   if (!nameEl) return;
 
   if (selectedSiteIds.size === 0) {
-    nameEl.textContent = 'No sites';
+    nameEl.textContent = t('redirects.selectors.noSites');
   } else if (selectedSiteIds.size === availableSites.length) {
-    nameEl.textContent = `All sites (${availableSites.length})`;
+    nameEl.textContent = t('redirects.selectors.allSites').replace('{{count}}', String(availableSites.length));
   } else if (selectedSiteIds.size === 1) {
     const site = availableSites.find(s => selectedSiteIds.has(s.id));
-    nameEl.textContent = site?.name || 'Sites';
+    nameEl.textContent = site?.name || t('redirects.selectors.noSites');
   } else {
-    nameEl.textContent = `${selectedSiteIds.size} sites`;
+    nameEl.textContent = t('redirects.selectors.multipleSites').replace('{{count}}', String(selectedSiteIds.size));
   }
 }
 
@@ -407,10 +408,10 @@ export async function initSiteSelector(
 
   // Show loading
   if (projectOptions) {
-    projectOptions.innerHTML = '<div class="dropdown__item text-muted">Loading...</div>';
+    projectOptions.innerHTML = `<div class="dropdown__item text-muted">${t('common.loading') || 'Loading...'}</div>`;
   }
   if (siteOptions) {
-    siteOptions.innerHTML = '<div class="dropdown__item text-muted">Select project first</div>';
+    siteOptions.innerHTML = `<div class="dropdown__item text-muted">${t('redirects.selectors.selectProjectFirst')}</div>`;
   }
 
   // Load projects
