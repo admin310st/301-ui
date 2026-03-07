@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>301.st Cloudflare Integration Guide</title>
+    <meta name="description" content="Learn how Cloudflare integration works in 301.st, what it unlocks, and how it supports domain sync and redirect operations." />
+    <link rel="canonical" href="https://app.301.st/docs/cloudflare-integration" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="301.st" />
+    <meta property="og:title" content="301.st Cloudflare Integration Guide" />
+    <meta property="og:description" content="How Cloudflare integration works in 301.st and what it unlocks for domains and redirects." />
+    <meta property="og:url" content="https://app.301.st/docs/cloudflare-integration" />
+    <meta property="og:image" content="https://app.301.st/img/og-301st.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" href="/css/theme.css" />
+    <link rel="stylesheet" href="/css/layout.css" />
+    <link rel="stylesheet" href="/css/site.css" />
+  </head>
+  <body>
+    <header class="site-header" role="banner">
+{{> header-top}}
+      <div class="utility-bar">
+        <div class="page-shell utility-bar__inner">
+          <div class="utility-left">
+            <nav class="breadcrumbs" aria-label="Breadcrumb">
+              <a href="/" class="crumb"><span class="icon" data-icon="mono/home"></span> <span>Home</span></a>
+              <span class="sep" aria-hidden="true">&gt;</span>
+              <a href="/docs" class="crumb">Docs</a>
+              <span class="sep" aria-hidden="true">&gt;</span>
+              <span class="crumb is-current">Cloudflare Integration</span>
+            </nav>
+          </div>
+{{> header-utility}}
+        </div>
+{{> global-notice}}
+      </div>
+    </header>
+
+    <main class="page-shell stack-list">
+      <header class="page-header">
+        <h1 class="text-display">Cloudflare Integration Guide</h1>
+        <p class="text-lead">301.st is built around Cloudflare-backed operations, so integrations are the first production step.</p>
+      </header>
+
+      <section class="card card--panel card--accent">
+        <header class="card__header"><h2 class="card__title">What Cloudflare Integration Unlocks</h2></header>
+        <div class="card__body">
+          <ul class="list--spaced">
+            <li>Zone discovery and domain sync</li>
+            <li>Operational visibility across your managed domains</li>
+            <li>Redirect workflows tied to Cloudflare-backed infrastructure</li>
+            <li>A cleaner control plane than managing each zone manually</li>
+          </ul>
+        </div>
+      </section>
+
+      <div class="grid-2">
+        <section class="card card--soft">
+          <header class="card__header"><h2 class="card__title">Recommended Setup Approach</h2></header>
+          <div class="card__body">
+            <ol class="list--ruled">
+              <li>Open the integrations flow in 301.st</li>
+              <li>Choose the Cloudflare connection path available in the product</li>
+              <li>Complete the token and access checks</li>
+              <li>Return to domain sync and confirm zones appear as expected</li>
+            </ol>
+          </div>
+        </section>
+
+        <section class="card card--panel">
+          <header class="card__header"><h2 class="card__title">Why This Comes First</h2></header>
+          <div class="card__body"><p class="text-body">Most of the stable value in 301.st starts after Cloudflare access is connected. Without it, domains and redirect workflows remain incomplete.</p></div>
+        </section>
+      </div>
+
+      <section class="card card--panel">
+        <header class="card__header"><h2 class="card__title">Registrar Integrations</h2></header>
+        <div class="card__body">
+          <p class="text-body">Registrar integrations are useful when your domain inventory lives outside Cloudflare or when you want one operational surface for account-level management.</p>
+          <p class="text-body">Treat them as supporting integrations. Cloudflare remains the center of the current production workflow.</p>
+        </div>
+      </section>
+
+      <section class="card card--soft">
+        <header class="card__header"><h2 class="card__title">FAQ</h2></header>
+        <div class="card__body">
+          <ul class="list--spaced">
+            <li><strong>Do I need a separate Cloudflare account per project?</strong><br />Not necessarily. Projects organize work inside 301.st; integration scope depends on your own account structure.</li>
+            <li><strong>Can I use 301.st without Cloudflare?</strong><br />Not for the main stable workflow this product is built around.</li>
+            <li><strong>What should I do after connecting Cloudflare?</strong><br />Move directly to domain sync and then organize projects and redirects.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="card card--panel">
+        <header class="card__header"><h2 class="card__title">Related Guides</h2></header>
+        <div class="card__body"><div class="cluster"><a href="/docs/getting-started" class="btn-chip"><span class="btn-chip__label">Getting started</span></a><a href="/docs/domain-management" class="btn-chip"><span class="btn-chip__label">Domain management</span></a><a href="/docs/redirects" class="btn-chip"><span class="btn-chip__label">Redirects</span></a></div></div>
+      </section>
+    </main>
+
+{{> footer}}
+
+    <script type="module" src="/src/main-public.ts"></script>
+  </body>
+</html>

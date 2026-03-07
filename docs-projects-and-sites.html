@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Projects and Sites in 301.st</title>
+    <meta name="description" content="Learn how projects and sites work in 301.st so you can organize domain operations and keep redirect workflows clean." />
+    <link rel="canonical" href="https://app.301.st/docs/projects-and-sites" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="301.st" />
+    <meta property="og:title" content="Projects and Sites in 301.st" />
+    <meta property="og:description" content="How projects and sites help organize domains and redirect workflows in 301.st." />
+    <meta property="og:url" content="https://app.301.st/docs/projects-and-sites" />
+    <meta property="og:image" content="https://app.301.st/img/og-301st.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" href="/css/theme.css" />
+    <link rel="stylesheet" href="/css/layout.css" />
+    <link rel="stylesheet" href="/css/site.css" />
+  </head>
+  <body>
+    <header class="site-header" role="banner">
+{{> header-top}}
+      <div class="utility-bar">
+        <div class="page-shell utility-bar__inner">
+          <div class="utility-left">
+            <nav class="breadcrumbs" aria-label="Breadcrumb">
+              <a href="/" class="crumb"><span class="icon" data-icon="mono/home"></span> <span>Home</span></a>
+              <span class="sep" aria-hidden="true">&gt;</span>
+              <a href="/docs" class="crumb">Docs</a>
+              <span class="sep" aria-hidden="true">&gt;</span>
+              <span class="crumb is-current">Projects and Sites</span>
+            </nav>
+          </div>
+{{> header-utility}}
+        </div>
+{{> global-notice}}
+      </div>
+    </header>
+
+    <main class="page-shell stack-list">
+      <header class="page-header">
+        <h1 class="text-display">Projects and Sites in 301.st</h1>
+        <p class="text-lead">Use projects to organize workspaces and sites to structure the destinations and assets attached to them.</p>
+      </header>
+
+      <section class="card card--panel card--accent">
+        <header class="card__header"><h2 class="card__title">Why This Layer Matters</h2></header>
+        <div class="card__body"><p class="text-body">Domains alone are not enough for clean operations. Projects and sites keep related assets together so redirect work stays readable and scalable.</p></div>
+      </section>
+
+      <div class="grid-2">
+        <section class="card card--soft">
+          <header class="card__header"><h2 class="card__title">Projects</h2></header>
+          <div class="card__body"><ul class="list--spaced"><li>Logical workspaces for grouping domains, sites, and operational flows</li><li>Useful when different offers, brands, teams, or traffic clusters should stay separated</li><li>Better than managing everything from one flat account-wide list</li></ul></div>
+        </section>
+
+        <section class="card card--panel">
+          <header class="card__header"><h2 class="card__title">Sites</h2></header>
+          <div class="card__body"><ul class="list--spaced"><li>Attach landing pages or operational destinations to projects</li><li>Keep downstream routing work understandable</li><li>Provide a cleaner base for redirect-linked workflows</li></ul></div>
+        </section>
+      </div>
+
+      <section class="card card--panel">
+        <header class="card__header"><h2 class="card__title">A Practical Setup Pattern</h2></header>
+        <div class="card__body"><ol class="list--ruled"><li>Start from a synced domain inventory</li><li>Create projects around business or operational boundaries</li><li>Add sites where routing or landing structure needs to stay explicit</li><li>Only then apply redirect workflows</li></ol></div>
+      </section>
+
+      <section class="card card--soft">
+        <header class="card__header"><h2 class="card__title">FAQ</h2></header>
+        <div class="card__body">
+          <ul class="list--spaced">
+            <li><strong>Do I need a project for every domain?</strong><br />No. Projects should reflect operational groups, not force one-domain-per-project fragmentation.</li>
+            <li><strong>Should I create sites before redirects?</strong><br />Only if your redirect workflow benefits from explicit site structure and organization.</li>
+            <li><strong>Can I skip this layer?</strong><br />For small setups, sometimes. For growing operations, skipping it usually makes everything messier later.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="card card--panel">
+        <header class="card__header"><h2 class="card__title">Related Guides</h2></header>
+        <div class="card__body"><div class="cluster"><a href="/docs/domain-management" class="btn-chip"><span class="btn-chip__label">Domain management</span></a><a href="/docs/redirects" class="btn-chip"><span class="btn-chip__label">Redirects</span></a><a href="/docs/getting-started" class="btn-chip"><span class="btn-chip__label">Getting started</span></a></div></div>
+      </section>
+    </main>
+
+{{> footer}}
+
+    <script type="module" src="/src/main-public.ts"></script>
+  </body>
+</html>

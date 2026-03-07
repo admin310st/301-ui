@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Redirect Management With 301.st</title>
+    <meta name="description" content="See how redirect management works in 301.st: organize domains, attach them to projects and sites, and run redirect workflows on stable product paths." />
+    <link rel="canonical" href="https://app.301.st/docs/redirects" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="301.st" />
+    <meta property="og:title" content="Redirect Management With 301.st" />
+    <meta property="og:description" content="How 301.st supports stable redirect operations across domains, projects, and site-linked workflows." />
+    <meta property="og:url" content="https://app.301.st/docs/redirects" />
+    <meta property="og:image" content="https://app.301.st/img/og-301st.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" href="/css/theme.css" />
+    <link rel="stylesheet" href="/css/layout.css" />
+    <link rel="stylesheet" href="/css/site.css" />
+  </head>
+  <body>
+    <header class="site-header" role="banner">
+{{> header-top}}
+      <div class="utility-bar">
+        <div class="page-shell utility-bar__inner">
+          <div class="utility-left">
+            <nav class="breadcrumbs" aria-label="Breadcrumb">
+              <a href="/" class="crumb"><span class="icon" data-icon="mono/home"></span> <span>Home</span></a>
+              <span class="sep" aria-hidden="true">&gt;</span>
+              <a href="/docs" class="crumb">Docs</a>
+              <span class="sep" aria-hidden="true">&gt;</span>
+              <span class="crumb is-current">Redirects</span>
+            </nav>
+          </div>
+{{> header-utility}}
+        </div>
+{{> global-notice}}
+      </div>
+    </header>
+
+    <main class="page-shell stack-list">
+      <header class="page-header">
+        <h1 class="text-display">Redirect Management With 301.st</h1>
+        <p class="text-lead">Redirects are one of the core shipped workflows in 301.st and the best public guide target after setup.</p>
+      </header>
+
+      <section class="card card--panel card--accent">
+        <header class="card__header"><h2 class="card__title">What the Redirects Workflow Is For</h2></header>
+        <div class="card__body"><ul class="list--spaced"><li>Managing redirect logic from a central UI instead of scattered provider dashboards</li><li>Working from project and site context instead of isolated domain edits</li><li>Keeping operational sync with Cloudflare-backed infrastructure</li></ul></div>
+      </section>
+
+      <div class="grid-2">
+        <section class="card card--soft">
+          <header class="card__header"><h2 class="card__title">Recommended Workflow</h2></header>
+          <div class="card__body"><ol class="list--ruled"><li>Start with synced domains</li><li>Organize projects and sites where structure helps</li><li>Create redirect rules from the redirects page</li><li>Review status and sync actions from one operational surface</li></ol></div>
+        </section>
+
+        <section class="card card--panel">
+          <header class="card__header"><h2 class="card__title">Why Teams Prefer This</h2></header>
+          <div class="card__body"><p class="text-body">301.st removes a lot of low-value dashboard hopping. The gain is not just creating redirects, but doing it inside a cleaner operational model.</p></div>
+        </section>
+      </div>
+
+      <section class="card card--panel">
+        <header class="card__header"><h2 class="card__title">How Redirects Fit the Broader Stack</h2></header>
+        <div class="card__body"><ul class="list--spaced"><li><strong>Integrations</strong> provide account access</li><li><strong>Domains</strong> provide the working inventory</li><li><strong>Projects and sites</strong> provide structure</li><li><strong>Redirects</strong> provide the stable traffic action layer</li></ul></div>
+      </section>
+
+      <section class="card card--soft">
+        <header class="card__header"><h2 class="card__title">FAQ</h2></header>
+        <div class="card__body"><ul class="list--spaced"><li><strong>Should I use redirects or TDS first?</strong><br />Use redirects first. It is the safer public guide target because it is already shipped and stable.</li><li><strong>Do redirects require projects and sites?</strong><br />Not always, but structure usually improves maintainability as the setup grows.</li><li><strong>Is this workflow suitable for ongoing operations?</strong><br />Yes. Redirect management is one of the mature areas of the current product.</li></ul></div>
+      </section>
+
+      <section class="card card--panel">
+        <header class="card__header"><h2 class="card__title">Related Guides</h2></header>
+        <div class="card__body"><div class="cluster"><a href="/docs/getting-started" class="btn-chip"><span class="btn-chip__label">Getting started</span></a><a href="/docs/domain-management" class="btn-chip"><span class="btn-chip__label">Domain management</span></a><a href="/docs/projects-and-sites" class="btn-chip"><span class="btn-chip__label">Projects and sites</span></a></div></div>
+      </section>
+    </main>
+
+{{> footer}}
+
+    <script type="module" src="/src/main-public.ts"></script>
+  </body>
+</html>

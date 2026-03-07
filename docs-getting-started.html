@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Getting Started With 301.st</title>
+    <meta name="description" content="Learn how to get started with 301.st: create an account, connect Cloudflare, sync domains, organize projects, and launch redirects." />
+    <link rel="canonical" href="https://app.301.st/docs/getting-started" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="301.st" />
+    <meta property="og:title" content="Getting Started With 301.st" />
+    <meta property="og:description" content="Create an account, connect Cloudflare, sync domains, organize projects, and launch redirects in 301.st." />
+    <meta property="og:url" content="https://app.301.st/docs/getting-started" />
+    <meta property="og:image" content="https://app.301.st/img/og-301st.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" href="/css/theme.css" />
+    <link rel="stylesheet" href="/css/layout.css" />
+    <link rel="stylesheet" href="/css/site.css" />
+  </head>
+  <body>
+    <header class="site-header" role="banner">
+{{> header-top}}
+      <div class="utility-bar">
+        <div class="page-shell utility-bar__inner">
+          <div class="utility-left">
+            <nav class="breadcrumbs" aria-label="Breadcrumb">
+              <a href="/" class="crumb"><span class="icon" data-icon="mono/home"></span> <span>Home</span></a>
+              <span class="sep" aria-hidden="true">&gt;</span>
+              <a href="/docs" class="crumb">Docs</a>
+              <span class="sep" aria-hidden="true">&gt;</span>
+              <span class="crumb is-current">Getting Started</span>
+            </nav>
+          </div>
+{{> header-utility}}
+        </div>
+{{> global-notice}}
+      </div>
+    </header>
+
+    <main class="page-shell stack-list">
+      <header class="page-header">
+        <h1 class="text-display">Getting Started With 301.st</h1>
+        <p class="text-lead">The shortest stable path from account creation to working redirect operations.</p>
+      </header>
+
+      <section class="card card--panel card--accent">
+        <header class="card__header"><h2 class="card__title">Quick Setup Path</h2></header>
+        <div class="card__body">
+          <ol class="list--ruled">
+            <li><strong>Create an account.</strong> Start with email or OAuth and complete the initial login flow.</li>
+            <li><strong>Connect Cloudflare.</strong> Add your Cloudflare account so 301.st can read zones and support routing workflows.</li>
+            <li><strong>Sync domains.</strong> Import the domains you want to manage from integrations into the domains table.</li>
+            <li><strong>Create a project.</strong> Group related assets before attaching sites or redirect work.</li>
+            <li><strong>Add a site if needed.</strong> Sites help organize destinations and site-linked routing flows.</li>
+            <li><strong>Launch redirects.</strong> Use the redirects page for the stable production workflow that is already shipped.</li>
+          </ol>
+        </div>
+      </section>
+
+      <div class="grid-2">
+        <section class="card card--soft">
+          <header class="card__header"><h2 class="card__title">Who This Setup Fits</h2></header>
+          <div class="card__body">
+            <ul class="list--spaced">
+              <li>Operators managing multiple Cloudflare-backed domains</li>
+              <li>Affiliate and acquisition stacks that need organized redirect operations</li>
+              <li>Teams that want projects, domains, sites, and redirect workflows in one control plane</li>
+            </ul>
+          </div>
+        </section>
+
+        <section class="card card--panel">
+          <header class="card__header"><h2 class="card__title">What Is Stable Today</h2></header>
+          <div class="card__body">
+            <ul class="list--spaced">
+              <li>Auth and account access</li>
+              <li>Cloudflare and registrar integrations</li>
+              <li>Domains table, inspector, filters, and bulk workflows</li>
+              <li>Projects and sites management</li>
+              <li>Redirect setup and Cloudflare sync</li>
+            </ul>
+          </div>
+        </section>
+      </div>
+
+      <section class="card card--panel">
+        <header class="card__header"><h2 class="card__title">Recommended Order of Work</h2></header>
+        <div class="card__body">
+          <p class="text-body">If you are starting from zero, do not begin with advanced routing ideas. First make integrations and domains trustworthy, then organize projects, then ship redirect workflows.</p>
+          <ul class="list--spaced">
+            <li><strong>First:</strong> integrations and domain sync</li>
+            <li><strong>Second:</strong> project and site structure</li>
+            <li><strong>Third:</strong> redirect rollout and operational cleanup</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="card card--soft">
+        <header class="card__header"><h2 class="card__title">FAQ</h2></header>
+        <div class="card__body">
+          <ul class="list--spaced">
+            <li><strong>Do I need Cloudflare first?</strong><br />For the main workflow, yes. 301.st is built around Cloudflare-managed infrastructure.</li>
+            <li><strong>Can I start with redirects only?</strong><br />Yes. Redirects are the best first shipped workflow after integrations and domain sync.</li>
+            <li><strong>Should I start with TDS?</strong><br />No. Treat TDS as a separate in-progress area until rollout is fully complete.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="card card--panel">
+        <header class="card__header"><h2 class="card__title">Related Guides</h2></header>
+        <div class="card__body">
+          <div class="cluster">
+            <a href="/docs/cloudflare-integration" class="btn-chip"><span class="btn-chip__label">Cloudflare integration</span></a>
+            <a href="/docs/domain-management" class="btn-chip"><span class="btn-chip__label">Domain management</span></a>
+            <a href="/docs/projects-and-sites" class="btn-chip"><span class="btn-chip__label">Projects and sites</span></a>
+            <a href="/docs/redirects" class="btn-chip"><span class="btn-chip__label">Redirects</span></a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+{{> footer}}
+
+    <script type="module" src="/src/main-public.ts"></script>
+  </body>
+</html>

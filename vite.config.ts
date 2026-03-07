@@ -88,6 +88,12 @@ export default defineConfig({
         terms: resolve(__dirname, 'terms.html'),
         security: resolve(__dirname, 'security.html'),
         docs: resolve(__dirname, 'docs.html'),
+        docsGettingStarted: resolve(__dirname, 'docs-getting-started.html'),
+        docsCloudflareIntegration: resolve(__dirname, 'docs-cloudflare-integration.html'),
+        docsDomainManagement: resolve(__dirname, 'docs-domain-management.html'),
+        docsProjectsAndSites: resolve(__dirname, 'docs-projects-and-sites.html'),
+        docsRedirects: resolve(__dirname, 'docs-redirects.html'),
+        docsTds: resolve(__dirname, 'docs-tds.html'),
         notFound: resolve(__dirname, '404.html'),
       },
     },
@@ -114,3 +120,4 @@ export default defineConfig({
     environment: 'node',
   },
 });
+

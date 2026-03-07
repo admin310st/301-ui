@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TDS Status in 301.st</title>
+    <meta name="description" content="Current public status of TDS in 301.st, including rollout boundaries and how it differs from the shipped redirect workflow." />
+    <link rel="canonical" href="https://app.301.st/docs/tds" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="301.st" />
+    <meta property="og:title" content="TDS Status in 301.st" />
+    <meta property="og:description" content="Current public status of TDS in 301.st, including rollout boundaries and how it differs from the shipped redirect workflow." />
+    <meta property="og:url" content="https://app.301.st/docs/tds" />
+    <meta property="og:image" content="https://app.301.st/img/og-301st.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" href="/css/theme.css" />
+    <link rel="stylesheet" href="/css/layout.css" />
+    <link rel="stylesheet" href="/css/site.css" />
+  </head>
+  <body>
+    <header class="site-header" role="banner">
+{{> header-top}}
+      <div class="utility-bar">
+        <div class="page-shell utility-bar__inner">
+          <div class="utility-left">
+            <nav class="breadcrumbs" aria-label="Breadcrumb">
+              <a href="/" class="crumb"><span class="icon" data-icon="mono/home"></span> <span>Home</span></a>
+              <span class="sep" aria-hidden="true">&gt;</span>
+              <a href="/docs" class="crumb">Docs</a>
+              <span class="sep" aria-hidden="true">&gt;</span>
+              <span class="crumb is-current">TDS Status</span>
+            </nav>
+          </div>
+{{> header-utility}}
+        </div>
+{{> global-notice}}
+      </div>
+    </header>
+
+    <main class="page-shell stack-list">
+      <header class="page-header">
+        <h1 class="text-display">TDS Status in 301.st</h1>
+        <p class="text-lead">Public status page for the TDS area while the product continues to mature.</p>
+      </header>
+
+      <section class="card card--panel card--accent">
+        <header class="card__header"><h2 class="card__title">Current Position</h2></header>
+        <div class="card__body"><p class="text-body">TDS is the one major area that is not yet in the same documentation-ready state as the rest of the product. It exists in the product and is actively developing, but it should not be described like the fully settled redirects workflow.</p></div>
+      </section>
+
+      <div class="grid-2">
+        <section class="card card--soft">
+          <header class="card__header"><h2 class="card__title">What Is Safe to Say Publicly</h2></header>
+          <div class="card__body"><ul class="list--spaced"><li>TDS is an active product area inside 301.st</li><li>It is being shaped into the same operational model as the rest of the platform</li><li>The public docs should describe status and boundaries, not a final authoritative playbook</li></ul></div>
+        </section>
+
+        <section class="card card--panel">
+          <header class="card__header"><h2 class="card__title">What We Avoid for Now</h2></header>
+          <div class="card__body"><ul class="list--spaced"><li>Deep SEO pages that imply final feature completeness</li><li>Workflow promises that may still move during rollout</li><li>Copy that competes with the stable redirects documentation</li></ul></div>
+        </section>
+      </div>
+
+      <section class="card card--panel">
+        <header class="card__header"><h2 class="card__title">Recommended Public Framing</h2></header>
+        <div class="card__body"><p class="text-body">Keep TDS discoverable, but frame it as a status page and future-facing product area. Let redirects carry the main stable routing intent in public search traffic until TDS is fully ready.</p></div>
+      </section>
+
+      <section class="card card--soft">
+        <header class="card__header"><h2 class="card__title">FAQ</h2></header>
+        <div class="card__body"><ul class="list--spaced"><li><strong>Is TDS available inside the product?</strong><br />Yes, but this page deliberately avoids presenting it as the most mature workflow.</li><li><strong>Should public search traffic land on TDS pages first?</strong><br />No. Redirects and setup guides are better SEO entry points right now.</li><li><strong>Will this page change later?</strong><br />Yes. Once TDS is fully settled, this status page can grow into a fuller guide set.</li></ul></div>
+      </section>
+
+      <section class="card card--panel">
+        <header class="card__header"><h2 class="card__title">Related Guides</h2></header>
+        <div class="card__body"><div class="cluster"><a href="/docs/getting-started" class="btn-chip"><span class="btn-chip__label">Getting started</span></a><a href="/docs/redirects" class="btn-chip"><span class="btn-chip__label">Redirects</span></a><a href="/docs/domain-management" class="btn-chip"><span class="btn-chip__label">Domain management</span></a></div></div>
+      </section>
+    </main>
+
+{{> footer}}
+
+    <script type="module" src="/src/main-public.ts"></script>
+  </body>
+</html>

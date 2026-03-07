@@ -77,6 +77,12 @@ export default {
       ['/security.html', '/security.html'],
       ['/docs', '/docs.html'],
       ['/docs.html', '/docs.html'],
+      ['/docs/getting-started', '/docs-getting-started.html'],
+      ['/docs/cloudflare-integration', '/docs-cloudflare-integration.html'],
+      ['/docs/domain-management', '/docs-domain-management.html'],
+      ['/docs/projects-and-sites', '/docs-projects-and-sites.html'],
+      ['/docs/redirects', '/docs-redirects.html'],
+      ['/docs/tds', '/docs-tds.html'],
       ['/404', '/404.html'],
       ['/404.html', '/404.html'],
     ]);
@@ -163,3 +169,4 @@ export default {
     );
   },
 };
+

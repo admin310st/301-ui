@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Domain Management in 301.st</title>
+    <meta name="description" content="Understand how domain management works in 301.st: synced inventory, operational checks, filtering, and day-to-day workflows." />
+    <link rel="canonical" href="https://app.301.st/docs/domain-management" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="301.st" />
+    <meta property="og:title" content="Domain Management in 301.st" />
+    <meta property="og:description" content="How 301.st helps teams manage synced domains, operational checks, filters, and day-to-day workflows." />
+    <meta property="og:url" content="https://app.301.st/docs/domain-management" />
+    <meta property="og:image" content="https://app.301.st/img/og-301st.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="stylesheet" href="/css/theme.css" />
+    <link rel="stylesheet" href="/css/layout.css" />
+    <link rel="stylesheet" href="/css/site.css" />
+  </head>
+  <body>
+    <header class="site-header" role="banner">
+{{> header-top}}
+      <div class="utility-bar">
+        <div class="page-shell utility-bar__inner">
+          <div class="utility-left">
+            <nav class="breadcrumbs" aria-label="Breadcrumb">
+              <a href="/" class="crumb"><span class="icon" data-icon="mono/home"></span> <span>Home</span></a>
+              <span class="sep" aria-hidden="true">&gt;</span>
+              <a href="/docs" class="crumb">Docs</a>
+              <span class="sep" aria-hidden="true">&gt;</span>
+              <span class="crumb is-current">Domain Management</span>
+            </nav>
+          </div>
+{{> header-utility}}
+        </div>
+{{> global-notice}}
+      </div>
+    </header>
+
+    <main class="page-shell stack-list">
+      <header class="page-header">
+        <h1 class="text-display">Domain Management in 301.st</h1>
+        <p class="text-lead">A unified operations surface for synced domains, status review, filtering, and domain-level workflows.</p>
+      </header>
+
+      <section class="card card--panel card--accent">
+        <header class="card__header"><h2 class="card__title">What the Domains Layer Does</h2></header>
+        <div class="card__body">
+          <ul class="list--spaced">
+            <li>Aggregates domains from connected integrations</li>
+            <li>Helps operators review state without jumping across provider dashboards</li>
+            <li>Supports bulk actions for day-to-day maintenance</li>
+            <li>Feeds the rest of the product with domain inventory for projects, sites, and redirects</li>
+          </ul>
+        </div>
+      </section>
+
+      <div class="grid-2">
+        <section class="card card--soft">
+          <header class="card__header"><h2 class="card__title">Typical Workflow</h2></header>
+          <div class="card__body">
+            <ol class="list--ruled">
+              <li>Connect Cloudflare or registrar integrations</li>
+              <li>Sync domain inventory into the domains page</li>
+              <li>Filter and inspect operational state</li>
+              <li>Attach domains to projects or downstream workflows</li>
+              <li>Use redirects or site-linked flows from a clean domain inventory</li>
+            </ol>
+          </div>
+        </section>
+
+        <section class="card card--panel">
+          <header class="card__header"><h2 class="card__title">Why Teams Use It</h2></header>
+          <div class="card__body"><p class="text-body">The value is not just storage. It is operational visibility: one table, one set of filters, one place to review and act.</p></div>
+        </section>
+      </div>
+
+      <section class="card card--panel">
+        <header class="card__header"><h2 class="card__title">How Domain Management Connects to the Rest of the Product</h2></header>
+        <div class="card__body">
+          <ul class="list--spaced">
+            <li><strong>Projects:</strong> domains become part of organized workspaces</li>
+            <li><strong>Sites:</strong> domains can be attached to site workflows</li>
+            <li><strong>Redirects:</strong> domains are the base layer for redirect rollout</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="card card--soft">
+        <header class="card__header"><h2 class="card__title">FAQ</h2></header>
+        <div class="card__body">
+          <ul class="list--spaced">
+            <li><strong>Is this just a domain list?</strong><br />No. The value comes from filtering, inspection, and operational actions on top of synced inventory.</li>
+            <li><strong>Do domains have to be in Cloudflare?</strong><br />Cloudflare is the main workflow, but registrar-connected inventory can still support management use cases.</li>
+            <li><strong>Should I organize domains before redirects?</strong><br />Yes. A clean domain layer makes redirect operations much less error-prone.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="card card--panel">
+        <header class="card__header"><h2 class="card__title">Related Guides</h2></header>
+        <div class="card__body"><div class="cluster"><a href="/docs/cloudflare-integration" class="btn-chip"><span class="btn-chip__label">Cloudflare integration</span></a><a href="/docs/projects-and-sites" class="btn-chip"><span class="btn-chip__label">Projects and sites</span></a><a href="/docs/redirects" class="btn-chip"><span class="btn-chip__label">Redirects</span></a></div></div>
+      </section>
+    </main>
+
+{{> footer}}
+
+    <script type="module" src="/src/main-public.ts"></script>
+  </body>
+</html>
