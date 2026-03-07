@@ -39,7 +39,7 @@ function renderRuleRow(rule: TdsRule): string {
     : '';
 
   return `
-    <tr data-rule-id="${rule.id}" data-action="edit-rule">
+    <tr data-rule-id="${rule.id}">
       <td data-priority="medium" class="text-center">
         <span class="text-sm text-muted" style="font-variant-numeric: tabular-nums;">${rule.priority}</span>
       </td>
@@ -68,12 +68,15 @@ function renderRuleRow(rule: TdsRule): string {
         ${statusBadge}
       </td>
       <td data-priority="critical" class="th-actions">
-        <div class="table-actions table-actions--inline">
+        <div class="btn-group">
+          <button class="btn-icon" type="button" data-action="edit-rule" data-rule-id="${rule.id}" aria-label="${t('streams.actions.edit')}" title="${t('streams.actions.edit')}">
+            <span class="icon" data-icon="mono/pencil-circle"></span>
+          </button>
           <div class="dropdown" data-dropdown>
-            <button class="btn-icon btn-icon--sm btn-icon--ghost dropdown__trigger" type="button" aria-haspopup="menu" title="${t('streams.actions.moreActions')}">
+            <button class="btn-icon btn-icon--ghost dropdown__trigger" type="button" aria-haspopup="menu" aria-expanded="false" title="${t('streams.actions.moreActions')}">
               <span class="icon" data-icon="mono/dots-vertical"></span>
             </button>
-            <div class="dropdown__menu" role="menu">
+            <div class="dropdown__menu dropdown__menu--align-right" role="menu">
               ${renderToggleAction(rule)}
               <div class="dropdown__divider"></div>
               <button class="dropdown__item dropdown__item--danger" type="button" data-action="delete-rule" data-rule-id="${rule.id}">
