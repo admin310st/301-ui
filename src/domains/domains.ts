@@ -20,6 +20,7 @@ import { getAccountId } from '@state/auth-state';
 import { getSelectedProjectName, setSelectedProject, clearSelectedProject } from '@state/ui-preferences';
 import { adaptDomainsResponseToUI } from './adapter';
 import { showGlobalMessage } from '@ui/notifications';
+import { t } from '@i18n';
 
 let currentDomains: Domain[] = [];
 let cachedIntegrationKeys: IntegrationKey[] | null = null;
@@ -382,10 +383,10 @@ async function loadDomainsFromAPI(): Promise<void> {
 
     const errorMessage = error instanceof Error
       ? error.message
-      : 'Failed to load domains. Please retry or check your connection.';
+      : t('domains.errors.loadFailed');
 
     showErrorState(errorMessage);
-    showGlobalMessage('error', 'Failed to load domains');
+    showGlobalMessage('error', t('domains.messages.loadFailed'));
   }
 }
 
@@ -512,18 +513,18 @@ function renderDomainsTable(domains: Domain[]): void {
                   ${domain.status === 'blocked' ? `
                   <button class="dropdown__item" type="button" data-action="unblock-domain" data-domain-id="${domain.id}">
                     <span class="icon" data-icon="mono/shield-check"></span>
-                    <span>Unblock domain</span>
+                    <span>${t('domains.actions.unblock')}</span>
                   </button>
                   ` : `
                   <button class="dropdown__item dropdown__item--warning" type="button" data-action="block-domain" data-domain-id="${domain.id}">
                     <span class="icon" data-icon="mono/cancel"></span>
-                    <span>Block domain</span>
+                    <span>${t('domains.actions.blockDomain')}</span>
                   </button>
                   `}
                   <hr class="dropdown__divider" />
                   <button class="dropdown__item dropdown__item--danger" type="button" data-action="delete-domain" data-domain-id="${domain.id}">
                     <span class="icon" data-icon="mono/delete"></span>
-                    <span>Delete subdomain</span>
+                    <span>${t('domains.actions.deleteSubdomain')}</span>
                   </button>
                 </div>
               </div>
@@ -563,11 +564,11 @@ function getStatusChip(status: Domain['status']): string {
     pending: 'badge--neutral',
   };
   const labels: Record<string, string> = {
-    active: 'Active',
-    expired: 'Expired',
-    expiring: 'Expiring',
-    blocked: 'Blocked',
-    pending: 'Pending',
+    active: t('domains.status.active'),
+    expired: t('domains.status.expired'),
+    expiring: t('domains.status.expiring'),
+    blocked: t('domains.status.blocked'),
+    pending: t('domains.status.pending'),
   };
   return `<span class="badge ${variants[status]}">${labels[status]}</span>`;
 }
@@ -579,25 +580,25 @@ function getHealthIcons(domain: Domain): string {
   // Mock data returns: valid, expiring, invalid, off
   const sslStatus = domain.ssl_status;
   if (sslStatus === 'valid') {
-    icons.push('<span class="icon text-ok" data-icon="mono/lock" title="SSL valid"></span>');
+    icons.push(`<span class="icon text-ok" data-icon="mono/lock" title="${t('domains.health.sslValid')}"></span>`);
   } else if (sslStatus === 'expiring' || sslStatus === 'pending') {
-    icons.push('<span class="icon text-warning" data-icon="mono/lock" title="SSL pending"></span>');
+    icons.push(`<span class="icon text-warning" data-icon="mono/lock" title="${t('domains.health.sslPending')}"></span>`);
   } else if (sslStatus === 'invalid' || sslStatus === 'error') {
-    icons.push('<span class="icon text-danger" data-icon="mono/lock" title="SSL error"></span>');
+    icons.push(`<span class="icon text-danger" data-icon="mono/lock" title="${t('domains.health.sslError')}"></span>`);
   } else {
-    icons.push('<span class="icon text-muted" data-icon="mono/lock" title="No SSL"></span>');
+    icons.push(`<span class="icon text-muted" data-icon="mono/lock" title="${t('domains.health.noSsl')}"></span>`);
   }
 
   // Health/Abuse icon - adapter maps API health.status (ok/warning/danger/unknown) to abuse_status (clean/warning/danger)
   const healthStatus = domain.abuse_status;
   if (healthStatus === 'clean') {
-    icons.push('<span class="icon text-ok" data-icon="mono/shield-check" title="Healthy"></span>');
+    icons.push(`<span class="icon text-ok" data-icon="mono/shield-check" title="${t('domains.health.healthy')}"></span>`);
   } else if (healthStatus === 'warning') {
-    icons.push('<span class="icon text-warning" data-icon="mono/alert-triangle" title="Warning"></span>');
+    icons.push(`<span class="icon text-warning" data-icon="mono/alert-triangle" title="${t('domains.health.warning')}"></span>`);
   } else if (healthStatus === 'danger') {
-    icons.push('<span class="icon text-danger" data-icon="mono/security" title="Danger"></span>');
+    icons.push(`<span class="icon text-danger" data-icon="mono/security" title="${t('domains.health.danger')}"></span>`);
   } else {
-    icons.push('<span class="icon text-muted" data-icon="mono/help-circle" title="Unknown"></span>');
+    icons.push(`<span class="icon text-muted" data-icon="mono/help-circle" title="${t('domains.health.unknown')}"></span>`);
   }
 
   return `<div class="health-icons">${icons.join(' ')}</div>`;
@@ -617,11 +618,11 @@ function getExpiresText(domain: Domain): string {
   };
 
   const providerLabels: Record<Domain['provider'], string> = {
-    cloudflare: 'Cloudflare Registrar',
-    namecheap: 'Namecheap',
-    namesilo: 'NameSilo',
-    google: 'Google Domains',
-    manual: 'Manually added',
+    cloudflare: t('domains.providers.cloudflare'),
+    namecheap: t('domains.providers.namecheap'),
+    namesilo: t('domains.providers.namesilo'),
+    google: t('domains.providers.google'),
+    manual: t('domains.providers.manual'),
   };
 
   const icon = `<span class="provider-icon-sm" title="${providerLabels[domain.registrar]}"><span class="icon" data-icon="${providerIcons[domain.registrar]}"></span></span>`;
@@ -876,7 +877,7 @@ function openInspector(domainId: number): void {
     if (domain.project_id && domain.project_name !== 'Unassigned') {
       projectEl.innerHTML = `<a href="/projects.html" class="btn-chip btn-chip--sm">${domain.project_name}</a>`;
     } else {
-      projectEl.innerHTML = '<span class="text-muted">Unassigned</span>';
+      projectEl.innerHTML = `<span class="text-muted">${t('domains.inspector.unassigned')}</span>`;
     }
   }
 
@@ -888,9 +889,9 @@ function openInspector(domainId: number): void {
       reserve: 'mono/cog-pause',
     };
     const roleLabels = {
-      acceptor: 'Acceptor: receives traffic',
-      donor: 'Donor: redirects traffic',
-      reserve: 'Reserve: inactive',
+      acceptor: t('domains.inspector.role.acceptor'),
+      donor: t('domains.inspector.role.donor'),
+      reserve: t('domains.inspector.role.reserve'),
     };
     roleIconEl.setAttribute('data-role', domain.role);
     roleIconEl.setAttribute('title', roleLabels[domain.role]);
@@ -910,9 +911,9 @@ function openInspector(domainId: number): void {
   // Integration: resolve key_id → IntegrationKey for CF account details
   if (integrationEl) {
     if (!domain.key_id) {
-      integrationEl.textContent = 'Manual';
+      integrationEl.textContent = t('domains.inspector.manual');
     } else {
-      integrationEl.innerHTML = '<span class="text-muted">Loading...</span>';
+      integrationEl.innerHTML = `<span class="text-muted">${t('common.loading')}</span>`;
       void resolveIntegration(domain.key_id, integrationEl);
     }
   }
@@ -925,7 +926,7 @@ function openInspector(domainId: number): void {
   }
 
   if (nsEl && nsStatusEl) {
-    nsEl.innerHTML = '<span class="text-muted">Loading...</span>';
+    nsEl.innerHTML = `<span class="text-muted">${t('common.loading')}</span>`;
     nsStatusEl.innerHTML = '';
 
     // Parse expected NS from domain (CF-assigned nameservers, comma-separated)
@@ -936,11 +937,11 @@ function openInspector(domainId: number): void {
     queryNSRecords(domain.domain_name)
       .then((records) => {
         if (records.length === 0) {
-          nsEl.innerHTML = '<span class="text-muted">No NS records found</span>';
+          nsEl.innerHTML = `<span class="text-muted">${t('domains.inspector.ns.noRecords')}</span>`;
           nsStatusEl.innerHTML = '';
           // Show expected NS if available
           if (expectedNs && expectedNs.length > 0 && nsHintEl) {
-            renderNsHint(nsHintEl, expectedNs, 'info', 'Set nameservers to:');
+            renderNsHint(nsHintEl, expectedNs, 'info', t('domains.inspector.ns.setTo'));
           }
           return;
         }
@@ -968,15 +969,15 @@ function openInspector(domainId: number): void {
         // Status badge with NS match awareness
         let statusBadge: string;
         if (allCloudflare && isExactMatch) {
-          statusBadge = '<span class="badge badge--success">On Cloudflare</span>';
+          statusBadge = `<span class="badge badge--success">${t('domains.inspector.ns.onCloudflare')}</span>`;
         } else if (allCloudflare && expectedNs && !isExactMatch) {
-          statusBadge = '<span class="badge badge--warning">NS mismatch</span>';
+          statusBadge = `<span class="badge badge--warning">${t('domains.inspector.ns.nsMismatch')}</span>`;
         } else if (allCloudflare) {
-          statusBadge = '<span class="badge badge--success">On Cloudflare</span>';
+          statusBadge = `<span class="badge badge--success">${t('domains.inspector.ns.onCloudflare')}</span>`;
         } else if (someCloudflare) {
-          statusBadge = '<span class="badge badge--warning">Mixed NS</span>';
+          statusBadge = `<span class="badge badge--warning">${t('domains.inspector.ns.mixedNs')}</span>`;
         } else {
-          statusBadge = '<span class="badge badge--neutral">Not on Cloudflare</span>';
+          statusBadge = `<span class="badge badge--neutral">${t('domains.inspector.ns.notOnCloudflare')}</span>`;
         }
 
         nsEl.innerHTML = `<div class="stack-list--xs">${recordsHtml}</div>`;
@@ -985,15 +986,15 @@ function openInspector(domainId: number): void {
         // Show hint panel for mismatches (only when expected NS is known)
         if (nsHintEl && expectedNs && expectedNs.length > 0 && !isExactMatch) {
           if (allCloudflare) {
-            renderNsHint(nsHintEl, expectedNs, 'warning', 'Expected nameservers:');
+            renderNsHint(nsHintEl, expectedNs, 'warning', t('domains.inspector.ns.expected'));
           } else {
-            renderNsHint(nsHintEl, expectedNs, 'info', 'Update nameservers to:');
+            renderNsHint(nsHintEl, expectedNs, 'info', t('domains.inspector.ns.updateTo'));
           }
         }
       })
       .catch((error) => {
         console.error('Failed to load NS records:', error);
-        nsEl.innerHTML = '<span class="text-muted">Failed to load NS records</span>';
+        nsEl.innerHTML = `<span class="text-muted">${t('domains.inspector.ns.failedToLoad')}</span>`;
         nsStatusEl.innerHTML = '';
       });
   }
@@ -1002,9 +1003,9 @@ function openInspector(domainId: number): void {
   const routingEl = drawer.querySelector<HTMLElement>('[data-inspector-routing]');
   if (routingEl) {
     if (!domain.site_id) {
-      routingEl.innerHTML = '<p class="text-muted text-sm">Not attached to a site</p>';
+      routingEl.innerHTML = `<p class="text-muted text-sm">${t('domains.inspector.notAttachedToSite')}</p>`;
     } else {
-      routingEl.innerHTML = '<p class="text-muted">Loading...</p>';
+      routingEl.innerHTML = `<p class="text-muted">${t('common.loading')}</p>`;
       const siteId = domain.site_id;
       const zoneId = domain.zone_id;
 
@@ -1026,34 +1027,34 @@ function openInspector(domainId: number): void {
           // Redirect row
           if (redirect) {
             const templateNames: Record<string, string> = {
-              T1: 'Domain redirect', T3: 'apex \u2192 www', T4: 'www \u2192 apex',
-              T5: 'Path redirect', T6: 'Exact path \u2192 URL', T7: 'Maintenance mode',
+              T1: 'Domain redirect', T3: 'apex → www', T4: 'www → apex',
+              T5: 'Path redirect', T6: 'Exact path → URL', T7: 'Maintenance mode',
             };
             const templateLabel = templateNames[redirect.template_id] || redirect.template_id || 'Custom';
             const targetUrl = redirect.params?.target_url || '—';
             html += `
               <div class="detail-row">
-                <dt class="detail-label">Redirect</dt>
+                <dt class="detail-label">${t('domains.inspector.redirect')}</dt>
                 <dd class="detail-value">
                   <span class="badge badge--sm badge--neutral">${templateLabel}</span>
                 </dd>
               </div>
               <div class="detail-row">
-                <dt class="detail-label">Target</dt>
+                <dt class="detail-label">${t('domains.inspector.target')}</dt>
                 <dd class="detail-value text-sm">${targetUrl}</dd>
               </div>`;
 
             // Sync status
             const syncStatus = redirect.sync_status || 'pending';
-            const syncText = syncStatus === 'synced' ? 'Synced' :
-                             syncStatus === 'pending' ? 'Pending' :
-                             syncStatus === 'error' ? 'Failed' : 'Not synced';
+            const syncText = syncStatus === 'synced' ? t('domains.inspector.syncStatus.synced') :
+                             syncStatus === 'pending' ? t('domains.inspector.syncStatus.pending') :
+                             syncStatus === 'error' ? t('domains.inspector.syncStatus.failed') : t('domains.inspector.syncStatus.notSynced');
             const syncColor = syncStatus === 'synced' ? 'text-success' :
                               syncStatus === 'pending' ? 'text-warning' :
                               syncStatus === 'error' ? 'text-danger' : 'text-muted';
             html += `
               <div class="detail-row">
-                <dt class="detail-label">Sync</dt>
+                <dt class="detail-label">${t('domains.inspector.sync')}</dt>
                 <dd class="detail-value">
                   <span class="${syncColor}">${syncText}</span>
                 </dd>
@@ -1061,8 +1062,8 @@ function openInspector(domainId: number): void {
           } else {
             html += `
               <div class="detail-row">
-                <dt class="detail-label">Redirect</dt>
-                <dd class="detail-value text-muted text-sm">No redirect configured</dd>
+                <dt class="detail-label">${t('domains.inspector.redirect')}</dt>
+                <dd class="detail-value text-muted text-sm">${t('domains.inspector.noRedirect')}</dd>
               </div>`;
           }
 
@@ -1070,8 +1071,8 @@ function openInspector(domainId: number): void {
           if (zoneLimits) {
             html += `
               <div class="detail-row">
-                <dt class="detail-label">Zone quota</dt>
-                <dd class="detail-value text-sm">${zoneLimits.used} / ${zoneLimits.max} rules</dd>
+                <dt class="detail-label">${t('domains.inspector.zoneQuota')}</dt>
+                <dd class="detail-value text-sm">${t('domains.inspector.zoneQuotaValue').replace('{{used}}', String(zoneLimits.used)).replace('{{max}}', String(zoneLimits.max))}</dd>
               </div>`;
           }
 
@@ -1081,13 +1082,13 @@ function openInspector(domainId: number): void {
           html += `
             <div class="card__actions">
               <a class="btn-chip btn-chip--sm btn-chip--primary" href="redirects.html">
-                <span>Manage redirects</span>
+                <span>${t('domains.actions.manageRedirects')}</span>
               </a>
             </div>`;
 
           routingEl.innerHTML = html;
         } catch {
-          routingEl.innerHTML = '<p class="text-muted text-sm">Failed to load redirect data</p>';
+          routingEl.innerHTML = `<p class="text-muted text-sm">${t('domains.inspector.failedToLoadRedirects')}</p>`;
         }
       })();
     }
@@ -1143,9 +1144,9 @@ function closeDrawer(): void {
  */
 function getRoleMenuItems(domain: Domain): string {
   const roles: { value: Domain['role']; label: string; icon: string }[] = [
-    { value: 'acceptor', label: 'Set as Acceptor', icon: 'mono/arrow-bottom-right' },
-    { value: 'donor', label: 'Set as Donor', icon: 'mono/arrow-top-right' },
-    { value: 'reserve', label: 'Set as Reserve', icon: 'mono/cog-pause' },
+    { value: 'acceptor', label: t('domains.actions.setAcceptor'), icon: 'mono/arrow-bottom-right' },
+    { value: 'donor', label: t('domains.actions.setDonor'), icon: 'mono/arrow-top-right' },
+    { value: 'reserve', label: t('domains.actions.setReserve'), icon: 'mono/cog-pause' },
   ];
 
   return roles
@@ -1178,14 +1179,14 @@ async function handleDeleteDomain(domain: Domain): Promise<void> {
     );
 
     invalidateCache('domains');
-    showGlobalMessage('success', `Deleted ${domain.domain_name}`);
+    showGlobalMessage('success', t('domains.messages.deleted').replace('{{domain}}', domain.domain_name));
 
     // Reload domains to reflect changes
     showLoadingState();
     await loadDomainsFromAPI();
   } catch (error: unknown) {
     console.error('Failed to delete domain:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Failed to delete domain';
+    const errorMessage = error instanceof Error ? error.message : t('domains.errors.deleteFailed');
     showGlobalMessage('error', errorMessage);
   }
 }
@@ -1207,14 +1208,14 @@ async function handleBlockDomain(domain: Domain): Promise<void> {
     );
 
     invalidateCache('domains');
-    showGlobalMessage('success', `Blocked ${domain.domain_name}`);
+    showGlobalMessage('success', t('domains.messages.blocked').replace('{{domain}}', domain.domain_name));
 
     // Reload domains to reflect changes
     showLoadingState();
     await loadDomainsFromAPI();
   } catch (error: unknown) {
     console.error('Failed to block domain:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Failed to block domain';
+    const errorMessage = error instanceof Error ? error.message : t('domains.errors.blockFailed');
     showGlobalMessage('error', errorMessage);
   }
 }
@@ -1236,14 +1237,14 @@ async function handleUnblockDomain(domain: Domain): Promise<void> {
     );
 
     invalidateCache('domains');
-    showGlobalMessage('success', `Unblocked ${domain.domain_name}`);
+    showGlobalMessage('success', t('domains.messages.unblocked').replace('{{domain}}', domain.domain_name));
 
     // Reload domains to reflect changes
     showLoadingState();
     await loadDomainsFromAPI();
   } catch (error: unknown) {
     console.error('Failed to unblock domain:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Failed to unblock domain';
+    const errorMessage = error instanceof Error ? error.message : t('domains.errors.unblockFailed');
     showGlobalMessage('error', errorMessage);
   }
 }
@@ -1264,18 +1265,18 @@ async function handleChangeRole(domain: Domain, newRole: Domain['role']): Promis
     invalidateCache('domains');
 
     const roleLabels = {
-      acceptor: 'Acceptor',
-      donor: 'Donor',
-      reserve: 'Reserve',
+      acceptor: t('domains.roles.acceptor'),
+      donor: t('domains.roles.donor'),
+      reserve: t('domains.roles.reserve'),
     };
-    showGlobalMessage('success', `Changed ${domain.domain_name} to ${roleLabels[newRole]}`);
+    showGlobalMessage('success', t('domains.messages.roleChanged').replace('{{domain}}', domain.domain_name).replace('{{role}}', roleLabels[newRole]));
 
     // Reload domains to reflect changes
     showLoadingState();
     await loadDomainsFromAPI();
   } catch (error: unknown) {
     console.error('Failed to change role:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Failed to change role';
+    const errorMessage = error instanceof Error ? error.message : t('domains.errors.roleFailed');
     showGlobalMessage('error', errorMessage);
   }
 }

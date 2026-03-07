@@ -39,13 +39,13 @@
         <!-- Page Header -->
         <header class="page-header">
           <div class="page-header__title">
-            <h1 class="h3">Domains</h1>
-            <p class="text-muted">Manage all domains connected to your Traffic Control Plane.</p>
+            <h1 class="h3" data-i18n="domains.title">Domains</h1>
+            <p class="text-muted" data-i18n="domains.subtitle">Manage all domains connected to your Traffic Control Plane.</p>
           </div>
           <div class="page-header__actions">
             <button class="btn btn--primary" type="button" data-action="add-domains">
               <span class="icon" data-icon="mono/plus"></span>
-              <span>Add domains</span>
+              <span data-i18n="domains.actions.add">Add domains</span>
             </button>
           </div>
         </header>
@@ -62,6 +62,7 @@
                     type="text"
                     class="table-search__input"
                     placeholder="Search domains or sites..."
+                    data-i18n-placeholder="domains.search.placeholder"
                     data-search-input
                   />
                   <button class="table-search__clear" type="button" aria-label="Clear" data-search-clear>
@@ -83,21 +84,21 @@
             <!-- Loading State -->
             <div class="loading-state" data-loading-state hidden>
               <div class="spinner"></div>
-              <p class="text-muted">Loading domains...</p>
+              <p class="text-muted" data-i18n="domains.loading">Loading domains...</p>
             </div>
 
             <!-- Empty State -->
             <div class="empty-state" data-empty-state hidden>
               <div class="stack stack-md">
                 <span class="icon icon--lg" data-icon="mono/dns"></span>
-                <h3 class="h4">No domains connected yet</h3>
-                <p class="text-muted">
+                <h3 class="h4" data-i18n="domains.empty.title">No domains connected yet</h3>
+                <p class="text-muted" data-i18n="domains.empty.description">
                   Connect your registrars or add domains manually to start managing redirects and monitoring.
                 </p>
                 <div class="btn-group">
                   <button class="btn btn--primary" type="button" data-action="add-domains">
                     <span class="icon" data-icon="mono/plus"></span>
-                    <span>Add domains</span>
+                    <span data-i18n="domains.actions.add">Add domains</span>
                   </button>
                 </div>
               </div>
@@ -105,8 +106,8 @@
 
             <!-- Error State -->
             <div class="alert alert--danger" data-error-state hidden>
-              <p>We couldn't load domains. Please retry or check your API configuration.</p>
-              <button class="btn btn--sm btn--ghost" type="button" data-action="retry">Retry</button>
+              <p data-i18n="domains.error.description">We couldn't load domains. Please retry or check your API configuration.</p>
+              <button class="btn btn--sm btn--ghost" type="button" data-action="retry" data-i18n="common.retry">Retry</button>
             </div>
 
             <!-- Domains Table -->
@@ -114,11 +115,11 @@
                 <table class="table table--domains">
                   <thead>
                     <tr>
-                      <th data-priority="critical">Domain</th>
-                      <th data-priority="high">Status</th>
-                      <th data-priority="medium">Health</th>
-                      <th data-priority="low">Expires</th>
-                      <th data-priority="critical" class="th-actions">Actions</th>
+                      <th data-priority="critical" data-i18n="domains.table.columns.domain">Domain</th>
+                      <th data-priority="high" data-i18n="domains.table.columns.status">Status</th>
+                      <th data-priority="medium" data-i18n="domains.table.columns.health">Health</th>
+                      <th data-priority="low" data-i18n="domains.table.columns.expiresAt">Expires</th>
+                      <th data-priority="critical" class="th-actions" data-i18n="domains.table.columns.actions">Actions</th>
                       <th data-priority="critical" class="th-checkbox">
                         <input type="checkbox" data-select-all aria-label="Select all domains" />
                       </th>
@@ -135,8 +136,8 @@
             <div class="pagination">
               <span class="pagination__info">Showing <strong>1-25</strong> of <strong data-total-count>0</strong></span>
               <div class="pagination__controls">
-                <button class="btn btn--sm btn--ghost" data-pagination-prev disabled>Previous</button>
-                <button class="btn btn--sm btn--ghost" data-pagination-next disabled>Next</button>
+                <button class="btn btn--sm btn--ghost" data-pagination-prev disabled data-i18n="common.previous">Previous</button>
+                <button class="btn btn--sm btn--ghost" data-pagination-next disabled data-i18n="common.next">Next</button>
               </div>
             </div>
           </footer>
@@ -188,22 +189,22 @@
             <!-- Overview -->
             <section class="card card--panel">
               <header class="card__header">
-                <h3 class="h5">Overview</h3>
+                <h3 class="h5" data-i18n="domains.inspector.overview">Overview</h3>
               </header>
               <div class="card__body">
                 <dl class="detail-list">
                   <div class="detail-row">
-                    <dt class="detail-label">Status</dt>
+                    <dt class="detail-label" data-i18n="domains.inspector.status">Status</dt>
                     <dd class="detail-value" data-inspector-status>—</dd>
                   </div>
 
                   <div class="detail-row">
-                    <dt class="detail-label">Project</dt>
+                    <dt class="detail-label" data-i18n="domains.inspector.project">Project</dt>
                     <dd class="detail-value" data-inspector-project>—</dd>
                   </div>
 
                   <div class="detail-row">
-                    <dt class="detail-label">Integration</dt>
+                    <dt class="detail-label" data-i18n="domains.inspector.integration">Integration</dt>
                     <dd class="detail-value" data-inspector-integration>—</dd>
                   </div>
                 </dl>
@@ -213,17 +214,17 @@
             <!-- DNS Configuration -->
             <section class="card card--panel">
               <header class="card__header">
-                <h3 class="h5">DNS Configuration</h3>
+                <h3 class="h5" data-i18n="domains.inspector.dnsConfig">DNS Configuration</h3>
               </header>
               <div class="card__body">
                 <dl class="detail-list">
                   <div class="detail-row">
                     <dt class="detail-label detail-label--with-badge">
-                      <span>Nameservers</span>
+                      <span data-i18n="domains.inspector.nameservers">Nameservers</span>
                       <span data-inspector-ns-status></span>
                     </dt>
                     <dd class="detail-value" data-inspector-ns>
-                      <span class="text-muted">Loading...</span>
+                      <span class="text-muted" data-i18n="common.loading">Loading...</span>
                     </dd>
                   </div>
                 </dl>
@@ -233,10 +234,10 @@
 
             <section class="card card--panel">
               <header class="card__header">
-                <h3 class="h5">Routing & Redirects</h3>
+                <h3 class="h5" data-i18n="domains.inspector.routing">Routing & Redirects</h3>
               </header>
               <div class="card__body" data-inspector-routing>
-                <p class="text-muted">Loading...</p>
+                <p class="text-muted" data-i18n="common.loading">Loading...</p>
               </div>
             </section>
           </div>
@@ -249,7 +250,7 @@
       <div class="dialog__overlay" data-dialog-close></div>
       <div class="dialog__panel">
         <header class="dialog__header">
-          <h2 class="dialog__title">Delete domain?</h2>
+          <h2 class="dialog__title" data-i18n="domains.dialogs.delete.title">Delete domain?</h2>
           <button class="btn-close" type="button" data-dialog-close aria-label="Close">
             <span class="icon" data-icon="mono/close"></span>
           </button>
@@ -260,9 +261,9 @@
         <footer class="dialog__footer">
           <button class="btn btn--danger" type="button" data-confirm>
             <span class="icon" data-icon="mono/delete"></span>
-            <span>Delete domain</span>
+            <span data-i18n="domains.dialogs.delete.confirm">Delete domain</span>
           </button>
-          <button class="btn btn--ghost" type="button" data-dialog-close>Cancel</button>
+          <button class="btn btn--ghost" type="button" data-dialog-close data-i18n="common.cancel">Cancel</button>
         </footer>
       </div>
     </div>
@@ -272,7 +273,7 @@
       <div class="dialog__overlay" data-dialog-close></div>
       <div class="dialog__panel">
         <header class="dialog__header">
-          <h2 class="dialog__title">Delete selected domains?</h2>
+          <h2 class="dialog__title" data-i18n="domains.dialogs.bulkDelete.title">Delete selected domains?</h2>
           <button class="btn-close" type="button" data-dialog-close aria-label="Close">
             <span class="icon" data-icon="mono/close"></span>
           </button>
@@ -283,9 +284,9 @@
         <footer class="dialog__footer">
           <button class="btn btn--danger" type="button" data-confirm>
             <span class="icon" data-icon="mono/delete"></span>
-            <span>Delete domains</span>
+            <span data-i18n="domains.dialogs.bulkDelete.confirm">Delete domains</span>
           </button>
-          <button class="btn btn--ghost" type="button" data-dialog-close>Cancel</button>
+          <button class="btn btn--ghost" type="button" data-dialog-close data-i18n="common.cancel">Cancel</button>
         </footer>
       </div>
     </div>
@@ -368,7 +369,7 @@
       <div class="dialog__overlay" data-dialog-close></div>
       <div class="dialog__panel">
         <header class="dialog__header">
-          <h2 class="dialog__title">Block domain?</h2>
+          <h2 class="dialog__title" data-i18n="domains.dialogs.block.title">Block domain?</h2>
           <button class="btn-close" type="button" data-dialog-close aria-label="Close">
             <span class="icon" data-icon="mono/close"></span>
           </button>
@@ -379,9 +380,9 @@
         <footer class="dialog__footer">
           <button class="btn btn--danger" type="button" data-confirm>
             <span class="icon" data-icon="mono/cancel"></span>
-            <span>Block domain</span>
+            <span data-i18n="domains.dialogs.block.confirm">Block domain</span>
           </button>
-          <button class="btn btn--ghost" type="button" data-dialog-close>Cancel</button>
+          <button class="btn btn--ghost" type="button" data-dialog-close data-i18n="common.cancel">Cancel</button>
         </footer>
       </div>
     </div>
@@ -391,7 +392,7 @@
       <div class="dialog__overlay" data-dialog-close></div>
       <div class="dialog__panel">
         <header class="dialog__header">
-          <h2 class="dialog__title">Unblock domain?</h2>
+          <h2 class="dialog__title" data-i18n="domains.dialogs.unblock.title">Unblock domain?</h2>
           <button class="btn-close" type="button" data-dialog-close aria-label="Close">
             <span class="icon" data-icon="mono/close"></span>
           </button>
@@ -402,9 +403,9 @@
         <footer class="dialog__footer">
           <button class="btn btn--primary" type="button" data-confirm>
             <span class="icon" data-icon="mono/shield-check"></span>
-            <span>Unblock domain</span>
+            <span data-i18n="domains.dialogs.unblock.confirm">Unblock domain</span>
           </button>
-          <button class="btn btn--ghost" type="button" data-dialog-close>Cancel</button>
+          <button class="btn btn--ghost" type="button" data-dialog-close data-i18n="common.cancel">Cancel</button>
         </footer>
       </div>
     </div>
@@ -414,7 +415,7 @@
       <div class="dialog__overlay" data-dialog-close></div>
       <div class="dialog__panel">
         <header class="dialog__header">
-          <h2 class="dialog__title">Block selected domains?</h2>
+          <h2 class="dialog__title" data-i18n="domains.dialogs.bulkBlock.title">Block selected domains?</h2>
           <button class="btn-close" type="button" data-dialog-close aria-label="Close">
             <span class="icon" data-icon="mono/close"></span>
           </button>
@@ -425,9 +426,9 @@
         <footer class="dialog__footer">
           <button class="btn btn--danger" type="button" data-confirm>
             <span class="icon" data-icon="mono/cancel"></span>
-            <span>Block domains</span>
+            <span data-i18n="domains.dialogs.bulkBlock.confirm">Block domains</span>
           </button>
-          <button class="btn btn--ghost" type="button" data-dialog-close>Cancel</button>
+          <button class="btn btn--ghost" type="button" data-dialog-close data-i18n="common.cancel">Cancel</button>
         </footer>
       </div>
     </div>
@@ -437,7 +438,7 @@
       <div class="dialog__overlay" data-dialog-close></div>
       <div class="dialog__panel">
         <header class="dialog__header">
-          <h2 class="dialog__title">Change role for selected domains?</h2>
+          <h2 class="dialog__title" data-i18n="domains.dialogs.bulkRole.title">Change role for selected domains?</h2>
           <button class="btn-close" type="button" data-dialog-close aria-label="Close">
             <span class="icon" data-icon="mono/close"></span>
           </button>
@@ -447,19 +448,19 @@
             <p>Change role for <strong data-bulk-role-count>0</strong> domain(s) to:</p>
             <div class="field">
               <select class="input" data-bulk-role-select required>
-                <option value="" disabled selected>Choose a role...</option>
-                <option value="acceptor">Acceptor</option>
-                <option value="donor">Donor</option>
-                <option value="reserve">Reserve</option>
+                <option value="" disabled selected data-i18n="domains.dialogs.bulkRole.selectPlaceholder">Choose a role...</option>
+                <option value="acceptor" data-i18n="domains.roles.acceptor">Acceptor</option>
+                <option value="donor" data-i18n="domains.roles.donor">Donor</option>
+                <option value="reserve" data-i18n="domains.roles.reserve">Reserve</option>
               </select>
             </div>
           </div>
         </div>
         <footer class="dialog__footer">
           <button class="btn btn--primary" type="button" data-confirm disabled>
-            <span>Change role</span>
+            <span data-i18n="domains.dialogs.bulkRole.confirm">Change role</span>
           </button>
-          <button class="btn btn--ghost" type="button" data-dialog-close>Cancel</button>
+          <button class="btn btn--ghost" type="button" data-dialog-close data-i18n="common.cancel">Cancel</button>
         </footer>
       </div>
     </div>
@@ -469,15 +470,15 @@
       <div class="page-shell">
         <div class="bulk-actions-bar__content">
           <div class="bulk-actions-bar__actions">
-            <button class="btn btn--danger btn--sm" type="button" data-bulk-delete>Delete</button>
-            <button class="btn btn--ghost btn--sm" type="button" data-bulk-role>Change Role</button>
-            <button class="btn btn--ghost btn--sm" type="button" data-bulk-move>Assign to Site</button>
-            <button class="btn btn--danger btn--sm" type="button" data-bulk-block>Block</button>
+            <button class="btn btn--danger btn--sm" type="button" data-bulk-delete data-i18n="domains.actions.delete">Delete</button>
+            <button class="btn btn--ghost btn--sm" type="button" data-bulk-role data-i18n="domains.actions.changeRole">Change Role</button>
+            <button class="btn btn--ghost btn--sm" type="button" data-bulk-move data-i18n="domains.actions.assignToSite">Assign to Site</button>
+            <button class="btn btn--danger btn--sm" type="button" data-bulk-block data-i18n="domains.actions.block">Block</button>
           </div>
           <div class="bulk-actions-bar__info">
-            <button class="btn btn--ghost btn--sm" type="button" data-bulk-delete>Delete</button>
+            <button class="btn btn--ghost btn--sm" type="button" data-bulk-delete data-i18n="domains.actions.delete">Delete</button>
             <button class="btn btn--ghost btn--sm" type="button" data-bulk-cancel>
-              <span>Cancel</span>
+              <span data-i18n="common.cancel">Cancel</span>
               <span data-selected-count>(0)</span>
             </button>
           </div>

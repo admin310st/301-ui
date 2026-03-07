@@ -41,7 +41,7 @@ Layer 7: Admin tools (System, Jobs, Market)            PLANNED
 - [ ] Drawer tabs (convert current 3 sections into tab UI; add SSL, Security, Monitoring, Logs)
 - [ ] Stat-cards in header
 - [ ] Table sorting by columns
-- [ ] i18n coverage (dialogs done, main page hardcoded)
+- [x] i18n coverage — ~100 keys (EN/RU), HTML data-i18n, t() in 3 TS files (domains.ts, bulk-actions.ts, add-domains-drawer.ts)
 - [ ] Add domains drawer: progress indicator for large batches, persist last CF account
 - [ ] Bulk actions: assign to site (stub), move to project (dialog exists, no handler)
 - [ ] Search debounce, filter/sort URL persistence

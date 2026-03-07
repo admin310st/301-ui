@@ -10,6 +10,7 @@ import { updateDomainRole, blockDomain, deleteDomain } from '@api/domains';
 import { safeCall } from '@api/ui-client';
 import { invalidateCache } from '@api/cache';
 import type { DomainRole } from '@api/types';
+import { t } from '@i18n';
 
 // Callback to reload domains after bulk operations
 let reloadDomainsCallback: (() => Promise<void>) | null = null;
@@ -167,9 +168,9 @@ export function initBulkActions(): void {
 
     // Show result
     if (errorCount === 0) {
-      showGlobalMessage('success', `Changed role to ${newRole} for ${successCount} domain(s)`);
+      showGlobalMessage('success', t('domains.messages.bulkRoleSuccess').replace('{{role}}', newRole).replace('{{count}}', String(successCount)));
     } else {
-      showGlobalMessage('warning', `Changed ${successCount} domain(s), ${errorCount} failed`);
+      showGlobalMessage('warning', t('domains.messages.bulkRolePartial').replace('{{success}}', String(successCount)).replace('{{failed}}', String(errorCount)));
     }
 
     clearSelection();
@@ -184,7 +185,7 @@ export function initBulkActions(): void {
     const selectedIds = getSelectedDomainIds();
     if (selectedIds.length === 0) return;
 
-    showGlobalMessage('info', 'Site assignment requires selecting a target site first');
+    showGlobalMessage('info', t('domains.messages.siteAssignmentStub'));
     // TODO: Open site selection dialog
   });
 
@@ -227,9 +228,9 @@ export function initBulkActions(): void {
 
     // Show result
     if (errorCount === 0) {
-      showGlobalMessage('success', `Blocked ${successCount} domain(s)`);
+      showGlobalMessage('success', t('domains.messages.bulkBlockSuccess').replace('{{count}}', String(successCount)));
     } else {
-      showGlobalMessage('warning', `Blocked ${successCount} domain(s), ${errorCount} failed`);
+      showGlobalMessage('warning', t('domains.messages.bulkBlockPartial').replace('{{success}}', String(successCount)).replace('{{failed}}', String(errorCount)));
     }
 
     clearSelection();
@@ -269,7 +270,7 @@ export function initBulkActions(): void {
         errorCount++;
         const errorMsg = error instanceof Error ? error.message : 'Unknown error';
         if (errorMsg.includes('root domain') || errorMsg.includes('cannot be deleted')) {
-          errors.push(`Domain ${domainId}: Only subdomains can be deleted`);
+          errors.push(`Domain ${domainId}: ${t('domains.errors.onlySubdomains')}`);
         }
       }
     }
@@ -278,11 +279,11 @@ export function initBulkActions(): void {
 
     // Show result
     if (errorCount === 0) {
-      showGlobalMessage('success', `Deleted ${successCount} subdomain(s)`);
+      showGlobalMessage('success', t('domains.messages.bulkDeleteSuccess').replace('{{count}}', String(successCount)));
     } else if (successCount === 0) {
-      showGlobalMessage('error', `Failed to delete domains. ${errors[0] || 'Unknown error'}`);
+      showGlobalMessage('error', t('domains.messages.bulkDeleteFailed').replace('{{error}}', errors[0] || ''));
     } else {
-      showGlobalMessage('warning', `Deleted ${successCount} subdomain(s), ${errorCount} failed`);
+      showGlobalMessage('warning', t('domains.messages.bulkDeletePartial').replace('{{success}}', String(successCount)).replace('{{failed}}', String(errorCount)));
     }
 
     clearSelection();

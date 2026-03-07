@@ -2888,44 +2888,35 @@ body.sidebar-collapsed .sidebar .navitem:hover::after {
 }
 
 .docs-page-header {
-  display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(22rem, 0.85fr);
-  align-items: end;
-  gap: clamp(1rem, 2vw, 2.25rem);
+  display: block;
 }
 
 .docs-page-header .text-display {
-  max-width: 11ch;
-  font-size: clamp(2.75rem, 5vw, 4.5rem);
-  line-height: 0.95;
-  letter-spacing: -0.04em;
+  max-width: 12ch;
+  font-size: clamp(2.2rem, 4.2vw, 3.35rem);
+  line-height: 1.02;
+  letter-spacing: -0.035em;
   text-wrap: balance;
 }
 
 .docs-page-header .text-lead {
-  max-width: 34rem;
-  margin: 0 0 0.35rem auto;
-  font-size: clamp(1rem, 1.45vw, 1.18rem);
-  line-height: 1.55;
+  max-width: 46rem;
+  margin: var(--space-2) 0 0;
+  font-size: 1.02rem;
+  line-height: 1.6;
   text-wrap: pretty;
 }
 
 @media (max-width: 900px) {
-  .docs-page-header {
-    grid-template-columns: 1fr;
-    align-items: start;
-    gap: var(--space-3);
-  }
-
   .docs-page-header .text-display {
     max-width: 12ch;
-    font-size: clamp(2.2rem, 8vw, 3.3rem);
-    line-height: 1;
+    font-size: clamp(2rem, 8vw, 2.8rem);
+    line-height: 1.04;
   }
 
   .docs-page-header .text-lead {
-    max-width: 42rem;
-    margin: 0;
+    max-width: 100%;
+    margin-top: var(--space-2);
     font-size: 1rem;
   }
 }
@@ -4059,6 +4050,7 @@ body.sidebar-open .utility-bar {
   color: var(--text-muted);
   line-height: 1.5;
 }
+
 
 
 
