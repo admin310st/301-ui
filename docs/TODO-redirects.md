@@ -69,6 +69,6 @@ src/redirects/
 
 ---
 
-**Last updated:** 2026-02-11
+**Last updated:** 2026-03-07
 
-**Status:** Core complete. Pending: i18n pass.
+**Status:** Core complete. Canonical redirect colors shipped (www→apex green, apex→www muted, template badges T4 green/T3 neutral). Red target for custom redirects. Pending: i18n pass.

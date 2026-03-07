@@ -5,6 +5,62 @@ All notable changes to the 301-ui project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2026-03-07
+
+### Added
+- **TDS/Streams page** (Layer 5 — 2026-02-25)
+  - Full rules table with search, filters, 4 visibility states
+  - Create/edit drawer with preset + manual modes
+  - Collapsible UTM/path/referrer sections, rich preset tooltips
+  - Domain binding UI (picker, bind/unbind)
+  - Site-scoped rules via single-select site selector + client-side filtering
+  - Projects → Streams tab with per-site TDS status
+  - TDS entry point in redirects site dropdown
+  - Browser extension hint for geo targeting (Chrome + Firefox)
+  - i18n (~180 English keys, all TS files use `t()`)
+- **Dashboard redesign** (2026-02-28)
+  - Dual-mode: onboarding wizard for new users + overview stats for established accounts
+  - Interactive step-flow with next-step hints
+  - Getting Started card, live Domain Health and Expiring Soon cards
+- **Domain inspector enhancements**
+  - Live redirect data and zone limits (replaced "Coming soon")
+  - Integration details (key_id → CF account), integration chip
+  - Per-NS copy buttons, refined Overview section
+- **Unified dialog/drawer UX** (#167 — 2026-03-07)
+  - Single `[data-confirm]` contract replaces 13 hardcoded `[data-confirm-*]` selectors
+  - Escape key + focus management for dialogs (auto-focus confirm, restore trigger)
+  - 7 drawers migrated to `drawerManager.open/close/onClose`
+  - Escape priority: dialogs take precedence over drawers
+- **SEO meta tags** — OG/Twitter/canonical on all public pages, noindex on 404
+- **Two-layer auth guard** — Worker-level (cookie check → 307) + client-side (`visibility.ts` with `authResolved` flag)
+- **Namecheap integration expansion** — proxy IPs, domain browser, NS setup
+- **Password visibility toggle** on change password form
+- **Telegram brand icon** in icon sprite
+- **`main-public.ts` entry point** — lightweight JS for public content pages (icons, theme, i18n, auth-state only)
+- **Lazy-load Turnstile** via IntersectionObserver to avoid third-party cookies
+
+### Changed
+- **Health status alignment** — `healthy→ok`, `blocked→danger` across 8 files to match backend API
+- **Canonical redirect colors** — www→apex green, apex→www muted; template badge colors (T4 green, T3 neutral)
+- **Red target for custom redirects** — arrow + target text both `text-danger` when redirect goes to non-acceptor URL
+- **Sidebar positioning** — `position: fixed` with dynamic `--header-offset` tracking (replaced sticky, which broke with footer)
+- **Dashboard table card** — `position: sticky; top: var(--header-offset)` on desktop
+
+### Fixed
+- **Escape key regression** — dialog + drawer both listening on `document`; drawer-manager now yields to open dialogs
+- **Auth guard timing** — `markAuthResolved()` flag prevents premature redirect before session refresh completes
+- **WCAG contrast failures** in both dark and light themes
+- **Input/chip contrast** in both themes
+- **Sidebar FOUC** — `@layer fouc {}` wrapper so external CSS always wins over inline `<style>`
+- **67 unhandled promise violations** — added `no-floating-promises` ESLint rule
+
+### Documentation
+- Optimized 6 reference docs: rewritten in English, compressed 5699→791 lines (-86%)
+- Removed 3 outdated standalone docs, deduplicated StyleGuide.md (-120 lines)
+- TDS docs rewritten for site-scoped architecture
+
+---
+
 ## [Unreleased]
 
 ### Added

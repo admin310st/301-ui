@@ -4,14 +4,15 @@ Central task index for the 301-ui project. See `CLAUDE.md` for architecture and 
 
 ---
 
-## Current Focus (2026-03-02)
+## Current Focus (2026-03-07)
 
-**Priority:** Streams/TDS integration with Projects (Layer 5)
-**Blocker:** `admin310st/301#22` — TDS rules need `site_id` FK before Projects integration can proceed
+**Priority:** UX polish (#167), i18n coverage, domain inspector tabs
+**Backend blocker:** `admin310st/301#21` — `GET /tds/rules/:id` returns 500 (blocks Edit Rule drawer)
 
 **Next tasks:**
-1. **⛔ Projects → Streams tab** — blocked by 301#22 (backend must add `site_id` to `tds_rules`)
-2. **i18n pass** for Redirects and Domains (0 `data-i18n` attributes)
+1. **i18n pass** for Redirects and Domains (0 `data-i18n` attributes)
+2. **Domain inspector tabs** — convert 3 sections into tab UI (SSL, Security, Monitoring, Logs)
+3. **#167 remaining items** — Redirects drawer polish, table ergonomics
 
 ---
 
@@ -23,8 +24,8 @@ Layer 1: Integrations (Cloudflare, Namecheap)          DONE
 Layer 2: Domains (real API, filters, bulk actions)     DONE
 Layer 3: Projects, Sites (CRUD, tabs navigation)       DONE
 Layer 4: Redirects (full API, Cloudflare sync)         DONE
-Layer 5: Streams/TDS                                   NEXT
-Layer 6: UX enhancements, advanced bulk actions        PLANNED
+Layer 5: Streams/TDS (core + site-scoped)              DONE
+Layer 6: UX enhancements, advanced bulk actions        IN PROGRESS
 Layer 7: Admin tools (System, Jobs, Market)            PLANNED
 ```
 
@@ -34,7 +35,7 @@ Layer 7: Admin tools (System, Jobs, Market)            PLANNED
 
 ### 1. Domains (`TODO-domains.md`)
 
-**Status:** Core complete (real API). Table, search, filters, inspector drawer (3 sections: Overview, DNS, Routing), add domains drawer (batch API, domain parser), dropdown actions, IDN support, DNS NS check, bulk actions (change role, block, delete), project filter, pagination (25/page, prev/next).
+**Status:** Core complete (real API). Table, search, filters, inspector drawer (3 sections: Overview, DNS, Routing with live redirect data and zone limits), add domains drawer (batch API, domain parser), dropdown actions, IDN support, DNS NS check, bulk actions (change role, block, delete), project filter, pagination (25/page, prev/next).
 
 **Remaining:**
 - [ ] Drawer tabs (convert current 3 sections into tab UI; add SSL, Security, Monitoring, Logs)
@@ -49,14 +50,14 @@ Layer 7: Admin tools (System, Jobs, Market)            PLANNED
 
 **Status:** Feature-complete (2026-02-11)
 
-Done: Full table with hierarchy, API layer, project/site selectors, filters, drawer with template selector (T1/T5/T6/T7), bulk actions, site-level actions, CF sync, safeCall migration, adapter removal.
+Done: Full table with hierarchy, API layer, project/site selectors, filters, drawer with template selector (T1/T5/T6/T7), bulk actions, site-level actions, CF sync, safeCall migration, adapter removal. Canonical redirect color differentiation. Red target for custom (non-acceptor) redirects.
 
 **Remaining:**
 - [ ] i18n (0 `data-i18n` attributes)
 
 ### 3. Projects
 
-**Status:** DONE (Layer 3). Table, CRUD, detail tabs, integrations attach/detach, i18n.
+**Status:** DONE (Layer 3). Table, CRUD, detail tabs (including Streams tab), integrations attach/detach, i18n.
 
 ### 4. Sites
 
@@ -64,31 +65,39 @@ Done: Full table with hierarchy, API layer, project/site selectors, filters, dra
 
 ### 5. Streams/TDS
 
-**Status:** Core implemented (2026-02-25). Types, API client, table, drawer, domain bindings, i18n — all done.
-**Blocker:** `admin310st/301#22` — current API model is rule-centric (rules → domain bindings). Needs `site_id` FK on `tds_rules` to match Redirects pattern. Until resolved, Projects integration is blocked.
+**Status:** Core complete (2026-02-25). Types, API client, table, drawer, domain bindings, i18n — all done. Site-scoped TDS implemented (site selector + client-side filter). Projects → Streams tab shipped. Browser extension hint for geo targeting.
+
+**Backend blocker:** `admin310st/301#21` — `GET /tds/rules/:id` returns 500, blocks Edit Rule drawer.
 
 **Completed:**
 - Types + API client (`src/api/tds.ts`)
 - Rules table with search, filters, 4 visibility states
 - Create/edit drawer (preset + manual modes)
-- Domain binding UI (picker, bind/unbind) — will be replaced after #22
+- Site-scoped rules (single-select site selector, `site_id` in create)
+- Projects → Streams tab (site-scoped TDS status)
+- Domain binding UI (picker, bind/unbind)
+- Browser extension hint (Chrome + Firefox links)
 - i18n (~180 English keys, all TS files use `t()`)
 
-**Blocked:** Projects → Streams tab, auto-bind, domain picker improvements — all waiting on #22.
-
-**Backlog (unblocked):** Priority reorder, Russian translations, a11y audit.
+**Backlog:** Priority reorder, Russian translations, a11y audit.
 
 Details in `TODO-streams.md`.
 
----
+### 6. Dashboard
 
-## Phase 3: Advanced Features (in progress)
+**Status:** DONE (2026-02-28). Dual-mode: onboarding wizard for new users + overview stats for established accounts. Interactive step-flow with next-step hints. Live Domain Health and Expiring Soon cards.
 
-- Streams/TDS page (next)
-- [ ] **Dashboard redesign** — current page is an onboarding wizard built before the Style Guide. Rebuild as a real dashboard: keep wizard for new users, then show overview stats, recent activity, health summaries. Must follow `docs/StyleGuide.md` patterns and table/card layout conventions used across other pages.
-- [ ] Drawer tabs for Domains (7 tabs)
-- [ ] Advanced bulk actions
-- [ ] Analytics integration
+### 7. UX Foundation (#167)
+
+**Status:** Partially shipped (2026-03-07).
+
+**Done:**
+- [x] Unified dialog contract — single `[data-confirm]` replaces 13 hardcoded selectors
+- [x] Dialog Escape/focus management (auto-focus confirm, restore trigger focus)
+- [x] Drawer manager migration — 7 drawers use `drawerManager.open/close/onClose`
+- [x] Escape key priority: dialogs take precedence over drawers
+
+**Remaining:** See [#167](https://github.com/admin310st/301-ui/issues/167) for full list.
 
 ---
 
@@ -96,8 +105,8 @@ Details in `TODO-streams.md`.
 
 ### Current State
 
-- Bundle: 181.56 KB -> 50.06 KB gzipped (OK for now)
-- Bundle analyzer: `npm run build:analyze` -> `build/bundle-stats.html`
+- Bundle: ~50 KB gzipped (well under thresholds)
+- Bundle analyzer: `npm run build:analyze` → `build/bundle-stats.html`
 
 ### Optimization Thresholds
 
@@ -110,7 +119,7 @@ Details in `TODO-streams.md`.
 
 ### Code Splitting (when needed)
 
-Recommended: **Entry Points Pattern** for this MPA project — separate entry points per page group (`main-auth.ts`, `main-dashboard.ts`, `main-domains.ts`, etc.) so each page loads only required code. See `CLAUDE.md` for full architecture.
+Recommended: **Entry Points Pattern** for this MPA project — separate entry points per page group. Already split: `main.ts` (dashboard/auth) + `main-public.ts` (content pages).
 
 ---
 
@@ -119,7 +128,7 @@ Recommended: **Entry Points Pattern** for this MPA project — separate entry po
 ### Backend API Gaps
 
 **TDS/Streams:**
-- [admin310st/301#22](https://github.com/admin310st/301/issues/22) — TDS rules need `site_id` FK (blocks Projects → Streams tab, auto-bind, domain picker rework)
+- [admin310st/301#21](https://github.com/admin310st/301/issues/21) — `GET /tds/rules/:id` returns 500 (blocks Edit Rule drawer)
 
 **Redirects:**
 - [#164](https://github.com/admin310st/301-ui/issues/164) — API returns duplicate `domain_id` when domain has T1 + T3/T4 redirects (frontend `dedupDomains()` workaround in `state.ts`)
@@ -128,6 +137,7 @@ Recommended: **Entry Points Pattern** for this MPA project — separate entry po
 **Domains:**
 - `registrar` field missing from SQL schema
 - Monitoring fields (`abuse_status`, `last_check_at`) missing
+- [#162](https://github.com/admin310st/301-ui/issues/162) — VirusTotal domain monitoring
 
 ---
 
@@ -155,6 +165,6 @@ Recommended: **Entry Points Pattern** for this MPA project — separate entry po
 
 ---
 
-**Last updated:** 2026-03-02
+**Last updated:** 2026-03-07
 
-**Next action:** Waiting on `admin310st/301#22` for TDS site-scoping. Meanwhile: i18n pass, dashboard polish.
+**Next action:** i18n pass for Redirects/Domains. Domain inspector tabs. #167 remaining items.

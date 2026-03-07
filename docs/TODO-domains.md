@@ -7,7 +7,7 @@ Roadmap for `/domains.html` enhancements. Core features are complete.
 ## Completed Summary
 
 - **Table:** 6 columns (domain, status, health, expires, project, actions), search, filters (status, health, provider), bulk select
-- **Inspector drawer:** 3 vertical sections (Overview, DNS config with live NS check via Google DNS, Routing with redirect info). No tab UI yet
+- **Inspector drawer:** 3 vertical sections (Overview with integration details + per-NS copy buttons, DNS config with live NS check via Google DNS, Routing with live redirect data + zone limits). No tab UI yet
 - **Add Domains drawer:** Batch zone creation via `/domains/zones/batch`, CF account selector, domain extraction parser with IDN/punycode support, debounced input, results view with NS grouping and error handling
 - **API:** `src/api/domains.ts` with adapter, project filter, caching, project persistence across pages
 - **Pagination:** Fully working — 25/page, prev/next buttons, "Showing X-Y of Z", reset on filter change
@@ -110,4 +110,4 @@ None currently.
 
 ---
 
-**Last updated:** 2026-03-02
+**Last updated:** 2026-03-07
