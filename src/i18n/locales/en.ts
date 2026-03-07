@@ -637,6 +637,7 @@ export const en = {
       status: 'Status',
       project: 'Project',
       integration: 'Integration',
+      dns: 'DNS',
       dnsConfig: 'DNS Configuration',
       nameservers: 'Nameservers',
       routing: 'Routing',

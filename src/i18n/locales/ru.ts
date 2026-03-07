@@ -643,6 +643,7 @@ export const ru: Translation = {
       status: 'Статус',
       project: 'Проект',
       integration: 'Интеграция',
+      dns: 'DNS',
       dnsConfig: 'Конфигурация DNS',
       nameservers: 'Серверы имён',
       routing: 'Редиректы',

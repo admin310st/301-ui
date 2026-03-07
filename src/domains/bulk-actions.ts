@@ -115,6 +115,41 @@ export function initBulkActions(): void {
    * Handle Change Role button
    * Sequential PATCH /domains/:id { role } for each domain
    */
+  // Setup role dropdown (once)
+  const roleDropdown = document.querySelector('[data-bulk-role-dropdown]');
+  const roleHiddenInput = document.querySelector<HTMLInputElement>('[data-bulk-role-select]');
+  const roleLabelEl = document.querySelector('[data-bulk-role-label]');
+  const roleDefaultLabel = roleLabelEl?.textContent || '';
+
+  if (roleDropdown) {
+    // Toggle dropdown
+    const roleTrigger = roleDropdown.querySelector('.dropdown__trigger');
+    roleTrigger?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      roleDropdown.classList.toggle('dropdown--open');
+      roleTrigger.setAttribute('aria-expanded', String(roleDropdown.classList.contains('dropdown--open')));
+    });
+
+    // Handle option selection
+    roleDropdown.querySelectorAll('[data-role-option]').forEach((item) => {
+      item.addEventListener('click', () => {
+        const value = (item as HTMLElement).dataset.roleOption || '';
+        if (roleHiddenInput) roleHiddenInput.value = value;
+        if (roleLabelEl) roleLabelEl.textContent = item.querySelector('span:last-child')?.textContent || value;
+
+        // Mark selected
+        roleDropdown.querySelectorAll('.dropdown__item').forEach(i => i.classList.remove('dropdown__item--selected'));
+        item.classList.add('dropdown__item--selected');
+
+        // Close dropdown and enable confirm
+        roleDropdown.classList.remove('dropdown--open');
+        roleTrigger?.setAttribute('aria-expanded', 'false');
+        const confirmBtn = document.querySelector<HTMLButtonElement>('[data-dialog="bulk-role-change"] [data-confirm]');
+        if (confirmBtn) confirmBtn.disabled = false;
+      });
+    });
+  }
+
   roleBtn?.addEventListener('click', async () => {
     const selectedIds = getSelectedDomainIds();
     if (selectedIds.length === 0) return;
@@ -125,25 +160,17 @@ export function initBulkActions(): void {
       roleCountEl.textContent = selectedIds.length.toString();
     }
 
-    // Reset and enable select
-    const roleSelect = document.querySelector<HTMLSelectElement>('[data-bulk-role-select]');
-    const confirmRoleBtn = document.querySelector<HTMLButtonElement>('[data-confirm-bulk-role]');
-    if (roleSelect) {
-      roleSelect.value = '';
-      if (confirmRoleBtn) confirmRoleBtn.disabled = true;
-
-      // Enable confirm button when a role is selected
-      const handleSelectChange = () => {
-        if (confirmRoleBtn) confirmRoleBtn.disabled = !roleSelect.value;
-      };
-      roleSelect.removeEventListener('change', handleSelectChange);
-      roleSelect.addEventListener('change', handleSelectChange);
-    }
+    // Reset dropdown state
+    if (roleHiddenInput) roleHiddenInput.value = '';
+    if (roleLabelEl) roleLabelEl.textContent = roleDefaultLabel;
+    roleDropdown?.querySelectorAll('.dropdown__item').forEach(i => i.classList.remove('dropdown__item--selected'));
+    const confirmBtn = document.querySelector<HTMLButtonElement>('[data-dialog="bulk-role-change"] [data-confirm]');
+    if (confirmBtn) confirmBtn.disabled = true;
 
     const confirmed = await showConfirmDialog('bulk-role-change');
     if (!confirmed) return;
 
-    const newRole = roleSelect?.value;
+    const newRole = roleHiddenInput?.value;
     if (!newRole || !['acceptor', 'donor', 'reserve'].includes(newRole)) return;
 
     let successCount = 0;

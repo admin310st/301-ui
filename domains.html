@@ -188,7 +188,7 @@
           <div class="tabs">
             <div class="tabs__nav" role="tablist">
               <button class="tabs__trigger is-active" data-tab-trigger="overview" type="button" role="tab" aria-selected="true" data-i18n="domains.inspector.overview">Overview</button>
-              <button class="tabs__trigger" data-tab-trigger="dns" type="button" role="tab" aria-selected="false">DNS</button>
+              <button class="tabs__trigger" data-tab-trigger="dns" type="button" role="tab" aria-selected="false" data-i18n="domains.inspector.dns">DNS</button>
               <button class="tabs__trigger" data-tab-trigger="routing" type="button" role="tab" aria-selected="false" data-i18n="domains.inspector.routing">Routing</button>
             </div>
 
@@ -329,10 +329,17 @@
                 <span data-i18n="domains.dialogs.moveToProject.selectProject">Select project</span>
                 <span class="field__required">*</span>
               </label>
-              <select class="input" data-bulk-move-project-select required>
-                <option value="" disabled selected data-i18n="domains.dialogs.moveToProject.selectPlaceholder">Choose a project...</option>
-                <!-- Populated by JS -->
-              </select>
+              <div class="dropdown" data-bulk-move-project-dropdown>
+                <button class="btn-chip btn-chip--dropdown dropdown__trigger" type="button"
+                        aria-haspopup="menu" aria-expanded="false">
+                  <span data-bulk-move-project-label data-i18n="domains.dialogs.moveToProject.selectPlaceholder">Choose a project...</span>
+                  <span class="btn-chip__chevron icon" data-icon="mono/chevron-down"></span>
+                </button>
+                <div class="dropdown__menu dropdown__menu--fit-trigger" role="menu" data-bulk-move-project-options>
+                  <!-- Populated by JS -->
+                </div>
+              </div>
+              <input type="hidden" data-bulk-move-project-select />
               <p class="field__hint text-muted" data-i18n="domains.dialogs.moveToProject.hint">
                 Domains will be reassigned to the selected project
               </p>
@@ -439,12 +446,28 @@
           <div class="stack stack--md">
             <p>Change role for <strong data-bulk-role-count>0</strong> domain(s) to:</p>
             <div class="field">
-              <select class="input" data-bulk-role-select required>
-                <option value="" disabled selected data-i18n="domains.dialogs.bulkRole.selectPlaceholder">Choose a role...</option>
-                <option value="acceptor" data-i18n="domains.roles.acceptor">Acceptor</option>
-                <option value="donor" data-i18n="domains.roles.donor">Donor</option>
-                <option value="reserve" data-i18n="domains.roles.reserve">Reserve</option>
-              </select>
+              <div class="dropdown" data-bulk-role-dropdown>
+                <button class="btn-chip btn-chip--dropdown dropdown__trigger" type="button"
+                        aria-haspopup="menu" aria-expanded="false">
+                  <span data-bulk-role-label data-i18n="domains.dialogs.bulkRole.selectPlaceholder">Choose a role...</span>
+                  <span class="btn-chip__chevron icon" data-icon="mono/chevron-down"></span>
+                </button>
+                <div class="dropdown__menu dropdown__menu--fit-trigger" role="menu">
+                  <button class="dropdown__item" type="button" data-role-option="acceptor">
+                    <span class="icon" data-icon="mono/arrow-bottom-right"></span>
+                    <span data-i18n="domains.roles.acceptor">Acceptor</span>
+                  </button>
+                  <button class="dropdown__item" type="button" data-role-option="donor">
+                    <span class="icon" data-icon="mono/arrow-top-right"></span>
+                    <span data-i18n="domains.roles.donor">Donor</span>
+                  </button>
+                  <button class="dropdown__item" type="button" data-role-option="reserve">
+                    <span class="icon" data-icon="mono/cog-pause"></span>
+                    <span data-i18n="domains.roles.reserve">Reserve</span>
+                  </button>
+                </div>
+              </div>
+              <input type="hidden" data-bulk-role-select />
             </div>
           </div>
         </div>
