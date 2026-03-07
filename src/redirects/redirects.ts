@@ -1487,8 +1487,6 @@ async function handleClearSiteRedirects(siteId: number): Promise<void> {
     return;
   }
 
-  // TODO: Add dialog element `data-dialog="clear-site-redirects"` to redirects.html
-  // with data-clear-site-name, data-clear-site-count, and data-confirm-delete attributes
   const confirmed = await showConfirmDialog('clear-site-redirects', {
     'clear-site-name': site.site_name,
     'clear-site-count': donorDomains.length.toString(),

@@ -344,6 +344,29 @@
       </div>
     </div>
 
+    <!-- Confirmation Dialog: Clear Donor Redirects for a Site (danger variant) -->
+    <div class="dialog dialog--danger" data-dialog="clear-site-redirects" hidden>
+      <div class="dialog__overlay" data-dialog-close></div>
+      <div class="dialog__panel">
+        <header class="dialog__header">
+          <h2 class="dialog__title">Clear donor redirects?</h2>
+          <button class="btn-close" type="button" data-dialog-close aria-label="Close">
+            <span class="icon" data-icon="mono/close"></span>
+          </button>
+        </header>
+        <div class="dialog__body">
+          <p>This will delete <strong data-clear-site-count>0</strong> donor redirect(s) from <strong data-clear-site-name>site</strong>. This action cannot be undone.</p>
+        </div>
+        <footer class="dialog__footer">
+          <button class="btn btn--danger" type="button" data-confirm>
+            <span class="icon" data-icon="mono/delete"></span>
+            <span>Clear redirects</span>
+          </button>
+          <button class="btn btn--ghost" type="button" data-dialog-close>Cancel</button>
+        </footer>
+      </div>
+    </div>
+
 {{> manage-site-domains-drawer}}
 
 {{> add-domain-to-project-drawer}}

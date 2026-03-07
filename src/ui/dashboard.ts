@@ -71,14 +71,11 @@ function renderNextStepHint(stats: Record<string, number>): void {
   const container = document.querySelector<HTMLElement>('[data-next-step]');
   if (!container) return;
 
-  const overviewCards = document.querySelectorAll<HTMLElement>('[data-overview-card]');
   const firstEmpty = STEPS.find(s => (stats[s.key] ?? 0) === 0);
   if (!firstEmpty) {
     container.hidden = true;
-    overviewCards.forEach(el => { el.hidden = false; });
     return;
   }
-  overviewCards.forEach(el => { el.hidden = true; });
 
   const iconEl = container.querySelector<HTMLElement>('[data-next-step-icon]');
   const textEl = container.querySelector<HTMLElement>('[data-next-step-text]');
@@ -224,9 +221,8 @@ async function populateOverviewStats(): Promise<void> {
     let totalRedirects = 0;
     if (sites.length > 0) {
       const { getSiteRedirects } = await import('@api/redirects');
-      const sitesToFetch = sites.slice(0, 10);
       const results = await Promise.allSettled(
-        sitesToFetch.map(site =>
+        sites.map(site =>
           safeCall(
             () => getSiteRedirects(site.id),
             { lockKey: `redirects:site:${site.id}`, retryOn401: true },
