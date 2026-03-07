@@ -15,6 +15,7 @@ import {
 import { showGlobalNotice } from '@ui/globalNotice';
 import { drawerManager } from '@ui/drawer-manager';
 import { initDropdowns } from '@ui/dropdown';
+import { initTooltips } from '@ui/tooltip';
 import { renderPresetSelector, renderPresetParams, collectPresetValues } from './preset-renderer';
 import { getAvailableSites, getSelectedSiteIds } from './site-selector';
 import { t } from '@i18n';
@@ -410,13 +411,11 @@ function renderEditContent(rule: TdsRule): string | void {
     <div class="stack-list">
       <!-- Rule Configuration -->
       <section class="card card--panel">
-        <header class="card__header"><h3 class="h5">${t('streams.drawer.ruleConfig')}</h3></header>
+        <header class="card__header">
+          <h3 class="h5">${t('streams.drawer.ruleConfig')}</h3>
+          <span class="text-sm text-muted">${escapeAttr(rule.site_name || '')}</span>
+        </header>
         <div class="card__body stack">
-          <div class="field">
-            <label class="field__label">${t('streams.drawer.fields.site')}</label>
-            <span class="text-sm">${escapeAttr(rule.site_name || '')}</span>
-          </div>
-
           <div class="field">
             <label class="field__label">${t('streams.drawer.fields.ruleName')}</label>
             <input type="text" class="input" value="${escapeAttr(rule.rule_name)}" data-field="rule_name" />
@@ -504,7 +503,7 @@ function renderEditContent(rule: TdsRule): string | void {
             ${rule.preset_id ? `
               <div class="detail-row">
                 <dt class="detail-label">${t('streams.drawer.details.preset')}</dt>
-                <dd class="detail-value"><span class="badge badge--sm badge--neutral">${rule.preset_id}</span></dd>
+                <dd class="detail-value">${renderPresetBadgeWithTooltip(rule.preset_id)}</dd>
               </div>
             ` : ''}
             <div class="detail-row">
@@ -521,8 +520,9 @@ function renderEditContent(rule: TdsRule): string | void {
     </div>
   `;
 
-  // Setup MAB section toggle
+  // Setup MAB section toggle + tooltips for preset badge
   setupActionToggle();
+  initTooltips();
 }
 
 // =============================================================================
@@ -946,6 +946,19 @@ function setupDropdownSelection(container: HTMLElement): void {
 // =============================================================================
 // Utility
 // =============================================================================
+
+function renderPresetBadgeWithTooltip(presetId: string): string {
+  const { presets } = getState();
+  const preset = presets.find(p => p.id === presetId);
+
+  if (!preset) {
+    return `<span class="badge badge--sm badge--neutral">${escapeAttr(presetId)}</span>`;
+  }
+
+  const tooltipHtml = `<div class="tooltip"><div class="tooltip__header">${escapeAttr(preset.name)}</div><div class="tooltip__body">${escapeAttr(preset.description)}</div></div>`;
+
+  return `<span class="badge badge--sm badge--neutral" data-tooltip data-tooltip-content="${escapeAttr(tooltipHtml)}">${escapeAttr(presetId)}</span>`;
+}
 
 function hasAdvancedConditions(conditions: TdsRule['logic_json']['conditions']): boolean {
   return !!(
