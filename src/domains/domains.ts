@@ -760,30 +760,34 @@ function renderNsHint(
   label: string
 ): void {
   const panelClass = type === 'warning' ? 'panel--warning' : 'panel--info';
-  const nsText = expectedNs.join('\n');
+
+  const nsRows = expectedNs.map(ns => `
+    <div class="cluster" style="justify-content: space-between;">
+      <code class="text-sm">${ns}</code>
+      <button class="btn-icon btn-icon--ghost" type="button" data-copy-ns="${ns}" title="Copy ${ns}">
+        <span class="icon" data-icon="mono/copy"></span>
+      </button>
+    </div>
+  `).join('');
 
   container.innerHTML = `
     <div class="panel ${panelClass} stack stack--sm" style="margin-top: var(--space-3);">
       <span class="text-sm text-strong">${label}</span>
-      <div class="stack-list--xs">
-        ${expectedNs.map(ns => `<code class="text-sm">${ns}</code>`).join('')}
-      </div>
-      <button class="btn btn--sm btn--ghost" type="button" data-copy-ns title="Copy nameservers">
-        <span class="icon" data-icon="mono/copy"></span>
-        <span>Copy</span>
-      </button>
+      ${nsRows}
     </div>
   `;
   container.hidden = false;
 
-  const copyBtn = container.querySelector('[data-copy-ns]');
-  copyBtn?.addEventListener('click', () => {
-    void navigator.clipboard.writeText(nsText).then(() => {
-      const icon = copyBtn.querySelector('.icon');
-      if (icon) {
-        icon.classList.add('text-ok');
-        setTimeout(() => icon.classList.remove('text-ok'), 2000);
-      }
+  container.querySelectorAll<HTMLButtonElement>('[data-copy-ns]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const ns = btn.getAttribute('data-copy-ns') || '';
+      void navigator.clipboard.writeText(ns).then(() => {
+        const icon = btn.querySelector('.icon');
+        if (icon) {
+          icon.classList.add('text-ok');
+          setTimeout(() => icon.classList.remove('text-ok'), 2000);
+        }
+      });
     });
   });
 }
@@ -829,20 +833,17 @@ async function resolveIntegration(keyId: number, el: Element): Promise<void> {
     };
     const symbolId = `i-${providerIcons[key.provider] || 'mono-key'}`;
 
-    const accountHtml = accountName
-      ? `<span class="text-muted text-sm">${accountName}</span>`
+    const titleAttr = accountName
+      ? ` title="${accountName}"`
       : '';
 
     el.innerHTML = `
-      <a href="/integrations.html" class="link--muted" title="Go to Integrations">
-        <span class="cluster">
-          <span class="icon">
-            <svg aria-hidden="true"><use href="/icons-sprite.svg#${symbolId}"></use></svg>
-          </span>
-          ${key.key_alias}
+      <a href="/integrations.html" class="btn-chip btn-chip--sm"${titleAttr}>
+        <span class="icon">
+          <svg aria-hidden="true"><use href="/icons-sprite.svg#${symbolId}"></use></svg>
         </span>
+        ${key.key_alias}
       </a>
-      ${accountHtml}
     `.trim();
   } catch {
     el.textContent = `Key #${keyId}`;
