@@ -56,9 +56,9 @@ function renderRuleRow(rule: TdsRule): string {
         <span class="text-sm text-muted" title="${escapeHtml(conditionsSummary)}">${escapeHtml(conditionsSummary)}</span>
       </td>
       <td data-priority="high">
-        <div class="table-cell-stack">
-          <span class="text-sm">${actionLabel}</span>
-          ${actionUrl ? `<span class="text-sm text-muted" title="${escapeHtml(rule.logic_json.action_url || '')}">${escapeHtml(actionUrl)}</span>` : ''}
+        <div>
+          <div class="text-sm">${actionLabel}</div>
+          ${actionUrl ? `<div class="table-cell-main text-muted text-sm" title="${escapeHtml(rule.logic_json.action_url || '')}">${escapeHtml(actionUrl)}</div>` : ''}
         </div>
       </td>
       <td data-priority="medium">
