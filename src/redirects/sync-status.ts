@@ -4,6 +4,7 @@ import { applyZoneRedirects } from '@api/redirects';
 import { safeCall } from '@api/ui-client';
 import { getState, markZoneSynced, refreshRedirects } from './state';
 import { showGlobalNotice } from '@ui/globalNotice';
+import { t } from '@i18n';
 
 export interface SyncStats {
   synced: number;
@@ -263,7 +264,7 @@ async function handleSyncAll(): Promise<void> {
   }
 
   if (zoneIds.size === 0) {
-    showGlobalNotice('info', 'All redirects are already synced');
+    showGlobalNotice('info', t('redirects.messages.allSynced'));
     isSyncing = false;
     return;
   }
@@ -298,7 +299,7 @@ async function handleSyncAll(): Promise<void> {
       }, 2000);
     }
 
-    showGlobalNotice('success', `Synced ${zoneIds.size} zone(s): ${totalSynced} redirect(s) applied`);
+    showGlobalNotice('success', t('redirects.messages.syncedZones').replace('{{zones}}', String(zoneIds.size)).replace('{{details}}', `${totalSynced} applied`));
   } catch (error: any) {
     console.error('[Sync] Error:', error);
 
@@ -307,7 +308,7 @@ async function handleSyncAll(): Promise<void> {
       button.setAttribute('data-status', 'error');
     }
 
-    showGlobalNotice('error', error.message || 'Failed to sync to Cloudflare');
+    showGlobalNotice('error', error.message || t('redirects.errors.syncFailed'));
   } finally {
     isSyncing = false;
   }

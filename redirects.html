@@ -21,7 +21,7 @@
         <div class="page-shell utility-bar__inner">
           <div class="utility-left">
             <span class="badges">
-              <span class="badge badge--neutral">Redirects</span>
+              <span class="badge badge--neutral" data-i18n="redirects.title">Redirects</span>
             </span>
           </div>
 
@@ -39,8 +39,8 @@
         <!-- Page Header -->
         <header class="page-header">
           <div class="page-header__title">
-            <h1 class="h3">Redirects</h1>
-            <p class="page-header__subtitle">Configure 301/302 redirects for your domains</p>
+            <h1 class="h3" data-i18n="redirects.title">Redirects</h1>
+            <p class="page-header__subtitle" data-i18n="redirects.subtitle">Configure 301/302 redirects for your domains</p>
           </div>
           <div class="page-header__actions">
             <!-- Sync Status Primary Button with Dropdown -->
@@ -64,12 +64,12 @@
               <div class="dropdown__menu" role="menu">
                 <button class="dropdown__item dropdown__item--cf" type="button" data-action="sync-all" role="menuitem">
                   <span class="icon" data-icon="brand/cloudflare"></span>
-                  <span>Sync All</span>
+                  <span data-i18n="redirects.actions.syncAll">Sync All</span>
                 </button>
                 <div class="dropdown__divider"></div>
                 <button class="dropdown__item dropdown__item--danger" type="button" data-action="cancel-sync" role="menuitem">
                   <span class="icon" data-icon="mono/close"></span>
-                  <span>Cancel sync</span>
+                  <span data-i18n="redirects.actions.cancelSync">Cancel sync</span>
                 </button>
               </div>
             </div>
@@ -88,6 +88,7 @@
                     type="text"
                     class="table-search__input"
                     placeholder="Search domain or target..."
+                    data-i18n-placeholder="redirects.search.placeholder"
                     data-search-input
                   />
                   <button class="table-search__clear" type="button" aria-label="Clear" data-search-clear>
@@ -115,7 +116,7 @@
                     <span class="btn-chip__chevron" data-icon="mono/chevron-down"></span>
                   </button>
                   <div class="dropdown__menu" role="menu" data-project-options>
-                    <div class="dropdown__item text-muted">Loading...</div>
+                    <div class="dropdown__item text-muted" data-i18n="common.loading">Loading...</div>
                   </div>
                 </div>
 
@@ -132,7 +133,7 @@
                     <span class="btn-chip__chevron" data-icon="mono/chevron-down"></span>
                   </button>
                   <div class="dropdown__menu" role="menu" data-site-options>
-                    <div class="dropdown__item text-muted">Select project first</div>
+                    <div class="dropdown__item text-muted" data-i18n="redirects.selectors.selectProjectFirst">Select project first</div>
                   </div>
                 </div>
 
@@ -146,7 +147,7 @@
             <!-- Loading State -->
             <div class="loading-state" data-loading-state hidden>
               <div class="spinner"></div>
-              <p class="text-muted">Loading redirect rules...</p>
+              <p class="text-muted" data-i18n="redirects.loading">Loading redirect rules...</p>
             </div>
 
             <!-- Empty State (content rendered dynamically by redirects.ts based on context) -->
@@ -154,8 +155,8 @@
 
             <!-- Error State -->
             <div class="alert alert--danger" data-error-state hidden>
-              <p>Failed to load redirect rules. Please retry or check your connection.</p>
-              <button class="btn btn--sm btn--ghost" type="button" data-action="retry">Retry</button>
+              <p data-i18n="redirects.loadFailed">Failed to load redirect rules. Please retry or check your connection.</p>
+              <button class="btn btn--sm btn--ghost" type="button" data-action="retry" data-i18n="redirects.actions.retry">Retry</button>
             </div>
 
             <!-- Redirects Table -->
@@ -199,24 +200,24 @@
               <div class="bulk-actions-bar__actions">
                 <button class="btn btn--sm btn--primary" type="button" data-action="bulk-enable">
                   <span class="icon" data-icon="mono/play"></span>
-                  <span>Enable</span>
+                  <span data-i18n="redirects.actions.enable">Enable</span>
                 </button>
                 <button class="btn btn--sm btn--ghost" type="button" data-action="bulk-disable">
                   <span class="icon" data-icon="mono/pause"></span>
-                  <span>Disable</span>
+                  <span data-i18n="redirects.actions.disable">Disable</span>
                 </button>
                 <button class="btn btn--sm btn--danger" type="button" data-action="bulk-delete">
                   <span class="icon" data-icon="mono/delete"></span>
-                  <span>Delete</span>
+                  <span data-i18n="redirects.actions.delete">Delete</span>
                 </button>
               </div>
               <div class="bulk-actions-bar__info">
                 <button class="btn btn--sm btn--cf" type="button" data-action="bulk-sync">
                   <span class="icon" data-icon="brand/cloudflare"></span>
-                  <span>Sync to Cloudflare</span>
+                  <span data-i18n="redirects.actions.syncToCloudflare">Sync to Cloudflare</span>
                 </button>
                 <button class="btn btn--ghost btn--sm" type="button" data-action="clear-selection">
-                  <span>Cancel</span>
+                  <span data-i18n="common.cancel">Cancel</span>
                   <span data-selected-count>(0)</span>
                 </button>
               </div>
@@ -303,7 +304,7 @@
       <div class="dialog__overlay" data-dialog-close></div>
       <div class="dialog__panel">
         <header class="dialog__header">
-          <h2 class="dialog__title">Delete redirect?</h2>
+          <h2 class="dialog__title" data-i18n="redirects.dialogs.deleteRedirect.title">Delete redirect?</h2>
           <button class="btn-close" type="button" data-dialog-close aria-label="Close">
             <span class="icon" data-icon="mono/close"></span>
           </button>
@@ -314,9 +315,9 @@
         <footer class="dialog__footer">
           <button class="btn btn--danger" type="button" data-confirm>
             <span class="icon" data-icon="mono/delete"></span>
-            <span>Delete redirect</span>
+            <span data-i18n="redirects.actions.deleteRedirect">Delete redirect</span>
           </button>
-          <button class="btn btn--ghost" type="button" data-dialog-close>Cancel</button>
+          <button class="btn btn--ghost" type="button" data-dialog-close data-i18n="common.cancel">Cancel</button>
         </footer>
       </div>
     </div>
@@ -326,7 +327,7 @@
       <div class="dialog__overlay" data-dialog-close></div>
       <div class="dialog__panel">
         <header class="dialog__header">
-          <h2 class="dialog__title">Delete selected redirects?</h2>
+          <h2 class="dialog__title" data-i18n="redirects.dialogs.bulkDelete.title">Delete selected redirects?</h2>
           <button class="btn-close" type="button" data-dialog-close aria-label="Close">
             <span class="icon" data-icon="mono/close"></span>
           </button>
@@ -337,9 +338,9 @@
         <footer class="dialog__footer">
           <button class="btn btn--danger" type="button" data-confirm>
             <span class="icon" data-icon="mono/delete"></span>
-            <span>Delete redirects</span>
+            <span data-i18n="redirects.actions.deleteRedirect">Delete redirects</span>
           </button>
-          <button class="btn btn--ghost" type="button" data-dialog-close>Cancel</button>
+          <button class="btn btn--ghost" type="button" data-dialog-close data-i18n="common.cancel">Cancel</button>
         </footer>
       </div>
     </div>
@@ -349,7 +350,7 @@
       <div class="dialog__overlay" data-dialog-close></div>
       <div class="dialog__panel">
         <header class="dialog__header">
-          <h2 class="dialog__title">Clear donor redirects?</h2>
+          <h2 class="dialog__title" data-i18n="redirects.dialogs.clearDonor.title">Clear donor redirects?</h2>
           <button class="btn-close" type="button" data-dialog-close aria-label="Close">
             <span class="icon" data-icon="mono/close"></span>
           </button>
@@ -360,9 +361,9 @@
         <footer class="dialog__footer">
           <button class="btn btn--danger" type="button" data-confirm>
             <span class="icon" data-icon="mono/delete"></span>
-            <span>Clear redirects</span>
+            <span data-i18n="redirects.actions.clearRedirects">Clear redirects</span>
           </button>
-          <button class="btn btn--ghost" type="button" data-dialog-close>Cancel</button>
+          <button class="btn btn--ghost" type="button" data-dialog-close data-i18n="common.cancel">Cancel</button>
         </footer>
       </div>
     </div>

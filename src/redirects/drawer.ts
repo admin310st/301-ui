@@ -30,6 +30,7 @@ import {
 import { showGlobalNotice } from '@ui/globalNotice';
 import { openManageSiteDomainsDrawer } from '@domains/site-domains';
 import { drawerManager } from '@ui/drawer-manager';
+import { t } from '@i18n';
 
 /** Donor template definitions — drives the template dropdown and dynamic fields */
 const DONOR_TEMPLATES = [
@@ -541,7 +542,7 @@ async function handleSave(domain: ExtendedRedirectDomain): Promise<void> {
 
   // Validate all fields are filled
   if (!validateFieldParams(params)) {
-    showGlobalNotice('error', 'Fill in all fields');
+    showGlobalNotice('error', t('redirects.errors.fillAllFields'));
     return;
   }
 
@@ -576,7 +577,7 @@ async function handleSave(domain: ExtendedRedirectDomain): Promise<void> {
         sync_status: 'pending',
       });
 
-      showGlobalNotice('success', 'Redirect saved');
+      showGlobalNotice('success', t('redirects.messages.saved'));
     } else {
       // Create new redirect — read template_id from dropdown
       const templateTrigger = drawerElement.querySelector('[data-drawer-dropdown="template_id"]');
@@ -594,14 +595,14 @@ async function handleSave(domain: ExtendedRedirectDomain): Promise<void> {
         sync_status: 'pending' as const,
       }, 'donor');
 
-      showGlobalNotice('success', 'Redirect created');
+      showGlobalNotice('success', t('redirects.messages.created'));
     }
 
     // Update sync status display and button states
     updateSyncStatusDisplay('pending');
     updateSyncButtonState(currentDomain || undefined);
   } catch (error: any) {
-    showGlobalNotice('error', error.message || 'Failed to save redirect');
+    showGlobalNotice('error', error.message || t('redirects.errors.saveFailed'));
   } finally {
     if (saveBtn) {
       saveBtn.disabled = false;
@@ -753,7 +754,7 @@ async function handleSaveSite(): Promise<void> {
   const siteIdInput = form.querySelector('[name="site_id"]') as HTMLInputElement;
   const siteId = siteIdInput ? parseInt(siteIdInput.value, 10) : 0;
   if (!siteId) {
-    showGlobalNotice('error', 'No site ID found');
+    showGlobalNotice('error', t('redirects.errors.noSiteId'));
     return;
   }
 
@@ -762,7 +763,7 @@ async function handleSaveSite(): Promise<void> {
   const status = (form.querySelector('[data-status-value]') as HTMLInputElement)?.value || 'active';
 
   if (!siteName) {
-    showGlobalNotice('error', 'Site name is required');
+    showGlobalNotice('error', t('redirects.errors.siteNameRequired'));
     return;
   }
 
@@ -792,10 +793,10 @@ async function handleSaveSite(): Promise<void> {
       siteStatus: status as 'active' | 'paused' | 'archived',
     });
 
-    showGlobalNotice('success', 'Site updated');
+    showGlobalNotice('success', t('redirects.messages.siteUpdated'));
     closeDrawer();
   } catch (error: any) {
-    showGlobalNotice('error', error.message || 'Failed to update site');
+    showGlobalNotice('error', error.message || t('redirects.errors.updateSiteFailed'));
   } finally {
     if (saveBtn) {
       saveBtn.disabled = false;
@@ -1108,7 +1109,7 @@ function setupCanonicalCardHandlers(domain: ExtendedRedirectDomain): void {
         }), { lockKey: `redirect:create:${domain.domain_id}:canonical`, retryOn401: true });
 
         addCanonicalToDomain(domain.domain_id, response.redirect);
-        showGlobalNotice('success', `Applied "${templateName}" to ${domain.domain_name}`);
+        showGlobalNotice('success', t('redirects.messages.appliedTemplate').replace('{{template}}', templateName).replace('{{domain}}', domain.domain_name));
 
         if (currentDomain) {
           currentDomain = {
@@ -1122,7 +1123,7 @@ function setupCanonicalCardHandlers(domain: ExtendedRedirectDomain): void {
           updateSyncButtonState(currentDomain);
         }
       } catch (error: any) {
-        showGlobalNotice('error', error.message || `Failed to apply "${templateName}"`);
+        showGlobalNotice('error', error.message || t('redirects.errors.applyTemplateFailed').replace('{{template}}', templateName));
         applyBtn.disabled = false;
       }
     });
@@ -1146,7 +1147,7 @@ function setupCanonicalCardHandlers(domain: ExtendedRedirectDomain): void {
       try {
         await safeCall(() => deleteRedirect(redirectId), { lockKey: `redirect:delete:${redirectId}`, retryOn401: true });
         removeCanonicalFromDomain(domainId);
-        showGlobalNotice('success', 'Canonical redirect removed');
+        showGlobalNotice('success', t('redirects.messages.canonicalRemoved'));
 
         // Sync zone to remove rule from Cloudflare
         const state = getState();
@@ -1172,7 +1173,7 @@ function setupCanonicalCardHandlers(domain: ExtendedRedirectDomain): void {
           updateSyncButtonState(currentDomain);
         }
       } catch (error: any) {
-        showGlobalNotice('error', error.message || 'Failed to delete redirect');
+        showGlobalNotice('error', error.message || t('redirects.errors.deleteFailed'));
         deleteBtn.disabled = false;
       }
     });
@@ -1492,7 +1493,7 @@ async function handleSync(domain: ExtendedRedirectDomain): Promise<void> {
   const params = collectFieldParams();
 
   if (!validateFieldParams(params)) {
-    showGlobalNotice('error', 'Fill in all fields');
+    showGlobalNotice('error', t('redirects.errors.fillAllFields'));
     return;
   }
 
@@ -1504,7 +1505,7 @@ async function handleSync(domain: ExtendedRedirectDomain): Promise<void> {
 
   // Get zone_id
   if (!domain.zone_id) {
-    showGlobalNotice('error', 'Domain is not associated with a Cloudflare zone');
+    showGlobalNotice('error', t('redirects.errors.notInCloudflareZone'));
     return;
   }
 
@@ -1561,7 +1562,7 @@ async function handleSync(domain: ExtendedRedirectDomain): Promise<void> {
     const syncedIds = response.synced_rules?.map(r => r.id) || [];
     markZoneSynced(domain.zone_id!, syncedIds);
 
-    showGlobalNotice('success', `Synced ${response.rules_applied || 1} redirect(s) to Cloudflare`);
+    showGlobalNotice('success', t('redirects.messages.syncedCount').replace('{{count}}', String(response.rules_applied || 1)));
 
     // Remove shimmer
     if (syncBtn) syncBtn.removeAttribute('data-turnstile-pending');
@@ -1579,7 +1580,7 @@ async function handleSync(domain: ExtendedRedirectDomain): Promise<void> {
       updateDomainRedirect(domain.domain_id, { sync_status: 'error' });
     }
 
-    showGlobalNotice('error', error.message || 'Failed to sync to Cloudflare');
+    showGlobalNotice('error', error.message || t('redirects.errors.syncFailed'));
 
     // Remove shimmer and update button state
     if (syncBtn) {
@@ -1617,7 +1618,7 @@ async function handleDelete(domain: ExtendedRedirectDomain): Promise<void> {
     // Remove from local state
     removeRedirectFromDomain(domain.domain_id);
 
-    showGlobalNotice('success', 'Redirect deleted');
+    showGlobalNotice('success', t('redirects.messages.deleted'));
 
     // Step 2: If zone exists, sync to remove from CF
     if (domain.zone_id) {
@@ -1634,7 +1635,7 @@ async function handleDelete(domain: ExtendedRedirectDomain): Promise<void> {
     closeDrawer();
   } catch (error: any) {
     console.error('[handleDelete] Error:', error);
-    showGlobalNotice('error', error.message || 'Failed to delete redirect');
+    showGlobalNotice('error', error.message || t('redirects.errors.deleteFailed'));
 
     // Reset delete button
     if (deleteBtn) {

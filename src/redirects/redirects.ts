@@ -38,6 +38,7 @@ import {
 import { safeCall } from '@api/ui-client';
 import { showGlobalNotice } from '@ui/globalNotice';
 import { setPendingTdsSiteId } from '@state/ui-preferences';
+import { t } from '@i18n';
 
 let currentRedirects: ExtendedRedirectDomain[] = [];
 let filteredRedirects: ExtendedRedirectDomain[] = [];
@@ -173,12 +174,12 @@ function renderEmptyContent(reason: EmptyReason): string {
       return `
         <div class="stack-md">
           <span class="icon icon--lg text-muted" data-icon="mono/project"></span>
-          <h3 class="h4">No projects yet</h3>
-          <p class="text-muted">Create a project to organize your domains and set up redirects.</p>
+          <h3 class="h4">${t('redirects.empty.noProjects.title')}</h3>
+          <p class="text-muted">${t('redirects.empty.noProjects.description')}</p>
           <div class="card__actions">
             <a class="btn btn--primary" href="/projects.html">
               <span class="icon" data-icon="mono/plus"></span>
-              <span>Create project</span>
+              <span>${t('redirects.actions.createProject')}</span>
             </a>
           </div>
         </div>`;
@@ -186,12 +187,12 @@ function renderEmptyContent(reason: EmptyReason): string {
       return `
         <div class="stack-md">
           <span class="icon icon--lg text-muted" data-icon="mono/landing"></span>
-          <h3 class="h4">No sites in this project</h3>
-          <p class="text-muted">Create a site to attach domains and configure redirects.</p>
+          <h3 class="h4">${t('redirects.empty.noSites.title')}</h3>
+          <p class="text-muted">${t('redirects.empty.noSites.description')}</p>
           <div class="card__actions">
             <a class="btn btn--primary" href="/sites.html">
               <span class="icon" data-icon="mono/plus"></span>
-              <span>Create site</span>
+              <span>${t('redirects.actions.createSite')}</span>
             </a>
           </div>
         </div>`;
@@ -199,18 +200,15 @@ function renderEmptyContent(reason: EmptyReason): string {
       return `
         <div class="stack-md">
           <span class="icon icon--lg text-muted" data-icon="mono/filter"></span>
-          <h3 class="h4">Select a site</h3>
-          <p class="text-muted">Choose a site from the filters above to view and manage its redirects.</p>
+          <h3 class="h4">${t('redirects.empty.noSelection.title')}</h3>
+          <p class="text-muted">${t('redirects.empty.noSelection.description')}</p>
         </div>`;
     case 'no-domains':
       return `
         <div class="stack-md">
           <span class="icon icon--lg text-muted" data-icon="mono/arrow-top-right"></span>
-          <h3 class="h4">No redirects configured</h3>
-          <p class="text-muted">
-            Set up simple 301/302 redirects for your domains.<br>
-            Useful for blocked domains, migrations, or consolidation.
-          </p>
+          <h3 class="h4">${t('redirects.empty.noDomains.title')}</h3>
+          <p class="text-muted">${t('redirects.empty.noDomains.description')}</p>
         </div>`;
   }
 }
@@ -1411,11 +1409,11 @@ function setupBulkActions(): void {
         toDelete.map(({ redirectId }) => safeCall(() => deleteRedirect(redirectId), { lockKey: `redirect:delete:${redirectId}`, retryOn401: true }))
       );
 
-      showGlobalNotice('success', `Deleted ${toDelete.length} redirect(s)`);
+      showGlobalNotice('success', t('redirects.messages.deletedCount').replace('{{count}}', String(toDelete.length)));
     } catch (error: any) {
       // On error, refresh to restore state
       await refreshRedirects();
-      showGlobalNotice('error', error.message || 'Failed to delete redirects');
+      showGlobalNotice('error', error.message || t('redirects.errors.deleteFailed'));
     }
   });
 
@@ -1483,7 +1481,7 @@ async function handleClearSiteRedirects(siteId: number): Promise<void> {
   const donorDomains = siteDomains.filter(d => d.redirect !== null && !primaryDomains.has(d.domain_name));
 
   if (donorDomains.length === 0) {
-    showGlobalNotice('info', 'No redirects to clear for this site');
+    showGlobalNotice('info', t('redirects.messages.noRedirectsToClear'));
     return;
   }
 
@@ -1502,10 +1500,10 @@ async function handleClearSiteRedirects(siteId: number): Promise<void> {
       cleared++;
     }
 
-    showGlobalNotice('success', `Cleared ${cleared} redirect(s) from ${site.site_name}`);
+    showGlobalNotice('success', t('redirects.messages.clearedCount').replace('{{count}}', String(cleared)).replace('{{site}}', site.site_name));
   } catch (error: any) {
     // Some may have been cleared before the error
-    showGlobalNotice('error', error.message || 'Failed to clear redirects');
+    showGlobalNotice('error', error.message || t('redirects.errors.clearFailed'));
     // Refresh to get actual state
     await refreshRedirects();
   }
@@ -1527,12 +1525,12 @@ async function handleEnable(domainId: number): Promise<void> {
 
     // API call
     await safeCall(() => updateRedirect(redirectId, { enabled: true }), { lockKey: `redirect:update:${redirectId}`, retryOn401: true });
-    showGlobalNotice('success', `Enabled redirect for ${domain.domain_name}`);
+    showGlobalNotice('success', t('redirects.messages.enabledRedirect').replace('{{domain}}', domain.domain_name));
   } catch (error: any) {
     // Rollback optimistic update
     updateDomainRedirect(domainId, { enabled: false });
     renderTable();
-    showGlobalNotice('error', error.message || 'Failed to enable redirect');
+    showGlobalNotice('error', error.message || t('redirects.errors.enableFailed'));
   }
 }
 
@@ -1552,12 +1550,12 @@ async function handleDisable(domainId: number): Promise<void> {
 
     // API call
     await safeCall(() => updateRedirect(redirectId, { enabled: false }), { lockKey: `redirect:update:${redirectId}`, retryOn401: true });
-    showGlobalNotice('success', `Disabled redirect for ${domain.domain_name}`);
+    showGlobalNotice('success', t('redirects.messages.disabledRedirect').replace('{{domain}}', domain.domain_name));
   } catch (error: any) {
     // Rollback optimistic update
     updateDomainRedirect(domainId, { enabled: true });
     renderTable();
-    showGlobalNotice('error', error.message || 'Failed to disable redirect');
+    showGlobalNotice('error', error.message || t('redirects.errors.disableFailed'));
   }
 }
 
@@ -1575,7 +1573,7 @@ async function handleRetrySync(domainId: number): Promise<void> {
 async function handleSyncNow(domainId: number): Promise<void> {
   const domain = currentRedirects.find(r => r.domain_id === domainId);
   if (!domain?.zone_id) {
-    showGlobalNotice('error', 'Domain is not associated with a Cloudflare zone');
+    showGlobalNotice('error', t('redirects.errors.notInCloudflareZone'));
     return;
   }
 
@@ -1592,12 +1590,12 @@ async function handleSyncNow(domainId: number): Promise<void> {
     markZoneSynced(domain.zone_id, syncedIds);
     renderTable();
 
-    showGlobalNotice('success', `Synced ${response.rules_applied || 1} redirect(s) to Cloudflare`);
+    showGlobalNotice('success', t('redirects.messages.syncedCount').replace('{{count}}', String(response.rules_applied || 1)));
   } catch (error: any) {
     // Mark as error
     updateDomainRedirect(domainId, { sync_status: 'error' });
     renderTable();
-    showGlobalNotice('error', error.message || 'Failed to sync to Cloudflare');
+    showGlobalNotice('error', error.message || t('redirects.errors.syncFailed'));
   }
 }
 
@@ -1658,11 +1656,11 @@ async function confirmDeleteRedirect(): Promise<void> {
       }
     }
 
-    showGlobalNotice('success', `Deleted redirect for ${domain.domain_name}`);
+    showGlobalNotice('success', t('redirects.messages.deleted'));
   } catch (error: any) {
     // On error, refresh to restore state
     await refreshRedirects();
-    showGlobalNotice('error', error.message || 'Failed to delete redirect');
+    showGlobalNotice('error', error.message || t('redirects.errors.deleteFailed'));
   }
 }
 
@@ -1683,11 +1681,11 @@ async function handleClearPrimaryRedirect(domainId: number): Promise<void> {
 
     // API call
     await safeCall(() => deleteRedirect(redirectId), { lockKey: `redirect:delete:${redirectId}`, retryOn401: true });
-    showGlobalNotice('success', `Cleared redirect from primary domain ${domain.domain_name}`);
+    showGlobalNotice('success', t('redirects.messages.clearedPrimaryRedirect').replace('{{domain}}', domain.domain_name));
   } catch (error: any) {
     // On error, refresh to restore state
     await refreshRedirects();
-    showGlobalNotice('error', error.message || 'Failed to clear redirect');
+    showGlobalNotice('error', error.message || t('redirects.errors.clearFailed'));
   }
 }
 
@@ -1805,7 +1803,7 @@ async function handleBulkSync(): Promise<void> {
   }
 
   if (zoneIds.size === 0) {
-    showGlobalNotice('error', 'Selected domains are not associated with Cloudflare zones');
+    showGlobalNotice('error', t('redirects.errors.noZonesSelected'));
     return;
   }
 
@@ -1835,12 +1833,12 @@ async function handleBulkSync(): Promise<void> {
     if (disabledDomainIds.length > 0) {
       parts.push(`${disabledDomainIds.length} removed`);
     }
-    showGlobalNotice('success', `Synced ${zoneIds.size} zone(s): ${parts.join(', ')}`);
+    showGlobalNotice('success', t('redirects.messages.syncedZones').replace('{{zones}}', String(zoneIds.size)).replace('{{details}}', parts.join(', ')));
     handleClearSelection();
   } catch (error: any) {
     // On error, refresh to get actual state
     await refreshRedirects();
-    showGlobalNotice('error', error.message || 'Failed to sync to Cloudflare');
+    showGlobalNotice('error', error.message || t('redirects.errors.syncFailed'));
   }
 }
 
@@ -1863,7 +1861,7 @@ async function handleBulkEnable(): Promise<void> {
   }
 
   if (redirectIds.length === 0) {
-    showGlobalNotice('info', 'All selected redirects are already enabled');
+    showGlobalNotice('info', t('redirects.messages.allAlreadyEnabled'));
     return;
   }
 
@@ -1877,13 +1875,13 @@ async function handleBulkEnable(): Promise<void> {
       redirectIds.map(id => safeCall(() => updateRedirect(id, { enabled: true }), { lockKey: `redirect:update:${id}`, retryOn401: true }))
     );
 
-    showGlobalNotice('success', `Enabled ${redirectIds.length} redirect(s)`);
+    showGlobalNotice('success', t('redirects.messages.enabledCount').replace('{{count}}', String(redirectIds.length)));
     handleClearSelection();
   } catch (error: any) {
     // Rollback
     bulkUpdateEnabled(domainIds, false);
     renderTable();
-    showGlobalNotice('error', error.message || 'Failed to enable redirects');
+    showGlobalNotice('error', error.message || t('redirects.errors.enableFailed'));
   }
 }
 
@@ -1906,7 +1904,7 @@ async function handleBulkDisable(): Promise<void> {
   }
 
   if (redirectIds.length === 0) {
-    showGlobalNotice('info', 'All selected redirects are already disabled');
+    showGlobalNotice('info', t('redirects.messages.allAlreadyDisabled'));
     return;
   }
 
@@ -1920,13 +1918,13 @@ async function handleBulkDisable(): Promise<void> {
       redirectIds.map(id => safeCall(() => updateRedirect(id, { enabled: false }), { lockKey: `redirect:update:${id}`, retryOn401: true }))
     );
 
-    showGlobalNotice('success', `Disabled ${redirectIds.length} redirect(s)`);
+    showGlobalNotice('success', t('redirects.messages.disabledCount').replace('{{count}}', String(redirectIds.length)));
     handleClearSelection();
   } catch (error: any) {
     // Rollback
     bulkUpdateEnabled(domainIds, true);
     renderTable();
-    showGlobalNotice('error', error.message || 'Failed to disable redirects');
+    showGlobalNotice('error', error.message || t('redirects.errors.disableFailed'));
   }
 }
 
