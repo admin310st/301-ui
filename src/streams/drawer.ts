@@ -424,6 +424,7 @@ function renderEditContent(rule: TdsRule): string | void {
           <div class="cluster">
             ${renderDropdown('tds_type', typeOptions(), rule.tds_type)}
             ${renderDropdown('status', ruleStatusOptions(), rule.status)}
+            <input type="number" class="input" value="${rule.priority}" min="1" max="9999" data-field="priority" style="width: 5em; text-align: center;" title="${t('streams.drawer.fields.priority')}" />
           </div>
 
           <!-- Conditions -->
@@ -483,10 +484,6 @@ function renderEditContent(rule: TdsRule): string | void {
             </div>
           </fieldset>
 
-          <div class="field">
-            <label class="field__label">${t('streams.drawer.fields.priority')}</label>
-            <input type="number" class="input" value="${rule.priority}" min="1" max="9999" data-field="priority" />
-          </div>
         </div>
       </section>
 
